@@ -4684,7 +4684,18 @@ var ajax = new cAjaxCalls();
 								callback(null, []);
 								return;
 							}
-							
+
+							// A parameterized (non-context) field like closed: in `closed:(since:... until:...)` lives
+							// in the cache as a value list, so the resolver walks PAST it but never switches context —
+							// leaving `expand` non-empty against the ROOT context. Fetching that returns the root field
+							// list under '', which the merge below would cache under expand_prefix, clobbering the
+							// field's real suggestions (so closed: then autocompletes every top-level field). Nothing
+							// real to fetch for such a sub-key, so bail without touching the cache.
+							if('' !== expand && expand_context === (autocomplete_suggestions._contexts[''] || '')) {
+								callback(null, []);
+								return;
+							}
+
 							// [TODO] localStorage cache?
 							genericAjaxGet('', 'c=ui&a=querySuggestions&context=' + encodeURIComponent(expand_context) + '&expand=' + encodeURIComponent(expand), function(json) {
 								if('object' != typeof json) {

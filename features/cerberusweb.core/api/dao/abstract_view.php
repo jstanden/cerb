@@ -2348,8 +2348,20 @@ abstract class C4_AbstractView {
 						],
 						[
 							'caption' => '(advanced)',
-							'snippet' => '(since:"${1:-1 week}" until:"${2:now}" days:[${3:Weekdays}] hours:${4:9a-5p})'
+							'snippet' => '(since:"${1:-1 week}" until:"${2:now}" days:[${3:Weekdays}] time:${4:9a-5p})'
 						],
+					];
+
+					// Sub-keys offered inside the parameterized `(...)` group (reached via the `field:()` scope
+					// key in group-key position). These are only valid within the parens, never flat.
+					$suggestions[$suggestion_key . '()'] = [
+						['caption' => 'since:',  'snippet' => 'since:"${1:-1 week}"'],
+						['caption' => 'until:',  'snippet' => 'until:"${1:now}"'],
+						['caption' => 'days:',   'snippet' => 'days:[${1:Weekdays}]'],
+						['caption' => 'dom:',    'snippet' => 'dom:[${1:1}]'],
+						['caption' => 'weeks:',  'snippet' => 'weeks:[${1:1}]'],
+						['caption' => 'months:', 'snippet' => 'months:[${1:1}]'],
+						['caption' => 'time:',   'snippet' => 'time:${1:9a-5p}'],
 					];
 					break;
 					
