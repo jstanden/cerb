@@ -76,6 +76,7 @@ class _DevblocksUiManager {
 			'chart-line',
 			'chart-scatterplot',
 			'check',
+			'checked',
 			'chevron-down',
 			'chevron-left',
 			'chevron-right',

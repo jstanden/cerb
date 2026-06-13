@@ -2543,7 +2543,7 @@ CerbUI.Dialog.fromAjax('c=profiles&amp;a=invoke&amp;module=snippet&amp;action=he
 	</div>
 
 	<div class="cerb-uiref-component" id="uiref-c-confirm">
-		<div class="cerb-uiref-component--label"><span class="cerb-icons cerb-icon-check"></span>Confirm</div>
+		<div class="cerb-uiref-component--label"><span class="cerb-icons cerb-icon-checked"></span>Confirm</div>
 
 		{* CerbUI.Confirm — a forced-modal confirmation (the confirmPopup replacement) *}
 		<div class="cerb-ui-header">

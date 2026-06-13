@@ -7,7 +7,7 @@
 	{$url = $dict->$k|replace:'http://':''|replace:'https://':''|replace:'www.':''|trim:'/'}
 	<a href="{$dict->$k}" target="_blank" rel="noopener noreferrer">{$url|truncate:45}</a>
 {elseif $types.$k == Model_CustomField::TYPE_CHECKBOX}
-	{if $dict->$k}<span class="cerb-icons cerb-icon-check"></span>{else}<span class="cerb-icons cerb-icon-unchecked"></span>{/if}
+	{if $dict->$k}<span class="cerb-icons cerb-icon-checked"></span>{else}<span class="cerb-icons cerb-icon-unchecked"></span>{/if}
 {elseif $types.$k == Model_CustomField::TYPE_DATE}
 	<abbr title="{$dict->$k|devblocks_date}">{$dict->$k|devblocks_prettytime}</abbr>
 {elseif $types.$k == Model_CustomField::TYPE_CURRENCY}

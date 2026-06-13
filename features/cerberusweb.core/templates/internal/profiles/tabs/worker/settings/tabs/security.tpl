@@ -65,7 +65,7 @@
 	{/if}
 	{else}
 	<p>
-		<b style="font-size:120%;"><span class="cerb-icons cerb-icon-check"></span> {'common.required'|devblocks_translate|capitalize}</b>
+		<b style="font-size:120%;"><span class="cerb-icons cerb-icon-checked"></span> {'common.required'|devblocks_translate|capitalize}</b>
 	</p>
 	{/if}
 </fieldset>

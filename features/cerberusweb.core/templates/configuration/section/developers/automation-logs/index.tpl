@@ -2,7 +2,7 @@
 
 <div style="margin-bottom:25px;">
     <div class="cerb-code-editor-toolbar">
-        <button type="button" data-cerb-button-check-all><span class="cerb-icons cerb-icon-check"></span></button>
+        <button type="button" data-cerb-button-check-all><span class="cerb-icons cerb-icon-checked"></span></button>
         <button type="button" data-cerb-button-refresh><span class="cerb-icons cerb-icon-refresh"></span></button>
         <button type="button" data-cerb-button-delete><span class="cerb-icons cerb-icon-trash"></span></button>
         <input type="text" data-cerb-input-search placeholder="{{"common.search"|devblocks_translate|lower}}..." maxlength="45">
