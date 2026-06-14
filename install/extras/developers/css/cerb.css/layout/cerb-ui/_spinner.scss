@@ -29,3 +29,63 @@ svg.cerb-ui-spinner {
 	50%, 75% { stroke-dashoffset: 75; transform: rotate(45deg); }
 	100% { stroke-dashoffset: 280; transform: rotate(360deg); }
 }
+
+// Arc — a fixed arc spinning continuously (reuses the base rotate, just faster; no dash pulse).
+svg.cerb-ui-spinner--arc {
+	animation-duration: 1.5s;   // a touch quicker than the base ring's 2s
+}
+svg.cerb-ui-spinner--arc circle {
+	animation: none;
+	stroke-dasharray: 90 283;   // circumference ≈ 283 (2π·45); show ~115°, hide the rest
+	stroke-dashoffset: 0;
+}
+
+// Dots — a typing-style indicator: three dots pulse left→right (own animation; no rotate/dash).
+svg.cerb-ui-spinner--dots {
+	width: 40px;
+	animation: none;   // no rotation; the dots carry the motion
+
+	circle {
+		animation: 1.4s ease-in-out infinite both cerb-ui-spinner-dots;
+		fill: var(--cerb-color-background-contrast-50);
+		stroke: none;
+		transform-box: fill-box;   // scale around each dot's own center
+		transform-origin: center;
+	}
+	circle:nth-child(2) { animation-delay: 0.2s; }
+	circle:nth-child(3) { animation-delay: 0.4s; }
+}
+
+@keyframes cerb-ui-spinner-dots {
+	0%, 100% { opacity: 0.3; transform: scale(0.8); }
+	40%      { opacity: 1;   transform: scale(1); }
+}
+
+// Spark — the cerb-icon-spinner's 8 radial hashes in a larger form. Each tick fades on its own
+// staggered cycle; the delays follow the ticks around the dial so a bright head trails a fading
+// tail, reading as rotation (own animation; the svg itself doesn't rotate).
+svg.cerb-ui-spinner--spark {
+	width: 40px;
+	animation: none;
+
+	line {
+		stroke: var(--cerb-color-background-contrast-50);
+		stroke-width: 2px;
+		stroke-linecap: round;
+		animation: 1.2s linear infinite cerb-ui-spinner-spark;
+	}
+	// Negative delays = already mid-cycle on frame 1; spaced 1.2s/8 so the head trails clockwise
+	line:nth-child(1) { animation-delay: 0s; }      // top
+	line:nth-child(2) { animation-delay: -0.6s; }   // bottom
+	line:nth-child(3) { animation-delay: -0.15s; }  // top-left
+	line:nth-child(4) { animation-delay: -0.75s; }  // bottom-right
+	line:nth-child(5) { animation-delay: -0.3s; }   // left
+	line:nth-child(6) { animation-delay: -0.9s; }   // right
+	line:nth-child(7) { animation-delay: -0.45s; }  // bottom-left
+	line:nth-child(8) { animation-delay: -1.05s; }  // top-right
+}
+
+@keyframes cerb-ui-spinner-spark {
+	0%   { opacity: 1; }
+	100% { opacity: 0.15; }
+}
