@@ -70,9 +70,49 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 					return $this->_profileAction_stepAutomationEditor();
 				case 'viewExplore':
 					return $this->_profileAction_viewExplore();
+				case 'viewSparklinesJson':
+					return $this->_profileAction_viewSparklinesJson();
 			}
 		}
 		return false;
+	}
+
+	// Inline sparkline series (stacked runs+errors bars + avg-duration line) for the automations
+	// worklist; loaded async so the list paints fast. One metrics.timeseries query per page (no N+1).
+	private function _profileAction_viewSparklinesJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+
+		$ids = DevblocksPlatform::importGPC($_REQUEST['ids'] ?? [], 'array', []);
+		$ids = array_filter(array_map('intval', $ids));
+
+		$window = DevblocksPlatform::importGPC($_REQUEST['window'] ?? '24h', 'string', '24h');
+
+		$row_series = [];
+
+		// Automations are readable by everyone, but require a logged-in worker. Each row: total runs as
+		// a green bar, errors (exit_state:error) stacked on top in red, then avg duration as an orange
+		// line in front. Both bars share a `stack` key so they share one scale and stack cumulatively.
+		if($active_worker && $ids) {
+			foreach($ids as $id) {
+				$row_series[$id] = [
+					// All runs (green) — total invocations
+					['metric' => 'cerb.automation.invocations', 'function' => 'count', 'type' => 'bar', 'label' => 'runs', 'color' => '#2ca02c', 'stack' => 'invocations', 'query' => ['automation_id' => $id], 'missing' => 'zero'],
+					// Errors (red) — invocations that ended in error, stacked on top
+					['metric' => 'cerb.automation.invocations', 'function' => 'count', 'type' => 'bar', 'label' => 'errors', 'color' => '#d62728', 'stack' => 'invocations', 'query' => ['automation_id' => $id, 'exit_state' => 'error'], 'missing' => 'zero'],
+					// Avg duration (orange) — line in front
+					['metric' => 'cerb.automation.duration', 'function' => 'avg', 'type' => 'line', 'label' => 'duration', 'color' => '#ff7f0e', 'query' => ['automation_id' => $id], 'missing' => 'zero', 'suffix' => 'ms'],
+				];
+			}
+		}
+
+		$out = $row_series
+			? DAO_MetricValue::getSparklines($row_series, $window, $active_worker->timezone ?: null)
+			: [];
+
+		// Cast so the response is always a JSON object ({} when empty), keyed by automation id
+		echo json_encode((object) $out);
 	}
 	
 	private function _profileAction_savePeekJson() {

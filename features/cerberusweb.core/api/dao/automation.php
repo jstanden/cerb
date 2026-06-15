@@ -570,7 +570,10 @@ class SearchFields_Automation extends DevblocksSearchFields {
 	const NAME = 'a_name';
 	const ID = 'a_id';
 	const UPDATED_AT = 'a_updated_at';
-	
+
+	const VIRTUAL_SPARKLINE = '*_sparkline';
+	const VIRTUAL_USAGE = '*_usage';
+
 	static private $_fields = null;
 	
 	static function getTableName() : string {
@@ -593,16 +596,53 @@ class SearchFields_Automation extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
+			case self::VIRTUAL_USAGE:
+				return self::_getWhereSQLFromUsageFilter($param);
+
 			default:
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
 				} else {
 					if(null !== ($virtual_where_sql = self::_getWhereSQLForCommonVirtual($param, CerberusContexts::CONTEXT_AUTOMATION, self::getPrimaryKey())))
 						return $virtual_where_sql;
-					
+
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
 		}
+	}
+
+	// The usage:(...) threshold vocabulary, shared by the SQL filter and the quick-search validator.
+	static function getMetricFilterMap() : array {
+		return [
+			'runs' => DAO_MetricValue::metricFilterSeries('cerb.automation.invocations', 'counter'),
+			'errors' => DAO_MetricValue::metricFilterSeries('cerb.automation.invocations', 'counter', ['query' => ['exit_state' => 'error']]),
+			'duration' => DAO_MetricValue::metricFilterSeries('cerb.automation.duration', 'counter', ['unit' => 'ms', 'default' => 'avg']),
+		];
+	}
+
+	// Constrain the worklist to automations whose metric usage matches usage:(...). The matched
+	// `automation_id` dimension values ARE automation ids, so we filter the primary key directly.
+	private static function _getWhereSQLFromUsageFilter(DevblocksSearchCriteria $param) : string {
+		if($param->operator != DevblocksSearchCriteria::OPER_CUSTOM || !is_string($param->value))
+			return '0=1';
+
+		$matches = DAO_MetricValue::getDimensionValuesByMetricQuery(
+			$param->value,
+			self::getMetricFilterMap(),
+			'automation_id',
+			CerberusApplication::getActiveWorker()?->timezone ?: null
+		);
+
+		// null = invalid criteria (typo, unknown key, unparseable value) => match nothing (fail loud)
+		if(is_null($matches))
+			return '0=1';
+
+		$ids = array_filter(array_map('intval', $matches));
+
+		if(!$ids)
+			return '0=1';
+
+		return sprintf('%s IN (%s)', self::getPrimaryKey(), implode(',', $ids));
 	}
 	
 	static function getFieldForSubtotalKey($key, $context, array $query_fields, array $search_fields, $primary_key) {
@@ -642,8 +682,14 @@ class SearchFields_Automation extends DevblocksSearchFields {
 			self::ID => new DevblocksSearchField(self::ID, 'automation', 'id', $translate->_('common.id'), null, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'automation', 'name', $translate->_('common.name'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'automation', 'updated_at', $translate->_('common.updated'), null, true),
+
+			// Virtual, display-only inline sparkline (runs + duration, loaded async); not sortable
+			self::VIRTUAL_SPARKLINE => new DevblocksSearchField(self::VIRTUAL_SPARKLINE, '*', '', 'Usage', DevblocksSearchCriteria::TYPE_VIRTUAL_SPARKLINES, false),
+
+			// Virtual, search-only: usage:(runs:>100 duration:>2000 since:"-24 hours"); hidden as a column
+			self::VIRTUAL_USAGE => new DevblocksSearchField(self::VIRTUAL_USAGE, '*', '', 'Usage', null, false),
 		];
-		
+
 		// Virtual fields
 		if(($virtual_columns = DevblocksSearchField::getVirtualFields()))
 			$columns = array_merge($columns, $virtual_columns);
@@ -1126,8 +1172,14 @@ class View_Automation extends C4_AbstractView implements IAbstractView_Subtotals
 			SearchFields_Automation::NAME,
 			SearchFields_Automation::EXTENSION_ID,
 			SearchFields_Automation::UPDATED_AT,
+			SearchFields_Automation::VIRTUAL_SPARKLINE,
 		];
-		
+
+		// Search-only virtual field; never offered as a worklist column
+		$this->addColumnsHidden([
+			SearchFields_Automation::VIRTUAL_USAGE,
+		]);
+
 		$this->doResetCriteria();
 	}
 	
@@ -1256,6 +1308,11 @@ class View_Automation extends C4_AbstractView implements IAbstractView_Subtotals
 						'limit' => 25,
 					]
 				),
+			'usage' => // parameterized metric filter; in-parens sub-keys autocompleted from getMetricFilterMap()
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => ['param_key' => SearchFields_Automation::VIRTUAL_USAGE],
+				),
 			'fieldset' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
@@ -1305,11 +1362,18 @@ class View_Automation extends C4_AbstractView implements IAbstractView_Subtotals
 		return $fields;
 	}	
 	
+	function getQuickSearchMetricFilterMap(string $field_key) : ?array {
+		return $field_key == 'usage' ? SearchFields_Automation::getMetricFilterMap() : null;
+	}
+
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
-			
+
+			case 'usage':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Automation::VIRTUAL_USAGE);
+
 			case 'watchers':
 				return DevblocksSearchCriteria::getWatcherParamFromTokens(DevblocksSearchField::VIRTUAL_WATCHERS, $tokens);
 			
@@ -1352,7 +1416,15 @@ class View_Automation extends C4_AbstractView implements IAbstractView_Subtotals
 	}
 
 	function renderVirtualCriteria($param) : void {
-		$this->_renderVirtualCriteria($param);
+		switch($param->field) {
+			case SearchFields_Automation::VIRTUAL_USAGE:
+				echo sprintf("Usage matches <b>%s</b>", DevblocksPlatform::strEscapeHtml($param->value));
+				break;
+
+			default:
+				$this->_renderVirtualCriteria($param);
+				break;
+		}
 	}
 
 	function getFields() {
