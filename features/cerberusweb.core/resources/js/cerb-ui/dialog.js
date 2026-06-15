@@ -266,6 +266,7 @@ CerbUI.Dialog = class {
 			namespace:  null,
 			fixed:      false,
 			closeOnEscape: true,
+			closeOnBackdrop: false, // modal only: a click on the dimmed backdrop closes the dialog
 			dragHandle: '[data-cerb-ui-dialog-drag]',
 			onOpen:     null,
 			onClose:    null,
@@ -624,6 +625,9 @@ CerbUI.Dialog = class {
 		this.backdrop = document.createElement('div');
 		this.backdrop.className = 'cerb-ui-dialog--backdrop';
 		this.backdrop.setAttribute('aria-hidden', 'true');
+		// A click outside the dialog (on the backdrop) closes it, when opted in.
+		if(this.opts.closeOnBackdrop)
+			this.backdrop.addEventListener('click', () => this.close());
 		document.body.appendChild(this.backdrop);
 	}
 
