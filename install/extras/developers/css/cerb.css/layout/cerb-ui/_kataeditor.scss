@@ -1,0 +1,190 @@
+// KataEditor: a multi-line textarea-based code editor for Cerb's KATA syntax (the eventual Ace replacement).
+// Same "overlay" technique as SearchQuery — transparent textarea text over a colored mirror --highlight div —
+// plus a left line-number --gutter. Unlike SearchQuery it does NOT wrap (white-space: pre): one text line maps
+// to one gutter row, and long lines scroll horizontally. The two text layers MUST keep identical box metrics
+// (font, padding, line-height, box-sizing, white-space) or the colors drift from the caret. JS wires behavior.
+.cerb-ui-kataeditor {
+    --cerb-ui-kataeditor-pad-y: 0.4em;
+    --cerb-ui-kataeditor-pad-x: 0.6em;
+
+    display: flex;
+    align-items: stretch;
+    border: 1px solid var(--cerb-color-background-contrast-200);
+    border-radius: 4px;
+    background: var(--cerb-editor-background);
+    font-family: var(--cerb-font-stack-fixed);
+    font-size: var(--cerb-font-size);
+    line-height: 1.5;
+    overflow: hidden;
+
+    // Left line-number column. Same vertical metrics as the text layers so the numbers line up with their
+    // rows; scroll-synced (scrollTop) with the textarea by the JS. Muted, non-selectable.
+    &--gutter {
+        flex-shrink: 0;
+        box-sizing: border-box;
+        padding: var(--cerb-ui-kataeditor-pad-y) 0.5em;
+        border-right: 1px solid var(--cerb-editor-gutter-border, var(--cerb-color-background-contrast-200));
+        overflow: hidden;
+        line-height: 1.5;
+        text-align: right;
+        color: var(--cerb-color-background-contrast-150);
+        white-space: pre;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+
+    // The gutter isn't overlaid with the caret, so weight changes here are safe (no glyph-advance concerns).
+    &--gutter-line-active {
+        color: var(--cerb-color-text);
+        font-weight: 600;
+    }
+
+    // Each gutter row is a flex line: marker (left) | number (flex, right-aligned) | fold chevron (right).
+    &--gutter-line {
+        display: flex;
+        align-items: center;
+        gap: 0.25em;
+    }
+    &--gutter-num {
+        flex: 1;
+        text-align: right;
+    }
+
+    // Marker slot, to the LEFT of the numbers (errors/warnings/info/breakpoints). A fixed 1em slot reserves the
+    // column whenever any marker exists OR a gutter-click handler is wired (so an empty margin stays clickable).
+    // Color is set inline (a --cerb-color-tag-* value). Gutter isn't caret-aligned, so size/color are safe.
+    &--gutter-marker {
+        flex-shrink: 0;
+        width: 1em;
+        height: 1em;
+        font-size: 1em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &.cerb-icons { cursor: pointer; }
+    }
+    // A "pip" marker = a filled dot in the slot (no icon glyph); tinted by the inline color (currentColor).
+    &--gutter-marker-pip {
+        cursor: pointer;
+
+        &::before {
+            content: "";
+            width: 0.6em;
+            height: 0.6em;
+            border-radius: 50%;
+            background: currentColor;
+        }
+    }
+
+    // Fold chevron (chevron-down expanded / chevron-right collapsed), to the RIGHT of the numbers. A fixed
+    // 1em slot reserves the column even on non-header rows; only real chevrons (which carry cerb-icons) click.
+    &--gutter-fold {
+        flex-shrink: 0;
+        width: 1em;
+        font-size: 1em;
+        opacity: 0.5;
+
+        &.cerb-icons { cursor: pointer; }
+        &.cerb-icons:hover { opacity: 1; color: var(--cerb-color-text); }
+    }
+
+    // End-of-line "collapsed" indicator painted in the mirror after a folded header. It's 1em (< the 1.5
+    // line-height) and sits at line end with nothing after it, so it doesn't disturb glyph advance / the caret.
+    &--fold-indicator {
+        margin-left: 0.6em;
+        opacity: 0.5;
+        color: var(--cerb-editor-syntax-comment);
+        pointer-events: none;
+    }
+
+    // The positioning context for the overlay + the caret anchor.
+    &--field {
+        position: relative;
+        flex: 1;
+        min-width: 0;
+    }
+
+    // Shared text box for BOTH layers — keep these declarations in lockstep.
+    &--highlight,
+    &--input {
+        box-sizing: border-box;
+        width: 100%;
+        margin: 0;
+        padding: var(--cerb-ui-kataeditor-pad-y) var(--cerb-ui-kataeditor-pad-x);
+        border: 0;
+        font-family: var(--cerb-font-stack-fixed);
+        font-size: var(--cerb-font-size);
+        line-height: 1.5;
+        letter-spacing: normal;
+        tab-size: 2;
+        white-space: pre;
+        word-wrap: normal;
+        overflow-wrap: normal;
+    }
+
+    // The colored mirror, behind the textarea. Inert — clicks/selection go to the textarea above it. It tracks
+    // the textarea's horizontal scroll (scrollLeft) so colors stay under the glyphs on long lines.
+    &--highlight {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        overflow: hidden;
+        color: var(--cerb-color-text);
+        pointer-events: none;
+        user-select: none;
+    }
+
+    // Transparent text, visible caret — the highlight layer shows the colors.
+    &--input {
+        position: relative;
+        z-index: 1;
+        display: block;
+        background: transparent;
+        color: transparent;
+        caret-color: var(--cerb-color-text);
+        resize: none;
+        overflow-x: auto;
+        overflow-y: hidden;
+
+        // The wrapper supplies the only visible border; strip the native textarea chrome (WebKit draws an inset
+        // border that border:0 alone leaves) and beat the global `TEXTAREA:focus { border }` (0,1,1) at (0,2,1).
+        appearance: none;
+        -webkit-appearance: none;
+        border: none;
+        outline: none;
+
+        &:focus,
+        &:focus-visible {
+            border: none;
+            outline: none;
+            box-shadow: none;
+        }
+
+        &::placeholder {
+            color: var(--cerb-color-background-contrast-150);
+            opacity: 1;
+        }
+    }
+
+    // Zero-width marker the JS parks at the caret pixel; the suggestion menu opens just below it.
+    &--caret-anchor {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 0;
+        height: 1.5em;
+        pointer-events: none;
+    }
+
+    // ── Token colors (reuse the shared editor syntax palette → matches the old Ace cerb_kata theme + dark mode) ──
+    // COLOR ONLY — never font-weight/style/letter-spacing, or the mirror's glyph advances stop matching the
+    // textarea's and the caret drifts away from the colored text it sits in.
+    // The whole key (name + /identifier + @annotations + trailing colon) shares the field color via --tok-key.
+    // Values and text-block content carry NO class — the default literal color (white in dark mode).
+    // Script-tag tokens ({{ … }} / {% … %}) are colored by the SHARED cerb-ui-editor--tok-kscript* classes
+    // (see _editor.scss), so KataEditor only owns its KATA-specific token colors below.
+    &--tok-comment { color: var(--cerb-editor-syntax-comment); }
+    &--tok-key     { color: var(--cerb-editor-syntax-tag); }
+    &--tok-uri     { color: var(--cerb-editor-syntax-function); }
+}

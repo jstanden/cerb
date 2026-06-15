@@ -1,0 +1,1333 @@
+/*
+ * CerbUI.KataEditor — a plain-JS code editor for Cerb's KATA syntax (the eventual replacement for Ace in the
+ * automation editor and the `.cerbCodeEditor()` plugin).
+ *
+ * It shares the overlay-highlight + caret-anchored autocomplete machinery with CerbUI.SearchQuery via
+ * CerbUI.editorCore, but is a CODE editor: always multi-line, auto-growing between minLines and maxLines, with
+ * a left line-number gutter, KATA-aware syntax highlighting, and tab-as-two-spaces / Shift+Tab dedent. It does
+ * NOT wrap (1 text line = 1 gutter row) — long lines scroll horizontally, like Ace's cerb_kata mode.
+ *
+ * KATA grammar highlighted (see /docs/kata): `key:` (optionally `key/identifier:` and a `key@annotation,csv:`
+ * run), the value after a key, indented `@text`/`@json`/… blocks, `{{ twig }}` / `{% twig %}` tags, `# comment`
+ * lines, and `cerb:context:id` URIs.
+ *
+ * Markup (the gallery / template supplies it):
+ *   <div class="cerb-ui-kataeditor" id="ed">
+ *     <div class="cerb-ui-kataeditor--gutter" aria-hidden="true"></div>
+ *     <div class="cerb-ui-kataeditor--field">
+ *       <div class="cerb-ui-kataeditor--highlight" aria-hidden="true"></div>
+ *       <textarea class="cerb-ui-kataeditor--input" name="…" spellcheck="false"></textarea>
+ *       <span class="cerb-ui-kataeditor--caret-anchor"></span>
+ *     </div>
+ *   </div>
+ *
+ * Usage:
+ *   new CerbUI.KataEditor(document.getElementById('ed'), {
+ *     minLines: 4, maxLines: 25,
+ *     onAutocomplete: CerbUI.KataEditor.kataFieldSource(cerbAutocompleteSuggestions.kataAutomationPolicy),
+ *   });
+ *
+ * The wrapped <textarea> keeps its name= and IS the value (transparent text over the mirror), so form submit
+ * and external .val() reads keep working. CSS lives in cerb.css (.cerb-ui-kataeditor--*).
+ */
+CerbUI.KataEditor = class {
+	static _instances = new WeakMap();
+	static from(el) { return CerbUI.KataEditor._instances.get(el); }
+
+	static _DEFAULTS = {
+		onAutocomplete: null,     // (ctx) -> Array<item> | Promise<...>; ctx={path,prefix,context,query,caret,editor}
+		context: '',              // passed through to onAutocomplete
+		autocompleteDelay: 200,   // ms debounce for suggestions while typing
+		minLines: 2,              // editor never shrinks below this many rows
+		maxLines: 25,             // grows to this many rows, then scrolls (data-editor-lines overrides)
+		tabSize: 2,               // a Tab inserts this many spaces; Shift+Tab dedents by up to this many
+		placeholder: null,
+		onGutterClick: null,      // (modelRow, e) when the left marker column is clicked (e.g. toggle a breakpoint)
+	};
+
+	constructor(el, opts = {}) {
+		el = (typeof el === 'string') ? document.querySelector(el) : el;
+		if(!el) return;
+
+		this.el = el;
+		this.opts = Object.assign({}, CerbUI.KataEditor._DEFAULTS, opts);
+
+		const lines = el.querySelector('.cerb-ui-kataeditor--input') &&
+			el.querySelector('.cerb-ui-kataeditor--input').getAttribute('data-editor-lines');
+		if(lines) this.opts.maxLines = parseInt(lines, 10) || this.opts.maxLines;
+
+		this.textarea = el.querySelector('.cerb-ui-kataeditor--input');
+		this.field = el.querySelector('.cerb-ui-kataeditor--field');
+		this.highlight = el.querySelector('.cerb-ui-kataeditor--highlight');
+		this.gutter = el.querySelector('.cerb-ui-kataeditor--gutter');
+		this.caretAnchor = el.querySelector('.cerb-ui-kataeditor--caret-anchor');
+		if(!this.textarea || !this.field || !this.highlight || !this.caretAnchor) return;
+
+		this.tab = ' '.repeat(this.opts.tabSize);
+		this._highlightRow = null;   // a MODEL row marked active in the gutter, or null
+		this._markers = new Map();   // MODEL row -> gutter marker descriptor {type,icon,color,title,pip} (left of numbers)
+		this._changeCbs = [];
+		this._suppressInput = false; // true while _writeValue applies an edit (ignore the echoed `input` event)
+
+		// ── Code folding (model + projection) ──
+		// The textarea can't hide rows, so folding keeps the FULL text in this._model (the source of truth) and
+		// shows only the unfolded lines (the "projection") in the textarea. Public rows/getValue are MODEL space.
+		this._model = this.textarea.value;
+		this._folds = [];            // [{headerRow, startRow, endRow}] in MODEL rows; startRow===headerRow stays visible
+		this._hidden = new Set();    // cached set of hidden MODEL rows (= union of every fold's startRow+1..endRow)
+		this._lastProjection = this.textarea.value; // last textarea value we reconciled into the model
+
+		// Code, not prose — disable the browser's text-assist features that fight the overlay + suggestions.
+		this.textarea.spellcheck = false;
+		this.textarea.setAttribute('autocomplete', 'off');
+		this.textarea.setAttribute('autocorrect', 'off');
+		this.textarea.setAttribute('autocapitalize', 'off');
+		if(this.opts.placeholder != null) this.textarea.placeholder = this.opts.placeholder;
+
+		this._ac = new CerbUI.editorCore.Autocomplete({
+			textarea: this.textarea,
+			caretAnchor: this.caretAnchor,
+			context: this.opts.context,
+			editor: this,
+			delay: this.opts.autocompleteDelay,
+			onScope: (text, caret) => this._scopePathAt(text, caret),
+			onItems: (ctx) => {
+				const v = this.textarea.value, c = this.textarea.selectionStart;
+				// A script tag wins wherever one is open (incl. inside a @text block — scripting is live there).
+				const t = CerbUI.editorCore.kataScript.contextAt(v, c);
+				if(t) return (t.sub === 'args') ? CerbUI.editorCore.kataScript.suggestArgs(t) : CerbUI.editorCore.kataScript.suggest(t);
+				// Otherwise: no suggestions inside a @annotation text block or on a comment line.
+				if(this._autocompleteSuppressed(v, c)) return [];
+				return (typeof this.opts.onAutocomplete === 'function') ? this.opts.onAutocomplete(ctx) : [];
+			},
+			onAfterApply: () => this._refresh(),
+		});
+
+		this._shortcuts = this._buildShortcuts();
+
+		CerbUI.KataEditor._instances.set(el, this);
+
+		this._onInput = (e) => this._handleInput(e);
+		this._onKeydown = (e) => this._handleKeydown(e);
+		this._onScroll = () => this._syncScroll();
+		this._onBlur = () => { this._ac.clearTimer(); };
+		this._onGutterClick = (e) => this._handleGutterClick(e);
+
+		this.textarea.addEventListener('input', this._onInput);
+		this.textarea.addEventListener('keydown', this._onKeydown);
+		this.textarea.addEventListener('scroll', this._onScroll, { passive: true });
+		this.textarea.addEventListener('blur', this._onBlur);
+		if(this.gutter) this.gutter.addEventListener('click', this._onGutterClick);
+
+		this._rebuildProjection();  // initial render (projection === model while nothing is folded)
+	}
+
+	// ── Public API (mirrors the Ace surface the automation editor depends on) ──
+
+	// The full document (incl. any folded-away lines) — NOT the textarea projection.
+	getValue() { return this.textarea ? this._model : ''; }
+
+	setValue(str) {
+		if(!this.textarea) return this;
+		this._model = str ?? '';
+		this._folds = [];                 // a fresh document drops all folds
+		this._markers.clear();            // …and all row-keyed gutter markers
+		this._rebuildProjection();
+		this._fireChange();
+		return this;
+	}
+
+	focus() { if(this.textarea) this.textarea.focus(); return this; }
+
+	getSelectedText() { return this.textarea.value.slice(this.textarea.selectionStart, this.textarea.selectionEnd); }
+
+	clearSelection() { const c = this.textarea.selectionEnd; this.textarea.setSelectionRange(c, c); return this; }
+
+	// {row, column} both 0-based (like Ace's getCursorPosition). Row is MODEL space.
+	getCursorPosition() {
+		const caret = this.textarea.selectionStart;
+		const before = this.textarea.value.slice(0, caret);
+		const viewRow = (before.match(/\n/g) || []).length;
+		const column = caret - (before.lastIndexOf('\n') + 1);
+		return { row: this._viewRowToModelRow(viewRow), column: column };
+	}
+
+	// Ace's gotoLine is 1-based MODEL row, 0-based column. Auto-reveals any fold hiding the target.
+	gotoLine(line, column) {
+		const mLines = this._modelLines();
+		const r = Math.max(0, Math.min((line || 1) - 1, mLines.length - 1));
+		this._revealModelRow(r);
+		let mOff = 0;
+		for(let i = 0; i < r; i++) mOff += mLines[i].length + 1;
+		mOff += Math.min(column || 0, mLines[r].length);
+		this.textarea.focus();
+		const vo = this._modelOffsetToViewOffset(mOff);
+		this.textarea.setSelectionRange(vo, vo);
+		this.scrollToLine(r);
+		return this;
+	}
+
+	setCursorPosition(row, column) { return this.gotoLine((row || 0) + 1, column || 0); }
+
+	// row is a MODEL row; reveals it if folded, then scrolls its view row into the top region.
+	scrollToLine(row) {
+		this._revealModelRow(row);
+		const vr = this._modelRowToViewRow(row);
+		const cs = window.getComputedStyle(this.textarea);
+		const lh = parseFloat(cs.lineHeight) || (parseFloat(cs.fontSize) * 1.5);
+		this.textarea.scrollTop = Math.max(0, (vr < 0 ? 0 : vr) * lh);
+		this._syncScroll();
+		return this;
+	}
+
+	// Insert a snippet at the caret; a single `$0` marks where the caret lands (else it goes to the end).
+	insertSnippet(text) {
+		const ta = this.textarea;
+		const s = ta.selectionStart, e = ta.selectionEnd;
+		let insert = String(text == null ? '' : text);
+		let off = insert.length;
+		const m = insert.indexOf('$0');
+		if(m !== -1) { off = m; insert = insert.slice(0, m) + insert.slice(m + 2); }
+		this._setValueAndCaret(ta.value.slice(0, s) + insert + ta.value.slice(e), s + off);
+		ta.focus();
+		return this;
+	}
+
+	// Highlight a MODEL row in the gutter — the hook the run-step line marker / phase-2 error callouts use.
+	// Reveals the row if it's hidden inside a fold so the marker is actually visible.
+	highlightLine(row) { this._highlightRow = row; this._revealModelRow(row); this._renderGutter(); return this; }
+	clearHighlight() { this._highlightRow = null; this._renderGutter(); return this; }
+
+	// ── Gutter markers (LEFT of the line numbers; MODEL-space) ──
+	// Host-driven per-line marks: parse errors/warnings (KATA `_line` metadata), a run cursor / `await:`
+	// continuation, a debugging breakpoint, etc. A marker is an icon (`cerb-icon-<icon>`) or a colored `pip`
+	// dot. `type` picks a default icon+color (overridable); `title` is the hover tooltip. One marker per row.
+	setMarker(modelRow, desc) {
+		desc = desc || {};
+		const preset = CerbUI.KataEditor._MARKER_TYPES[desc.type] || {};
+		this._markers.set(modelRow, {
+			type:  desc.type || null,
+			pip:   (desc.pip != null) ? !!desc.pip : !!preset.pip,
+			icon:  desc.icon || preset.icon || null,
+			color: desc.color || preset.color || null,
+			title: desc.title || '',
+		});
+		this._renderGutter();
+		return this;
+	}
+	clearMarker(modelRow) { if(this._markers.delete(modelRow)) this._renderGutter(); return this; }
+	clearMarkers() { if(this._markers.size) { this._markers.clear(); this._renderGutter(); } return this; }
+	getMarkers() { return new Map(this._markers); }
+
+	onChange(cb) { if(typeof cb === 'function') this._changeCbs.push(cb); return this; }
+
+	openAutocomplete() { this._ac.trigger(); return this; }
+
+	// The enumerable shortcut list with OS-appropriate labels — for a future keyboard-shortcuts hint popup.
+	getShortcuts() {
+		const keys = CerbUI.editorCore.keys;
+		return this._shortcuts.map(sc => ({ id: sc.id, label: sc.label, keys: sc.keys.map(k => keys.label(k)) }));
+	}
+
+	// ── Code folding (public API; all rows are MODEL space) ──────────────
+	// A fold collapses a `key:` header's indented subtree: the header row stays visible, rows startRow+1..endRow
+	// are hidden. Fold ops don't change the document text, so they DON'T fire onChange.
+
+	isFolded(modelRow) { return this._folds.some(f => f.startRow === modelRow); }
+
+	fold(modelRow) {
+		if(this.isFolded(modelRow)) return this;
+		const range = this._foldableRanges().find(r => r.headerRow === modelRow);
+		if(!range) return this;
+		const caretM = this._viewOffsetToModelOffset(this.textarea.value, this.textarea.selectionStart);
+		this._folds.push({ headerRow: range.headerRow, startRow: range.startRow, endRow: range.endRow });
+		this._folds.sort((a, b) => a.startRow - b.startRow);
+		this._rebuildProjection(caretM);
+		return this;
+	}
+
+	unfold(modelRow) {
+		const before = this._folds.length;
+		this._folds = this._folds.filter(f => !(f.startRow === modelRow || (modelRow > f.startRow && modelRow <= f.endRow)));
+		if(this._folds.length === before) return this;
+		const caretM = this._viewOffsetToModelOffset(this.textarea.value, this.textarea.selectionStart);
+		this._rebuildProjection(caretM);
+		return this;
+	}
+
+	toggleFold(modelRow) { return this.isFolded(modelRow) ? this.unfold(modelRow) : this.fold(modelRow); }
+
+	foldAll() {
+		const caretM = this._viewOffsetToModelOffset(this.textarea.value, this.textarea.selectionStart);
+		this._folds = this._foldableRanges().map(r => ({ headerRow: r.headerRow, startRow: r.startRow, endRow: r.endRow }));
+		this._folds.sort((a, b) => a.startRow - b.startRow);
+		this._rebuildProjection(caretM);
+		return this;
+	}
+
+	unfoldAll() {
+		if(!this._folds.length) return this;
+		const caretM = this._viewOffsetToModelOffset(this.textarea.value, this.textarea.selectionStart);
+		this._folds = [];
+		this._rebuildProjection(caretM);
+		return this;
+	}
+
+	// The raw KATA key-path at the caret (segments include their trailing ':', and any /id or @annotations) —
+	// a plain-string port of Devblocks.cerbCodeEditor.getKataTokenPath. Runs over the projection: all ancestors
+	// of a VISIBLE caret are themselves visible (a fold only hides a header's deeper descendants), so the
+	// projection yields the same ancestor chain as the model would.
+	getTokenPath() { return this._scopePathAt(this.textarea.value, this.textarea.selectionStart).path; }
+
+	// 0-based row of a colon-joined path (e.g. 'series/s0:metric:'), or false — port of getKataRowByPath.
+	getRowByPath(pathStr) {
+		if(typeof pathStr !== 'string') return false;
+		let p = pathStr;
+		if(p.endsWith(':')) p = p.slice(0, -1);
+		const path = p.split(':');
+		const lines = this._modelLines();
+		const stack = [];
+		let depth = 0, indent = '', matches = 0;
+
+		for(let row = 0; row < lines.length; row++) {
+			const m = lines[row].match(/^(\s*)([^\s#][^:]*):/);
+			if(!m) continue;
+
+			let tag = m[2];
+			const tagIndent = m[1];
+			const annPos = tag.indexOf('@');
+			if(annPos !== -1) tag = tag.slice(0, annPos);
+
+			if(tagIndent.length > indent.length) {
+				depth++; stack.push(tagIndent); indent = tagIndent;
+			} else if(tagIndent.length < indent.length) {
+				while(stack.length > 0 && tagIndent.length < indent.length) {
+					indent = stack.pop(); depth--;
+					if(indent.length === tagIndent.length) { stack.push(tagIndent); depth++; }
+					if(depth === 0) indent = '';
+				}
+			}
+
+			if(path.hasOwnProperty(depth) && tag === path[depth]) {
+				if(matches === depth) {
+					matches++;
+					if(path.length === matches) return row;
+				}
+			}
+		}
+		return false;
+	}
+
+	getLine(row) { const l = this._modelLines(); return (row >= 0 && row < l.length) ? l[row] : ''; }
+
+	destroy() {
+		this._ac.destroy();
+		CerbUI.KataEditor._instances.delete(this.el);
+		if(this.textarea) {
+			this.textarea.removeEventListener('input', this._onInput);
+			this.textarea.removeEventListener('keydown', this._onKeydown);
+			this.textarea.removeEventListener('scroll', this._onScroll);
+			this.textarea.removeEventListener('blur', this._onBlur);
+		}
+		if(this.gutter && this._onGutterClick) this.gutter.removeEventListener('click', this._onGutterClick);
+	}
+
+	// ── Keyboard shortcuts (abstract, enumerable registry) ──────────────
+	// Each descriptor: { id, keys:[spec…], label, menu, run(e) }. `keys` are editorCore.keys binding specs
+	// ('Mod' = Cmd OR Ctrl). `menu` decides how it coordinates with an open autocomplete menu: 'close' dismisses
+	// it first (structural edits), 'open' leaves the controller to react (autocomplete). Menu-navigation keys
+	// (plain ↑/↓, Enter, Escape) stay imperative in _handleKeydown — they branch on menu state, not commands.
+
+	_buildShortcuts() {
+		const list = [
+			{ id:'deleteLine',   keys:['Mod-D','Alt-D'],  label:'Delete line',     menu:'close', run:() => this._deleteLine() },
+			{ id:'moveLineUp',   keys:['Alt-ArrowUp'],    label:'Move line up',    menu:'close', run:() => this._moveLine(-1) },
+			{ id:'moveLineDown', keys:['Alt-ArrowDown'],  label:'Move line down',  menu:'close', run:() => this._moveLine(1) },
+			{ id:'indent',       keys:['Tab'],            label:'Indent',          menu:'close', run:() => this._indent() },
+			{ id:'dedent',       keys:['Shift-Tab'],      label:'Dedent',          menu:'close', run:() => this._dedent() },
+			{ id:'fold',         keys:['Mod-BracketLeft'],  label:'Fold',          menu:'close', run:() => this._foldAtCaret() },
+			{ id:'unfold',       keys:['Mod-BracketRight'], label:'Unfold',        menu:'close', run:() => this._unfoldAtCaret() },
+			{ id:'growEditor',   keys:['Mod-Shift-ArrowDown'], label:'Taller editor',  menu:'close', run:() => this._resizeMaxLines(1) },
+			{ id:'shrinkEditor', keys:['Mod-Shift-ArrowUp'],   label:'Shorter editor', menu:'close', run:() => this._resizeMaxLines(-1) },
+			{ id:'autocomplete', keys:['Mod-Space'],      label:'Show suggestions',menu:'open',  run:() => this._ac.trigger() },
+		];
+		const keys = CerbUI.editorCore.keys;
+		for(const sc of list) sc._parsed = sc.keys.map(k => keys.parse(k));
+		return list;
+	}
+
+	// Run the first matching shortcut; returns true if one handled the event (caller returns early).
+	_dispatchShortcut(e) {
+		const keys = CerbUI.editorCore.keys;
+		for(const sc of this._shortcuts) {
+			if(!sc._parsed.some(p => keys.matchEvent(p, e))) continue;
+			e.preventDefault();
+			if(this._ac.isOpen()) {
+				e.stopPropagation();           // never let the open Menu also act on this key
+				if(sc.menu === 'close') this._ac.close();
+			}
+			sc.run(e);
+			return true;
+		}
+		return false;
+	}
+
+	// Click a gutter chevron to toggle the fold on that header row (one delegated listener).
+	_handleGutterClick(e) {
+		const chev = e.target.closest('.cerb-ui-kataeditor--gutter-fold');
+		if(chev) {
+			const mr = parseInt(chev.getAttribute('data-fold-row'), 10);
+			if(!isNaN(mr)) this.toggleFold(mr);
+			return;
+		}
+		// Clicking the LEFT marker column fires onGutterClick (e.g. toggle a breakpoint); empty slots count too.
+		const mk = e.target.closest('.cerb-ui-kataeditor--gutter-marker');
+		if(mk && typeof this.opts.onGutterClick === 'function') {
+			const mr = parseInt(mk.getAttribute('data-model-row'), 10);
+			if(!isNaN(mr)) this.opts.onGutterClick(mr, e);
+		}
+	}
+
+	// ⌘/Ctrl+[ — fold the innermost foldable block at/containing the caret.
+	_foldAtCaret() {
+		const mr = this.getCursorPosition().row;
+		const ranges = this._foldableRanges();
+		let target = ranges.find(r => r.headerRow === mr);
+		if(!target) {
+			const containing = ranges.filter(r => mr > r.startRow && mr <= r.endRow);
+			if(containing.length) target = containing.reduce((a, b) => (b.startRow > a.startRow ? b : a)); // innermost
+		}
+		if(target) this.fold(target.headerRow);
+	}
+
+	// ⌘/Ctrl+] — unfold the collapsed block at the caret row.
+	_unfoldAtCaret() {
+		const mr = this.getCursorPosition().row;
+		if(this.isFolded(mr)) this.unfold(mr);
+	}
+
+	// ── Input / keyboard ────────────────────────────────────────────────
+
+	_handleInput(e) {
+		// Our own programmatic writes (_writeValue) re-emit an `input` event via execCommand; ignore it — the
+		// command that called _setValueAndCaret already drives the re-render (and decides about suggestions).
+		if(this._suppressInput) return;
+		// Convert any pasted tabs to spaces so the stored value is always spaces (_sanitizeTabs fully refreshes).
+		if(this.textarea.value.indexOf('\t') !== -1) { this._sanitizeTabs(); return; }
+		this._applyProjectionEditToModel();  // fold the edit back into the full-text model
+		this._renderHighlight();
+		this._autosize();
+		this._renderGutter();
+		this._scrollCaretIntoView();
+		this._fireChange();
+		this._ac.clearTimer();
+		// Undo/redo reverts text — the user isn't authoring, so don't pop suggestions (but still re-render above).
+		const it = e && e.inputType;
+		if(it === 'historyUndo' || it === 'historyRedo') return;
+		// Otherwise always schedule — KataScript autocomplete is built in even without a KATA `onAutocomplete`
+		// source; the controller's onItems decides whether there's anything to show.
+		this._ac.schedule();
+	}
+
+	_handleKeydown(e) {
+		const menuOpen = this._ac.isOpen();
+
+		// Registry shortcuts run first (delete/move line, indent/dedent, ⌘/Ctrl+Space). Each is modifier-bearing
+		// or Tab, so none collides with the menu's PLAIN ↑/↓ navigation handled below; ⌥+↑/↓ thus wins over the
+		// "modified arrow closes menu + native caret move" branch — the precedence move-line needs.
+		if(this._dispatchShortcut(e)) return;
+
+		if(menuOpen) {
+			// Plain ↑/↓ navigate the menu (opt-in); the Menu's own keydown does the highlight/scroll.
+			if((e.key === 'ArrowDown' || e.key === 'ArrowUp') && !(e.metaKey || e.ctrlKey || e.altKey)) {
+				e.preventDefault();
+				this._ac.navigated = true;
+				return;
+			}
+			// Any other arrow (modified ↑/↓ or plain ←/→) is text navigation — dismiss + native caret move.
+			if(e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+				e.stopPropagation();
+				this._ac.close();
+				return;
+			}
+			if(e.key === 'Enter') {
+				if(this._ac.navigated) { e.preventDefault(); return; } // propagate to Menu -> select
+				// Not navigated: Enter inserts a newline. Stop the Menu from selecting a hover-highlighted item.
+				e.preventDefault();
+				e.stopPropagation();
+				this._ac.close();
+				this._insertNewline();
+				return;
+			}
+			if(e.key === 'Escape') {
+				e.preventDefault();
+				e.stopPropagation();
+				this._ac.close();
+				return;
+			}
+			// other keys fall through (type a char -> input handler re-suggests)
+		}
+
+		// Enter (menu closed) — newline with KATA auto-indent.
+		if(e.key === 'Enter') {
+			e.preventDefault();
+			this._insertNewline();
+		}
+	}
+
+	_setValueAndCaret(value, selStart, selEnd) {
+		this._writeValue(value);
+		const ta = this.textarea;
+		ta.selectionStart = selStart;
+		ta.selectionEnd = (selEnd == null) ? selStart : selEnd;
+		this._refresh();
+	}
+
+	// Apply a new full value while PRESERVING the textarea's native undo/redo stack, so ⌘/Ctrl+Z (and redo)
+	// keep working after our programmatic edits (move/delete line, indent, snippet…). A direct `ta.value = …`
+	// wipes that stack — leaving Cmd+Z to fall through to the browser. We instead replace only the changed span
+	// via execCommand, which records a proper undo entry. Falls back to a direct write if execCommand is
+	// unavailable or refuses (e.g. the textarea isn't focused).
+	_writeValue(value) {
+		const ta = this.textarea;
+		const old = ta.value;
+		if(old === value) return;
+
+		// Minimal diff: shared prefix p, shared suffix; replace old[p..so) with value[p..sn).
+		let p = 0; const max = Math.min(old.length, value.length);
+		while(p < max && old[p] === value[p]) p++;
+		let so = old.length, sn = value.length;
+		while(so > p && sn > p && old[so - 1] === value[sn - 1]) { so--; sn--; }
+		const insert = value.slice(p, sn);
+
+		let ok = false;
+		this._suppressInput = true;   // execCommand re-emits `input` synchronously; the caller drives the refresh
+		try {
+			ta.focus();
+			ta.setSelectionRange(p, so);
+			ok = (insert.length === 0)
+				? document.execCommand('delete')          // pure deletion (selection -> removed)
+				: document.execCommand('insertText', false, insert);
+		} catch(_) {}
+		this._suppressInput = false;
+		if(!ok || ta.value !== value) ta.value = value;   // fallback: correctness over undo
+	}
+
+	_refresh() {
+		this._applyProjectionEditToModel();  // any projection change (programmatic edit, autocomplete apply) -> model
+		this._renderHighlight();
+		this._autosize();
+		this._renderGutter();
+		this._scrollCaretIntoView();
+		this._fireChange();
+	}
+
+	// Keep the caret line visible once the editor is in scroll mode (content past maxLines). Needed because we
+	// edit by setting textarea.value programmatically (newlines, snippet inserts) — which gets no native
+	// caret-into-view scroll — and _autosize's `height:auto` measuring pass resets scrollTop to 0.
+	_scrollCaretIntoView() {
+		const ta = this.textarea;
+		const cs = window.getComputedStyle(ta);
+		const lh = parseFloat(cs.lineHeight) || (parseFloat(cs.fontSize) * 1.5);
+		const padTop = parseFloat(cs.paddingTop) || 0;
+		const padBottom = parseFloat(cs.paddingBottom) || 0;
+		const before = ta.value.slice(0, ta.selectionStart);
+		const row = (before.match(/\n/g) || []).length;  // VIEW row (pixel math is on the projection)
+		const lineTop = padTop + row * lh;
+		const lineBottom = lineTop + lh;
+		if(lineTop < ta.scrollTop)
+			ta.scrollTop = lineTop - padTop;
+		else if(lineBottom > ta.scrollTop + ta.clientHeight)
+			ta.scrollTop = lineBottom - ta.clientHeight + padBottom;
+		this._syncScroll();
+	}
+
+	_fireChange() { for(const cb of this._changeCbs) { try { cb(this.getValue()); } catch(_) {} } }
+
+	// Tab key: insert tabSize spaces at the caret, or indent every line touched by the selection.
+	_indent() {
+		this._revealForEdit();
+		const ta = this.textarea, v = ta.value, s = ta.selectionStart, e = ta.selectionEnd;
+		if(s === e) {
+			this._setValueAndCaret(v.slice(0, s) + this.tab + v.slice(e), s + this.tab.length);
+			this._ac.clearTimer();
+			return;
+		}
+		const lineStart = v.lastIndexOf('\n', s - 1) + 1;
+		const block = v.slice(lineStart, e);
+		const newBlock = block.replace(/^/gm, this.tab);
+		const delta = newBlock.length - block.length;
+		this._setValueAndCaret(v.slice(0, lineStart) + newBlock + v.slice(e), s + this.tab.length, e + delta);
+	}
+
+	// Shift+Tab: strip up to tabSize leading spaces (or one tab) from each line touched by the selection.
+	_dedent() {
+		this._revealForEdit();
+		const ta = this.textarea, v = ta.value, s = ta.selectionStart, e = ta.selectionEnd;
+		const lineStart = v.lastIndexOf('\n', s - 1) + 1;
+		let endPos = e;
+		if(s === e) { const nl = v.indexOf('\n', s); endPos = (nl === -1) ? v.length : nl; }
+		const before = v.slice(0, lineStart);
+		const block = v.slice(lineStart, endPos);
+		const after = v.slice(endPos);
+		const re = new RegExp('^( {1,' + this.opts.tabSize + '}|\\t)');
+		let firstRemoved = 0, totalRemoved = 0;
+		const out = block.split('\n').map((ln, i) => {
+			const m = ln.match(re);
+			if(m) { const r = m[0].length; if(i === 0) firstRemoved = r; totalRemoved += r; return ln.slice(r); }
+			return ln;
+		}).join('\n');
+		const newS = Math.max(lineStart, s - firstRemoved);
+		this._setValueAndCaret(before + out + after, newS, (s === e) ? newS : (e - totalRemoved));
+	}
+
+	// Enter: newline, copying the current line's indent (and one extra level if it's a childless `key:`).
+	_insertNewline() {
+		this._ac.clearTimer(); // a queued (pre-newline) suggestion must not pop a menu after we move lines
+		this._revealForEdit();
+		const ta = this.textarea, v = ta.value, s = ta.selectionStart, e = ta.selectionEnd;
+		const lineStart = v.lastIndexOf('\n', s - 1) + 1;
+		const curBeforeCaret = v.slice(lineStart, s);
+		let indent = (curBeforeCaret.match(/^[ ]*/) || [''])[0];
+		if(/:\s*$/.test(curBeforeCaret)) indent += this.tab; // a key with no inline value -> indent its child
+		const ins = '\n' + indent;
+		this._setValueAndCaret(v.slice(0, s) + ins + v.slice(e), s + ins.length);
+		if(typeof this.opts.onAutocomplete === 'function') this._ac.schedule();
+	}
+
+	// ⌘/Ctrl/⌥+D — delete the whole line the caret sits on, regardless of column.
+	_deleteLine() {
+		this._ac.clearTimer();
+		this._revealForEdit();
+		const ta = this.textarea, v = ta.value, s = ta.selectionStart;
+		const lineStart = v.lastIndexOf('\n', s - 1) + 1;
+		const lineEnd = v.indexOf('\n', s);
+		let cutStart, cutEnd;
+		if(lineEnd === -1) { cutStart = lineStart > 0 ? lineStart - 1 : 0; cutEnd = v.length; } // last line: eat preceding \n
+		else { cutStart = lineStart; cutEnd = lineEnd + 1; }                                    // else: line + trailing \n
+		const next = v.slice(0, cutStart) + v.slice(cutEnd);
+		// Keep the column on the line that slides into the slot (clamped to its length).
+		const newLineStart = (cutStart === lineStart) ? lineStart : (v.lastIndexOf('\n', cutStart - 1) + 1);
+		const col = s - lineStart;
+		const afterNl = next.indexOf('\n', newLineStart);
+		const lineLen = (afterNl === -1 ? next.length : afterNl) - newLineStart;
+		this._setValueAndCaret(next, newLineStart + Math.min(col, lineLen));
+	}
+
+	// ⌘/Ctrl+↑ / ↓ — move the current line (or selected line-block) up/down, keeping the selection on it.
+	_moveLine(dir) {
+		this._ac.clearTimer();
+		this._revealForEdit();
+		const ta = this.textarea, v = ta.value, s = ta.selectionStart, e = ta.selectionEnd;
+		const rows = v.split('\n');
+
+		// Row range [r0, r1] the selection touches; a selection ending at column 0 doesn't pull in that row.
+		const r0 = (v.slice(0, s).match(/\n/g) || []).length;
+		let r1 = (v.slice(0, e).match(/\n/g) || []).length;
+		if(e > s && e === (v.lastIndexOf('\n', e - 1) + 1)) r1--;
+		if(r1 < r0) r1 = r0;
+
+		if(dir < 0 && r0 === 0) return;                  // first line can't move up
+		if(dir > 0 && r1 === rows.length - 1) return;    // last line can't move down
+
+		const block = rows.splice(r0, r1 - r0 + 1);
+		rows.splice(r0 + dir, 0, ...block);
+		const next = rows.join('\n');
+
+		const offsetOfRow = (arr, row) => { let o = 0; for(let i = 0; i < row; i++) o += arr[i].length + 1; return o; };
+		const shift = offsetOfRow(rows, r0 + dir) - offsetOfRow(v.split('\n'), r0);
+		this._setValueAndCaret(next, s + shift, e + shift);
+	}
+
+	_sanitizeTabs() {
+		const ta = this.textarea, v = ta.value, caret = ta.selectionStart;
+		const tabsBefore = (v.slice(0, caret).match(/\t/g) || []).length;
+		const nc = caret + tabsBefore * (this.opts.tabSize - 1);
+		this._setValueAndCaret(v.replace(/\t/g, this.tab), nc);
+	}
+
+	// ── Highlighting + gutter + sizing ──────────────────────────────────
+
+	_renderHighlight() {
+		let toks = this._tokenize(this.textarea.value);
+		toks = this._injectFoldMarks(toks);
+		CerbUI.editorCore.renderTokens(this.highlight, toks, CerbUI.KataEditor._TOK_CLASS);
+		this._syncScroll();
+	}
+
+	// Append a zero-text `foldmark` token at the end of each collapsed header's VIEW row so the mirror paints a
+	// collapse indicator there (a CSS-mask icon). Newlines are standalone tokens, so we count them to find rows.
+	_injectFoldMarks(toks) {
+		if(!this._folds.length) return toks;
+		const rows = new Set();
+		for(const f of this._folds) { const vr = this._modelRowToViewRow(f.startRow); if(vr >= 0) rows.add(vr); }
+		if(!rows.size) return toks;
+		const out = [];
+		let row = 0;
+		for(const t of toks) {
+			if(t.type === 'text' && t.value === '\n') {
+				if(rows.has(row)) out.push({ type: 'foldmark', value: '' });
+				out.push(t); row++;
+				continue;
+			}
+			out.push(t);
+		}
+		if(rows.has(row)) out.push({ type: 'foldmark', value: '' });  // last row (no trailing newline)
+		return out;
+	}
+
+	_syncScroll() {
+		CerbUI.editorCore.syncScroll(this.textarea, this.highlight);
+		if(this.gutter) this.gutter.scrollTop = this.textarea.scrollTop;
+	}
+
+	_renderGutter() {
+		if(!this.gutter) return;
+		const hidden = this._hidden;
+		// Map each foldable header row -> collapsed? (a detected range that's also in _folds is collapsed).
+		const headerState = new Map();
+		for(const r of this._foldableRanges()) headerState.set(r.headerRow, false);
+		for(const f of this._folds) headerState.set(f.startRow, true);
+		const anyFoldable = headerState.size > 0;             // reserve the chevron column only when needed
+		// Reserve the LEFT marker column when any marker exists, or whenever a gutter-click handler is wired
+		// (so an empty margin stays clickable to add a breakpoint).
+		const anyMarker = this._markers.size > 0 || typeof this.opts.onGutterClick === 'function';
+		const esc = CerbUI.editorCore.escapeHtml;
+		const mCount = this._modelLines().length;
+		let html = '';
+		for(let mr = 0; mr < mCount; mr++) {
+			if(hidden.has(mr)) continue;                       // collapsed-away rows have no gutter line
+			const num = mr + 1;                                // MODEL number — jumps across folds (1,2,6…)
+			const active = (this._highlightRow === mr) ? ' cerb-ui-kataeditor--gutter-line-active' : '';
+			const isHeader = headerState.has(mr);
+			// Marker slot, LEFT of the numbers (icon or pip). A reserved empty slot keeps the column aligned and
+			// stays clickable; markers on rows hidden inside a fold simply don't render (the row is skipped above).
+			let marker = '';
+			if(anyMarker) {
+				const mk = this._markers.get(mr);
+				let cls = 'cerb-ui-kataeditor--gutter-marker', style = '';
+				if(mk) {
+					cls += mk.pip ? ' cerb-ui-kataeditor--gutter-marker-pip' : (mk.icon ? (' cerb-icons cerb-icon-' + mk.icon) : '');
+					if(mk.type) cls += ' cerb-ui-kataeditor--gutter-marker-' + mk.type;
+					if(mk.color) style = ' style="color:var(--cerb-color-tag-' + mk.color + ')"';
+				}
+				marker = '<span class="' + cls + '" data-model-row="' + mr + '"' + style +
+					(mk && mk.title ? (' title="' + esc(mk.title) + '"') : '') + '></span>';
+			}
+			// Fold chevron sits to the RIGHT of the right-aligned number; an empty slot keeps the column aligned.
+			const slot = !anyFoldable ? '' :
+				('<span class="cerb-ui-kataeditor--gutter-fold' +
+					(isHeader ? (' cerb-icons cerb-icon-' + (headerState.get(mr) ? 'chevron-right' : 'chevron-down')) : '') +
+					'"' + (isHeader ? (' data-fold-row="' + mr + '"') : '') + '></span>');
+			const foldable = isHeader ? ' cerb-ui-kataeditor--gutter-line-foldable' : '';
+			html += '<div class="cerb-ui-kataeditor--gutter-line' + active + foldable + '">' +
+				marker + '<span class="cerb-ui-kataeditor--gutter-num">' + num + '</span>' + slot + '</div>';
+		}
+		this.gutter.innerHTML = html;
+		this.gutter.scrollTop = this.textarea.scrollTop;
+	}
+
+	// ⌘/Ctrl+Shift+↓ / ↑ — grow/shrink the editor's max visible rows (in-memory for this session). Capped at the
+	// number of currently-visible lines: growing past the content does nothing (the editor only renders content
+	// height), and that dead zone is exactly why shrinking from above it felt unresponsive.
+	_resizeMaxLines(delta) {
+		const docLines = this.textarea.value.split('\n').length;       // visible (projection) line count
+		const ceiling = Math.max(this.opts.minLines, Math.min(docLines, 100));
+		const n = Math.max(this.opts.minLines, Math.min((this.opts.maxLines || 20) + delta, ceiling));
+		if(n === this.opts.maxLines) return;
+		this.opts.maxLines = n;
+		this._autosize();
+		// (future) a hook could persist this / notify the host here.
+	}
+
+	_autosize() {
+		const ta = this.textarea;
+		const cs = window.getComputedStyle(ta);
+		const lh = parseFloat(cs.lineHeight) || (parseFloat(cs.fontSize) * 1.5);
+		const padY = (parseFloat(cs.paddingTop) || 0) + (parseFloat(cs.paddingBottom) || 0);
+		const minH = this.opts.minLines * lh + padY;
+		const maxH = this.opts.maxLines * lh + padY;
+		ta.style.height = 'auto';
+		const h = Math.max(minH, Math.min(ta.scrollHeight, maxH));
+		ta.style.height = h + 'px';
+		ta.style.overflowY = (ta.scrollHeight > maxH + 1) ? 'auto' : 'hidden';
+		this.highlight.style.height = h + 'px';
+		if(this.gutter) this.gutter.style.height = h + 'px';
+		this._syncScroll();
+	}
+
+	_lines() { return this.textarea.value.split('\n'); }       // projection (view) lines
+	_modelLines() { return this._model.split('\n'); }          // full-document lines
+
+	// ── Code folding internals (model ⇄ projection) ─────────────────────
+
+	_hiddenModelRows() {
+		const s = new Set();
+		for(const f of this._folds) for(let r = f.startRow + 1; r <= f.endRow; r++) s.add(r);
+		return s;
+	}
+
+	// view row -> model row (skips hidden rows); model row -> view row (-1 if the row is hidden).
+	_viewRowToModelRow(vr) {
+		const total = this._modelLines().length;
+		let v = 0;
+		for(let mr = 0; mr < total; mr++) {
+			if(this._hidden.has(mr)) continue;
+			if(v === vr) return mr;
+			v++;
+		}
+		return Math.max(0, total - 1);
+	}
+	_modelRowToViewRow(mr) {
+		if(this._hidden.has(mr)) return -1;
+		let v = 0;
+		for(let r = 0; r < mr; r++) if(!this._hidden.has(r)) v++;
+		return v;
+	}
+
+	// char offset in a projection string -> char offset in this._model (a column maps 1:1 since folds never
+	// split a line). `projText` is passed explicitly because the live textarea may already hold the new value.
+	_viewOffsetToModelOffset(projText, off) {
+		const before = projText.slice(0, off);
+		const vRow = (before.match(/\n/g) || []).length;
+		const vCol = off - (before.lastIndexOf('\n') + 1);
+		const mRow = this._viewRowToModelRow(vRow);
+		const mLines = this._modelLines();
+		let mOff = 0;
+		for(let r = 0; r < mRow; r++) mOff += mLines[r].length + 1;
+		return mOff + Math.min(vCol, mLines[mRow] != null ? mLines[mRow].length : vCol);
+	}
+
+	// char offset in this._model -> char offset in the current textarea projection. A hidden target snaps to
+	// the end of its enclosing fold header (the nearest visible spot).
+	_modelOffsetToViewOffset(mOff) {
+		const mLines = this._modelLines();
+		let acc = 0, mRow = 0;
+		for(; mRow < mLines.length; mRow++) { if(mOff <= acc + mLines[mRow].length) break; acc += mLines[mRow].length + 1; }
+		if(mRow >= mLines.length) mRow = mLines.length - 1;
+		let col = mOff - acc;
+		let vRow = this._modelRowToViewRow(mRow);
+		if(vRow === -1) {
+			const f = this._folds.find(f => mRow > f.startRow && mRow <= f.endRow);
+			const hdr = f ? f.startRow : mRow;
+			vRow = this._modelRowToViewRow(hdr);
+			col = mLines[hdr].length;
+		}
+		const view = this.textarea.value.split('\n');
+		let vo = 0;
+		for(let i = 0; i < vRow; i++) vo += view[i].length + 1;
+		return vo + Math.min(col, view[vRow] != null ? view[vRow].length : col);
+	}
+
+	_projectedText() {
+		if(!this._folds.length) return this._model;
+		const mLines = this._modelLines();
+		const out = [];
+		for(let r = 0; r < mLines.length; r++) if(!this._hidden.has(r)) out.push(mLines[r]);
+		return out.join('\n');
+	}
+
+	// Recompute the textarea from this._model + this._folds and re-render. A fold toggle is NOT an undoable
+	// text edit, so we write the value directly (execCommand would push an undo entry). Optionally restores the
+	// caret to a model offset (mapped into the new projection).
+	_rebuildProjection(caretModelOffset) {
+		this._hidden = this._hiddenModelRows();
+		const proj = this._projectedText();
+		const ta = this.textarea;
+		this._suppressInput = true;
+		ta.value = proj;
+		this._suppressInput = false;
+		this._lastProjection = proj;
+		if(caretModelOffset != null) {
+			const vo = this._modelOffsetToViewOffset(caretModelOffset);
+			ta.selectionStart = ta.selectionEnd = vo;
+		}
+		this._renderHighlight();
+		this._autosize();
+		this._renderGutter();
+		this._scrollCaretIntoView();
+	}
+
+	// Expand every fold hiding a given model row (handles nested folds), then rebuild.
+	_revealModelRow(mr) {
+		const before = this._folds.length;
+		this._folds = this._folds.filter(f => !(mr > f.startRow && mr <= f.endRow));
+		if(this._folds.length !== before) this._rebuildProjection();
+	}
+
+	// Before a structural line edit (indent/dedent/newline/delete/move): if the caret/selection sits on a
+	// collapsed header, expand it first so the op acts on full text (a header must never drift from its body).
+	_revealForEdit() {
+		if(!this._folds.length) return;
+		const ta = this.textarea, v = ta.value, s = ta.selectionStart, e = ta.selectionEnd;
+		const vr0 = (v.slice(0, s).match(/\n/g) || []).length;
+		const vr1 = (v.slice(0, e).match(/\n/g) || []).length;
+		const touched = new Set();
+		for(let vr = vr0; vr <= vr1; vr++) touched.add(this._viewRowToModelRow(vr));
+		if(!this._folds.some(f => touched.has(f.startRow))) return;
+		const mS = this._viewOffsetToModelOffset(v, s), mE = this._viewOffsetToModelOffset(v, e);
+		this._folds = this._folds.filter(f => !touched.has(f.startRow));
+		this._hidden = this._hiddenModelRows();
+		const proj = this._projectedText();
+		this._suppressInput = true; ta.value = proj; this._suppressInput = false;
+		this._lastProjection = proj;
+		ta.selectionStart = this._modelOffsetToViewOffset(mS);
+		ta.selectionEnd = this._modelOffsetToViewOffset(mE);
+	}
+
+	// Reconcile a projection edit (typing, programmatic edit, autocomplete apply) back into this._model and
+	// remap active folds. The replaced span lives entirely in visible text, so it maps cleanly to the model.
+	_applyProjectionEditToModel() {
+		const newProj = this.textarea.value;
+		const oldProj = this._lastProjection;
+		if(oldProj === newProj) return;
+
+		if(!this._folds.length) { this._model = newProj; this._lastProjection = newProj; return; } // fast path
+
+		// minimal diff in projection space (same algorithm as _writeValue)
+		let p = 0; const max = Math.min(oldProj.length, newProj.length);
+		while(p < max && oldProj[p] === newProj[p]) p++;
+		let so = oldProj.length, sn = newProj.length;
+		while(so > p && sn > p && oldProj[so - 1] === newProj[sn - 1]) { so--; sn--; }
+		const removed = oldProj.slice(p, so), inserted = newProj.slice(p, sn);
+
+		const oldModel = this._model;
+		const mStart = this._viewOffsetToModelOffset(oldProj, p);
+		const mEnd = this._viewOffsetToModelOffset(oldProj, so);
+		this._model = oldModel.slice(0, mStart) + inserted + oldModel.slice(mEnd);
+		this._remapFolds(mStart, mEnd, inserted, removed, oldModel);
+		this._hidden = this._hiddenModelRows();
+		this._lastProjection = newProj;
+	}
+
+	// Shift folds the edit was strictly above; keep folds it was strictly below or a pure in-line header edit;
+	// dissolve folds whose header/body the edit destabilized (so the body reappears).
+	_remapFolds(mStart, mEnd, inserted, removed, oldModel) {
+		const lineDelta = (inserted.match(/\n/g) || []).length - (removed.match(/\n/g) || []).length;
+		const structural = lineDelta !== 0 || removed.indexOf('\n') !== -1;
+		const oldLines = oldModel.split('\n');
+		const rowOffset = (row) => { let o = 0; for(let i = 0; i < row; i++) o += oldLines[i].length + 1; return o; };
+		const kept = [];
+		for(const f of this._folds) {
+			const hdrStart = rowOffset(f.startRow);
+			const hdrEnd = hdrStart + (oldLines[f.startRow] != null ? oldLines[f.startRow].length : 0);
+			const bodyEnd = rowOffset(f.endRow) + (oldLines[f.endRow] != null ? oldLines[f.endRow].length : 0);
+			if(mStart >= bodyEnd) { kept.push(f); continue; }                       // entirely below
+			if(mEnd <= hdrStart) {                                                  // entirely above the header
+				f.startRow += lineDelta; f.endRow += lineDelta; f.headerRow = f.startRow; kept.push(f); continue;
+			}
+			if(mStart >= hdrStart && mEnd <= hdrEnd && !structural) { kept.push(f); continue; } // in-line header edit
+			// otherwise dissolve (drop f)
+		}
+		this._folds = kept.sort((a, b) => a.startRow - b.startRow);
+	}
+
+	// Foldable indentation subtrees in MODEL space: a `key:` header with at least one deeper-indented child.
+	// Reuses the tokenizer's key-line regex; blanks belong to the subtree, trailing blanks are trimmed off.
+	_foldableRanges() {
+		const lines = this._modelLines();
+		const KEY = /^(\s*)([\w.]+)(\/[^\s:@]+)?((?:@[A-Za-z0-9_]+)(?:,[A-Za-z0-9_]+)*)?:/;
+		const out = [];
+		for(let r = 0; r < lines.length; r++) {
+			const m = lines[r].match(KEY);
+			if(!m) continue;
+			const headerIndent = m[1].length;
+			let end = r;
+			for(let k = r + 1; k < lines.length; k++) {
+				const t = lines[k].trimStart();
+				if(t.length === 0) { end = k; continue; }                  // blank: tentatively part of the subtree
+				if(lines[k].length - t.length > headerIndent) end = k; else break;
+			}
+			while(end > r && lines[end].trim().length === 0) end--;        // don't fold trailing blank lines
+			if(end > r) out.push({ headerRow: r, startRow: r, endRow: end });
+		}
+		return out;
+	}
+
+	// ── KATA tokenizer (drives the highlight mirror) ────────────────────
+	// Line-oriented: KATA structure is indentation + line based. Returns a flat token list covering every
+	// character (newlines included), so editorCore.renderTokens can build the colored mirror spans.
+
+	_tokenize(text) {
+		const lines = text.split('\n');
+		const toks = [];
+		let blockIndent = null; // indent (length) of the key owning an open @annotation text block, or null
+		let scriptOpen = null;  // a '{{'/'{%' tag left open by a previous line (KataScript spans lines)
+
+		for(let li = 0; li < lines.length; li++) {
+			if(li > 0) toks.push({ type: 'text', value: '\n' });
+			const line = lines[li];
+
+			// Continuation of a multi-line script tag — the whole line is tag content until it closes.
+			if(scriptOpen) { scriptOpen = this._pushValueTokens(toks, line, 'value', false, scriptOpen); continue; }
+
+			const trimmed = line.trimStart();
+			const indentLen = line.length - trimmed.length;
+
+			// Inside an open text block: deeper-or-blank lines are literal content (default color; only script
+			// tags are highlighted — not '#' comments, not cerb: URIs). A dedent to <= the key's indent ends it.
+			if(blockIndent !== null) {
+				if(trimmed.length === 0) { toks.push({ type: 'text', value: line }); continue; }
+				if(indentLen > blockIndent) { scriptOpen = this._pushValueTokens(toks, line, 'text', true, null); continue; }
+				blockIndent = null; // dedented — fall through and parse normally
+			}
+
+			// Comment: a line whose first non-space char is '#'.
+			if(trimmed.charAt(0) === '#') { toks.push({ type: 'comment', value: line }); continue; }
+
+			// Key line: indent, name, optional /identifier, optional @annotation,csv run, then ':'.
+			const m = line.match(/^(\s*)([\w.]+)(\/[^\s:@]+)?((?:@[A-Za-z0-9_]+)(?:,[A-Za-z0-9_]+)*)?:/);
+			if(m) {
+				const indent = m[1], name = m[2], slash = m[3] || '', ann = m[4] || '';
+				if(indent) toks.push({ type: 'text', value: indent });
+				toks.push({ type: 'key', value: name });
+				if(slash) toks.push({ type: 'keyslash', value: slash });
+				if(ann) toks.push({ type: 'annotation', value: ann });
+				toks.push({ type: 'colon', value: ':' });
+				const rest = line.slice(m[0].length);
+				if(rest.length) scriptOpen = this._pushValueTokens(toks, rest, 'value', false, null);
+				// An annotated key with no inline value opens a text block for its deeper-indented lines.
+				if(ann && rest.trim().length === 0) blockIndent = indent.length;
+				continue;
+			}
+
+			// Anything else: a bare value/continuation line.
+			scriptOpen = this._pushValueTokens(toks, line, 'value', false, null);
+		}
+		return toks;
+	}
+
+	// Tokenize a value/block string: KataScript tags via the shared module (opens `{{`/`{%` immediately), and
+	// non-tag runs as `baseType` — with `cerb:` URIs detected unless `noUris` (literal inside a text block).
+	// `startOpen` continues a tag from the previous line; returns the opener still in effect (or null).
+	_pushValueTokens(toks, str, baseType, noUris, startOpen) {
+		const plain = noUris
+			? function(t, s, bt) { if(s) t.push({ type: bt, value: s }); }
+			: function(t, s, bt) {
+				if(!s) return;
+				const RX = /cerb:[^\s)\]]+/g;
+				let last = 0, mm;
+				while((mm = RX.exec(s)) !== null) {
+					if(mm.index > last) t.push({ type: bt, value: s.slice(last, mm.index) });
+					t.push({ type: 'uri', value: mm[0] });
+					last = mm.index + mm[0].length;
+				}
+				if(last < s.length) t.push({ type: bt, value: s.slice(last) });
+			};
+		return CerbUI.editorCore.kataScript.tokenize(toks, str, baseType, startOpen, plain);
+	}
+
+	// ── KATA key-path at the caret (port of getKataTokenPath over a plain string) ──
+	// Returns { path:['automation:','inputs:'], prefix:'partial', prefixRaw:'chars to replace', caret }.
+	// In VALUE position (a `key:` precedes the caret on this line) the current key is the final path segment and
+	// the prefix is the partial value. In KEY position (typing a key) the path is the ancestor chain and the
+	// prefix is the partial key. Ancestors are found by walking up to lines with strictly smaller indent.
+
+	_scopePathAt(text, caret) {
+		// Inside a script tag the "path" is meaningless; return the partial script word so an accepted
+		// suggestion replaces it (not the surrounding KATA value).
+		const tctx = CerbUI.editorCore.kataScript.contextAt(text, caret);
+		if(tctx) return { path: [], prefix: tctx.prefix, prefixRaw: tctx.prefixRaw, caret };
+
+		const before = text.slice(0, caret);
+		const lineStart = before.lastIndexOf('\n') + 1;
+		const col = caret - lineStart;
+		const nlAfter = text.indexOf('\n', caret);
+		const curLine = text.slice(lineStart, nlAfter === -1 ? undefined : nlAfter);
+		const indentLen = curLine.length - curLine.trimStart().length;
+		const KEY = /^(\s*)((?:[\w.]+)(?:\/[^\s:@]+)?(?:@[A-Za-z0-9_,]+)?):/;
+
+		const path = [];
+		let prefix = '', prefixRaw = '', walkIndent = indentLen;
+
+		const km = curLine.match(KEY);
+		if(km && km[0].length <= col) {
+			// Value position: a key precedes the caret on this line.
+			path.push(km[2] + ':');
+			const valStr = before.slice(lineStart + km[0].length); // text after the key, up to the caret
+			const wm = valStr.match(/(\S*)$/);
+			prefix = wm ? wm[1] : '';
+			prefixRaw = prefix;
+		} else {
+			// Key position: the partial key being typed is the prefix.
+			prefix = before.slice(lineStart + indentLen);
+			prefixRaw = prefix;
+			// On a blank/whitespace line nothing fixes the indent yet, so the caret's column is the intended
+			// one — dedenting (backspacing) to the parent's level makes the path follow, back out to (root).
+			if(curLine.trim().length === 0) walkIndent = col;
+		}
+
+		// Walk up to each ancestor line with strictly smaller indent, prepending its key.
+		let idx = lineStart - 1; // index of the '\n' ending the previous line (or -1)
+		while(idx >= 0 && walkIndent > 0) {
+			const prevNl = text.lastIndexOf('\n', idx - 1);
+			const pStart = prevNl + 1;
+			const pLine = text.slice(pStart, idx);
+			idx = prevNl;
+			if(pLine.trim().length === 0) continue;
+			const pIndent = pLine.length - pLine.trimStart().length;
+			if(pIndent < walkIndent) {
+				const pm = pLine.match(KEY);
+				if(pm) path.unshift(pm[2] + ':');
+				walkIndent = pIndent;
+			}
+		}
+
+		return { path, prefix, prefixRaw, caret };
+	}
+
+	// True when the caret sits where autocomplete must stay quiet: inside an @annotation text block (an
+	// annotated, value-less key opens a block; every deeper-or-blank line is literal content until the indent
+	// returns to <= the key's indent), or on a `#` comment line. Mirrors the tokenizer's block tracking so the
+	// two agree exactly — a CRLF after `field@text:` makes the lines below it a block, not new keys.
+	_autocompleteSuppressed(text, caret) {
+		const caretLineIdx = (text.slice(0, caret).match(/\n/g) || []).length;
+		const lines = text.split('\n');
+		const KEY = /^(\s*)([\w.]+)(\/[^\s:@]+)?((?:@[A-Za-z0-9_]+)(?:,[A-Za-z0-9_]+)*)?:/;
+		let blockIndent = null;
+
+		for(let li = 0; li <= caretLineIdx; li++) {
+			const line = lines[li];
+			const trimmed = line.trimStart();
+			const indentLen = line.length - trimmed.length;
+
+			if(li === caretLineIdx) {
+				if(blockIndent !== null) {
+					// On a blank/whitespace caret line the caret's column is the intended indent, so dedenting
+					// (backspacing) out to the key's level escapes the block even before a key is typed.
+					const caretCol = caret - (text.lastIndexOf('\n', caret - 1) + 1);
+					const eff = (trimmed.length === 0) ? caretCol : indentLen;
+					if(eff > blockIndent) return true;          // still deeper than the key — block content
+					// at/above the key's indent -> out of the block; fall through to the comment check
+				}
+				return trimmed.charAt(0) === '#';               // a comment line suppresses too
+			}
+
+			if(blockIndent !== null) {
+				if(trimmed.length === 0) continue;              // blank stays in the block
+				if(indentLen > blockIndent) continue;           // still block content
+				blockIndent = null;                             // dedented — parse as a key below
+			}
+			if(trimmed.charAt(0) === '#') continue;             // comments don't open blocks
+			const m = line.match(KEY);
+			if(m && (m[4] || '') && line.slice(m[0].length).trim().length === 0)
+				blockIndent = m[1].length;                      // annotated, value-less key opens a block
+		}
+		return false;
+	}
+};
+
+// Token type -> CSS class for the highlight mirror (value/text have no class = default literal color).
+// The whole key — name, /identifier, @annotations, and the trailing colon — shares the field color, matching
+// the legacy Ace cerb_kata theme. Text-block content is the default literal color. Script-tag tokens
+// (delimiters/strings/numbers/functions) are colored by the SHARED editorCore.kataScript classes, merged in
+// here so a future TemplateEditor uses the same palette.
+CerbUI.KataEditor._TOK_CLASS = Object.assign({
+	comment:    'cerb-ui-kataeditor--tok-comment',
+	key:        'cerb-ui-kataeditor--tok-key',
+	keyslash:   'cerb-ui-kataeditor--tok-key',
+	annotation: 'cerb-ui-kataeditor--tok-key',
+	colon:      'cerb-ui-kataeditor--tok-key',
+	uri:        'cerb-ui-kataeditor--tok-uri',
+	foldmark:   'cerb-ui-kataeditor--fold-indicator cerb-icons cerb-icon-move-horizontal',
+}, CerbUI.editorCore.kataScript.TOK_CLASS);
+
+// Gutter marker type presets: a default icon (a `cerb-icon-<name>`) or `pip` (a colored dot) + a tag color.
+// `setMarker` lets the caller override any of icon/pip/color/title. Hosts can also pass a bare icon name (e.g.
+// `stop` for where a script stopped, `stopwatch` for an `await:` continuation).
+CerbUI.KataEditor._MARKER_TYPES = {
+	error:      { icon: 'circle-exclamation-mark', color: 'red' },
+	warning:    { icon: 'alert',                    color: 'orange' },
+	info:       { icon: 'circle-info',              color: 'blue' },
+	breakpoint: { pip: true,                        color: 'red' },
+};
+
+/*
+ * kataFieldSource(suggestionMap, opts) — a ready-made onAutocomplete that drives the KATA editor from Cerb's
+ * existing autocomplete data, a port of cerberus.js `autocompleterKata` (getCompletions + parseCompletions).
+ *
+ * `suggestionMap` is a path-keyed object: each key is a normalized KATA scope (colon-joined, e.g.
+ * `automation:inputs:`) and each value is either a static Array of suggestions, or a dynamic descriptor
+ * `{ type, params? }`. It's typically one of the global `cerbAutocompleteSuggestions.*` schemas (e.g.
+ * `kataAutomationPolicy`, `kataSchemaMetricsExplorerSeries`, `kataToolbar`) or a per-trigger JSON blob. A `'*'`
+ * key may hold a { regexPattern -> suggestions } bucket for variable paths.
+ *
+ * Static arrays are filtered client-side; dynamic descriptors POST to the existing
+ * `c=ui&a=kataSuggestions<Type>Json` endpoints (unchanged), reading sibling key values back out of the editor
+ * via getTokenPath()/getRowByPath()/getLine(). `opts.filterMode` controls client-side filtering of static lists.
+ */
+CerbUI.KataEditor.kataFieldSource = function(suggestionMap, opts) {
+	opts = opts || {};
+	const mode = opts.filterMode || 'subsequence';
+	const typeDefaults = opts.autocomplete_type_defaults || opts.typeDefaults || {};
+
+	// Strip /identifiers and @annotations from each segment so `series/s0:metric@int:` keys as `series:metric:`.
+	function normalizePath(path) {
+		return path.map(function(v) {
+			let p = v.indexOf('@'); if(p !== -1) v = v.slice(0, p) + ':';
+			p = v.indexOf('/'); if(p !== -1) v = v.slice(0, p) + ':';
+			return v;
+		});
+	}
+
+	function toItem(s) {
+		if(typeof s === 'string') s = { caption: s, snippet: s };
+		const value = (s.snippet != null) ? CerbUI.editorCore.aceSnippetToCerb(s.snippet)
+			: (s.value != null ? s.value : s.caption);
+		const item = {
+			caption: (s.caption != null) ? s.caption : value,
+			value: value,
+			hint: s.hint || s.meta || null,
+		};
+		if(typeof s.score === 'number') item.score = s.score;
+		// Re-open suggestions after a pick only when the inserted text introduces a new key (contains ':') —
+		// matches the legacy completer's insertMatchAndAutocomplete. A terminal value doesn't cascade.
+		const ins = (s.snippet != null) ? s.snippet : value;
+		item.suppressAutocomplete = s.suppress_autocomplete ? true : (String(ins).indexOf(':') === -1);
+		return item;
+	}
+
+	function staticList(arr, prefix) {
+		return CerbUI.editorCore.filterItems(arr.map(toItem), prefix, mode);
+	}
+
+	function post(action, params) {
+		return new Promise(function(resolve) {
+			const fd = new FormData();
+			fd.set('c', 'ui');
+			fd.set('a', action);
+			for(const k in params) if(params[k] != null) fd.set(k, params[k]);
+			genericAjaxPost(fd, '', '', function(json) { resolve(Array.isArray(json) ? json.map(toItem) : []); });
+		});
+	}
+
+	// Read the inline value of a sibling key (the `value` in `key: value`) via the editor buffer.
+	function siblingValue(editor, pathArr) {
+		const row = editor.getRowByPath(pathArr.join(''));
+		if(row === false) return null;
+		const m = editor.getLine(row).match(/[^:]*:\s*(.*)/);
+		return (m && m.length === 2) ? m[1] : null;
+	}
+
+	function resolveDynamic(desc, ctx) {
+		const editor = ctx.editor, prefix = ctx.prefix || '', type = desc.type;
+		let params = Object.assign({}, desc.params || {});
+		if(typeDefaults[type] && typeof typeDefaults[type] === 'object')
+			params = Object.assign(params, typeDefaults[type]);
+		if(!editor) return Promise.resolve([]);
+
+		switch(type) {
+			case 'cerb-uri':
+				return post('kataSuggestionsCerbUriJson', { prefix: prefix, params: $.param(params) });
+			case 'record-type':
+				return post('kataSuggestionsRecordTypeJson', { prefix: prefix });
+			case 'icon':
+				return post('kataSuggestionsIconJson', { prefix: prefix });
+			case 'metric-names':
+				return post('kataSuggestionsMetricNamesJson', { prefix: prefix });
+			case 'record-field': {
+				const p = { prefix: prefix };
+				if(typeof params.record_type === 'string') p['params[record_type]'] = params.record_type;
+				if(typeof params.field_key === 'string') p['params[field_key]'] = params.field_key;
+				return post('kataSuggestionsRecordFieldJson', p);
+			}
+			case 'record-fields': {
+				let record_type = '';
+				if(params.record_type) {
+					record_type = params.record_type;
+				} else if(params.parent_key) {
+					const rp = editor.getTokenPath(); rp.pop();
+					const pk = rp.pop() || '';
+					const mm = pk.match(/([^:]*):/);
+					if(mm && mm.length === 2) record_type = mm[1].split('/')[0];
+				} else {
+					const rp = editor.getTokenPath(); rp.pop(); rp.push('record_type:');
+					record_type = siblingValue(editor, rp) || '';
+				}
+				return post('kataSuggestionsRecordFieldsJson', { prefix: prefix, 'params[record_type]': record_type });
+			}
+			case 'record-fields-value': {
+				const rp = editor.getTokenPath();
+				const field = rp.pop();
+				let record_type;
+				if(params.record_type) {
+					record_type = params.record_type;
+				} else {
+					rp.pop(); rp.push('record_type:');
+					record_type = siblingValue(editor, rp) || '';
+				}
+				if(record_type && field)
+					return post('kataSuggestionsRecordFieldsValueJson', {
+						prefix: prefix,
+						'params[record_type]': record_type,
+						'params[field_name]': field.split(':')[0].split('@')[0],
+					});
+				return Promise.resolve([]);
+			}
+			case 'automation-inputs': {
+				const up = editor.getTokenPath(); up.pop(); up.push('uri:');
+				const uri = siblingValue(editor, up);
+				if(uri != null)
+					return post('kataSuggestionsAutomationInputsJson', { prefix: prefix, 'params[uri]': uri });
+				return Promise.resolve([]);
+			}
+			case 'automation-command-params': {
+				const kp = editor.getTokenPath();
+				const ip = kp.slice();
+				while(ip.length && ip[ip.length - 1] !== 'inputs:') ip.pop();
+				if(ip[ip.length - 1] === 'inputs:') {
+					const np = ip.slice(); np.push('name:');
+					const name = siblingValue(editor, np);
+					const rel = kp.slice(ip.length + 1);
+					if(name != null)
+						return post('kataSuggestionsAutomationCommandParamsJson', {
+							prefix: prefix,
+							'params[name]': name,
+							'params[prefix]': prefix,
+							'params[key_path]': rel.join(''),
+							'params[key_fullpath]': kp.join(''),
+							'params[script]': editor.getValue(),
+						});
+				}
+				return Promise.resolve([]);
+			}
+			case 'metric-dimensions': {
+				const kp = editor.getTokenPath(); kp.pop(); kp.push('metric_name:');
+				const metric = siblingValue(editor, kp);
+				if(metric != null)
+					return post('kataSuggestionsMetricDimensionJson', { prefix: prefix, 'params[metric]': metric });
+				return Promise.resolve([]);
+			}
+			case 'metric-dimensions-series': {
+				const kp = editor.getTokenPath();
+				while(kp.length && !/^series\//.test(kp[kp.length - 1])) kp.pop();
+				if(kp.length) {
+					kp.push('metric:');
+					const metric = siblingValue(editor, kp);
+					if(metric != null && metric.indexOf('{{') === -1)
+						return post('kataSuggestionsMetricDimensionJson', { prefix: prefix, 'params[metric]': metric.trim() });
+				}
+				return Promise.resolve([]);
+			}
+		}
+		return Promise.resolve([]);
+	}
+
+	return function(ctx) {
+		const scopeKey = normalizePath(ctx.path).join('');
+		const prefix = ctx.prefix || '';
+		let completions = suggestionMap[scopeKey];
+
+		// Fall back to the '*' regex-pattern bucket for variable (identifier-bearing) paths.
+		if(completions === undefined && suggestionMap['*'] && typeof suggestionMap['*'] === 'object') {
+			for(const pat in suggestionMap['*']) {
+				try { if(new RegExp(pat).test(scopeKey)) { completions = suggestionMap['*'][pat]; break; } } catch(_) {}
+			}
+		}
+
+		if(Array.isArray(completions)) return staticList(completions, prefix);
+		if(completions && typeof completions === 'object' && completions.type)
+			return resolveDynamic(completions, ctx);
+		return [];
+	};
+};
