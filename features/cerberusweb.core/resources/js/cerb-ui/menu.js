@@ -36,7 +36,7 @@ CerbUI.Menu = class {
 		onRenderItem: null,   // (renderedLi, sourceLi) after the label, before the arrow — the icon hook
 		clearActiveOnLeave: false, // drop the hover highlight when the pointer leaves a panel (no submenu open)
 		itemHeight: 28,       // px; MUST match the .cerb-ui-menu--item CSS height (virt math depends on it)
-		maxHeight: 380,       // px before a panel scrolls
+		maxHeight: 380,       // px before a panel scrolls; or 'viewport' to grow into the available viewport height
 		virtThreshold: 60,    // virtualize panels larger than this
 		openDelay: 80,        // ms hover delay before a submenu opens
 		virtBuffer: 6,        // extra rows rendered above/below the visible window
@@ -65,6 +65,7 @@ CerbUI.Menu = class {
 		this.hoverTimer = null;
 		this.hoverCloseTimer = null;
 		this.hoverMouseInside = false;
+		this.filterPinned = false; // a live filter query keeps a hover menu open even when the mouse leaves
 		this.triggerEnter = null;
 		this.triggerLeave = null;
 		this.anchor = null;
@@ -121,6 +122,29 @@ CerbUI.Menu = class {
 		li.className = 'cerb-ui-menu--spacer';
 		li.setAttribute('aria-hidden', 'true');
 		return li;
+	}
+
+	// Room (px) between the anchor and the viewport edge on each side. `pad` leaves a gap + a filter-box
+	// allowance so a filtered viewport menu doesn't overflow by the height of its search input.
+	_sideSpace() {
+		const vh = document.documentElement.clientHeight;
+		const r = this.anchor.getBoundingClientRect();
+		const pad = 8 + (this.opts.filter ? 40 : 0);
+		return { below: vh - r.bottom - pad, above: r.top - pad };
+	}
+
+	// Effective max list height in px. A number is used verbatim; 'viewport' grows the panel to fill the
+	// room on the side it opens, so a long menu uses the screen instead of scrolling inside a fixed box.
+	// Before the flip side is known (initial fill) the roomier side is assumed; _place pins it thereafter.
+	_maxH(pnl) {
+		const mh = this.opts.maxHeight;
+		if(typeof mh === 'number') return mh;
+		if(!this.anchor) return Math.max(120, document.documentElement.clientHeight - 12);
+		const s = this._sideSpace();
+		const space = pnl && pnl.flipUp === true ? s.above
+			: pnl && pnl.flipUp === false ? s.below
+			: Math.max(s.below, s.above);
+		return Math.max(120, space);
 	}
 
 	// ── Public API ──────────────────────────────────────────────────────
@@ -180,6 +204,7 @@ CerbUI.Menu = class {
 		const wasOpen = this.pnls.length > 0;
 		for(const p of this.pnls) (p.outer || p.el).remove();
 		this.pnls = [];
+		this.filterPinned = false;
 		if(this.docDown) document.removeEventListener('pointerdown', this.docDown, { capture: true });
 		if(this.docKey) document.removeEventListener('keydown', this.docKey);
 		if(this.docMove) document.removeEventListener('mousemove', this.docMove);
@@ -314,7 +339,7 @@ CerbUI.Menu = class {
 		el.scrollTop = 0;
 
 		if(virt) {
-			const visH = Math.min(items.length * o.itemHeight, o.maxHeight);
+			const visH = Math.min(items.length * o.itemHeight, this._maxH(pnl));
 			el.style.height = visH + 'px';
 			el.style.maxHeight = '';   // height controls; --virt CSS supplies the scroll
 			el.style.overflowY = '';
@@ -330,7 +355,7 @@ CerbUI.Menu = class {
 			// Cap + scroll a plain (non-virtualized) panel too — otherwise a list between ~13 and virtThreshold
 			// items grows past maxHeight unbounded (the base panel CSS has no max-height; only --virt scrolls).
 			el.style.height = '';
-			el.style.maxHeight = o.maxHeight + 'px';
+			el.style.maxHeight = this._maxH(pnl) + 'px';
 			el.style.overflowY = 'auto';
 			pnl.visH = 0;
 			if(items.length === 0 && this.opts.filter) {
@@ -416,6 +441,7 @@ CerbUI.Menu = class {
 		const input = pnl.filterInput;
 		if(!input) return;
 		pnl.filterActive = true;
+		this.filterPinned = true; // don't let the hover-close timer yank the menu while the user is filtering
 		input.hidden = false;
 		input.value = (ch != null) ? ch : '';
 		input.focus();
@@ -434,6 +460,7 @@ CerbUI.Menu = class {
 			return;
 		}
 		pnl.filterActive = false;
+		this.filterPinned = false;
 		if(input) { input.value = ''; input.hidden = true; }
 		pnl.items = this.root;
 		this._fillPanel(pnl);
@@ -556,7 +583,7 @@ CerbUI.Menu = class {
 		if(this.hoverCloseTimer !== null) clearTimeout(this.hoverCloseTimer);
 		this.hoverCloseTimer = window.setTimeout(() => {
 			this.hoverCloseTimer = null;
-			if(!this.hoverMouseInside) this.close();
+			if(!this.hoverMouseInside && !this.filterPinned) this.close();
 		}, this.opts.hoverCloseDelay);
 	}
 
@@ -793,7 +820,15 @@ CerbUI.Menu = class {
 			// life of the panel. Filtering re-runs _place on a shorter panel; re-deciding here would let a menu
 			// that opened upward flip back below a near-bottom trigger once it shrank — dropping off the fold.
 			// When flipped up the panel's bottom stays pinned to the trigger top, so it can't leave the viewport.
-			if(pnl.flipUp === null) pnl.flipUp = (r0.bottom + 2 + ph > vh);
+			if(pnl.flipUp === null) {
+				if(typeof this.opts.maxHeight === 'number') {
+					pnl.flipUp = (r0.bottom + 2 + ph > vh);
+				} else {
+					// Viewport mode: open toward the side with more room; flip up only if it won't fit below.
+					const s = this._sideSpace();
+					pnl.flipUp = (s.above > s.below) && (ph > s.below);
+				}
+			}
 			y = pnl.flipUp ? (r0.top - ph - 2) : (r0.bottom + 2);
 			y = Math.max(4, Math.min(y, vh - ph - 4)); // backstop clamp (e.g. a panel taller than the space above)
 			if(x + pw > vw) x = vw - pw - 4;
