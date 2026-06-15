@@ -40,6 +40,7 @@
  *   'none'     — no controls at all; the content fully owns its chrome. Drag via `dragHandle`.
  *
  * Options: title, header ('bar'|'floating'|'none'), draggable, resizable, closable, minimizable, modal,
+ *   spinner (fromAjax loading variant: 'spark' default | 'arc' | 'dots' | null ring),
  *   width, minWidth, minHeight, position {x,y}, namespace (siblings share position + close each other),
  *   fixed, scrollBody, closeOnEscape, closeWarnOnUnsavedChanges, dragHandle (selector), onOpen,
  *   onClose (return false to veto), onMinimize, onDragged, onResized. Also dispatches `cerb-ui-dialog:open`
@@ -217,12 +218,13 @@ CerbUI.Dialog = class {
 	// `request`: a string ⇒ GET (ajax args) or a FormData ⇒ POST. `opts`: constructor options + onLoad.
 	static fromAjax(request, opts = {}) {
 		const content = document.createElement('div'); // detached → origParent null → destroy() removes it all
+		const dlg = new CerbUI.Dialog(content, opts);
+
 		const loading = document.createElement('div');
 		loading.className = 'cerb-ui-dialog--loading';
-		loading.appendChild((window.CerbUI && CerbUI.Spinner) ? CerbUI.Spinner.create() : document.createElement('span'));
+		loading.appendChild((window.CerbUI && CerbUI.Spinner) ? CerbUI.Spinner.create(dlg.opts.spinner) : document.createElement('span'));
 		content.appendChild(loading);
 
-		const dlg = new CerbUI.Dialog(content, opts);
 		// Throwaway popup: tear the DOM down once it closes (keeps hidden dialogs from piling up).
 		content.addEventListener('cerb-ui-dialog:close', () => dlg.destroy(), { once: true });
 		dlg.open(); // spinner shows immediately, centered
@@ -264,6 +266,7 @@ CerbUI.Dialog = class {
 			modal:      false,
 			closeWarnOnUnsavedChanges: false, // warn before closing once a tracked form control is actually changed
 			scrollBody: false, // true = cap to the viewport and scroll the body; default grows + page scrolls
+			spinner:    'spark', // CerbUI.Spinner variant for fromAjax's loading state: 'spark' (default) | 'arc' | 'dots' | null (plain ring)
 			width:      null,  // null = 75% of the viewport capped at _MAX_WIDTH (mobile: always 95%)
 			minWidth:   200,
 			minHeight:  80,

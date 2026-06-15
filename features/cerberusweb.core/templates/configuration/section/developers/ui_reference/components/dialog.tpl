@@ -21,6 +21,7 @@
 				<pre data-cerb-uiref-source>const dlg = new CerbUI.Dialog(el, {
 	title:      'Ticket',     // shown in the bar (header:'bar')
 	header:     'bar',        // 'bar' | 'floating' | 'none'  (default 'bar')
+	spinner:    'spark',      // fromAjax loading spinner: 'spark' (default) | 'arc' | 'dots' | null (ring)
 	draggable:  true,         // default true
 	resizable:  true,         // default true
 	closable:   true,         // show the × button (default true)
@@ -157,7 +158,7 @@ function onSaved(el) {
 
 		{* Example: fromAjax — fetch HTML into a popup (the genericAjaxPopup replacement) *}
 		<div class="cerb-ui-header">
-			<div class="cerb-ui-header--label">AJAX content (<code>CerbUI.Dialog.fromAjax</code>) &mdash; spinner while loading, then the fetched HTML; response <code>&lt;script&gt;</code> runs under the nonce. A tall dialog grows and the <b>page</b> scrolls to it; pass <code>scrollBody:true</code> to cap it to the viewport and scroll the <b>body</b> instead</div>
+			<div class="cerb-ui-header--label">AJAX content (<code>CerbUI.Dialog.fromAjax</code>) &mdash; a spark spinner while loading (configurable via <code>spinner</code>), then the fetched HTML; response <code>&lt;script&gt;</code> runs under the nonce. A tall dialog grows and the <b>page</b> scrolls to it; pass <code>scrollBody:true</code> to cap it to the viewport and scroll the <b>body</b> instead</div>
 		</div>
 		<div class="cerb-uiref-example">
 			<div class="cerb-uiref-demo">
@@ -170,6 +171,7 @@ function onSaved(el) {
 				<pre data-cerb-uiref-source>{literal}// string ⇒ GET (ajax args); FormData ⇒ POST. opts are the constructor options + onLoad.
 CerbUI.Dialog.fromAjax('c=profiles&amp;a=invoke&amp;module=snippet&amp;action=helpPopup', {
 	title: 'Snippet help', // titlebar text
+	// spinner: 'dots',    // loading spinner: 'spark' (default) | 'arc' | 'dots' | null (ring)
 	// width: 600,         // omit → 75% of the viewport, capped at 1100 (mobile: always 95%)
 	// scrollBody: true,   // cap to the viewport + scroll the body (default: grow + page scroll)
 	// namespace: 'peek',  // siblings share position + auto-close each other (supersedes the old layer/reuse)
