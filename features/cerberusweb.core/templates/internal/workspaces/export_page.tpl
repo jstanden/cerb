@@ -13,21 +13,16 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	let $frm = $('#frmWorkspacePageExport');
-	let $popup = genericAjaxPopupFind($frm);
+	const $frm = $('#frmWorkspacePageExport');
+	const dlg = CerbUI.Dialog.from($frm[0]);
 
 	Devblocks.formDisableSubmit($frm);
 
-	$popup.one('popup_open', function() {
-		let $this = $(this);
+	if(dlg)
+		dlg.setTitle("Export Page: " + {$page->name|json_encode nofilter});
 
-		let title = "Export Page: " + {$page->name|json_encode nofilter};
-		$this.dialog('option','title',title);
-
-		$frm.find('button.submit').click(function() {
-			let $popup = genericAjaxPopupFind($(this));
-			$popup.dialog('close');
-		});
+	$frm.find('button.submit').click(function() {
+		if(dlg) dlg.close();
 	});
 });
 </script>

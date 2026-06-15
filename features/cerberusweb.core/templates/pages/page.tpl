@@ -160,7 +160,7 @@ $(function() {
 	// Export page
 	$workspace.find('a.export-page').click(function(e) {
 		e.stopPropagation();
-		genericAjaxPopup('peek','c=pages&a=renderExport&id={$page->id}',null,true,'600');
+		CerbUI.Dialog.fromAjax('c=pages&a=renderExport&id={$page->id}', { modal: true, width: 600, title: 'Export Page' });
 	});
 	
 	// Export tab
@@ -177,8 +177,8 @@ $(function() {
 		
 		if(null == tab_id)
 			return;
-		
-		genericAjaxPopup('peek','c=pages&a=renderExportTab&id=' + encodeURIComponent(tab_id),null,true,'600');
+
+		CerbUI.Dialog.fromAjax('c=pages&a=renderExportTab&id=' + encodeURIComponent(tab_id), { modal: true, width: 600, title: 'Export Tab' });
 	});
 	
 	// Add/Remove in menu
