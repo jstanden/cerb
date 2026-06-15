@@ -386,9 +386,12 @@ class SearchFields_AutomationEvent extends DevblocksSearchFields {
 	const DESCRIPTION = 'a_description';
 	const EXTENSION_ID = 'a_extension_id';
 	const UPDATED_AT = 'a_updated_at';
-	
+
+	const VIRTUAL_SPARKLINE = '*_sparkline';
+	const VIRTUAL_USAGE = '*_usage';
+
 	static private $_fields = null;
-	
+
 	static function getTableName() : string {
 		return 'automation_event';
 	}
@@ -409,16 +412,57 @@ class SearchFields_AutomationEvent extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
+			case self::VIRTUAL_USAGE:
+				return self::_getWhereSQLFromUsageFilter($param);
+
 			default:
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
 				} else {
 					if(null !== ($virtual_where_sql = self::_getWhereSQLForCommonVirtual($param, CerberusContexts::CONTEXT_AUTOMATION_EVENT, self::getPrimaryKey())))
 						return $virtual_where_sql;
-					
+
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
 		}
+	}
+
+	// The usage:(...) threshold vocabulary, shared by the SQL filter and the quick-search validator.
+	static function getMetricFilterMap() : array {
+		return [
+			'runs' => DAO_MetricValue::metricFilterSeries('cerb.automation.invocations', 'counter'),
+			'errors' => DAO_MetricValue::metricFilterSeries('cerb.automation.invocations', 'counter', ['query' => ['exit_state' => 'error']]),
+			'duration' => DAO_MetricValue::metricFilterSeries('cerb.automation.duration', 'counter', ['unit' => 'ms', 'default' => 'avg']),
+		];
+	}
+
+	// Constrain the worklist to events whose metric usage matches usage:(...). The `trigger`
+	// dimension values are extension_ids, so we resolve events that handle those triggers.
+	private static function _getWhereSQLFromUsageFilter(DevblocksSearchCriteria $param) : string {
+		if($param->operator != DevblocksSearchCriteria::OPER_CUSTOM || !is_string($param->value))
+			return '0=1';
+
+		$db = DevblocksPlatform::services()->database();
+
+		$matches = DAO_MetricValue::getDimensionValuesByMetricQuery(
+			$param->value,
+			self::getMetricFilterMap(),
+			'trigger',
+			CerberusApplication::getActiveWorker()?->timezone ?: null
+		);
+
+		// null = invalid criteria (typo, unknown key, unparseable value) => match nothing (fail loud)
+		if(is_null($matches))
+			return '0=1';
+
+		if(!$matches)
+			return '0=1';
+
+		// Matched dimension values are extension_ids; map to the events that use them
+		return sprintf('%s IN (SELECT id FROM automation_event WHERE extension_id IN (%s))',
+			self::getPrimaryKey(),
+			implode(',', $db->qstrArray($matches))
+		);
 	}
 	
 	static function getFieldForSubtotalKey($key, $context, array $query_fields, array $search_fields, $primary_key) {
@@ -460,8 +504,14 @@ class SearchFields_AutomationEvent extends DevblocksSearchFields {
 			self::DESCRIPTION => new DevblocksSearchField(self::DESCRIPTION, 'automation_event', 'description', $translate->_('common.description'), null, true),
 			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'automation_event', 'extension_id', $translate->_('common.extension'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'automation_event', 'updated_at', $translate->_('common.updated'), null, true),
+
+			// Virtual, display-only inline sparkline (runs + duration by trigger, loaded async); not sortable
+			self::VIRTUAL_SPARKLINE => new DevblocksSearchField(self::VIRTUAL_SPARKLINE, '*', '', 'Usage', DevblocksSearchCriteria::TYPE_VIRTUAL_SPARKLINES, false),
+
+			// Virtual, search-only: usage:(runs:>100 duration:>2000 since:"-24 hours"); hidden as a column
+			self::VIRTUAL_USAGE => new DevblocksSearchField(self::VIRTUAL_USAGE, '*', '', 'Usage', null, false),
 		];
-		
+
 		// Virtual fields
 		if(($virtual_columns = DevblocksSearchField::getVirtualFields(watchers: false)))
 			$columns = array_merge($columns, $virtual_columns);
@@ -561,8 +611,14 @@ class View_AutomationEvent extends C4_AbstractView implements IAbstractView_Subt
 			SearchFields_AutomationEvent::NAME,
 			SearchFields_AutomationEvent::DESCRIPTION,
 			SearchFields_AutomationEvent::UPDATED_AT,
+			SearchFields_AutomationEvent::VIRTUAL_SPARKLINE,
 		];
-		
+
+		// Search-only virtual field; never offered as a worklist column
+		$this->addColumnsHidden([
+			SearchFields_AutomationEvent::VIRTUAL_USAGE,
+		]);
+
 		$this->doResetCriteria();
 	}
 	
@@ -691,6 +747,11 @@ class View_AutomationEvent extends C4_AbstractView implements IAbstractView_Subt
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_AutomationEvent::UPDATED_AT),
 				),
+			'usage' => // parameterized metric filter; in-parens sub-keys autocompleted from getMetricFilterMap()
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => ['param_key' => SearchFields_AutomationEvent::VIRTUAL_USAGE],
+				),
 		);
 		
 		// Add quick search links
@@ -711,11 +772,18 @@ class View_AutomationEvent extends C4_AbstractView implements IAbstractView_Subt
 		return $fields;
 	}
 	
+	function getQuickSearchMetricFilterMap(string $field_key) : ?array {
+		return $field_key == 'usage' ? SearchFields_AutomationEvent::getMetricFilterMap() : null;
+	}
+
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
-			
+
+			case 'usage':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_AutomationEvent::VIRTUAL_USAGE);
+
 			default:
 				if($field == 'links' || str_starts_with($field, 'links.'))
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
@@ -751,9 +819,17 @@ class View_AutomationEvent extends C4_AbstractView implements IAbstractView_Subt
 	}
 	
 	function renderVirtualCriteria($param) : void {
-		$this->_renderVirtualCriteria($param);
+		switch($param->field) {
+			case SearchFields_AutomationEvent::VIRTUAL_USAGE:
+				echo sprintf("Usage matches <b>%s</b>", DevblocksPlatform::strEscapeHtml($param->value));
+				break;
+
+			default:
+				$this->_renderVirtualCriteria($param);
+				break;
+		}
 	}
-	
+
 	function getFields() {
 		return SearchFields_AutomationEvent::getFields();
 	}

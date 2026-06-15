@@ -43,15 +43,19 @@
             {/if}
 
             {foreach from=$view->view_columns item=header name=headers}
-                {* start table header, insert column title and link *}
-                <th class="{if array_key_exists('disable_sorting', $view->options) && $view->options.disable_sorting}no-sort{/if}">
-                    {if (!array_key_exists('disable_sorting', $view->options) || !$view->options.disable_sorting) && !empty($view_fields.$header->db_column)}
-                        {include file="devblocks:cerberusweb.core::internal/views/view_header_sort.tpl" view=$view header=$header}
-                        <a data-cerb-worklist-sort="{$header}">{$view_fields.$header->db_label|capitalize}</a>
-                    {else}
-                        <a style="text-decoration:none;">{$view_fields.$header->db_label|capitalize}</a>
-                    {/if}
-                </th>
+                {if $header == "*_sparkline"}
+                    {include file="devblocks:cerberusweb.core::internal/views/view_header_sparkline.tpl" header=$header view_fields=$view_fields}
+                {else}
+                    {* start table header, insert column title and link *}
+                    <th class="{if array_key_exists('disable_sorting', $view->options) && $view->options.disable_sorting}no-sort{/if}">
+                        {if (!array_key_exists('disable_sorting', $view->options) || !$view->options.disable_sorting) && !empty($view_fields.$header->db_column)}
+                            {include file="devblocks:cerberusweb.core::internal/views/view_header_sort.tpl" view=$view header=$header}
+                            <a data-cerb-worklist-sort="{$header}">{$view_fields.$header->db_label|capitalize}</a>
+                        {else}
+                            <a style="text-decoration:none;">{$view_fields.$header->db_label|capitalize}</a>
+                        {/if}
+                    </th>
+                {/if}
             {/foreach}
         </tr>
         </thead>
@@ -85,6 +89,10 @@
                                 <abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>
                             {/if}
                         </td>
+                    {elseif $column == "*_sparkline"}
+                        <td data-column="{$column}" style="width:160px;">
+                            <div class="cerb-ui-sparkchart" data-cerb-spark="{$result.a_id}" style="min-width:140px;"></div>
+                        </td>
                     {else}
                         <td data-column="{$column}">{$result.$column}</td>
                     {/if}
@@ -115,6 +123,10 @@
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
     $(function() {
         var $frm = $('#viewForm{$view->id}');
+
+        {if in_array('*_sparkline', $view->view_columns)}
+        {include file="devblocks:cerberusweb.core::internal/views/sparkline_loader.tpl" spark_module='automation_event' spark_action='viewSparklinesJson' spark_view_id=$view->id}
+        {/if}
 
         {if $pref_keyboard_shortcuts}
         $frm.bind('keyboard_shortcut',function(event) {

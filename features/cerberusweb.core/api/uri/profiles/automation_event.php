@@ -41,9 +41,49 @@ class PageSection_ProfilesAutomationEvent extends Extension_PageSection {
 					return $this->_profileAction_tester();
 				case 'viewExplore':
 					return $this->_profileAction_viewExplore();
+				case 'viewSparklinesJson':
+					return $this->_profileAction_viewSparklinesJson();
 			}
 		}
 		return false;
+	}
+
+	// Inline sparkline series (runs bars + avg-duration line) for the automation-events worklist; loaded
+	// async. Same automation metrics as the Automation worklist, but filtered by the `trigger` dimension
+	// (each event's extension_id). One metrics.timeseries query for the whole page (no N+1).
+	private function _profileAction_viewSparklinesJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+
+		$ids = DevblocksPlatform::importGPC($_REQUEST['ids'] ?? [], 'array', []);
+		$ids = array_filter(array_map('intval', $ids));
+
+		$window = DevblocksPlatform::importGPC($_REQUEST['window'] ?? '24h', 'string', '24h');
+
+		$row_series = [];
+
+		// Events are readable by everyone, but require a logged-in worker. Filter by the trigger dimension
+		// = the event's extension_id (e.g. cerb.trigger.mail.received).
+		if($active_worker && $ids) {
+			foreach(DAO_AutomationEvent::getIds($ids) as $id => $model) {
+				$trigger = $model->extension_id;
+				if(!$trigger)
+					continue;
+
+				$row_series[$id] = [
+					['metric' => 'cerb.automation.invocations', 'function' => 'count', 'type' => 'bar', 'label' => 'runs', 'query' => ['trigger' => $trigger], 'missing' => 'zero'],
+					['metric' => 'cerb.automation.duration', 'function' => 'avg', 'type' => 'line', 'label' => 'duration', 'query' => ['trigger' => $trigger], 'missing' => 'zero', 'suffix' => 'ms'],
+				];
+			}
+		}
+
+		$out = $row_series
+			? DAO_MetricValue::getSparklines($row_series, $window, $active_worker->timezone ?: null)
+			: [];
+
+		// Cast so the response is always a JSON object ({} when empty), keyed by event id
+		echo json_encode((object) $out);
 	}
 	
 	private function _profileAction_editorChangeEventJson() : void {
