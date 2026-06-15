@@ -10,13 +10,9 @@
 			</div>
 				
 			{if $menu_page.tabs}
-			<ul class="cerb-float cerb-hidden" data-cerb-navmenu-submenu>
+			<ul hidden data-cerb-navmenu-submenu>
 				{foreach from=$menu_page.tabs item=menu_tab}
-				<li data-href="{devblocks_url}c=pages&page={$menu_page.id}-{$menu_page.name|devblocks_permalink}&tab={$menu_tab->name|devblocks_permalink|lower}{/devblocks_url}">
-					<div>
-						<b>{$menu_tab->name}</b>
-					</div>
-				</li>
+				<li data-href="{devblocks_url}c=pages&page={$menu_page.id}-{$menu_page.name|devblocks_permalink}&tab={$menu_tab->name|devblocks_permalink|lower}{/devblocks_url}">{$menu_tab->name}</li>
 				{/foreach}
 			</ul>
 			{/if}
@@ -41,52 +37,58 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $menu = $('UL.navmenu');
+	const $menu = $('UL.navmenu');
 	
 	{$user_agent = DevblocksPlatform::getClientUserAgent()}
 	
 	{if is_array($user_agent) && 0 != strcasecmp($user_agent.platform|default:'', 'Android')}
-	$menu.find('[data-cerb-navmenu-submenu]')
-		.menu({
-			select: function(event, ui) {
-				event.stopPropagation();
+	// Each page's tab submenu opens on hover; only one is open at a time (shared hover group)
+	$menu.find('> li.drag').each(function() {
+		const submenu = this.querySelector('[data-cerb-navmenu-submenu]');
 
-				if(!ui.item.is('li'))
+		if(!submenu)
+			return;
+
+		new CerbUI.Menu(submenu, {
+			hoverTrigger: this,
+			hoverGroup: 'navmenu',
+			filter: true,             // start typing to filter long tab lists
+			maxHeight: 'viewport',    // grow into the available viewport height instead of a fixed cap
+			onSelect: function(rendered, source, e) {
+				const href = source.dataset.href;
+
+				if(!href)
 					return;
-				
-				let href = ui.item.attr('data-href');
-				
-				if(null == href)
-					return;
-				
-				if(event.metaKey) {
-					var a = document.createElement('a');
+
+				if(e && e.metaKey) {
+					// Cmd/Ctrl-click opens the page+tab in a new browser tab
+					const a = document.createElement('a');
 					a.style.display = 'none';
 					document.body.appendChild(a);
 					a.href = href;
 					a.target = '_blank';
 					a.click();
 					a.remove();
-					
+
 				} else {
 					window.location.href = href;
 				}
 			}
-		})
-	;
-	
+		});
+	});
+
 	$menu.sortable({
 		items: '> li.drag',
 		distance: 20,
 		stop:function(e) {
 			e.stopPropagation();
 			
-			var $pages = $(this).find('li.drag[data-page]');
-			var page_ids = $pages.map(function(e) {
+			const $pages = $(this).find('li.drag[data-page]');
+			const page_ids = $pages.map(function(e) {
 				return $(this).attr('data-page');
 			}).get().join(',');
 
-			var formData = new FormData();
+			const formData = new FormData();
 			formData.set('c', 'pages');
 			formData.set('a', 'setOrder');
 			formData.set('pages', page_ids);
@@ -97,35 +99,17 @@ $(function() {
 	
 	$menu
 		.find('> li.drag')
-		.hover(
-			function() {
-				var $this = $(this);
-				$this
-					.find('[data-cerb-navmenu-submenu]')
-					.show()
-					.position({ my: "left top", at: "left bottom-2", of: $this, collision: "fit" })
-				;
-			},
-			function() {
-				var $this = $(this);
-				$this.find('[data-cerb-navmenu-submenu]').hide();
-			}
-		)
-		;
-	
-	$menu
-		.find('> li.drag')
 		.hoverIntent({
 			sensitivity:10,
 			interval:750,
 			timeout:250,
 			over:function(e) {
-				var $this = $(this);
+				const $this = $(this);
 				$this.css('cursor', 'move');
 				$this.children().css('cursor', 'move');
 			},
 			out:function(e) {
-				var $this = $(this);
+				const $this = $(this);
 				$this.css('cursor', 'pointer');
 				$this.children().css('cursor', 'pointer');
 			}
@@ -136,20 +120,20 @@ $(function() {
 	// Allow clicking anywhere in the menu item cell
 	$menu.find('> li').click(function(e) {
 		e.stopPropagation();
-		
-		var $target = $(e.target);
-		
+
+		const $target = $(e.target);
+
 		if(!$target.is('li'))
 			return;
-		
-		var $link = $target.find('a').first();
+
+		const $link = $target.find('a').first();
 		
 		if($link.length > 0 && $link.attr('href'))
 			window.location.href = $link.attr('href');
 	});
 
-	var $search_button = $menu.find('> LI A.submenu');
-	var $search_menu = null;
+	const $search_button = $menu.find('> LI A.submenu');
+	let $search_menu = null;
 	
 	$search_button
 		.closest('li')
@@ -169,7 +153,7 @@ $(function() {
 						.menu({
 							select: function(event, ui) {
 								event.stopPropagation();
-								var $li = $(ui.item);
+								const $li = $(ui.item);
 
 								if($li.is('.cerb-bot-trigger'))
 									$li.click();
@@ -194,7 +178,7 @@ $(function() {
 								if('object' !== typeof e || !e.hasOwnProperty('eventData'))
 									return;
 
-								var $target = e.trigger;
+								const $target = e.trigger;
 
 								if(!$target.is('.cerb-bot-trigger'))
 									return;
@@ -238,7 +222,7 @@ $(function() {
 		if(!(191 === e.which))
 			return;
 
-		var $target = $(e.target);
+		const $target = $(e.target);
 
 		if(!$target.is('BODY, .cerb-bot-interactions-menu'))
 			return;
