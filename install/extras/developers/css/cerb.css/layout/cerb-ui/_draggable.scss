@@ -1,0 +1,50 @@
+// Draggable: pointer-drag a copy of an element toward a Droppable (CerbUI.Draggable). Structural + cursor +
+// the floating helper chrome; behavior is in the JS. Mirrors the Sortable helper look (tilt + shadow). Colors
+// are tokens, so dark mode is automatic.
+.cerb-ui-draggable--item {
+	cursor: grab;
+
+	&:active {
+		cursor: grabbing;
+	}
+}
+
+// The clone that follows the cursor during a drag.
+.cerb-ui-draggable--helper {
+	position: fixed;
+	z-index: 10000; // above page chrome; on par with tooltips
+	margin: 0;
+	pointer-events: none;
+	will-change: transform, left, top;
+	box-sizing: border-box;
+	border-radius: 8px;
+	opacity: 0.96;
+}
+
+// The Sortable-style pickup tilt (opt-out via tilt:false).
+.cerb-ui-draggable--tilt {
+	transform: rotate(2deg) scale(1.03);
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.22);
+}
+
+// Reject / cancel: ease the helper back to its source before it's removed.
+.cerb-ui-draggable--reverting {
+	transform: none;
+	opacity: 0.5;
+	transition:
+		left 180ms cubic-bezier(0.2, 0, 0, 1),
+		top 180ms cubic-bezier(0.2, 0, 0, 1),
+		transform 180ms ease,
+		opacity 180ms ease;
+}
+
+// While any drag is in flight, the whole document shows the grabbing cursor.
+body.cerb-ui-draggable-dragging {
+	cursor: grabbing;
+	user-select: none;
+}
+
+// Over a zone that won't accept the current drag.
+body.cerb-ui-draggable-no {
+	cursor: not-allowed;
+}
