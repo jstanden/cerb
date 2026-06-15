@@ -21,8 +21,9 @@
  * AJAX popups — CerbUI.Dialog.fromAjax(request, opts):
  *   Builds the dialog DOM procedurally, shows a spinner, fetches HTML, and loads it as the content. The
  *   `request` mirrors the legacy genericAjaxPopup: a string ⇒ GET (ajax args), a FormData ⇒ POST. The
- *   response is injected through Cerb's genericAjaxGet/Post (jQuery .html()), so any <script> in it runs
- *   under the page's CSP nonce — the canonical Cerb path (a raw fetch()+innerHTML would NOT run them).
+ *   helper fetches with an empty target (so it skips its own fade-out/fade-in over our spinner); the
+ *   response is then injected with jQuery .html(), so any <script> in it runs under the page's CSP nonce
+ *   — the canonical Cerb path (a raw fetch()+innerHTML would NOT run them).
  *   HTTP errors already raise a toast banner via the helper; the wrapper just closes the dialog (the old
  *   hookError behavior). `opts` are the constructor options below (title, header, namespace, modal,
  *   width, …) plus an optional onLoad(content, html). The popup is throwaway: it self-destroys on close.
@@ -228,6 +229,10 @@ CerbUI.Dialog = class {
 
 		const onError = () => dlg.close(); // the helper already toasted the HTTP error; just close (legacy hookError)
 		const onDone  = (html) => {
+			// Inject the response ourselves: a single write with no fade. Passing `content` as the helper's
+			// target div would trigger its fadeTo(0.2)->html()->fadeTo(1.0) cycle on top of our spinner — a
+			// visible double-blink. jQuery .html() still runs the response's <script nonce> under the page CSP.
+			jQuery(content).html(html);
 			dlg.reflow(); // the response grew the dialog — re-pin its top + lengthen the page to reach it
 			if(typeof opts.onLoad === 'function') opts.onLoad(content, html);
 		};
@@ -237,12 +242,12 @@ CerbUI.Dialog = class {
 			return dlg;
 		}
 
-		// genericAjaxGet/Post inject the fragment with jQuery (response <script> runs under the page nonce)
-		// and surface HTTP errors as toast banners; they replace our spinner via .html() on success.
+		// Fetch with an EMPTY target so the helper does the request + HTTP-error toasts but NOT its built-in
+		// fadeTo(0.2)->fadeTo(1.0) cycle (which would double-blink over our spinner); we inject in onDone.
 		if(request instanceof FormData)
-			genericAjaxPost(request, jQuery(content), '', onDone, { error: onError });
+			genericAjaxPost(request, '', '', onDone, { error: onError });
 		else
-			genericAjaxGet(jQuery(content), request, onDone, { error: onError });
+			genericAjaxGet('', request, onDone, { error: onError });
 
 		return dlg;
 	}
