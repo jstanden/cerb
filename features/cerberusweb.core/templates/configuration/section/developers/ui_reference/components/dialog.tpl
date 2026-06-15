@@ -315,20 +315,6 @@ CerbUI.Dialog.fromAjax('c=profiles&amp;a=invoke&amp;module=snippet&amp;action=he
 			if(dirtySave) dirtySave.addEventListener('click', function() { dirtyDlg.markClean(); dirtyDlg.close(); });
 		}
 
-		// CerbUI.Confirm: a forced-modal confirmation with custom button labels
-		const confirmBtn = document.getElementById('uiref-dialog-confirm-btn');
-		const confirmOut = document.getElementById('uiref-dialog-confirm-result');
-		if(confirmBtn && CerbUI.Confirm) confirmBtn.addEventListener('click', function() {
-			CerbUI.Confirm.open({
-				title: 'Delete snippet',
-				body: "This can't be undone.",
-				confirmText: 'Delete',
-				cancelText: 'Keep',
-				onConfirm: function() { if(confirmOut) confirmOut.textContent = 'confirmed'; },
-				onCancel: function() { if(confirmOut) confirmOut.textContent = 'cancelled'; },
-			});
-		});
-
 		// Footer buttons that close their own dialog
 		['uiref-dialog-modal-cancel', 'uiref-dialog-alert-ok'].forEach(function(id) {
 			const b = document.getElementById(id);

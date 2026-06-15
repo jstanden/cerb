@@ -24,3 +24,21 @@
 			</div>
 		</div>
 	</div>
+
+<script nonce="{DevblocksPlatform::getRequestNonce()}">
+(function() {
+	// CerbUI.Confirm: a forced-modal confirmation with custom button labels
+	const confirmBtn = document.getElementById('uiref-dialog-confirm-btn');
+	const confirmOut = document.getElementById('uiref-dialog-confirm-result');
+	if(confirmBtn && window.CerbUI && CerbUI.Confirm) confirmBtn.addEventListener('click', function() {
+		CerbUI.Confirm.open({
+			title: 'Delete snippet',
+			body: "This can't be undone.",
+			confirmText: 'Delete',
+			cancelText: 'Keep',
+			onConfirm: function() { if(confirmOut) confirmOut.textContent = 'confirmed'; },
+			onCancel: function() { if(confirmOut) confirmOut.textContent = 'cancelled'; },
+		});
+	});
+})();
+</script>
