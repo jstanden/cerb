@@ -1,0 +1,19 @@
+// Kbd: a small keyboard key cap for a shortcut hint (e.g. the global command bar's trailing keys). Inline-flex
+// so several sit in a row; a fixed-width font + a subtle bottom edge sell the "physical key" look. All colors
+// are tokens, so dark mode is automatic.
+.cerb-ui-kbd {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 1.6em;
+	padding: 0.1em 0.45em;
+	border: 1px solid var(--cerb-color-background-contrast-220);
+	border-radius: 4px;
+	background: var(--cerb-color-background-contrast-240);
+	color: var(--cerb-color-background-contrast-150);
+	box-shadow: 0 1px 0 var(--cerb-color-background-contrast-210);
+	font-family: var(--cerb-font-stack-fixed);
+	font-size: 0.8em;
+	line-height: 1.5;
+	white-space: nowrap;
+}
