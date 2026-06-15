@@ -26,14 +26,14 @@
 			
 			<button id="badgeNotifications" class="red" style="display:none;"></button>
 			
-			<ul id="menuSignedIn" class="cerb-popupmenu cerb-float">
-				<li><a href="{devblocks_url}c=profiles&w=worker&me=me{/devblocks_url}">{'header.my_profile'|devblocks_translate|lower}</a></li>
-				<li><a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$active_worker->id}">{'header.my_card'|devblocks_translate|lower}</a></li>
-				<li><a href="{devblocks_url}c=profiles&w=worker&me=me&tab=settings{/devblocks_url}">{'common.settings'|devblocks_translate|lower}</a></li>
-				<li><a class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_NOTIFICATION}" data-layer="notifications_me" data-query="*" data-query-required="worker.id:{$active_worker->id}">{'home.tab.my_notifications'|devblocks_translate|lower}</a></li>
-				<li><a class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_ACTIVITY_LOG}" data-query="actor.worker:(id:{$active_worker->id}) created:&quot;-1 day&quot;">{'common.activity_log'|devblocks_translate|lower}</a></li>
-				<li><a data-cerb-action="signout">{'header.signoff'|devblocks_translate|lower}</a></li>
-				<li><a data-cerb-action="signout-all">{'header.signoff.all.my'|devblocks_translate|lower}</a></li>
+			<ul id="menuSignedIn" hidden>
+				<li data-icon="user"><a href="{devblocks_url}c=profiles&w=worker&me=me{/devblocks_url}">{'header.my_profile'|devblocks_translate|lower}</a></li>
+				<li data-icon="id-card"><a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$active_worker->id}">{'header.my_card'|devblocks_translate|lower}</a></li>
+				<li data-icon="gear"><a href="{devblocks_url}c=profiles&w=worker&me=me&tab=settings{/devblocks_url}">{'common.settings'|devblocks_translate|lower}</a></li>
+				<li data-icon="bell"><a class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_NOTIFICATION}" data-layer="notifications_me" data-query="*" data-query-required="worker.id:{$active_worker->id}">{'home.tab.my_notifications'|devblocks_translate|lower}</a></li>
+				<li data-icon="history"><a class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_ACTIVITY_LOG}" data-query="actor.worker:(id:{$active_worker->id}) created:&quot;-1 day&quot;">{'common.activity_log'|devblocks_translate|lower}</a></li>
+				<li data-icon="sign-out"><a data-cerb-action="signout">{'header.signoff'|devblocks_translate|lower}</a></li>
+				<li data-icon="sign-out"><a data-cerb-action="signout-all">{'header.signoff.all.my'|devblocks_translate|lower}</a></li>
 			</ul>
 	</div>
 </div>
@@ -61,74 +61,60 @@ $(function() {
 	});
 	{/if}
 	
-	var $menu = $('#menuSignedIn');
-	$menu.appendTo('body');
-	$menu.find('> li')
-		.click(function(e) {
-			e.stopPropagation();
-			
-			if(!$(e.target).is('li'))
-				return;
+	const $menu = $('#menuSignedIn');
 
-			var $link = $(this).find('a:first');
-			
-			if($link.attr('href') && '#' !== $link.attr('href')) {
-				window.location.href = $link.attr('href');
-			} else {
-				$link.click();
-				$menu.hide();
+	// Bind the peek/search plugins onto the (hidden) source links that onSelect clicks
+	$menu.find('.cerb-peek-trigger').cerbPeekTrigger();
+	$menu.find('.cerb-search-trigger').cerbSearchTrigger();
+
+	const signedInMenu = new CerbUI.Menu($menu[0], {
+		onRenderItem: function(rendered, source) {
+			const icon = source.dataset.icon;
+			if(icon) {
+				const ico = document.createElement('span');
+				ico.className = 'cerb-icons cerb-icon-' + icon;
+				ico.setAttribute('aria-hidden', 'true');
+				ico.style.marginRight = '0.5em';
+				rendered.insertBefore(ico, rendered.firstChild);
 			}
-		})
-		;
-	
-	$('#lnkSignedIn')
-		.click(function(e) {
-			e.stopPropagation();
-			if($menu.is(':visible')) {
-				$menu.hide();
+		},
+		onSelect: function(rendered, source) {
+			const a = source.querySelector('a');
+			const action = a ? a.getAttribute('data-cerb-action') : null;
+
+			// Sign off via HTTP POST
+			if(action === 'signout' || action === 'signout-all') {
+				const formData = new FormData();
+				formData.set('c', 'login');
+				formData.set('a', 'signout');
+				if(action === 'signout-all')
+					formData.set('scope', 'all');
+				genericAjaxPost(formData, '', '', function() {
+					window.document.location.reload();
+				});
 				return;
 			}
-			
-			$menu
-				.show()
-				.position({ my: "left top", at: "left bottom", of: $('#lnkSignedIn'), collision: "fit" })
-			;
+
+			// Navigate href links
+			const href = a ? a.getAttribute('href') : null;
+			if(href && '#' !== href) {
+				window.location.href = href;
+				return;
+			}
+
+			// Otherwise click the source link (cerb-peek-trigger / cerb-search-trigger)
+			if(a) a.click();
+		}
+	});
+
+	const $trigger = $('#lnkSignedIn');
+	$trigger
+		.click(function(e) {
+			e.stopPropagation();
+			signedInMenu.isOpen() ? signedInMenu.close() : signedInMenu.open($trigger[0]);
 		})
 		.disableSelection()
 	;
-
-	$menu
-		.hover(
-			function(e) {},
-			function(e) {
-				$('#menuSignedIn')
-					.hide()
-				;
-			}
-		)
-		;
-
-	$menu.find('[data-cerb-action=signout]').on('click', function() {
-		var formData = new FormData();
-		formData.set('c', 'login');
-		formData.set('a', 'signout');
-		genericAjaxPost(formData, '', '', function() {
-			window.document.location.reload();
-		});
-	});
-
-	$menu.find('[data-cerb-action=signout-all]').on('click', function() {
-		var formData = new FormData();
-		formData.set('c', 'login');
-		formData.set('a', 'signout');
-		formData.set('scope', 'all');
-		genericAjaxPost(formData, '', '', function() {
-			window.document.location.reload();
-		});
-	});
-
-	$menu.find('.cerb-peek-trigger').cerbPeekTrigger();
-	$menu.find('.cerb-search-trigger').cerbSearchTrigger();
 	
 	var $theme = $('#cerb-theme');
 	
