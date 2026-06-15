@@ -1,0 +1,33 @@
+// Shared floating-menu item styles for the plain-JS code editors (CerbUI.SearchQuery, CerbUI.KataEditor).
+// Both drive CerbUI.editorCore.Autocomplete, which renders suggestion rows with an optional leading type icon
+// and a muted right-aligned hint. The rows live on the floating CerbUI.Menu (a sibling of the editor), so
+// these are scoped to the menu item, not nested under a component.
+
+// A leading type icon inside a suggestion row, tinted by tag color (set inline via the custom property).
+.cerb-ui-editor-menu-icon {
+    margin-right: 0.4em;
+    flex-shrink: 0;
+    color: var(--cerb-ui-editor-menu-icon-color, currentColor);
+}
+// On the active/hover row the tag color can clash with the highlight — fall back to the text color.
+.cerb-ui-menu--item-active .cerb-ui-editor-menu-icon { color: inherit; }
+
+// A muted right-aligned hint inside a suggestion row (e.g. the field type, or a doc snippet).
+.cerb-ui-editor-menu-hint {
+    margin-left: auto;
+    padding-left: 1em;
+    color: var(--cerb-color-background-contrast-150);
+    font-size: 0.85em;
+}
+// On the active/hover row the muted gray is illegible against the highlight — inherit the row's text
+// color (white) and just dim it so it still reads as secondary.
+.cerb-ui-menu--item-active .cerb-ui-editor-menu-hint { color: inherit; opacity: 0.7; }
+
+// ── KataScript (Twig-syntax) token colors, shared by every editor that embeds scripting tags ──
+// Produced by CerbUI.editorCore.kataScript.tokenize(); reuse the legacy --cerb-editor-syntax-twig* palette.
+// COLOR ONLY — never font-weight/style, or the mirror's glyph advances stop matching the textarea's and the
+// caret drifts. Identifiers/operators carry no class (default literal color).
+.cerb-ui-editor--tok-kscript        { color: var(--cerb-editor-syntax-twig-var); } // gold {{ }} / {% %}
+.cerb-ui-editor--tok-kscript-string { color: var(--cerb-editor-syntax-string); }
+.cerb-ui-editor--tok-kscript-number { color: var(--cerb-editor-syntax-numeric); }
+.cerb-ui-editor--tok-kscript-func   { color: var(--cerb-editor-syntax-function); }

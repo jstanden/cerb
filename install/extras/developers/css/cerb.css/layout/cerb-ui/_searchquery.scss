@@ -130,21 +130,3 @@
     &--tok-number { color: var(--cerb-editor-syntax-numeric); }
     &--tok-paren  { color: var(--cerb-color-background-contrast-150); }
 }
-
-// A muted right-aligned hint inside a suggestion row (e.g. the field type). Lives on the floating menu
-// (a sibling of the component), so it's scoped to the menu item rather than nested under .cerb-ui-searchquery.
-.cerb-ui-searchquery--menu-hint {
-    margin-left: auto;
-    padding-left: 1em;
-    color: var(--cerb-color-background-contrast-150);
-    font-size: 0.85em;
-}
-
-// A leading type icon inside a suggestion row, tinted by tag color (set inline via the custom property).
-.cerb-ui-searchquery--menu-icon {
-    margin-right: 0.4em;
-    flex-shrink: 0;
-    color: var(--cerb-ui-searchquery-icon-color, currentColor);
-}
-// On the active/hover row the tag color can clash with the highlight — fall back to the text color.
-.cerb-ui-menu--item-active .cerb-ui-searchquery--menu-icon { color: inherit; }
