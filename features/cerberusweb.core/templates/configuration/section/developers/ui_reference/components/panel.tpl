@@ -85,4 +85,82 @@
 &lt;/div&gt;</pre>
 			</div>
 		</div>
+
+		{* Example: status callouts — tinted panel variants replacing the legacy .help-box / .error-box *}
+		<div class="cerb-ui-header">
+			<div class="cerb-ui-header--label">Status callouts: <code>--note</code> / <code>--warn</code> / <code>--alert</code> / <code>--success</code></div>
+		</div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<div class="cerb-ui-panel cerb-ui-panel--spaced cerb-ui-panel--warn">
+					<div class="cerb-ui-header">
+						<div class="cerb-ui-callout">
+							<span class="cerb-icons cerb-icon-clock cerb-ui-callout--icon"></span>
+							<div>
+								<div class="cerb-ui-header--title-sm">Unfinished Tasks Found</div>
+								<div class="cerb-ui-header--subtitle">You have 241 unfinished tasks from previous days across your selected projects</div>
+							</div>
+						</div>
+						<div class="cerb-ui-header--right">
+							<button type="button" class="cerb-ui-button"><span class="cerb-icons cerb-icon-right-arrow"></span> Move to Today</button>
+						</div>
+					</div>
+				</div>
+				<div class="cerb-ui-panel cerb-ui-panel--spaced cerb-ui-panel--note">
+					<div class="cerb-ui-header">
+						<div class="cerb-ui-callout">
+							<span class="cerb-icons cerb-icon-clock cerb-ui-callout--icon"></span>
+							<div>
+								<div class="cerb-ui-header--title-sm">Scheduled Tasks Ready</div>
+								<div class="cerb-ui-header--subtitle">You have 1 stashed task scheduled for now or earlier across your selected projects</div>
+							</div>
+						</div>
+						<div class="cerb-ui-header--right">
+							<button type="button" class="cerb-ui-button"><span class="cerb-icons cerb-icon-right-arrow"></span> Move to Today</button>
+						</div>
+					</div>
+				</div>
+				<div class="cerb-ui-panel cerb-ui-panel--spaced cerb-ui-panel--alert">
+					<div class="cerb-ui-header">
+						<div class="cerb-ui-callout">
+							<span class="cerb-icons cerb-icon-alert cerb-ui-callout--icon"></span>
+							<div>
+								<div class="cerb-ui-header--title-sm">Something went wrong</div>
+								<div class="cerb-ui-header--subtitle">A red callout for errors and destructive consequences. The right-side action is optional.</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="cerb-ui-panel cerb-ui-panel--success">
+					<div class="cerb-ui-header">
+						<div class="cerb-ui-callout">
+							<span class="cerb-icons cerb-icon-circle-ok cerb-ui-callout--icon"></span>
+							<div>
+								<div class="cerb-ui-header--title-sm">All set</div>
+								<div class="cerb-ui-header--subtitle">A green callout confirming a successful state.</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>&lt;div class="cerb-ui-panel cerb-ui-panel--warn"&gt;
+	&lt;div class="cerb-ui-header"&gt;
+		&lt;div class="cerb-ui-callout"&gt;
+			&lt;span class="cerb-icons cerb-icon-clock cerb-ui-callout--icon"&gt;&lt;/span&gt;
+			&lt;div&gt;
+				&lt;div class="cerb-ui-header--title-sm"&gt;Unfinished Tasks Found&lt;/div&gt;
+				&lt;div class="cerb-ui-header--subtitle"&gt;You have 241 unfinished tasks&hellip;&lt;/div&gt;
+			&lt;/div&gt;
+		&lt;/div&gt;
+		&lt;div class="cerb-ui-header--right"&gt; {* optional — auto-styled solid in the accent *}
+			&lt;button type="button" class="cerb-ui-button"&gt;&lt;span class="cerb-icons cerb-icon-right-arrow"&gt;&lt;/span&gt; Move to Today&lt;/button&gt;
+		&lt;/div&gt;
+	&lt;/div&gt;
+&lt;/div&gt;
+{* swap --warn for --note (blue), --alert (red), or --success (green) *}</pre>
+			</div>
+		</div>
 	</div>

@@ -15,3 +15,134 @@
 .cerb-ui-panel--accent {
 	border-left: 4px solid var(--cerb-ui-accent, var(--cerb-color-background-contrast-200));
 }
+
+// Status callouts: a tinted surface + a semantic border — the cerb-ui replacement for the legacy
+// .help-box / .error-box blocks. Compose a cerb-ui-callout lead (icon + title/message) with an optional
+// cerb-ui-header--right action. Each variant maps a role palette (bg / border / icon / title / text /
+// button) per theme; the values mirror Tailwind's amber / blue / red / green scales (50/200/…/900) for
+// light, and the -900/20 + -800/-400/-200/-300 + -600/-700 set for dark.
+.cerb-ui-panel--note,
+.cerb-ui-panel--warn,
+.cerb-ui-panel--alert,
+.cerb-ui-panel--success {
+	border: 1px solid var(--cerb-ui-callout-border);
+	background: var(--cerb-ui-callout-bg);
+	color: var(--cerb-ui-callout-text); // body / message text
+
+	// The callout's content is the header row itself — drop its bottom margin + center it vertically
+	// (icon ↔ text ↔ action). Panel padding provides the surrounding spacing.
+	.cerb-ui-header {
+		align-items: center;
+		margin-bottom: 0;
+	}
+
+	.cerb-ui-header--title-sm { color: var(--cerb-ui-callout-title); }
+	.cerb-ui-header--subtitle { color: var(--cerb-ui-callout-text); }
+
+	// Links in the body take the (more prominent) title color, kept underlined for affordance
+	a {
+		color: var(--cerb-ui-callout-title);
+		text-decoration: underline;
+	}
+
+	// Action button(s) in the right area are auto-styled solid in the accent color
+	.cerb-ui-header--right .cerb-ui-button {
+		background: var(--cerb-ui-callout-btn);
+		color: #fff;
+		border: 0;
+		padding: 0.5em 0.9em;
+
+		&:hover    { background: var(--cerb-ui-callout-btn-hover); color: #fff; }
+		&:disabled { background: var(--cerb-ui-callout-btn-disabled); }
+	}
+}
+
+// --- Warn (amber) ---
+.cerb-ui-panel--warn {
+	--cerb-ui-callout-bg:          #fffbeb; // amber-50
+	--cerb-ui-callout-border:      #fde68a; // amber-200
+	--cerb-ui-callout-icon:        #d97706; // amber-600
+	--cerb-ui-callout-title:       #92400e; // amber-800
+	--cerb-ui-callout-text:        #b45309; // amber-700
+	--cerb-ui-callout-btn:         #d97706; // amber-600
+	--cerb-ui-callout-btn-hover:   #b45309; // amber-700
+	--cerb-ui-callout-btn-disabled:#fbbf24; // amber-400
+}
+.dark .cerb-ui-panel--warn {
+	--cerb-ui-callout-bg:     rgba(120,53,15,0.2); // amber-900/20
+	--cerb-ui-callout-border: #92400e; // amber-800
+	--cerb-ui-callout-icon:   #fbbf24; // amber-400
+	--cerb-ui-callout-title:  #fde68a; // amber-200
+	--cerb-ui-callout-text:   #fcd34d; // amber-300
+}
+
+// --- Note (blue) ---
+.cerb-ui-panel--note {
+	--cerb-ui-callout-bg:          #eff6ff; // blue-50
+	--cerb-ui-callout-border:      #bfdbfe; // blue-200
+	--cerb-ui-callout-icon:        #2563eb; // blue-600
+	--cerb-ui-callout-title:       #1e40af; // blue-800
+	--cerb-ui-callout-text:        #1d4ed8; // blue-700
+	--cerb-ui-callout-btn:         #2563eb; // blue-600
+	--cerb-ui-callout-btn-hover:   #1d4ed8; // blue-700
+	--cerb-ui-callout-btn-disabled:#60a5fa; // blue-400
+}
+.dark .cerb-ui-panel--note {
+	--cerb-ui-callout-bg:     rgba(30,58,138,0.2); // blue-900/20
+	--cerb-ui-callout-border: #1e40af; // blue-800
+	--cerb-ui-callout-icon:   #60a5fa; // blue-400
+	--cerb-ui-callout-title:  #bfdbfe; // blue-200
+	--cerb-ui-callout-text:   #93c5fd; // blue-300
+}
+
+// --- Alert (red) ---
+.cerb-ui-panel--alert {
+	--cerb-ui-callout-bg:          #fef2f2; // red-50
+	--cerb-ui-callout-border:      #fecaca; // red-200
+	--cerb-ui-callout-icon:        #dc2626; // red-600
+	--cerb-ui-callout-title:       #991b1b; // red-800
+	--cerb-ui-callout-text:        #b91c1c; // red-700
+	--cerb-ui-callout-btn:         #dc2626; // red-600
+	--cerb-ui-callout-btn-hover:   #b91c1c; // red-700
+	--cerb-ui-callout-btn-disabled:#f87171; // red-400
+}
+.dark .cerb-ui-panel--alert {
+	--cerb-ui-callout-bg:     rgba(127,29,29,0.2); // red-900/20
+	--cerb-ui-callout-border: #991b1b; // red-800
+	--cerb-ui-callout-icon:   #f87171; // red-400
+	--cerb-ui-callout-title:  #fecaca; // red-200
+	--cerb-ui-callout-text:   #fca5a5; // red-300
+}
+
+// --- Success (green) ---
+.cerb-ui-panel--success {
+	--cerb-ui-callout-bg:          #f0fdf4; // green-50
+	--cerb-ui-callout-border:      #bbf7d0; // green-200
+	--cerb-ui-callout-icon:        #16a34a; // green-600
+	--cerb-ui-callout-title:       #166534; // green-800
+	--cerb-ui-callout-text:        #15803d; // green-700
+	--cerb-ui-callout-btn:         #16a34a; // green-600
+	--cerb-ui-callout-btn-hover:   #15803d; // green-700
+	--cerb-ui-callout-btn-disabled:#4ade80; // green-400
+}
+.dark .cerb-ui-panel--success {
+	--cerb-ui-callout-bg:     rgba(20,83,45,0.2); // green-900/20
+	--cerb-ui-callout-border: #166534; // green-800
+	--cerb-ui-callout-icon:   #4ade80; // green-400
+	--cerb-ui-callout-title:  #bbf7d0; // green-200
+	--cerb-ui-callout-text:   #86efac; // green-300
+}
+
+// Callout content: a leading icon + a title/message stack, beside an optional cerb-ui-header--right action.
+.cerb-ui-callout {
+	display: flex;
+	align-items: center;
+	gap: 0.8em;
+	min-width: 0; // let the text wrap instead of overflowing the row
+
+	&--icon {
+		font-size: 1.4em;
+		flex-shrink: 0;
+		color: var(--cerb-ui-callout-icon, currentColor);
+	}
+}
