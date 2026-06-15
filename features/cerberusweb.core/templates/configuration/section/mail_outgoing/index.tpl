@@ -1,4 +1,9 @@
-<h2>{'common.mail.outgoing'|devblocks_translate|capitalize}</h2>
+<div class="cerb-ui-header">
+	<div>
+		<div class="cerb-ui-header--title">{{'common.mail.outgoing'|devblocks_translate|capitalize}}</div>
+		<div class="cerb-ui-header--subtitle">Mail transports, sender addresses, queue, logs, and more</div>
+	</div>
+</div>
 
 <div id="tabsSetupMailOutgoing">
 	<ul>

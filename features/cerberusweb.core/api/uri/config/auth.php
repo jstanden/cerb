@@ -74,10 +74,12 @@ class PageSection_SetupAuth extends Extension_PageSection {
 			'auth_new_worker_require_mfa' => DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::AUTH_DEFAULT_WORKER_REQUIRE_MFA, CerberusSettingsDefaults::AUTH_DEFAULT_WORKER_REQUIRE_MFA),
 		];
 		$tpl->assign('params', $params);
-		
+
+		$tpl->assign('connected_service_context', CerberusContexts::CONTEXT_CONNECTED_SERVICE);
+
 		// ============================================
 		// Template
-		
+
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/auth/index.tpl');
 	}
 	

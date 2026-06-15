@@ -1,4 +1,9 @@
-<h2>{'common.mail.incoming'|devblocks_translate|capitalize}</h2>
+<div class="cerb-ui-header">
+	<div>
+		<div class="cerb-ui-header--title">{{'common.mail.incoming'|devblocks_translate|capitalize}}</div>
+		<div class="cerb-ui-header--subtitle">Mailboxes, filtering, routing, logs, and more</div>
+	</div>
+</div>
 
 <div id="tabsSetupMailIncoming">
 	<ul>

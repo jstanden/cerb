@@ -1,4 +1,9 @@
-<h2>Database Schema</h2>
+<div class="cerb-ui-header">
+    <div>
+        <div class="cerb-ui-header--title">Database Schema</div>
+        <div class="cerb-ui-header--subtitle">Verify database schema integrity</div>
+    </div>
+</div>
 
 <label id="frmSetupSchemaTesterOptions">
     <input type="checkbox" name="only_differences" value="1">

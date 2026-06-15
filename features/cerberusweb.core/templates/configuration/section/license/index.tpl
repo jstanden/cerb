@@ -1,102 +1,129 @@
-<h2>License</h2>
+<div class="cerb-ui-header">
+	<div>
+		<div class="cerb-ui-header--title">License</div>
+		<div class="cerb-ui-header--subtitle">Configure an optional license to increase your seat count</div>
+	</div>
+</div>
 
-{$we_trust_you=CerberusLicense::getInstance()}
-<fieldset>
-	<legend>Active License</legend>
+<div class="cerb-ui-panel cerb-ui-panel--spaced" id="setupLicenseActive">
+	<div class="cerb-ui-header cerb-ui-header--tight cerb-ui-header--center">
+		<div class="cerb-ui-header--title-sm"><span class="cerb-icons cerb-icon-key"></span> Active License</div>
+		{if $license->key}
+		<div class="cerb-ui-header--right">
+			<button type="button" class="cerb-ui-button" data-cerb-button-update-license><span class="cerb-icons cerb-icon-gear"></span> Update License</button>
+		</div>
+		{/if}
+	</div>
 
-	{if !$we_trust_you->key}
-		<span style="color:rgb(200,0,0);">No License (Evaluation Edition)</span><br>
-		<ul style="margin-top:0px;">
-			<li>Limited to 1 simultaneous worker.</li>
-			<li><a href="https://cerb.ai/pricing" target="_blank" rel="noopener">Purchase a Cerb license</a></li>
-		</ul> 
+	{if !$license->key}
+		<div>
+			<span class="cerb-ui-pill"><span class="cerb-icons cerb-icon-users"></span> Community Edition</span>
+			<ul style="margin-top:5px;">
+				<li>A free single seat with full functionality.</li>
+				<li><a href="https://cerb.ai/pricing" target="_blank" rel="noopener">Add more seats with a Cerb license</a></li>
+			</ul>
+		</div>
 	{else}
-		<b>Serial #:</b> {$we_trust_you->key}<br>
-		<b>Licensed To:</b> {$we_trust_you->company}<br>
-		<b>Simultaneous Workers:</b> {if 100==$we_trust_you->seats}100+{else}{$we_trust_you->seats}{/if}<br>
-		<b>Software Updates Expire:</b> {$we_trust_you->upgrades|devblocks_date:'F d, Y':true}<br>
-		
-		<div style="margin-top:5px;">
-			<button type="button" data-cerb-button-update-license><span class="cerb-icons cerb-icon-gear"></span> Update License</button>
+		<div class="cerb-u-flex cerb-u-flex-wrap cerb-u-gap-4">
+			<div>
+				<div class="cerb-ui-form--label">Serial #</div>
+				<div>{$license->key}</div>
+			</div>
+			<div>
+				<div class="cerb-ui-form--label">Licensed To</div>
+				<div>{$license->company}</div>
+			</div>
+			<div>
+				<div class="cerb-ui-form--label">Simultaneous Workers</div>
+				<div>{if 100==$license->seats}100+{else}{$license->seats}{/if}</div>
+			</div>
+			<div>
+				<div class="cerb-ui-form--label">Software Updates Expire</div>
+				<div>{$license->upgrades|devblocks_date:'F d, Y':true}</div>
+			</div>
 		</div>
 	{/if}
-</fieldset>
+</div>
 
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmLicense" style="{if $we_trust_you->key && empty($error)}display:none;{/if}">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmLicense" class="cerb-ui-form" {if $license->key && empty($error)}style="display:none;"{/if}>
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="license">
 <input type="hidden" name="action" value="saveJson">
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
-	
-<fieldset>
-	<legend>Update License</legend>
-	
-	<b>Enter your company name <u>exactly</u> as it appears on your order:</b><br>
-	<input type="text" name="company" size="64" value=""><br>
-	<br>
-	
-	<b>Enter your e-mail address <u>exactly</u> as it appears on your order:</b><br>
-	<input type="text" name="email" size="64" value=""><br>
-	<br>
-	
-	<b>Paste the license information you received with your order:</b><br>
-	<textarea rows="8" cols="80" name="key"></textarea><br>
 
-	<fieldset class="delete delete_confirm" style="display:none;">
-		<legend>Are you sure you want to remove your license?</legend>
-		
-		<button type="button" class="red" data-cerb-button-remove-yes>{'common.yes'|devblocks_translate|capitalize}</button>
-		<button type="button" data-cerb-button-remove-no>{'common.no'|devblocks_translate|capitalize}</button>
-	</fieldset>
-	
-	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if $we_trust_you->key}<button type="button" class="delete"><span class="cerb-icons cerb-icon-circle-minus"></span> Remove License</button>{/if}
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">Update License</div>
+	</div>
 
-</fieldset>
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">Enter your company name <u>exactly</u> as it appears on your order</label>
+			<label class="cerb-ui-form--control">
+				<span class="cerb-ui-form--control-icon cerb-icons cerb-icon-building-office"></span>
+				<input type="text" name="company" value="">
+			</label>
+		</div>
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">Enter your e-mail address <u>exactly</u> as it appears on your order</label>
+			<label class="cerb-ui-form--control">
+				<span class="cerb-ui-form--control-icon cerb-icons cerb-icon-mail"></span>
+				<input type="text" name="email" value="">
+			</label>
+		</div>
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">Paste the license information you received with your order</label>
+			<textarea rows="8" name="key"></textarea>
+		</div>
+	</div>
+</div>
+
+<div class="cerb-u-flex cerb-u-gap-2">
+	<button type="button" id="btnSaveLicense" class="cerb-ui-button cerb-u-anim-group"><span class="cerb-icons cerb-icon-circle-ok cerb-u-anim-pulse-hover"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if $license->key}<button type="button" id="btnRemoveLicense" class="cerb-ui-button cerb-ui-button--subtle"><span class="cerb-icons cerb-icon-circle-minus"></span> Remove License</button>{/if}
+</div>
 </form>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	let $frm = $('#frmLicense');
-	let $fieldset = $frm.prev('fieldset');
+	const $frm = $('#frmLicense');
 
 	Devblocks.formDisableSubmit($frm);
-	
-	$frm.find('BUTTON.submit')
-		.click(function(e) {
-			e.stopPropagation();
-			Devblocks.saveAjaxForm($frm, {
-				success: function() {
-					document.location.href = '{devblocks_url}c=config&a=license{/devblocks_url}';
-				}
-			});
-		})
-	;
-	$frm.find('BUTTON.delete')
-		.click(function(e) {
-			e.stopPropagation();
-			$frm.find('.delete_confirm').fadeIn();
-		})
-	;
 
-	$frm.find('[data-cerb-button-remove-yes]').on('click', function(e) {
+	const saveLicense = function() {
+		Devblocks.saveAjaxForm($frm, {
+			success: function() {
+				document.location.href = '{devblocks_url}c=config&a=license{/devblocks_url}';
+			}
+		});
+	};
+
+	$frm.find('#btnSaveLicense').on('click', function(e) {
 		e.stopPropagation();
-		let $frm = $(this.form);
-		$frm.find('input:hidden[name=do_delete]').val('1');
-		$frm.find('BUTTON.submit').click();
+		saveLicense();
 	});
 
-	$frm.find('[data-cerb-button-remove-no]').on('click', function(e) {
+	$frm.find('#btnRemoveLicense').on('click', function(e) {
 		e.stopPropagation();
-		$(this).closest('.delete_confirm').hide();
+		if(!(window.CerbUI && CerbUI.Confirm)) return;
+		CerbUI.Confirm.open({
+			title: 'Remove License',
+			body: 'Are you sure you want to remove your license?',
+			confirmText: 'Remove',
+			cancelText: 'Cancel',
+			onConfirm: function() {
+				$frm.find('input:hidden[name=do_delete]').val('1');
+				saveLicense();
+			}
+		});
 	});
 
-	$fieldset.find('[data-cerb-button-update-license]').on('click', function(e) {
+	$('#setupLicenseActive').find('[data-cerb-button-update-license]').on('click', function(e) {
 		e.stopPropagation();
-		$(this).parent().fadeOut();
-		$('#frmLicense').fadeIn().find('input:text:first').focus();
+		$('#setupLicenseActive').fadeOut();
+		$frm.fadeIn().find('input:text:first').focus();
 	});
 });
 </script>

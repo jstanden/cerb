@@ -1,4 +1,9 @@
-<h2>Requirements</h2>
+<div class="cerb-ui-header">
+    <div>
+        <div class="cerb-ui-header--title">Requirements</div>
+        <div class="cerb-ui-header--subtitle"></div>
+    </div>
+</div>
 
 <div id="cerbConfigRequirements">
 {if $errors}

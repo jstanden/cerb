@@ -12,7 +12,7 @@
 			<a data-cerb-worklist-icon-search title="{'common.search'|devblocks_translate|capitalize}" class="minimal"><span class="cerb-icons cerb-icon-search"></span></a>
 			<a data-cerb-worklist-icon-customize title="{'common.customize'|devblocks_translate|capitalize}" class="minimal"><span class="cerb-icons cerb-icon-gear"></span></a>
 			<a data-cerb-worklist-icon-subtotals title="{'common.subtotals'|devblocks_translate|capitalize}" class="minimal"><span class="cerb-icons cerb-icon-signal"></span></a>
-<a data-cerb-worklist-icon-refresh title="{'common.refresh'|devblocks_translate|capitalize}" class="minimal"><span class="cerb-icons cerb-icon-refresh"></span></a>
+			<a data-cerb-worklist-icon-refresh title="{'common.refresh'|devblocks_translate|capitalize}" class="minimal"><span class="cerb-icons cerb-icon-refresh"></span></a>
 		</td>
 	</tr>
 </table>
@@ -141,7 +141,7 @@
 
 	<div style="float:left;" id="{$view->id}_actions">
 		<button type="button" data-cerb-button-save class="action-always-show"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-		<button type="button" data-cerb-button-export class="action-always-show"><span class="cerb-icons cerb-icon-file-export"></span> {'common.export'|devblocks_translate|capitalize}</button>
+		<button type="button" data-cerb-button-export class="action-always-show"><span class="cerb-icons cerb-icon-upload"></span> {'common.export'|devblocks_translate|capitalize}</button>
 	</div>
 </div>
 {/if}

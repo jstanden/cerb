@@ -24,7 +24,9 @@ class PageSection_SetupSecurity extends Extension_PageSection {
 		
 		$session_lifespan = DevblocksPlatform::getPluginSetting('cerberusweb.core',CerberusSettings::SESSION_LIFESPAN, 0) ?: 86400;
 		$tpl->assign('session_lifespan', $session_lifespan);
-		
+
+		$tpl->assign('authorized_ips', DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::AUTHORIZED_IPS, CerberusSettingsDefaults::AUTHORIZED_IPS));
+
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/security/index.tpl');
 	}
 	

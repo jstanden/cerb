@@ -1,4 +1,9 @@
-<h2>Export Bots</h2>
+<div class="cerb-ui-header">
+    <div>
+        <div class="cerb-ui-header--title">Export Bots</div>
+        <div class="cerb-ui-header--subtitle">Save legacy bot behaviors to a JSON file</div>
+    </div>
+</div>
 
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="frmSetupExportBots">
 <input type="hidden" name="c" value="config">

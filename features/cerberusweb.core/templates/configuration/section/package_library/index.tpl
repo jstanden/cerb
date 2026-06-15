@@ -1,5 +1,8 @@
-<div>
-	<h2>{'common.package.library'|devblocks_translate|capitalize}</h2>
+<div class="cerb-ui-header">
+	<div>
+		<div class="cerb-ui-header--title">{{'common.package.library'|devblocks_translate|capitalize}}</div>
+		<div class="cerb-ui-header--subtitle">Templates for creating sets of related records</div>
+	</div>
 </div>
 
 <div>

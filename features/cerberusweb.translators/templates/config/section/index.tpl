@@ -1,5 +1,8 @@
-<div>
-	<h2>{'translators.common'|devblocks_translate|capitalize}</h2>
+<div class="cerb-ui-header">
+	<div>
+		<div class="cerb-ui-header--title">{'translators.common'|devblocks_translate|capitalize}</div>
+		<div class="cerb-ui-header--subtitle">Create, import, and export translation packs</div>
+	</div>
 </div>
 
 <div>
@@ -11,7 +14,7 @@
 	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 	<button type="button" data-cerb-button-add><span class="cerb-icons cerb-icon-globe"></span> {'translators.languages'|devblocks_translate|capitalize}</button>
 	<button type="button" data-cerb-button-sync><span class="cerb-icons cerb-icon-refresh"></span> {'common.synchronize'|devblocks_translate|capitalize}</button>
-	<button type="button" data-cerb-button-import><span class="cerb-icons cerb-icon-file-import"></span> {'common.import'|devblocks_translate|capitalize}</button>
+	<button type="button" data-cerb-button-import><span class="cerb-icons cerb-icon-download"></span> {'common.import'|devblocks_translate|capitalize}</button>
 </form>
 
 {include file="devblocks:cerberusweb.core::internal/views/search_and_view.tpl" view=$view}

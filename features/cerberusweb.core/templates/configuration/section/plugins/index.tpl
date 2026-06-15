@@ -5,14 +5,18 @@
 	</div>
 </div>
 
-<div class="help-box">
-	<h1>
-		<span class="cerb-icons cerb-icon-zap" style="vertical-align:middle;"></span> Plugins are migrating to workflows
-	</h1>
-
-	<p>
-		<a href="https://cerb.ai/docs/workflows/">Workflows</a> are the preferred way to extend Cerb. Custom functionality can be built in your browser using automations and custom records.
-	</p>
+<div class="cerb-ui-panel cerb-ui-panel--warn">
+	<div class="cerb-ui-header">
+		<div class="cerb-ui-callout">
+			<span class="cerb-icons cerb-icon-zap cerb-ui-callout--icon"></span>
+			<div>
+				<div class="cerb-ui-header--title-sm">Plugins are migrating to workflows</div>
+				<div class="cerb-ui-header--subtitle">
+					<a href="https://cerb.ai/docs/workflows/">Workflows</a> are the preferred way to extend Cerb. Custom functionality can be built in your browser using automations and custom records.
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 
 {* Modern features *}

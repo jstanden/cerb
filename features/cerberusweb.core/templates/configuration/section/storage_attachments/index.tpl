@@ -1,5 +1,8 @@
-<div>
-	<h2>Storage Objects</h2>
+<div class="cerb-ui-header">
+	<div>
+		<div class="cerb-ui-header--title">Storage Objects</div>
+		<div class="cerb-ui-header--subtitle"></div>
+	</div>
 </div>
 
 <div>

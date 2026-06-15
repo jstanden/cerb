@@ -1,5 +1,8 @@
-<div>
-	<h2>Storage Profiles</h2>
+<div class="cerb-ui-header">
+	<div>
+		<div class="cerb-ui-header--title">Storage Profiles</div>
+		<div class="cerb-ui-header--subtitle">External long-term object storage</div>
+	</div>
 </div>
 
 <div>

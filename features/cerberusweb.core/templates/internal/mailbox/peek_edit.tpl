@@ -30,7 +30,10 @@
 	<tr>
 		<td width="0%" nowrap="nowrap"><b>{'common.enabled'|devblocks_translate|capitalize}:</b></td>
 		<td width="100%">
-			<input type="checkbox" name="enabled" value="1" {if $model->enabled || empty($model)}checked{/if}>
+			<label class="cerb-ui-toggle">
+				<input type="checkbox" name="enabled" value="1" {if $model->enabled || empty($model)}checked{/if}>
+				<span class="cerb-ui-toggle--slider"></span>
+			</label>
 		</td>
 	</tr>
 	<tr>

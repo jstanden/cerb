@@ -1,4 +1,9 @@
-<h2>OAuth2 Token Generator</h2>
+<div class="cerb-ui-header">
+	<div>
+		<div class="cerb-ui-header--title">OAuth2 Token Generator</div>
+		<div class="cerb-ui-header--subtitle">Manually create worker-scoped OAuth tokens for testing and integration</div>
+	</div>
+</div>
 
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="frmSetupOAuth2TokenGenerator">
 <input type="hidden" name="c" value="config">

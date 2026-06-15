@@ -2,8 +2,8 @@
 	<ul>
 		<li>
 			<div>
-				<a class="menu">{'common.configure'|devblocks_translate|capitalize} <span class="cerb-icons cerb-icon-chevron-down"></span></a>
-				<ul class="cerb-popupmenu cerb-float">
+				<a class="menu"><span class="cerb-icons cerb-icon-gear"></span> {'common.configure'|devblocks_translate|capitalize} <span class="cerb-icons cerb-icon-chevron-down"></span></a>
+				<ul hidden>
 					<li><a href="{devblocks_url}c=config&a=branding{/devblocks_url}">Branding</a></li>
 					<li><a href="{devblocks_url}c=config&a=plugins{/devblocks_url}">{'common.plugins'|devblocks_translate|capitalize}</a></li>
 					<li><a href="{devblocks_url}c=config&a=scheduler{/devblocks_url}">Scheduler</a></li>
@@ -14,7 +14,6 @@
 					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.settings')}
 					{if !empty($exts)}
 						<li><hr></li>
-						<li><b>{'common.plugins'|devblocks_translate|capitalize}</b></li>
 					{/if}
 					{foreach from=$exts item=menu_item}
 						{if method_exists($menu_item,'render')}<li>{$menu_item->render()}</li>{/if}
@@ -24,8 +23,8 @@
 		</li>
 		<li>
 			<div>
-				<a class="menu">{'common.security'|devblocks_translate|capitalize} <span class="cerb-icons cerb-icon-chevron-down"></span></a>
-				<ul class="cerb-popupmenu cerb-float">
+				<a class="menu"><span class="cerb-icons cerb-icon-shield"></span> {'common.security'|devblocks_translate|capitalize} <span class="cerb-icons cerb-icon-chevron-down"></span></a>
+				<ul hidden>
 					<li><a href="{devblocks_url}c=config&a=security{/devblocks_url}">{'common.configure'|devblocks_translate|capitalize}</a></li>
 					<li><a href="{devblocks_url}c=config&a=auth{/devblocks_url}">{'common.authentication'|devblocks_translate|capitalize}</a></li>
 					<li><a href="{devblocks_url}c=config&a=service_tokens{/devblocks_url}">Service Tokens</a></li>
@@ -43,8 +42,8 @@
 		</li>
 		<li>
 			<div>
-				<a class="menu">{'common.records'|devblocks_translate|capitalize} <span class="cerb-icons cerb-icon-chevron-down"></span></a>
-				<ul class="cerb-popupmenu cerb-float">
+				<a class="menu"><span class="cerb-icons cerb-icon-collection"></span> {'common.records'|devblocks_translate|capitalize} <span class="cerb-icons cerb-icon-chevron-down"></span></a>
+				<ul hidden>
 					<li><a href="{devblocks_url}c=config&a=avatars{/devblocks_url}">Avatars</a></li>
 					<li><a href="{devblocks_url}c=config&a=fields{/devblocks_url}">{'common.custom_fields'|devblocks_translate|capitalize}</a></li>
 					<li><a href="{devblocks_url}c=config&a=snippets{/devblocks_url}">{'common.snippets'|devblocks_translate|capitalize}</a></li>
@@ -59,8 +58,8 @@
 		</li>
 		<li>
 			<div>
-				<a class="menu">{'common.team'|devblocks_translate|capitalize} <span class="cerb-icons cerb-icon-chevron-down"></span></a>
-				<ul class="cerb-popupmenu cerb-float">
+				<a class="menu"><span class="cerb-icons cerb-icon-users"></span> {'common.team'|devblocks_translate|capitalize} <span class="cerb-icons cerb-icon-chevron-down"></span></a>
+				<ul hidden>
 					<li><a href="{devblocks_url}c=config&a=team&w=config{/devblocks_url}">{'common.configure'|devblocks_translate|capitalize}</a></li>
 					<li><a href="{devblocks_url}c=config&a=team&w=roles{/devblocks_url}">{'common.roles'|devblocks_translate|capitalize}</a></li>
 					<li><a href="{devblocks_url}c=config&a=team&w=groups{/devblocks_url}">{'common.groups'|devblocks_translate|capitalize}</a></li>
@@ -76,10 +75,31 @@
 		</li>
 		<li>
 			<div>
-				<a class="menu">{'common.mail'|devblocks_translate|capitalize} <span class="cerb-icons cerb-icon-chevron-down"></span></a>
-				<ul class="cerb-popupmenu cerb-float">
-					<li><a href="{devblocks_url}c=config&a=mail_incoming{/devblocks_url}">{'common.mail.incoming'|devblocks_translate|capitalize}</a></li>
-					<li><a href="{devblocks_url}c=config&a=mail_outgoing{/devblocks_url}">{'common.mail.outgoing'|devblocks_translate|capitalize}</a></li>
+				<a class="menu"><span class="cerb-icons cerb-icon-mail"></span> {'common.mail'|devblocks_translate|capitalize} <span class="cerb-icons cerb-icon-chevron-down"></span></a>
+				<ul hidden>
+					<li data-icon="inbox">{'common.mail.incoming'|devblocks_translate|capitalize}
+						<ul>
+							<li><a href="{devblocks_url}c=config&a=mail_incoming&tab=settings{/devblocks_url}">{'common.settings'|devblocks_translate|capitalize}</a></li>
+							<li><a href="{devblocks_url}c=config&a=mail_incoming&tab=mailboxes{/devblocks_url}">{'common.mailboxes'|devblocks_translate|capitalize}</a></li>
+							<li><a href="{devblocks_url}c=config&a=mail_incoming&tab=filtering{/devblocks_url}">{'common.mail.filtering'|devblocks_translate|capitalize}</a></li>
+							<li><a href="{devblocks_url}c=config&a=mail_incoming&tab=routing{/devblocks_url}">{'common.mail.routing'|devblocks_translate|capitalize}</a></li>
+							<li><a href="{devblocks_url}c=config&a=mail_incoming&tab=html{/devblocks_url}">HTML</a></li>
+							<li><a href="{devblocks_url}c=config&a=mail_incoming&tab=import{/devblocks_url}">{'common.import'|devblocks_translate|capitalize}</a></li>
+							<li><a href="{devblocks_url}c=config&a=mail_incoming&tab=failed{/devblocks_url}">Failed Messages</a></li>
+							<li><a href="{devblocks_url}c=config&a=mail_incoming&tab=relay{/devblocks_url}">External Relay</a></li>
+							<li><a href="{devblocks_url}c=config&a=mail_incoming&tab=log{/devblocks_url}">{'common.log'|devblocks_translate|capitalize}</a></li>
+						</ul>
+					</li>
+					<li data-icon="send">{'common.mail.outgoing'|devblocks_translate|capitalize}
+						<ul>
+							<li><a href="{devblocks_url}c=config&a=mail_outgoing&tab=transports{/devblocks_url}">{'common.email_transports'|devblocks_translate|capitalize}</a></li>
+							<li><a href="{devblocks_url}c=config&a=mail_outgoing&tab=senders{/devblocks_url}">{'common.sender_addresses'|devblocks_translate|capitalize}</a></li>
+							<li><a href="{devblocks_url}c=config&a=mail_outgoing&tab=settings{/devblocks_url}">{'common.settings'|devblocks_translate|capitalize}</a></li>
+							<li><a href="{devblocks_url}c=config&a=mail_outgoing&tab=templates{/devblocks_url}">Automated Email Templates</a></li>
+							<li><a href="{devblocks_url}c=config&a=mail_outgoing&tab=queue{/devblocks_url}">{'common.queue'|devblocks_translate|capitalize}</a></li>
+							<li><a href="{devblocks_url}c=config&a=mail_outgoing&tab=log{/devblocks_url}">{'common.log'|devblocks_translate|capitalize}</a></li>
+						</ul>
+					</li>
 
 					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.mail')}
 					{if !empty($exts)}<li><hr></li>{/if}
@@ -91,8 +111,8 @@
 		</li>
 		<li>
 			<div>
-				<a class="menu">{'common.packages'|devblocks_translate|capitalize} <span class="cerb-icons cerb-icon-chevron-down"></span></a>
-				<ul class="cerb-popupmenu cerb-float">
+				<a class="menu"><span class="cerb-icons cerb-icon-cube"></span> {'common.packages'|devblocks_translate|capitalize} <span class="cerb-icons cerb-icon-chevron-down"></span></a>
+				<ul hidden>
 					<li><a href="{devblocks_url}c=config&a=package_library{/devblocks_url}">{'common.library'|devblocks_translate|capitalize}</a></li>
 					<li><a href="{devblocks_url}c=config&a=package_import{/devblocks_url}">{'common.import'|devblocks_translate|capitalize}</a></li>
 
@@ -106,8 +126,8 @@
 		</li>
 		<li>
 			<div>
-				<a class="menu">{'common.storage'|devblocks_translate|capitalize} <span class="cerb-icons cerb-icon-chevron-down"></span></a>
-				<ul class="cerb-popupmenu cerb-float">
+				<a class="menu"><span class="cerb-icons cerb-icon-database"></span> {'common.storage'|devblocks_translate|capitalize} <span class="cerb-icons cerb-icon-chevron-down"></span></a>
+				<ul hidden>
 					<li><a href="{devblocks_url}c=config&a=storage_content{/devblocks_url}">Overview</a></li>
 					{if !$smarty.const.DEVBLOCKS_STORAGE_ENGINE_PREVENT_CHANGE}<li><a href="{devblocks_url}c=config&a=storage_profiles{/devblocks_url}">{'common.profiles'|devblocks_translate|capitalize}</a></li>{/if}
 					<li><a href="{devblocks_url}c=config&a=storage_attachments{/devblocks_url}">{'common.objects'|devblocks_translate|capitalize}</a></li>
@@ -122,8 +142,8 @@
 		</li>
 		<li>
 			<div>
-				<a class="menu">{'common.developers'|devblocks_translate|capitalize} <span class="cerb-icons cerb-icon-chevron-down"></span></a>
-				<ul class="cerb-popupmenu cerb-float">
+				<a class="menu"><span class="cerb-icons cerb-icon-console"></span> {'common.developers'|devblocks_translate|capitalize} <span class="cerb-icons cerb-icon-chevron-down"></span></a>
+				<ul hidden>
 					<li><a href="{devblocks_url}c=config&a=automation_logs{/devblocks_url}">Automation Logs</a></li>
 					<li><a href="{devblocks_url}c=config&a=bot_scripting_tester{/devblocks_url}">Automation Scripting Tester</a></li>
 					<li><a href="{devblocks_url}c=config&a=data_query_tester{/devblocks_url}">Data Query Tester</a></li>
@@ -176,26 +196,35 @@
 {/if}
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
-	$('DIV.cerb-menu DIV A.menu')
-		.closest('li')
-		.hover(
-			function(e) {
-				$(this).find('ul:first').show();
-			},
-			function(e) {
-				$(this).find('ul:first').hide();
+$(function() {
+	if(!(window.CerbUI && CerbUI.Menu))
+		return;
+
+	// Each setup category opens on hover; only one is open at a time (shared hover group)
+	document.querySelectorAll('.cerb-menu > ul > li').forEach(function(li) {
+		const trigger = li.querySelector(':scope > div > a.menu');
+		const submenu = li.querySelector(':scope > div > ul');
+
+		if(!trigger || !submenu)
+			return;
+
+		submenu.hidden = true; // hide the source UL (covers legacy cerb-popupmenu extension menus)
+
+		new CerbUI.Menu(submenu, {
+			hoverTrigger: li,
+			hoverGroup: 'setupmenu',
+			onRenderItem: function(rendered, source) {
+				const icon = source.dataset.icon;
+				if(icon) {
+					const ico = document.createElement('span');
+					ico.className = 'cerb-icons cerb-icon-' + icon;
+					ico.setAttribute('aria-hidden', 'true');
+					ico.style.marginRight = '0.5em';
+					rendered.insertBefore(ico, rendered.firstChild);
+				}
 			}
-		)
-		.find('.cerb-popupmenu > li')
-			.click(function(e) {
-				e.stopPropagation();
-				if(!$(e.target).is('li'))
-					return;
-
-				let $link = $(this).find('a');
-
-				if($link.length > 0)
-					window.location.href = $link.attr('href');
-			})
-		;
+			// default onSelect clicks the source <a href> -> navigates
+		});
+	});
+});
 </script>

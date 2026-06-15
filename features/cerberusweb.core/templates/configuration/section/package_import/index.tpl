@@ -1,4 +1,10 @@
-<h2>Import Package</h2>
+<div class="cerb-ui-header">
+	<div>
+		<div class="cerb-ui-header--title">Import Package</div>
+		<div class="cerb-ui-header--subtitle">Quickly create a set of related records using a pre-built template</div>
+	</div>
+</div>
+
 
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="frmSetupImportPackage">
 <input type="hidden" name="c" value="config">

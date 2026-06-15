@@ -1,4 +1,9 @@
-<h2>Automation Logs</h2>
+<div class="cerb-ui-header">
+    <div>
+        <div class="cerb-ui-header--title">Automation Logs</div>
+        <div class="cerb-ui-header--subtitle"></div>
+    </div>
+</div>
 
 <div style="margin-bottom:25px;">
     <div class="cerb-code-editor-toolbar">

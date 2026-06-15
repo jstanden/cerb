@@ -62,7 +62,9 @@ class PageSection_SetupTeam extends Extension_PageSection {
 			$default_workspaces = DAO_WorkspacePage::getIds($default_page_ids);
 			$tpl->assign('default_workspaces', $default_workspaces);
 		}
-		
+
+		$tpl->assign('workspace_page_context', CerberusContexts::CONTEXT_WORKSPACE_PAGE);
+
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/team/tab_config.tpl');
 	}
 

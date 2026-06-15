@@ -1,4 +1,9 @@
-<h2>Data Query Tester</h2>
+<div class="cerb-ui-header">
+	<div>
+		<div class="cerb-ui-header--title">Data Query Tester</div>
+		<div class="cerb-ui-header--subtitle"></div>
+	</div>
+</div>
 
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="frmSetupDataQueryTester">
 <fieldset>

@@ -1,6 +1,11 @@
 {$div_uid = uniqid('div')}
 
-<h2>LLM Agent Transcripts</h2>
+<div class="cerb-ui-header">
+    <div>
+        <div class="cerb-ui-header--title">LLM Agent Transcripts</div>
+        <div class="cerb-ui-header--subtitle"></div>
+    </div>
+</div>
 
 <div id="{$div_uid}" style="display:flex;">
     <div style="flex:1 1 300px;margin-right:2px;" data-cerb-sidebar-limit="{$limit}">

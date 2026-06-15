@@ -1,4 +1,9 @@
-<h2>{'common.platform'|devblocks_translate|capitalize}</h2>
+<div class="cerb-ui-header">
+    <div>
+        <div class="cerb-ui-header--title">{{'common.platform'|devblocks_translate|capitalize}}</div>
+        <div class="cerb-ui-header--subtitle"></div>
+    </div>
+</div>
 
 <div id="cerbConfigPlatform">
     <fieldset>

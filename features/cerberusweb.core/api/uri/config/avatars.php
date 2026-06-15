@@ -26,7 +26,13 @@ class PageSection_SetupAvatars extends Extension_PageSection {
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$visit->set(ChConfigurationPage::ID, 'avatars');
-		
+
+		$settings = DevblocksPlatform::services()->pluginSettings();
+		$style_contact = $settings->get('cerberusweb.core', CerberusSettings::AVATAR_DEFAULT_STYLE_CONTACT, CerberusSettingsDefaults::AVATAR_DEFAULT_STYLE_CONTACT);
+		$style_worker = $settings->get('cerberusweb.core', CerberusSettings::AVATAR_DEFAULT_STYLE_WORKER, CerberusSettingsDefaults::AVATAR_DEFAULT_STYLE_WORKER);
+		$tpl->assign('avatar_default_style_contact', $style_contact == 'silhouettes' ? 'silhouettes' : 'monograms');
+		$tpl->assign('avatar_default_style_worker', $style_worker == 'silhouettes' ? 'silhouettes' : 'monograms');
+
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/avatars/index.tpl');
 	}
 	

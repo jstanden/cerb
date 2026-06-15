@@ -1,4 +1,9 @@
-<h2>Workflow Builder</h2>
+<div class="cerb-ui-header">
+    <div>
+        <div class="cerb-ui-header--title">Workflow Builder</div>
+        <div class="cerb-ui-header--subtitle">Create a sharable workflow template from existing records</div>
+    </div>
+</div>
 
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="frmSetupWorkflowBuilder">
     <input type="hidden" name="c" value="config">

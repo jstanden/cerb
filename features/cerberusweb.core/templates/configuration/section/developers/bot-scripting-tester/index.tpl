@@ -1,4 +1,9 @@
-<h2>Automation Scripting Tester</h2>
+<div class="cerb-ui-header">
+	<div>
+		<div class="cerb-ui-header--title">Automation Scripting Tester</div>
+		<div class="cerb-ui-header--subtitle"></div>
+	</div>
+</div>
 
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="frmSetupBotScriptingTester">
 <input type="hidden" name="c" value="config">

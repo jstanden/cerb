@@ -29,7 +29,11 @@ class PageSection_SetupLocalization extends Extension_PageSection {
 		
 		$timezones = $date->getTimezones();
 		$tpl->assign('timezones', $timezones);
-		
+
+		$settings = DevblocksPlatform::services()->pluginSettings();
+		$tpl->assign('setting_timezone', $settings->get('cerberusweb.core', CerberusSettings::TIMEZONE, ''));
+		$tpl->assign('setting_time_format', $settings->get('cerberusweb.core', CerberusSettings::TIME_FORMAT, CerberusSettingsDefaults::TIME_FORMAT));
+
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/localization/index.tpl');
 	}
 	
