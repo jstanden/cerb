@@ -1,0 +1,180 @@
+// PriorityPicker (CerbUI.PriorityPicker): a collapsed trigger that summarizes the selected items, expanding to
+// a floating panel for multi-select + drag-to-reorder. Composes cerb-ui-pip, cerb-ui-toggle, cerb-ui-sortable,
+// cerb-ui-header, cerb-ui-button. Structural only — colors are tokens, so dark mode is automatic.
+.cerb-ui-priority-picker {
+	display: inline-block;
+
+	// ── Collapsed trigger ──────────────────────────────────────────────────
+	&--trigger {
+		appearance: none;
+		-webkit-appearance: none;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5em;
+		max-width: 100%;
+		margin: 0;
+		padding: 0.3em 0.5em;
+		border: 0;
+		border-radius: 6px;
+		background: none;
+		color: inherit;
+		font: inherit;
+		cursor: pointer;
+
+		&:hover {
+			background: var(--cerb-color-background-contrast-240);
+		}
+
+		// The chevron/lead are direct span.cerb-icons children, so the trigger matches the
+		// global `button:has(> span.cerb-icons):hover` blue (it out-specifies a plain &:hover).
+		// Opt out — the background change is enough; keep the resting text color.
+		&:hover:has(> span.cerb-icons) {
+			color: inherit;
+		}
+
+		&:focus-visible {
+			outline: 2px solid var(--cerb-color-action-primary);
+			outline-offset: 1px;
+		}
+	}
+
+	&--lead {
+		font-size: 1.2em;
+		color: var(--cerb-color-background-contrast-130);
+	}
+
+	&--summary {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.85em;
+		min-width: 0;
+		overflow: hidden;
+	}
+
+	&--summary-item {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4em;
+		white-space: nowrap;
+	}
+
+	&--summary-label {
+		font-weight: 600;
+	}
+
+	&--empty {
+		color: var(--cerb-color-background-contrast-150);
+	}
+
+	&--chevron {
+		font-size: 0.9em;
+		color: var(--cerb-color-background-contrast-150);
+	}
+
+	&--open &--chevron {
+		transform: rotate(180deg);
+	}
+
+	// ── Expanded panel ─────────────────────────────────────────────────────
+	&--panel {
+		position: absolute;
+		z-index: 10001; // match cerb-ui-menu: above dialogs, popups, tooltips
+		box-sizing: border-box;
+		min-width: 360px;
+		max-width: 92vw;
+		padding: 1em 1.1em;
+		background: var(--cerb-color-background);
+		color: var(--cerb-color-text);
+		border: 1px solid var(--cerb-color-background-contrast-220);
+		border-radius: 10px;
+		box-shadow: 0 0 10px 3px var(--cerb-color-shadow-menu);
+	}
+
+	&--subtitle {
+		color: var(--cerb-color-background-contrast-150);
+		margin-top: 0.2em;
+	}
+
+	&--list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		overflow-y: auto;
+		display: flex;
+		flex-direction: column;
+		gap: 0.35em;
+	}
+
+	&--item {
+		display: flex;
+		align-items: center;
+		gap: 0.7em;
+		padding: 0.5em 0.6em;
+		border: 1px solid transparent;
+		border-radius: 8px;
+		box-sizing: border-box;
+
+		// Bigger, bolder color dot than the default 9px pip
+		.cerb-ui-pip {
+			width: 12px;
+			height: 12px;
+			flex-basis: 12px;
+		}
+	}
+
+	// Selected rows get a subtle accent outline + wash (independent of drag order)
+	&--item-selected {
+		border-color: var(--cerb-color-action-primary);
+		background: color-mix(in srgb, var(--cerb-color-action-primary) 8%, transparent);
+	}
+
+	// Drag handle: two stacked bars drawn in currentColor (no icon dependency)
+	&--handle {
+		flex: 0 0 16px;
+		align-self: stretch;
+		min-height: 20px;
+		cursor: grab;
+		color: var(--cerb-color-background-contrast-170);
+		background-image:
+			linear-gradient(currentColor, currentColor),
+			linear-gradient(currentColor, currentColor);
+		background-size: 12px 2px;
+		background-repeat: no-repeat;
+		background-position: center calc(50% - 3px), center calc(50% + 3px);
+
+		&:active {
+			cursor: grabbing;
+		}
+	}
+
+	&--icon {
+		font-size: 1.1em;
+		color: var(--cerb-color-background-contrast-130);
+	}
+
+	&--label {
+		flex: 1 1 auto;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	// Per-row action slot (edit/delete) — sits right of the toggle (label's flex-grow pushes the cluster right)
+	&--actions {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5em;
+		flex: 0 0 auto;
+	}
+
+	// ── Footer (Apply / Cancel) — shown only when dirty ───────────────────────
+	&--footer {
+		display: flex;
+		justify-content: flex-end;
+		gap: 0.5em;
+		margin-top: 0.9em;
+		padding-top: 0.8em;
+		border-top: 1px solid var(--cerb-color-background-contrast-230);
+	}
+}
