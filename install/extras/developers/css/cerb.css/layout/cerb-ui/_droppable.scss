@@ -1,0 +1,35 @@
+// Droppable: a drop zone for CerbUI.Draggable. Structural — the JS toggles --over and injects the --overlay
+// node while a valid drag hovers. Colors are tokens (dark mode automatic).
+.cerb-ui-droppable {
+	// no base chrome — a drop zone is whatever the host styles it as; the highlight is opt-in below.
+}
+
+// A valid drag is hovering: an accent ring drawn inside the zone's own border box.
+.cerb-ui-droppable--over {
+	outline: 2px dashed var(--cerb-color-action-primary);
+	outline-offset: -2px;
+}
+
+// An unacceptable drag is hovering (rejectOverlay / onReject): a danger ring.
+.cerb-ui-droppable--reject {
+	outline: 2px dashed var(--cerb-color-tag-red);
+	outline-offset: -2px;
+}
+
+// The built-in highlight wash (overlay:true). Absolutely fills the zone, never intercepts the pointer.
+.cerb-ui-droppable--overlay {
+	position: absolute;
+	inset: 0;
+	z-index: 5;
+	pointer-events: none;
+	box-sizing: border-box;
+	border-radius: inherit;
+	background: color-mix(in srgb, var(--cerb-color-action-primary) 12%, transparent);
+	border: 2px solid var(--cerb-color-action-primary);
+}
+
+// The rejection wash (rejectOverlay:true) — same shape, danger color.
+.cerb-ui-droppable--overlay-reject {
+	background: color-mix(in srgb, var(--cerb-color-tag-red) 18%, transparent);
+	border-color: var(--cerb-color-tag-red);
+}
