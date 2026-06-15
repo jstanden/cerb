@@ -22,6 +22,7 @@ CerbUI.Tabs = class {
 	static _DEFAULTS = {
 		active: undefined,       // initial 0-based index (overrides `remember`); undefined = use remember/0
 		storagePrefix: 'cerb-tabs', // localStorage key prefix; key = `${storagePrefix}[${remember}]`
+		spinner: 'spark',        // CerbUI.Spinner variant for a dynamic tab's loading state: 'spark' (default) | 'arc' | 'dots' | null (plain ring)
 		onTabSelected: null,     // (index, tab) after a tab is shown
 		onBeforeTabLoad: null,   // (index, tab) before activation; return false to cancel
 		onAfterTabLoad: null,    // (index, tab) when the panel is ready (now for static/cached, post-fetch for dynamic)
@@ -281,7 +282,7 @@ CerbUI.Tabs = class {
 		tab.panel.innerHTML = '';
 		const wrap = document.createElement('div');
 		wrap.className = 'cerb-ui-tabs--panel-loading';
-		wrap.appendChild((window.CerbUI && CerbUI.Spinner) ? CerbUI.Spinner.create() : document.createElement('span'));
+		wrap.appendChild((window.CerbUI && CerbUI.Spinner) ? CerbUI.Spinner.create(this.opts.spinner) : document.createElement('span'));
 		tab.panel.appendChild(wrap);
 
 		const onDone = () => {
@@ -298,10 +299,17 @@ CerbUI.Tabs = class {
 		};
 
 		if(typeof genericAjaxGet === 'function' && window.jQuery) {
-			// genericAjaxGet injects with jQuery (runs fragment scripts under the page nonce) + handles
-			// the loading fade and session/error alerts.
-			genericAjaxGet(jQuery(tab.panel), tab.href, function() { onDone(); }, {
-				error: function(xhr) { onError(xhr && typeof xhr.status === 'number' ? xhr.status : null); }
+			// Inject the response ourselves with an EMPTY target so the helper does the request + HTTP-error
+			// toasts but NOT its fadeTo(0.2)->html()->fadeTo(1.0) cycle (which would double-blink over our
+			// spinner). jQuery .html() still runs the response's <script nonce> under the page CSP.
+			genericAjaxGet('', tab.href, function(html) {
+				jQuery(tab.panel).html(html);
+				onDone();
+			}, {
+				error: function(xhr) {
+					tab.panel.innerHTML = ''; // empty target = the helper won't clear our spinner; drop it here
+					onError(xhr && typeof xhr.status === 'number' ? xhr.status : null);
+				}
 			});
 			return;
 		}
