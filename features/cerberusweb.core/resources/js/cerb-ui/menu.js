@@ -34,6 +34,7 @@ CerbUI.Menu = class {
 		onClose: null,        // () when the menu finishes closing (panels removed)
 		closeOnSelect: true,  // close the menu after a leaf is chosen (false = stay open to pick several)
 		onRenderItem: null,   // (renderedLi, sourceLi) after the label, before the arrow — the icon hook
+		clearActiveOnLeave: false, // drop the hover highlight when the pointer leaves a panel (no submenu open)
 		itemHeight: 28,       // px; MUST match the .cerb-ui-menu--item CSS height (virt math depends on it)
 		maxHeight: 380,       // px before a panel scrolls
 		virtThreshold: 60,    // virtualize panels larger than this
@@ -45,7 +46,10 @@ CerbUI.Menu = class {
 		hoverCloseDelay: 150, // ms before a hover menu closes after the mouse leaves
 		fixed: false,         // position:fixed instead of absolute for floating panels
 		filter: false,        // type-to-filter: a search input above the root panel (filters the flat list)
+		filterAlways: false,  // keep the filter input visible + focused from open (command-bar style) rather
+		                      // than hidden-until-typed; the input never tucks away and Esc-on-empty bubbles out
 		filterPlaceholder: 'Filter…',
+		filterIcon: null,     // cerb-icons name (e.g. 'search') shown inside the filter box, before the input
 		filterEmptyText: 'No matches',
 	};
 
@@ -130,6 +134,15 @@ CerbUI.Menu = class {
 		if(!this.opts.inline) {
 			this.docKey = (e) => this._onKey(e);
 			document.addEventListener('keydown', this.docKey);
+			// Keyboard nav suppresses the hover highlight until the pointer ACTUALLY moves again — otherwise a
+			// resting/jittering mouse over the panel keeps re-firing mouseover and fights the arrow keys.
+			this._suppressHover = false; this._ptrX = null; this._ptrY = null;
+			this.docMove = (e) => {
+				if(e.clientX !== this._ptrX || e.clientY !== this._ptrY) {
+					this._ptrX = e.clientX; this._ptrY = e.clientY; this._suppressHover = false;
+				}
+			};
+			document.addEventListener('mousemove', this.docMove);
 		}
 
 		if(this.opts.inline) {
@@ -153,6 +166,12 @@ CerbUI.Menu = class {
 
 		document.addEventListener('pointerdown', this.docDown, { capture: true });
 		this._push(this.root, 0);
+
+		// Always-on filter (command bar): land focus in the search box so typing narrows immediately.
+		if(this.opts.filterAlways) {
+			const rootPnl = this.pnls[0];
+			if(rootPnl && rootPnl.filterInput) rootPnl.filterInput.focus();
+		}
 	}
 
 	close() {
@@ -163,8 +182,10 @@ CerbUI.Menu = class {
 		this.pnls = [];
 		if(this.docDown) document.removeEventListener('pointerdown', this.docDown, { capture: true });
 		if(this.docKey) document.removeEventListener('keydown', this.docKey);
+		if(this.docMove) document.removeEventListener('mousemove', this.docMove);
 		this.docDown = null;
 		this.docKey = null;
+		this.docMove = null;
 		if(wasOpen && typeof this.opts.onClose === 'function') this.opts.onClose();
 	}
 
@@ -216,6 +237,8 @@ CerbUI.Menu = class {
 
 		el.addEventListener('mouseover', (e) => this._onOver(e, pnl));
 		el.addEventListener('click', (e) => this._onClickItem(e, pnl));
+		if(this.opts.clearActiveOnLeave)
+			el.addEventListener('mouseleave', () => this._onLeave(pnl));
 		if(this.opts.hoverTrigger) {
 			el.addEventListener('mouseenter', () => this._hoverIn());
 			el.addEventListener('mouseleave', () => this._hoverOut());
@@ -233,14 +256,29 @@ CerbUI.Menu = class {
 			const input = document.createElement('input');
 			input.type = 'search';
 			input.className = 'cerb-ui-menu--filter';
-			input.hidden = true; // stays out of the way until the first keystroke reveals it (_showFilter)
+			input.hidden = !this.opts.filterAlways; // hidden until the first keystroke (_showFilter), unless always-on
+			if(this.opts.filterAlways) pnl.filterActive = true; // visible from the start (command-bar style)
 			input.setAttribute('placeholder', this.opts.filterPlaceholder);
 			input.setAttribute('aria-label', this.opts.filterPlaceholder);
 			input.addEventListener('input', () => {
 				if(input.value === '') this._hideFilter(pnl); // backspaced/cleared to empty -> tuck it away again
 				else this._applyFilter(pnl, input.value);
 			});
-			wrap.appendChild(input);
+			// Optional leading icon (e.g. search): pair it with the input in a row so it sits inside the box.
+			// Intended for filterAlways menus — the row tracks the input's initial visibility only.
+			if(this.opts.filterIcon) {
+				const row = document.createElement('div');
+				row.className = 'cerb-ui-menu--filterrow';
+				if(input.hidden) row.hidden = true;
+				const ico = document.createElement('span');
+				ico.className = 'cerb-ui-menu--filter-icon cerb-icons cerb-icon-' + this.opts.filterIcon;
+				ico.setAttribute('aria-hidden', 'true');
+				row.appendChild(ico);
+				row.appendChild(input);
+				wrap.appendChild(row);
+			} else {
+				wrap.appendChild(input);
+			}
 			wrap.appendChild(el);
 			pnl.outer = wrap;
 			pnl.filterInput = input;
@@ -387,6 +425,14 @@ CerbUI.Menu = class {
 	// Emptying the box (backspace / clear / Esc) tucks it away again and restores the full list.
 	_hideFilter(pnl) {
 		const input = pnl.filterInput;
+		// Always-on filter never tucks away — just clear the query, restore the full list, keep it visible/focused.
+		if(this.opts.filterAlways) {
+			if(input) input.value = '';
+			pnl.items = this.root;
+			this._fillPanel(pnl);
+			if(input) input.focus();
+			return;
+		}
 		pnl.filterActive = false;
 		if(input) { input.value = ''; input.hidden = true; }
 		pnl.items = this.root;
@@ -517,6 +563,7 @@ CerbUI.Menu = class {
 	// ── Event handlers ──────────────────────────────────────────────────
 
 	_onOver(e, pnl) {
+		if(this._suppressHover) return;   // a recent keyboard nav owns the highlight until the mouse moves
 		const target = e.target;
 		const li = target ? target.closest('.cerb-ui-menu--item') : null;
 		if(!li || !pnl.el.contains(li)) return;
@@ -540,6 +587,15 @@ CerbUI.Menu = class {
 				if(popped) popped.el.remove();
 			}
 		}
+	}
+
+	// Pointer left the panel: drop the hover highlight so nothing stays stuck-active (opt-in via
+	// clearActiveOnLeave). Skipped while a submenu is open below this panel — that row stays lit as the path.
+	_onLeave(pnl) {
+		if(this.pnls.length > pnl.depth + 1) return;
+		const actives = pnl.el.querySelectorAll('.cerb-ui-menu--item-active');
+		for(let i = 0; i < actives.length; i++) actives[i].classList.remove('cerb-ui-menu--item-active');
+		pnl.activeIdx = -1;
 	}
 
 	_select(renderedLi, sourceLi, e) {
@@ -593,6 +649,16 @@ CerbUI.Menu = class {
 
 		switch(e.key) {
 			case 'Escape':
+				// Always-on filter (command bar): a first Esc clears the query; a second Esc (already empty) is
+				// left to bubble so the host (e.g. the CerbUI.Dialog) closes. Stop propagation only while clearing.
+				if(this.opts.filter && depth === 0 && this.opts.filterAlways) {
+					if(pnl.filterInput && pnl.filterInput.value !== '') {
+						e.preventDefault();
+						e.stopPropagation();
+						this._hideFilter(pnl);
+					}
+					return;
+				}
 				e.preventDefault();
 				if(this.opts.filter && depth === 0 && pnl.filterActive) {
 					this._hideFilter(pnl);
@@ -638,13 +704,29 @@ CerbUI.Menu = class {
 			}
 
 			case 'ArrowDown': e.preventDefault(); this._navigate(pnl, +1); return;
-			case 'ArrowUp':   e.preventDefault(); this._navigate(pnl, -1); return;
+			case 'ArrowUp':
+				e.preventDefault();
+				// Always-on filter (command bar): Up off the top row returns to the filter (no active row, no
+				// wrap) — focus already lives in the search box, so just drop the highlight.
+				if(this.opts.filterAlways && depth === 0) {
+					let first = 0;
+					while(first < pnl.items.length && pnl.items[first].separator) first++;
+					if(pnl.activeIdx < 0 || pnl.activeIdx <= first) {
+						const actives = pnl.el.querySelectorAll('.cerb-ui-menu--item-active');
+						for(let i = 0; i < actives.length; i++) actives[i].classList.remove('cerb-ui-menu--item-active');
+						pnl.activeIdx = -1;
+						return;
+					}
+				}
+				this._navigate(pnl, -1);
+				return;
 			case 'Home':      e.preventDefault(); this._navigate(pnl, 0, true); return;
 			case 'End':       e.preventDefault(); this._navigate(pnl, 0, false, true); return;
 		}
 	}
 
 	_navigate(pnl, dir, home = false, end = false) {
+		this._suppressHover = true;   // ignore hover until the pointer physically moves (see open())
 		const items = pnl.items;
 		const len = items.length;
 		if(len === 0) return;

@@ -159,10 +159,143 @@
 		&::placeholder { color: var(--cerb-color-background-contrast-150); }
 	}
 
+	// Filter row: a leading icon (filterIcon option) overlaid inside the input — the input keeps its own border
+	// and spans the full width; the icon floats over its left and the input is padded to clear it (like the
+	// login email/password fields).
+	&--filterrow {
+		position: relative;
+
+		&[hidden] { display: none; }
+
+		.cerb-ui-menu--filter { padding-left: 2.4em; }
+	}
+
+	&--filter-icon {
+		position: absolute;
+		top: 50%;
+		left: 0.7em;
+		transform: translateY(-50%);
+		display: flex;
+		color: var(--cerb-color-background-contrast-150);
+		pointer-events: none;
+	}
+
 	&--filterempty {
 		padding: 0.6em 0.9em;
 		color: var(--cerb-color-background-contrast-150);
 		font-style: italic;
 		white-space: nowrap;
+	}
+}
+
+// Command bar: an inline filtered CerbUI.Menu filling a CerbUI.Dialog (header:none) — the global menu redesign.
+// The menu is bare (the dialog supplies the frame), full-width, and its rows are styled like cerb-ui-tiles:
+// a neutral rounded icon square + a title/subtitle text column + an optional trailing key-cap cluster.
+.cerb-command-bar {
+	.cerb-ui-menu--filterwrap {
+		max-width: none;
+		width: 100%;
+	}
+
+	.cerb-ui-menu--panel {
+		max-width: none;
+		min-height: 3em;
+	}
+
+	// Larger, comfortable search box at the top. Keep just a bottom divider — the global INPUT[type=search]
+	// border (accent on :focus) is overridden here (the :focus rule needs the extra specificity to win) so
+	// focus shows nothing but the blinking cursor.
+	.cerb-ui-menu--filter {
+		padding: 0.7em 0.9em;
+		font-size: 1.1em;
+		border: 0;
+		border-bottom: 1px solid var(--cerb-color-background-contrast-220);
+
+		&:focus {
+			border: 0;
+			border-bottom: 1px solid var(--cerb-color-background-contrast-220);
+			outline: none;
+			box-shadow: none;
+		}
+	}
+
+	// Leading search icon, overlaid inside the larger box (extra left padding clears it; specific enough to
+	// beat the padding shorthand above).
+	.cerb-ui-menu--filter-icon {
+		left: 0.95em;
+		font-size: 1.2em;
+	}
+
+	.cerb-ui-menu--filterrow .cerb-ui-menu--filter {
+		padding-left: 2.7em;
+	}
+
+	// Tile rows: tall enough for an icon square + a two-line text column.
+	.cerb-ui-menu--item {
+		height: auto;
+		min-height: 44px;
+		padding: 0.4em 0.9em;
+		gap: 0.7em;
+		align-items: center;
+	}
+
+	// Leading icon tile (neutral rounded square; currentColor glyph, or a small bot avatar).
+	.cerb-command-bar--icon {
+		flex-shrink: 0;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 30px;
+		height: 30px;
+		border-radius: 7px;
+		background: var(--cerb-color-background-contrast-235);
+		color: var(--cerb-color-text);
+
+		> .cerb-icons { font-size: 1.1em; }
+		> img.cerb-avatar { width: 20px; height: 20px; border-radius: 4px; }
+	}
+
+	// Title + optional subtitle, stacked. The menu's own --label is the title.
+	.cerb-command-bar--text {
+		flex: 1;
+		min-width: 0;
+		display: flex;
+		flex-direction: column;
+		line-height: 1.25;
+
+		> .cerb-ui-menu--label { flex: 0 0 auto; font-weight: 600; }
+	}
+
+	.cerb-command-bar--subtitle {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		color: var(--cerb-color-background-contrast-125); // a touch darker than the most-muted text
+		font-weight: normal;
+		font-size: 0.85em;
+	}
+
+	// Trailing keyboard-shortcut caps: pinned to the right of the row.
+	.cerb-command-bar--keys {
+		flex-shrink: 0;
+		margin-left: auto;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.25em;
+	}
+
+	// On the hovered/active (accent-filled) row, keep the tile, subtitle, and key caps legible.
+	.cerb-ui-menu--item-active {
+		.cerb-command-bar--icon {
+			background: var(--cerb-color-action-primary-text);
+			color: var(--cerb-color-action-primary);
+		}
+
+		.cerb-command-bar--subtitle {
+			color: var(--cerb-color-action-primary-text);
+			opacity: 0.85;
+		}
+
+		.cerb-ui-kbd { color: var(--cerb-color-text); }
 	}
 }
