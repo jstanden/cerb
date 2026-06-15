@@ -1,0 +1,280 @@
+// Sidebar: a collapsible vertical navigation rail (CerbUI.Sidebar). Enhances an <aside class="cerb-ui-sidebar">
+// with --head (fixed) / --body (scrolls) / --foot (fixed) slots; items are flex rows (icon, label, right badge).
+// Collapsing adds --collapsed (an icon-only strip). Full height is opt-in (--full-height: sticky 100vh); by
+// default it is a normal in-flow block sized by its flex container, so it embeds anywhere. Structural only —
+// colors are tokens (dark mode auto via html.dark). Width is driven by overridable CSS vars.
+.cerb-ui-sidebar {
+	--cerb-ui-sidebar-width: 260px;
+	--cerb-ui-sidebar-collapsed-width: 56px;
+
+	display: flex;
+	flex-direction: column;
+	box-sizing: border-box;
+	width: var(--cerb-ui-sidebar-width);
+	flex: 0 0 var(--cerb-ui-sidebar-width);
+	background: var(--cerb-color-background);
+	border-right: 1px solid var(--cerb-color-background-contrast-220);
+	color: var(--cerb-color-text);
+	overflow: hidden; // the --body owns scrolling
+	transition: width 0.15s ease, flex-basis 0.15s ease;
+
+	// Right-anchored rail: border + toggle flip to the other side.
+	&--right {
+		border-right: 0;
+		border-left: 1px solid var(--cerb-color-background-contrast-220);
+	}
+
+	// Opt-in: pin to the viewport height so the body scrolls within it (page nav). Otherwise a normal in-flow block.
+	&--full-height {
+		position: sticky;
+		top: 0;
+		height: 100vh;
+	}
+
+	&--collapsed {
+		width: var(--cerb-ui-sidebar-collapsed-width);
+		flex-basis: var(--cerb-ui-sidebar-collapsed-width);
+	}
+
+	// ── Slots ───────────────────────────────────────────────────────────
+	&--head {
+		flex: 0 0 auto;
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		padding: 8px;
+		border-bottom: 1px solid var(--cerb-color-background-contrast-230);
+	}
+
+	&--headbar {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		min-height: 28px;
+	}
+
+	&--body {
+		flex: 1 1 auto;
+		overflow-y: auto;
+		overflow-x: hidden;
+		overscroll-behavior: contain;   // keep over-scroll inside the rail; don't chain to the page
+		padding: 6px 0;
+	}
+
+	&--foot {
+		flex: 0 0 auto;
+		padding: 8px;
+		border-top: 1px solid var(--cerb-color-background-contrast-230);
+	}
+
+	// ── Toggle ──────────────────────────────────────────────────────────
+	&--toggle {
+		flex: 0 0 auto;
+		margin-left: auto; // pin to the rail's edge (left rail); flipped below for a right rail / collapsed
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 28px;
+		height: 28px;
+		padding: 0;
+		border: 0;
+		border-radius: 5px;
+		background: transparent;
+		color: var(--cerb-color-text);
+		cursor: pointer;
+
+		&:hover { background: var(--cerb-color-background-contrast-240); }
+		.cerb-icons { font-size: 16px; }
+	}
+
+	&--right &--toggle { margin-left: 0; margin-right: auto; }
+
+	// ── Filter ──────────────────────────────────────────────────────────
+	// Lives inline in the headbar (to the left of the toggle), so it grows to fill the row.
+	&--filter {
+		flex: 1 1 auto;
+		box-sizing: border-box;
+		width: auto;
+		min-width: 0;
+		margin: 0;
+		padding: 0.4em 0.6em;
+		border: 1px solid var(--cerb-color-background-contrast-220);
+		border-radius: 5px;
+		background: var(--cerb-color-background);
+		color: var(--cerb-color-text);
+		font: inherit;
+		outline: none;
+
+		&::placeholder { color: var(--cerb-color-background-contrast-150); }
+	}
+
+	// ── Sections ────────────────────────────────────────────────────────
+	&--section { margin-bottom: 10px; }
+
+	&--label {
+		padding: 6px 12px 2px;
+		color: var(--cerb-color-background-contrast-150);
+		font-size: 0.75em;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	ul {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	// ── Items ───────────────────────────────────────────────────────────
+	&--item {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		min-height: 34px;
+		padding: 0 12px;
+		margin: 1px 6px;
+		border-radius: 6px;
+		cursor: pointer;
+		user-select: none;
+		color: var(--cerb-color-text);
+
+		&:hover { background: var(--cerb-color-background-contrast-245); }
+
+		// Keyboard focus (ArrowDown from the filter, then Up/Down) — visible without a click.
+		&:focus-visible {
+			outline: 2px solid var(--cerb-color-action-primary);
+			outline-offset: -2px;
+		}
+	}
+
+	// Active / current row (the accent fill; nested label + badge follow its text color).
+	&--item-active {
+		background: var(--cerb-color-action-primary);
+		color: var(--cerb-color-action-primary-text);
+
+		.cerb-ui-sidebar--item-label,
+		.cerb-ui-sidebar--badge,
+		.cerb-ui-sidebar--right { color: inherit; }
+		.cerb-ui-sidebar--badge { background: rgba(255, 255, 255, 0.25); }
+	}
+
+	&--icon {
+		flex: 0 0 18px;
+		width: 18px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 16px;
+		color: inherit;
+	}
+
+	&--icon-empty { visibility: hidden; } // reserves the icon column so labels align
+
+	// The item label is its OWN class (not --label, which is the uppercase section header) so item text
+	// stays normal-case. Sharing --label made every item render UPPERCASE.
+	&--item-label {
+		flex: 1 1 auto;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		color: var(--cerb-color-text);
+		text-decoration: none; // an authored <a> reused as the label
+	}
+
+	a.cerb-ui-sidebar--item-label:hover { text-decoration: none; }
+
+	&--badge {
+		flex: 0 0 auto;
+		margin-left: auto;
+		padding: 1px 8px;
+		border-radius: 999px;
+		background: var(--cerb-color-background-contrast-240);
+		color: var(--cerb-color-background-contrast-150);
+		font-size: 0.8em;
+		font-variant-numeric: tabular-nums;
+	}
+
+	&--right {
+		flex: 0 0 auto;
+		margin-left: auto;
+		color: var(--cerb-color-background-contrast-150);
+		font-size: 0.85em;
+	}
+
+	&--item-hidden,
+	&--section-hidden { display: none; }
+
+	&--loading {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 1em;
+	}
+
+	// ── Palette mode: draggable tile items (CerbUI.Draggable) ───────────
+	&--palette {
+		.cerb-ui-sidebar--item {
+			cursor: grab;
+			padding: 4px 8px;
+		}
+
+		// Tiles fill the row (the default tile is inline-flex / content-sized).
+		.cerb-ui-tile {
+			display: flex;
+			width: 100%;
+		}
+	}
+
+	// ── Collapsed: icon-only strip ──────────────────────────────────────
+	&--collapsed {
+		.cerb-ui-sidebar--label,
+		.cerb-ui-sidebar--item-label,
+		.cerb-ui-sidebar--badge,
+		.cerb-ui-sidebar--right,
+		.cerb-ui-sidebar--filter,
+		.cerb-ui-sidebar--foot { display: none; }
+
+		// Drop the brand/logo content; keep only the toggle (centered in the strip).
+		.cerb-ui-sidebar--headbar > *:not(.cerb-ui-sidebar--toggle) { display: none; }
+		.cerb-ui-sidebar--toggle { margin: 0 auto; }
+
+		.cerb-ui-sidebar--section { margin-bottom: 4px; }
+
+		.cerb-ui-sidebar--item {
+			justify-content: center;
+			gap: 0;
+			padding: 0;
+		}
+
+		.cerb-ui-sidebar--icon-empty { visibility: visible; } // keep a clickable square for label-less items
+
+		// Tiles collapse to just their icon square.
+		.cerb-ui-tile--text { display: none; }
+		.cerb-ui-tile { justify-content: center; width: auto; }
+	}
+}
+
+// Layout helper: rail + content as flex siblings (the page-compose case). The content grows; the rail holds its
+// width. Drop a .cerb-ui-page (or anything) inside --content. Pair with fullHeight:true for a fixed-rail page.
+.cerb-ui-sidebar-layout {
+	display: flex;
+	align-items: stretch;
+
+	&--content {
+		flex: 1 1 auto;
+		min-width: 0;
+	}
+}
+
+// A palette tile dragged out of the rail floats at <body> level (CerbUI.Draggable), so it loses the
+// `.cerb-ui-sidebar--palette` ancestor that fills the tile to the row width — keep the dragged clone full-width
+// (the helper <li> carries both classes) so it mimics its in-rail size, not the tile's content width.
+.cerb-ui-draggable--helper.cerb-ui-sidebar--item .cerb-ui-tile {
+	display: flex;
+	width: 100%;
+}
