@@ -416,7 +416,10 @@ class SearchFields_MailRoutingRule extends DevblocksSearchFields {
 	const CREATED_AT = 'm_created_at';
 	const UPDATED_AT = 'm_updated_at';
 	const WORKFLOW_ID = 'm_workflow_id';
-	
+
+	const VIRTUAL_SPARKLINE = '*_sparkline';
+	const VIRTUAL_USAGE = '*_usage';
+
 	static private $_fields = null;
 	
 	static function getTableName() : string {
@@ -439,16 +442,51 @@ class SearchFields_MailRoutingRule extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
+			case self::VIRTUAL_USAGE:
+				return self::_getWhereSQLFromUsageFilter($param);
+
 			default:
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
 				} else {
 					if(null !== ($virtual_where_sql = self::_getWhereSQLForCommonVirtual($param, Context_MailRoutingRule::ID, self::getPrimaryKey())))
 						return $virtual_where_sql;
-					
+
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
 		}
+	}
+
+	// The usage:(...) threshold vocabulary, shared by the SQL filter and the quick-search validator.
+	static function getMetricFilterMap() : array {
+		return [
+			'matches' => DAO_MetricValue::metricFilterSeries('cerb.mail.routing.matches', 'counter'),
+		];
+	}
+
+	// Constrain the worklist to rules whose metric usage matches usage:(...). The matched `rule_id`
+	// dimension values ARE mail_routing_rule ids, so we filter the primary key directly.
+	private static function _getWhereSQLFromUsageFilter(DevblocksSearchCriteria $param) : string {
+		if($param->operator != DevblocksSearchCriteria::OPER_CUSTOM || !is_string($param->value))
+			return '0=1';
+
+		$matches = DAO_MetricValue::getDimensionValuesByMetricQuery(
+			$param->value,
+			self::getMetricFilterMap(),
+			'rule_id',
+			CerberusApplication::getActiveWorker()?->timezone ?: null
+		);
+
+		// null = invalid criteria (typo, unknown key, unparseable value) => match nothing (fail loud)
+		if(is_null($matches))
+			return '0=1';
+
+		$ids = array_filter(array_map('intval', $matches));
+
+		if(!$ids)
+			return '0=1';
+
+		return sprintf('%s IN (%s)', self::getPrimaryKey(), implode(',', $ids));
 	}
 	
 	static function getFieldForSubtotalKey($key, $context, array $query_fields, array $search_fields, $primary_key) {
@@ -492,8 +530,14 @@ class SearchFields_MailRoutingRule extends DevblocksSearchFields {
 			self::PRIORITY => new DevblocksSearchField(self::PRIORITY, 'mail_routing_rule', 'priority', $translate->_('common.priority'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'mail_routing_rule', 'updated_at', $translate->_('common.updated'), null, true),
 			self::WORKFLOW_ID => new DevblocksSearchField(self::WORKFLOW_ID, 'mail_routing_rule', 'workflow_id', $translate->_('common.workflow'), null, true),
+
+			// Virtual, display-only inline sparkline (matches, loaded async); not sortable
+			self::VIRTUAL_SPARKLINE => new DevblocksSearchField(self::VIRTUAL_SPARKLINE, '*', '', 'Usage', DevblocksSearchCriteria::TYPE_VIRTUAL_SPARKLINES, false),
+
+			// Virtual, search-only: usage:(matches:>100 since:"-7 days"); hidden as a column
+			self::VIRTUAL_USAGE => new DevblocksSearchField(self::VIRTUAL_USAGE, '*', '', 'Usage', null, false),
 		];
-		
+
 		// Virtual fields
 		if(($virtual_columns = DevblocksSearchField::getVirtualFields(watchers: false)))
 			$columns = array_merge($columns, $virtual_columns);
@@ -560,8 +604,14 @@ class View_MailRoutingRule extends C4_AbstractView implements IAbstractView_Subt
 			SearchFields_MailRoutingRule::PRIORITY,
 			SearchFields_MailRoutingRule::WORKFLOW_ID,
 			SearchFields_MailRoutingRule::UPDATED_AT,
+			SearchFields_MailRoutingRule::VIRTUAL_SPARKLINE,
 		];
-		
+
+		$this->addColumnsHidden([
+			// Search-only virtual field; never offered as a worklist column
+			SearchFields_MailRoutingRule::VIRTUAL_USAGE,
+		]);
+
 		$this->doResetCriteria();
 	}
 	
@@ -710,6 +760,13 @@ class View_MailRoutingRule extends C4_AbstractView implements IAbstractView_Subt
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => ['param_key' => SearchFields_MailRoutingRule::UPDATED_AT],
 				],
+			// parameterized group: usage:(matches:>100 since:"-7 days"); examples are value-form with parens,
+			// no `usage:` prefix (the autocomplete prepends the field key)
+			'usage' =>
+				[
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => ['param_key' => SearchFields_MailRoutingRule::VIRTUAL_USAGE],
+				],
 			'workflow.id' =>
 				[
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
@@ -738,11 +795,18 @@ class View_MailRoutingRule extends C4_AbstractView implements IAbstractView_Subt
 		return $fields;
 	}
 	
+	function getQuickSearchMetricFilterMap(string $field_key) : ?array {
+		return $field_key == 'usage' ? SearchFields_MailRoutingRule::getMetricFilterMap() : null;
+	}
+
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
-			
+
+			case 'usage':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_MailRoutingRule::VIRTUAL_USAGE);
+
 			default:
 				if($field == 'links' || str_starts_with($field, 'links.'))
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
@@ -778,7 +842,15 @@ class View_MailRoutingRule extends C4_AbstractView implements IAbstractView_Subt
 	}
 	
 	function renderVirtualCriteria($param) : void {
-		$this->_renderVirtualCriteria($param);
+		switch($param->field) {
+			case SearchFields_MailRoutingRule::VIRTUAL_USAGE:
+				echo sprintf("Usage matches <b>%s</b>", DevblocksPlatform::strEscapeHtml($param->value));
+				break;
+
+			default:
+				$this->_renderVirtualCriteria($param);
+				break;
+		}
 	}
 	
 	function getFields() {

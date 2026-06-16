@@ -39,11 +39,45 @@ class PageSection_ProfilesMailRoutingRule extends Extension_PageSection {
 					return $this->_profileAction_testRoutingKataJson();
 				case 'viewExplore':
 					return $this->_profileAction_viewExplore();
+				case 'viewSparklinesJson':
+					return $this->_profileAction_viewSparklinesJson();
 			}
 		}
 		return false;
 	}
-	
+
+	// Inline sparkline series (matches line) for the routing rules worklist; loaded async so the list
+	// paints fast. One metrics.timeseries query for the whole page (no N+1).
+	private function _profileAction_viewSparklinesJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+
+		$ids = DevblocksPlatform::importGPC($_REQUEST['ids'] ?? [], 'array', []);
+		$ids = array_filter(array_map('intval', $ids));
+
+		$window = DevblocksPlatform::importGPC($_REQUEST['window'] ?? '24h', 'string', '24h');
+
+		$row_series = [];
+
+		// Each row: the rule's match count as a blue line, filtered to that rule_id. Routing rules are
+		// readable by everyone, but require a logged-in worker.
+		if($active_worker && $ids) {
+			foreach($ids as $id) {
+				$row_series[$id] = [
+					['metric' => 'cerb.mail.routing.matches', 'function' => 'count', 'type' => 'bar', 'label' => 'matches', 'color' => '#0088e6', 'query' => ['rule_id' => $id], 'missing' => 'zero'],
+				];
+			}
+		}
+
+		$out = $row_series
+			? DAO_MetricValue::getSparklines($row_series, $window, $active_worker->timezone ?: null)
+			: [];
+
+		// Cast so the response is always a JSON object ({} when empty), keyed by rule id
+		echo json_encode((object) $out);
+	}
+
 	private function _profileAction_refreshRules() {
 		$tpl = DevblocksPlatform::services()->template();
 		
