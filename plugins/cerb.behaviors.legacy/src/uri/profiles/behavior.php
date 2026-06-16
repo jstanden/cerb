@@ -79,9 +79,44 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 					return $this->_profileAction_testDecisionEventSnippets();
 				case 'viewExplore':
 					return $this->_profileAction_viewExplore();
+				case 'viewSparklinesJson':
+					return $this->_profileAction_viewSparklinesJson();
 			}
 		}
 		return false;
+	}
+
+	// Inline sparkline series (duration bars + runs line) for the behaviors worklist; loaded async so the
+	// list paints fast. One metrics.timeseries query for the whole page (no N+1).
+	private function _profileAction_viewSparklinesJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+
+		$ids = DevblocksPlatform::importGPC($_REQUEST['ids'] ?? [], 'array', []);
+		$ids = array_filter(array_map('intval', $ids));
+
+		$window = DevblocksPlatform::importGPC($_REQUEST['window'] ?? '24h', 'string', '24h');
+
+		$row_series = [];
+
+		// Each row: the two behavior metrics filtered to that behavior_id. Duration as orange bars first,
+		// then runs as a blue line in front (line on top of the bars; category10 blue/orange).
+		if($active_worker && $ids) {
+			foreach($ids as $id) {
+				$row_series[$id] = [
+					['metric' => 'cerb.behavior.duration', 'function' => 'avg', 'type' => 'bar', 'label' => 'duration', 'color' => '#ff7f0e', 'query' => ['behavior_id' => $id], 'missing' => 'zero', 'suffix' => 'ms'],
+					['metric' => 'cerb.behavior.invocations', 'function' => 'count', 'type' => 'line', 'label' => 'runs', 'color' => '#0088e6', 'query' => ['behavior_id' => $id], 'missing' => 'zero'],
+				];
+			}
+		}
+
+		$out = $row_series
+			? DAO_MetricValue::getSparklines($row_series, $window, $active_worker->timezone ?: null)
+			: [];
+
+		// Cast so the response is always a JSON object ({} when empty), keyed by behavior id
+		echo json_encode((object) $out);
 	}
 	
 	private function _parseActions($action_ids, $scope) {

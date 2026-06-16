@@ -667,7 +667,9 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 	
 	const VIRTUAL_BOT_SEARCH = '*_bot_search';
 	const VIRTUAL_USABLE_BY = '*_usable_by';
-	
+	const VIRTUAL_SPARKLINE = '*_sparkline';
+	const VIRTUAL_USAGE = '*_usage';
+
 	static private $_fields = null;
 	
 	static function getTableName() : string {
@@ -693,10 +695,13 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 		switch($param->field) {
 			case self::VIRTUAL_BOT_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_BOT, 'trigger_event.bot_id');
-				
+
 			case self::VIRTUAL_USABLE_BY:
 				return self::_getWhereSQLForUsableBy($param, self::getPrimaryKey());
-				
+
+			case self::VIRTUAL_USAGE:
+				return self::_getWhereSQLFromUsageFilter($param);
+
 			default:
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
@@ -709,6 +714,39 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 		}
 	}
 	
+	// The usage:(...) threshold vocabulary, shared by the SQL filter and the quick-search validator.
+	static function getMetricFilterMap() : array {
+		return [
+			'runs' => DAO_MetricValue::metricFilterSeries('cerb.behavior.invocations', 'counter'),
+			'duration' => DAO_MetricValue::metricFilterSeries('cerb.behavior.duration', 'counter', ['unit' => 'ms', 'default' => 'avg']),
+		];
+	}
+
+	// Constrain the worklist to behaviors whose metric usage matches usage:(...). The matched
+	// `behavior_id` dimension values ARE trigger_event ids, so we filter the primary key directly.
+	private static function _getWhereSQLFromUsageFilter(DevblocksSearchCriteria $param) : string {
+		if($param->operator != DevblocksSearchCriteria::OPER_CUSTOM || !is_string($param->value))
+			return '0=1';
+
+		$matches = DAO_MetricValue::getDimensionValuesByMetricQuery(
+			$param->value,
+			self::getMetricFilterMap(),
+			'behavior_id',
+			CerberusApplication::getActiveWorker()?->timezone ?: null
+		);
+
+		// null = invalid criteria (typo, unknown key, unparseable value) => match nothing (fail loud)
+		if(is_null($matches))
+			return '0=1';
+
+		$ids = array_filter(array_map('intval', $matches));
+
+		if(!$ids)
+			return '0=1';
+
+		return sprintf('%s IN (%s)', self::getPrimaryKey(), implode(',', $ids));
+	}
+
 	static private function _getWhereSQLForUsableBy($param, $pkey) {
 		// Handle nested quick search filters first
 		if($param->operator == DevblocksSearchCriteria::OPER_CUSTOM) {
@@ -796,6 +834,12 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 				
 			self::VIRTUAL_BOT_SEARCH => new DevblocksSearchField(self::VIRTUAL_BOT_SEARCH, '*', 'bot_search', null, null, false),
 			self::VIRTUAL_USABLE_BY => new DevblocksSearchField(self::VIRTUAL_USABLE_BY, '*', 'usable_by', null, null, false),
+
+			// Virtual, display-only inline sparkline (runs + duration, loaded async); not sortable
+			self::VIRTUAL_SPARKLINE => new DevblocksSearchField(self::VIRTUAL_SPARKLINE, '*', '', 'Usage', DevblocksSearchCriteria::TYPE_VIRTUAL_SPARKLINES, false),
+
+			// Virtual, search-only: usage:(runs:>100 duration:>2000 since:"-24 hours"); hidden as a column
+			self::VIRTUAL_USAGE => new DevblocksSearchField(self::VIRTUAL_USAGE, '*', '', 'Usage', null, false),
 		];
 		
 		// Virtual fields
@@ -1557,11 +1601,14 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 			SearchFields_TriggerEvent::URI,
 			SearchFields_TriggerEvent::PRIORITY,
 			SearchFields_TriggerEvent::UPDATED_AT,
+			SearchFields_TriggerEvent::VIRTUAL_SPARKLINE,
 		];
-		
+
 		$this->addColumnsHidden([
 			SearchFields_TriggerEvent::VIRTUAL_BOT_SEARCH,
 			SearchFields_TriggerEvent::VIRTUAL_USABLE_BY,
+			// Search-only virtual field; never offered as a worklist column
+			SearchFields_TriggerEvent::VIRTUAL_USAGE,
 		]);
 
 		$this->doResetCriteria();
@@ -1770,13 +1817,18 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 						'limit' => 25,
 					]
 				),
-			'usableBy.bot' => 
+			'usableBy.bot' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_TriggerEvent::VIRTUAL_USABLE_BY),
 					'examples' => [
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_BOT, 'q' => ''],
 					]
+				),
+			'usage' => // parameterized group: usage:(runs:>100 since:"-2 weeks"); examples are value-form
+				array(   // with parens, no `usage:` prefix (the autocomplete prepends the field key)
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => ['param_key' => SearchFields_TriggerEvent::VIRTUAL_USAGE],
 				),
 		);
 		
@@ -1798,6 +1850,10 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 		return $fields;
 	}	
 	
+	function getQuickSearchMetricFilterMap(string $field_key) : ?array {
+		return $field_key == 'usage' ? SearchFields_TriggerEvent::getMetricFilterMap() : null;
+	}
+
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
 			case 'bot':
@@ -1805,7 +1861,10 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 				
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
-				
+
+			case 'usage':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_TriggerEvent::VIRTUAL_USAGE);
+
 			case 'usableBy.bot':
 				$oper = $value = null;
 				CerbQuickSearchLexer::getOperStringFromTokens($tokens, $oper, $value);
@@ -1882,6 +1941,10 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.bot')),
 					DevblocksPlatform::strEscapeHtml($param->value)
 				);
+				break;
+
+			case SearchFields_TriggerEvent::VIRTUAL_USAGE:
+				echo sprintf("Usage matches <b>%s</b>", DevblocksPlatform::strEscapeHtml($param->value));
 				break;
 			
 			case SearchFields_TriggerEvent::VIRTUAL_USABLE_BY:
