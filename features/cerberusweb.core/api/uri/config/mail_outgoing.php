@@ -127,6 +127,7 @@ class PageSection_SetupMailOutgoing extends Extension_PageSection {
 			SearchFields_MailTransport::EXTENSION_ID,
 			SearchFields_MailTransport::CREATED_AT,
 			SearchFields_MailTransport::UPDATED_AT,
+			SearchFields_MailTransport::VIRTUAL_SPARKLINE,
 		);
 		
 		if(null != ($view = C4_AbstractViewLoader::getView($defaults->id, $defaults))) {

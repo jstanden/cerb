@@ -37,9 +37,47 @@ class PageSection_ProfilesMailTransport extends Extension_PageSection {
 					return $this->_profileAction_getTransportParams();
 				case 'viewExplore':
 					return $this->_profileAction_viewExplore();
+				case 'viewSparklinesJson':
+					return $this->_profileAction_viewSparklinesJson();
 			}
 		}
 		return false;
+	}
+
+	// Inline sparkline series (stacked deliveries+failures bars) for the email transports worklist; loaded
+	// async so the list paints fast. One metrics.timeseries query for the whole page (no N+1).
+	private function _profileAction_viewSparklinesJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+
+		$ids = DevblocksPlatform::importGPC($_REQUEST['ids'] ?? [], 'array', []);
+		$ids = array_filter(array_map('intval', $ids));
+
+		$window = DevblocksPlatform::importGPC($_REQUEST['window'] ?? '24h', 'string', '24h');
+
+		$row_series = [];
+
+		// Each row: the two transport metrics filtered to that transport_id, as stacked bars. Deliveries
+		// (green) on the bottom, failures (red) stacked on top; both share a `stack` key so they share
+		// one scale and stack cumulatively.
+		if($active_worker && $ids) {
+			foreach($ids as $id) {
+				$row_series[$id] = [
+					// Deliveries (green) — successful outbound mail
+					['metric' => 'cerb.mail.transport.deliveries', 'function' => 'sum', 'type' => 'bar', 'label' => 'deliveries', 'color' => '#2ca02c', 'stack' => 'mail', 'query' => ['transport_id' => $id], 'missing' => 'zero'],
+					// Failures (red) — stacked on top
+					['metric' => 'cerb.mail.transport.failures', 'function' => 'sum', 'type' => 'bar', 'label' => 'failures', 'color' => '#d62728', 'stack' => 'mail', 'query' => ['transport_id' => $id], 'missing' => 'zero'],
+				];
+			}
+		}
+
+		$out = $row_series
+			? DAO_MetricValue::getSparklines($row_series, $window, $active_worker->timezone ?: null)
+			: [];
+
+		// Cast so the response is always a JSON object ({} when empty), keyed by transport id
+		echo json_encode((object) $out);
 	}
 	
 	private function _profileAction_savePeekJson() {
