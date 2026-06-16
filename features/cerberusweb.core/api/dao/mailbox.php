@@ -592,6 +592,9 @@ class SearchFields_Mailbox extends DevblocksSearchFields {
 	const UPDATED_AT = 'p_updated_at';
 	const USERNAME = 'p_username';
 
+	const VIRTUAL_SPARKLINE = '*_sparkline';
+	const VIRTUAL_USAGE = '*_usage';
+
 	static private $_fields = null;
 
 	static function getTableName() : string {
@@ -614,18 +617,54 @@ class SearchFields_Mailbox extends DevblocksSearchFields {
 
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
+			case self::VIRTUAL_USAGE:
+				return self::_getWhereSQLFromUsageFilter($param);
+
 			default:
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
 				} else {
 					if(null !== ($virtual_where_sql = self::_getWhereSQLForCommonVirtual($param, CerberusContexts::CONTEXT_MAILBOX, self::getPrimaryKey())))
 						return $virtual_where_sql;
-					
+
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
 		}
 	}
-	
+
+	// The usage:(...) threshold vocabulary, shared by the SQL filter and the quick-search validator.
+	static function getMetricFilterMap() : array {
+		return [
+			'received' => DAO_MetricValue::metricFilterSeries('cerb.mail.mailbox.received', 'counter'),
+			'errors' => DAO_MetricValue::metricFilterSeries('cerb.mail.mailbox.errors', 'counter'),
+		];
+	}
+
+	// Constrain the worklist to mailboxes whose metric usage matches usage:(...). The matched
+	// `mailbox_id` dimension values ARE mailbox ids, so we filter the primary key directly.
+	private static function _getWhereSQLFromUsageFilter(DevblocksSearchCriteria $param) : string {
+		if($param->operator != DevblocksSearchCriteria::OPER_CUSTOM || !is_string($param->value))
+			return '0=1';
+
+		$matches = DAO_MetricValue::getDimensionValuesByMetricQuery(
+			$param->value,
+			self::getMetricFilterMap(),
+			'mailbox_id',
+			CerberusApplication::getActiveWorker()?->timezone ?: null
+		);
+
+		// null = invalid criteria (typo, unknown key, unparseable value) => match nothing (fail loud)
+		if(is_null($matches))
+			return '0=1';
+
+		$ids = array_filter(array_map('intval', $matches));
+
+		if(!$ids)
+			return '0=1';
+
+		return sprintf('%s IN (%s)', self::getPrimaryKey(), implode(',', $ids));
+	}
+
 	static function getFieldForSubtotalKey($key, $context, array $query_fields, array $search_fields, $primary_key) {
 		switch($key) {
 		}
@@ -676,8 +715,14 @@ class SearchFields_Mailbox extends DevblocksSearchFields {
 			self::TIMEOUT_SECS => new DevblocksSearchField(self::TIMEOUT_SECS, 'mailbox', 'timeout_secs', $translate->_('dao.mailbox.timeout_secs'), Model_CustomField::TYPE_NUMBER, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'mailbox', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			self::USERNAME => new DevblocksSearchField(self::USERNAME, 'mailbox', 'username', $translate->_('common.user'), Model_CustomField::TYPE_SINGLE_LINE, true),
+
+			// Virtual, display-only inline sparkline (received + errors, loaded async); not sortable
+			self::VIRTUAL_SPARKLINE => new DevblocksSearchField(self::VIRTUAL_SPARKLINE, '*', '', 'Usage', DevblocksSearchCriteria::TYPE_VIRTUAL_SPARKLINES, false),
+
+			// Virtual, search-only: usage:(received:>100 errors:>0 since:"-7 days"); hidden as a column
+			self::VIRTUAL_USAGE => new DevblocksSearchField(self::VIRTUAL_USAGE, '*', '', 'Usage', null, false),
 		];
-		
+
 		// Virtual fields
 		if(($virtual_columns = DevblocksSearchField::getVirtualFields()))
 			$columns = array_merge($columns, $virtual_columns);
@@ -717,10 +762,13 @@ class View_Mailbox extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Mailbox::UPDATED_AT,
 			SearchFields_Mailbox::CHECKED_AT,
 			SearchFields_Mailbox::CONNECTED_ACCOUNT_ID,
+			SearchFields_Mailbox::VIRTUAL_SPARKLINE,
 		];
 
 		$this->addColumnsHidden([
 			SearchFields_Mailbox::PASSWORD,
+			// Search-only virtual field; never offered as a worklist column
+			SearchFields_Mailbox::VIRTUAL_USAGE,
 		]);
 
 		$this->doResetCriteria();
@@ -880,6 +928,11 @@ class View_Mailbox extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_Mailbox::UPDATED_AT),
 				),
+			'usage' => // parameterized group: usage:(received:>100 since:"-7 days"); examples are value-form
+				array(   // with parens, no `usage:` prefix (the autocomplete prepends the field key)
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => ['param_key' => SearchFields_Mailbox::VIRTUAL_USAGE],
+				),
 			'watchers' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
@@ -908,11 +961,18 @@ class View_Mailbox extends C4_AbstractView implements IAbstractView_Subtotals, I
 		return $fields;
 	}
 
+	function getQuickSearchMetricFilterMap(string $field_key) : ?array {
+		return $field_key == 'usage' ? SearchFields_Mailbox::getMetricFilterMap() : null;
+	}
+
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
-			
+
+			case 'usage':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Mailbox::VIRTUAL_USAGE);
+
 			case 'watchers':
 				return DevblocksSearchCriteria::getWatcherParamFromTokens(DevblocksSearchField::VIRTUAL_WATCHERS, $tokens);
 				
@@ -955,7 +1015,15 @@ class View_Mailbox extends C4_AbstractView implements IAbstractView_Subtotals, I
 	}
 
 	function renderVirtualCriteria($param) : void {
-		$this->_renderVirtualCriteria($param);
+		switch($param->field) {
+			case SearchFields_Mailbox::VIRTUAL_USAGE:
+				echo sprintf("Usage matches <b>%s</b>", DevblocksPlatform::strEscapeHtml($param->value));
+				break;
+
+			default:
+				$this->_renderVirtualCriteria($param);
+				break;
+		}
 	}
 
 	function getFields() {

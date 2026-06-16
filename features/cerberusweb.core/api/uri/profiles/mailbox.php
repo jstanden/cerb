@@ -37,9 +37,42 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 					return $this->_profileAction_testMailboxJson();
 				case 'viewExplore':
 					return $this->_profileAction_viewExplore();
+				case 'viewSparklinesJson':
+					return $this->_profileAction_viewSparklinesJson();
 			}
 		}
 		return false;
+	}
+
+	private function _profileAction_viewSparklinesJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+
+		$ids = DevblocksPlatform::importGPC($_REQUEST['ids'] ?? [], 'array', []);
+		$ids = array_filter(array_map('intval', $ids));
+
+		$window = DevblocksPlatform::importGPC($_REQUEST['window'] ?? '24h', 'string', '24h');
+
+		$row_series = [];
+
+		// Each row: the two mailbox metrics filtered to that mailbox_id. Errors as red bars first,
+		// then received as a blue line in front (line on top of the bars).
+		if($active_worker && $ids) {
+			foreach($ids as $id) {
+				$row_series[$id] = [
+					['metric' => 'cerb.mail.mailbox.errors', 'function' => 'sum', 'type' => 'bar', 'label' => 'errors', 'color' => '#d62728', 'query' => ['mailbox_id' => $id], 'missing' => 'zero'],
+					['metric' => 'cerb.mail.mailbox.received', 'function' => 'sum', 'type' => 'line', 'label' => 'received', 'color' => '#0088e6', 'query' => ['mailbox_id' => $id], 'missing' => 'zero'],
+				];
+			}
+		}
+
+		$out = $row_series
+			? DAO_MetricValue::getSparklines($row_series, $window, $active_worker->timezone ?: null)
+			: [];
+
+		// Cast so the response is always a JSON object ({} when empty), keyed by mailbox id
+		echo json_encode((object) $out);
 	}
 	
 	private function _profileAction_savePeekJson() {
