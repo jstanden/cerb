@@ -40,6 +40,8 @@ class PageSection_ProfilesQueue extends Extension_PageSection {
 					return $this->_profileAction_savePeekJson();
 				case 'viewExplore':
 					return $this->_profileAction_viewExplore();
+				case 'viewSparklinesJson':
+					return $this->_profileAction_viewSparklinesJson();
 			}
 		}
 		return false;
@@ -220,8 +222,44 @@ class PageSection_ProfilesQueue extends Extension_PageSection {
 	private function _profileAction_viewExplore() {
 		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
 		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'int', 0);
-		
+
 		$http_response = Cerb_ORMHelper::generateRecordExploreSet($view_id, $explore_from);
 		DevblocksPlatform::redirect($http_response);
+	}
+
+	// Inline sparkline series (done + failed + open-depth stacked bars) for the queues worklist; loaded
+	// async so the list paints fast. One metrics.timeseries query for the whole page (no N+1).
+	private function _profileAction_viewSparklinesJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+
+		$ids = DevblocksPlatform::importGPC($_REQUEST['ids'] ?? [], 'array', []);
+		$ids = array_filter(array_map('intval', $ids));
+
+		$window = DevblocksPlatform::importGPC($_REQUEST['window'] ?? '1d', 'string', '1d');
+
+		$row_series = [];
+
+		// Each row: the two queue metrics filtered to that queue_id. Throughput (.processed) splits into
+		// done (status 3) and failed (status 2); open depth (.open) overlays as a line. The open gauge is
+		// a point-in-time backlog snapshot stored per (job,status), so faceted_max sums each facet's
+		// per-bin peak = the highest total depth that hour (peak max==0 => empty all hour).
+		if($active_worker && $ids) {
+			foreach($ids as $id) {
+				$row_series[$id] = [
+					['metric' => 'cerb.queue.messages.processed', 'function' => 'count', 'type' => 'line', 'label' => 'done', 'color' => '#2ca02c', 'query' => ['queue_id' => $id, 'status_id' => QueueMessageStatus::DONE->value], 'missing' => 'zero'],
+					['metric' => 'cerb.queue.messages.processed', 'function' => 'count', 'type' => 'bar', 'label' => 'failed', 'color' => '#d62728', 'query' => ['queue_id' => $id, 'status_id' => QueueMessageStatus::FAILED->value], 'missing' => 'zero'],
+					['metric' => 'cerb.queue.messages.open', 'function' => 'faceted_max', 'type' => 'line', 'label' => 'open', 'color' => '#0088e6', 'query' => ['queue_id' => $id], 'missing' => 'zero'],
+				];
+			}
+		}
+
+		$out = $row_series
+			? DAO_MetricValue::getSparklines($row_series, $window, $active_worker->timezone ?: null)
+			: [];
+
+		// Cast so the response is always a JSON object ({} when empty), keyed by queue id
+		echo json_encode((object) $out);
 	}
 };

@@ -424,7 +424,10 @@ class SearchFields_Queue extends DevblocksSearchFields {
 	const RETRY_MAX = 'q_retry_max';
 	const RETRY_WINDOW_SECS = 'q_retry_window_secs';
 	const UPDATED_AT = 'q_updated_at';
-	
+
+	const VIRTUAL_SPARKLINE = '*_sparkline'; // display-only inline sparkline (done/failed/open), loaded async
+	const VIRTUAL_ACTIVITY = '*_activity';   // search-only: activity:(done:>100 failed:>0 since:"-2 weeks")
+
 	static private $_fields = null;
 	
 	static function getTableName() : string {
@@ -447,6 +450,9 @@ class SearchFields_Queue extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
+			case self::VIRTUAL_ACTIVITY:
+				return self::_getWhereSQLFromActivityFilter($param);
+
 			default:
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
@@ -457,6 +463,41 @@ class SearchFields_Queue extends DevblocksSearchFields {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
 		}
+	}
+
+	// The activity:(...) threshold vocabulary, shared by the SQL filter and the quick-search validator.
+	static function getMetricFilterMap() : array {
+		return [
+			'processed' => DAO_MetricValue::metricFilterSeries('cerb.queue.messages.processed', 'counter'),
+			'done' => DAO_MetricValue::metricFilterSeries('cerb.queue.messages.processed', 'counter', ['query' => ['status_id' => QueueMessageStatus::DONE->value]]),
+			'failed' => DAO_MetricValue::metricFilterSeries('cerb.queue.messages.processed', 'counter', ['query' => ['status_id' => QueueMessageStatus::FAILED->value]]),
+			'open' => DAO_MetricValue::metricFilterSeries('cerb.queue.messages.open', 'gauge'),
+		];
+	}
+
+	// Constrain the worklist to queues whose metric activity matches activity:(...). The matched
+	// `queue_id` dimension values ARE queue ids, so we filter the primary key directly.
+	private static function _getWhereSQLFromActivityFilter(DevblocksSearchCriteria $param) : string {
+		if($param->operator != DevblocksSearchCriteria::OPER_CUSTOM || !is_string($param->value))
+			return '0=1';
+
+		$matches = DAO_MetricValue::getDimensionValuesByMetricQuery(
+			$param->value,
+			self::getMetricFilterMap(),
+			'queue_id',
+			CerberusApplication::getActiveWorker()?->timezone ?: null
+		);
+
+		// null = invalid criteria (typo, unknown key, unparseable value) => match nothing (fail loud)
+		if(is_null($matches))
+			return '0=1';
+
+		$ids = array_filter(array_map('intval', $matches));
+
+		if(!$ids)
+			return '0=1';
+
+		return sprintf('%s IN (%s)', self::getPrimaryKey(), implode(',', $ids));
 	}
 	
 	static function getFieldForSubtotalKey($key, $context, array $query_fields, array $search_fields, $primary_key) {
@@ -500,8 +541,14 @@ class SearchFields_Queue extends DevblocksSearchFields {
 			self::RETRY_MAX => new DevblocksSearchField(self::RETRY_MAX, 'queue', 'retry_max', 'Retry max', null, true),
 			self::RETRY_WINDOW_SECS => new DevblocksSearchField(self::RETRY_WINDOW_SECS, 'queue', 'retry_window_secs', 'Retry window', null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'queue', 'updated_at', $translate->_('common.updated'), null, true),
+
+			// Virtual, display-only inline sparkline (done/failed bars + open line, loaded async); not sortable
+			self::VIRTUAL_SPARKLINE => new DevblocksSearchField(self::VIRTUAL_SPARKLINE, '*', '', 'Activity', DevblocksSearchCriteria::TYPE_VIRTUAL_SPARKLINES, false),
+
+			// Virtual, search-only: activity:(done:>100 failed:>0 since:"-24 hours"); hidden as a column
+			self::VIRTUAL_ACTIVITY => new DevblocksSearchField(self::VIRTUAL_ACTIVITY, '*', '', 'Activity', null, false),
 		];
-		
+
 		// Virtual fields
 		if(($virtual_columns = DevblocksSearchField::getVirtualFields()))
 			$columns = array_merge($columns, $virtual_columns);
@@ -550,8 +597,14 @@ class View_Queue extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 			SearchFields_Queue::UPDATED_AT,
 			SearchFields_Queue::RETRY_MAX,
 			SearchFields_Queue::RETRY_WINDOW_SECS,
+			SearchFields_Queue::VIRTUAL_SPARKLINE,
 		];
-		
+
+		// Search-only virtual field; never offered as a worklist column
+		$this->addColumnsHidden([
+			SearchFields_Queue::VIRTUAL_ACTIVITY,
+		]);
+
 		$this->doResetCriteria();
 	}
 	
@@ -652,6 +705,11 @@ class View_Queue extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 		$search_fields = SearchFields_Queue::getFields();
 		
 		$fields = array(
+			'activity' => // parameterized group: activity:(done:>100 since:"-2 weeks"); examples are value-form
+				array(   // with parens, no `activity:` prefix (the autocomplete prepends the field key)
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => ['param_key' => SearchFields_Queue::VIRTUAL_ACTIVITY],
+				),
 			'created' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
@@ -728,8 +786,15 @@ class View_Queue extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 		return $fields;
 	}
 	
+	function getQuickSearchMetricFilterMap(string $field_key) : ?array {
+		return $field_key == 'activity' ? SearchFields_Queue::getMetricFilterMap() : null;
+	}
+
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
+			case 'activity':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Queue::VIRTUAL_ACTIVITY);
+
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
 			
@@ -776,6 +841,10 @@ class View_Queue extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 	
 	function renderVirtualCriteria($param) : void {
 		switch($param->field) {
+			case SearchFields_Queue::VIRTUAL_ACTIVITY:
+				echo sprintf("Activity matches <b>%s</b>", DevblocksPlatform::strEscapeHtml($param->value));
+				break;
+
 			default:
 				$this->_renderVirtualCriteria($param);
 				break;

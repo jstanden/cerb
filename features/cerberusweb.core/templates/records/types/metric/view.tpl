@@ -95,6 +95,10 @@
                                 <abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>
                             {/if}
                         </td>
+                    {elseif $column == "*_sparkline"}
+                        <td data-column="{$column}" style="width:160px;">
+                            <div class="cerb-ui-sparkchart" data-cerb-spark="{$result.m_id}" style="min-width:140px;"></div>
+                        </td>
                     {else}
                         <td data-column="{$column}">{$result.$column}</td>
                     {/if}
@@ -125,6 +129,10 @@
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
     $(function() {
         var $frm = $('#viewForm{$view->id}');
+
+        {if in_array('*_sparkline', $view->view_columns)}
+        {include file="devblocks:cerberusweb.core::internal/views/sparkline_loader.tpl" spark_module='metric' spark_action='viewSparklinesJson' spark_view_id=$view->id}
+        {/if}
 
         {if $pref_keyboard_shortcuts}
         $frm.bind('keyboard_shortcut',function(event) {
