@@ -45,15 +45,19 @@
             {/if}
 
             {foreach from=$view->view_columns item=header name=headers}
-                {* start table header, insert column title and link *}
-                <th class="{if array_key_exists('disable_sorting', $view->options) && $view->options.disable_sorting}no-sort{/if}">
-                    {if (!array_key_exists('disable_sorting', $view->options) || !$view->options.disable_sorting) && !empty($view_fields.$header->db_column)}
-                        {include file="devblocks:cerberusweb.core::internal/views/view_header_sort.tpl" view=$view header=$header}
-                        <a data-cerb-worklist-sort="{$header}">{$view_fields.$header->db_label|capitalize}</a>
-                    {else}
-                        <a style="text-decoration:none;">{$view_fields.$header->db_label|capitalize}</a>
-                    {/if}
-                </th>
+                {if $header == "*_sparkline"}
+                    {include file="devblocks:cerberusweb.core::internal/views/view_header_sparkline.tpl" header=$header view_fields=$view_fields}
+                {else}
+                    {* start table header, insert column title and link *}
+                    <th class="{if array_key_exists('disable_sorting', $view->options) && $view->options.disable_sorting}no-sort{/if}">
+                        {if (!array_key_exists('disable_sorting', $view->options) || !$view->options.disable_sorting) && !empty($view_fields.$header->db_column)}
+                            {include file="devblocks:cerberusweb.core::internal/views/view_header_sort.tpl" view=$view header=$header}
+                            <a data-cerb-worklist-sort="{$header}">{$view_fields.$header->db_label|capitalize}</a>
+                        {else}
+                            <a style="text-decoration:none;">{$view_fields.$header->db_label|capitalize}</a>
+                        {/if}
+                    </th>
+                {/if}
             {/foreach}
         </tr>
         </thead>

@@ -35,11 +35,65 @@ class PageSection_ProfilesMetric extends Extension_PageSection {
 					return $this->_profileAction_savePeekJson();
 				case 'viewExplore':
 					return $this->_profileAction_viewExplore();
+				case 'viewSparklinesJson':
+					return $this->_profileAction_viewSparklinesJson();
 			}
 		}
 		return false;
 	}
 	
+	// Inline 24h sparkline series for the metrics worklist; loaded async so the list paints fast
+	private function _profileAction_viewSparklinesJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+
+		$ids = DevblocksPlatform::importGPC($_REQUEST['ids'] ?? [], 'array', []);
+		$ids = array_filter(array_map('intval', $ids));
+
+		$window = DevblocksPlatform::importGPC($_REQUEST['window'] ?? '1d', 'string', '1d');
+
+		$row_series = [];
+
+		// Metrics are readable by everyone, but require a logged-in worker. The series are the metric_value
+		// aggregates collapsed across dimensions (the metric total), drawn selectively by type — this is the
+		// only worklist that mixes counters and gauges, so it can't assume one. Both show a min/max range;
+		// counters add the summed total (the real count; avg is ~1 since each sample is +1), gauges add the
+		// average reading (summing gauge samples is meaningless — it's 20 hourly weather readings, not their
+		// sum). Colors: min=green, max=red, headline=blue. Counters gap-fill to zero; gauges carry the band.
+		if($active_worker && $ids) {
+			foreach(DAO_Metric::getIds($ids) as $id => $model) {
+				$metric = $model->name;
+
+				// faceted_* sum across dimension groups (SUM(min)/SUM(max)/SUM(sum/samples)) so a metric split
+				// over many dims reports the true point-in-time system total, not one group's extreme; they
+				// degenerate to the plain value for undimensioned metrics.
+				if('gauge' == $model->type) {
+					// min/avg/max share one scale so they nest as a band (same quantity). avg drawn last (in front).
+					$row_series[$id] = [
+						['metric' => $metric, 'function' => 'faceted_min', 'type' => 'line', 'label' => 'min', 'color' => '#2ca02c', 'scaleGroup' => 'value', 'missing' => 'carry'],
+						['metric' => $metric, 'function' => 'faceted_max', 'type' => 'line', 'label' => 'max', 'color' => '#ff7f0e', 'scaleGroup' => 'value', 'missing' => 'carry'],
+						['metric' => $metric, 'function' => 'faceted_average', 'type' => 'line', 'label' => 'avg', 'color' => '#0088e6', 'scaleGroup' => 'value', 'missing' => 'carry'],
+					];
+				} else { // counter
+					// sum bars carry the count; min/max lines share a scale as the per-bin increment range.
+					$row_series[$id] = [
+						['metric' => $metric, 'function' => 'sum', 'type' => 'bar', 'label' => 'sum', 'color' => '#0088e6', 'missing' => 'zero'],
+						['metric' => $metric, 'function' => 'faceted_min', 'type' => 'line', 'label' => 'min', 'color' => '#2ca02c', 'scaleGroup' => 'range', 'missing' => 'zero'],
+						['metric' => $metric, 'function' => 'faceted_max', 'type' => 'line', 'label' => 'max', 'color' => '#ff7f0e', 'scaleGroup' => 'range', 'missing' => 'zero'],
+					];
+				}
+			}
+		}
+
+		$out = $row_series
+			? DAO_MetricValue::getSparklines($row_series, $window, $active_worker->timezone ?: null)
+			: [];
+
+		// Cast so the response is always a JSON object ({} when empty), keyed by metric id
+		echo json_encode((object) $out);
+	}
+
 	private function _profileAction_savePeekJson() {
 		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
 		

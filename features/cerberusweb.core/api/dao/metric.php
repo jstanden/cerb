@@ -450,7 +450,9 @@ class SearchFields_Metric extends DevblocksSearchFields {
 	const TYPE = 'm_type';
 	const CREATED_AT = 'm_created_at';
 	const UPDATED_AT = 'm_updated_at';
-	
+
+	const VIRTUAL_SPARKLINE = '*_sparkline';
+
 	static private $_fields = null;
 	
 	static function getTableName() : string {
@@ -527,6 +529,10 @@ class SearchFields_Metric extends DevblocksSearchFields {
 			self::RETENTION_DAYS => new DevblocksSearchField(self::RETENTION_DAYS, 'metric', 'retention_days', $translate->_('common.retention'), null, true),
 			self::TYPE => new DevblocksSearchField(self::TYPE, 'metric', 'type', $translate->_('common.type'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'metric', 'updated_at', $translate->_('common.updated'), null, true),
+
+			// Virtual, display-only column rendered as an inline sparkline (loaded async); not sortable.
+			// Window (24h/7d/30d) is chosen from a switcher in the column header.
+			self::VIRTUAL_SPARKLINE => new DevblocksSearchField(self::VIRTUAL_SPARKLINE, '*', '', 'Dataset', DevblocksSearchCriteria::TYPE_VIRTUAL_SPARKLINES, false),
 		];
 		
 		// Virtual fields
@@ -670,6 +676,7 @@ class View_Metric extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Metric::DESCRIPTION,
 			SearchFields_Metric::TYPE,
 			SearchFields_Metric::UPDATED_AT,
+			SearchFields_Metric::VIRTUAL_SPARKLINE,
 		];
 		
 		$this->addColumnsHidden([
@@ -861,11 +868,11 @@ class View_Metric extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	
 	function render() {
 		$this->_sanitize();
-		
+
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
-		
+
 		// Custom fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_METRIC);
 		$tpl->assign('custom_fields', $custom_fields);
