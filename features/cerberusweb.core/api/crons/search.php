@@ -7,17 +7,18 @@ class SearchCron extends CerberusCronPageExtension {
 		$logger->info("[Search] Starting...");
 		
 		$stop_time = time() + 30;
-		
+
 		// Run custom search indexes
 		$this->_processSearchIndexes($stop_time);
 
 		$logger->info("[Search] Total Runtime: ".number_format((microtime(true)-$runtime)*1000,2)." ms");
 	}
-	
+
 	function configure($instance) {
 	}
 	
 	private function _processSearchIndexes(int $stop_time) : void {
+		$registry = DevblocksPlatform::services()->registry();
 		$search_indexes = DAO_SearchIndex::getAll();
 		
 		shuffle($search_indexes);
@@ -28,7 +29,15 @@ class SearchCron extends CerberusCronPageExtension {
 			$search_ext = $search_index->getExtension();
 			if(!$search_ext->hasOption('index')) continue;
 			
-			// [TODO] Add an option to fetch models by ID, or a page of results, when not a queue job
+			// Skip if sampled within the last 5 minutes
+			$registry_key = sprintf('search_index_%d.metrics_sampled_at', $search_index->id);
+			$last_ts = $registry->get($registry_key, DevblocksRegistryEntry::TYPE_NUMBER, 0);
+
+			// Periodically sample each index's indexed-record count into a gauge metric so the
+			// worklist can render a sparkline instead of an expensive live COUNT(DISTINCT) per row.
+			// Throttled per-index to once per 5 minutes (the finest metric bin) to bound the cost.
+			if(!($last_ts && (time() - $last_ts) < 300))
+				$search_ext->sampleRecordCountMetric($search_index);
 			
 			// If we're indexing fast and have more, let it keep going
 			for($i=0 ;$i<10; $i++) {

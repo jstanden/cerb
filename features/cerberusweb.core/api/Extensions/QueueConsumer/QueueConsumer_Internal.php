@@ -61,6 +61,16 @@ class QueueConsumer_Internal extends Extension_QueueConsumer {
 		} elseif($queue->name == 'cerb.records.bulk_update') {
 			$records = DevblocksPlatform::services()->records();
 			$records->onBulkUpdateJobComplete($queue_job);
+
+		} elseif($queue->name == 'cerb.search.index') {
+			// A reindex rebuilds the whole index table, so sample its record count immediately
+			// rather than waiting for the next throttled cron pass.
+			$search_index_id = intval($queue_job->metadata['search_index_id'] ?? 0);
+
+			if($search_index_id && ($search_index = \DAO_SearchIndex::get($search_index_id))) {
+				if(($search_extension = $search_index->getExtension()))
+					$search_extension->sampleRecordCountMetric($search_index);
+			}
 		}
 	}
 }

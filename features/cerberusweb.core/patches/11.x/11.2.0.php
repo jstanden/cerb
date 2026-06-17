@@ -990,6 +990,16 @@ $db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, 
 	time()
 ));
 
+$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, dimensions_kata, created_at, updated_at) ".
+	"VALUES (%s, %s, %s, %s, %d, %d)",
+	$db->qstr('cerb.search.index.records'),
+	$db->qstr('Number of records indexed by search index and engine'),
+	$db->qstr('gauge'),
+	$db->qstr("record/index_id:\n  record_type: search_index\nextension/engine:\n"),
+	time(),
+	time()
+));
+
 // cerb.service.token.uses gained a `record/token_id` dimension during 11.2-dev (it only had scope +
 // client_ip). Fix the definition and drop the dimensionless samples — the metric isn't released, so
 // nothing depends on the old data.

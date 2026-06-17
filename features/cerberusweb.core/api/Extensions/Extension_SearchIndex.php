@@ -28,6 +28,27 @@ abstract class Extension_SearchIndex extends DevblocksExtension {
 
 	abstract public function getIndexRecordCount(Model_SearchIndex $model, bool $no_cache=false) : int;
 
+	// Sample this index's record count into the `cerb.search.index.records` gauge and stamp the
+	// per-index throttle key. Called periodically by the search cron and once right after a
+	// reindex job completes.
+	public function sampleRecordCountMetric(Model_SearchIndex $model) : void {
+		$metrics = \DevblocksPlatform::services()->metrics();
+		$registry = \DevblocksPlatform::services()->registry();
+
+		$count = $this->getIndexRecordCount($model);
+
+		$metrics->increment('cerb.search.index.records', $count, [
+			'index_id' => $model->id,
+			'engine' => $model->extension_id,
+		]);
+
+		$registry->set(
+			sprintf('search_index_%d.metrics_sampled_at', $model->id),
+			time(),
+			\DevblocksRegistryEntry::TYPE_NUMBER
+		);
+	}
+
 	public function initializeIndex(Model_SearchIndex $model): bool {
 		return true;
 	}
