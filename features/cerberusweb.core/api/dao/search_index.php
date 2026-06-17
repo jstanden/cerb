@@ -519,7 +519,10 @@ class SearchFields_SearchIndex extends DevblocksSearchFields {
 	const RECORD_TYPE = 'r_record_type';
 	const UPDATED_AT = 'r_updated_at';
 	const URI = 'r_uri';
-	
+
+	const VIRTUAL_SPARKLINE = '*_sparkline';
+	const VIRTUAL_RECORDS = '*_records';
+
 	static private $_fields = null;
 	
 	static function getTableName() : string {
@@ -541,16 +544,51 @@ class SearchFields_SearchIndex extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
+			case self::VIRTUAL_RECORDS:
+				return self::_getWhereSQLFromRecordsFilter($param);
+
 			default:
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
 				} else {
 					if(null !== ($virtual_where_sql = self::_getWhereSQLForCommonVirtual($param, Context_SearchIndex::ID, self::getPrimaryKey())))
 						return $virtual_where_sql;
-					
+
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
 		}
+	}
+
+	// The records:(...) threshold vocabulary, shared by the SQL filter and the quick-search validator.
+	static function getMetricFilterMap() : array {
+		return [
+			'count' => DAO_MetricValue::metricFilterSeries('cerb.search.index.records', 'gauge'),
+		];
+	}
+
+	// Constrain the worklist to indexes whose record-count metric matches records:(...). The matched
+	// `index_id` dimension values ARE search_index ids, so we filter the primary key directly.
+	private static function _getWhereSQLFromRecordsFilter(DevblocksSearchCriteria $param) : string {
+		if($param->operator != DevblocksSearchCriteria::OPER_CUSTOM || !is_string($param->value))
+			return '0=1';
+
+		$matches = DAO_MetricValue::getDimensionValuesByMetricQuery(
+			$param->value,
+			self::getMetricFilterMap(),
+			'index_id',
+			CerberusApplication::getActiveWorker()?->timezone ?: null
+		);
+
+		// null = invalid criteria (typo, unknown key, unparseable value) => match nothing (fail loud)
+		if(is_null($matches))
+			return '0=1';
+
+		$ids = array_filter(array_map('intval', $matches));
+
+		if(!$ids)
+			return '0=1';
+
+		return sprintf('%s IN (%s)', self::getPrimaryKey(), implode(',', $ids));
 	}
 	
 	static function getFieldForSubtotalKey($key, $context, array $query_fields, array $search_fields, $primary_key) {
@@ -654,8 +692,14 @@ class View_SearchIndex extends C4_AbstractView implements IAbstractView_Subtotal
 			SearchFields_SearchIndex::RECORD_FILTER,
 			SearchFields_SearchIndex::PRIORITY,
 			SearchFields_SearchIndex::UPDATED_AT,
+			SearchFields_SearchIndex::VIRTUAL_SPARKLINE,
 		];
-		
+
+		// Search-only virtual field; never offered as a worklist column
+		$this->addColumnsHidden([
+			SearchFields_SearchIndex::VIRTUAL_RECORDS,
+		]);
+
 		$this->doResetCriteria();
 	}
 	
@@ -790,6 +834,11 @@ class View_SearchIndex extends C4_AbstractView implements IAbstractView_Subtotal
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => ['param_key' => SearchFields_SearchIndex::PRIORITY],
 				],
+			'records' => // parameterized group: records:(count:>1000 since:"-7 days"); examples are
+				[    // value-form with parens, no `records:` prefix (the autocomplete prepends the field key)
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => ['param_key' => SearchFields_SearchIndex::VIRTUAL_RECORDS],
+				],
 			'record_filter' =>
 				[
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
@@ -843,11 +892,18 @@ class View_SearchIndex extends C4_AbstractView implements IAbstractView_Subtotal
 		return $fields;
 	}
 	
+	function getQuickSearchMetricFilterMap(string $field_key) : ?array {
+		return $field_key == 'records' ? SearchFields_SearchIndex::getMetricFilterMap() : null;
+	}
+
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
-			
+
+			case 'records':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_SearchIndex::VIRTUAL_RECORDS);
+
 			case 'watchers':
 				return DevblocksSearchCriteria::getWatcherParamFromTokens(DevblocksSearchField::VIRTUAL_WATCHERS, $tokens);
 			
@@ -890,7 +946,15 @@ class View_SearchIndex extends C4_AbstractView implements IAbstractView_Subtotal
 	}
 	
 	function renderVirtualCriteria($param) : void {
-		$this->_renderVirtualCriteria($param);
+		switch($param->field) {
+			case SearchFields_SearchIndex::VIRTUAL_RECORDS:
+				echo sprintf("Records matches <b>%s</b>", DevblocksPlatform::strEscapeHtml($param->value));
+				break;
+
+			default:
+				$this->_renderVirtualCriteria($param);
+				break;
+		}
 	}
 	
 	function getFields() {

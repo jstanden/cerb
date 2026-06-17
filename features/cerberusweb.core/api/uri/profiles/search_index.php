@@ -40,9 +40,45 @@ class PageSection_ProfilesRecordSearchIndex extends Extension_PageSection {
 					return $this->_profileAction_savePeekJson();
 				case 'viewExplore':
 					return $this->_profileAction_viewExplore();
+				case 'viewSparklinesJson':
+					return $this->_profileAction_viewSparklinesJson();
 			}
 		}
 		return false;
+	}
+
+	// Inline indexed-record sparkline for the search index worklist; loaded async so the list
+	// paints fast. One metrics.timeseries query per page (no N+1), reading the periodic gauge
+	// samples instead of a live COUNT(DISTINCT) per row.
+	private function _profileAction_viewSparklinesJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+
+		$ids = DevblocksPlatform::importGPC($_REQUEST['ids'] ?? [], 'array', []);
+		$ids = array_filter(array_map('intval', $ids));
+
+		$window = DevblocksPlatform::importGPC($_REQUEST['window'] ?? '1d', 'string', '1d');
+
+		$row_series = [];
+
+		// Search indexes are readable by everyone, but require a logged-in worker. Each row is a
+		// gauge filtered to one index; min/avg/max share one scale so they nest as a band (same
+		// quantity, the record count). avg drawn last (in front). Gauges carry across gaps.
+		if($active_worker && $ids) {
+			foreach($ids as $id) {
+				$row_series[$id] = [
+					['metric' => 'cerb.search.index.records', 'function' => 'faceted_average', 'type' => 'line', 'label' => 'records', 'color' => '#0088e6', 'scaleGroup' => 'value', 'query' => ['index_id' => $id], 'missing' => 'carry'],
+				];
+			}
+		}
+
+		$out = $row_series
+			? DAO_MetricValue::getSparklines($row_series, $window, $active_worker->timezone ?: null)
+			: [];
+
+		// Cast so the response is always a JSON object ({} when empty), keyed by search index id
+		echo json_encode((object) $out);
 	}
 	
 	private function _profileAction_getExtensionConfig() {
