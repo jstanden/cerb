@@ -1049,7 +1049,7 @@ class View_WorkerRole extends C4_AbstractView implements IAbstractView_Subtotals
 	}
 };
 
-class Context_WorkerRole extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextWorkflow {
+class Context_WorkerRole extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete, IDevblocksContextWorkflow {
 	const ID = 'cerberusweb.contexts.role';
 	const URI = 'role';
 	
@@ -1128,6 +1128,32 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 		];
 	}
 	
+	function autocomplete($term, $query=null) {
+		$list = [];
+
+		list($results,) = DAO_WorkerRole::search(
+			[],
+			[
+				new DevblocksSearchCriteria(SearchFields_WorkerRole::NAME, DevblocksSearchCriteria::OPER_LIKE, $term.'%'),
+			],
+			25,
+			0,
+			DAO_WorkerRole::NAME,
+			true,
+			false
+		);
+
+		if(is_array($results))
+		foreach($results as $row) {
+			$entry = new stdClass();
+			$entry->label = $row[SearchFields_WorkerRole::NAME];
+			$entry->value = $row[SearchFields_WorkerRole::ID];
+			$list[] = $entry;
+		}
+
+		return $list;
+	}
+
 	function getDefaultProperties() : array {
 		return [
 			'updated_at'
