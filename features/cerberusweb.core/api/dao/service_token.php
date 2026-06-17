@@ -347,6 +347,9 @@ class SearchFields_ServiceToken extends DevblocksSearchFields {
 	const TOKEN_HINT = 's_token_hint';
 	const UPDATED_AT = 's_updated_at';
 
+	const VIRTUAL_SPARKLINE = '*_sparkline';
+	const VIRTUAL_USAGE = '*_usage';
+
 	static private $_fields = null;
 
 	static function getTableName() : string {
@@ -373,6 +376,9 @@ class SearchFields_ServiceToken extends DevblocksSearchFields {
 
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
+			case self::VIRTUAL_USAGE:
+				return self::_getWhereSQLFromUsageFilter($param);
+
 			default:
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
@@ -383,6 +389,38 @@ class SearchFields_ServiceToken extends DevblocksSearchFields {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
 		}
+	}
+
+	// The usage:(...) threshold vocabulary, shared by the SQL filter and the quick-search validator.
+	static function getMetricFilterMap() : array {
+		return [
+			'uses' => DAO_MetricValue::metricFilterSeries('cerb.service.token.uses', 'counter'),
+		];
+	}
+
+	// Constrain the worklist to tokens whose metric usage matches usage:(...). The matched `token_id`
+	// dimension values ARE service_token ids, so we filter the primary key directly.
+	private static function _getWhereSQLFromUsageFilter(DevblocksSearchCriteria $param) : string {
+		if($param->operator != DevblocksSearchCriteria::OPER_CUSTOM || !is_string($param->value))
+			return '0=1';
+
+		$matches = DAO_MetricValue::getDimensionValuesByMetricQuery(
+			$param->value,
+			self::getMetricFilterMap(),
+			'token_id',
+			CerberusApplication::getActiveWorker()?->timezone ?: null
+		);
+
+		// null = invalid criteria (typo, unknown key, unparseable value) => match nothing (fail loud)
+		if(is_null($matches))
+			return '0=1';
+
+		$ids = array_filter(array_map('intval', $matches));
+
+		if(!$ids)
+			return '0=1';
+
+		return sprintf('%s IN (%s)', self::getPrimaryKey(), implode(',', $ids));
 	}
 
 	static function getLabelsForKeyValues($key, $values) {
@@ -414,6 +452,12 @@ class SearchFields_ServiceToken extends DevblocksSearchFields {
 			self::SCOPES => new DevblocksSearchField(self::SCOPES, 'service_token', 'scopes', $translate->_('common.scopes'), null, true),
 			self::TOKEN_HINT => new DevblocksSearchField(self::TOKEN_HINT, 'service_token', 'token_hint', $translate->_('common.token'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'service_token', 'updated_at', $translate->_('common.updated'), null, true),
+
+			// Virtual, display-only inline sparkline (uses, loaded async); not sortable
+			self::VIRTUAL_SPARKLINE => new DevblocksSearchField(self::VIRTUAL_SPARKLINE, '*', '', 'Usage', DevblocksSearchCriteria::TYPE_VIRTUAL_SPARKLINES, false),
+
+			// Virtual, search-only: usage:(uses:>100 since:"-7 days"); hidden as a column
+			self::VIRTUAL_USAGE => new DevblocksSearchField(self::VIRTUAL_USAGE, '*', '', 'Usage', null, false),
 		];
 
 		if(($virtual_columns = DevblocksSearchField::getVirtualFields()))
@@ -466,9 +510,13 @@ class View_ServiceToken extends C4_AbstractView implements IAbstractView_Subtota
 			SearchFields_ServiceToken::LAST_ACCESSED_AT,
 			SearchFields_ServiceToken::SCOPES,
 			SearchFields_ServiceToken::UPDATED_AT,
+			SearchFields_ServiceToken::VIRTUAL_SPARKLINE,
 		];
 
-		$this->addColumnsHidden([]);
+		$this->addColumnsHidden([
+			// Search-only virtual field; never offered as a worklist column
+			SearchFields_ServiceToken::VIRTUAL_USAGE,
+		]);
 
 		$this->doResetCriteria();
 	}
@@ -591,6 +639,12 @@ class View_ServiceToken extends C4_AbstractView implements IAbstractView_Subtota
 				'type' => DevblocksSearchCriteria::TYPE_DATE,
 				'options' => ['param_key' => SearchFields_ServiceToken::UPDATED_AT],
 			],
+			// parameterized group: usage:(uses:>100 since:"-7 days"); examples are value-form with parens,
+			// no `usage:` prefix (the autocomplete prepends the field key)
+			'usage' => [
+				'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+				'options' => ['param_key' => SearchFields_ServiceToken::VIRTUAL_USAGE],
+			],
 			'watchers' => [
 				'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 				'options' => ['param_key' => DevblocksSearchField::VIRTUAL_WATCHERS],
@@ -608,10 +662,17 @@ class View_ServiceToken extends C4_AbstractView implements IAbstractView_Subtota
 		return $fields;
 	}
 
+	function getQuickSearchMetricFilterMap(string $field_key) : ?array {
+		return $field_key == 'usage' ? SearchFields_ServiceToken::getMetricFilterMap() : null;
+	}
+
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
+
+			case 'usage':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_ServiceToken::VIRTUAL_USAGE);
 
 			case 'watchers':
 				return DevblocksSearchCriteria::getWatcherParamFromTokens(DevblocksSearchField::VIRTUAL_WATCHERS, $tokens);
@@ -649,6 +710,10 @@ class View_ServiceToken extends C4_AbstractView implements IAbstractView_Subtota
 
 	function renderVirtualCriteria($param) : void {
 		switch($param->field) {
+			case SearchFields_ServiceToken::VIRTUAL_USAGE:
+				echo sprintf("Usage matches <b>%s</b>", DevblocksPlatform::strEscapeHtml($param->value));
+				break;
+
 			default:
 				$this->_renderVirtualCriteria($param);
 				break;

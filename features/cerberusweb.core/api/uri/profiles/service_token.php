@@ -35,9 +35,43 @@ class PageSection_ProfilesServiceToken extends Extension_PageSection {
 					return $this->_profileAction_savePeekJson();
 				case 'viewExplore':
 					return $this->_profileAction_viewExplore();
+				case 'viewSparklinesJson':
+					return $this->_profileAction_viewSparklinesJson();
 			}
 		}
 		return false;
+	}
+
+	// Inline sparkline series (uses line) for the service tokens worklist; loaded async so the list paints
+	// fast. One metrics.timeseries query for the whole page (no N+1).
+	private function _profileAction_viewSparklinesJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+
+		$ids = DevblocksPlatform::importGPC($_REQUEST['ids'] ?? [], 'array', []);
+		$ids = array_filter(array_map('intval', $ids));
+
+		$window = DevblocksPlatform::importGPC($_REQUEST['window'] ?? '1d', 'string', '1d');
+
+		$row_series = [];
+
+		// Each row: the token's authentication count (uses) as a blue line, filtered to that token_id.
+		// Service tokens are admin-only, so this requires a logged-in worker.
+		if($active_worker && $ids) {
+			foreach($ids as $id) {
+				$row_series[$id] = [
+					['metric' => 'cerb.service.token.uses', 'function' => 'count', 'type' => 'line', 'label' => 'uses', 'color' => '#0088e6', 'query' => ['token_id' => $id], 'missing' => 'zero'],
+				];
+			}
+		}
+
+		$out = $row_series
+			? DAO_MetricValue::getSparklines($row_series, $window, $active_worker->timezone ?: null)
+			: [];
+
+		// Cast so the response is always a JSON object ({} when empty), keyed by token id
+		echo json_encode((object) $out);
 	}
 
 	private function _profileAction_savePeekJson() {
