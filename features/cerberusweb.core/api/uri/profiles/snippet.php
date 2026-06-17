@@ -55,11 +55,44 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 					return $this->_profileAction_test();
 				case 'viewExplore':
 					return $this->_profileAction_viewExplore();
+				case 'viewSparklinesJson':
+					return $this->_profileAction_viewSparklinesJson();
 			}
 		}
 		return false;
 	}
-	
+
+	// Inline sparkline series (uses line) for the snippets worklist; loaded async so the list paints fast.
+	// One metrics.timeseries query for the whole page (no N+1). Total uses across all workers.
+	private function _profileAction_viewSparklinesJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+
+		$ids = DevblocksPlatform::importGPC($_REQUEST['ids'] ?? [], 'array', []);
+		$ids = array_filter(array_map('intval', $ids));
+
+		$window = DevblocksPlatform::importGPC($_REQUEST['window'] ?? '1d', 'string', '1d');
+
+		$row_series = [];
+
+		// Each row: the snippet's total use count as a blue line, filtered to that snippet_id.
+		if($active_worker && $ids) {
+			foreach($ids as $id) {
+				$row_series[$id] = [
+					['metric' => 'cerb.snippet.uses', 'function' => 'count', 'type' => 'bar', 'label' => 'uses', 'color' => '#0088e6', 'query' => ['snippet_id' => $id], 'missing' => 'zero'],
+				];
+			}
+		}
+
+		$out = $row_series
+			? DAO_MetricValue::getSparklines($row_series, $window, $active_worker->timezone ?: null)
+			: [];
+
+		// Cast so the response is always a JSON object ({} when empty), keyed by snippet id
+		echo json_encode((object) $out);
+	}
+
 	private function _profileAction_viewExplore() {
 		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
 		$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'] ?? null, 'int', 0);

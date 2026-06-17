@@ -491,9 +491,11 @@ class SearchFields_Snippet extends DevblocksSearchFields {
 	const PROMPTS_KATA = 's_prompts_kata';
 	
 	const USE_HISTORY_MINE = 'suh_my_uses';
-	
+
 	// Virtuals
 	const VIRTUAL_USABLE_BY = '*_usable_by';
+	const VIRTUAL_SPARKLINE = '*_sparkline';
+	const VIRTUAL_USAGE = '*_usage';
 	
 	static private $_fields = null;
 	
@@ -525,17 +527,53 @@ class SearchFields_Snippet extends DevblocksSearchFields {
 				
 			case self::VIRTUAL_USABLE_BY:
 				return self::_getWhereSQLForUsableBy($param, self::getPrimaryKey());
-				
+
+			case self::VIRTUAL_USAGE:
+				return self::_getWhereSQLFromUsageFilter($param);
+
 			default:
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
 				} else {
 					if(null !== ($virtual_where_sql = self::_getWhereSQLForCommonVirtual($param, CerberusContexts::CONTEXT_SNIPPET, self::getPrimaryKey())))
 						return $virtual_where_sql;
-					
+
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
 		}
+	}
+
+	// The usage:(...) threshold vocabulary, shared by the SQL filter and the quick-search validator.
+	static function getMetricFilterMap() : array {
+		return [
+			'uses' => DAO_MetricValue::metricFilterSeries('cerb.snippet.uses', 'counter'),
+		];
+	}
+
+	// Constrain the worklist to snippets whose metric usage matches usage:(...). The matched `snippet_id`
+	// dimension values ARE snippet ids, so we filter the primary key directly. (Total uses across all
+	// workers; the per-worker count is the separate `myUses` filter.)
+	private static function _getWhereSQLFromUsageFilter(DevblocksSearchCriteria $param) : string {
+		if($param->operator != DevblocksSearchCriteria::OPER_CUSTOM || !is_string($param->value))
+			return '0=1';
+
+		$matches = DAO_MetricValue::getDimensionValuesByMetricQuery(
+			$param->value,
+			self::getMetricFilterMap(),
+			'snippet_id',
+			CerberusApplication::getActiveWorker()?->timezone ?: null
+		);
+
+		// null = invalid criteria (typo, unknown key, unparseable value) => match nothing (fail loud)
+		if(is_null($matches))
+			return '0=1';
+
+		$ids = array_filter(array_map('intval', $matches));
+
+		if(!$ids)
+			return '0=1';
+
+		return sprintf('%s IN (%s)', self::getPrimaryKey(), implode(',', $ids));
 	}
 	
 	static private function _getWhereSQLForMyUses($param, $pkey) {
@@ -693,6 +731,12 @@ class SearchFields_Snippet extends DevblocksSearchFields {
 			self::USE_HISTORY_MINE => new DevblocksSearchField(self::USE_HISTORY_MINE, 'snippet_usage_metric', 'uses', $translate->_('dao.snippet_use_history.uses.mine'), Model_CustomField::TYPE_NUMBER, true),
 			
 			self::VIRTUAL_USABLE_BY => new DevblocksSearchField(self::VIRTUAL_USABLE_BY, '*', 'usable_by', null, null, false),
+
+			// Virtual, display-only inline sparkline (uses, loaded async); not sortable
+			self::VIRTUAL_SPARKLINE => new DevblocksSearchField(self::VIRTUAL_SPARKLINE, '*', '', 'Usage', DevblocksSearchCriteria::TYPE_VIRTUAL_SPARKLINES, false),
+
+			// Virtual, search-only: usage:(uses:>100 since:"-7 days"); hidden as a column
+			self::VIRTUAL_USAGE => new DevblocksSearchField(self::VIRTUAL_USAGE, '*', '', 'Usage', null, false),
 		];
 		
 		// Virtual fields
@@ -793,14 +837,17 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Snippet::USE_HISTORY_MINE,
 			SearchFields_Snippet::TOTAL_USES,
 			SearchFields_Snippet::UPDATED_AT,
+			SearchFields_Snippet::VIRTUAL_SPARKLINE,
 		];
-		
+
 		$this->addColumnsHidden([
 			SearchFields_Snippet::ID,
 			SearchFields_Snippet::CONTENT,
 			SearchFields_Snippet::OWNER_CONTEXT,
 			SearchFields_Snippet::OWNER_CONTEXT_ID,
 			SearchFields_Snippet::VIRTUAL_USABLE_BY,
+			// Search-only virtual field; never offered as a worklist column
+			SearchFields_Snippet::VIRTUAL_USAGE,
 		]);
 
 		$this->doResetCriteria();
@@ -953,12 +1000,19 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 						'![plaintext]',
 					),
 				),
-			'updated' => 
+			'updated' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_Snippet::UPDATED_AT),
 				),
-			'usableBy.worker' => 
+			// parameterized group: usage:(uses:>100 since:"-7 days"); examples are value-form with parens,
+			// no `usage:` prefix (the autocomplete prepends the field key)
+			'usage' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => ['param_key' => SearchFields_Snippet::VIRTUAL_USAGE],
+				),
+			'usableBy.worker' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Snippet::VIRTUAL_USABLE_BY),
@@ -991,6 +1045,10 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 		return $fields;
 	}
 	
+	function getQuickSearchMetricFilterMap(string $field_key) : ?array {
+		return $field_key == 'usage' ? SearchFields_Snippet::getMetricFilterMap() : null;
+	}
+
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
 			case 'fieldset':
@@ -998,6 +1056,9 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 				
 			case 'myUses':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Snippet::USE_HISTORY_MINE);
+
+				case 'usage':
+					return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Snippet::VIRTUAL_USAGE);
 			
 			case 'type':
 				$field_key = SearchFields_Snippet::CONTEXT;
@@ -1093,6 +1154,10 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 		switch($key) {
 			case DevblocksSearchField::VIRTUAL_OWNER:
 				$this->_renderVirtualContextLinks($param, 'Owner', 'Owners', 'Owner is');
+				break;
+
+			case SearchFields_Snippet::VIRTUAL_USAGE:
+				echo sprintf("Usage matches <b>%s</b>", DevblocksPlatform::strEscapeHtml($param->value));
 				break;
 				
 			case SearchFields_Snippet::VIRTUAL_USABLE_BY:
