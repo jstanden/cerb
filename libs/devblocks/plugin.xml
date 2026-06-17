@@ -184,6 +184,7 @@
 				<name>DevblocksStorageEngineDisk</name>
 			</class>
 			<params>
+				<param key="icon" value="folder" />
 			</params>
 		</extension>
 
@@ -195,6 +196,7 @@
 				<name>DevblocksStorageEngineDatabase</name>
 			</class>
 			<params>
+				<param key="icon" value="database" />
 			</params>
 		</extension>
 
@@ -206,6 +208,7 @@
 				<name>DevblocksStorageEngineS3</name>
 			</class>
 			<params>
+				<param key="icon" value="cloud" />
 			</params>
 		</extension>
 
@@ -217,6 +220,7 @@
 				<name>DevblocksStorageEngine_CerbCloudS3</name>
 			</class>
 			<params>
+				<param key="icon" value="cloud" />
 			</params>
 		</extension>
 

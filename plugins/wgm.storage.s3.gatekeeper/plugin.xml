@@ -34,6 +34,7 @@
 				<name>DevblocksStorageEngineGatekeeper</name>
 			</class>
 			<params>
+				<param key="icon" value="cloud" />
 			</params>
 		</extension>
 

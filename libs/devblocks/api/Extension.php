@@ -2383,26 +2383,6 @@ abstract class Extension_DevblocksStorageSchema extends DevblocksExtension {
 		return empty(static::_getManifestParam('is_always_local'));
 	}
 
-	// Default shared read-only summary + edit form for the Setup->Storage section
-	function render() {
-		$tpl = DevblocksPlatform::services()->template();
-		$this->_assignStorageConfigVars($tpl);
-		$tpl->display("devblocks:cerberusweb.core::configuration/section/storage_profiles/schema_render.tpl");
-	}
-
-	function renderConfig() {
-		$tpl = DevblocksPlatform::services()->template();
-		$this->_assignStorageConfigVars($tpl);
-		$tpl->display("devblocks:cerberusweb.core::configuration/section/storage_profiles/schema_config.tpl");
-	}
-
-	private function _assignStorageConfigVars($tpl) : void {
-		$tpl->assign('active_storage_profile', static::getStorageConfig('active_storage_profile'));
-		$tpl->assign('archive_storage_profile', static::getStorageConfig('archive_storage_profile'));
-		$tpl->assign('archive_after_days', intval(static::getStorageConfig('archive_after_days')));
-		$tpl->assign('is_archivable', static::isArchivable());
-	}
-
 	// Default shared persistence across schemas
 	function saveConfig() {
 		$active_storage_profile = DevblocksPlatform::importGPC($_POST['active_storage_profile'] ?? null, 'string','');
@@ -2660,6 +2640,24 @@ abstract class Extension_DevblocksStorageSchema extends DevblocksExtension {
 			return ['extension' => $value, 'profile_id' => 0];
 
 		return null;
+	}
+
+	// Resolved lifecycle config for the Setup->Storage UI (active/archive as `ext:profile` keys, days,
+	// archivable). Exposes the protected static getters so templates can flag off-target content.
+	public function getLifecycleConfig() : array {
+		$active = static::getStorageConfig('active_storage_profile');
+		$archive = static::getStorageConfig('archive_storage_profile');
+		$a = static::resolveProfileConfig($active);
+		$r = static::resolveProfileConfig($archive);
+
+		return [
+			'active' => $active,
+			'archive' => $archive,
+			'active_key' => $a ? $a['extension'] . ':' . $a['profile_id'] : '',
+			'archive_key' => $r ? $r['extension'] . ':' . $r['profile_id'] : '',
+			'archive_after_days' => intval(static::getStorageConfig('archive_after_days')),
+			'is_archivable' => static::isArchivable(),
+		];
 	}
 
 	/**
