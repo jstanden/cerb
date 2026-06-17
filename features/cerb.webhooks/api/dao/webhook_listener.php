@@ -344,6 +344,9 @@ class SearchFields_WebhookListener extends DevblocksSearchFields {
 	const GUID = 'w_guid';
 	const UPDATED_AT = 'w_updated_at';
 
+	const VIRTUAL_SPARKLINE = '*_sparkline';
+	const VIRTUAL_USAGE = '*_usage';
+
 	static private $_fields = null;
 	
 	static function getTableName() : string {
@@ -366,16 +369,51 @@ class SearchFields_WebhookListener extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
+			case self::VIRTUAL_USAGE:
+				return self::_getWhereSQLFromUsageFilter($param);
+
 			default:
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
 				} else {
 					if(null !== ($virtual_where_sql = self::_getWhereSQLForCommonVirtual($param, CerberusContexts::CONTEXT_WEBHOOK_LISTENER, self::getPrimaryKey())))
 						return $virtual_where_sql;
-					
+
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
 		}
+	}
+
+	// The usage:(...) threshold vocabulary, shared by the SQL filter and the quick-search validator.
+	static function getMetricFilterMap() : array {
+		return [
+			'runs' => DAO_MetricValue::metricFilterSeries('cerb.webhook.invocations', 'counter'),
+		];
+	}
+
+	// Constrain the worklist to webhooks whose metric usage matches usage:(...). The matched `webhook_id`
+	// dimension values ARE webhook_listener ids, so we filter the primary key directly.
+	private static function _getWhereSQLFromUsageFilter(DevblocksSearchCriteria $param) : string {
+		if($param->operator != DevblocksSearchCriteria::OPER_CUSTOM || !is_string($param->value))
+			return '0=1';
+
+		$matches = DAO_MetricValue::getDimensionValuesByMetricQuery(
+			$param->value,
+			self::getMetricFilterMap(),
+			'webhook_id',
+			CerberusApplication::getActiveWorker()?->timezone ?: null
+		);
+
+		// null = invalid criteria (typo, unknown key, unparseable value) => match nothing (fail loud)
+		if(is_null($matches))
+			return '0=1';
+
+		$ids = array_filter(array_map('intval', $matches));
+
+		if(!$ids)
+			return '0=1';
+
+		return sprintf('%s IN (%s)', self::getPrimaryKey(), implode(',', $ids));
 	}
 	
 	static function getFieldForSubtotalKey($key, $context, array $query_fields, array $search_fields, $primary_key) {
@@ -416,8 +454,14 @@ class SearchFields_WebhookListener extends DevblocksSearchFields {
 			self::NAME => new DevblocksSearchField(self::NAME, 'webhook_listener', 'name', $translate->_('common.name'), null, true),
 			self::GUID => new DevblocksSearchField(self::GUID, 'webhook_listener', 'guid', $translate->_('common.url'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'webhook_listener', 'updated_at', $translate->_('common.updated'), null, true),
+
+			// Virtual, display-only inline sparkline (runs, loaded async); not sortable
+			self::VIRTUAL_SPARKLINE => new DevblocksSearchField(self::VIRTUAL_SPARKLINE, '*', '', 'Usage', DevblocksSearchCriteria::TYPE_VIRTUAL_SPARKLINES, false),
+
+			// Virtual, search-only: usage:(runs:>100 since:"-7 days"); hidden as a column
+			self::VIRTUAL_USAGE => new DevblocksSearchField(self::VIRTUAL_USAGE, '*', '', 'Usage', null, false),
 		];
-		
+
 		// Virtual fields
 		if(($virtual_columns = DevblocksSearchField::getVirtualFields()))
 			$columns = array_merge($columns, $virtual_columns);
@@ -459,8 +503,14 @@ class View_WebhookListener extends C4_AbstractView implements IAbstractView_Subt
 			SearchFields_WebhookListener::NAME,
 			SearchFields_WebhookListener::GUID,
 			SearchFields_WebhookListener::UPDATED_AT,
+			SearchFields_WebhookListener::VIRTUAL_SPARKLINE,
 		];
-		
+
+		$this->addColumnsHidden([
+			// Search-only virtual field; never offered as a worklist column
+			SearchFields_WebhookListener::VIRTUAL_USAGE,
+		]);
+
 		$this->doResetCriteria();
 	}
 	
@@ -579,12 +629,19 @@ class View_WebhookListener extends C4_AbstractView implements IAbstractView_Subt
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_WebhookListener::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
-			'updated' => 
+			'updated' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_WebhookListener::UPDATED_AT),
 				),
-			'watchers' => 
+			// parameterized group: usage:(runs:>100 since:"-7 days"); examples are value-form with parens,
+			// no `usage:` prefix (the autocomplete prepends the field key)
+			'usage' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => ['param_key' => SearchFields_WebhookListener::VIRTUAL_USAGE],
+				),
+			'watchers' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => ['param_key' => DevblocksSearchField::VIRTUAL_WATCHERS],
@@ -613,11 +670,18 @@ class View_WebhookListener extends C4_AbstractView implements IAbstractView_Subt
 		return $fields;
 	}
 	
+	function getQuickSearchMetricFilterMap(string $field_key) : ?array {
+		return $field_key == 'usage' ? SearchFields_WebhookListener::getMetricFilterMap() : null;
+	}
+
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
-			
+
+			case 'usage':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_WebhookListener::VIRTUAL_USAGE);
+
 			case 'watchers':
 				return DevblocksSearchCriteria::getWatcherParamFromTokens(DevblocksSearchField::VIRTUAL_WATCHERS, $tokens);
 				
@@ -657,7 +721,15 @@ class View_WebhookListener extends C4_AbstractView implements IAbstractView_Subt
 	}
 
 	function renderVirtualCriteria($param) : void {
-		$this->_renderVirtualCriteria($param);
+		switch($param->field) {
+			case SearchFields_WebhookListener::VIRTUAL_USAGE:
+				echo sprintf("Usage matches <b>%s</b>", DevblocksPlatform::strEscapeHtml($param->value));
+				break;
+
+			default:
+				$this->_renderVirtualCriteria($param);
+				break;
+		}
 	}
 
 	function getFields() {
