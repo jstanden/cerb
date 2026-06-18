@@ -28,8 +28,10 @@
 	minimizable: true,        // show the minimize caret (default: true only for 'bar')
 	modal:      false,        // dim the page behind a backdrop (default false)
 	width:      480,          // px (default 400); minWidth 200, minHeight 80
-	// position: { x: 100, y: 80 },  // explicit; else centered (or namespace-inherited)
-	namespace:  'ticket',     // siblings share position + close each other (default: per-instance)
+	// position: { x: 100, y: 80 },  // explicit; else centered (or positionGroup-inherited)
+	namespace:  'ticket',     // singleton: re-opening this namespace focuses the live dialog (default: per-instance)
+	// replace: true,         // …or let a same-namespace open take over (close the existing one) instead of focusing
+	// positionGroup: 'edit', // siblings share one shell/position + close each other (the old `namespace` behavior)
 	fixed:      false,        // position:fixed instead of absolute (default false)
 	closeOnEscape: true,      // topmost dialog only (default true)
 	closeWarnOnUnsavedChanges: false, // warn before closing once a control is actually changed (default false)
@@ -102,9 +104,9 @@ new CerbUI.Dialog(el, { header: 'floating', title: 'Helio Inc' }); // no titleba
 			</div>
 		</div>
 
-		{* Example: namespace / position reuse *}
+		{* Example: positionGroup — shared shell/position *}
 		<div class="cerb-ui-header">
-			<div class="cerb-ui-header--label">Namespace &amp; position reuse (<code>namespace</code>) &mdash; reopening reuses the last position; opening a sibling closes the other</div>
+			<div class="cerb-ui-header--label">Shared shell (<code>positionGroup</code>) &mdash; siblings reuse the last position; opening one closes the other (one open per group). Distinct from <code>namespace</code>, which makes re-opening focus the live dialog instead of swapping.</div>
 		</div>
 		<div class="cerb-uiref-example">
 			<div class="cerb-uiref-demo">
@@ -114,10 +116,13 @@ new CerbUI.Dialog(el, { header: 'floating', title: 'Helio Inc' }); // no titleba
 
 			<div class="cerb-uiref-code">
 				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
-				<pre data-cerb-uiref-source>// both share a namespace -> moving one and reopening reuses its position;
-// opening the sibling closes the first (one open per namespace)
-new CerbUI.Dialog(elA, { title: 'A', namespace: 'demo' });
-new CerbUI.Dialog(elB, { title: 'B', namespace: 'demo' });</pre>
+				<pre data-cerb-uiref-source>// both share a positionGroup -> moving one and reopening reuses its position;
+// opening the sibling closes the first (one open per group)
+new CerbUI.Dialog(elA, { title: 'A', positionGroup: 'demo' });
+new CerbUI.Dialog(elB, { title: 'B', positionGroup: 'demo' });
+
+// vs. namespace (singleton): re-opening 'demo' focuses the live dialog, no duplicate
+// new CerbUI.Dialog(elA, { title: 'A', namespace: 'demo' });</pre>
 			</div>
 		</div>
 
@@ -174,7 +179,7 @@ CerbUI.Dialog.fromAjax('c=profiles&amp;a=invoke&amp;module=snippet&amp;action=he
 	// spinner: 'dots',    // loading spinner: 'spark' (default) | 'arc' | 'dots' | null (ring)
 	// width: 600,         // omit → 75% of the viewport, capped at 1100 (mobile: always 95%)
 	// scrollBody: true,   // cap to the viewport + scroll the body (default: grow + page scroll)
-	// namespace: 'peek',  // siblings share position + auto-close each other (supersedes the old layer/reuse)
+	// namespace: 'peek',  // singleton: re-opening this namespace focuses the live popup (no duplicate fetch/shell)
 	// onLoad: function(content, html) { /* runs after the HTML is injected */ },
 });
 
@@ -224,7 +229,7 @@ CerbUI.Dialog.fromAjax('c=profiles&amp;a=invoke&amp;module=snippet&amp;action=he
 				<p>Dialog <b>A</b>. Move me somewhere, close me, and reopen &mdash; I'll come back where you left me. Open <b>B</b> and I'll step aside.</p>
 			</div>
 			<div id="uiref-dialog-ns-b-content" style="line-height:1.5;">
-				<p>Dialog <b>B</b>, sharing A's namespace. Only one of us is open at a time, and we share a position.</p>
+				<p>Dialog <b>B</b>, sharing A's <code>positionGroup</code>. Only one of us is open at a time, and we share a position.</p>
 			</div>
 
 			<div id="uiref-dialog-alert-content" style="line-height:1.5;">
@@ -298,8 +303,8 @@ CerbUI.Dialog.fromAjax('c=profiles&amp;a=invoke&amp;module=snippet&amp;action=he
 			onResized: function(w, h) { if(resizeOut) resizeOut.textContent = 'resized to ' + Math.round(w) + '×' + (h ? Math.round(h) : 'auto'); },
 		});
 
-		wire('uiref-dialog-ns-a-btn', 'uiref-dialog-ns-a-content', { title: 'A', namespace: 'uiref-dlg-ns', width: 360 });
-		wire('uiref-dialog-ns-b-btn', 'uiref-dialog-ns-b-content', { title: 'B', namespace: 'uiref-dlg-ns', width: 360 });
+		wire('uiref-dialog-ns-a-btn', 'uiref-dialog-ns-a-content', { title: 'A', positionGroup: 'uiref-dlg-ns', width: 360 });
+		wire('uiref-dialog-ns-b-btn', 'uiref-dialog-ns-b-content', { title: 'B', positionGroup: 'uiref-dlg-ns', width: 360 });
 
 		wire('uiref-dialog-alert-btn', 'uiref-dialog-alert-content', { title: 'Heads up', draggable: false, resizable: false, width: 360 });
 

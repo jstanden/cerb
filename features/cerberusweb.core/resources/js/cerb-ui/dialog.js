@@ -11,11 +11,13 @@
  * Minimize: a minimize button (alongside close) docks the dialog into a single shared tray button (a window
  *   icon + a count, titlebar-blue) fixed at the top-right of the page. Available on any header with controls
  *   — both 'bar' and 'floating' (the buttons inject into the floating cluster / content header) — i.e.
- *   default on except header:'none'. Clicking the tray opens a menu of the minimized dialogs' titles
+ *   default on except header:'none'. With a single dialog minimized, clicking the tray restores it directly
+ *   (no menu). With two or more, clicking the tray opens a menu of the minimized dialogs' titles
  *   (`opts.title`, falling back to "Untitled" for headerless dialogs that don't set one); choosing one
- *   restores it (`restore()`) to the default top-center position. With more than one minimized, the menu
- *   also offers a "Close all" item (trash icon) that closes every minimized dialog via `close()` (so each
- *   onClose veto hook still runs). `onMinimize(bool)` fires true on minimize /
+ *   restores it (`restore()`) to the default top-center position. That menu also offers a "Restore all"
+ *   item (chevron-down icon) that restores every minimized dialog and a "Close all" item (trash icon) that
+ *   closes every minimized dialog via `close()` (so each onClose veto hook still runs). `onMinimize(bool)`
+ *   fires true on minimize /
  *   false on restore. Modal dialogs are never minimizable (modal + minimize are mutually exclusive).
  *
  * AJAX popups — CerbUI.Dialog.fromAjax(request, opts):
@@ -28,8 +30,9 @@
  *   hookError behavior). `opts` are the constructor options below (title, header, namespace, modal,
  *   width, …) plus an optional onLoad(content, html). The popup is throwaway: it self-destroys on close.
  *   Loaded content resolves its own dialog with CerbUI.Dialog.from(anyDescendant) — e.g. a form inside it
- *   — then setTitle()/close() (the genericAjaxPopupFind replacement). `namespace` supersedes the old
- *   `layer`/`reuse`: siblings sharing a namespace inherit each other's position and auto-close on open().
+ *   — then setTitle()/close() (the genericAjaxPopupFind replacement). Pass a `namespace` to make the popup a
+ *   singleton: re-opening that namespace focuses the live dialog instead of fetching/stacking a duplicate
+ *   (pass `replace:true` to take over instead). The old "share one shell/position" behavior is now `positionGroup`.
  *
  * Header chrome (`header` option):
  *   'bar'      — the classic Cerb title bar (accent background) with the title + controls; drag by the bar.
@@ -41,7 +44,9 @@
  *
  * Options: title, header ('bar'|'floating'|'none'), draggable, resizable, closable, minimizable, modal,
  *   spinner (fromAjax loading variant: 'spark' default | 'arc' | 'dots' | null ring),
- *   width, minWidth, minHeight, position {x,y}, namespace (siblings share position + close each other),
+ *   width, minWidth, minHeight, position {x,y}, namespace (singleton: re-open focuses the live dialog),
+ *   replace (a same-namespace open takes over instead of focusing), positionGroup (siblings share one
+ *   shell/position + close each other),
  *   fixed, scrollBody, closeOnEscape, closeWarnOnUnsavedChanges, dragHandle (selector), onOpen,
  *   onClose (return false to veto), onMinimize, onDragged, onResized. Also dispatches `cerb-ui-dialog:open`
  *   / `:close` on the content element.
@@ -79,7 +84,8 @@ CerbUI.Dialog = class {
 	static _zTop = 9000; // above .cerb-float (2500) / jQuery dialogs (~100); below tooltips/menus (10000+)
 	static _instances = new WeakMap(); // keyed on the content element passed to the constructor
 	static _byRoot = new WeakMap();    // keyed on the dialog root (.cerb-ui-dialog) for descendant lookups
-	static _namespaces = new Map();
+	static _namespaces = new Map();    // singleton identity: one open dialog per namespace (focus, don't duplicate)
+	static _positionGroups = new Map(); // shared shell/position: siblings hand off position + close each other
 	static _pageDialogs = new Set();   // open dialogs that grow + page-scroll (not fixed, not scrollBody)
 	static _origBodyMinHeight = null;  // body.style.minHeight before we touched it; restored when the set empties
 	static _MAX_WIDTH = 1100;          // default-width cap; mirrors .cerb-ui-page--max-width
@@ -95,6 +101,14 @@ CerbUI.Dialog = class {
 		for(const d of CerbUI.Dialog._minimized)
 			if(d._dirty && d.opts.closeWarnOnUnsavedChanges) return true;
 		return false;
+	}
+
+	// Bring an already-open dialog to the user's attention (restore from the tray if minimized, else raise).
+	// Used for singleton-namespace focus so a repeated open() focuses the live dialog instead of duplicating.
+	static _focusExisting(d) {
+		if(d.minimized) d.restore();
+		else d.bringToFront();
+		return d;
 	}
 
 	// Keep a beforeunload listener attached only while such a popup exists. A permanently-registered
@@ -145,6 +159,11 @@ CerbUI.Dialog = class {
 	static _openTrayMenu() {
 		if(CerbUI.Dialog._trayMenu) { CerbUI.Dialog._trayMenu.close(); return; } // onClose nulls the ref
 		if(!(window.CerbUI && CerbUI.Menu) || !CerbUI.Dialog._minimized.size) return;
+		// A single minimized window has no menu — clicking the tray just restores it.
+		if(CerbUI.Dialog._minimized.size === 1) {
+			for(const d of CerbUI.Dialog._minimized) { d.restore(); break; }
+			return;
+		}
 		const ul = document.createElement('ul');
 		for(const d of CerbUI.Dialog._minimized) {
 			const li = document.createElement('li');
@@ -152,11 +171,15 @@ CerbUI.Dialog = class {
 			li.dataset.uid = String(d.uid);
 			ul.appendChild(li);
 		}
-		// With more than one, offer a bulk dismiss: separator (empty <li>) + a trash-iconed "Close all".
+		// With more than one, offer bulk actions: separator (empty <li>) + "Restore all" + "Close all".
 		if(CerbUI.Dialog._minimized.size > 1) {
 			const sep = document.createElement('li');
 			sep.textContent = ''; // empty → renders as a menu separator
 			ul.appendChild(sep);
+			const restoreAll = document.createElement('li');
+			restoreAll.textContent = 'Restore all';
+			restoreAll.dataset.action = 'restore-all';
+			ul.appendChild(restoreAll);
 			const closeAll = document.createElement('li');
 			closeAll.textContent = 'Close all';
 			closeAll.dataset.action = 'close-all';
@@ -166,15 +189,22 @@ CerbUI.Dialog = class {
 			fixed: true,
 			onClose: function() { CerbUI.Dialog._trayMenu = null; },
 			onRenderItem: function(rendered, source) {
-				if(source.dataset.action === 'close-all') { // icons aren't in markup — inject here
+				// Icons aren't in markup — inject by action (chevron-down restore / trash close).
+				const iconClass = { 'restore-all': 'cerb-icon-chevron-down', 'close-all': 'cerb-icon-trash' }[source.dataset.action];
+				if(iconClass) {
 					const icon = document.createElement('span');
-					icon.className = 'cerb-icons cerb-icon-trash';
+					icon.className = 'cerb-icons ' + iconClass;
 					icon.setAttribute('aria-hidden', 'true');
 					icon.style.marginRight = '0.5em'; // space the icon off the label (matches the selectmenu icon)
 					rendered.insertBefore(icon, rendered.firstChild);
 				}
 			},
 			onSelect: function(rendered, source) {
+				if(source.dataset.action === 'restore-all') {
+					// Snapshot first — restore() mutates _minimized mid-iteration.
+					for(const d of [...CerbUI.Dialog._minimized]) d.restore();
+					return;
+				}
 				if(source.dataset.action === 'close-all') {
 					// Snapshot first — close() mutates _minimized mid-iteration; each runs its onClose hook.
 					for(const d of [...CerbUI.Dialog._minimized]) d.close();
@@ -217,6 +247,14 @@ CerbUI.Dialog = class {
 	// Build a dialog around freshly-fetched HTML: spinner while loading, then the response as content.
 	// `request`: a string ⇒ GET (ajax args) or a FormData ⇒ POST. `opts`: constructor options + onLoad.
 	static fromAjax(request, opts = {}) {
+		// Singleton: if a dialog is already open under this namespace, focus it (no second fetch / shell) —
+		// unless `replace`, which lets the new one take over. Mirrors open()'s namespace handling, but earlier
+		// so we never spin up the spinner + request for a duplicate.
+		if(opts.namespace != null && !opts.replace) {
+			const existing = CerbUI.Dialog._namespaces.get(opts.namespace);
+			if(existing && existing._open) return CerbUI.Dialog._focusExisting(existing);
+		}
+
 		const content = document.createElement('div'); // detached → origParent null → destroy() removes it all
 		const dlg = new CerbUI.Dialog(content, opts);
 
@@ -271,7 +309,9 @@ CerbUI.Dialog = class {
 			minWidth:   200,
 			minHeight:  80,
 			position:   null,
-			namespace:  null,
+			namespace:  null,  // singleton identity: re-opening this namespace focuses the live dialog (see `replace`)
+			replace:    false, // true = a same-namespace open closes the existing dialog and opens this one instead
+			positionGroup: null, // shared shell: siblings in this group hand off position + close each other on open
 			fixed:      false,
 			closeOnEscape: true,
 			closeOnBackdrop: false, // modal only: a click on the dimmed backdrop closes the dialog
@@ -446,16 +486,27 @@ CerbUI.Dialog = class {
 	// ── Public API ──────────────────────────────────────────────────────
 
 	open() {
-		if(this._open) return;
+		if(this._open) return true;
 
-		// Namespace: close any sibling currently open in the same group, inheriting its position.
-		const existing = CerbUI.Dialog._namespaces.get(this.opts.namespace);
-		const inheritedPos = (existing && existing !== this)
-			? { x: parseInt(existing.el.style.left, 10), y: parseInt(existing.el.style.top, 10) }
-			: null;
-		if(existing && existing !== this) {
-			if(!existing.close()) return; // sibling's onClose blocked it — abort
+		// Singleton by namespace: a dialog already open under this namespace wins — focus it instead of
+		// stacking a duplicate. `replace:true` instead closes the existing one and opens this in its place.
+		const ns = CerbUI.Dialog._namespaces.get(this.opts.namespace);
+		if(ns && ns !== this && ns._open) {
+			if(!this.opts.replace) { CerbUI.Dialog._focusExisting(ns); return false; }
+			if(!ns.close()) return false; // existing onClose vetoed — abort
 		}
+
+		// Position group: siblings sharing a group hand off their position and close each other on open.
+		let inheritedPos = null;
+		if(this.opts.positionGroup != null) {
+			const sib = CerbUI.Dialog._positionGroups.get(this.opts.positionGroup);
+			if(sib && sib !== this && sib._open) {
+				inheritedPos = { x: parseInt(sib.el.style.left, 10), y: parseInt(sib.el.style.top, 10) };
+				if(!sib.close()) return false; // sibling's onClose blocked it — abort
+			}
+			CerbUI.Dialog._positionGroups.set(this.opts.positionGroup, this);
+		}
+
 		CerbUI.Dialog._namespaces.set(this.opts.namespace, this);
 
 		this._open = true;
@@ -511,6 +562,7 @@ CerbUI.Dialog = class {
 
 		if(this.opts.onOpen) this.opts.onOpen();
 		this.innerContent.dispatchEvent(new CustomEvent('cerb-ui-dialog:open', { bubbles: true }));
+		return true;
 	}
 
 	close() {
@@ -550,6 +602,9 @@ CerbUI.Dialog = class {
 		if(CerbUI.Dialog._namespaces.get(this.opts.namespace) === this) {
 			CerbUI.Dialog._namespaces.delete(this.opts.namespace);
 		}
+		if(this.opts.positionGroup != null && CerbUI.Dialog._positionGroups.get(this.opts.positionGroup) === this) {
+			CerbUI.Dialog._positionGroups.delete(this.opts.positionGroup);
+		}
 
 		if(this._resizeObs) this._resizeObs.disconnect();
 		if(CerbUI.Dialog._pageDialogs.delete(this)) CerbUI.Dialog._syncPageHeight();
@@ -583,6 +638,9 @@ CerbUI.Dialog = class {
 		CerbUI.Dialog._byRoot.delete(this.el);
 		if(CerbUI.Dialog._namespaces.get(this.opts.namespace) === this) {
 			CerbUI.Dialog._namespaces.delete(this.opts.namespace);
+		}
+		if(this.opts.positionGroup != null && CerbUI.Dialog._positionGroups.get(this.opts.positionGroup) === this) {
+			CerbUI.Dialog._positionGroups.delete(this.opts.positionGroup);
 		}
 		if(this._resizeObs) this._resizeObs.disconnect();
 		if(CerbUI.Dialog._minimized.delete(this)) CerbUI.Dialog._syncTray();
