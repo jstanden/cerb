@@ -33,6 +33,13 @@
 .cerb-u-w-75 { width: 75%; }
 .cerb-u-w-100 { width: 100%; }
 
+// Opacity (percent) — dim an element to a muted/idle state; toggle the class off (or to -100) to restore.
+.cerb-u-opacity-0   { opacity: 0; }
+.cerb-u-opacity-25  { opacity: 0.25; }
+.cerb-u-opacity-50  { opacity: 0.5; }
+.cerb-u-opacity-75  { opacity: 0.75; }
+.cerb-u-opacity-100 { opacity: 1; }
+
 // Background — strip a component's fill (e.g. a cerb-ui-pill rendered as a bare inline marker)
 .cerb-u-bg-none { background-color: transparent; }
 

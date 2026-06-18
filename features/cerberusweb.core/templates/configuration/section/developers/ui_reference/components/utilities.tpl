@@ -24,6 +24,17 @@
 			<code class="cerb-uiref-utils--name" data-cerb-uiref-copy data-cerb-uiref-source title="Copy to clipboard">cerb-u-w-100</code>
 			<div><div class="cerb-uiref-utils--bar cerb-u-w-100"></div></div>
 
+			<code class="cerb-uiref-utils--name" data-cerb-uiref-copy data-cerb-uiref-source title="Copy to clipboard">cerb-u-opacity-25</code>
+			<div><span class="cerb-uiref-utils--box cerb-u-opacity-25"><span>25%</span></span></div>
+
+			<code class="cerb-uiref-utils--name" data-cerb-uiref-copy data-cerb-uiref-source title="Copy to clipboard">cerb-u-opacity-50</code>
+			<div><span class="cerb-uiref-utils--box cerb-u-opacity-50"><span>50%</span></span></div>
+
+			<code class="cerb-uiref-utils--name" data-cerb-uiref-copy data-cerb-uiref-source title="Copy to clipboard">cerb-u-opacity-100</code>
+			<div><span class="cerb-uiref-utils--box cerb-u-opacity-100"><span>100% (opacity-0 &hellip; opacity-100: 0/25/50/75/100%)</span></span></div>
+
+			<div class="cerb-uiref-utils--note cerb-uiref-utils--full">Dim an element to a muted/idle state, then toggle the class off (or to <code>cerb-u-opacity-100</code>) to restore full opacity &mdash; e.g. the queue monitor's worker tiles dim while idle. Pair with a CSS <code>transition: opacity</code> on the element for a smooth fade.</div>
+
 			<code class="cerb-uiref-utils--name" data-cerb-uiref-copy data-cerb-uiref-source title="Copy to clipboard">cerb-u-border-1</code>
 			<div><span class="cerb-ui-tile cerb-u-border-1">1px</span></div>
 
