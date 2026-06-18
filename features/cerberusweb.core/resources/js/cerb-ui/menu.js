@@ -33,7 +33,11 @@ CerbUI.Menu = class {
 		onSelect: null,       // (renderedLi, sourceLi, event) on leaf click / Enter
 		onClose: null,        // () when the menu finishes closing (panels removed)
 		closeOnSelect: true,  // close the menu after a leaf is chosen (false = stay open to pick several)
+		selectableParents: false, // clickable branches: a parent with a submenu also SELECTS on click / Enter
+		                          // (hover / ArrowRight still opens the submenu). Older-Cerb cascading-picker style.
 		onRenderItem: null,   // (renderedLi, sourceLi) after the label, before the arrow — the icon hook
+		panelClass: null,     // extra class added to every panel <ul> (root + floating submenus) so panel-scoped
+		                      // styling (e.g. command-bar tiles) reaches submenus appended to <body>
 		clearActiveOnLeave: false, // drop the hover highlight when the pointer leaves a panel (no submenu open)
 		itemHeight: 28,       // px; MUST match the .cerb-ui-menu--item CSS height (virt math depends on it)
 		maxHeight: 380,       // px before a panel scrolls; or 'viewport' to grow into the available viewport height
@@ -253,7 +257,8 @@ CerbUI.Menu = class {
 		const el = document.createElement('ul');
 		el.className = 'cerb-ui-menu cerb-ui-menu--panel'
 			+ (this.opts.inline && depth === 0 ? ' cerb-ui-menu--inline' : '')
-			+ (this.opts.fixed ? ' cerb-ui-menu--fixed' : '');
+			+ (this.opts.fixed ? ' cerb-ui-menu--fixed' : '')
+			+ (this.opts.panelClass ? ' ' + this.opts.panelClass : '');
 		el.setAttribute('role', 'menu');
 
 		// pnl.el is always the list <ul>; pnl.outer is the positioned/appended element — the same <ul>,
@@ -639,7 +644,7 @@ CerbUI.Menu = class {
 		const li = target ? target.closest('.cerb-ui-menu--item') : null;
 		if(!li) return;
 		const item = pnl.items[+(li.dataset['i'] ?? -1)];
-		if(item && !item.children) {
+		if(item && (!item.children || this.opts.selectableParents)) {
 			this._select(li, item.el, e);
 			if(this.opts.inline) {
 				// Collapse floating submenus but leave the root panel open.
@@ -712,7 +717,9 @@ CerbUI.Menu = class {
 				if(!active) return;
 				const item = pnl.items[+(active.dataset['i'] ?? -1)];
 				if(!item) return;
-				if(item.children) {
+				// ArrowRight always opens a submenu; Enter opens it too, UNLESS selectableParents (then Enter picks
+				// the branch itself).
+				if(item.children && !(e.key === 'Enter' && this.opts.selectableParents)) {
 					this._push(item.children, pnl.depth + 1);
 					// keyboard-opened: highlight the submenu's first item so nav flows straight into it
 					this._navigate(this.pnls[this.pnls.length - 1], 0, true);
