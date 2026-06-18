@@ -1,0 +1,129 @@
+// Toolbar: a strip of icon buttons + pop-up menus (CerbUI.Toolbar) that open worker interactions — the
+// plain-JS successor to the jQuery `.cerbToolbar()` plugin. JS hides the authored <ul.cerb-ui-toolbar>
+// and renders a `--strip` after it; menu triggers open a CerbUI.Menu (which carries its own chrome).
+// Structural only — colors are tokens. Default form has light strip chrome (sits above a textarea/editor);
+// the `--bare` modifier drops the chrome to just icons + menus (for tight slots, e.g. searchquery --right).
+.cerb-ui-toolbar {
+	// The authored source list is the data/menu source; JS sets `hidden`, this is just a backstop.
+	&[hidden] { display: none; }
+
+	&--strip {
+		display: inline-flex;
+		align-items: center;
+		gap: 2px;
+		padding: 3px;
+		box-sizing: border-box;
+		background: var(--cerb-color-background-contrast-240);
+		border: 1px solid var(--cerb-color-background-contrast-220);
+		border-radius: 6px;
+		// Contain badge stacking locally: badges layer above sibling buttons WITHIN the strip (the badge's
+		// z-index below), while the strip as a whole still layers normally wherever it sits (incl. popups).
+		// No hardcoded z-index needed — isolation scopes the battle to this component.
+		isolation: isolate;
+	}
+
+	// A single toolbar button: icon (+ optional label) with a hover wash; native chrome reset.
+	&--item {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35em;
+		position: relative;
+		height: 28px;
+		margin: 0;
+		padding: 0 0.5em;
+		border: 0;
+		border-radius: 5px;
+		background: transparent;
+		color: var(--cerb-color-text);
+		font: inherit;
+		line-height: 1;
+		white-space: nowrap;
+		cursor: pointer;
+
+		&::-moz-focus-inner { border: 0; padding: 0; }
+
+		> span.cerb-icons { font-size: 1.3em; }
+
+		&:hover {
+			background: var(--cerb-color-background-contrast-230);
+			color: var(--cerb-color-link);
+		}
+
+		&:focus-visible {
+			outline: 2px solid var(--cerb-color-action-primary);
+			outline-offset: -1px;
+		}
+	}
+
+	// Count bubble: a floating pill in the button's top-right corner. Sized to slightly overlap the glyph so
+	// it reads clearly; defaults to the generic accent, a per-item data-badge-color (set inline by the JS)
+	// overrides the fill. The ring lifts it off the icon/strip.
+	&--badge {
+		position: absolute;
+		z-index: 1; // above sibling buttons' (z-auto) hover backgrounds; scoped by the strip's isolation
+		top: -5px;
+		right: -6px;
+		box-sizing: border-box;
+		min-width: 1.6em;
+		padding: 0.05em 0.4em;
+		border-radius: 999px;
+		background: var(--cerb-ui-accent);
+		color: #fff;
+		font-size: 0.8em;
+		font-weight: 600;
+		line-height: 1.4;
+		text-align: center;
+		box-shadow: 0 0 0 2px var(--cerb-color-background);
+		pointer-events: none;
+	}
+
+	// The dropdown affordance on a menu trigger — a small muted caret after the label/icon.
+	&--caret {
+		font-size: 0.7em;
+		opacity: 0.6;
+		margin-left: 0.1em;
+	}
+
+	// A vertical rule between strip groups (an empty top-level <li>).
+	&--divider {
+		align-self: center;
+		width: 1px;
+		height: 16px;
+		margin: 0 4px;
+		background: var(--cerb-color-background-contrast-220);
+	}
+
+	// Trimless variant: no strip frame, icon-only square buttons. For embedding beside an input/editor
+	// where the surrounding control already provides the chrome (e.g. the searchquery --right slot).
+	&--strip.cerb-ui-toolbar--bare {
+		padding: 0;
+		gap: 0;
+		background: transparent;
+		border: 0;
+		border-radius: 0;
+	}
+
+	&--bare &--item {
+		padding: 0;
+		width: 28px;
+		justify-content: center;
+
+		// In bare mode the label is a tooltip, so the caret would crowd the glyph — drop it.
+		.cerb-ui-toolbar--caret { display: none; }
+	}
+
+	// Trimless + tiny: smaller, muted icons that read as quiet inline affordances — matches the icons
+	// SearchQuery already puts in its own --right slot (a bare-tiny strip is also rendered with --bare).
+	&--bare-tiny &--item {
+		width: 22px;
+		height: 22px;
+		color: var(--cerb-color-background-contrast-150);
+
+		> span.cerb-icons { font-size: 1.05em; }
+
+		&:hover {
+			background: transparent;
+			color: var(--cerb-color-link);
+		}
+	}
+}

@@ -122,6 +122,7 @@
 					<div class="cerb-ui-sidebar--label">Navigation</div>
 					<ul>
 						<li data-target="menu" data-icon="menu-hamburger">Menu</li>
+						<li data-target="toolbar" data-icon="toolbox">Toolbar</li>
 						<li data-target="sidebar" data-icon="window-left">Sidebar</li>
 						<li data-target="selectmenu" data-icon="chevron-down">SelectMenu</li>
 						<li data-target="tabs" data-icon="folder-open">Tabs</li>
@@ -191,6 +192,7 @@
 
 			<h2 class="cerb-uiref-grouplabel" id="group-navigation">Navigation</h2>
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/menu.tpl"}
+			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/toolbar.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/sidebar.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/selectmenu.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/tabs.tpl"}
