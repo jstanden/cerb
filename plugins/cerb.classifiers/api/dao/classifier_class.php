@@ -110,17 +110,6 @@ class DAO_ClassifierClass extends Cerb_ORMHelper {
 			
 			// Send events
 			if($check_deltas) {
-				// Trigger an event about the changes
-				$eventMgr = DevblocksPlatform::services()->event();
-				$eventMgr->trigger(
-					new Model_DevblocksEvent(
-						'dao.classifier_class.update',
-						array(
-							'fields' => $fields,
-						)
-					)
-				);
-				
 				// Log the context update
 				DevblocksPlatform::markContextChanged($context, $batch_ids);
 			}

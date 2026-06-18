@@ -195,18 +195,6 @@ class DAO_Task extends Cerb_ORMHelper {
 			if($check_deltas) {
 				// Local events
 				self::processUpdateEvents($batch_ids, $fields);
-				
-				// Trigger an event about the changes
-				$eventMgr = DevblocksPlatform::services()->event();
-				$eventMgr->trigger(
-					new Model_DevblocksEvent(
-						'dao.task.update',
-						array(
-							'fields' => $fields,
-						)
-					)
-				);
-				
 				// Log the context update
 				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_TASK, $batch_ids);
 			}

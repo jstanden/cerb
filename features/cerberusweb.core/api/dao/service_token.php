@@ -107,16 +107,6 @@ class DAO_ServiceToken extends Cerb_ORMHelper {
 			parent::_update($batch_ids, 'service_token', $fields);
 
 			if($check_deltas) {
-				$eventMgr = DevblocksPlatform::services()->event();
-				$eventMgr->trigger(
-					new Model_DevblocksEvent(
-						'dao.service_token.update',
-						[
-							'fields' => $fields,
-						]
-					)
-				);
-
 				DevblocksPlatform::markContextChanged($context, $batch_ids);
 			}
 		}

@@ -137,17 +137,6 @@ class DAO_OAuthApp extends Cerb_ORMHelper {
 			
 			// Send events
 			if($check_deltas) {
-				// Trigger an event about the changes
-				$eventMgr = DevblocksPlatform::services()->event();
-				$eventMgr->trigger(
-					new Model_DevblocksEvent(
-						'dao.oauth_app.update',
-						array(
-							'fields' => $fields,
-						)
-					)
-				);
-				
 				// Log the context update
 				DevblocksPlatform::markContextChanged($context, $batch_ids);
 			}

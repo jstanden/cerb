@@ -136,18 +136,6 @@ class DAO_JiraIssue extends Cerb_ORMHelper {
 			if($check_deltas) {
 				// Local events
 				self::processUpdateEvents($batch_ids, $fields);
-				
-				// Trigger an event about the changes
-				$eventMgr = DevblocksPlatform::services()->event();
-				$eventMgr->trigger(
-					new Model_DevblocksEvent(
-						'dao.jira_issue.update',
-						array(
-							'fields' => $fields,
-						)
-					)
-				);
-				
 				// Log the context update
 				DevblocksPlatform::markContextChanged(Context_JiraIssue::ID, $batch_ids);
 			}

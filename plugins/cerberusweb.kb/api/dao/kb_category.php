@@ -94,18 +94,6 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 			// Send events
 			if($check_deltas) {
 				self::processUpdateEvents($batch_ids, $fields);
-				
-				// Trigger an event about the changes
-				$eventMgr = DevblocksPlatform::services()->event();
-				$eventMgr->trigger(
-					new Model_DevblocksEvent(
-						'dao.kb_category.update',
-						array(
-							'fields' => $fields,
-						)
-					)
-				);
-				
 				// Log the context update
 				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_KB_CATEGORY, $batch_ids);
 			}

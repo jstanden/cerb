@@ -174,17 +174,6 @@ class DAO_MailInboundLog extends Cerb_ORMHelper {
 			
 			// Send events
 			if($check_deltas) {
-				// Trigger an event about the changes
-				$eventMgr = DevblocksPlatform::services()->event();
-				$eventMgr->trigger(
-					new Model_DevblocksEvent(
-						'dao.mail_inbound_log.update',
-						[
-							'fields' => $fields,
-						]
-					)
-				);
-				
 				// Log the context update
 				DevblocksPlatform::markContextChanged($context, $batch_ids);
 			}

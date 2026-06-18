@@ -120,16 +120,6 @@ class DAO_QueueJob extends Cerb_ORMHelper {
 			parent::_update($batch_ids, 'queue_job', $fields);
 
 			if($check_deltas) {
-				$eventMgr = DevblocksPlatform::services()->event();
-				$eventMgr->trigger(
-					new Model_DevblocksEvent(
-						'dao.queue_job.update',
-						[
-							'fields' => $fields,
-						]
-					)
-				);
-
 				DevblocksPlatform::markContextChanged($context, $batch_ids);
 			}
 		}

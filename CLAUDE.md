@@ -145,5 +145,6 @@ private function _profileAction_savePeekJson() {
 ### Events and Deltas
 Updates trigger events automatically:
 - `CerberusContexts::checkpointChanges()` before update
-- `DevblocksPlatform::markContextChanged()` after update
-- Event: `dao.{table_name}.update`
+- `DevblocksPlatform::markContextChanged()` after update (this drives change tracking and automation triggers)
+
+The legacy `dao.{table_name}.update` framework event is no longer fired or consumed — don't reintroduce it. Change reactions belong in `markContextChanged()` / automation triggers.
