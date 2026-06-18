@@ -118,7 +118,7 @@ class DAO_MetricValue {
 	 *     'missing'  => 'zero'|'carry',                  // optional gap-fill (counters usually 'zero')
 	 *     'suffix'   => 'ms',                            // optional text suffix
 	 *   ]
-	 * @param string $window '24h' | '7d' | '30d'
+	 * @param string $window '2h' | '1d' | '1w' | '1mo' (legacy aliases: '24h' | '7d' | '30d')
 	 * @param string|null $tz worker timezone (defaults to the platform timezone)
 	 * @return array [rowKey => ['categories'=>[...], 'series'=>[ ['type'=>,'label'=>,'values'=>[],'text'=>[]], ... ]]]
 	 */
@@ -128,11 +128,16 @@ class DAO_MetricValue {
 
 		// window => [period, range]; the data query does the bin lerp, gap-fill, and timezone
 		$windows = [
+			'2h'  => ['minute', '-2 hours to now'], // 5-min bins, near-real-time (e.g. current gauge depth)
+			'1d'  => ['hour', '-24 hours to now'],
+			'1w'  => ['day', '-7 days to now'],
+			'1mo' => ['day', '-30 days to now'],
+			// Legacy aliases — the scheduler config dashboard still uses these window keys
 			'24h' => ['hour', '-24 hours to now'],
 			'7d'  => ['day', '-7 days to now'],
 			'30d' => ['day', '-30 days to now'],
 		];
-		[$period, $range] = $windows[$window] ?? $windows['24h'];
+		[$period, $range] = $windows[$window] ?? $windows['1d'];
 
 		if(!$tz)
 			$tz = DevblocksPlatform::getTimezone();

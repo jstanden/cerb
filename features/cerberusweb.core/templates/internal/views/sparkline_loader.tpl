@@ -1,6 +1,6 @@
 {* Shared inline-sparkline loader for worklists. Renders one sparkchart per row (multi-series — e.g. a
    duration bar with an invocations line in front), loaded async from a metrics.timeseries-backed profile
-   action so the worklist paints fast. The 24h/7d/30d header switcher
+   action so the worklist paints fast. The 2h/1d/1mo header switcher
    (.cerb-ui-switcher[data-cerb-spark-switcher]) re-fetches and persists per view in localStorage. Cells
    are .cerb-ui-sparkchart[data-cerb-spark="<rowId>"]. Place this inside a <script nonce> block.
 
@@ -14,7 +14,7 @@
 	const sparkFrm = $('#viewForm{$spark_view_id}');
 	const sparkScale = (window.CerbUI && CerbUI.colorScale) ? CerbUI.colorScale() : null;
 	const sparkTooltipLabels = {if !empty($spark_tooltip_labels)}true{else}false{/if};
-	let sparkWindow = '24h'; // 24h | 7d | 30d (set from the header switcher below)
+	let sparkWindow = '1d'; // 2h | 1d | 1w | 1mo (set from the header switcher below)
 	let sparkReq = 0; // generation token; a newer load drops a slower earlier response
 
 	// Single render path; destroy the prior chart first so toggling can't leave stale listeners/data behind
@@ -64,7 +64,7 @@
 			storageKey: 'cerb.spark.{$spark_module}:{$spark_view_id}',
 			onSelect: function(value) { sparkWindow = value; sparkLoad(true); },
 		});
-		sparkWindow = sw.getValue() || '24h';
+		sparkWindow = sw.getValue() || '1d';
 	}
 
 	sparkLoad(true);
