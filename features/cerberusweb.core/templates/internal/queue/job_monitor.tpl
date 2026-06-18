@@ -22,15 +22,12 @@
 
 <div data-cerb-worker-cards class="cerb-worker-cards cerb-hidden">
     {section name=slot start=1 loop=$max_concurrency+1}
-    {$palette_idx = ($smarty.section.slot.index - 1) % 10 + 1}
-    <div data-cerb-worker-card="{$smarty.section.slot.index}" class="cerb-worker-card cerb-worker-card--slot-{$palette_idx} cerb-hidden">
-        <div class="cerb-worker-card--header">
-            <span class="cerb-worker-card--dot"></span>
-            <span class="cerb-worker-card--label">w-{if $smarty.section.slot.index < 10}0{/if}{$smarty.section.slot.index}</span>
-            <span class="cerb-worker-card--badge" data-cerb-worker-card-badge>IDLE</span>
+    <div data-cerb-worker-card="{$smarty.section.slot.index}" class="cerb-ui-tile cerb-ui-tile--block cerb-worker-tile cerb-u-opacity-50 cerb-hidden">
+        <span class="cerb-ui-tile--icon" data-cerb-worker-card-icon><span class="cerb-icons cerb-icon-stopwatch"></span></span>
+        <div class="cerb-ui-tile--text">
+            <div class="cerb-ui-tile--kind">w{if $smarty.section.slot.index < 10}0{/if}{$smarty.section.slot.index}</div>
+            <div class="cerb-ui-tile--body"><span data-cerb-worker-card-done>0</span> done · <span data-cerb-worker-card-rate>0.0</span>/s</div>
         </div>
-        <div class="cerb-worker-card--stats"><span data-cerb-worker-card-done>0</span> done · <span data-cerb-worker-card-rate>0.0</span>/s</div>
-        <div class="cerb-worker-card--sparkline" data-cerb-worker-card-sparkline></div>
     </div>
     {/section}
 </div>
@@ -120,13 +117,10 @@ $(function() {
         'var(--cerb-color-progress-available)',
     ];
 
-    // Slot model: each slot 1..MAX_CONCURRENCY has a card in the DOM, hidden
+    // Slot model: each slot 1..MAX_CONCURRENCY has a tile in the DOM, hidden
     // until first activated. `running` flips while a worker AJAX is in flight;
     // doneTotal + activeMs accumulate across batches so we can compute a rate.
-    // `batches` is a sliding window of recent batch sizes for the sparkline.
-    // Slot color is owned by CSS — the template assigns .cerb-worker-card--slot-N
-    // and the theme defines per-mode palette tokens.
-    const SPARKLINE_BARS = 16;
+    // Tile icon color is owned by a rainbow CerbUI.colorScale keyed by worker number.
 
     const slotState = {};
     for(let i = 1; i <= MAX_CONCURRENCY; i++) {
@@ -136,8 +130,7 @@ $(function() {
             throttled: false,
             doneTotal: 0,
             activeMs: 0,
-            startedAt: null,
-            batches: []
+            startedAt: null
         };
     }
     const slotsActive = new Set();
@@ -198,18 +191,23 @@ $(function() {
             s.activeMs += Date.now() - s.startedAt;
             s.startedAt = null;
         }
-        if(processed > 0) {
+        if(processed > 0)
             s.doneTotal += processed;
-            s.batches.push(processed);
-            if(s.batches.length > SPARKLINE_BARS)
-                s.batches = s.batches.slice(-SPARKLINE_BARS);
-        }
         s.running = false;
         s.throttled = !!throttled;
         slotsActive.delete(slot);
     };
 
     const $worker_cards_container = $widget.find('[data-cerb-worker-cards]');
+
+    // Color each worker tile's icon by its number from a rainbow ordinal scale (w01, w02, …)
+    const workerScale = (window.CerbUI && CerbUI.colorScale) ? CerbUI.colorScale('rainbow') : null;
+    if(workerScale) {
+        for(let i = 1; i <= MAX_CONCURRENCY; i++) {
+            const ico = $widget.find('[data-cerb-worker-card="' + i + '"] .cerb-ui-tile--icon')[0];
+            if(ico) ico.style.backgroundColor = workerScale.color('w' + i);
+        }
+    }
 
     const funcRenderWorkerCards = function() {
         const anyActive = Object.values(slotState).some(s => s.everActive);
@@ -224,26 +222,19 @@ $(function() {
                 continue;
             }
 
-            $card.removeClass('cerb-hidden cerb-worker-card--running cerb-worker-card--throttled')
-                 .toggleClass('cerb-worker-card--running', s.running)
-                 .toggleClass('cerb-worker-card--throttled', !s.running && s.throttled);
+            const isActive = s.running || s.throttled;
+            $card.removeClass('cerb-hidden')
+                 .toggleClass('cerb-worker-tile--throttled', !s.running && s.throttled)
+                 .toggleClass('cerb-u-opacity-50', !isActive);   // dim when idle; full when active
 
-            const badgeText = s.running ? 'RUNNING' : (s.throttled ? 'THROTTLED' : 'IDLE');
-            $card.find('[data-cerb-worker-card-badge]').text(badgeText);
+            // Icon: spinner (rotating) while a batch is in flight, stopwatch when idle/throttled
+            $card.find('[data-cerb-worker-card-icon] > .cerb-icons')
+                 .attr('class', 'cerb-icons ' + (s.running ? 'cerb-icon-spinner cerb-u-anim-spin' : 'cerb-icon-stopwatch'));
+
             $card.find('[data-cerb-worker-card-done]').text(s.doneTotal.toLocaleString());
 
             const rate = s.activeMs > 0 ? (s.doneTotal / (s.activeMs / 1000)) : 0;
             $card.find('[data-cerb-worker-card-rate]').text(rate.toFixed(1));
-
-            // Sparkline: simple flex row of bars whose heights map to each batch's
-            // processed count, normalized against this slot's recent max.
-            const $sparkline = $card.find('[data-cerb-worker-card-sparkline]');
-            const maxBatch = Math.max.apply(null, s.batches.length ? s.batches : [1]);
-            const bars = s.batches.map(function(b) {
-                const pct = Math.max(8, Math.round((b / maxBatch) * 100));
-                return '<span style="height:' + pct + '%"></span>';
-            }).join('');
-            $sparkline.html(bars);
         }
     };
 
