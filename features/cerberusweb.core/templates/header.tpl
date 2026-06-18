@@ -78,6 +78,7 @@
 		<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerb-ui/confirm.js{/devblocks_url}?v={$smarty.now}"></script>
 		<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerb-ui/colorpicker.js{/devblocks_url}?v={$smarty.now}"></script>
 		<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerb-ui/chooser-core.js{/devblocks_url}?v={$smarty.now}"></script>
+		<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerb-ui/record-chooser.js{/devblocks_url}?v={$smarty.now}"></script>
 		<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerb-ui/context-chooser.js{/devblocks_url}?v={$smarty.now}"></script>
 		<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerb-ui/sparkchart.js{/devblocks_url}?v={$smarty.now}"></script>
 	{else}

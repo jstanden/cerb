@@ -114,6 +114,7 @@
 						<li data-target="datepicker" data-icon="calendar">Datepicker</li>
 						<li data-target="colorpicker" data-icon="color-palette">ColorPicker</li>
 						<li data-target="priority-picker" data-icon="collection">PriorityPicker</li>
+						<li data-target="record-chooser" data-icon="search">RecordChooser</li>
 						<li data-target="context-chooser" data-icon="search">ContextChooser</li>
 						<li data-target="searchquery" data-icon="search">SearchQuery</li>
 						<li data-target="kataeditor" data-icon="placeholders">KataEditor</li>
@@ -188,6 +189,7 @@
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/datepicker.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/colorpicker.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/priority-picker.tpl"}
+			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/record-chooser.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/context-chooser.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/searchquery.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/kataeditor.tpl"}
