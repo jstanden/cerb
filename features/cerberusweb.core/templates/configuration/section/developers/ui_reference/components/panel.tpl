@@ -92,20 +92,6 @@
 		</div>
 		<div class="cerb-uiref-example">
 			<div class="cerb-uiref-demo">
-				<div class="cerb-ui-panel cerb-ui-panel--spaced cerb-ui-panel--warn">
-					<div class="cerb-ui-header">
-						<div class="cerb-ui-callout">
-							<span class="cerb-icons cerb-icon-clock cerb-ui-callout--icon"></span>
-							<div>
-								<div class="cerb-ui-header--title-sm">Unfinished Tasks Found</div>
-								<div class="cerb-ui-header--subtitle">You have 241 unfinished tasks from previous days across your selected projects</div>
-							</div>
-						</div>
-						<div class="cerb-ui-header--right">
-							<button type="button" class="cerb-ui-button"><span class="cerb-icons cerb-icon-right-arrow"></span> Move to Today</button>
-						</div>
-					</div>
-				</div>
 				<div class="cerb-ui-panel cerb-ui-panel--spaced cerb-ui-panel--note">
 					<div class="cerb-ui-header">
 						<div class="cerb-ui-callout">
@@ -113,6 +99,20 @@
 							<div>
 								<div class="cerb-ui-header--title-sm">Scheduled Tasks Ready</div>
 								<div class="cerb-ui-header--subtitle">You have 1 stashed task scheduled for now or earlier across your selected projects</div>
+							</div>
+						</div>
+						<div class="cerb-ui-header--right">
+							<button type="button" class="cerb-ui-button"><span class="cerb-icons cerb-icon-right-arrow"></span> Move to Today</button>
+						</div>
+					</div>
+				</div>
+				<div class="cerb-ui-panel cerb-ui-panel--spaced cerb-ui-panel--warn">
+					<div class="cerb-ui-header">
+						<div class="cerb-ui-callout">
+							<span class="cerb-icons cerb-icon-clock cerb-ui-callout--icon"></span>
+							<div>
+								<div class="cerb-ui-header--title-sm">Unfinished Tasks Found</div>
+								<div class="cerb-ui-header--subtitle">You have 241 unfinished tasks from previous days across your selected projects</div>
 							</div>
 						</div>
 						<div class="cerb-ui-header--right">
