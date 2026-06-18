@@ -136,21 +136,30 @@ $(function() {
 
 		$("form#chooser{$view->id} button.submit").click(function(event) {
 			event.stopPropagation();
-			var $popup = genericAjaxPopupFetch('{$layer}');
-			var $buffer = $($popup).find('UL.buffer input:hidden');
-			var $labels = [];
-			var $values = [];
+			let $popup = genericAjaxPopupFetch('{$layer}');
+			let $buffer = $($popup).find('UL.buffer input:hidden');
+			let $labels = [];
+			let $values = [];
+			let $images = [];
+			{* Only avatar-capable record types get a live profile image; others render a client-side monogram (no /avatars request) *}
+			{if $context->hasOption('avatars')}let $imageTpl = '{devblocks_url}c=avatars&context={$context->id}&context_id=__ID__{/devblocks_url}';{/if}
 
 			$buffer.each(function() {
 				$labels.push($(this).attr('title'));
 				$values.push($(this).val());
+				{if $context->hasOption('avatars')}
+				$images.push($imageTpl.replace('__ID__', encodeURIComponent($(this).val())));
+				{else}
+				$images.push('');
+				{/if}
 			});
 
 			// Trigger event
-			var event = jQuery.Event('chooser_save');
-			event.labels = $labels;
-			event.values = $values;
-			$popup.trigger(event);
+			const evt = jQuery.Event('chooser_save');
+			evt.labels = $labels;
+			evt.values = $values;
+			evt.images = $images;
+			$popup.trigger(evt);
 
 			genericAjaxPopupDestroy('{$layer}');
 		});
