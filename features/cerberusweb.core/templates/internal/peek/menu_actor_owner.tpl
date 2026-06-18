@@ -1,53 +1,43 @@
-{function menu level=0}
-	{foreach from=$keys item=data key=idx}
-		{if is_array($data->children) && !empty($data->children)}
-			<li {if $data->key}data-token="{$data->key}" data-label="{$data->label}"{/if}>
-				{if $data->key}
-					<div style="font-weight:bold;" title="{$data->l|capitalize}">{$data->l|capitalize|truncate:30}</div>
-				{else}
-					<div title="{$idx|capitalize}">{$idx|capitalize|truncate:30}</div>
-				{/if}
-				<ul style="{if count($data->children) > 15}width:calc(50vw);column-width:200px;column-count:auto;{else}width:200px;{/if}">
-					{menu keys=$data->children level=$level+1}
-				</ul>
-			</li>
-		{elseif $data->key}
-			{$item_context = explode(':', $data->key)}
-			<li data-token="{$data->key}" data-label="{$data->label}">
-				<div style="font-weight:bold;" title="{$data->l|capitalize}">
-					{$data->l|capitalize|truncate:30}
-				</div>
-			</li>
-		{/if}
-	{/foreach}
-{/function}
+{*
+ * Owner (actor) picker — a CerbUI.ContextChooser.Owner: switch type (Me / Everyone / Role / Group / Worker)
+ * via the chip-head, then autocomplete. Posts the single hidden `name="owner"` value "context:id" (unchanged
+ * save contract). "Everyone" (app:0) is offered only to superusers. Replaces the old nested actor menu;
+ * each consumer just {include}s this with model=$model, and may pass an optional default_context to set
+ * the initial searchable type (e.g. encourage role ownership) without reordering the menu.
+ *}
+{$oc_uid = uniqid('ownerchooser')}
 
-<ul class="chooser-container bubbles">
-{$owner_context_ext = Extension_DevblocksContext::get($model->owner_context|default:'')}
-{if is_a($owner_context_ext, 'Extension_DevblocksContext')}
-	{$meta = $owner_context_ext->getMeta($model->owner_context_id)}
-	{if $meta}
-		<li>
-			<img class="cerb-avatar" src="{devblocks_url}c=avatars&context={$owner_context_ext->manifest->params.alias}&context_id={$model->owner_context_id}{/devblocks_url}?v={$meta.updated|default:$smarty.const.APP_BUILD}">
-			<a class="cerb-peek-trigger no-underline" data-context="{$model->owner_context}" data-context-id="{$model->owner_context_id}">{$meta.name}</a>
-			<input type="hidden" name="owner" value="{$model->owner_context}:{$model->owner_context_id}">
-			<a data-cerb-link="remove_bubble"><span class="cerb-icons cerb-icon-circle-remove"></span></a>
-		</li>
+{* Forced direct-pick avatars (looked up server-side): "Everyone" (app:0) + "Me" (the current worker) *}
+{capture name=app_avatar}{devblocks_url}c=avatars&context=app&context_id=0{/devblocks_url}?v={$smarty.const.APP_BUILD}{/capture}
+{capture name=me_avatar}{devblocks_url}c=avatars&context=worker&context_id={$active_worker->id|default:0}{/devblocks_url}?v={$smarty.const.APP_BUILD}{/capture}
+
+{* Resolve the current owner (if any) for the chooser's initial value *}
+{$owner_set = false}
+{if $model && $model->owner_context}
+	{$owner_ctx_ext = Extension_DevblocksContext::get($model->owner_context)}
+	{if is_a($owner_ctx_ext, 'Extension_DevblocksContext')}
+		{$owner_meta = $owner_ctx_ext->getMeta($model->owner_context_id)}
+		{if $owner_meta}
+			{$owner_set = true}
+			{$owner_label = ($model->owner_context == 'cerberusweb.contexts.app') ? 'Everyone' : $owner_meta.name}
+			{capture name=owner_avatar}{devblocks_url}c=avatars&context={$owner_ctx_ext->manifest->params.alias}&context_id={$model->owner_context_id}{/devblocks_url}?v={$owner_meta.updated|default:$smarty.const.APP_BUILD}{/capture}
+		{/if}
 	{/if}
 {/if}
-</ul>
 
-<ul class="owners-menu" style="width:150px;{if $model->owner_context}display:none;{/if}">
-{menu keys=$owners_menu}
-</ul>
+<div id="{$oc_uid}" class="cerb-ui-record-chooser"></div>
 
-{$script_uid = uniqid('script')}
-<script nonce="{DevblocksPlatform::getRequestNonce()}" id="{$script_uid}" type="text/javascript">
+<script nonce="{DevblocksPlatform::getRequestNonce()}">
 $(function() {
-	let $script = $('#{$script_uid}');
-	$script.parent().find('.chooser-container [data-cerb-link=remove_bubble]').on('click', function(e) {
-		e.stopPropagation();
-		$(this).trigger('bubble-remove');
+	if(!(window.CerbUI && CerbUI.ContextChooser && CerbUI.ContextChooser.Owner)) return;
+	CerbUI.ContextChooser.Owner(document.getElementById('{$oc_uid}'), {
+		meWorkerId: {$active_worker->id|default:0|json_encode nofilter},
+		meLabel: {if $active_worker}{$active_worker->getName()|json_encode nofilter}{else}null{/if},
+		meImageUrl: {$smarty.capture.me_avatar|json_encode nofilter},
+		allowApp: {if $active_worker && $active_worker->is_superuser}true{else}false{/if},
+		appImageUrl: {$smarty.capture.app_avatar|json_encode nofilter},
+		defaultContext: {$default_context|default:''|json_encode nofilter},
+		value: {if $owner_set}{ context: {$model->owner_context|json_encode nofilter}, id: {$model->owner_context_id|json_encode nofilter}, label: {$owner_label|json_encode nofilter}, image_url: {$smarty.capture.owner_avatar|json_encode nofilter} }{else}null{/if}
 	});
 });
 </script>
