@@ -16,7 +16,7 @@ class _DevblocksSearchService {
 		$queue_service = DevblocksPlatform::services()->queue();
 
 		$processed = 0;
-		$consumer_id = null;
+		$claim_id = null;
 
 		$job_id = $queue_job?->id ?? null;
 		$search_indexes = \DAO_SearchIndex::getAll();
@@ -25,7 +25,7 @@ class _DevblocksSearchService {
 		// write batch) but loop so concurrent workers can interleave on the same
 		// job within the $stop_time budget.
 		while($stop_time > time()) {
-			if(!($queue_messages = $queue_service->dequeue($queue->name, 1, $consumer_id, $job_id)))
+			if(!($queue_messages = $queue_service->dequeue($queue->name, 1, $claim_id, $job_id)))
 				break;
 
 			foreach($queue_messages as $queue_message) {

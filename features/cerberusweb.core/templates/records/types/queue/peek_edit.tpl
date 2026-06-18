@@ -56,6 +56,15 @@
             </td>
         </tr>
 
+        <tr>
+            <td width="1%" nowrap="nowrap"><b>Claims:</b></td>
+            <td width="99%">
+                <small>reclaim stalled in-flight messages after</small>
+                <input type="number" name="claim_window_secs" value="{$model->claim_window_secs|default:3600}" min="0" style="width:7em;">
+                <small>seconds (0 = never)</small>
+            </td>
+        </tr>
+
         {if !empty($custom_fields)}
             {include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
         {/if}

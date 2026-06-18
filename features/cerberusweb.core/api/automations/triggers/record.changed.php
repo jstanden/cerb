@@ -79,10 +79,10 @@ class AutomationTrigger_RecordChanged extends Extension_AutomationTrigger {
 		
 		$record_changed_events = DAO_AutomationEvent::getByName('record.changed');
 		
-		$consumer_id = null;
+		$claim_id = null;
 		$batch_size = 25;
 		
-		if (!($queue_messages = $queue_service->dequeue($queue->name, $batch_size, $consumer_id)))
+		if (!($queue_messages = $queue_service->dequeue($queue->name, $batch_size, $claim_id)))
 			return;
 		
 		foreach ($queue_messages as $queue_message) {

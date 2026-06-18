@@ -122,6 +122,7 @@ class PageSection_ProfilesQueue extends Extension_PageSection {
 				$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
 				$retry_max = DevblocksPlatform::importGPC($_POST['retry_max'] ?? null, 'integer', 0);
 				$retry_window_secs = DevblocksPlatform::importGPC($_POST['retry_window_secs'] ?? null, 'integer', 86400);
+				$claim_window_secs = DevblocksPlatform::importGPC($_POST['claim_window_secs'] ?? null, 'integer', 3600);
 
 				$error = null;
 
@@ -129,6 +130,7 @@ class PageSection_ProfilesQueue extends Extension_PageSection {
 					DAO_Queue::NAME => $name,
 					DAO_Queue::RETRY_MAX => $retry_max,
 					DAO_Queue::RETRY_WINDOW_SECS => $retry_window_secs,
+					DAO_Queue::CLAIM_WINDOW_SECS => $claim_window_secs,
 					DAO_Queue::UPDATED_AT => time(),
 				];
 				

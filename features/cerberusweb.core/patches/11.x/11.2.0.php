@@ -29,6 +29,11 @@ if(!array_key_exists('retry_window_secs', $columns)) {
 	$changes[] = "ADD COLUMN retry_window_secs INT UNSIGNED NOT NULL DEFAULT 86400";
 }
 
+// In-flight messages claimed longer than `claim_window_secs` are reaped as failures (0 = never reap)
+if(!array_key_exists('claim_window_secs', $columns)) {
+	$changes[] = "ADD COLUMN claim_window_secs INT UNSIGNED NOT NULL DEFAULT 3600";
+}
+
 if($changes) {
 	$db->ExecuteMaster("ALTER TABLE queue ".
 		implode(', ', $changes)
@@ -52,7 +57,18 @@ if(array_key_exists('namespace', $columns)) {
 if(!array_key_exists('job_id', $columns)) {
 	$changes[] = "ADD COLUMN job_id BIGINT UNSIGNED NOT NULL DEFAULT 0 AFTER queue_id";
 	$changes[] = "DROP INDEX queue_claimed";
-	$changes[] = "ADD INDEX queue_claimed (queue_id, status_id, job_id, consumer_id)";
+	$changes[] = "ADD INDEX queue_claimed (queue_id, status_id, job_id, claim_id)";
+}
+
+// `consumer_id` becomes `claim_id`; CHANGE COLUMN renames it inside an existing `queue_claimed` index too
+if(array_key_exists('consumer_id', $columns) && !array_key_exists('claim_id', $columns)) {
+	$changes[] = "CHANGE COLUMN consumer_id claim_id BINARY(16) DEFAULT NULL";
+}
+
+// When the claim was taken; the reaper compares this against the queue's `claim_window_secs`
+$is_adding_claimed_at = !array_key_exists('claimed_at', $columns);
+if($is_adding_claimed_at) {
+	$changes[] = "ADD COLUMN claimed_at INT UNSIGNED NOT NULL DEFAULT 0";
 }
 
 // Promote `message` from TEXT (~64KB) to MEDIUMTEXT (~16MB) so wide record snapshots fit
@@ -87,6 +103,11 @@ if($changes) {
 		implode(', ', $changes)
 	);
 }
+
+// Backfill messages in-flight during the upgrade so they enter the reap window
+// instead of staying claimed-at-0 forever
+if($is_adding_claimed_at)
+	$db->ExecuteMaster("UPDATE queue_message SET claimed_at = UNIX_TIMESTAMP() WHERE status_id = 1");
 
 // ===========================================================================
 // Queue Job

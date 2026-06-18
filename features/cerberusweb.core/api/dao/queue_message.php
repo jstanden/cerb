@@ -50,7 +50,7 @@ class DAO_QueueMessage {
 		}
 
 		$db->ExecuteWriter(
-			sprintf("INSERT INTO queue_message (uuid, queue_id, job_id, status_id, created_at, consumer_id, message, available_at, cardinality, retry_count) VALUES %s",
+			sprintf("INSERT INTO queue_message (uuid, queue_id, job_id, status_id, created_at, claim_id, message, available_at, cardinality, retry_count) VALUES %s",
 				implode(',', $insert_values)
 			));
 
@@ -60,26 +60,27 @@ class DAO_QueueMessage {
 	/**
 	 * @param Model_Queue $queue
 	 * @param int|null $limit
-	 * @param $consumer_id
+	 * @param $claim_id
 	 * @param ?int $job_id (null=any, zero=no job)
 	 * @return Model_QueueMessage[]
 	 */
-	static function dequeue(Model_Queue $queue, ?int $limit=1, &$consumer_id=null, ?int $job_id=null) : array {
+	static function dequeue(Model_Queue $queue, ?int $limit=1, &$claim_id=null, ?int $job_id=null) : array {
 		$db = DevblocksPlatform::services()->database();
 		$nodeProvider = new RandomNodeProvider();
-		
+
 		if(!is_numeric($limit) || !$limit)
 			$limit = 1;
-		
+
 		$uuid = Uuid::uuid6($nodeProvider->getNode());
-		$consumer_id = '0x' . $uuid->getHex();
-		
+		$claim_id = '0x' . $uuid->getHex();
+
 		$db->ExecuteWriter(
 			sprintf(
-				"UPDATE queue_message SET status_id=%d, consumer_id=%s ".
-				"WHERE queue_id=%d %sAND status_id=%d AND consumer_id IS NULL AND available_at <= %d LIMIT %d",
+				"UPDATE queue_message SET status_id=%d, claim_id=%s, claimed_at=%d ".
+				"WHERE queue_id=%d %sAND status_id=%d AND claim_id IS NULL AND available_at <= %d LIMIT %d",
 				QueueMessageStatus::IN_FLIGHT->value,
-				$db->escape($consumer_id),
+				$db->escape($claim_id),
+				time(),
 				$queue->id,
 				!is_null($job_id) ? sprintf("AND job_id=%d ", $job_id) : '',
 				QueueMessageStatus::AVAILABLE->value,
@@ -87,14 +88,14 @@ class DAO_QueueMessage {
 				$limit
 			)
 		);
-		
+
 		$results = $db->GetArrayMaster(sprintf(
 			"SELECT uuid, job_id, message, available_at, cardinality, retry_count FROM queue_message ".
-			"WHERE queue_id=%d %sAND status_id=%d AND consumer_id=%s",
+			"WHERE queue_id=%d %sAND status_id=%d AND claim_id=%s",
 			$queue->id,
 			!is_null($job_id) ? sprintf("AND job_id=%d ", $job_id) : '',
 			QueueMessageStatus::IN_FLIGHT->value,
-			$db->escape($consumer_id)
+			$db->escape($claim_id)
 		));
 		
 		$messages = [];
@@ -149,11 +150,12 @@ class DAO_QueueMessage {
 			$retry_count = $message->retry_count;
 
 			// retry_max == 0 means the queue never retries; >= caps total attempts at retry_max+1
-			if($retry_max <= 0 || $retry_count >= $retry_max) {
+			$disposition = _DevblocksQueueService::getRetryDisposition($retry_count, $retry_max, $queue->retry_window_secs, $now);
+
+			if(!$disposition['will_retry']) {
 				$terminal[] = $message->uuid;
 			} else {
-				$available_at = $now + _DevblocksQueueService::getRetryBackoffSecs($retry_count, $retry_max, $queue->retry_window_secs);
-				$retries[$available_at . ':' . ($retry_count + 1)][] = $message->uuid;
+				$retries[$disposition['available_at'] . ':' . $disposition['next_retry_count']][] = $message->uuid;
 			}
 		}
 
@@ -181,7 +183,7 @@ class DAO_QueueMessage {
 		$uuid_literals = array_map(fn($uuid) => '0x' . $db->escape($uuid), $message_uuids);
 		
 		implode(',', $uuid_literals)
-			|> (fn($uuids) => sprintf("UPDATE queue_message SET status_id=%d, consumer_id=NULL, processed_at=0, available_at=%d, retry_count=%d WHERE uuid IN (%s)", QueueMessageStatus::AVAILABLE->value, $available_at, $retry_count, $uuids))
+			|> (fn($uuids) => sprintf("UPDATE queue_message SET status_id=%d, claim_id=NULL, claimed_at=0, processed_at=0, available_at=%d, retry_count=%d WHERE uuid IN (%s)", QueueMessageStatus::AVAILABLE->value, $available_at, $retry_count, $uuids))
 			|> $db->ExecuteWriter(...)
 		;
 	}
@@ -204,7 +206,36 @@ class DAO_QueueMessage {
 		));
 	}
 	
-	// [TODO] Heartbeat for handling abandoned in-flight queue messages to re-drive?
+	/**
+	 * Find in-flight messages whose claim outlived their queue's `claim_window_secs`
+	 * (abandoned by a crashed/stalled consumer). Queues with a zero window never reap.
+	 *
+	 * @return Model_QueueMessage[] Payload-free models (uuid, queue_id, job_id, retry_count)
+	 */
+	static function getStalled() : array {
+		$db = DevblocksPlatform::services()->database();
+
+		$results = $db->GetArrayMaster(sprintf(
+			"SELECT BIN_TO_UUID(m.uuid) AS uuid, m.queue_id, m.job_id, m.retry_count ".
+			"FROM queue_message m INNER JOIN queue q ON (q.id=m.queue_id) ".
+			"WHERE m.status_id=%d AND q.claim_window_secs > 0 AND m.claimed_at < %d - q.claim_window_secs",
+			QueueMessageStatus::IN_FLIGHT->value,
+			time()
+		));
+
+		$messages = [];
+
+		foreach($results ?: [] as $result) {
+			$message = new Model_QueueMessage();
+			$message->uuid = $result['uuid'];
+			$message->queue_id = intval($result['queue_id']);
+			$message->job_id = intval($result['job_id']);
+			$message->retry_count = intval($result['retry_count']);
+			$messages[] = $message;
+		}
+
+		return $messages;
+	}
 
 	/**
 	 * Delete only the open (available + inflight) messages for a job, leaving

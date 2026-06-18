@@ -99,10 +99,10 @@ class _DevblocksMetricsService {
 		$processed = 0;
 		
 		while($stop_time > time()) {
-			$consumer_id = null;
+			$claim_id = null;
 			$limit = 100;
 			
-			$messages = $queue_service->dequeue($queue->name, $limit, $consumer_id, $queue_job?->id ?? null);
+			$messages = $queue_service->dequeue($queue->name, $limit, $claim_id, $queue_job?->id ?? null);
 			
 			if (empty($messages))
 				break;

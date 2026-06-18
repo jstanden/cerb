@@ -75,9 +75,9 @@ class QueuePopAction extends AbstractAction {
 				throw new Exception_DevblocksAutomationError($error);
 			}
 			
-			$consumer_id = null;
+			$claim_id = null;
 			
-			$results = DevblocksPlatform::objectsToArrays($queue->dequeue($queue_name, $limit, $consumer_id, $job_id));
+			$results = DevblocksPlatform::objectsToArrays($queue->dequeue($queue_name, $limit, $claim_id, $job_id));
 			
 			$results = array_combine(
 				array_column($results, 'uuid'),
@@ -95,7 +95,7 @@ class QueuePopAction extends AbstractAction {
 			);
 			
 			$output_dict = [
-				'consumer_id' => $consumer_id,
+				'claim_id' => $claim_id,
 				'messages' => $results,
 			];
 			

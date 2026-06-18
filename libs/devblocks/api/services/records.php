@@ -55,10 +55,10 @@ class _DevblocksRecordsService {
 		}
 		
 		$processed = 0;
-		$consumer_id = null;
+		$claim_id = null;
 		$batch_size = 100;
 		
-		if(!($queue_messages = $queue_service->dequeue($queue->name, $batch_size, $consumer_id, $job_id)))
+		if(!($queue_messages = $queue_service->dequeue($queue->name, $batch_size, $claim_id, $job_id)))
 			return 0;
 
 		if(!($import_token = $queue_job->metadata['import_token'] ?? null)) {
@@ -139,7 +139,7 @@ class _DevblocksRecordsService {
 		// dequeues) and bounded by the caller's $stop_time budget.
 		$batch_size = 5;
 		$processed = 0;
-		$consumer_id = null;
+		$claim_id = null;
 
 		$context = $queue_job->metadata['context'] ?? '';
 		$exporter = new WorklistExporter($context);
@@ -149,7 +149,7 @@ class _DevblocksRecordsService {
 		$render_metadata['worker_id'] = $queue_job->worker_id;
 
 		while($stop_time > time()) {
-			if(!($queue_messages = $queue_service->dequeue($queue->name, $batch_size, $consumer_id, $job_id)))
+			if(!($queue_messages = $queue_service->dequeue($queue->name, $batch_size, $claim_id, $job_id)))
 				break;
 
 			try {
@@ -375,8 +375,8 @@ class _DevblocksRecordsService {
 			|| !($dao_class = $context_ext->getDaoClass())
 			|| !method_exists($dao_class, 'bulkUpdate')
 		) {
-			$consumer_id = null;
-			if(!($queue_messages = $queue_service->dequeue($queue->name, 1, $consumer_id, $job_id)))
+			$claim_id = null;
+			if(!($queue_messages = $queue_service->dequeue($queue->name, 1, $claim_id, $job_id)))
 				return 0;
 			$queue_service->reportFailure($queue_messages, 'Missing context, actions, worker, or unsupported context');
 			return count($queue_messages);
@@ -386,10 +386,10 @@ class _DevblocksRecordsService {
 		// workers can interleave on the same job within the $stop_time budget.
 		$batch_size = 1;
 		$processed = 0;
-		$consumer_id = null;
+		$claim_id = null;
 
 		while($stop_time > time()) {
-			if(!($queue_messages = $queue_service->dequeue($queue->name, $batch_size, $consumer_id, $job_id)))
+			if(!($queue_messages = $queue_service->dequeue($queue->name, $batch_size, $claim_id, $job_id)))
 				break;
 
 			try {

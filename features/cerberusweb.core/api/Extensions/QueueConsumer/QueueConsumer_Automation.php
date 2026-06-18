@@ -80,9 +80,9 @@ class QueueConsumer_Automation extends Extension_QueueConsumer {
 		$base_dict = $base_dict->getDictionary(null, false);
 		
 		while($stop_time > time()) {
-			$consumer_id = null;
-			$messages = DAO_QueueMessage::dequeue($queue, $batch_size, $consumer_id, $job_id);
-			
+			$claim_id = null;
+			$messages = DAO_QueueMessage::dequeue($queue, $batch_size, $claim_id, $job_id);
+
 			if(!$messages)
 				break;
 

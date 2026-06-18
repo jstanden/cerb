@@ -91,8 +91,10 @@
                                 <abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>
                             {/if}
                         </td>
-                    {elseif $column == "q_retry_window_secs"}
-                        <td data-column="{$column}">{$result.$column|devblocks_prettysecs}</td>
+                    {elseif in_array($column, ["q_retry_window_secs", "q_claim_window_secs"])}
+                        <td data-column="{$column}">
+                            {$result.$column|devblocks_prettysecs:0:{'common.never'|devblocks_translate|lower}}
+                        </td>
                     {elseif $column == "q_extension_id"}
                         <td data-column="{$column}">
                             {if isset($queue_extensions[$result.q_extension_id])}

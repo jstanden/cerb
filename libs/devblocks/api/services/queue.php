@@ -66,6 +66,23 @@ class _DevblocksQueueService {
 	}
 
 	/**
+	 * Pure: given a message's current retry_count and the queue's policy, decide whether
+	 * the next failure retries (and when) or goes terminal. Single source of truth for the
+	 * retry decision — shared by the actual re-enqueue (reportFailure) and human-facing log
+	 * text (consumers) so the two can't drift.
+	 *
+	 * @return array{will_retry:bool,backoff_secs:int,available_at:int,next_retry_count:int}
+	 */
+	public static function getRetryDisposition(int $retry_count, int $retry_max, int $retry_window_secs, int $now) : array {
+		if($retry_max <= 0 || $retry_count >= $retry_max)
+			return ['will_retry'=>false, 'backoff_secs'=>0, 'available_at'=>0, 'next_retry_count'=>$retry_count];
+
+		$backoff = self::getRetryBackoffSecs($retry_count, $retry_max, $retry_window_secs);
+
+		return ['will_retry'=>true, 'backoff_secs'=>$backoff, 'available_at'=>$now + $backoff, 'next_retry_count'=>$retry_count + 1];
+	}
+
+	/**
 	 * @param string $queue_name
 	 * @param array $messages
 	 * @param string|null $error
@@ -86,15 +103,15 @@ class _DevblocksQueueService {
 	/**
 	 * @param string $queue_name
 	 * @param int $limit
-	 * @param $consumer_id
+	 * @param $claim_id
 	 * @param ?int $job_id
 	 * @return Model_QueueMessage[]|false
 	 */
-	public function dequeue(string $queue_name, int $limit=1, &$consumer_id=null, ?int $job_id=null) : array|false {
+	public function dequeue(string $queue_name, int $limit=1, &$claim_id=null, ?int $job_id=null) : array|false {
 		if(null == ($queue = $this->_getQueueByName($queue_name)))
 			return false;
-		
-		return DAO_QueueMessage::dequeue($queue, $limit, $consumer_id, $job_id);
+
+		return DAO_QueueMessage::dequeue($queue, $limit, $claim_id, $job_id);
 	}
 	
 	public function reportSuccess(array $messages, string $message='', array $metadata=[]) : void {
@@ -124,6 +141,36 @@ class _DevblocksQueueService {
 		}
 		$this->_trackJobIds($messages);
 		$this->_bufferLogEntry($messages, 3 /* ERROR */, $message, $metadata);
+	}
+
+	/**
+	 * Reap in-flight messages claimed longer than their queue's `claim_window_secs`
+	 * (a crashed/stalled consumer never reported status). Each reaped message is
+	 * treated exactly like a reported failure — metrics, retry backoff or terminal
+	 * FAILED, job progress + finalization — flushed immediately rather than at
+	 * shutdown. The claim window is the consumer's completion deadline; a consumer
+	 * that finishes after its claim was reaped just re-reports the message's status.
+	 */
+	public function reapStalledMessages() : int {
+		if(!($stalled = DAO_QueueMessage::getStalled()))
+			return 0;
+
+		// One reportFailure per job so each affected job gets its own log entry
+		$messages_by_job = [];
+		foreach($stalled as $message)
+			$messages_by_job[$message->job_id][] = $message;
+
+		foreach($messages_by_job as $job_messages) {
+			$this->reportFailure(
+				$job_messages,
+				sprintf("Reclaimed %d stalled message(s) after the claim window expired", count($job_messages))
+			);
+		}
+
+		// Flush now; releasing claims and starting backoff timers shouldn't wait for shutdown
+		$this->publish();
+
+		return count($stalled);
 	}
 
 	private function _bufferLogEntry(array $messages, int $level, string $message, array $metadata) : void {

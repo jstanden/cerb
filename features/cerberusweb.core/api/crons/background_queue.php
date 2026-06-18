@@ -14,6 +14,10 @@ class Cron_BackgroundQueue extends CerberusCronPageExtension {
 
 		$logger->info("Starting...");
 
+		// Reap stalled claims first (covers manual queues the poll below skips)
+		if(($reaped = DevblocksPlatform::services()->queue()->reapStalledMessages()))
+			$logger->info(sprintf("Reclaimed %d stalled message(s)", $reaped));
+
 		// Loop until we're done, or we run out of time
 		while($stop_time > time() && $this->_pollQueues($stop_time))
 			continue;
@@ -26,7 +30,7 @@ class Cron_BackgroundQueue extends CerberusCronPageExtension {
 		$db = DevblocksPlatform::services()->database();
 		
 		// Exclude manual
-		$available_counts = $db->GetArrayMaster("SELECT queue_id, COUNT(*) as hits FROM queue_message WHERE status_id = 0 AND consumer_id IS NULL AND available_at < UNIX_TIMESTAMP() GROUP BY queue_id, status_id");
+		$available_counts = $db->GetArrayMaster("SELECT queue_id, COUNT(*) as hits FROM queue_message WHERE status_id = 0 AND claim_id IS NULL AND available_at < UNIX_TIMESTAMP() GROUP BY queue_id, status_id");
 		$available_counts = array_combine(array_column($available_counts, 'queue_id'), array_map('intval', array_column($available_counts, 'hits')));
 		
 		// Bail out if no work to do

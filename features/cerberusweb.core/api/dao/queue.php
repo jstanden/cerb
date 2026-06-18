@@ -3,6 +3,7 @@
 use Cerb\Extensions\Extension_QueueConsumer;
 
 class DAO_Queue extends Cerb_ORMHelper {
+	const CLAIM_WINDOW_SECS = 'claim_window_secs';
 	const CREATED_AT = 'created_at';
 	const EXTENSION_ID = 'extension_id';
 	const EXTENSION_PARAMS_JSON = 'extension_params_json';
@@ -19,6 +20,11 @@ class DAO_Queue extends Cerb_ORMHelper {
 	static function getFields() {
 		$validation = DevblocksPlatform::services()->validation();
 		
+		$validation
+			->addField(self::CLAIM_WINDOW_SECS)
+			->number()
+			->setMin(0)
+		;
 		$validation
 			->addField(self::CREATED_AT)
 			->timestamp()
@@ -183,7 +189,7 @@ class DAO_Queue extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, extension_id, extension_params_json, retry_max, retry_window_secs, created_at, updated_at ".
+		$sql = "SELECT id, name, extension_id, extension_params_json, retry_max, retry_window_secs, claim_window_secs, created_at, updated_at ".
 			"FROM queue ".
 			$where_sql.
 			$sort_sql.
@@ -289,6 +295,7 @@ class DAO_Queue extends Cerb_ORMHelper {
 			$object->name = $row['name'];
 			$object->retry_max = intval($row['retry_max']);
 			$object->retry_window_secs = intval($row['retry_window_secs']);
+			$object->claim_window_secs = intval($row['claim_window_secs']);
 			$object->created_at = intval($row['created_at']);
 			$object->updated_at = intval($row['updated_at']);
 			
@@ -355,6 +362,7 @@ class DAO_Queue extends Cerb_ORMHelper {
 			"queue.extension_id as %s, ".
 			"queue.retry_max as %s, ".
 			"queue.retry_window_secs as %s, ".
+			"queue.claim_window_secs as %s, ".
 			"queue.created_at as %s, ".
 			"queue.updated_at as %s ",
 			SearchFields_Queue::ID,
@@ -362,6 +370,7 @@ class DAO_Queue extends Cerb_ORMHelper {
 			SearchFields_Queue::EXTENSION_ID,
 			SearchFields_Queue::RETRY_MAX,
 			SearchFields_Queue::RETRY_WINDOW_SECS,
+			SearchFields_Queue::CLAIM_WINDOW_SECS,
 			SearchFields_Queue::CREATED_AT,
 			SearchFields_Queue::UPDATED_AT
 		);
@@ -417,6 +426,7 @@ class DAO_Queue extends Cerb_ORMHelper {
 };
 
 class SearchFields_Queue extends DevblocksSearchFields {
+	const CLAIM_WINDOW_SECS = 'q_claim_window_secs';
 	const CREATED_AT = 'q_created_at';
 	const EXTENSION_ID = 'q_extension_id';
 	const ID = 'q_id';
@@ -534,6 +544,7 @@ class SearchFields_Queue extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
+			self::CLAIM_WINDOW_SECS => new DevblocksSearchField(self::CLAIM_WINDOW_SECS, 'queue', 'claim_window_secs', 'Claim window', null, true),
 			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'queue', 'created_at', $translate->_('common.created'), null, true),
 			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'queue', 'extension_id', $translate->_('common.extension'), null, true),
 			self::ID => new DevblocksSearchField(self::ID, 'queue', 'id', $translate->_('common.id'), null, true),
@@ -567,6 +578,7 @@ class SearchFields_Queue extends DevblocksSearchFields {
 };
 
 class Model_Queue extends DevblocksRecordModel {
+	public int $claim_window_secs = 3600;
 	public $created_at = 0;
 	public $extension_id = '';
 	public $extension_params = [];
@@ -709,6 +721,12 @@ class View_Queue extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 				array(   // with parens, no `activity:` prefix (the autocomplete prepends the field key)
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => ['param_key' => SearchFields_Queue::VIRTUAL_ACTIVITY],
+				),
+			'claim.window' => // human time, e.g. claim.window:>1h or claim.window:0 (never reap)
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER_SECONDS,
+					'options' => array('param_key' => SearchFields_Queue::CLAIM_WINDOW_SECS),
+					'examples' => ['>1h', '<30m', '0'],
 				),
 			'created' =>
 				array(
@@ -864,6 +882,7 @@ class View_Queue extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 			
+			case SearchFields_Queue::CLAIM_WINDOW_SECS:
 			case SearchFields_Queue::ID:
 			case SearchFields_Queue::RETRY_MAX:
 			case SearchFields_Queue::RETRY_WINDOW_SECS:
@@ -961,6 +980,12 @@ class Context_Queue extends Extension_DevblocksContext implements IDevblocksCont
 			'value' => $model->retry_window_secs,
 		);
 
+		$properties['claim_window_secs'] = array(
+			'label' => 'Claim window (secs)',
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->claim_window_secs,
+		);
+
 		$properties['updated'] = array(
 			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
 			'type' => Model_CustomField::TYPE_DATE,
@@ -1056,6 +1081,7 @@ class Context_Queue extends Extension_DevblocksContext implements IDevblocksCont
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
+			'claim_window_secs' => $prefix.'Claim window (secs)',
 			'created_at' => $prefix.$translate->_('common.created'),
 			'extension_id' => $prefix.$translate->_('common.extension'),
 			'id' => $prefix.$translate->_('common.id'),
@@ -1069,6 +1095,7 @@ class Context_Queue extends Extension_DevblocksContext implements IDevblocksCont
 		// Token types
 		$token_types = array(
 			'_label' => 'context_url',
+			'claim_window_secs' => Model_CustomField::TYPE_NUMBER,
 			'created_at' => Model_CustomField::TYPE_DATE,
 			'extension_id' => Model_CustomField::TYPE_SINGLE_LINE,
 			'id' => Model_CustomField::TYPE_NUMBER,
@@ -1097,6 +1124,7 @@ class Context_Queue extends Extension_DevblocksContext implements IDevblocksCont
 		if($queue) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $queue->name;
+			$token_values['claim_window_secs'] = $queue->claim_window_secs;
 			$token_values['created_at'] = $queue->created_at;
 			$token_values['extension_id'] = $queue->extension_id;
 			$token_values['id'] = $queue->id;
@@ -1118,6 +1146,7 @@ class Context_Queue extends Extension_DevblocksContext implements IDevblocksCont
 	
 	function getKeyToDaoFieldMap() {
 		return [
+			'claim_window_secs' => DAO_Queue::CLAIM_WINDOW_SECS,
 			'created_at' => DAO_Queue::CREATED_AT,
 			'extension_id' => DAO_Queue::EXTENSION_ID,
 			'id' => DAO_Queue::ID,

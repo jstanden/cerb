@@ -457,7 +457,7 @@ class DAO_QueueJob extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::services()->database();
 
 		$sql = sprintf("SELECT job_id, count(*) AS hits FROM queue_message " .
-			"WHERE queue_id = %d AND status_id = 0 AND consumer_id IS NULL " .
+			"WHERE queue_id = %d AND status_id = 0 AND claim_id IS NULL " .
 			"GROUP BY job_id",
 			$queue->id,
 		);
