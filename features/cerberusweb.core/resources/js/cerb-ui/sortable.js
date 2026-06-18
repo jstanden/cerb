@@ -394,7 +394,10 @@ CerbUI.Sortable = class {
 			cy >= ownRect.top  && cy <= ownRect.bottom) {
 			return this;
 		}
-		for(const { instance, rect } of drag.connectedRects) {
+		// Use LIVE rects for connected containers — a rect cached at drag-start goes stale if a
+		// container scrolls mid-drag (e.g. a horizontally-scrolling row), mis-resolving the hovered one.
+		for(const { instance } of drag.connectedRects) {
+			const rect = instance.container.getBoundingClientRect();
 			if(cx >= rect.left && cx <= rect.right &&
 				cy >= rect.top  && cy <= rect.bottom) {
 				return instance;
