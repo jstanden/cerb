@@ -15,7 +15,8 @@
  *     searchPlaceholder: 'Search workers…',
  *     emptyIcon: 'file',                 // empty-state glyph (cerb-icons name)
  *     name: 'worker_id',                 // hidden input (single) / name[] (multiple) so it posts
- *     value: {id,label,image_url} | [ … ],
+ *     value: {id,label,image_url} | [ … ],  // PREFER server-rendered [data-context-id] seed markup over
+ *                                           // this JSON option — see _readMarkupValues (the <li> approach)
  *     onSelect: (item) => { ... },       // fired per add
  *   });
  *

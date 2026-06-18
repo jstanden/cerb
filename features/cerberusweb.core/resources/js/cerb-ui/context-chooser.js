@@ -19,7 +19,9 @@
  *     multiple: false,
  *     name: 'owner',
  *     defaultContext: 'cerberusweb.contexts.role',  // initial searchable type (does NOT reorder the menu)
- *     value: { context, id, label, image_url } | [ … ],
+ *     value: { context, id, label, image_url } | [ … ],  // PREFER server-rendered [data-context-id] seed
+ *                                                         // markup over this JSON (the <li> approach; see
+ *                                                         // RecordChooser._readMarkupValues + .Owner doc below)
  *     onSelect: (item) => {},
  *   });
  *

@@ -39,6 +39,36 @@
 			</div>
 		</div>
 
+		{* Default the value(s) — seed markup the chooser enhances *}
+		<div class="cerb-ui-header">
+			<div class="cerb-ui-header--label">Default the value(s) &mdash; you usually have a record id (or several) from the record. Server-render the resolved label/avatar into a <code>[data-context-id]</code> child and the chooser enhances it (then clears the markup). The fixed <code>context</code> is implied, so no <code>data-context</code> is needed. No id&rarr;label endpoint exists, so resolve label/avatar via <code>Extension_DevblocksContext::get($ctx)-&gt;getMeta($id)</code> (sanctioned in-template &mdash; that class is in Smarty's <code>registerClass</code> allow-list) plus the <code>c=avatars</code> URL</div>
+		</div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<div id="uiref-recordchooser-seed" class="cerb-ui-record-chooser">
+					<li data-context-id="{$active_worker->id}" data-label="{$active_worker->getName()}" data-image="{devblocks_url}c=avatars&context=worker&context_id={$active_worker->id}{/devblocks_url}?v={$smarty.const.APP_BUILD}"></li>
+				</div>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>&lt;!-- Seed markup: one [data-context-id] child per value (the old &lt;ul&gt;&lt;li&gt; idea). Server-render the
+     resolved label/avatar; the chooser reads these, builds the chip(s), then clears the markup.
+     The fixed `context` is implied — only id/label/image are needed. --&gt;
+&lt;div class="cerb-ui-record-chooser"&gt;
+	&lt;li data-context-id="5"
+	    data-label="Kim Li"
+	    data-image="…&amp;c=avatars&amp;context=worker&amp;context_id=5"&gt;&lt;/li&gt;
+&lt;/div&gt;</pre>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>new CerbUI.RecordChooser(el, { context:'worker', name:'worker_id' });  // no `value` → reads the seed markup
+// multiple: true reads several [data-context-id] children and stacks them as tiles</pre>
+			</div>
+		</div>
+
 		{* Multiple mode — a tag/token input *}
 		<div class="cerb-ui-header">
 			<div class="cerb-ui-header--label">Multiple mode &mdash; a tag/token input: add via autocomplete or the popup; tiles stack; click a tile for its card; the search button stays at right</div>
@@ -70,9 +100,18 @@
 	if(el && window.CerbUI && CerbUI.RecordChooser) {
 		new CerbUI.RecordChooser(el, {
 			context: 'worker',
-			searchPlaceholder: 'Search workers…', // the autocomplete input's placeholder
+			searchPlaceholder: 'Search workers...', // the autocomplete input's placeholder
 			emptyIcon: 'user',                    // empty-state glyph (default 'file'); a record type can pick its own
 			onSelect: function(item) { if(out) out.textContent = item.label; },
+		});
+	}
+
+	const elSeed = document.getElementById('uiref-recordchooser-seed');
+	if(elSeed && window.CerbUI && CerbUI.RecordChooser) {
+		new CerbUI.RecordChooser(elSeed, {
+			context: 'worker',
+			searchPlaceholder: 'Search workers...',
+			emptyIcon: 'user',
 		});
 	}
 

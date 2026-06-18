@@ -25,7 +25,11 @@
 	{/if}
 {/if}
 
-<div id="{$oc_uid}" class="cerb-ui-record-chooser"></div>
+<div id="{$oc_uid}" class="cerb-ui-record-chooser">
+{if $owner_set}
+	<li data-context="{$model->owner_context}" data-context-id="{$model->owner_context_id}" data-label="{$owner_label}" data-image="{$smarty.capture.owner_avatar}"></li>
+{/if}
+</div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}">
 $(function() {
@@ -36,8 +40,8 @@ $(function() {
 		meImageUrl: {$smarty.capture.me_avatar|json_encode nofilter},
 		allowApp: {if $active_worker && $active_worker->is_superuser}true{else}false{/if},
 		appImageUrl: {$smarty.capture.app_avatar|json_encode nofilter},
-		defaultContext: {$default_context|default:''|json_encode nofilter},
-		value: {if $owner_set}{ context: {$model->owner_context|json_encode nofilter}, id: {$model->owner_context_id|json_encode nofilter}, label: {$owner_label|json_encode nofilter}, image_url: {$smarty.capture.owner_avatar|json_encode nofilter} }{else}null{/if}
+		defaultContext: {$default_context|default:''|json_encode nofilter}
+		// Initial value is seeded as [data-context-id] markup inside the element (see above), not passed here.
 	});
 });
 </script>
