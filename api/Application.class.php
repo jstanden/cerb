@@ -3159,8 +3159,6 @@ class CerberusSettings {
 	const SESSION_LIFESPAN = 'session_lifespan';
 	const TIMEZONE = 'timezone';
 	const TIME_FORMAT = 'time_format';
-	const AVATAR_DEFAULT_STYLE_CONTACT = 'avatar_default_style_contact';
-	const AVATAR_DEFAULT_STYLE_WORKER = 'avatar_default_style_worker';
 	const HTML_NO_STRIP_MICROSOFT = 'html_no_strip_microsoft';
 	const MAIL_DEFAULT_FROM_ID = 'mail_default_from_id';
 	const MAIL_AUTOMATED_TEMPLATES = 'mail_automated_templates';
@@ -3194,8 +3192,6 @@ class CerberusSettingsDefaults {
 	const SESSION_LIFESPAN = 0;
 	const TIME_FORMAT = 'D, d M Y h:i a';
 	const TIMEZONE = '';
-	const AVATAR_DEFAULT_STYLE_CONTACT = 'monograms';
-	const AVATAR_DEFAULT_STYLE_WORKER = 'monograms';
 	const HTML_NO_STRIP_MICROSOFT = 0;
 	const MAIL_DEFAULT_FROM_ID = 0;
 	const MAIL_AUTOMATED_TEMPLATES = "{\"worker_invite\":{\"send_from_id\":\"0\",\"send_as\":\"Cerb\",\"subject\":\"Welcome to Cerb!\",\"body\":\"Welcome, {{worker_first_name}}!\\r\\n\\r\\nYour team has invited you to create a Cerb login at:\\r\\n{{url}}\\r\\n\"},\"worker_recover\":{\"send_from_id\":\"0\",\"send_as\":\"Cerb\",\"subject\":\"Your account recovery confirmation code\",\"body\":\"Hi, {{worker_first_name}}.\\r\\n\\r\\nWe recently received a request to reset your account's login information.\\r\\n\\r\\nHere's your account reset confirmation code: {{code}}\\r\\n\\r\\nIP: {{ip}}\\r\\n\\r\\nIf you didn't initiate this request, please forward this message to a system administrator.\"}}";

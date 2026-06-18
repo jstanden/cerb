@@ -76,9 +76,6 @@ class UmScAvatarController extends Extension_UmScController {
 	}
 	
 	private function _renderDefaultAvatar($context=null, $context_id=null) {
-		$avatar_default_style_contact = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::AVATAR_DEFAULT_STYLE_CONTACT, CerberusSettingsDefaults::AVATAR_DEFAULT_STYLE_CONTACT);
-		$avatar_default_style_worker = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::AVATAR_DEFAULT_STYLE_WORKER, CerberusSettingsDefaults::AVATAR_DEFAULT_STYLE_WORKER);
-		
 		switch($context) {
 			case CerberusContexts::CONTEXT_APPLICATION:
 				$contents = file_get_contents(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/app.png');
@@ -117,28 +114,14 @@ class UmScAvatarController extends Extension_UmScController {
 				break;
 				
 			case CerberusContexts::CONTEXT_CONTACT:
+				if($context_id && false != ($contact = DAO_Contact::get($context_id))) {
+					$this->_renderMonogram($contact->getInitials(), $context_id);
+					return;
+				}
+
+				// No such contact — fall back to a generic person image
 				$all_keys = array(1,2,3,4,5,6);
 				$n = $all_keys[$context_id % 6];
-				
-				if($context_id && false != ($contact = DAO_Contact::get($context_id))) {
-					if($contact->gender && $avatar_default_style_contact == 'silhouettes') {
-						switch($contact->gender) {
-							case 'M':
-								$male_keys = array(1,3,4);
-								$n = $male_keys[$context_id % 3];
-								break;
-								
-							case 'F':
-								$female_keys = array(2,5,6);
-								$n = $female_keys[$context_id % 3];
-								break;
-						}
-					} else {
-						$this->_renderMonogram($contact->getInitials(), $context_id);
-						return;
-					}
-				}
-				
 				$contents = file_get_contents(APP_PATH . sprintf('/features/cerberusweb.core/resources/images/avatars/person%d.png', $n));
 				break;
 				
@@ -149,28 +132,14 @@ class UmScAvatarController extends Extension_UmScController {
 				break;
 				
 			case CerberusContexts::CONTEXT_WORKER:
+				if($context_id && false != ($worker = DAO_Worker::get($context_id))) {
+					$this->_renderMonogram($worker->getInitials(), $context_id);
+					return;
+				}
+
+				// No such worker — fall back to a generic person image
 				$all_keys = array(1,2,3,4,5,6);
 				$n = $all_keys[$context_id % 6];
-				
-				if($context_id && false != ($worker = DAO_Worker::get($context_id))) {
-					if($worker->gender && $avatar_default_style_worker == 'silhouettes') {
-						switch($worker->gender) {
-							case 'M':
-								$male_keys = array(1,3,4);
-								$n = $male_keys[$context_id % 3];
-								break;
-								
-							case 'F':
-								$female_keys = array(2,5,6);
-								$n = $female_keys[$context_id % 3];
-								break;
-						}
-					} else {
-						$this->_renderMonogram($worker->getInitials(), $context_id);
-						return;
-					}
-				}
-				
 				$contents = file_get_contents(APP_PATH . sprintf('/features/cerberusweb.core/resources/images/avatars/person%d.png', $n));
 				break;
 				
