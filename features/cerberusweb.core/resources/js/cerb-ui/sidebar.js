@@ -230,7 +230,7 @@ CerbUI.Sidebar = class {
 	// Enhance one item <li> in place. Three shapes:
 	//   passthrough — the <li> already holds rich markup (a non-anchor element child, e.g. an authored tile): keep it.
 	//   tile        — variant:'tile' (or data-variant="tile"): render a cerb-ui-tile from data-icon/kind/name/color.
-	//   nav         — the default: [icon|pip] [label] [onRenderItem] [badge|right].
+	//   nav         — the default: [icon|pip|avatar] [label] [onRenderItem] [badge|right].
 	_enhanceItem(li) {
 		if(li._cerbSidebarItem) return;
 		li._cerbSidebarItem = true;
@@ -279,9 +279,20 @@ CerbUI.Sidebar = class {
 		// glyph rides on the slot itself; a pip nests INSIDE it so it keeps its own 9px circle (the slot is wider).
 		const iconName = li.getAttribute('data-icon');
 		const pip = li.getAttribute('data-pip');
+		const avatarLabel = li.getAttribute('data-avatar');
 		const slot = document.createElement('span');
 		slot.className = 'cerb-ui-sidebar--icon';
-		if(iconName) {
+		if(avatarLabel != null && window.CerbUI && CerbUI.Avatar) {
+			// A hash-locked monogram (initials, optional photo) — distinct per item, so the collapsed
+			// icon strip stays legible where a shared glyph would be ambiguous.
+			slot.classList.add('cerb-ui-sidebar--icon-avatar');
+			slot.appendChild(CerbUI.Avatar.create({
+				label: avatarLabel,
+				seed: li.getAttribute('data-avatar-seed') || avatarLabel,
+				imageUrl: li.getAttribute('data-avatar-image') || '',
+				size: 22,
+			}));
+		} else if(iconName) {
 			// ".raw.class" = literal class(es) for non-cerb icons; otherwise a cerb-icons glyph name.
 			const cls = iconName.charAt(0) === '.' ? iconName.slice(1).split('.').join(' ') : ('cerb-icons cerb-icon-' + iconName);
 			cls.split(' ').forEach(c => { if(c) slot.classList.add(c); });

@@ -53,7 +53,7 @@
 			<div class="cerb-uiref-code">
 				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
 				<pre data-cerb-uiref-source>&lt;!-- Slots are optional: --head (fixed; JS injects the toggle), --body (the ONLY scroll region), --foot (fixed). --&gt;
-&lt;!-- A bare &lt;aside&gt; with just sections is auto-wrapped into a --body. Item: data-icon|data-pip, label, data-badge|data-right. --&gt;
+&lt;!-- A bare &lt;aside&gt; with just sections is auto-wrapped into a --body. Item: data-icon|data-pip|data-avatar, label, data-badge|data-right. --&gt;
 &lt;aside class="cerb-ui-sidebar" id="nav"&gt;
 	&lt;div class="cerb-ui-sidebar--head"&gt;&lt;strong&gt;Acme&lt;/strong&gt;&lt;/div&gt;
 	&lt;div class="cerb-ui-sidebar--body"&gt;
@@ -77,7 +77,8 @@ const sb = new CerbUI.Sidebar(document.getElementById('nav'), {
 	collapsed:     false,    // start collapsed (icon-only strip)
 	fullHeight:    false,    // true = sticky 100vh (body scrolls within the viewport); else a normal in-flow block
 	storageKey:    null,     // e.g. 'cerbNav' — persist the collapsed state in localStorage
-	filter:        false,    // inject a search box in the head that winnows items by label text
+	filter:        false,    // search box in the head (shares its row with the collapse chevron); winnows items by label.
+	                         // ArrowDown from the box focuses the list — then Up/Down rove, Enter/Space select, Esc returns
 	filterPlaceholder: 'Filter…',
 	onToggle:      function(collapsed) {},          // after expand/collapse
 	onSelect:      function(li, sb, e) {            // item click; return truthy to handle it (skips the default action)
@@ -135,6 +136,50 @@ CerbUI.Sidebar.from(el);   // -> the instance for a rail element{/literal}</pre>
 	storageKey: 'cerbNavFilter',        // remember collapsed across reloads
 	// onFilterItem: (li, q) => li.dataset.tags.includes(q),  // custom matching instead of label text
 });{/literal}</pre>
+			</div>
+		</div>
+
+		{* Example: monogram avatars (data-avatar) + the filter row's inline chevron + keyboard nav *}
+		<div class="cerb-ui-header"><div class="cerb-ui-header--label">Monogram avatars (<code>data-avatar</code>) &mdash; each item paints a hash-locked <code>CerbUI.Avatar</code> in the icon slot instead of a shared glyph, so the <strong>collapsed strip stays legible</strong> (T&middot;M&middot;W&middot;O&hellip; not one repeated icon). The collapse chevron sits inline at the right of the filter; press <kbd>&darr;</kbd> in the filter to focus the list, then <kbd>&uarr;</kbd>/<kbd>&darr;</kbd> to move, <kbd>Enter</kbd> to pick, <kbd>Esc</kbd> to return. Add <code>data-avatar-image</code> for a photo that swaps in</div></div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<div class="cerb-ui-sidebar-layout" style="height:360px;border:1px solid var(--cerb-color-background-contrast-220);border-radius:8px;overflow:hidden;">
+					<aside class="cerb-ui-sidebar" id="uiref-sidebar-avatars" style="--cerb-ui-sidebar-width:230px;">
+						<div class="cerb-ui-sidebar--body">
+							<div class="cerb-ui-sidebar--section">
+								<div class="cerb-ui-sidebar--label">Record types</div>
+								<ul>
+									<li data-id="ticket" data-avatar="Tickets" data-avatar-seed="cerb.contexts.ticket">Tickets</li>
+									<li data-id="message" data-avatar="Messages" data-avatar-seed="cerb.contexts.message">Messages</li>
+									<li data-id="worker" data-avatar="Workers" data-avatar-seed="cerb.contexts.worker">Workers</li>
+									<li data-id="org" data-avatar="Organizations" data-avatar-seed="cerb.contexts.org">Organizations</li>
+									<li data-id="contact" data-avatar="Contacts" data-avatar-seed="cerb.contexts.contact">Contacts</li>
+									<li data-id="task" data-avatar="Tasks" data-avatar-seed="cerb.contexts.task">Tasks</li>
+									<li data-id="calendar" data-avatar="Calendar" data-avatar-seed="cerb.contexts.calendar">Calendar</li>
+								</ul>
+							</div>
+						</div>
+					</aside>
+					<div class="cerb-ui-sidebar-layout--content" style="padding:1em;">
+						<p style="color:var(--cerb-color-background-contrast-150);">Collapse the rail with the chevron beside the filter to see the monogram strip. Click the filter, then press <span class="cerb-icons cerb-icon-chevron-down"></span> to drive the list from the keyboard.</p>
+					</div>
+				</div>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>&lt;!-- data-avatar = the monogram label; data-avatar-seed = the stable color key (optional); data-avatar-image = a photo URL (optional, swaps in). --&gt;
+&lt;ul&gt;
+	&lt;li data-id="ticket" data-avatar="Tickets" data-avatar-seed="cerb.contexts.ticket"&gt;Tickets&lt;/li&gt;
+	&lt;li data-id="worker" data-avatar="Workers" data-avatar-seed="cerb.contexts.worker"&gt;Workers&lt;/li&gt;
+&lt;/ul&gt;</pre>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>{literal}// filter:true puts the search box + collapse chevron on one row, and enables keyboard nav:
+// ArrowDown from the box focuses the first item; Up/Down rove; Enter/Space select; Esc returns.
+new CerbUI.Sidebar(el, { filter: true });{/literal}</pre>
 			</div>
 		</div>
 
@@ -258,6 +303,14 @@ new CerbUI.Droppable(document.getElementById('canvas'), {
 		const el = document.getElementById('uiref-sidebar-filter');
 		if(el && window.CerbUI && CerbUI.Sidebar) {
 			new CerbUI.Sidebar(el, { side: 'right', filter: true, storageKey: 'uirefSidebarFilter' });
+		}
+	})();
+
+	// Sidebar: monogram avatars (data-avatar) + filter row (inline chevron) + keyboard nav
+	(function() {
+		const el = document.getElementById('uiref-sidebar-avatars');
+		if(el && window.CerbUI && CerbUI.Sidebar) {
+			new CerbUI.Sidebar(el, { filter: true, storageKey: 'uirefSidebarAvatars' });
 		}
 	})();
 
