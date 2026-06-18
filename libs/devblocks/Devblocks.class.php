@@ -2118,12 +2118,13 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * 
 	 * @param string $string
 	 * @param integer $length
+	 * @param string $empty
 	 * @return string
 	 * @test DevblocksPlatformTest
 	 */
-	static function strSecsToString($string, $length=0) {
+	static function strSecsToString($string, $length=0, string $empty='0 secs'): string {
 		if(empty($string) || !is_numeric($string))
-			return '0 secs';
+			return $empty;
 		
 		$blocks = [
 			'year' => 52*7*24*60*60,

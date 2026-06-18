@@ -377,8 +377,8 @@ class _DevblocksTemplateManager {
 		return DevblocksPlatform::strPrettyTime($string, $is_delta);
 	}
 		
-	static function modifier_devblocks_prettysecs($string, $length=0) {
-		return DevblocksPlatform::strSecsToString($string, $length);
+	static function modifier_devblocks_prettysecs($string, $length=0, $empty='0 secs') {
+		return DevblocksPlatform::strSecsToString($string, $length, $empty);
 	}
 	
 	static function modifier_devblocks_prettyjson($string) {
