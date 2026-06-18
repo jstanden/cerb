@@ -44,9 +44,7 @@
 			<div>
 				<a class="menu"><span class="cerb-icons cerb-icon-collection"></span> {'common.records'|devblocks_translate|capitalize} <span class="cerb-icons cerb-icon-chevron-down"></span></a>
 				<ul hidden>
-					<li><a href="{devblocks_url}c=config&a=avatars{/devblocks_url}">Avatars</a></li>
-					<li><a href="{devblocks_url}c=config&a=fields{/devblocks_url}">{'common.custom_fields'|devblocks_translate|capitalize}</a></li>
-					<li><a href="{devblocks_url}c=config&a=snippets{/devblocks_url}">{'common.snippets'|devblocks_translate|capitalize}</a></li>
+					<li><a href="{devblocks_url}c=config&a=records{/devblocks_url}">Overview</a></li>
 
 					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.records')}
 					{if !empty($exts)}<li><hr></li>{/if}
