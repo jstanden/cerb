@@ -114,6 +114,7 @@
 						<li data-target="datepicker" data-icon="calendar">Datepicker</li>
 						<li data-target="colorpicker" data-icon="color-palette">ColorPicker</li>
 						<li data-target="priority-picker" data-icon="collection">PriorityPicker</li>
+						<li data-target="selectmenu" data-icon="chevron-down">SelectMenu</li>
 						<li data-target="record-chooser" data-icon="search">RecordChooser</li>
 						<li data-target="context-chooser" data-icon="search">ContextChooser</li>
 						<li data-target="searchquery" data-icon="search">SearchQuery</li>
@@ -126,7 +127,6 @@
 						<li data-target="menu" data-icon="menu-hamburger">Menu</li>
 						<li data-target="toolbar" data-icon="toolbox">Toolbar</li>
 						<li data-target="sidebar" data-icon="window-left">Sidebar</li>
-						<li data-target="selectmenu" data-icon="chevron-down">SelectMenu</li>
 						<li data-target="tabs" data-icon="folder-open">Tabs</li>
 						<li data-target="accordion" data-icon="chevron-right">Accordion</li>
 					</ul>
@@ -189,6 +189,7 @@
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/datepicker.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/colorpicker.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/priority-picker.tpl"}
+			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/selectmenu.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/record-chooser.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/context-chooser.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/searchquery.tpl"}
@@ -198,7 +199,6 @@
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/menu.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/toolbar.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/sidebar.tpl"}
-			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/selectmenu.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/tabs.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/accordion.tpl"}
 
