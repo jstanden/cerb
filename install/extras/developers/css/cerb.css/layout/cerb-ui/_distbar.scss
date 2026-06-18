@@ -14,3 +14,10 @@
 		transition: width 0.3s ease;
 	}
 }
+
+// Compact variant for inline use in worklist rows.
+.cerb-ui-distbar--mini {
+	height: 9px;
+	border-radius: 5px;
+	gap: 1px;
+}
