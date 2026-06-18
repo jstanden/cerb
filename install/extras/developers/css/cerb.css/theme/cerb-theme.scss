@@ -108,6 +108,11 @@ $timestamp: 2026053101;
   --cerb-color-action-secondary: rgb(230,230,230);
   --cerb-color-action-secondary-hover: rgb(210,210,210);
   --cerb-color-action-secondary-text: rgb(0,0,0);
+
+  // Generic accent — a per-instance override hook for cerb-ui components (panel--accent border, toolbar
+  // badge fill, …). Defined here so it always resolves to a sane default (the primary action color) and
+  // components can reference var(--cerb-ui-accent) without an inline fallback. Override on any element.
+  --cerb-ui-accent: var(--cerb-color-action-primary);
   
   --cerb-color-alert-background: rgb(253,226,108);
   
