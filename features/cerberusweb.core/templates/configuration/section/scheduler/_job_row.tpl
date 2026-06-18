@@ -12,7 +12,7 @@
 {$nextrun = $lastrun + $interval_seconds}
 
 <div class="cerb-ui-panel cerb-ui-panel--spaced cerb-sched-job cerb-u-flex cerb-u-items-center{if !$enabled} cerb-sched-off{/if}" data-sched-job data-job-id="{$job->id}"
-	data-enabled="{if $enabled}1{else}0{/if}" data-concurrent="{if $is_concurrent}1{else}0{/if}" data-lastrun="{$lastrun}" data-nextfire="{$nextrun}" data-interval="{$interval_seconds}" data-name="{$job->manifest->name|escape}">
+	data-enabled="{if $enabled}1{else}0{/if}" data-concurrent="{if $is_concurrent}1{else}0{/if}" data-lastrun="{$lastrun}" data-nextfire="{$nextrun}" data-interval="{$interval_seconds}" data-name="{$job->manifest->name}">
 	<div class="cerb-sched-job--info cerb-u-flex cerb-u-items-center">
 		<span class="cerb-ui-pip{if $enabled} cerb-ui-pip--live{/if}"></span>
 		<div style="min-width:0;">

@@ -45,7 +45,7 @@
 				<option value="custom" {if $saved_col === 'custom'}selected="selected"{/if}>custom value:</option>
 			</select>
 			<div class="custom" style="{if $saved_col === 'custom'}display:block;{else}display:none;{/if}">
-				<textarea cols="45" rows="2" style="width:100%;height:3.5em;" name="column_custom[]">{$saved_mapping[$token].column_custom|default:''|escape}</textarea>
+				<textarea cols="45" rows="2" style="width:100%;height:3.5em;" name="column_custom[]">{$saved_mapping[$token].column_custom|default:''}</textarea>
 			</div>
 			<label for="columns[]" style="display:none;"></label>
 		</td>

@@ -5,7 +5,7 @@
         {foreach $logs as $log}
         <li class="cerb-job-log--entry cerb-job-log--entry--level-{$log->level}">
             <span class="cerb-job-log--time"><abbr title="{$log->created_at|devblocks_date}">{$log->created_at|devblocks_prettytime}</abbr></span>
-            <span class="cerb-job-log--message">{$log->message|escape}</span>
+            <span class="cerb-job-log--message">{$log->message}</span>
         </li>
         {/foreach}
     </ul>
