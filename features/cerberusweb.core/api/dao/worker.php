@@ -3205,7 +3205,9 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		$results = DAO_Worker::autocomplete($term, 'models', $query);
 		$list = [];
 
-		if(stristr('unassigned',$term) || stristr('nobody',$term) || stristr('empty',$term) || stristr('no worker',$term)) {
+		// Only offer the "(no worker)" clear option when the term actually matches it — guard the
+		// empty term (PHP 8's stristr() with an empty needle returns the haystack, i.e. truthy).
+		if(!empty($term) && (stristr('unassigned',$term) || stristr('nobody',$term) || stristr('empty',$term) || stristr('no worker',$term))) {
 			$empty = new stdClass();
 			$empty->label = '(no worker)';
 			$empty->value = '0';
