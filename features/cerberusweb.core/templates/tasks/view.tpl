@@ -145,6 +145,13 @@
 					<a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$owner->id}">{$owner->getName()}</a>
 				{/if}
 			</td>
+			{elseif $column=="t_project_id"}
+			<td data-column="{$column}">
+				{if $result.t_project_id}{$project = $projects.{$result.t_project_id}}{else}{$project = null}{/if}
+				{if $project instanceof Model_TaskProject}
+					<a class="cerb-peek-trigger no-underline" data-context="{$project_context}" data-context-id="{$project->id}">{$project->name}</a>
+				{/if}
+			</td>
 			{else}
 				<td data-column="{$column}">{$result.$column}</td>
 			{/if}

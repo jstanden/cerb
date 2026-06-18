@@ -70,6 +70,18 @@
 				</td>
 			</tr>
 			
+			{* Project *}
+			<tr>
+				<td width="1%" nowrap="nowrap" valign="middle">{'common.project'|devblocks_translate|capitalize}: </td>
+				<td width="99%" valign="top">
+					<div class="task-project-chooser">
+					{if $task_project}
+						<li data-context="cerb.contexts.task.project" data-context-id="{$task->project_id}" data-label="{$task_project->name}"></li>
+					{/if}
+					</div>
+				</td>
+			</tr>
+
 			{* Owner *}
 			<tr>
 				<td width="1%" nowrap="nowrap" valign="middle">{'common.owner'|devblocks_translate|capitalize}: </td>
@@ -163,6 +175,17 @@ $(function() {
 
 		// Abstract choosers
 		$popup.find('button.chooser-abstract').cerbChooserTrigger();
+
+		// Task Project — CerbUI.RecordChooser (posts project_id); seeded with the task's current project.
+		const $projEl = $popup.find('.task-project-chooser');
+		if($projEl.length && window.CerbUI && CerbUI.RecordChooser) {
+			new CerbUI.RecordChooser($projEl[0], {
+				context: 'task_project',
+				name: 'project_id',
+				searchPlaceholder: 'Search task projects...',
+				emptyIcon: 'collection',
+			});
+		}
 		
 		// Abstract peeks
 		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();

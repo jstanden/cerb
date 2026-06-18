@@ -663,6 +663,14 @@
 			<class name="View_ServiceToken" />
 		</file>
 
+		<file path="api/dao/task_project.php">
+			<class name="Context_TaskProject" />
+			<class name="DAO_TaskProject" />
+			<class name="Model_TaskProject" />
+			<class name="SearchFields_TaskProject" />
+			<class name="View_TaskProject" />
+		</file>
+
 		<file path="api/dao/reminder.php">
 			<class name="Context_Reminder" />
 			<class name="DAO_Reminder" />
@@ -3132,6 +3140,49 @@
 						<data key="merge" />
 						<data key="update" />
 						<data key="update.bulk" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<extension point="devblocks.context">
+			<id>cerb.contexts.task.project</id>
+			<name>Task Project</name>
+			<class>
+				<file>api/dao/task_project.php</file>
+				<name>Context_TaskProject</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="task project" value="singular" />
+						<data key="task projects" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="task_project" />
+				<param key="dao_class" value="DAO_TaskProject" />
+				<param key="view_class" value="View_TaskProject" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="comments" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="records" />
+						<data key="search" />
+						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="watchers" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
 					</value>
 				</param>
 			</params>
@@ -6575,6 +6626,19 @@
 				</params>
 			</extension>
 			
+			<extension point="cerberusweb.ui.page.section">
+				<id>cerb.page.profiles.task_project</id>
+				<name>Project Section</name>
+				<class>
+					<file>api/profiles/task_project.php</file>
+					<name>PageSection_ProfilesTaskProject</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="task_project" />
+				</params>
+			</extension>
+
 			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.profiles.ticket</id>
 				<name>Ticket Section</name>

@@ -176,6 +176,10 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 						// Owner
 						$owner_id = DevblocksPlatform::importGPC($_POST['owner_id'] ?? null, 'integer',0);
 						$fields[DAO_Task::OWNER_ID] = $owner_id;
+
+						// Project
+						$project_id = DevblocksPlatform::importGPC($_POST['project_id'] ?? null, 'integer',0);
+						$fields[DAO_Task::PROJECT_ID] = $project_id;
 				
 						// Save
 						if(!empty($id)) {

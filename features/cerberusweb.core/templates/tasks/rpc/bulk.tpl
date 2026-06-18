@@ -92,6 +92,21 @@
 		{/if}
 
 		<tr>
+			<td width="0%" nowrap="nowrap" align="left" valign="middle">
+				<label>
+					<input type="checkbox" name="actions[]" value="project">
+					{'common.project'|devblocks_translate|capitalize}:
+				</label>
+			</td>
+			<td width="100%">
+				<div style="display:none;">
+					<button type="button" class="chooser-abstract" data-field-name="params[project]" data-context="cerb.contexts.task.project" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="cerb-icons cerb-icon-search"></span></button>
+					<ul class="bubbles chooser-container"></ul>
+				</div>
+			</td>
+		</tr>
+
+		<tr>
 			<td width="0%" nowrap="nowrap" align="left" valign="top">
 				<label>
 					<input type="checkbox" name="actions[]" value="watchers_add">

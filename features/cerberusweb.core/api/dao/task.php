@@ -21,7 +21,9 @@ class DAO_Task extends Cerb_ORMHelper {
 	const DUE_DATE = 'due_date';
 	const ID = 'id';
 	const IMPORTANCE = 'importance';
+	const IS_ACTIVE = 'is_active';
 	const OWNER_ID = 'owner_id';
+	const PROJECT_ID = 'project_id';
 	const REOPEN_AT = 'reopen_at';
 	const STATUS_ID = 'status_id';
 	const TITLE = 'title';
@@ -100,7 +102,16 @@ class DAO_Task extends Cerb_ORMHelper {
 			->string()
 			->setMaxLength(65535)
 			;
-			
+		$validation
+			->addField(self::IS_ACTIVE)
+			->bit()
+			;
+		$validation
+			->addField(self::PROJECT_ID)
+			->id()
+			->addValidator($validation->validators()->contextId(Context_TaskProject::ID, true))
+			;
+
 		return $validation->getFields();
 	}
 	
@@ -246,6 +257,10 @@ class DAO_Task extends Cerb_ORMHelper {
 					@$owner_id = intval($v);
 					$change_fields[DAO_Task::OWNER_ID] = $owner_id;
 					break;
+				case 'project':
+					@$project_id = intval($v);
+					$change_fields[DAO_Task::PROJECT_ID] = $project_id;
+					break;
 				case 'reopen':
 					@$date = strtotime($v);
 					$change_fields[DAO_Task::REOPEN_AT] = intval($date);
@@ -360,7 +375,7 @@ class DAO_Task extends Cerb_ORMHelper {
 	static function getWhere($where=null) {
 		$db = DevblocksPlatform::services()->database();
 		
-		$sql = "SELECT id, title, owner_id, status_id, importance, due_date, reopen_at, created_at, updated_date, completed_date ".
+		$sql = "SELECT id, title, owner_id, status_id, importance, due_date, reopen_at, created_at, updated_date, completed_date, project_id, is_active ".
 			"FROM task ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
 			"ORDER BY id asc";
@@ -371,7 +386,8 @@ class DAO_Task extends Cerb_ORMHelper {
 	
 	/**
 	 * @param integer $id
-	 * @return Model_Task	 */
+	 * @return Model_Task
+	 */
 	static function get($id) {
 		if(empty($id))
 			return null;
@@ -409,6 +425,8 @@ class DAO_Task extends Cerb_ORMHelper {
 			$object->reopen_at = intval($row['reopen_at']);
 			$object->status_id = intval($row['status_id']);
 			$object->completed_date = intval($row['completed_date']);
+			$object->project_id = intval($row['project_id']);
+			$object->is_active = intval($row['is_active']);
 			$objects[$object->id] = $object;
 		}
 		
@@ -565,6 +583,7 @@ class DAO_Task extends Cerb_ORMHelper {
 				$result[SearchFields_Task::CREATED_AT] = $model->created_at;
 				$result[SearchFields_Task::UPDATED_DATE] = $model->updated_date;
 				$result[SearchFields_Task::OWNER_ID] = $model->owner_id;
+				$result[SearchFields_Task::PROJECT_ID] = $model->project_id;
 				$result[SearchFields_Task::IMPORTANCE] = $model->importance;
 				$result[SearchFields_Task::DUE_DATE] = $model->due_date;
 				$result[SearchFields_Task::REOPEN_AT] = $model->reopen_at;
@@ -592,8 +611,11 @@ class SearchFields_Task extends DevblocksSearchFields {
 	const STATUS_ID = 't_status_id';
 	const COMPLETED_DATE = 't_completed_date';
 	const TITLE = 't_title';
-	
+	const IS_ACTIVE = 't_is_active';
+	const PROJECT_ID = 't_project_id';
+
 	const VIRTUAL_OWNER_SEARCH = '*_owner_search';
+	const VIRTUAL_PROJECT_SEARCH = '*_project_search';
 
 	static private $_fields = null;
 	
@@ -619,7 +641,10 @@ class SearchFields_Task extends DevblocksSearchFields {
 		switch($param->field) {
 			case self::VIRTUAL_OWNER_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_WORKER, 'task.owner_id');
-				
+
+			case self::VIRTUAL_PROJECT_SEARCH:
+				return self::_getWhereSQLFromVirtualSearchField($param, Context_TaskProject::ID, 'task.project_id');
+
 			default:
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
@@ -637,8 +662,11 @@ class SearchFields_Task extends DevblocksSearchFields {
 			case 'owner':
 				$key = 'owner.id';
 				break;
+			case 'project':
+				$key = 'project.id';
+				break;
 		}
-		
+
 		return parent::getFieldForSubtotalKey($key, $context, $query_fields, $search_fields, $primary_key);
 	}
 	
@@ -657,7 +685,15 @@ class SearchFields_Task extends DevblocksSearchFields {
 					$label_map[0] = DevblocksPlatform::translate('common.nobody');
 				return $label_map;
 				break;
-				
+
+			case SearchFields_Task::PROJECT_ID:
+				$models = DAO_TaskProject::getIds($values);
+				$label_map = array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				if(in_array(0, $values))
+					$label_map[0] = DevblocksPlatform::translate('common.none');
+				return $label_map;
+				break;
+
 			case SearchFields_Task::STATUS_ID:
 				$label_map = [
 					0 => DevblocksPlatform::translate('status.open'),
@@ -698,8 +734,11 @@ class SearchFields_Task extends DevblocksSearchFields {
 			self::DUE_DATE => new DevblocksSearchField(self::DUE_DATE, 'task', 'due_date', $translate->_('task.due_date'), Model_CustomField::TYPE_DATE, true),
 			self::REOPEN_AT => new DevblocksSearchField(self::REOPEN_AT, 'task', 'reopen_at', $translate->_('common.reopen_at'), Model_CustomField::TYPE_DATE, true),
 			self::COMPLETED_DATE => new DevblocksSearchField(self::COMPLETED_DATE, 'task', 'completed_date', $translate->_('task.completed_date'), Model_CustomField::TYPE_DATE, true),
-			
+			self::IS_ACTIVE => new DevblocksSearchField(self::IS_ACTIVE, 'task', 'is_active', $translate->_('task.is_active'), Model_CustomField::TYPE_CHECKBOX, true),
+			self::PROJECT_ID => new DevblocksSearchField(self::PROJECT_ID, 'task', 'project_id', $translate->_('common.project'), null, true),
+
 			self::VIRTUAL_OWNER_SEARCH => new DevblocksSearchField(self::VIRTUAL_OWNER_SEARCH, '*', 'owner_search', null, null, false),
+			self::VIRTUAL_PROJECT_SEARCH => new DevblocksSearchField(self::VIRTUAL_PROJECT_SEARCH, '*', 'project_search', null, null, false),
 		];
 		
 		// Virtual fields
@@ -731,7 +770,9 @@ class Model_Task extends DevblocksRecordModel {
 	public $status_id = 0;
 	public $completed_date;
 	public $updated_date;
-	
+	public $project_id = 0;
+	public $is_active = 0;
+
 	function getStatusText() {
 		$labels = [
 			0 => DevblocksPlatform::translateCapitalized('status.open'),
@@ -740,6 +781,12 @@ class Model_Task extends DevblocksRecordModel {
 		];
 		
 		return @$labels[$this->status_id];
+	}
+	
+	function getProject() : ?Model_TaskProject {
+		if($this->project_id)
+			return DAO_TaskProject::get($this->project_id);
+		return null;
 	}
 	
 	function getOwner() {
@@ -762,15 +809,17 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 		$this->renderSortAsc = true;
 
 		$this->view_columns = [
-			SearchFields_Task::UPDATED_DATE,
-			SearchFields_Task::DUE_DATE,
+			SearchFields_Task::PROJECT_ID,
 			SearchFields_Task::IMPORTANCE,
+			SearchFields_Task::DUE_DATE,
 			SearchFields_Task::OWNER_ID,
+			SearchFields_Task::UPDATED_DATE,
 		];
-		
+
 		$this->addColumnsHidden([
 			SearchFields_Task::ID,
 			SearchFields_Task::VIRTUAL_OWNER_SEARCH,
+			SearchFields_Task::VIRTUAL_PROJECT_SEARCH,
 		]);
 
 		$this->addParamsDefault(array(
@@ -823,7 +872,9 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 			
 			switch($field_key) {
 				case SearchFields_Task::IMPORTANCE:
+				case SearchFields_Task::IS_ACTIVE:
 				case SearchFields_Task::OWNER_ID:
+				case SearchFields_Task::PROJECT_ID:
 				case SearchFields_Task::STATUS_ID:
 					$pass = true;
 					break;
@@ -857,7 +908,18 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 			case SearchFields_Task::IMPORTANCE:
 				$counts = $this->_getSubtotalCountForNumberColumn($context, $column);
 				break;
-				
+
+			case SearchFields_Task::IS_ACTIVE:
+				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
+				break;
+
+			case SearchFields_Task::PROJECT_ID:
+				$label_map = function(array $values) use ($column) {
+					return SearchFields_Task::getLabelsForKeyValues($column, $values);
+				};
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, 'in');
+				break;
+
 			case SearchFields_Task::OWNER_ID:
 				$label_map = function(array $values) use ($column) {
 					return SearchFields_Task::getLabelsForKeyValues($column, $values);
@@ -924,12 +986,36 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_TASK, 'q' => ''],
 					]
 				),
-			'importance' => 
+			'importance' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_Task::IMPORTANCE),
 				),
-			'owner' => 
+			'isActive' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_BOOL,
+					'options' => array('param_key' => SearchFields_Task::IS_ACTIVE),
+				),
+			'project' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Task::VIRTUAL_PROJECT_SEARCH),
+					'examples' => [
+						['type' => 'search', 'context' => Context_TaskProject::ID, 'q' => ''],
+					]
+				),
+			'project.id' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_CONTEXT,
+					'type_options' => [
+						'context' => Context_TaskProject::ID,
+					],
+					'options' => array('param_key' => SearchFields_Task::PROJECT_ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => Context_TaskProject::ID, 'q' => ''],
+					]
+				),
+			'owner' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Task::VIRTUAL_OWNER_SEARCH),
@@ -1009,7 +1095,10 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 
 			case 'owner':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Task::VIRTUAL_OWNER_SEARCH);
-				
+
+			case 'project':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Task::VIRTUAL_PROJECT_SEARCH);
+
 			case 'isCompleted':
 				return DevblocksSearchCriteria::getBooleanParamFromTokens($field, $tokens);
 				
@@ -1068,6 +1157,10 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 
+		$projects = DAO_TaskProject::getAll();
+		$tpl->assign('projects', $projects);
+		$tpl->assign('project_context', Context_TaskProject::ID);
+
 		$tpl->assign('timestamp_now', time());
 
 		// Custom fields
@@ -1096,7 +1189,14 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 					DevblocksPlatform::strEscapeHtml($param->value)
 				);
 				break;
-			
+
+			case SearchFields_Task::VIRTUAL_PROJECT_SEARCH:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.project')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
+				break;
+
 			default:
 				$this->_renderVirtualCriteria($param);
 				break;
@@ -1116,7 +1216,12 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 			case SearchFields_Task::OWNER_ID:
 				$this->_renderCriteriaParamWorker($param);
 				break;
-				
+
+			case SearchFields_Task::PROJECT_ID:
+				$label_map = SearchFields_Task::getLabelsForKeyValues($field, $values);
+				parent::_renderCriteriaParamString($param, $label_map);
+				break;
+
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -1157,7 +1262,17 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 				$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
 				break;
-				
+
+			case SearchFields_Task::PROJECT_ID:
+				$project_ids = DevblocksPlatform::importGPC($_POST['value'] ?? null, 'array',[]);
+				$criteria = new DevblocksSearchCriteria($field,$oper,$project_ids);
+				break;
+
+			case SearchFields_Task::IS_ACTIVE:
+				$bool = DevblocksPlatform::importGPC($_POST['bool'] ?? null, 'integer',1);
+				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
+				break;
+
 			default:
 				// Custom Fields
 				if(str_starts_with($field, 'cf_')) {
@@ -1181,17 +1296,49 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 	const URI = 'task';
 	
 	static function isReadableByActor($models, $actor) {
-		// Everyone can read
-		return CerberusContexts::allowEverything($models);
+		// Project-less tasks stay world-readable; tasks in a project inherit its ACL
+		return self::_deriveAclFromProject($models, $actor, false);
 	}
-	
+
 	static function isWriteableByActor($models, $actor) {
-		// Everyone can modify
-		return CerberusContexts::allowEverything($models);
+		// Project-less tasks stay world-writeable; tasks in a project inherit its ACL
+		return self::_deriveAclFromProject($models, $actor, true);
 	}
-	
+
 	static function isDeletableByActor($models, $actor) {
 		return self::isWriteableByActor($models, $actor);
+	}
+
+	// A task with no project behaves as before (world read/write). A task that belongs
+	// to a Task Project defers to that project's delegate-owner ACL, so project ownership
+	// (worker = private; group/role = shared) governs the board's tasks.
+	private static function _deriveAclFromProject($models, $actor, $writeable) {
+		if(!($dicts = CerberusContexts::polymorphModelsToDictionaries($models, CerberusContexts::CONTEXT_TASK)))
+			return false;
+
+		// Resolve each distinct project's readability/writeability once
+		$project_ids = [];
+		foreach($dicts as $dict)
+			if(($pid = intval($dict->project_id ?? 0)))
+				$project_ids[$pid] = true;
+
+		$project_acl = [];
+		if($project_ids) {
+			$projects = DAO_TaskProject::getIds(array_keys($project_ids));
+			$project_acl = $writeable
+				? Context_TaskProject::isWriteableByActor($projects, $actor)
+				: Context_TaskProject::isReadableByActor($projects, $actor);
+			if(!is_array($project_acl))
+				$project_acl = [];
+		}
+
+		$results = [];
+		foreach($dicts as $id => $dict) {
+			$pid = intval($dict->project_id ?? 0);
+			$results[$id] = $pid ? ($project_acl[$pid] ?? false) : true;
+		}
+
+		return is_array($models) ? $results : current($results);
 	}
 	
 	function profileGetUrl($context_id) {
@@ -1259,7 +1406,16 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 				'context' => CerberusContexts::CONTEXT_WORKER,
 			]
 		);
-		
+
+		$properties['project_id'] = array(
+			'label' => mb_ucfirst($translate->_('common.project')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->project_id,
+			'params' => [
+				'context' => Context_TaskProject::ID,
+			]
+		);
+
 		$properties['importance'] = array(
 			'label' => mb_ucfirst($translate->_('common.importance')),
 			'type' => 'slider',
@@ -1389,6 +1545,8 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 			'title' => $prefix.$translate->_('common.title'),
 			'updated' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
+			'is_active' => $prefix.$translate->_('task.is_active'),
+			'project__label' => $prefix.mb_ucfirst($translate->_('common.project')),
 		);
 
 		// Token types
@@ -1404,6 +1562,8 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 			'title' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,
+			'is_active' => Model_CustomField::TYPE_CHECKBOX,
+			'project__label' => 'context_url',
 		);
 		
 		// Custom field/fieldset token labels
@@ -1436,6 +1596,9 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 			$token_values['owner_id'] = $task->owner_id;
 			$token_values['title'] = $task->title;
 			$token_values['updated'] = $task->updated_date;
+			$token_values['is_active'] = $task->is_active;
+			$token_values['project__context'] = Context_TaskProject::ID;
+			$token_values['project_id'] = $task->project_id;
 			
 			// Status
 			switch($task->status_id) {
@@ -1493,8 +1656,10 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 			'due' => DAO_Task::DUE_DATE,
 			'id' => DAO_Task::ID,
 			'importance' => DAO_Task::IMPORTANCE,
+			'is_active' => DAO_Task::IS_ACTIVE,
 			'links' => '_links',
 			'owner_id' => DAO_Task::OWNER_ID,
+			'project_id' => DAO_Task::PROJECT_ID,
 			'reopen' => DAO_Task::REOPEN_AT,
 			'status_id' => DAO_Task::STATUS_ID,
 			'title' => DAO_Task::TITLE,
@@ -1518,7 +1683,9 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		$keys['completed']['notes'] = "The date/time this task was completed";
 		$keys['due']['notes'] = "The date/time of this task's deadline";
 		$keys['importance']['notes'] = "A number from `0` (least) to `100` (most)";
+		$keys['is_active']['notes'] = "Is this open task actively in progress (`1`) rather than merely todo (`0`)";
 		$keys['owner_id']['notes'] = "The ID of the [worker](/docs/records/types/worker/) responsible for this task";
+		$keys['project_id']['notes'] = "The ID of the owning [task project](/docs/records/types/task_project/) (`0` for none)";
 		$keys['reopen']['notes'] = "If the status is `waiting`, the date/time to automatically change the status back to `open`";
 		$keys['status_id']['notes'] = "`0` (open), `1` (closed), `2` (waiting); alternative to `status`";
 		$keys['title']['notes'] = "The name of this task";
@@ -1643,7 +1810,7 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		$task = null;
 		
 		if($context_id) {
-			if(false == ($task = DAO_Task::get($context_id)))
+			if(!($task = DAO_Task::get($context_id)))
 				DevblocksPlatform::dieWithHttpError(null, 404);
 		} else {
 			$task = new Model_Task();
@@ -1657,7 +1824,8 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 			}
 			
 			$tpl->assign('task', $task);
-			
+			$tpl->assign('task_project', $task->getProject());
+
 			// Custom fields
 			$custom_fields = DAO_CustomField::getByContext($context, false);
 			$tpl->assign('custom_fields', $custom_fields);
@@ -1722,12 +1890,22 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 				'type' => Model_CustomField::TYPE_NUMBER,
 				'param' => SearchFields_Task::IMPORTANCE,
 			),
+			'is_active' => array(
+				'label' => 'Active',
+				'type' => Model_CustomField::TYPE_CHECKBOX,
+				'param' => SearchFields_Task::IS_ACTIVE,
+			),
 			'owner_id' => array(
 				'label' => 'Owner',
 				'type' => Model_CustomField::TYPE_WORKER,
 				'param' => SearchFields_Task::OWNER_ID,
 			),
-			'reopen' => array(
+			'project_id' => array(
+				'label' => 'Task Project',
+				'type' => Model_CustomField::TYPE_NUMBER,
+				'param' => SearchFields_Task::PROJECT_ID,
+			),
+			'reopen_at' => array(
 				'label' => 'Reopen At',
 				'type' => Model_CustomField::TYPE_DATE,
 				'param' => SearchFields_Task::REOPEN_AT,

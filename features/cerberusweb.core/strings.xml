@@ -2343,6 +2343,11 @@
 				<seg>priority</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.project">
+			<tuv xml:lang="en_US">
+				<seg>project</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.private">
 			<tuv xml:lang="en_US">
 				<seg>private</seg>
@@ -5261,6 +5266,11 @@ For example: *receipt*</seg>
 		<tu tuid="task.completed_date">
 			<tuv xml:lang="en_US">
 				<seg>Completed Date</seg>
+			</tuv>
+		</tu>
+		<tu tuid="task.is_active">
+			<tuv xml:lang="en_US">
+				<seg>Active</seg>
 			</tuv>
 		</tu>
 		<tu tuid="task.due_date">
