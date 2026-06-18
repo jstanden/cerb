@@ -557,7 +557,6 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 			);
 			$queue_job->status_id = QueueJobStatus::RUNNING->value;
 			$queue_job->count_total = $record_count;
-			$queue_job->count_available = $record_count;
 			$queue_job->worker_id = $active_worker->id;
 			$queue_job->metadata = [
 				'context'           => $context_ext->id,
@@ -1156,7 +1155,6 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 			$queue_job->name = sprintf('Import %s: %s', $aliases['plural'] ?? $aliases['uri'] ?? $context_ext->id, $automation_resource->name);
 			$queue_job->status_id = QueueJobStatus::RUNNING->value;
 			$queue_job->count_total = $record_count;
-			$queue_job->count_available = $record_count;
 			$queue_job->worker_id = $active_worker->id ?? 0;
 			$queue_job->metadata = [
 				'context' => $context_ext->id,

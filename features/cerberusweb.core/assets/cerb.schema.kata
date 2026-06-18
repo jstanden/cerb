@@ -9275,38 +9275,6 @@ tables:
             unique@text:
   queue_job:
     columns:
-      count_available:
-        field: count_available
-        type: int unsigned
-        collation@text:
-        nullable: NOT NULL
-        key@text:
-        default: 0
-        extra@text:
-      count_done:
-        field: count_done
-        type: int unsigned
-        collation@text:
-        nullable: NOT NULL
-        key@text:
-        default: 0
-        extra@text:
-      count_failed:
-        field: count_failed
-        type: int unsigned
-        collation@text:
-        nullable: NOT NULL
-        key@text:
-        default: 0
-        extra@text:
-      count_inflight:
-        field: count_inflight
-        type: int unsigned
-        collation@text:
-        nullable: NOT NULL
-        key@text:
-        default: 0
-        extra@text:
       count_total:
         field: count_total
         type: int unsigned

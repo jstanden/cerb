@@ -7,10 +7,6 @@ enum QueueJobStatus : int{
 }
 
 class DAO_QueueJob extends Cerb_ORMHelper {
-	const COUNT_AVAILABLE = 'count_available';
-	const COUNT_DONE = 'count_done';
-	const COUNT_FAILED = 'count_failed';
-	const COUNT_INFLIGHT = 'count_inflight';
 	const COUNT_TOTAL = 'count_total';
 	const CREATED_AT = 'created_at';
 	const ID = 'id';
@@ -81,8 +77,8 @@ class DAO_QueueJob extends Cerb_ORMHelper {
 		}
 
 		$result = $db->ExecuteMaster(sprintf(
-			"INSERT IGNORE INTO queue_job (queue_id, `name`, singleton_key, status_id, worker_id, metadata, count_total, count_available, count_inflight, count_done, count_failed, created_at, updated_at) ".
-			"VALUES (%d, %s, %s, %d, %d, %s, %d, %d, %d, %d, %d, %d, %d)",
+			"INSERT IGNORE INTO queue_job (queue_id, `name`, singleton_key, status_id, worker_id, metadata, count_total, created_at, updated_at) ".
+			"VALUES (%d, %s, %s, %d, %d, %s, %d, %d, %d)",
 			$job->queue_id,
 			$db->qstr($job->name),
 			$db->qstr($job->singleton_key),
@@ -90,10 +86,6 @@ class DAO_QueueJob extends Cerb_ORMHelper {
 			$job->worker_id,
 			$db->qstr(json_encode($job->metadata)),
 			$job->count_total,
-			$job->count_available,
-			$job->count_inflight,
-			$job->count_done,
-			$job->count_failed,
 			$job->created_at,
 			$job->updated_at
 		));
@@ -173,7 +165,7 @@ class DAO_QueueJob extends Cerb_ORMHelper {
 
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 
-		$sql = "SELECT id, name, queue_id, worker_id, singleton_key, status_id, metadata, count_total, count_available, count_inflight, count_done, count_failed, created_at, updated_at " .
+		$sql = "SELECT id, name, queue_id, worker_id, singleton_key, status_id, metadata, count_total, created_at, updated_at " .
 			"FROM queue_job " .
 			$where_sql .
 			$sort_sql .
@@ -235,7 +227,7 @@ class DAO_QueueJob extends Cerb_ORMHelper {
 			return null;
 
 		$sql = sprintf(
-			"SELECT id, name, queue_id, worker_id, singleton_key, status_id, metadata, count_total, count_available, count_inflight, count_done, count_failed, created_at, updated_at ".
+			"SELECT id, name, queue_id, worker_id, singleton_key, status_id, metadata, count_total, created_at, updated_at ".
 			"FROM queue_job ".
 			"WHERE queue_id = %d ".
 			"AND singleton_key = %s ".
@@ -272,10 +264,6 @@ class DAO_QueueJob extends Cerb_ORMHelper {
 
 	static private function _getResultAsModel(array $row) : Model_QueueJob {
 		$job = new Model_QueueJob();
-		$job->count_available = intval($row['count_available']);
-		$job->count_done = intval($row['count_done']);
-		$job->count_failed = intval($row['count_failed']);
-		$job->count_inflight = intval($row['count_inflight']);
 		$job->count_total = intval($row['count_total']);
 		$job->created_at = intval($row['created_at']);
 		$job->id = intval($row['id']);
@@ -352,10 +340,6 @@ class DAO_QueueJob extends Cerb_ORMHelper {
 		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_QueueJob', $sortBy);
 
 		$select_sql = sprintf("SELECT " .
-			"queue_job.count_available as %s, ".
-			"queue_job.count_done as %s, ".
-			"queue_job.count_failed as %s, ".
-			"queue_job.count_inflight as %s, ".
 			"queue_job.count_total as %s, ".
 			"queue_job.created_at as %s, ".
 			"queue_job.id as %s, ".
@@ -365,10 +349,6 @@ class DAO_QueueJob extends Cerb_ORMHelper {
 			"queue_job.status_id as %s, ".
 			"queue_job.updated_at as %s, ".
 			"queue_job.worker_id as %s",
-			SearchFields_QueueJob::COUNT_AVAILABLE,
-			SearchFields_QueueJob::COUNT_DONE,
-			SearchFields_QueueJob::COUNT_FAILED,
-			SearchFields_QueueJob::COUNT_INFLIGHT,
 			SearchFields_QueueJob::COUNT_TOTAL,
 			SearchFields_QueueJob::CREATED_AT,
 			SearchFields_QueueJob::ID,
@@ -423,29 +403,6 @@ class DAO_QueueJob extends Cerb_ORMHelper {
 		);
 	}
 
-	public static function syncProgress(int $job_id) : void {
-		$db = DevblocksPlatform::services()->database();
-
-		// Sum `cardinality` (work units) rather than counting rows, so the monitor
-		// reflects records-of-records for producers that bundle many records per
-		// message (bulk update, reindex, export). Cardinality DEFAULT 1 keeps this
-		// identical to COUNT(*) for single-op messages.
-		$sql = sprintf(
-			"UPDATE queue_job JOIN ( ".
-			"SELECT COALESCE(SUM(IF(status_id=0, cardinality, 0)),0) AS count_available, COALESCE(SUM(IF(status_id=1, cardinality, 0)),0) AS count_inflight, COALESCE(SUM(IF(status_id=2, cardinality, 0)),0) AS count_failed, COALESCE(SUM(IF(status_id=3, cardinality, 0)),0) AS count_done, COALESCE(SUM(cardinality),0) AS count_total FROM queue_message WHERE job_id = %d".
-			") AS agg ON queue_job.id = %d ".
-			"SET ".
-			"queue_job.count_total = agg.count_total, ".
-			"queue_job.count_available = agg.count_available, ".
-			"queue_job.count_inflight = agg.count_inflight, ".
-			"queue_job.count_failed = agg.count_failed, ".
-			"queue_job.count_done = agg.count_done",
-			$job_id,
-			$job_id
-		);
-		$db->ExecuteWriter($sql);
-	}
-
 	/**
 	 * @param array $job_ids
 	 * @return Model_QueueJob[]
@@ -462,7 +419,7 @@ class DAO_QueueJob extends Cerb_ORMHelper {
 		// 0 covers both ready and retry-deferred (scheduled) messages, so a job with
 		// pending retries correctly stays unfinished until those resolve.
 		$sql = sprintf(
-			"SELECT id, name, queue_id, worker_id, singleton_key, status_id, metadata, count_total, count_available, count_inflight, count_done, count_failed, created_at, updated_at ".
+			"SELECT id, name, queue_id, worker_id, singleton_key, status_id, metadata, count_total, created_at, updated_at ".
 			"FROM queue_job ".
 			"WHERE id IN (%s) ".
 			"AND status_id NOT IN (2, 3) ".
@@ -509,10 +466,10 @@ class DAO_QueueJob extends Cerb_ORMHelper {
 
 	/**
 	 * Live per-job message counts read straight from queue_message, summing
-	 * `cardinality` (work units) to match syncProgress(). Reads master so monitor
-	 * pacing decisions don't lag behind concurrent workers.
+	 * `cardinality` (work units). Reads master so monitor pacing decisions don't
+	 * lag behind concurrent workers.
 	 *
-	 * Unlike the cached queue_job.count_* columns, this splits AVAILABLE (status 0)
+	 * Unlike the retired cached count_* columns, this splits AVAILABLE (status 0)
 	 * into `available` (claimable now, available_at <= now) vs `scheduled`
 	 * (retry-deferred, available_at > now) so the monitor can back off instead of
 	 * busy-looping while failed messages wait out their backoff window.
@@ -551,13 +508,59 @@ class DAO_QueueJob extends Cerb_ORMHelper {
 			'next_available_at' => intval($row['next_available_at'] ?? 0),
 		];
 	}
+
+	/**
+	 * Live per-job message counts for a set of jobs, read straight from
+	 * queue_message in a single grouped query. Same `cardinality` buckets as
+	 * getLiveCounts() (status 0 split into `available` now vs retry-deferred
+	 * `scheduled`), but batched for a worklist page. Jobs with no remaining
+	 * messages are omitted; callers should default those to zeros.
+	 *
+	 * @param int[] $job_ids
+	 * @return array<int,array{available:int,scheduled:int,inflight:int,failed:int,done:int,total:int}>
+	 */
+	public static function getLiveCountsForJobs(array $job_ids) : array {
+		$db = DevblocksPlatform::services()->database();
+
+		$job_ids = array_unique(array_filter(array_map('intval', $job_ids)));
+
+		if(!$job_ids)
+			return [];
+
+		$now = time();
+
+		$rows = $db->GetArrayMaster(sprintf(
+			"SELECT job_id, ".
+			"COALESCE(SUM(IF(status_id=0 AND available_at<=%d, cardinality, 0)),0) AS available, ".
+			"COALESCE(SUM(IF(status_id=0 AND available_at> %d, cardinality, 0)),0) AS scheduled, ".
+			"COALESCE(SUM(IF(status_id=1, cardinality, 0)),0) AS inflight, ".
+			"COALESCE(SUM(IF(status_id=2, cardinality, 0)),0) AS failed, ".
+			"COALESCE(SUM(IF(status_id=3, cardinality, 0)),0) AS done, ".
+			"COALESCE(SUM(cardinality),0) AS total ".
+			"FROM queue_message WHERE job_id IN (%s) GROUP BY job_id",
+			$now,
+			$now,
+			implode(',', $job_ids)
+		));
+
+		$counts = [];
+
+		foreach($rows as $row) {
+			$counts[intval($row['job_id'])] = [
+				'available' => intval($row['available']),
+				'scheduled' => intval($row['scheduled']),
+				'inflight' => intval($row['inflight']),
+				'failed' => intval($row['failed']),
+				'done' => intval($row['done']),
+				'total' => intval($row['total']),
+			];
+		}
+
+		return $counts;
+	}
 }
 
 class SearchFields_QueueJob extends DevblocksSearchFields {
-	const COUNT_AVAILABLE = 'qj_count_available';
-	const COUNT_DONE = 'qj_count_done';
-	const COUNT_FAILED = 'qj_count_failed';
-	const COUNT_INFLIGHT = 'qj_count_inflight';
 	const COUNT_TOTAL = 'qj_count_total';
 	const CREATED_AT = 'qj_created_at';
 	const ID = 'qj_id';
@@ -687,10 +690,6 @@ class SearchFields_QueueJob extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 
 		$columns = [
-			self::COUNT_AVAILABLE => new DevblocksSearchField(self::COUNT_AVAILABLE, 'queue_job', 'count_available', $translate->_('dao.queue_job.count_available'), null, true),
-			self::COUNT_DONE => new DevblocksSearchField(self::COUNT_DONE, 'queue_job', 'count_done', $translate->_('dao.queue_job.count_done'), null, true),
-			self::COUNT_FAILED => new DevblocksSearchField(self::COUNT_FAILED, 'queue_job', 'count_failed', $translate->_('dao.queue_job.count_failed'), null, true),
-			self::COUNT_INFLIGHT => new DevblocksSearchField(self::COUNT_INFLIGHT, 'queue_job', 'count_inflight', $translate->_('dao.queue_job.count_inflight'), null, true),
 			self::COUNT_TOTAL => new DevblocksSearchField(self::COUNT_TOTAL, 'queue_job', 'count_total', $translate->_('dao.queue_job.count_total'), null, true),
 			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'queue_job', 'created_at', $translate->_('common.created'), null, true),
 			self::ID => new DevblocksSearchField(self::ID, 'queue_job', 'id', $translate->_('common.id'), null, true),
@@ -720,10 +719,6 @@ class SearchFields_QueueJob extends DevblocksSearchFields {
 }
 
 class Model_QueueJob extends DevblocksRecordModel {
-	public int $count_available = 0;
-	public int $count_done = 0;
-	public int $count_failed = 0;
-	public int $count_inflight = 0;
 	public int $count_total = 0;
 	public int $created_at = 0;
 	public int $id = 0;
@@ -741,24 +736,15 @@ class Model_QueueJob extends DevblocksRecordModel {
 		// from `scheduled` (failed messages waiting out their retry backoff). The
 		// cached columns stay coarse/eventually-consistent for the jobs worklist.
 		$counts = DAO_QueueJob::getLiveCounts($this);
-		$total = $counts['total'];
 
+		// The monitor's CerbUI.Distbar sizes itself from the raw counts (data-value) and
+		// computes its own percentages, so we only surface total + per-status counts here.
 		$keys = ['available','scheduled','inflight','failed','done'];
 
-		$stats = [
-			'total' => $total,
+		return [
+			'total' => $counts['total'],
 			'counts' => array_intersect_key($counts, array_flip($keys)),
-			'percents' =>
-				$total
-					// If we have a denominator, we can calculate percentages
-					? array_map(fn($k) => round($counts[$k] / $total, 2), array_combine($keys, $keys))
-					// Otherwise, zero
-					: array_fill_keys($keys, 0)
-			,
-			'next_available_at' => $counts['next_available_at'],
 		];
-
-		return $stats;
 	}
 
 	public function isDone() : bool {
@@ -790,8 +776,6 @@ class View_QueueJob extends C4_AbstractView implements IAbstractView_Subtotals, 
 			SearchFields_QueueJob::QUEUE_ID,
 			SearchFields_QueueJob::WORKER_ID,
 			SearchFields_QueueJob::COUNT_TOTAL,
-			SearchFields_QueueJob::COUNT_DONE,
-			SearchFields_QueueJob::COUNT_FAILED,
 			SearchFields_QueueJob::UPDATED_AT,
 		];
 
@@ -918,22 +902,6 @@ class View_QueueJob extends C4_AbstractView implements IAbstractView_Subtotals, 
 		$search_fields = SearchFields_QueueJob::getFields();
 
 		$fields = [
-			'count.available' => [
-				'type' => DevblocksSearchCriteria::TYPE_NUMBER,
-				'options' => ['param_key' => SearchFields_QueueJob::COUNT_AVAILABLE],
-			],
-			'count.done' => [
-				'type' => DevblocksSearchCriteria::TYPE_NUMBER,
-				'options' => ['param_key' => SearchFields_QueueJob::COUNT_DONE],
-			],
-			'count.failed' => [
-				'type' => DevblocksSearchCriteria::TYPE_NUMBER,
-				'options' => ['param_key' => SearchFields_QueueJob::COUNT_FAILED],
-			],
-			'count.inflight' => [
-				'type' => DevblocksSearchCriteria::TYPE_NUMBER,
-				'options' => ['param_key' => SearchFields_QueueJob::COUNT_INFLIGHT],
-			],
 			'count.total' => [
 				'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 				'options' => ['param_key' => SearchFields_QueueJob::COUNT_TOTAL],
@@ -1132,10 +1100,6 @@ class View_QueueJob extends C4_AbstractView implements IAbstractView_Subtotals, 
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 
-			case SearchFields_QueueJob::COUNT_AVAILABLE:
-			case SearchFields_QueueJob::COUNT_DONE:
-			case SearchFields_QueueJob::COUNT_FAILED:
-			case SearchFields_QueueJob::COUNT_INFLIGHT:
 			case SearchFields_QueueJob::COUNT_TOTAL:
 			case SearchFields_QueueJob::ID:
 			case SearchFields_QueueJob::QUEUE_ID:
@@ -1278,18 +1242,6 @@ class Context_QueueJob extends Extension_DevblocksContext implements IDevblocksC
 			'value' => $model->count_total,
 		];
 
-		$properties['count_done'] = [
-			'label' => mb_ucfirst($translate->_('dao.queue_job.count_done')),
-			'type' => Model_CustomField::TYPE_NUMBER,
-			'value' => $model->count_done,
-		];
-
-		$properties['count_failed'] = [
-			'label' => mb_ucfirst($translate->_('dao.queue_job.count_failed')),
-			'type' => Model_CustomField::TYPE_NUMBER,
-			'value' => $model->count_failed,
-		];
-
 		$properties['created'] = [
 			'label' => DevblocksPlatform::translateCapitalized('common.created'),
 			'type' => Model_CustomField::TYPE_DATE,
@@ -1335,8 +1287,6 @@ class Context_QueueJob extends Extension_DevblocksContext implements IDevblocksC
 			'worker_id',
 			'status_id',
 			'count_total',
-			'count_done',
-			'count_failed',
 			'updated_at',
 		];
 	}
@@ -1365,10 +1315,6 @@ class Context_QueueJob extends Extension_DevblocksContext implements IDevblocksC
 
 		$token_labels = [
 			'_label' => $prefix,
-			'count_available' => $prefix.$translate->_('dao.queue_job.count_available'),
-			'count_done' => $prefix.$translate->_('dao.queue_job.count_done'),
-			'count_failed' => $prefix.$translate->_('dao.queue_job.count_failed'),
-			'count_inflight' => $prefix.$translate->_('dao.queue_job.count_inflight'),
 			'count_total' => $prefix.$translate->_('dao.queue_job.count_total'),
 			'created_at' => $prefix.$translate->_('common.created'),
 			'id' => $prefix.$translate->_('common.id'),
@@ -1383,10 +1329,6 @@ class Context_QueueJob extends Extension_DevblocksContext implements IDevblocksC
 
 		$token_types = [
 			'_label' => 'context_url',
-			'count_available' => Model_CustomField::TYPE_NUMBER,
-			'count_done' => Model_CustomField::TYPE_NUMBER,
-			'count_failed' => Model_CustomField::TYPE_NUMBER,
-			'count_inflight' => Model_CustomField::TYPE_NUMBER,
 			'count_total' => Model_CustomField::TYPE_NUMBER,
 			'created_at' => Model_CustomField::TYPE_DATE,
 			'id' => Model_CustomField::TYPE_NUMBER,
@@ -1413,10 +1355,6 @@ class Context_QueueJob extends Extension_DevblocksContext implements IDevblocksC
 		if($queue_job) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $queue_job->name;
-			$token_values['count_available'] = $queue_job->count_available;
-			$token_values['count_done'] = $queue_job->count_done;
-			$token_values['count_failed'] = $queue_job->count_failed;
-			$token_values['count_inflight'] = $queue_job->count_inflight;
 			$token_values['count_total'] = $queue_job->count_total;
 			$token_values['created_at'] = $queue_job->created_at;
 			$token_values['id'] = $queue_job->id;

@@ -42,12 +42,9 @@ class QueueJobMonitor {
 
 		// Then drop any remaining work so no consumer can pick it up. Completed
 		// and failed message rows stay for audit until DAO_QueueMessage::maint()
-		// sweeps them on retention.
+		// sweeps them on retention. The progress bar reads live counts from
+		// queue_message, so it reflects this delete on the next refresh.
 		DAO_QueueMessage::deleteOpenByJob($queue_job);
-
-		// Re-aggregate queue_job.count_* from queue_message so the progress bar
-		// (which reads the cached counts) reflects reality after the delete.
-		DAO_QueueJob::syncProgress($queue_job->id);
 
 		echo json_encode(['status_id' => QueueJobStatus::CANCELED->value]);
 	}

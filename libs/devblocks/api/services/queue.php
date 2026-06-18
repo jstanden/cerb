@@ -182,12 +182,10 @@ class _DevblocksQueueService {
 			$this->_log_buffer = [];
 		}
 
-		// Update counts on jobs that changed
+		// Finalize any jobs that just drained their last open message. Counts are
+		// read live from queue_message on demand, so there's nothing to sync here.
 		if($this->_jobs_buffer) {
 			$job_ids = array_keys($this->_jobs_buffer);
-
-			foreach($job_ids as $job_id)
-				DAO_QueueJob::syncProgress($job_id);
 
 			if(($newly_finished_jobs = DAO_QueueJob::checkForCompletedJobs($job_ids))) {
 				$this->_finalizeJobs($newly_finished_jobs);

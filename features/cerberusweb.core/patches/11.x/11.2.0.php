@@ -61,8 +61,8 @@ if(array_key_exists('message', $columns) && 'mediumtext' != $columns['message'][
 }
 
 // Work-unit count per message; bulk producers (bulk update, reindex, export) bundle
-// many records per message, so `syncProgress` sums cardinality to display records,
-// not batches. DEFAULT 1 keeps legacy/single-op messages correct without backfill.
+// many records per message, so the live count helpers sum cardinality to display
+// records, not batches. DEFAULT 1 keeps legacy/single-op messages correct without backfill.
 if(!array_key_exists('cardinality', $columns)) {
 	$changes[] = "ADD COLUMN cardinality MEDIUMINT UNSIGNED NOT NULL DEFAULT 1";
 }
@@ -102,10 +102,6 @@ if(!array_key_exists('queue_job', $tables)) {
 		`metadata` mediumtext,
 		`status_id` tinyint unsigned NOT NULL DEFAULT 0,
 		`count_total` int unsigned NOT NULL default 0,
-		`count_available` int unsigned NOT NULL default 0,
-		`count_inflight` int unsigned NOT NULL default 0,
-		`count_done` int unsigned NOT NULL default 0,
-		`count_failed` int unsigned NOT NULL default 0,
 		`created_at` int unsigned NOT NULL DEFAULT 0,
 		`updated_at` int unsigned NOT NULL DEFAULT 0,
 		PRIMARY KEY (id),
@@ -114,7 +110,7 @@ if(!array_key_exists('queue_job', $tables)) {
 		) ENGINE=%s
 	", APP_DB_ENGINE);
 	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
-	
+
 	$tables['queue_job'] = 'queue_job';
 }
 
@@ -504,13 +500,12 @@ if($revision < 1506) {
 			continue;
 		
 		// Create a reindex queue job
-		$db->ExecuteMaster(sprintf("INSERT INTO queue_job (name, singleton_key, queue_id, worker_id, metadata, status_id, count_total, count_available, created_at, updated_at) " .
-			"VALUES (%s, %s, %d, 0, %s, 0 /* RUNNING */, %d, %d, %d, %d)",
+		$db->ExecuteMaster(sprintf("INSERT INTO queue_job (name, singleton_key, queue_id, worker_id, metadata, status_id, count_total, created_at, updated_at) " .
+			"VALUES (%s, %s, %d, 0, %s, 0 /* RUNNING */, %d, %d, %d)",
 			$db->qstr('Reindex ' . $header_index['name']),
 			$db->qstr(sprintf('search_index:%d:reindex', $search_index_id)),
 			$search_queue_id,
 			$db->qstr(json_encode(['search_index_id' => $search_index_id, 'record_type' => 'message'])),
-			$message_record_count,
 			$message_record_count,
 			time(),
 			time(),
@@ -590,13 +585,12 @@ if($revision < 1506) {
 		if ($search_queue_id && $message_record_count) {
 			$db->ExecuteMaster('SET SESSION group_concat_max_len = 1048576');
 			
-			$db->ExecuteMaster(sprintf("INSERT INTO queue_job (name, singleton_key, queue_id, worker_id, metadata, status_id, count_total, count_available, created_at, updated_at) " .
-				"VALUES (%s, %s, %d, 0, %s, 0 /* RUNNING */, %d, %d, %d, %d)",
+			$db->ExecuteMaster(sprintf("INSERT INTO queue_job (name, singleton_key, queue_id, worker_id, metadata, status_id, count_total, created_at, updated_at) " .
+				"VALUES (%s, %s, %d, 0, %s, 0 /* RUNNING */, %d, %d, %d)",
 				$db->qstr('Reindex Message Content'),
 				$db->qstr(sprintf('search_index:%d:reindex', $search_index_id)),
 				$search_queue_id,
 				$db->qstr(json_encode(['search_index_id' => $search_index_id, 'record_type' => 'message'])),
-				$message_record_count,
 				$message_record_count,
 				time(),
 				time(),
@@ -669,13 +663,12 @@ if($revision < 1506) {
 		if ($search_queue_id && $comment_record_count) {
 			$db->ExecuteMaster('SET SESSION group_concat_max_len = 1048576');
 			
-			$db->ExecuteMaster(sprintf("INSERT INTO queue_job (name, singleton_key, queue_id, worker_id, metadata, status_id, count_total, count_available, created_at, updated_at) " .
-				"VALUES (%s, %s, %d, 0, %s, 0 /* RUNNING */, %d, %d, %d, %d)",
+			$db->ExecuteMaster(sprintf("INSERT INTO queue_job (name, singleton_key, queue_id, worker_id, metadata, status_id, count_total, created_at, updated_at) " .
+				"VALUES (%s, %s, %d, 0, %s, 0 /* RUNNING */, %d, %d, %d)",
 				$db->qstr('Reindex Comments'),
 				$db->qstr(sprintf('search_index:%d:reindex', $search_index_id)),
 				$search_queue_id,
 				$db->qstr(json_encode(['search_index_id' => $search_index_id, 'record_type' => 'comment'])),
-				$comment_record_count,
 				$comment_record_count,
 				time(),
 				time(),
@@ -749,13 +742,12 @@ if($revision < 1506 && DevblocksPlatform::isPluginEnabled('cerberusweb.kb')) {
 		if($search_queue_id && $kb_record_count) {
 			$db->ExecuteMaster('SET SESSION group_concat_max_len = 1048576');
 
-			$db->ExecuteMaster(sprintf("INSERT INTO queue_job (name, singleton_key, queue_id, worker_id, metadata, status_id, count_total, count_available, created_at, updated_at) " .
-				"VALUES (%s, %s, %d, 0, %s, 0 /* RUNNING */, %d, %d, %d, %d)",
+			$db->ExecuteMaster(sprintf("INSERT INTO queue_job (name, singleton_key, queue_id, worker_id, metadata, status_id, count_total, created_at, updated_at) " .
+				"VALUES (%s, %s, %d, 0, %s, 0 /* RUNNING */, %d, %d, %d)",
 				$db->qstr('Reindex Knowledgebase Articles'),
 				$db->qstr(sprintf('search_index:%d:reindex', $search_index_id)),
 				$search_queue_id,
 				$db->qstr(json_encode(['search_index_id' => $search_index_id, 'record_type' => 'kb_article'])),
-				$kb_record_count,
 				$kb_record_count,
 				time(),
 				time(),
@@ -1117,8 +1109,6 @@ if($revision < 1506 && !$db->GetOneMaster("SELECT id FROM profile_tab WHERE cont
 					"status_id",
 					"singleton_key",
 					"count_total",
-					"count_done",
-					"count_failed",
 					"created",
 					"updated",
 					"id",

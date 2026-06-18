@@ -111,6 +111,10 @@ class CardWidget_SearchIndex extends Extension_CardWidget {
 		$sheet_dicts = [];
 		$job_statuses = [];
 
+		// Done counts come live from queue_message (the cached count_done column
+		// was retired); recently finished rows age off on retention.
+		$live_counts = DAO_QueueJob::getLiveCountsForJobs(array_map(fn($job) => $job->id, $recent_jobs));
+
 		foreach($recent_jobs as $job) {
 			$sheet_dicts[] = DevblocksDictionaryDelegate::instance([
 				'_context' => Context_QueueJob::ID,
@@ -118,7 +122,7 @@ class CardWidget_SearchIndex extends Extension_CardWidget {
 				'_label' => $job->name,
 				'name' => $job->name,
 				'status' => $status_labels[$job->status_id] ?? '',
-				'counts' => sprintf('%d / %d', $job->count_done, $job->count_total),
+				'counts' => sprintf('%d / %d', $live_counts[$job->id]['done'] ?? 0, $job->count_total),
 				'created_at' => $job->created_at,
 			]);
 			$job_statuses[$job->id] = $job->status_id;

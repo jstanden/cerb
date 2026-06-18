@@ -298,7 +298,6 @@ class _DevblocksRecordsService {
 		);
 		$queue_job->status_id = \QueueJobStatus::RUNNING->value;
 		$queue_job->count_total = $record_count;
-		$queue_job->count_available = $record_count;
 		$queue_job->worker_id = $worker_id;
 		$queue_job->metadata = [
 			'context'      => $context_ext->id,

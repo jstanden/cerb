@@ -707,7 +707,6 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		$model->name = 'Reindex ' . $search_index->name;
 		$model->singleton_key = $queue_job_key; // One job per index at a time
 		$model->count_total = $record_count;
-		$model->count_available = $record_count;
 		$model->status_id = \QueueJobStatus::RUNNING->value;
 		$model->worker_id = $active_worker ? $active_worker->id : 0;
 		$model->created_at = time();

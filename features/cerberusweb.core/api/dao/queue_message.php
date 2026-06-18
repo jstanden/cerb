@@ -115,17 +115,7 @@ class DAO_QueueMessage {
 		}
 		
 		unset($results);
-		
-		$job_ids = array_unique(array_filter(array_column($messages, 'job_id')));
-		
-		// [TODO] This is inefficient if we're pulling single messages
-		// [TODO] Do we want to cache counts on jobs or just do them dynamically/reliably from indexes?
-		// If we have pulled from a job, update its counts
-		if($job_ids) {
-			foreach ($job_ids as $job_id)
-				DAO_QueueJob::syncProgress($job_id);
-		}
-		
+
 		return $messages;
 	}
 
