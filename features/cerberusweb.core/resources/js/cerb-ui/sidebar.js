@@ -13,6 +13,8 @@
  * source <li> + its data-* are trusted (the security boundary); that same <li> is what onSelect receives.
  *
  * The chevron toggle collapses the rail to an icon-only strip (labels / section headers / right / filter hidden).
+ * With collapseTo:'closed' the collapsed rail instead hides its whole body, leaving only the toggle handle —
+ * use this when every item shares one icon (an icon strip would be ambiguous).
  * Full height is opt-in (fullHeight:true → sticky 100vh so the body scrolls within the viewport); otherwise it is
  * a normal in-flow block usable anywhere (e.g. a node-editor's node library).
  *
@@ -34,6 +36,7 @@ CerbUI.Sidebar = class {
 	static _DEFAULTS = {
 		side: 'left',            // 'left' | 'right' — border side + which way the chevron points
 		collapsed: false,        // start collapsed (icon-only strip)
+		collapseTo: 'icons',     // 'icons' (icon-only strip) | 'closed' (hide the body, leave only the toggle handle — for rails whose items share one icon)
 		fullHeight: false,       // sticky full-viewport height (body scrolls within); else a normal in-flow block
 		storageKey: null,        // localStorage key to persist the collapsed state across reloads
 		filter: false,           // inject a search box in the head that winnows items by label text
@@ -69,8 +72,10 @@ CerbUI.Sidebar = class {
 		this._onItemOver = this._onItemOver.bind(this);
 		this._onItemOut = this._onItemOut.bind(this);
 		this._onBodyClick = this._onBodyClick.bind(this);
+		this._onBodyKeydown = this._onBodyKeydown.bind(this);
 		this._onToggleClick = this._onToggleClick.bind(this);
 		this._onFilterInput = this._onFilterInput.bind(this);
+		this._onFilterKeydown = this._onFilterKeydown.bind(this);
 
 		this._build();
 		CerbUI.Sidebar._instances.set(this.el, this);
@@ -94,6 +99,7 @@ CerbUI.Sidebar = class {
 		if(this.opts.side === 'right') this.el.classList.add('cerb-ui-sidebar--right');
 		if(this.opts.fullHeight) this.el.classList.add('cerb-ui-sidebar--full-height');
 		if(this.draggable) this.el.classList.add('cerb-ui-sidebar--palette');
+		if(this.opts.collapseTo === 'closed') this.el.classList.add('cerb-ui-sidebar--collapse-closed');
 
 		this.head = this.el.querySelector(':scope > .cerb-ui-sidebar--head');
 		this.body = this.el.querySelector(':scope > .cerb-ui-sidebar--body');
@@ -211,6 +217,8 @@ CerbUI.Sidebar = class {
 		this.filterInput.setAttribute('spellcheck', 'false');
 		this.filterInput.addEventListener('input', this._onFilterInput);
 		this.head.appendChild(this.filterInput);
+		// Sit the filter inline to the LEFT of the collapse toggle — one head row, no empty bar above it.
+		this.headBar.insertBefore(this.filterInput, this.toggleBtn);
 	}
 
 	_enhanceItems() {

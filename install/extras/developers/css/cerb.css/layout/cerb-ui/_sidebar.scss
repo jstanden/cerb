@@ -257,6 +257,15 @@
 		.cerb-ui-tile--text { display: none; }
 		.cerb-ui-tile { justify-content: center; width: auto; }
 	}
+
+	// ── Collapsed variant: closed (just the toggle handle) ──────────────
+	// For rails whose items share one icon, an icon-only strip is ambiguous; hide the whole body and
+	// shrink to a thin handle, leaving only the toggle to re-open. Opt in via collapseTo:'closed'.
+	&--collapse-closed.cerb-ui-sidebar--collapsed {
+		--cerb-ui-sidebar-collapsed-width: 40px;
+
+		.cerb-ui-sidebar--body { display: none; }
+	}
 }
 
 // Layout helper: rail + content as flex siblings (the page-compose case). The content grows; the rail holds its
