@@ -81,7 +81,7 @@ class DAO_Task extends Cerb_ORMHelper {
 		// varchar(255)
 		$validation
 			->addField(self::TITLE)
-			->string()
+			->string($validation::STRING_UTF8MB4)
 			->setMaxLength(255)
 			->setRequired(true)
 			;
@@ -1766,6 +1766,10 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 	}
 	
 	function importSaveObject(array $fields, array $custom_fields, array $meta) {
+		// Title is varchar(255); import bypasses DAO validation, so truncate rather than fail
+		if(isset($fields[DAO_Task::TITLE]))
+			$fields[DAO_Task::TITLE] = mb_substr((string)$fields[DAO_Task::TITLE], 0, 255);
+
 		if(isset($fields[DAO_Task::STATUS_ID]) && !in_array($fields[DAO_Task::STATUS_ID], [0,1,2]))
 			unset($fields[DAO_Task::STATUS_ID]);
 		

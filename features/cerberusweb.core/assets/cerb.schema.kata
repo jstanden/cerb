@@ -10732,7 +10732,7 @@ tables:
       title:
         field: title
         type: varchar(255)
-        collation: utf8mb3_unicode_ci
+        collation: utf8mb4_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:

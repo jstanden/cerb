@@ -2798,6 +2798,22 @@ $db->ExecuteMaster("DELETE FROM worker_view_model WHERE view_id IN ('cerb5_plugi
 $db->ExecuteMaster("DELETE FROM worker_view_model WHERE class_name IN ('View_PluginLibrary')");
 
 // ===========================================================================
+// Convert `task.title` to utf8mb4
+
+if(!array_key_exists('task', $tables))
+	return FALSE;
+
+list($columns,) = $db->metaTable('task');
+
+if(!array_key_exists('title', $columns))
+	return FALSE;
+
+if('utf8mb4_unicode_ci' != $columns['title']['collation']) {
+	$db->ExecuteMaster("ALTER TABLE task MODIFY COLUMN title varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT ''");
+	$logger->info("[Patch] Converted task.title to utf8mb4.");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
