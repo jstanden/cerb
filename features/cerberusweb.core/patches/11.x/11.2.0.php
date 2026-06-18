@@ -953,9 +953,9 @@ $db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, 
 $db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, dimensions_kata, created_at, updated_at) ".
 	"VALUES (%s, %s, %s, %s, %d, %d)",
 	$db->qstr('cerb.queue.messages.open'),
-	$db->qstr('Open (available and in-flight) queue message depth by queue, job, and status'),
+	$db->qstr('Open (available and in-flight) queue message depth by queue and status'),
 	$db->qstr('gauge'),
-	$db->qstr("record/queue_id:\n  record_type: queue\nrecord/job_id:\n  record_type: queue_job\nnumber/status_id:\n"),
+	$db->qstr("record/queue_id:\n  record_type: queue\nnumber/status_id:\n"),
 	time(),
 	time()
 ));
