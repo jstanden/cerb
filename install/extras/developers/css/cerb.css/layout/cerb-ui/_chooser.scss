@@ -1,0 +1,271 @@
+// Chooser (CerbUI.chooserCore + CerbUI.RecordChooser): a server-backed search popup. Distinct from a
+// *Picker (local data) — the full set never lives in the DOM. Monogram avatars paint instantly; real
+// images lazy-load per visible row. Structural only; colors are tokens, so dark mode is automatic.
+
+// ── Popup ──────────────────────────────────────────────────────────────────
+.cerb-ui-chooser--panel {
+	position: absolute;
+	z-index: 10001; // match cerb-ui-menu: above dialogs, popups, tooltips
+	box-sizing: border-box;
+	width: 320px;
+	max-width: 92vw;
+	background: var(--cerb-color-background);
+	color: var(--cerb-color-text);
+	border: 1px solid var(--cerb-color-background-contrast-220);
+	border-radius: 10px;
+	box-shadow: 0 0 10px 3px var(--cerb-color-shadow-menu);
+	overflow: hidden;
+}
+
+.cerb-ui-chooser--head {
+	padding: 0.5em;
+	border-bottom: 1px solid var(--cerb-color-background-contrast-220);
+}
+
+.cerb-ui-chooser--search {
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.cerb-ui-chooser--list {
+	list-style: none;
+	margin: 0;
+	padding: 0.3em;
+	max-height: 320px;
+	overflow-y: auto;
+}
+
+.cerb-ui-chooser--item {
+	display: flex;
+	align-items: center;
+	gap: 0.6em;
+	padding: 0.4em 0.5em;
+	border-radius: 6px;
+	cursor: pointer;
+}
+
+.cerb-ui-chooser--item-active,
+.cerb-ui-chooser--item:hover {
+	background: var(--cerb-color-background-contrast-240);
+}
+
+// Vertical text stack (label + optional muted second line) beside the avatar
+.cerb-ui-chooser--text {
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 auto;
+	min-width: 0;
+	line-height: 1.25;
+}
+
+.cerb-ui-chooser--label {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.cerb-ui-chooser--sublabel {
+	font-size: 0.85em;
+	color: var(--cerb-color-background-contrast-150);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.cerb-ui-chooser--empty {
+	padding: 0.8em 0.6em;
+	color: var(--cerb-color-background-contrast-150);
+	text-align: center;
+}
+
+// ── Avatar / monogram cell (shared by the popup rows + the RecordChooser trigger) ──
+.cerb-ui-chooser--avatar {
+	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 22px;
+	height: 22px;
+	border-radius: 50%;
+	color: #fff;
+	font-size: 0.7em;
+	font-weight: 600;
+	line-height: 1;
+	overflow: hidden;
+	background-size: cover;
+	background-position: center;
+	user-select: none;
+
+	img { width: 100%; height: 100%; object-fit: cover; display: block; }
+}
+
+// ── RecordChooser field (autocomplete input + magnifier) ─────────────────────
+.cerb-ui-record-chooser {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5em;
+	max-width: 100%;
+	min-width: 220px;
+	padding: 0.35em 0.7em;
+	border: 1px solid var(--cerb-color-background-contrast-220);
+	border-radius: 6px;
+	background: var(--cerb-color-background);
+	color: inherit;
+
+	&:hover,
+	&.cerb-ui-record-chooser--open {
+		border-color: var(--cerb-color-action-primary);
+	}
+}
+
+// Wrapping field region: leading icon + tiles + input (the input trails at the end, so the autocomplete
+// menu anchors there). The search button stays outside it (pinned right) so it doesn't drift as tiles wrap.
+.cerb-ui-record-chooser--field {
+	display: inline-flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.35em;
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+// Tiles flow with the input (display:contents so they participate in the field's wrap)
+.cerb-ui-record-chooser--tiles { display: contents; }
+
+// Type-switcher head (ContextChooser): a small clickable chip-head at the start of the field that opens the
+// record-type menu. The chevron hints it's a dropdown. Hidden when single-filled (chip only).
+.cerb-ui-record-chooser--ctxhead {
+	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3em;
+	padding: 0.15em 0.45em;
+	margin: 0;
+	border: 0;
+	border-radius: 5px;
+	background: var(--cerb-color-background-contrast-235);
+	color: var(--cerb-color-background-contrast-130);
+	font: inherit;
+	cursor: pointer;
+	white-space: nowrap;
+
+	&:hover,
+	&:focus { background: var(--cerb-color-background-contrast-225); color: var(--cerb-color-link); }
+	&[hidden] { display: none; }
+}
+.cerb-ui-record-chooser--ctxhead-caret { font-size: 0.8em; opacity: 0.7; }
+// Inherit the menu item's text color (currentColor) so the icon matches the label in every state,
+// including the focused/active highlight.
+.cerb-ui-record-chooser--ctxmenu-icon { margin-right: 0.5em; }
+
+// A selected record token (single chip and multi tiles share this)
+.cerb-ui-record-chooser--tile {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35em;
+	min-width: 0;
+	max-width: 100%;
+	padding: 0.1em 0.25em 0.1em 0.15em;
+	background: var(--cerb-color-background-contrast-235);
+	border-radius: 5px;
+}
+
+// The empty-state gray avatar uses .cerb-ui-chooser--avatar (display:inline-flex), so it needs an
+// explicit [hidden] guard to disappear once a value is selected.
+.cerb-ui-record-chooser--avatar[hidden] { display: none; }
+
+// The inline autocomplete input — fully seamless (the container provides the chrome). The :focus reset
+// is scoped high enough to beat the global input[type=text]:focus chrome; appearance:none for WebKit.
+.cerb-ui-record-chooser .cerb-ui-record-chooser--input,
+.cerb-ui-record-chooser .cerb-ui-record-chooser--input:focus {
+	flex: 1 1 auto;
+	min-width: 5em;
+	border: 0;
+	padding: 0;
+	margin: 0;
+	background: none;
+	color: inherit;
+	font: inherit;
+	outline: none;
+	box-shadow: none;
+	-webkit-appearance: none;
+	appearance: none;
+	transition: opacity 0.12s ease;
+}
+.cerb-ui-record-chooser--input[hidden] { display: none; }
+
+// Multiple + tiles present: collapse the idle input (hide the placeholder/text); reveal + grow on
+// hover or focus, so the field stays compact until you intend to add more.
+.cerb-ui-record-chooser--multiple.cerb-ui-record-chooser--has-tiles:not(:hover):not(:focus-within) .cerb-ui-record-chooser--input {
+	flex: 0 0 0;
+	width: 0;
+	min-width: 0;
+	opacity: 0;
+}
+
+.cerb-ui-record-chooser--label {
+	flex: 0 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.cerb-ui-record-chooser--placeholder {
+	flex: 1 1 auto;
+	color: var(--cerb-color-background-contrast-150);
+}
+
+// Empty-state ("(no worker)") avatar: a flat gray disc, no initials
+.cerb-ui-record-chooser--avatar-empty {
+	background-color: var(--cerb-color-background-contrast-200);
+}
+
+// Search button — looks like an actual button (it opens the full search popup), not decoration
+.cerb-ui-record-chooser--search-btn {
+	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.9em;
+	height: 1.6em;
+	padding: 0;
+	margin: 0;
+	border: 1px solid var(--cerb-color-background-contrast-220);
+	border-radius: 5px;
+	background: var(--cerb-color-background-contrast-235);
+	color: var(--cerb-color-text);
+	cursor: pointer;
+	line-height: 1;
+
+	&:hover { background: var(--cerb-color-background-contrast-240); border-color: var(--cerb-color-action-primary); }
+	&:active { background: var(--cerb-color-background-contrast-245); }
+	&[hidden] { display: none; } // explicit display: otherwise beats the UA [hidden] rule
+}
+
+// Empty-state leading glyph: a plain abstract user icon (no avatar circle)
+.cerb-ui-record-chooser--empty-icon {
+	flex: 0 0 auto;
+	color: var(--cerb-color-background-contrast-150);
+	font-size: 1.15em;
+
+	&[hidden] { display: none; }
+}
+
+// Clear (×) stays flat
+.cerb-ui-record-chooser--clear {
+	flex: 0 0 auto;
+	appearance: none;
+	border: 0;
+	background: none;
+	padding: 0;
+	margin: 0;
+	cursor: pointer;
+	color: var(--cerb-color-background-contrast-150);
+	font-size: 0.95em;
+	line-height: 1;
+
+	&:hover { color: var(--cerb-color-text); }
+}
