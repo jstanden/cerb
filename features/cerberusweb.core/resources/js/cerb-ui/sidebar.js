@@ -127,6 +127,7 @@ CerbUI.Sidebar = class {
 		this._enhanceItems();
 
 		this.body.addEventListener('click', this._onBodyClick);
+		this.body.addEventListener('keydown', this._onBodyKeydown);
 		if(this.draggable) this._initDraggable();
 		if(this.opts.tooltips) this._initTooltips();
 	}
@@ -216,7 +217,7 @@ CerbUI.Sidebar = class {
 		this.filterInput.setAttribute('autocomplete', 'off');
 		this.filterInput.setAttribute('spellcheck', 'false');
 		this.filterInput.addEventListener('input', this._onFilterInput);
-		this.head.appendChild(this.filterInput);
+		this.filterInput.addEventListener('keydown', this._onFilterKeydown);
 		// Sit the filter inline to the LEFT of the collapse toggle — one head row, no empty bar above it.
 		this.headBar.insertBefore(this.filterInput, this.toggleBtn);
 	}
@@ -488,6 +489,60 @@ CerbUI.Sidebar = class {
 
 	_onFilterInput() { this.setFilter(this.filterInput.value); }
 
+	// Visible, focusable item <li>s in DOM order (skips filtered-out and collapsed-away items).
+	_focusableItems() {
+		return this.items
+			.map(it => it.li)
+			.filter(li => !li.classList.contains('cerb-ui-sidebar--item-hidden') && li.offsetParent !== null);
+	}
+
+	// ArrowDown from the filter drops focus into the menu (first visible item).
+	_onFilterKeydown(e) {
+		if(e.key !== 'ArrowDown') return;
+		const items = this._focusableItems();
+		if(!items.length) return;
+		e.preventDefault();
+		items[0].focus();
+	}
+
+	// Roving keyboard nav once focus is in the menu: Up/Down move; Up past the top returns to the
+	// filter; Home/End jump; Enter/Space select; Escape returns to the filter.
+	_onBodyKeydown(e) {
+		const li = e.target.closest('li.cerb-ui-sidebar--item');
+		if(!li || !this.body.contains(li)) return;
+		const items = this._focusableItems();
+		const idx = items.indexOf(li);
+		if(idx === -1) return;
+
+		switch(e.key) {
+			case 'ArrowDown':
+				e.preventDefault();
+				if(idx < items.length - 1) items[idx + 1].focus();
+				break;
+			case 'ArrowUp':
+				e.preventDefault();
+				if(idx > 0) items[idx - 1].focus();
+				else if(this.filterInput) this.filterInput.focus();
+				break;
+			case 'Home':
+				e.preventDefault();
+				items[0].focus();
+				break;
+			case 'End':
+				e.preventDefault();
+				items[items.length - 1].focus();
+				break;
+			case 'Enter':
+			case ' ':
+				e.preventDefault();
+				li.click();
+				break;
+			case 'Escape':
+				if(this.filterInput) { e.preventDefault(); this.filterInput.focus(); }
+				break;
+		}
+	}
+
 	getFilter() { return this.filterInput ? this.filterInput.value : ''; }
 
 	setFilter(query) {
@@ -515,8 +570,12 @@ CerbUI.Sidebar = class {
 	destroy() {
 		CerbUI.Sidebar._instances.delete(this.el);
 		this.body.removeEventListener('click', this._onBodyClick);
+		this.body.removeEventListener('keydown', this._onBodyKeydown);
 		if(this.toggleBtn) this.toggleBtn.removeEventListener('click', this._onToggleClick);
-		if(this.filterInput) this.filterInput.removeEventListener('input', this._onFilterInput);
+		if(this.filterInput) {
+			this.filterInput.removeEventListener('input', this._onFilterInput);
+			this.filterInput.removeEventListener('keydown', this._onFilterKeydown);
+		}
 		if(this._draggable) this._draggable.destroy();
 		this.body.removeEventListener('mouseover', this._onItemOver);
 		this.body.removeEventListener('mouseout', this._onItemOut);
