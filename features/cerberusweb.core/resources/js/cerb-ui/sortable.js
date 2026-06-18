@@ -135,6 +135,11 @@ CerbUI.Sortable = class {
 		const item = this.getItems().find(el => el === target || el.contains(target));
 		if(!item) return;
 
+		// Don't hijack pointer-downs on interactive text controls inside an item — let inputs/textareas/
+		// contenteditables keep native caret placement, text selection, and double-click word-select.
+		if(target.closest('input, textarea, select, [contenteditable]'))
+			return;
+
 		// Enforce handle constraint
 		if(this.opts.handle) {
 			const handle = target.closest(this.opts.handle);
