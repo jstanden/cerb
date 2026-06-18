@@ -1,0 +1,46 @@
+// Avatar: a small monogram circle (CerbUI.Avatar). Hash-locked bg + white initials; swaps to a
+// background-image when a real photo lazy-loads (--image). Size defaults to 22px; callers override
+// via the JS `size` option (inline width/height/font-size) or a wrapper class.
+.cerb-ui-avatar {
+	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 22px;
+	height: 22px;
+	border-radius: 50%;
+	color: #fff;
+	font-size: 0.7em;
+	font-weight: 600;
+	line-height: 1;
+	text-transform: uppercase;
+	overflow: hidden;
+	background-size: cover;
+	background-position: center;
+	user-select: none;
+
+	img { width: 100%; height: 100%; object-fit: cover; display: block; }
+}
+
+// Avatar stack: a row of overlapping avatars + a trailing "+N" overflow bubble (CerbUI.AvatarStack).
+// Each avatar gets a ring in the page bg so the overlap reads cleanly; hover lifts the one under the cursor.
+.cerb-ui-avatar-stack {
+	display: inline-flex;
+	align-items: center;
+
+	> .cerb-ui-avatar {
+		position: relative;
+		border: 2px solid var(--cerb-color-background);
+		transition: transform 0.1s ease;
+
+		& + .cerb-ui-avatar { margin-left: -8px; }
+		&:hover { transform: translateY(-2px); z-index: 1; }
+	}
+
+	// The +N overflow bubble: a muted circle (no hashed identity color).
+	.cerb-ui-avatar--more {
+		background: var(--cerb-color-background-contrast-220);
+		color: var(--cerb-color-background-contrast-130);
+		font-weight: 600;
+	}
+}
