@@ -22,6 +22,8 @@
 					<span class="cerb-icons cerb-icon-pause"></span> Paused
 				{elseif $model->status_id == 2}
 					<span class="cerb-icons cerb-icon-circle-ok"></span> {'common.done'|devblocks_translate|capitalize}
+				{elseif $model->status_id == 3}
+					<span class="cerb-icons cerb-icon-ban"></span> Canceled
 				{/if}
 			</td>
 		</tr>

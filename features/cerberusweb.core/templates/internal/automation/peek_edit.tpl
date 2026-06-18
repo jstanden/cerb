@@ -85,7 +85,7 @@
 			<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-changesets-code title="{'common.change_history'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-history"></span></button>
 		{/if}
 		<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-commands title="Editor Commands"><span class="cerb-icons cerb-icon-adjust"></span></button>
-		<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-export title="{'common.export'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-disk-export"></span></button>
+		<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-export title="{'common.export'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-upload"></span></button>
 	</div>
 	<textarea name="automation_script" data-editor-mode="ace/mode/cerb_kata" data-editor-lines="25">{$model->script}</textarea>
 </div>

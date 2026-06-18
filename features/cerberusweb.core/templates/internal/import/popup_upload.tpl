@@ -13,7 +13,7 @@
 	<div class="file-drop-zone" style="margin-top:5px;padding:20px;border:2px dashed var(--cerb-color-background-contrast-150);border-radius:8px;text-align:center;transition:border-color 0.2s, background-color 0.2s;">
 		<input type="file" name="import_file" id="importFileInput" style="position:absolute;left:-9999px;">
 		<label for="importFileInput" class="file-drop-message" style="display:block;cursor:pointer;">
-			<span class="cerb-icons cerb-icon-file-import" style="font-size:24px;color:var(--cerb-color-background-contrast-150);"></span>
+			<span class="cerb-icons cerb-icon-download" style="font-size:24px;color:var(--cerb-color-background-contrast-150);"></span>
 			<div style="margin-top:8px;color:var(--cerb-color-background-contrast-180);">
 				{'common.upload.file.drag_and_drop'|devblocks_translate} <span style="color:var(--cerb-color-link);text-decoration:underline;">{'common.upload.file.browse'|devblocks_translate|lower}</span>
 			</div>
