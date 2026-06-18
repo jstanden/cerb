@@ -56,6 +56,8 @@ class Page_Custom extends CerberusPageExtension {
 		switch($action) {
 			case 'invoke':
 				return $this->_pageAction_invoke();
+			case 'invokeTab':
+				return $this->_pageAction_invokeTab();
 			case 'invokeWidget':
 				return $this->_pageAction_invokeWidget();
 			case 'renderAddTabs':
@@ -106,6 +108,40 @@ class Page_Custom extends CerberusPageExtension {
 		}
 	}
 	
+	private function _pageAction_invokeTab() {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		$tab_id = DevblocksPlatform::importGPC($_REQUEST['tab_id'] ?? null, 'integer', 0);
+		@$action = DevblocksPlatform::importGPC(isset($_GET['action']) ? $_GET['action'] : $_REQUEST['action'], 'string', '');
+
+		if(false == ($tab = DAO_WorkspaceTab::get($tab_id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+
+		if(false == ($page = DAO_WorkspacePage::get($tab->workspace_page_id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+
+		if(!Context_WorkspacePage::isReadableByActor($page, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
+		if(false == ($extension = $tab->getExtension()))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+
+		if($extension instanceof Extension_WorkspaceTab) {
+			if(false === ($extension->invoke($action, $page, $tab))) {
+				if(!DEVELOPMENT_MODE_SECURITY_SCAN) {
+					trigger_error(
+						sprintf('Call to undefined workspace tab action `%s::%s`',
+							get_class($extension),
+							$action
+						),
+						E_USER_NOTICE
+					);
+					DevblocksPlatform::dieWithHttpError(null, 404);
+				}
+			}
+		}
+	}
+
 	private function _pageAction_invokeWidget() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		

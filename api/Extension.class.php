@@ -2980,6 +2980,7 @@ abstract class Extension_WorkspaceTab extends DevblocksExtension {
 	}
 	
 	abstract function renderTab(Model_WorkspacePage $page, Model_WorkspaceTab $tab);
+	function invoke(string $action, Model_WorkspacePage $page, Model_WorkspaceTab $tab) { return false; }
 	function exportTabConfigJson(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {}
 	function importTabConfigJson($import_json, Model_WorkspaceTab $tab) {}
 	function renderTabConfig(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {}
