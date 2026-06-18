@@ -7,8 +7,10 @@
 	flex-direction: column;
 	gap: 1.1em; // vertical rhythm between fields/sections (hidden inputs don't add gaps)
 
-	// ── Controls — auto-styled inside a form (type-qualified so we beat the global cerb-base rules,
-	// which are imported earlier; the equal-specificity utilities import later and still win) ──
+	// ── Controls — auto-styled inside a form (descendant, so controls nested in a layout wrapper like a
+	// `cerb-u-flex` row are still styled). Type-qualified so we beat the global cerb-base rules (imported
+	// earlier); the equal-specificity utilities import later and still win. A nested component that brings
+	// its OWN input (RecordChooser/ContextChooser) opts out via the reset just below. ──
 	input[type="text"],
 	input[type="email"],
 	input[type="password"],
@@ -36,6 +38,19 @@
 		&::placeholder {
 			color: var(--cerb-color-background-contrast-150);
 		}
+	}
+
+	// A RecordChooser/ContextChooser embeds its own seamless input — keep the form chrome + the blue focus
+	// outline OFF it. Same specificity as the type-qualified rule above (`input.<class>` = `input[type]`),
+	// declared LATER in this file, so it wins. New in-form components that bring their own input should add
+	// a matching `.cerb-ui-form input.<their-input-class>` reset here.
+	input.cerb-ui-record-chooser--input,
+	input.cerb-ui-record-chooser--input:focus {
+		padding: 0;
+		border: 0;
+		background: none;
+		outline: none;
+		box-shadow: none;
 	}
 
 	textarea {
@@ -66,8 +81,10 @@
 
 // Small label above a control
 .cerb-ui-form--label {
+	color: var(--cerb-color-background-contrast-150);
 	font-size: 0.9em;
-	color: var(--cerb-color-widget-header);
+	text-transform: uppercase;
+	font-weight: 600;
 }
 
 // The required marker (a red asterisk on a label)
@@ -108,7 +125,7 @@
 	padding: 0.7em 1.1em;
 	background: var(--cerb-color-background-contrast-245);
 	border-bottom: 1px solid var(--cerb-color-background-contrast-220);
-	font-size: 0.75em;
+	font-size: 0.9em;
 	font-weight: 600;
 	letter-spacing: 0.08em;
 	text-transform: uppercase;
@@ -129,7 +146,10 @@
 	flex-wrap: wrap;
 	gap: 1em;
 
-	> .cerb-ui-form--field {
+	// `:where()` zeroes this selector's specificity so a `cerb-u-flex-{1..4}` utility on a field can set an
+	// explicit grow ratio (e.g. `cerb-u-flex-1` + `cerb-u-flex-2` = a third + two-thirds). With no utility,
+	// fields keep this equal, responsive default (14em basis → wrap when narrow).
+	> :where(.cerb-ui-form--field) {
 		flex: 1 1 14em;
 	}
 }
