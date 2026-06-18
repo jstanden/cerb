@@ -2835,15 +2835,26 @@ class DevblocksSearchCriteria {
 		if(str_starts_with($this->field, '*_')) {
 			return '';
 		}
-		
+
+		// Date fields use a 'never' sentinel for "no timestamp set" (0/NULL)
+		$is_date_field = in_array($fields[$this->field]->type, [Model_CustomField::TYPE_DATE, DevblocksSearchCriteria::TYPE_DATE]);
+		$is_never = $is_date_field && is_string($this->value) && 0 == strcasecmp(trim($this->value), 'never');
+
 		// [JAS]: Operators
 		switch($this->operator) {
 			case "eq":
 			case "=":
-				$where = sprintf("%s = %s",
-					$db_field_name,
-					self::_escapeSearchParam($this, $fields)
-				);
+				if($is_never) {
+					$where = sprintf("(%s = 0 OR %s IS NULL)",
+						$db_field_name,
+						$db_field_name
+					);
+				} else {
+					$where = sprintf("%s = %s",
+						$db_field_name,
+						self::_escapeSearchParam($this, $fields)
+					);
+				}
 				break;
 				
 			case DevblocksSearchCriteria::OPER_EQ_OR_NULL:
@@ -2864,10 +2875,17 @@ class DevblocksSearchCriteria {
 				
 			case "neq":
 			case "!=":
-				$where = sprintf("%s != %s",
-					$db_field_name,
-					self::_escapeSearchParam($this, $fields)
-				);
+				if($is_never) {
+					$where = sprintf("(%s != 0 AND %s IS NOT NULL)",
+						$db_field_name,
+						$db_field_name
+					);
+				} else {
+					$where = sprintf("%s != %s",
+						$db_field_name,
+						self::_escapeSearchParam($this, $fields)
+					);
+				}
 				break;
 			
 			case "in":
