@@ -52,6 +52,37 @@ new CerbUI.DatePicker(el, {
 });</pre>
 			</div>
 		</div>
+
+		{* Example: element trigger (icon-only, no input) + lazy per-month indicator pips *}
+		<div class="cerb-ui-header">
+			<div class="cerb-ui-header--label">Element trigger + indicator pips (<code>trigger:'element'</code>, <code>loadIndicators</code>) &mdash; bind an existing button/icon; mark days with activity</div>
+		</div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<button type="button" class="cerb-ui-button" id="uiref-datepicker-element">
+					<span class="cerb-icons cerb-icon-calendar"></span> Jump to date
+				</button>
+				<span class="cerb-uiref-result" style="margin-left:0.7em;">Selected: <b id="uiref-datepicker-element-result">&mdash;</b></span>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>// Bind to an existing element (no text input is read/written); the popup anchors to it.
+// loadIndicators is called per displayed month (cached) and paints .cerb-ui-pip dots:
+//   done  = primary color, stash = orange; a day with both shows both side-by-side.
+new CerbUI.DatePicker(buttonEl, {
+	trigger: 'element',
+	loadIndicators: function(year, month) {   // month is 0-based
+		return fetch('...?year=' + year + '&amp;month=' + (month + 1))
+			.then(r =&gt; r.json())
+			.then(j =&gt; ({ done: j.done, stash: j.stash }));   // arrays of day-of-month numbers
+	},
+	onSelect: function(date, formatted) { /* … */ },
+});
+
+// picker.refreshIndicators();  // drop the cache + repaint after data changes</pre>
+			</div>
+		</div>
 	</div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}">
@@ -72,6 +103,28 @@ new CerbUI.DatePicker(el, {
 		const el = document.getElementById('uiref-datepicker-button');
 		if(el && window.CerbUI && CerbUI.DatePicker) {
 			new CerbUI.DatePicker(el, { trigger: 'button', outputFormat: 'MMM D, YYYY' });
+		}
+	})();
+
+	// Datepicker: element trigger + lazy indicator pips (synthetic demo data per month)
+	(function() {
+		const el = document.getElementById('uiref-datepicker-element');
+		const out = document.getElementById('uiref-datepicker-element-result');
+		if(el && window.CerbUI && CerbUI.DatePicker) {
+			new CerbUI.DatePicker(el, {
+				trigger: 'element',
+				loadIndicators: function(year, month) {
+					// Demo: every 3rd day "done", every 5th "stash" (some days carry both).
+					const done = [], stash = [];
+					const days = new Date(year, month + 1, 0).getDate();
+					for(let d = 1; d <= days; d++) {
+						if(d % 3 === 0) done.push(d);
+						if(d % 5 === 0) stash.push(d);
+					}
+					return Promise.resolve({ done: done, stash: stash });
+				},
+				onSelect: function(date, formatted) { if(out) out.textContent = formatted; },
+			});
 		}
 	})();
 })();

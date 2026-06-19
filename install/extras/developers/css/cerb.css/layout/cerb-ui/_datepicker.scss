@@ -57,6 +57,18 @@
 	text-align: center;
 	font-weight: 600;
 	white-space: nowrap;
+	cursor: pointer; // click to jump back to the current month
+	border-radius: 6px;
+	transition: background 0.1s;
+
+	&:hover {
+		background: var(--cerb-color-background-contrast-240);
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--cerb-color-action-primary);
+		outline-offset: -1px;
+	}
 }
 
 .cerb-ui-datepicker--nav {
@@ -106,6 +118,7 @@
 }
 
 .cerb-ui-datepicker--day {
+	position: relative; // anchors the indicator pips row at the bottom of the cell
 	background: transparent;
 	border: none;
 	cursor: pointer;
@@ -129,6 +142,29 @@
 
 .cerb-ui-datepicker--day-other {
 	color: var(--cerb-color-background-contrast-180);
+}
+
+// Days with lazy-loaded activity get a bottom-centered pip row (reuses the shared .cerb-ui-pip dot,
+// colored inline via currentColor). A day can carry more than one pip (e.g. done + stash) side-by-side.
+.cerb-ui-datepicker--day-marked {
+	font-weight: 600;
+}
+
+.cerb-ui-datepicker--pips {
+	position: absolute;
+	bottom: 3px;
+	left: 0;
+	right: 0;
+	display: flex;
+	justify-content: center;
+	gap: 2px;
+	pointer-events: none;
+
+	.cerb-ui-pip {
+		width: 5px;
+		height: 5px;
+		flex-basis: 5px;
+	}
 }
 
 .cerb-ui-datepicker--day-today {

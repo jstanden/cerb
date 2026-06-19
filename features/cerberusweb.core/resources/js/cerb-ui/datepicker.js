@@ -80,7 +80,17 @@ CerbUI.DatePicker = class {
 			trigger:      'auto',
 			parseFormat:  null,
 			onSelect:     null,
+			// async (year, month0based) => {done:[dayNums], stash:[dayNums]} — marks days with a pip.
+			loadIndicators: null,
 		}, opts);
+
+		// 'element' mode binds to an existing toggle element (a button/icon) — no text input is read
+		// or written; the popup anchors to that element. Other modes own a text <input>.
+		this._elementMode = this.opts.trigger === 'element';
+		this.triggerEl = this._elementMode ? this.inputEl : null;
+		if(this._elementMode) this.inputEl = null;
+		// The element to position against + toggle from (input, or the trigger element).
+		this._anchorEl = this.inputEl || this.triggerEl;
 
 		this.docClick = null;
 		this.docKeydown = null;
@@ -90,17 +100,25 @@ CerbUI.DatePicker = class {
 		this._ignoreNextFocus = false;
 		this.toggleBtn = null;
 
+		// Per-month indicator pips: cache by "Y-M"; a seq token drops stale async responses.
+		this._indicatorCache = new Map();
+		this._indicatorSeq = 0;
+
 		// Bind handlers (stable references for add/remove)
 		this.onToggleClick = this.onToggleClick.bind(this);
+		this.onTriggerClick = this.onTriggerClick.bind(this);
 		this.onInputPointerdown = this.onInputPointerdown.bind(this);
 		this.onInputFocus = this.onInputFocus.bind(this);
 		this.onInputClick = this.onInputClick.bind(this);
 		this.onInputInput = this.onInputInput.bind(this);
 		this.onInputKeydown = this.onInputKeydown.bind(this);
 
-		const existingVal = this.inputEl.value.trim();
-		const initFmt = this.opts.parseFormat ?? this.opts.outputFormat;
-		const defaultDate = existingVal ? this.parseDate(existingVal, initFmt) : null;
+		let defaultDate = null;
+		if(this.inputEl) {
+			const existingVal = this.inputEl.value.trim();
+			const initFmt = this.opts.parseFormat ?? this.opts.outputFormat;
+			defaultDate = existingVal ? this.parseDate(existingVal, initFmt) : null;
+		}
 
 		const seed = defaultDate ?? new Date();
 		this.viewYear = seed.getFullYear();
@@ -132,11 +150,15 @@ CerbUI.DatePicker = class {
 
 		this.renderGrid();
 
-		this.inputEl.setAttribute('autocomplete', 'off');
-		this.inputEl.addEventListener('input',   this.onInputInput);
-		this.inputEl.addEventListener('keydown', this.onInputKeydown);
+		if(this.inputEl) {
+			this.inputEl.setAttribute('autocomplete', 'off');
+			this.inputEl.addEventListener('input',   this.onInputInput);
+			this.inputEl.addEventListener('keydown', this.onInputKeydown);
+		}
 
-		if(this.opts.trigger === 'button') {
+		if(this._elementMode) {
+			this.triggerEl.addEventListener('click', this.onTriggerClick);
+		} else if(this.opts.trigger === 'button') {
 			this.toggleBtn = this.buildToggleBtn();
 			this.inputEl.insertAdjacentElement('afterend', this.toggleBtn);
 		} else {
@@ -144,7 +166,13 @@ CerbUI.DatePicker = class {
 			this.inputEl.addEventListener('focus',       this.onInputFocus);
 			this.inputEl.addEventListener('click',       this.onInputClick);
 		}
-		CerbUI.DatePicker._instances.set(this.inputEl, this);
+		CerbUI.DatePicker._instances.set(this._anchorEl, this);
+	}
+
+	// 'element' mode: the bound element toggles the calendar (no input to sync).
+	onTriggerClick() {
+		if(this.isOpen()) this.close();
+		else this.openAndFocus();
 	}
 
 	// ── DOM builders ────────────────────────────────────────────────────────
@@ -185,8 +213,16 @@ CerbUI.DatePicker = class {
 		const prevYear  = this.makeNavBtn('cerb-ui-datepicker--prev-year',  'Previous year',  _DP_PREV_YEAR_SVG,  () => this.shiftYear(-1));
 		const prevMonth = this.makeNavBtn('cerb-ui-datepicker--prev-month', 'Previous month', _DP_PREV_MONTH_SVG, () => this.shiftMonth(-1));
 
+		// The caption doubles as a "jump back to the current month" shortcut.
 		const caption = document.createElement('div');
 		caption.className = 'cerb-ui-datepicker--caption';
+		caption.setAttribute('role', 'button');
+		caption.setAttribute('tabindex', '0');
+		caption.setAttribute('title', 'Go to current month');
+		caption.addEventListener('click', () => this.goToToday());
+		caption.addEventListener('keydown', (e) => {
+			if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.goToToday(); }
+		});
 
 		const nextMonth = this.makeNavBtn('cerb-ui-datepicker--next-month', 'Next month', _DP_NEXT_MONTH_SVG, () => this.shiftMonth(1));
 		const nextYear  = this.makeNavBtn('cerb-ui-datepicker--next-year',  'Next year',  _DP_NEXT_YEAR_SVG,  () => this.shiftYear(1));
@@ -310,6 +346,70 @@ CerbUI.DatePicker = class {
 		if(!hasSelected && firstCurrentTabTarget) {
 			firstCurrentTabTarget.setAttribute('tabindex', '0');
 		}
+
+		this._refreshIndicators();
+	}
+
+	// ── Indicator pips (lazy, per displayed month) ─────────────────────────────
+
+	// Load (or reuse cached) indicators for the displayed month and paint pips. A seq token + a
+	// month re-check drop stale async responses if the user navigated away before it resolved.
+	_refreshIndicators() {
+		if(!this.opts.loadIndicators) return;
+		const y = this.viewYear;
+		const m = this.viewMonth;
+		const key = `${y}-${m}`;
+		if(this._indicatorCache.has(key)) {
+			this._applyIndicators(this._indicatorCache.get(key));
+			return;
+		}
+		const seq = ++this._indicatorSeq;
+		Promise.resolve(this.opts.loadIndicators(y, m)).then((data) => {
+			const norm = { done: (data && data.done) || [], stash: (data && data.stash) || [] };
+			this._indicatorCache.set(key, norm);
+			if(seq === this._indicatorSeq && this.viewYear === y && this.viewMonth === m)
+				this._applyIndicators(norm);
+		}).catch(() => {});
+	}
+
+	// Paint pips onto the current grid's in-month cells (reuses the shared .cerb-ui-pip dot, colored
+	// inline via currentColor). Done = primary, stash = orange; a day with both shows both side-by-side.
+	_applyIndicators(data) {
+		const done  = new Set((data.done  || []).map(Number));
+		const stash = new Set((data.stash || []).map(Number));
+
+		this.daysGrid.querySelectorAll('.cerb-ui-datepicker--day').forEach((cell) => {
+			const old = cell.querySelector('.cerb-ui-datepicker--pips');
+			if(old) old.remove();
+			cell.classList.remove('cerb-ui-datepicker--day-marked');
+
+			if(cell.classList.contains('cerb-ui-datepicker--day-other')) return; // in-month only
+
+			const d = Number(cell.dataset.d);
+			const isDone  = done.has(d);
+			const isStash = stash.has(d);
+			if(!isDone && !isStash) return;
+
+			const row = document.createElement('span');
+			row.className = 'cerb-ui-datepicker--pips';
+			const pip = (color) => {
+				const p = document.createElement('span');
+				p.className = 'cerb-ui-pip';
+				p.style.color = color;
+				row.appendChild(p);
+			};
+			if(isDone)  pip('var(--cerb-color-action-primary)');
+			if(isStash) pip('var(--cerb-color-tag-orange)');
+
+			cell.appendChild(row);
+			cell.classList.add('cerb-ui-datepicker--day-marked');
+		});
+	}
+
+	// Drop the cached indicators and repaint — call after data that affects pips changes.
+	refreshIndicators() {
+		this._indicatorCache.clear();
+		this._refreshIndicators();
 	}
 
 	// ── Date helpers ─────────────────────────────────────────────────────────
@@ -393,21 +493,31 @@ CerbUI.DatePicker = class {
 		this.renderGrid();
 	}
 
+	// Reset the view to the current month (the caption shortcut) — navigation only, no selection.
+	goToToday() {
+		const now = new Date();
+		this.viewYear  = now.getFullYear();
+		this.viewMonth = now.getMonth();
+		this.renderGrid();
+	}
+
 	// ── Selection ────────────────────────────────────────────────────────────
 
 	selectDate(date) {
 		this.selectedDate = date;
 		const formatted = this.formatDate(date);
-		this.inputEl.value = formatted;
-		this.inputEl.dispatchEvent(new Event('input',  { bubbles: true }));
-		this.inputEl.dispatchEvent(new Event('change', { bubbles: true }));
+		if(this.inputEl) {
+			this.inputEl.value = formatted;
+			this.inputEl.dispatchEvent(new Event('input',  { bubbles: true }));
+			this.inputEl.dispatchEvent(new Event('change', { bubbles: true }));
+		}
 		if(this.opts.onSelect) this.opts.onSelect(date, formatted);
-		this.inputEl.dispatchEvent(new CustomEvent('cerb-ui-datepicker:select', {
+		this._anchorEl.dispatchEvent(new CustomEvent('cerb-ui-datepicker:select', {
 			detail: { date, formatted },
 			bubbles: true,
 		}));
 		this.close();
-		if(document.activeElement !== this.inputEl) {
+		if(this.inputEl && document.activeElement !== this.inputEl) {
 			if(this.opts.trigger === 'auto') this._ignoreNextFocus = true;
 			this.inputEl.focus();
 		}
@@ -416,7 +526,7 @@ CerbUI.DatePicker = class {
 	// ── Positioning ──────────────────────────────────────────────────────────
 
 	position() {
-		const rect = this.inputEl.getBoundingClientRect();
+		const rect = this._anchorEl.getBoundingClientRect();
 		const calH = this.el.offsetHeight || 300;
 		const calW = this.el.offsetWidth  || 272;
 
@@ -481,6 +591,8 @@ CerbUI.DatePicker = class {
 	attachDocListeners() {
 		this.docClick = (e) => {
 			const t = e.target;
+			// In 'element' mode let the trigger's own click toggle (don't double-handle as outside).
+			if(this.triggerEl && this.triggerEl.contains(t)) return;
 			if(!this.el.contains(t) && t !== this.inputEl && t !== this.toggleBtn) {
 				this.close();
 			}
@@ -489,7 +601,9 @@ CerbUI.DatePicker = class {
 			if(e.key === 'Escape') {
 				e.preventDefault();
 				this.close();
-				if(document.activeElement !== this.inputEl) {
+				if(this.triggerEl) {
+					this.triggerEl.focus();
+				} else if(document.activeElement !== this.inputEl) {
 					// In 'auto' mode suppress the focus handler so it doesn't reopen.
 					if(this.opts.trigger === 'auto') this._ignoreNextFocus = true;
 					this.inputEl.focus();
@@ -601,11 +715,11 @@ CerbUI.DatePicker = class {
 	setDate(date) {
 		if(date === null) {
 			this.selectedDate = null;
-			this.inputEl.value = '';
+			if(this.inputEl) this.inputEl.value = '';
 		} else {
 			const d = date instanceof Date ? date : this.parseDate(date, this.opts.outputFormat);
 			this.selectedDate = d;
-			if(d) this.inputEl.value = this.formatDate(d);
+			if(d && this.inputEl) this.inputEl.value = this.formatDate(d);
 		}
 		if(this.selectedDate) {
 			this.viewYear  = this.selectedDate.getFullYear();
@@ -619,14 +733,18 @@ CerbUI.DatePicker = class {
 	}
 
 	destroy() {
-		CerbUI.DatePicker._instances.delete(this.inputEl);
+		CerbUI.DatePicker._instances.delete(this._anchorEl);
 		this.close();
-		this.inputEl.removeEventListener('input',   this.onInputInput);
-		this.inputEl.removeEventListener('keydown', this.onInputKeydown);
-		if(this.toggleBtn) {
+		if(this.inputEl) {
+			this.inputEl.removeEventListener('input',   this.onInputInput);
+			this.inputEl.removeEventListener('keydown', this.onInputKeydown);
+		}
+		if(this._elementMode) {
+			this.triggerEl.removeEventListener('click', this.onTriggerClick);
+		} else if(this.toggleBtn) {
 			this.toggleBtn.removeEventListener('click', this.onToggleClick);
 			this.toggleBtn.remove();
-		} else {
+		} else if(this.inputEl) {
 			this.inputEl.removeEventListener('pointerdown', this.onInputPointerdown);
 			this.inputEl.removeEventListener('focus',       this.onInputFocus);
 			this.inputEl.removeEventListener('click',       this.onInputClick);
