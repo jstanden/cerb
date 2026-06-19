@@ -33,6 +33,7 @@
 	handle:     '',            // selector for a drag handle within each item (default: whole item)
 	helper:     'original',    // 'original' | 'clone' | (item) =&gt; HTMLElement  (default 'original')
 	distance:   5,             // px the pointer must move before a drag starts (default 5)
+	disabled:   false,         // disable drag-and-drop functionality (default false)
 	tolerance:  'pointer',     // 'pointer' (midpoint) | 'intersect' (max overlap) (default 'pointer')
 	connectWith: [],           // other Sortable container elements for cross-list dragging
 	// placeholderClass: '',   // extra class added to both placeholder elements

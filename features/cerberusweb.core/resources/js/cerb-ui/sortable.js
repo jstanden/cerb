@@ -37,6 +37,7 @@ CerbUI.Sortable = class {
 			connectWith:      [],
 			placeholderClass: '',
 			ghostOrigin:      false, // show the origin slot as a dimmed clone of the item (vs. a dashed box)
+			disabled:         false, // when true, drags don't start (toggle opts.disabled to gate dragging)
 			onStart:          null,
 			onStop:           null,
 			onSorted:         null,
@@ -127,6 +128,7 @@ CerbUI.Sortable = class {
 
 	onPointerDown(e) {
 		if(e.button !== 0) return;
+		if(this.opts.disabled) return; // dragging gated off (e.g. a column's multi-select mode)
 
 		const target = e.target;
 
