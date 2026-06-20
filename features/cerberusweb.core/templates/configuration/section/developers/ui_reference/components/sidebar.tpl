@@ -3,7 +3,7 @@
 
 		{* Example: a collapsible nav rail — sections, icon/pip + label + right badge, chevron toggle, footer slot *}
 		<div class="cerb-ui-header">
-			<div class="cerb-ui-header--label">Collapsible rail &mdash; sections, items (icon/pip &middot; label &middot; right badge), a chevron toggle that collapses to an icon strip, a non-scrolling footer. The body scrolls; head/foot stay put</div>
+			<div class="cerb-ui-header--label">Collapsible rail &mdash; sections, items (icon/pip &middot; label &middot; right badge), a chevron toggle that collapses to an icon strip, a non-scrolling footer. The body scrolls; head/foot stay put. An item's <code>data-icon</code> is a <a href="#icon">cerb-icons</a> name; prefix a dot for literal CSS class(es) &mdash; <code>data-icon=".fa.fa-star"</code> &mdash; to use a non-cerb glyph</div>
 		</div>
 		<div class="cerb-uiref-example">
 			<div class="cerb-uiref-demo">
@@ -140,7 +140,7 @@ CerbUI.Sidebar.from(el);   // -> the instance for a rail element{/literal}</pre>
 		</div>
 
 		{* Example: monogram avatars (data-avatar) + the filter row's inline chevron + keyboard nav *}
-		<div class="cerb-ui-header"><div class="cerb-ui-header--label">Monogram avatars (<code>data-avatar</code>) &mdash; each item paints a hash-locked <code>CerbUI.Avatar</code> in the icon slot instead of a shared glyph, so the <strong>collapsed strip stays legible</strong> (T&middot;M&middot;W&middot;O&hellip; not one repeated icon). The collapse chevron sits inline at the right of the filter; press <kbd>&darr;</kbd> in the filter to focus the list, then <kbd>&uarr;</kbd>/<kbd>&darr;</kbd> to move, <kbd>Enter</kbd> to pick, <kbd>Esc</kbd> to return. Add <code>data-avatar-image</code> for a photo that swaps in</div></div>
+		<div class="cerb-ui-header"><div class="cerb-ui-header--label">Monogram avatars (<code>data-avatar</code>) &mdash; each item paints a hash-locked <code>CerbUI.Avatar</code> in the icon slot instead of a shared glyph, so the <strong>collapsed strip stays legible</strong> (T&middot;M&middot;W&middot;O&hellip; not one repeated icon). The collapse chevron sits inline at the right of the filter; press <kbd>&darr;</kbd> in the filter to focus the list, then <kbd>&uarr;</kbd>/<kbd>&darr;</kbd> to move, <kbd>Enter</kbd> to pick, <kbd>Esc</kbd> to return. Add <code>data-avatar-image</code> for a photo that swaps in, or <code>data-avatar-icon</code> (a <a href="#icon">cerb-icons</a> name) to paint a glyph inside the color-locked circle instead of initials</div></div>
 		<div class="cerb-uiref-example">
 			<div class="cerb-uiref-demo">
 				<div class="cerb-ui-sidebar-layout" style="height:360px;border:1px solid var(--cerb-color-background-contrast-220);border-radius:8px;overflow:hidden;">
@@ -156,6 +156,7 @@ CerbUI.Sidebar.from(el);   // -> the instance for a rail element{/literal}</pre>
 									<li data-id="contact" data-avatar="Contacts" data-avatar-seed="cerb.contexts.contact">Contacts</li>
 									<li data-id="task" data-avatar="Tasks" data-avatar-seed="cerb.contexts.task">Tasks</li>
 									<li data-id="calendar" data-avatar="Calendar" data-avatar-seed="cerb.contexts.calendar">Calendar</li>
+									<li data-id="bots" data-avatar="Bots" data-avatar-seed="cerb.contexts.bot" data-avatar-icon="bot">Bots</li>
 								</ul>
 							</div>
 						</div>
@@ -168,10 +169,12 @@ CerbUI.Sidebar.from(el);   // -> the instance for a rail element{/literal}</pre>
 
 			<div class="cerb-uiref-code">
 				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
-				<pre data-cerb-uiref-source>&lt;!-- data-avatar = the monogram label; data-avatar-seed = the stable color key (optional); data-avatar-image = a photo URL (optional, swaps in). --&gt;
+				<pre data-cerb-uiref-source>&lt;!-- data-avatar = the monogram label; data-avatar-seed = the stable color key (optional); --&gt;
+&lt;!-- data-avatar-image = a photo URL (optional, swaps in); data-avatar-icon = a cerb-icons name (optional, a glyph instead of initials). --&gt;
 &lt;ul&gt;
 	&lt;li data-id="ticket" data-avatar="Tickets" data-avatar-seed="cerb.contexts.ticket"&gt;Tickets&lt;/li&gt;
 	&lt;li data-id="worker" data-avatar="Workers" data-avatar-seed="cerb.contexts.worker"&gt;Workers&lt;/li&gt;
+	&lt;li data-id="bots" data-avatar="Bots" data-avatar-seed="cerb.contexts.bot" data-avatar-icon="bot"&gt;Bots&lt;/li&gt;
 &lt;/ul&gt;</pre>
 			</div>
 

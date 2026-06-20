@@ -290,6 +290,7 @@ CerbUI.Sidebar = class {
 				label: avatarLabel,
 				seed: li.getAttribute('data-avatar-seed') || avatarLabel,
 				imageUrl: li.getAttribute('data-avatar-image') || '',
+				icon: li.getAttribute('data-avatar-icon') || '',
 				size: 22,
 			}));
 		} else if(iconName) {
