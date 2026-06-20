@@ -16,16 +16,44 @@
 .cerb-u-block { display: block; }
 
 // Text
-.cerb-u-bold { font-weight: bold; }
 .cerb-u-nowrap { white-space: nowrap; }
 .cerb-u-text-center { text-align: center; }
 .cerb-u-text-uppercase { text-transform: uppercase; }
+// Muted/secondary text — the design system's standard de-emphasized text color
+.cerb-u-text-muted { color: var(--cerb-color-background-contrast-150); }
+
+// Font weight scale — numeric steps map straight to the CSS value (Bootstrap-style `fw-*` prefix);
+// e.g. cerb-u-fw-700 = bold, cerb-u-fw-400 = normal. 800 is headroom (not yet used in components).
+@each $w in 400, 500, 600, 700, 800 {
+	.cerb-u-fw-#{$w} { font-weight: #{$w}; }
+}
+// Readable aliases for the two most common font tweaks (cerb-u-bold == cerb-u-fw-700)
+.cerb-u-bold { font-weight: 700; }
+.cerb-u-italic { font-style: italic; }
+
+// Font size scale — anchored at 1em (.cerb-u-fs) with symmetric 0.05em steps either direction.
+// The number is how many steps from 1em (not the value): up = .cerb-u-fs-1..10 (1.05em → 1.5em),
+// down = .cerb-u-fs-n1..10 (0.95em → 0.5em). .cerb-u-fs-2x is a 2em shortcut for the common large
+// size beyond the linear range. Its own `fs-` prefix keeps size out of the text-* color group.
+$cerb-u-fs-step: 0.05;
+.cerb-u-fs { font-size: 1em; }
+@for $i from 1 through 10 {
+	.cerb-u-fs-#{$i}  { font-size: #{1 + $i * $cerb-u-fs-step}em; }
+	.cerb-u-fs-n#{$i} { font-size: #{1 - $i * $cerb-u-fs-step}em; }
+}
+.cerb-u-fs-2x { font-size: 2em; }
 
 // Position
 .cerb-u-relative { position: relative; }
 
-// Cursor
-.cerb-u-cursor-pointer { cursor: pointer; }
+// Cursor — the common interactive cursors. (Directional *-resize cursors are set dynamically in JS
+// during a drag, never via a static class, so they're deliberately left out.)
+@each $cur in pointer, default, move, grab, grabbing, text, not-allowed, crosshair {
+	.cerb-u-cursor-#{$cur} { cursor: #{$cur}; }
+}
+
+// User-select — opt an affordance out of text selection (e.g. a click-to-toggle header label).
+.cerb-u-select-none { user-select: none; }
 
 // Width (percent of the container)
 .cerb-u-w-25 { width: 25%; }
@@ -43,9 +71,43 @@
 // Background — strip a component's fill (e.g. a cerb-ui-pill rendered as a bare inline marker)
 .cerb-u-bg-none { background-color: transparent; }
 
-// Border width 0–5px (0 collapses a border the element already has; 1–5 just reset its width)
+// Shadow — strip an inherited box-shadow (e.g. a flat button variant with no elevation)
+.cerb-u-shadow-none { box-shadow: none; }
+
+// Grayscale — a relative ladder over the hand-tuned --cerb-color-background-contrast-* vars.
+// N = distance from the page background (1 = subtlest/nearest bg, 10 = max contrast) — identical mental
+// model in light & dark. Same N = same gray; the prefix picks the property: bgg = background, fgg =
+// foreground/text, bdg = border-color. Each step is (base, hover-target); cerb-u-bgg-hover reads the
+// per-step --cerb-u-bgg-hover and falls back to the standard hover gray (240) when there's no base.
+$cerb-u-grays: (
+	1:  (245, 240), 2:  (240, 230), 3:  (230, 220), 4:  (220, 200), 5:  (200, 180),
+	6:  (180, 150), 7:  (150, 125), 8:  (125, 100), 9:  (100, 75),  10: (50, 25),
+);
+@each $n, $pair in $cerb-u-grays {
+	$base: nth($pair, 1);
+	$hover: nth($pair, 2);
+	.cerb-u-bgg-#{$n} {
+		background-color: var(--cerb-color-background-contrast-#{$base});
+		--cerb-u-bgg-hover: var(--cerb-color-background-contrast-#{$hover});
+	}
+	.cerb-u-fgg-#{$n} { color: var(--cerb-color-background-contrast-#{$base}); }
+	.cerb-u-bdg-#{$n} { border-color: var(--cerb-color-background-contrast-#{$base}); }
+}
+// Opt-in adaptive hover: standard 240 by default, or one tier past the element's own bgg-N.
+.cerb-u-bgg-hover:hover {
+	background-color: var(--cerb-u-bgg-hover, var(--cerb-color-background-contrast-240));
+}
+
+// Border width 0–5px. Bare `cerb-u-border-N` sets all four sides; per-side `cerb-u-border-{t|r|b|l}-N`
+// sets one edge (e.g. cerb-u-border-b-0 collapses just the bottom). 0 collapses a border the element
+// already has; 1–5 set the width. (x/y pairs omitted for now — compose two per-side classes for t+b or l+r.)
 @for $i from 0 through 5 {
 	.cerb-u-border-#{$i} { border-width: #{$i}px; }
+}
+@each $abbr, $side in ('t': top, 'r': right, 'b': bottom, 'l': left) {
+	@for $i from 0 through 5 {
+		.cerb-u-border-#{$abbr}-#{$i} { border-#{$side}-width: #{$i}px; }
+	}
 }
 
 // Border radius (rounded corners). Scale matches the design system's component radii:
@@ -60,9 +122,15 @@ $cerb-u-radii: (0: 0, 1: 4px, 2: 6px, 3: 8px, 4: 10px);
 // a centered split is `cerb-u-flex cerb-u-items-center cerb-u-justify-between`. Pair with cerb-u-gap-*
 // for spacing between children and cerb-u-flex-1..4 on the children for grow ratios.
 .cerb-u-flex { display: flex; }
+.cerb-u-flex-inline { display: inline-flex; }
 .cerb-u-flex-wrap { flex-wrap: wrap; }
+.cerb-u-flex-row { flex-direction: row; }
+.cerb-u-flex-column { flex-direction: column; }
+.cerb-u-items-start { align-items: flex-start; }
 .cerb-u-items-center { align-items: center; }
 .cerb-u-items-stretch { align-items: stretch; }
+// Item-level align (overrides the container's align-items for this one child)
+.cerb-u-self-center { align-self: center; }
 .cerb-u-justify-center { justify-content: center; }
 .cerb-u-justify-between { justify-content: space-between; }
 .cerb-u-flex-shrink-0 { flex-shrink: 0; }

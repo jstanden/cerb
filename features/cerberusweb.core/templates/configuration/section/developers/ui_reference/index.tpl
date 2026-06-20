@@ -27,6 +27,11 @@
 /* Margin demos: a dashed reference frame so the box's margin reads as space pushing it in from its container */
 .cerb-uiref-utils--frame { display:inline-flex; border:1px dashed var(--cerb-color-background-contrast-200); border-radius:6px; }
 .cerb-uiref-utils--frame .cerb-uiref-utils--box { padding:0.15em 0.5em; }
+/* Grayscale swatch — NO background of its own (so cerb-u-bgg-* shows through); a border keeps near-bg steps
+   visible. Pair with a label beside it (a number stays legible regardless of the swatch's darkness). */
+.cerb-uiref-grayswatch { display:inline-block; width:1.7em; height:1.7em; border-radius:5px; border:1px solid var(--cerb-color-background-contrast-200); }
+/* Hover-demo chip — bordered + padded but NO background, so the element's own cerb-u-bgg-* (and the hover) show. */
+.cerb-uiref-hoverchip { display:inline-block; padding:0.4em 0.7em; border-radius:6px; border:1px solid var(--cerb-color-background-contrast-200); }
 
 /* Color-scale demo: rows of palette swatches + scale-keyed chips */
 .cerb-uiref-swatches { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-top:0.3em; }
