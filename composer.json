@@ -54,7 +54,7 @@
 		"league/oauth2-server": "8.5.5",
 		"league/oauth2-client": "2.9.0",
 		"guzzlehttp/guzzle": "7.10.0",
-		"phpseclib/phpseclib": "3.0.52",
+		"phpseclib/phpseclib": "3.0.54",
 		"tijsverkoyen/css-to-inline-styles": "2.2.6",
 		"ezyang/htmlpurifier": "v4.19.0",
 		"donatj/phpuseragentparser": "v1.11.0",
