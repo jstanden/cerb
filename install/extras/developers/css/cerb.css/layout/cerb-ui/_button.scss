@@ -55,4 +55,18 @@
 			color: var(--cerb-color-text);
 		}
 	}
+
+	// Transparent variant: no chrome (transparent background, no border) — for inline, icon-only
+	// affordances that sit on a colored surface. Picks up a subtle wash on hover so it still reads as a button.
+	&--transparent {
+		font-weight: normal;
+		border: 0;
+		background: transparent;
+		color: var(--cerb-color-text);
+
+		&:hover {
+			background: var(--cerb-color-background-contrast-240);
+			color: var(--cerb-color-text);
+		}
+	}
 }
