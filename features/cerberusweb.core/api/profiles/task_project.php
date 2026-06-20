@@ -19,6 +19,8 @@ class PageSection_ProfilesTaskProject extends Extension_PageSection {
 					return $this->_profileAction_savePeekJson();
 				case 'viewExplore':
 					return $this->_profileAction_viewExplore();
+				case 'viewTasksJson':
+					return $this->_profileAction_viewTasksJson();
 			}
 		}
 		return false;
@@ -164,6 +166,31 @@ class PageSection_ProfilesTaskProject extends Extension_PageSection {
 			]);
 			return;
 		}
+	}
+
+	// Batched task counts (todo/in-progress/waiting/done) for the worklist "Tasks" distbar column.
+	private function _profileAction_viewTasksJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+
+		$ids = DevblocksPlatform::importGPC($_REQUEST['ids'] ?? [], 'array', []);
+		$ids = array_filter(array_map('intval', $ids));
+
+		$out = [];
+
+		if($active_worker && $ids) {
+			// Projects can be private; only count those the worker may read
+			$models = DAO_TaskProject::getIds($ids);
+			$readable = Context_TaskProject::isReadableByActor($models, $active_worker);
+			$ids = array_keys(array_filter($readable));
+
+			if($ids)
+				$out = DAO_TaskProject::getTaskCountsForProjects($ids);
+		}
+
+		// Cast so the response is always a JSON object ({} when empty), keyed by project id
+		echo json_encode((object) $out);
 	}
 
 	private function _profileAction_viewExplore() {

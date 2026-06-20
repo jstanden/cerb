@@ -42,6 +42,16 @@
 		</th>
 		{/if}
 		{foreach from=$view->view_columns item=header name=headers}
+			{if $header == "*_tasks"}
+			<th class="no-sort" style="width:170px;">
+				<span style="margin-right:6px;">{$view_fields.$header->db_label|capitalize}</span>
+				{* Scope toggle: 'Open' (default) hides Done so it can't dominate long projects; 'All' shows everything *}
+				<span class="cerb-ui-switcher cerb-ui-switcher--xs" data-cerb-distbar-switcher>
+					<button type="button" data-value="open" class="cerb-ui-switcher--active">{'status.open'|devblocks_translate|capitalize}</button>
+					<button type="button" data-value="all">{'common.all'|devblocks_translate|capitalize}</button>
+				</span>
+			</th>
+			{else}
 			<th class="{if array_key_exists('disable_sorting', $view->options) && $view->options.disable_sorting}no-sort{/if}">
 			{if (!array_key_exists('disable_sorting', $view->options) || !$view->options.disable_sorting) && !empty($view_fields.$header->db_column)}
 				<a data-cerb-worklist-sort="{$header}">{$view_fields.$header->db_label|capitalize}</a>
@@ -52,6 +62,7 @@
 				<span class="cerb-icons {if $view->renderSortAsc}cerb-icon-sort-asc{else}cerb-icon-sort-desc{/if}" style="font-size:14px;{if array_key_exists('disable_sorting', $view->options) && $view->options.disable_sorting}color:rgb(80,80,80);{else}color:rgb(39,123,213);{/if}"></span>
 			{/if}
 			</th>
+			{/if}
 		{/foreach}
 	</tr>
 	</thead>
@@ -78,6 +89,10 @@
 				<a href="{devblocks_url}c=profiles&type=task_project&id={$result.t_id}-{$result.t_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.t_name}</a>
 				<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.t_id}"><span class="cerb-icons cerb-icon-new-window"></span></button>
 			</td>
+			{elseif $column == "*_tasks"}
+				<td data-column="*_tasks" style="width:170px;">
+					<div class="cerb-ui-distbar cerb-ui-distbar--mini" data-cerb-tasks="{$result.t_id}" style="min-width:120px;"></div>
+				</td>
 			{elseif $column=="*_owner"}
 				{$owner_context = $result.t_owner_context}
 				{$owner_context_id = $result.t_owner_context_id}
@@ -126,6 +141,18 @@
 
 <div style="clear:both;"></div>
 </form>
+
+{if in_array('*_tasks', $view->view_columns)}
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
+	{include file="devblocks:cerberusweb.core::internal/views/distbar_loader.tpl"
+		distbar_module='task_project' distbar_action='viewTasksJson' distbar_view_id=$view->id
+		distbar_cell_attr='data-cerb-tasks'
+		distbar_keys='done,waiting,todo,inprogress'
+		distbar_labels='Done,Stashed,Todo,In progress'
+		distbar_palette='var(--cerb-color-progress-done),var(--cerb-color-progress-available),var(--cerb-color-progress-inflight),var(--cerb-color-progress-scheduled)'
+		distbar_scope_keys='open=todo|inprogress|waiting;all=todo|inprogress|waiting|done'}
+</script>
+{/if}
 
 {include file="devblocks:cerberusweb.core::internal/views/view_common_jquery_ui.tpl"}
 

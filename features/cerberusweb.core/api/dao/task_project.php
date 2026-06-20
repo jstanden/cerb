@@ -222,6 +222,55 @@ class DAO_TaskProject extends Cerb_ORMHelper {
 		return $objects;
 	}
 
+	/**
+	 * Batched task counts per project, bucketed to match the daily task board
+	 * (todo / in-progress / waiting / done). Projects with no tasks are omitted;
+	 * callers should default those to zeros.
+	 *
+	 * @param int[] $project_ids
+	 * @return array<int,array{todo:int,inprogress:int,waiting:int,done:int,total:int}>
+	 */
+	public static function getTaskCountsForProjects(array $project_ids) : array {
+		$db = DevblocksPlatform::services()->database();
+
+		$project_ids = array_unique(array_filter(array_map('intval', $project_ids)));
+
+		if(!$project_ids)
+			return [];
+		
+		// Data query:
+		// type:worklist.subtotals
+		// of:tasks
+		// by.count:[project~1000,status~1000,isActive~1000]
+		// query:(project.id:[1,2,3])
+		// format:dictionaries
+		
+		$rows = $db->GetArrayMaster(sprintf(
+			"SELECT project_id, ".
+			"COALESCE(SUM(IF(status_id=0 AND is_active=0,1,0)),0) AS todo, ".
+			"COALESCE(SUM(IF(status_id=0 AND is_active=1,1,0)),0) AS inprogress, ".
+			"COALESCE(SUM(IF(status_id=2,1,0)),0) AS waiting, ".
+			"COALESCE(SUM(IF(status_id=1,1,0)),0) AS done, ".
+			"COUNT(*) AS total ".
+			"FROM task WHERE project_id IN (%s) GROUP BY project_id",
+			implode(',', $project_ids)
+		));
+
+		$counts = [];
+
+		foreach($rows as $row) {
+			$counts[intval($row['project_id'])] = [
+				'todo' => intval($row['todo']),
+				'inprogress' => intval($row['inprogress']),
+				'waiting' => intval($row['waiting']),
+				'done' => intval($row['done']),
+				'total' => intval($row['total']),
+			];
+		}
+
+		return $counts;
+	}
+
 	static function random() {
 		return self::_getRandom('task_project');
 	}
@@ -313,6 +362,9 @@ class SearchFields_TaskProject extends DevblocksSearchFields {
 	const string OWNER_CONTEXT_ID = 't_owner_context_id';
 	const string UPDATED_AT = 't_updated_at';
 
+	const string VIRTUAL_TASKS = '*_tasks'; // distbar display column
+	const string VIRTUAL_TASKS_SEARCH = '*_tasks_search'; // deep filter (hidden)
+
 	static private $_fields = null;
 
 	static function getTableName() : string {
@@ -341,6 +393,13 @@ class SearchFields_TaskProject extends DevblocksSearchFields {
 		switch($param->field) {
 			case DevblocksSearchField::VIRTUAL_OWNER:
 				return self::_getWhereSQLFromContextAndID($param, 'task_project.owner_context', 'task_project.owner_context_id');
+
+			case self::VIRTUAL_TASKS_SEARCH:
+				return self::_getWhereSQLFromVirtualSearchSqlField(
+					$param, Context_Task::ID,
+					"SELECT project_id FROM task WHERE id IN (%s)",
+					self::getPrimaryKey()
+				);
 
 			default:
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
@@ -382,6 +441,9 @@ class SearchFields_TaskProject extends DevblocksSearchFields {
 			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'task_project', 'owner_context', $translate->_('common.owner'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'task_project', 'owner_context_id', $translate->_('common.owner'), Model_CustomField::TYPE_NUMBER, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'task_project', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
+
+			self::VIRTUAL_TASKS => new DevblocksSearchField(self::VIRTUAL_TASKS, '*', '', $translate->_('common.tasks'), DevblocksSearchCriteria::TYPE_VIRTUAL_DISTBAR, false),
+			self::VIRTUAL_TASKS_SEARCH => new DevblocksSearchField(self::VIRTUAL_TASKS_SEARCH, '*', 'tasks_search', null, null, false),
 		];
 
 		if(($virtual_columns = DevblocksSearchField::getVirtualFields(owner: true)))
@@ -423,6 +485,7 @@ class View_TaskProject extends C4_AbstractView implements IAbstractView_Subtotal
 			DevblocksSearchField::VIRTUAL_OWNER,
 			SearchFields_TaskProject::IS_CLOSED,
 			SearchFields_TaskProject::UPDATED_AT,
+			SearchFields_TaskProject::VIRTUAL_TASKS,
 		];
 
 		$this->addColumnsHidden([
@@ -548,6 +611,13 @@ class View_TaskProject extends C4_AbstractView implements IAbstractView_Subtotal
 					['type' => 'search', 'context' => CerberusContexts::CONTEXT_ROLE, 'q' => ''],
 				],
 			],
+			'tasks' => [
+				'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+				'options' => ['param_key' => SearchFields_TaskProject::VIRTUAL_TASKS_SEARCH],
+				'examples' => [
+					['type' => 'search', 'context' => Context_Task::ID, 'q' => ''],
+				],
+			],
 			'updated' => [
 				'type' => DevblocksSearchCriteria::TYPE_DATE,
 				'options' => ['param_key' => SearchFields_TaskProject::UPDATED_AT],
@@ -574,6 +644,9 @@ class View_TaskProject extends C4_AbstractView implements IAbstractView_Subtotal
 		switch($field) {
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
+
+			case 'tasks':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_TaskProject::VIRTUAL_TASKS_SEARCH);
 
 			case 'watchers':
 				return DevblocksSearchCriteria::getWatcherParamFromTokens(DevblocksSearchField::VIRTUAL_WATCHERS, $tokens);
@@ -620,6 +693,13 @@ class View_TaskProject extends C4_AbstractView implements IAbstractView_Subtotal
 		switch($param->field) {
 			case DevblocksSearchField::VIRTUAL_OWNER:
 				$this->_renderVirtualContextLinks($param, 'Owner', 'Owners', 'Owner is');
+				break;
+
+			case SearchFields_TaskProject::VIRTUAL_TASKS_SEARCH:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.tasks')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
 				break;
 
 			default:
