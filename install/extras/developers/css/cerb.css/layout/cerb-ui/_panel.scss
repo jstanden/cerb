@@ -47,6 +47,13 @@
 
 	// Action button(s) in the right area are auto-styled solid in the accent color
 	.cerb-ui-header--right .cerb-ui-button {
+		// Override the component's forced height + the panel's anchor underline so an <a>-as-button
+		// (which top-aligns text in a fixed height) reads like the gallery's <button>: padding sizes it.
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4em;
+		height: auto;
+		text-decoration: none;
 		background: var(--cerb-ui-callout-btn);
 		color: #fff;
 		border: 0;
