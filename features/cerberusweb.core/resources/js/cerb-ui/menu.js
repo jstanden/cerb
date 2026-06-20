@@ -14,7 +14,8 @@
  * Markup (progressive enhancement): an authored UL > LI for the menu, UL > LI > UL > LI for a submenu.
  * An empty/whitespace <li> is a separator. Only data-* attributes are mirrored onto the rendered item
  * (the security boundary); labels are set via textContent. Icons are NOT in the markup — inject them with
- * the onRenderItem hook (read sourceLi.dataset.* and prepend a cerb-icons span).
+ * the onRenderItem hook (read sourceLi.dataset.* and prepend a cerb-icons span). A source li's
+ * data-keyboard renders a muted, right-aligned shortcut hint.
  *
  * Usage:
  *   const menu = new CerbUI.Menu(ulEl, { onSelect: (li, src, e) => { ... } });
@@ -513,6 +514,15 @@ CerbUI.Menu = class {
 		}
 
 		if(typeof this.opts.onRenderItem === 'function') this.opts.onRenderItem(li, item.el);
+
+		// Keyboard shortcut hint (muted, right-aligned) from the source li's data-keyboard.
+		const keyboard = item.el.dataset ? item.el.dataset.keyboard : '';
+		if(keyboard) {
+			const sc = document.createElement('span');
+			sc.className = 'cerb-ui-menu--shortcut';
+			sc.textContent = keyboard;
+			li.appendChild(sc);
+		}
 
 		if(item.children) {
 			const arrow = document.createElement('span');
