@@ -17,6 +17,7 @@ const el = CerbUI.Avatar.create({
 	label:     '',          // text → initials ('Tickets' → 'TI'; 'Jane Doe' → 'JD')
 	seed:      '',          // hashes to the color; stable per identity (defaults to label if omitted)
 	imageUrl:  '',          // optional photo — the monogram shows first, the image swaps in on load
+	icon:      '',          // a cerb-icons name → paints that glyph instead of initials (e.g. 'bot', 'calendar')
 	size:      0,           // px; scales the circle + font together (0 = CSS default, 22px)
 	className: '',          // extra class(es) added alongside cerb-ui-avatar
 	tag:       'span',      // the element tag to create
@@ -34,7 +35,7 @@ CerbUI.Avatar.color('worker:5');            // a stable css color for that seed
 CerbUI.Avatar.hash('worker:5');             // the 32-bit seed hash
 
 // ── data-* attributes read by the enhancer ──
-// data-avatar="Jane Doe"  data-avatar-seed="worker:5"  data-avatar-image="/avatar/worker/5"  data-avatar-size="32"{/literal}</pre>
+// data-avatar="Jane Doe"  data-avatar-seed="worker:5"  data-avatar-image="/avatar/worker/5"  data-avatar-size="32"  data-avatar-icon="bot"{/literal}</pre>
 			</div>
 		</div>
 
@@ -50,6 +51,24 @@ CerbUI.Avatar.hash('worker:5');             // the 32-bit seed hash
 			<div class="cerb-uiref-code">
 				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
 				<pre data-cerb-uiref-source>{literal}CerbUI.Avatar.create({ label: 'Acme', seed: 'org:42', size: 48 });{/literal}</pre>
+			</div>
+		</div>
+
+		{* Example: icon — a cerb-icons glyph in place of initials, inside the same hash-locked circle *}
+		<div class="cerb-ui-header">
+			<div class="cerb-ui-header--label">Icon &mdash; pass <code>icon</code> (a <a href="#icon">cerb-icons</a> name) and the avatar paints that glyph instead of initials, still over the <strong>hash-locked color</strong> from <code>seed</code>. Use it for record-type / category avatars that read better as a symbol than a monogram. The glyph inherits the avatar's foreground color</div>
+		</div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<div id="uiref-avatar-icons" class="cerb-u-flex cerb-u-flex-wrap cerb-u-items-center cerb-u-gap-2"></div>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>{literal}CerbUI.Avatar.create({ icon: 'bot', seed: 'cerb.contexts.bot', size: 32 });
+
+// …or on server-rendered markup via the enhancer:
+// &lt;span class="cerb-ui-avatar" data-avatar-icon="bot" data-avatar-seed="cerb.contexts.bot"&gt;&lt;/span&gt;{/literal}</pre>
 			</div>
 		</div>
 
@@ -183,6 +202,25 @@ new CerbUI.AvatarStack(el2, {
 		if(!host) return;
 		[22, 32, 48, 64].forEach(function(size) {
 			host.appendChild(CerbUI.Avatar.create({ label: 'Acme', seed: 'org:42', size: size }));
+		});
+	})();
+
+	// Icon: a cerb-icons glyph in place of initials, still over the seed's hash-locked color
+	(function() {
+		const host = document.getElementById('uiref-avatar-icons');
+		if(!host) return;
+		const icons = [
+			{ icon: 'bot', seed: 'cerb.contexts.bot', title: 'Bots' },
+			{ icon: 'calendar', seed: 'cerb.contexts.calendar', title: 'Calendar' },
+			{ icon: 'building-office', seed: 'cerb.contexts.org', title: 'Organizations' },
+			{ icon: 'comments', seed: 'cerb.contexts.comment', title: 'Comments' },
+			{ icon: 'database', seed: 'cerb.contexts.datastore', title: 'Datastore' },
+			{ icon: 'gear', seed: 'cerb.contexts.setup', title: 'Setup' }
+		];
+		icons.forEach(function(i) {
+			const el = CerbUI.Avatar.create({ icon: i.icon, seed: i.seed, size: 32 });
+			el.setAttribute('title', i.title);
+			host.appendChild(el);
 		});
 	})();
 

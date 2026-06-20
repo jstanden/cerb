@@ -12,8 +12,11 @@
  * shows instantly as a "graybox", then the picture swaps in once it loads — how a long list of profile
  * images paints without flashing empty.
  *
+ * Pass an `icon` (option) or data-avatar-icon (a cerb-icons name) to paint a glyph inside the color-locked
+ * circle instead of initials — e.g. a record-type / category avatar that's an icon, not a person's monogram.
+ *
  * Enhancer data-* attributes (all optional except the label):
- *   data-avatar="Jane Doe"  data-avatar-seed="worker:5"  data-avatar-image="/avatar/worker/5"  data-avatar-size="32"
+ *   data-avatar="Jane Doe"  data-avatar-seed="worker:5"  data-avatar-image="/avatar/worker/5"  data-avatar-size="32"  data-avatar-icon="bot"
  *
  * CerbUI.AvatarStack — a row of overlapping avatars with a trailing "+N" for the overflow. Enhance a
  * container of [data-avatar] children (new CerbUI.AvatarStack(el)) or pass { items:[…], max, size }.
@@ -53,7 +56,7 @@ CerbUI.Avatar = class {
 
 	// ── Paint (shared by create() + the enhancer) ───────────────────────
 
-	// Apply avatar styling + content to `el` in place. spec: { label, seed, imageUrl, size, enqueue }.
+	// Apply avatar styling + content to `el` in place. spec: { label, seed, imageUrl, size, icon, enqueue }.
 	static _apply(el, spec) {
 		el.classList.add('cerb-ui-avatar');
 		el.setAttribute('aria-hidden', 'true');
@@ -65,7 +68,14 @@ CerbUI.Avatar = class {
 		const seed = (spec.seed != null && spec.seed !== '') ? spec.seed : label;
 		el.style.backgroundColor = CerbUI.Avatar.color(seed);
 		el.style.backgroundImage = '';
-		el.textContent = CerbUI.Avatar.initials(label);
+		if(spec.icon) {
+			// A cerb-icons glyph in place of initials (inherits the avatar's foreground color).
+			const g = document.createElement('span');
+			g.className = 'cerb-icons cerb-icon-' + spec.icon;
+			el.replaceChildren(g);
+		} else {
+			el.textContent = CerbUI.Avatar.initials(label);
+		}
 		el.classList.remove('cerb-ui-avatar--image');
 		if(spec.imageUrl) CerbUI.Avatar._loadImage(el, spec.imageUrl, spec.enqueue);
 		return el;
@@ -88,7 +98,7 @@ CerbUI.Avatar = class {
 	}
 
 	// ── Build a fresh element ───────────────────────────────────────────
-	// opts: { label, seed, imageUrl, size(px), className, tag, enqueue }.
+	// opts: { label, seed, imageUrl, icon, size(px), className, tag, enqueue }.
 	static create(opts) {
 		opts = opts || {};
 		const el = document.createElement(opts.tag || 'span');
@@ -116,6 +126,7 @@ CerbUI.Avatar = class {
 			label:    opts.label    != null ? opts.label    : (d.avatar != null ? d.avatar : (this.el.textContent || '').trim()),
 			seed:     opts.seed     != null ? opts.seed     : (d.avatarSeed || ''),
 			imageUrl: opts.imageUrl != null ? opts.imageUrl : (d.avatarImage || ''),
+			icon:     opts.icon     != null ? opts.icon     : (d.avatarIcon || ''),
 			size:     sizeAttr || 0,
 			enqueue:  opts.enqueue,
 		};
