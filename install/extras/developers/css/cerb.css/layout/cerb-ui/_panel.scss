@@ -62,6 +62,23 @@
 		&:hover    { background: var(--cerb-ui-callout-btn-hover); color: #fff; }
 		&:disabled { background: var(--cerb-ui-callout-btn-disabled); }
 	}
+
+	// Secondary variants keep their outlined / transparent shape in callouts (they inherit the layout
+	// from the rule above), themed to the role color instead of the filled fill. Same specificity, declared
+	// later, so these win for --subtle / --transparent while a plain .cerb-ui-button stays filled.
+	.cerb-ui-header--right .cerb-ui-button--subtle,
+	.cerb-ui-header--right .cerb-ui-button--transparent {
+		background: transparent;
+		color: var(--cerb-ui-callout-btn);
+
+		&:hover { background: transparent; color: var(--cerb-ui-callout-btn-hover); }
+	}
+
+	.cerb-ui-header--right .cerb-ui-button--subtle {
+		border: 1px solid var(--cerb-ui-callout-btn);
+
+		&:hover { border-color: var(--cerb-ui-callout-btn-hover); }
+	}
 }
 
 // --- Warn (amber) ---
