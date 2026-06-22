@@ -26,7 +26,7 @@ abstract class AbstractAwait {
 	function setValue($key, $value, $dict) {
 		if($dict instanceof \DevblocksDictionaryDelegate) {
 			$dict->set($key, $value);
-		} elseif (is_array($dict)) {
+		} elseif (is_array($dict) && $key) {
 			$dict[$key] = $value;
 		}
 		

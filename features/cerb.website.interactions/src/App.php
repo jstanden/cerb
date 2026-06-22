@@ -582,7 +582,7 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 				// Format dictionary keys
 				foreach($last_prompts as $last_prompt_key => $last_prompt) {
 					list($last_prompt_type, $prompt_set_key) = array_pad(explode('/', $last_prompt_key, 2), 2, null);
-					$prompt_value = $prompts[$prompt_set_key] ?? null;
+					$prompt_value = $prompts[$prompt_set_key ?? ''] ?? null;
 					
 					if(array_key_exists($last_prompt_type, $form_components)) {
 						if(in_array($last_prompt_type, $prompts_without_output))

@@ -1868,7 +1868,7 @@ class Context_Automation extends Extension_DevblocksContext implements IDevblock
 			$tpl->assign('custom_fields', $custom_fields);
 	
 			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds($context, $context_id);
-			if(isset($custom_field_values[$context_id]))
+			if(array_key_exists($context_id ?? '', $custom_field_values))
 				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
 			
 			$types = Model_CustomField::getTypes();

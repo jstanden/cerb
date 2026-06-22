@@ -139,9 +139,9 @@
 			</td>
 			{elseif $column=="t_owner_id"}
 			<td data-column="{$column}">
-				{$owner = $workers.{$result.t_owner_id}}
+				{if $result.t_owner_id}{$owner = $workers.{$result.t_owner_id}}{else}{$owner = null}{/if}
 				{if $owner instanceof Model_Worker}
-					<img src="{devblocks_url}c=avatars&context=worker&context_id={$owner->id}{/devblocks_url}?v={$owner->updated}" style="height:1.2em;width:1.2em;border-radius:0.75em;vertical-align:middle;"> 
+					<img src="{devblocks_url}c=avatars&context=worker&context_id={$owner->id}{/devblocks_url}?v={$owner->updated}" style="height:1.2em;width:1.2em;border-radius:0.75em;vertical-align:middle;">
 					<a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$owner->id}">{$owner->getName()}</a>
 				{/if}
 			</td>

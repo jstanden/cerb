@@ -2986,7 +2986,7 @@ class DevblocksSearchCriteria {
 				
 				$has_multiple_values = false;
 				
-				if(substr($this->field, 0, 3) == 'cf_') {
+				if(str_starts_with($this->field, 'cf_')) {
 					$field_id = substr($this->field, 3);
 					$custom_field = DAO_CustomField::get($field_id);
 					$field_value_table = DAO_CustomFieldValue::getValueTableName($field_id);
