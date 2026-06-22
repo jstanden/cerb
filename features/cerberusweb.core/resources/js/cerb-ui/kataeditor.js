@@ -455,6 +455,9 @@ CerbUI.KataEditor = class {
 		// Undo/redo reverts text — the user isn't authoring, so don't pop suggestions (but still re-render above).
 		const it = e && e.inputType;
 		if(it === 'historyUndo' || it === 'historyRedo') return;
+		// Backspace/Delete shouldn't pop suggestions either (esp. when deleting indentation whitespace) — re-render
+		// only. ⌘/Ctrl+Space still forces the menu, and typing a char re-suggests normally.
+		if(it === 'deleteContentBackward' || it === 'deleteContentForward') return;
 		// Otherwise always schedule — KataScript autocomplete is built in even without a KATA `onAutocomplete`
 		// source; the controller's onItems decides whether there's anything to show.
 		this._ac.schedule();
@@ -469,13 +472,21 @@ CerbUI.KataEditor = class {
 		if(this._dispatchShortcut(e)) return;
 
 		if(menuOpen) {
-			// Plain ↑/↓ navigate the menu (opt-in); the Menu's own keydown does the highlight/scroll.
-			if((e.key === 'ArrowDown' || e.key === 'ArrowUp') && !(e.metaKey || e.ctrlKey || e.altKey)) {
+			const plain = !(e.metaKey || e.ctrlKey || e.altKey);
+			// ↓ engages the menu (and, once engaged, steps down it). ↑ only steps the menu if the user has already
+			// arrowed in — otherwise an unsolicited menu would hijack the first ↑; instead it's a normal "up a line"
+			// that dismisses the suggestions (handled by the text-navigation branch below).
+			if(plain && e.key === 'ArrowDown') {
 				e.preventDefault();
 				this._ac.navigated = true;
 				return;
 			}
-			// Any other arrow (modified ↑/↓ or plain ←/→) is text navigation — dismiss + native caret move.
+			if(plain && e.key === 'ArrowUp' && this._ac.navigated) {
+				e.preventDefault();
+				return; // propagate to Menu -> step up
+			}
+			// Any other arrow (modified ↑/↓, plain ←/→, or an un-engaged plain ↑) is text navigation — dismiss +
+			// native caret move.
 			if(e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
 				e.stopPropagation();
 				this._ac.close();
