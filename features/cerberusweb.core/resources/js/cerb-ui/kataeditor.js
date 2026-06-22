@@ -370,6 +370,7 @@ CerbUI.KataEditor = class {
 			{ id:'moveLineDown', keys:['Alt-ArrowDown'],  label:'Move line down',  menu:'close', run:() => this._moveLine(1) },
 			{ id:'indent',       keys:['Tab'],            label:'Indent',          menu:'close', run:() => this._indent() },
 			{ id:'dedent',       keys:['Shift-Tab'],      label:'Dedent',          menu:'close', run:() => this._dedent() },
+			{ id:'toggleComment',keys:['Mod-Slash'],      label:'Toggle comment',  menu:'close', run:() => this._toggleComment() },
 			{ id:'fold',         keys:['Mod-BracketLeft'],  label:'Fold',          menu:'close', run:() => this._foldAtCaret() },
 			{ id:'unfold',       keys:['Mod-BracketRight'], label:'Unfold',        menu:'close', run:() => this._unfoldAtCaret() },
 			{ id:'growEditor',   keys:['Mod-Shift-ArrowDown'], label:'Taller editor',  menu:'close', run:() => this._resizeMaxLines(1) },
@@ -618,6 +619,48 @@ CerbUI.KataEditor = class {
 		}).join('\n');
 		const newS = Math.max(lineStart, s - firstRemoved);
 		this._setValueAndCaret(before + out + after, newS, (s === e) ? newS : (e - totalRemoved));
+	}
+
+	// ⌘/ (Ctrl+/): block-comment toggle over the lines the selection touches. Comments are KATA lines whose first
+	// non-space char is '#' (see the tokenizer). If every non-blank line is already commented we uncomment, else we
+	// comment; blank lines are left alone. The whole affected line range is re-selected so a repeated ⌘/ keeps
+	// toggling the same block.
+	_toggleComment() {
+		this._ac.clearTimer();
+		this._revealForEdit();
+		const ta = this.textarea, v = ta.value, s = ta.selectionStart, e = ta.selectionEnd;
+		const lineStart = v.lastIndexOf('\n', s - 1) + 1;
+		const nl = v.indexOf('\n', e);
+		const endPos = (nl === -1) ? v.length : nl;
+		const lines = v.slice(lineStart, endPos).split('\n');
+
+		const nonBlank = lines.filter(ln => ln.trim().length > 0);
+		if(nonBlank.length === 0) return;
+		const uncomment = nonBlank.every(ln => ln.trimStart().charAt(0) === '#');
+
+		const out = lines.map(ln => {
+			if(ln.trim().length === 0) return ln;                      // leave blank lines untouched
+			const indentLen = ln.length - ln.trimStart().length;
+			const indent = ln.slice(0, indentLen), rest = ln.slice(indentLen);
+			if(uncomment) return indent + rest.replace(/^#[ ]?/, '');  // drop '#' + at most one space
+			return indent + '# ' + rest;
+		}).join('\n');
+
+		const next = v.slice(0, lineStart) + out + v.slice(endPos);
+
+		if(s === e) {
+			// No selection: keep a collapsed caret on the same text instead of selecting the line. The edit is at
+			// the line's indent column, so a caret in the content shifts by the line's length delta; one sitting in
+			// the leading whitespace stays put.
+			const oldLine = lines[0], newLine = out.split('\n', 1)[0];
+			const indentLen = oldLine.length - oldLine.trimStart().length;
+			const col = s - lineStart;
+			const newCol = (col <= indentLen) ? col : Math.max(indentLen, col + (newLine.length - oldLine.length));
+			this._setValueAndCaret(next, lineStart + newCol);
+			return;
+		}
+		// Selection: re-select the whole affected line range so a repeated ⌘/ keeps toggling the same block.
+		this._setValueAndCaret(next, lineStart, lineStart + out.length);
 	}
 
 	// Enter: newline, copying the current line's indent (and one extra level if it's a childless `key:`).
