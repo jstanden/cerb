@@ -64,6 +64,14 @@
 
         &.cerb-icons { cursor: pointer; }
     }
+    // A cerb: URI line gets a muted search marker that opens the record's peek on click (replaces Ace's ⌘-click).
+    &--gutter-marker-uri {
+        opacity: 0.5;
+        color: var(--cerb-editor-syntax-uri);
+
+        &:hover { opacity: 1; }
+    }
+
     // A "pip" marker = a filled dot in the slot (no icon glyph); tinted by the inline color (currentColor).
     &--gutter-marker-pip {
         cursor: pointer;
@@ -186,5 +194,8 @@
     // (see _editor.scss), so KataEditor only owns its KATA-specific token colors below.
     &--tok-comment { color: var(--cerb-editor-syntax-comment); }
     &--tok-key     { color: var(--cerb-editor-syntax-tag); }
-    &--tok-uri     { color: var(--cerb-editor-syntax-function); }
+    // A cerb: URI reads as a link — black in light / white in dark, underlined. (Underline is the one allowed
+    // exception to COLOR ONLY above: it's drawn under the glyph box, so it doesn't shift advances or the caret.)
+    // It's opened from the line's gutter search marker (see --gutter-marker-uri), not the token itself.
+    &--tok-uri     { color: var(--cerb-editor-syntax-uri); text-decoration: underline; }
 }

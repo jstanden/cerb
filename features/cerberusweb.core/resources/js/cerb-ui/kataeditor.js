@@ -43,6 +43,7 @@ CerbUI.KataEditor = class {
 		tabSize: 2,               // a Tab inserts this many spaces; Shift+Tab dedents by up to this many
 		placeholder: null,
 		onGutterClick: null,      // (modelRow, e) when the left marker column is clicked (e.g. toggle a breakpoint)
+		onOpenUri: null,          // (uri) override for the hover "Open" action on a cerb: URI (default: open its peek)
 	};
 
 	constructor(el, opts = {}) {
@@ -380,11 +381,16 @@ CerbUI.KataEditor = class {
 			if(!isNaN(mr)) this.toggleFold(mr);
 			return;
 		}
-		// Clicking the LEFT marker column fires onGutterClick (e.g. toggle a breakpoint); empty slots count too.
+		// Clicking the LEFT marker column: a cerb: URI marker opens that record's peek; otherwise it fires
+		// onGutterClick (e.g. toggle a breakpoint), empty slots included.
 		const mk = e.target.closest('.cerb-ui-kataeditor--gutter-marker');
-		if(mk && typeof this.opts.onGutterClick === 'function') {
-			const mr = parseInt(mk.getAttribute('data-model-row'), 10);
-			if(!isNaN(mr)) this.opts.onGutterClick(mr, e);
+		if(mk) {
+			const uri = mk.getAttribute('data-uri');
+			if(uri) { this._openUri(uri); return; }
+			if(typeof this.opts.onGutterClick === 'function') {
+				const mr = parseInt(mk.getAttribute('data-model-row'), 10);
+				if(!isNaN(mr)) this.opts.onGutterClick(mr, e);
+			}
 		}
 	}
 
@@ -681,6 +687,35 @@ CerbUI.KataEditor = class {
 		if(this.gutter) this.gutter.scrollTop = this.textarea.scrollTop;
 	}
 
+	// MODEL row -> the first cerb: URI on that line, for the gutter "open record" marker. Same regex the tokenizer
+	// uses for the 'uri' token; only complete `cerb:<context>:<id>` URIs (3 colon-parts) get a marker.
+	_uriRowsMap() {
+		const map = new Map(), RX = /cerb:[^\s)\]]+/, lines = this._modelLines();
+		for(let i = 0; i < lines.length; i++) {
+			const m = lines[i].match(RX);
+			const p = m ? m[0].split(':') : null;             // only a complete cerb:<context>:<id> is openable
+			if(p && p.length === 3 && p[1] && p[2]) map.set(i, m[0]);
+		}
+		return map;
+	}
+
+	// Open the record a cerb: URI points at. Replicates the old Ace ⌘-click: pop the record's peek via the global
+	// cerbPeekTrigger jQuery plugin. Format is `cerb:<context>:<id>`; anything else is ignored.
+	_openUri(uri) {
+		if(typeof this.opts.onOpenUri === 'function') { this.opts.onOpenUri(uri); return; }
+		const parts = String(uri).split(':');
+		if(parts.length !== 3 || parts[0] !== 'cerb') return;
+		const $ = window.jQuery;
+		if(typeof $ !== 'function' || typeof $.fn.cerbPeekTrigger !== 'function') return;
+		$('<div/>')
+			.attr('data-context', parts[1])
+			.attr('data-context-id', parts[2])
+			.cerbPeekTrigger()
+			.on('cerb-peek-saved cerb-peek-deleted cerb-peek-closed', function() { $(this).remove(); })
+			.click()
+		;
+	}
+
 	_renderGutter() {
 		if(!this.gutter) return;
 		const hidden = this._hidden;
@@ -689,9 +724,11 @@ CerbUI.KataEditor = class {
 		for(const r of this._foldableRanges()) headerState.set(r.headerRow, false);
 		for(const f of this._folds) headerState.set(f.startRow, true);
 		const anyFoldable = headerState.size > 0;             // reserve the chevron column only when needed
-		// Reserve the LEFT marker column when any marker exists, or whenever a gutter-click handler is wired
-		// (so an empty margin stays clickable to add a breakpoint).
-		const anyMarker = this._markers.size > 0 || typeof this.opts.onGutterClick === 'function';
+		// A clickable "open record" marker on every line that carries a cerb: URI (search icon).
+		const uriRows = this._uriRowsMap();
+		// Reserve the LEFT marker column when any marker (host or URI) exists, or whenever a gutter-click handler is
+		// wired (so an empty margin stays clickable to add a breakpoint).
+		const anyMarker = this._markers.size > 0 || uriRows.size > 0 || typeof this.opts.onGutterClick === 'function';
 		const esc = CerbUI.editorCore.escapeHtml;
 		const mCount = this._modelLines().length;
 		let html = '';
@@ -705,14 +742,18 @@ CerbUI.KataEditor = class {
 			let marker = '';
 			if(anyMarker) {
 				const mk = this._markers.get(mr);
-				let cls = 'cerb-ui-kataeditor--gutter-marker', style = '';
+				const uri = mk ? null : uriRows.get(mr);   // a host marker wins the slot; the URI marker fills the rest
+				let cls = 'cerb-ui-kataeditor--gutter-marker', style = '', attrs = '';
 				if(mk) {
 					cls += mk.pip ? ' cerb-ui-kataeditor--gutter-marker-pip' : (mk.icon ? (' cerb-icons cerb-icon-' + mk.icon) : '');
 					if(mk.type) cls += ' cerb-ui-kataeditor--gutter-marker-' + mk.type;
 					if(mk.color) style = ' style="color:var(--cerb-color-tag-' + mk.color + ')"';
+					if(mk.title) attrs = ' title="' + esc(mk.title) + '"';
+				} else if(uri) {
+					cls += ' cerb-icons cerb-icon-search cerb-ui-kataeditor--gutter-marker-uri';
+					attrs = ' title="' + esc('Open ' + uri) + '" data-uri="' + esc(uri) + '"';
 				}
-				marker = '<span class="' + cls + '" data-model-row="' + mr + '"' + style +
-					(mk && mk.title ? (' title="' + esc(mk.title) + '"') : '') + '></span>';
+				marker = '<span class="' + cls + '" data-model-row="' + mr + '"' + style + attrs + '></span>';
 			}
 			// Fold chevron sits to the RIGHT of the right-aligned number; an empty slot keeps the column aligned.
 			const slot = !anyFoldable ? '' :
@@ -1218,7 +1259,16 @@ CerbUI.KataEditor.kataFieldSource = function(suggestionMap, opts) {
 
 		switch(type) {
 			case 'cerb-uri':
-				return post('kataSuggestionsCerbUriJson', { prefix: prefix, params: $.param(params) });
+				return post('kataSuggestionsCerbUriJson', { prefix: prefix, params: $.param(params) }).then(function(items) {
+					// A record-type segment ends with ':' (e.g. `cerb:automation:`) and should cascade to the next
+					// level; a concrete record URI (e.g. `cerb:automation:my.name`) is terminal — but it carries
+					// colons too, so toItem's "has-colon → re-open" default mis-fires. Suppress on non-colon ends.
+					return items.map(function(it) {
+						const v = String(it.value != null ? it.value : '').replace('$0', '').replace(/\s+$/, '');
+						it.suppressAutocomplete = !v.endsWith(':');
+						return it;
+					});
+				});
 			case 'record-type':
 				return post('kataSuggestionsRecordTypeJson', { prefix: prefix });
 			case 'icon':
