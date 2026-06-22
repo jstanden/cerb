@@ -198,4 +198,12 @@
     // exception to COLOR ONLY above: it's drawn under the glyph box, so it doesn't shift advances or the caret.)
     // It's opened from the line's gutter search marker (see --gutter-marker-uri), not the token itself.
     &--tok-uri     { color: var(--cerb-editor-syntax-uri); text-decoration: underline; }
+
+    // Indentation guide: a faint vertical rule at the left edge of each tabSize-wide leading-whitespace span.
+    // Drawn with an INSET box-shadow (not a border) so it adds no width — glyph advances and the caret stay
+    // aligned, the same no-layout trick Ace used (a background image). The span holds the real indent spaces.
+    // The vertical padding extends the painted rule into the line-height leading so consecutive lines' guides
+    // meet (continuous, not dashed); vertical padding on an INLINE box paints but doesn't reflow, so there's no
+    // height change and no caret drift.
+    &--indent-guide { box-shadow: inset 1px 0 0 var(--cerb-color-background-contrast-225); padding: 0.35em 0; }
 }

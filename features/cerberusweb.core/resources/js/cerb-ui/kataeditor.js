@@ -41,6 +41,7 @@ CerbUI.KataEditor = class {
 		minLines: 2,              // editor never shrinks below this many rows
 		maxLines: 25,             // grows to this many rows, then scrolls (data-editor-lines overrides)
 		tabSize: 2,               // a Tab inserts this many spaces; Shift+Tab dedents by up to this many
+		indentGuides: true,       // faint vertical rule down each indentation level (continues across blank lines)
 		placeholder: null,
 		onGutterClick: null,      // (modelRow, e) when the left marker column is clicked (e.g. toggle a breakpoint)
 		onOpenUri: null,          // (uri) override for the hover "Open" action on a cerb: URI (default: open its peek)
@@ -656,7 +657,7 @@ CerbUI.KataEditor = class {
 
 	_renderHighlight() {
 		let toks = this._tokenize(this.textarea.value);
-		toks = this._injectFoldMarks(toks);
+		toks = this._injectIndentGuides(this._injectFoldMarks(toks));
 		CerbUI.editorCore.renderTokens(this.highlight, toks, CerbUI.KataEditor._TOK_CLASS);
 		this._syncScroll();
 	}
@@ -679,6 +680,64 @@ CerbUI.KataEditor = class {
 			out.push(t);
 		}
 		if(rows.has(row)) out.push({ type: 'foldmark', value: '' });  // last row (no trailing newline)
+		return out;
+	}
+
+	// Split each VIEW line's leading whitespace into one `indent-guide` token per tabSize columns, so the mirror
+	// paints a faint vertical rule down each indentation level (parity with Ace's indent guides). The guide span
+	// holds the actual spaces and draws its line via inset box-shadow — no width change, so glyph advances (and the
+	// caret) stay aligned. Truly-blank lines have no whitespace to carry guides, so we inject PHANTOM guide spaces
+	// at the surrounding depth (max of the nearest non-blank neighbors) — mirror-only, never in the textarea — so
+	// the guides visually continue across gaps. Leading whitespace is always spaces (tabs are sanitized away).
+	_injectIndentGuides(toks) {
+		const tab = this.opts.tabSize;
+		if(!this.opts.indentGuides || tab <= 0) return toks;
+
+		// Per view-line leading-space count (-1 = blank), for the blank-line contextual depth.
+		const indents = this.textarea.value.split('\n').map(s => {
+			let i = 0; while(i < s.length && s[i] === ' ') i++;
+			return (i === s.length) ? -1 : i;          // all-spaces or empty -> blank
+		});
+		const blankDepth = (row) => {
+			let p = 0, n = 0;
+			for(let r = row - 1; r >= 0; r--) if(indents[r] >= 0) { p = indents[r]; break; }
+			for(let r = row + 1; r < indents.length; r++) if(indents[r] >= 0) { n = indents[r]; break; }
+			return Math.max(p, n);
+		};
+		// `depth` columns of leading whitespace -> a guide token per full tabSize level + a plain remainder.
+		const guides = (depth) => {
+			const out = [];
+			const levels = Math.floor(depth / tab);
+			for(let i = 0; i < levels; i++) out.push({ type: 'indent-guide', value: ' '.repeat(tab) });
+			const rem = depth - levels * tab;
+			if(rem > 0) out.push({ type: 'text', value: ' '.repeat(rem) });
+			return out;
+		};
+
+		const out = [];
+		let row = 0, atLineStart = true;
+		const closeBlankLine = () => { const d = blankDepth(row); if(d >= tab) out.push(...guides(d)); };
+
+		for(const t of toks) {
+			if(t.type === 'text' && t.value === '\n') {
+				if(atLineStart) closeBlankLine();          // empty line — phantom guides at the surrounding depth
+				out.push(t); row++; atLineStart = true;
+				continue;
+			}
+			if(atLineStart) {
+				atLineStart = false;
+				const v = t.value;
+				let sp = 0; while(sp < v.length && v[sp] === ' ') sp++;
+				if(sp >= tab) {                            // at least one full indent level — peel it into guides
+					out.push(...guides(sp));
+					const rest = v.slice(sp);
+					if(rest.length) out.push({ type: t.type, value: rest });
+					continue;
+				}
+			}
+			out.push(t);
+		}
+		if(atLineStart) closeBlankLine();                  // last line, no trailing newline
 		return out;
 	}
 
@@ -1171,6 +1230,7 @@ CerbUI.KataEditor._TOK_CLASS = Object.assign({
 	colon:      'cerb-ui-kataeditor--tok-key',
 	uri:        'cerb-ui-kataeditor--tok-uri',
 	foldmark:   'cerb-ui-kataeditor--fold-indicator cerb-icons cerb-icon-move-horizontal',
+	'indent-guide': 'cerb-ui-kataeditor--indent-guide',
 }, CerbUI.editorCore.kataScript.TOK_CLASS);
 
 // Gutter marker type presets: a default icon (a `cerb-icon-<name>`) or `pip` (a colored dot) + a tag color.
