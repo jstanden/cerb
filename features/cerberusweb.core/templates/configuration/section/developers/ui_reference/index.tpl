@@ -15,6 +15,9 @@
 .cerb-uiref-code pre { margin:0; overflow:auto; padding:1.5em; border:1px dashed var(--cerb-color-background-contrast-220); border-radius:8px; color: var(--cerb-color-background-contrast-150); line-height:1.5; tab-size:2; }
 .cerb-uiref-copy { position:absolute; top:0.5em; right:0.5em; display:inline-flex; align-items:center; gap:0.35em; }
 
+/* Keyboard-shortcut reference: one binding per row, keys as cerb-ui-kbd caps */
+.cerb-uiref-keys { list-style:none; margin:0; padding:0; display:grid; gap:0.6em; line-height:1.9; color:var(--cerb-color-text); }
+
 /* Utilities: break the demo/code convention — a 2-col grid of clickable class name (click to copy) + live example, one per row */
 .cerb-uiref-utils { display:grid; grid-template-columns:max-content 1fr; gap:1em 1.5em; align-items:center; }
 .cerb-uiref-utils--name { justify-self:start; cursor:pointer; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:0.9em; padding:0.2em 0.5em; border:1px dashed var(--cerb-color-background-contrast-220); border-radius:6px; background:var(--cerb-color-background); white-space:nowrap; }

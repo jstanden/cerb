@@ -98,6 +98,23 @@ ed.clearMarkers();                              // remove every marker{/literal}
 			</div>
 		</div>
 
+		{* Reference (no live demo): the built-in keyboard shortcuts — also enumerable at runtime via getShortcuts() *}
+		<div class="cerb-ui-header">
+			<div class="cerb-ui-header--label">Keyboard shortcuts &mdash; <kbd class="cerb-ui-kbd">Mod</kbd> is <kbd class="cerb-ui-kbd">&#8984;</kbd> on macOS, <kbd class="cerb-ui-kbd">Ctrl</kbd> on Windows &amp; Linux. The same set is enumerable at runtime via <code>ed.getShortcuts()</code> (with OS-appropriate labels) to build a hint popup</div>
+		</div>
+		<div class="cerb-uiref-example">
+			<ul class="cerb-uiref-keys">
+				<li><kbd class="cerb-ui-kbd">Mod</kbd> + <kbd class="cerb-ui-kbd">Space</kbd> &mdash; show autocomplete suggestions (<kbd class="cerb-ui-kbd">&darr;</kbd> to pick, <kbd class="cerb-ui-kbd">Esc</kbd> to dismiss)</li>
+				<li><kbd class="cerb-ui-kbd">Tab</kbd> / <kbd class="cerb-ui-kbd">Shift</kbd> + <kbd class="cerb-ui-kbd">Tab</kbd> &mdash; indent / dedent the current line or selection</li>
+				<li><kbd class="cerb-ui-kbd">Mod</kbd> + <kbd class="cerb-ui-kbd">/</kbd> &mdash; toggle <code>#&nbsp;comment</code> on the current line or the selected lines</li>
+				<li><kbd class="cerb-ui-kbd">Mod</kbd> + <kbd class="cerb-ui-kbd">D</kbd> or <kbd class="cerb-ui-kbd">Alt</kbd> + <kbd class="cerb-ui-kbd">D</kbd> &mdash; delete the current line</li>
+				<li><kbd class="cerb-ui-kbd">Alt</kbd> + <kbd class="cerb-ui-kbd">&uarr;</kbd> / <kbd class="cerb-ui-kbd">Alt</kbd> + <kbd class="cerb-ui-kbd">&darr;</kbd> &mdash; move the current line or selection up / down</li>
+				<li><kbd class="cerb-ui-kbd">Mod</kbd> + <kbd class="cerb-ui-kbd">[</kbd> / <kbd class="cerb-ui-kbd">Mod</kbd> + <kbd class="cerb-ui-kbd">]</kbd> &mdash; fold / unfold the subtree at the caret</li>
+				<li><kbd class="cerb-ui-kbd">Mod</kbd> + <kbd class="cerb-ui-kbd">Shift</kbd> + <kbd class="cerb-ui-kbd">&darr;</kbd> / <kbd class="cerb-ui-kbd">Mod</kbd> + <kbd class="cerb-ui-kbd">Shift</kbd> + <kbd class="cerb-ui-kbd">&uarr;</kbd> &mdash; grow / shrink the editor height</li>
+				<li><kbd class="cerb-ui-kbd">Enter</kbd> &mdash; new line, copying the KATA indent (and one extra level under a childless <code>key:</code>)</li>
+			</ul>
+		</div>
+
 		{* Example 2: a custom onAutocomplete — return your own items for the current key-path + prefix *}
 		<div class="cerb-ui-header">
 			<div class="cerb-ui-header--label">Custom autocomplete &mdash; return your own items from <code>onAutocomplete(ctx)</code> for the current key-path + prefix (local, Ajax, or hybrid), no backend needed. A value with a <code>$0</code> marks the caret, and <code>\n</code> + spaces opens a child level. Type at the root, or under <code>options:</code></div>

@@ -188,7 +188,7 @@ CerbUI.editorCore = {
 		// OS-aware label for a hint popup, in each platform's conventional modifier order. Mac (Apple HIG):
 		// ⌃ ⌥ ⇧ ⌘, glyphs, no separators. Win/Linux: Ctrl Alt Shift, '+'-joined. `Mod` = ⌘ on Mac, Ctrl on Win.
 		_KEY_LABEL: { ArrowUp:'↑', ArrowDown:'↓', ArrowLeft:'←', ArrowRight:'→', Escape:'Esc', Space:'Space',
-			BracketLeft:'[', BracketRight:']' },
+			BracketLeft:'[', BracketRight:']', Slash:'/' },
 		label: function(spec) {
 			const p = this.parse(spec), mac = this.isMac;
 			const k = this._KEY_LABEL[p.key] || (p.key.length === 1 ? p.key.toUpperCase() : p.key);
