@@ -33,6 +33,9 @@
 			<code class="cerb-uiref-utils--name" data-cerb-uiref-copy data-cerb-uiref-source title="Copy to clipboard">cerb-u-justify-center</code>
 			<div class="cerb-u-flex cerb-u-justify-center cerb-u-gap-2" style="border:1px dashed var(--cerb-color-background-contrast-200);"><span class="cerb-uiref-utils--box"><span>centered in the row</span></span></div>
 
+			<code class="cerb-uiref-utils--name" data-cerb-uiref-copy data-cerb-uiref-source title="Copy to clipboard">cerb-u-justify-end</code>
+			<div class="cerb-u-flex cerb-u-justify-end cerb-u-gap-2" style="border:1px dashed var(--cerb-color-background-contrast-200);"><span class="cerb-uiref-utils--box"><span>pushed to the row's end</span></span></div>
+
 			<code class="cerb-uiref-utils--name" data-cerb-uiref-copy data-cerb-uiref-source title="Copy to clipboard">cerb-u-justify-between</code>
 			<div class="cerb-u-flex cerb-u-justify-between" style="border:1px dashed var(--cerb-color-background-contrast-200);"><span class="cerb-uiref-utils--box"><span>left</span></span><span class="cerb-uiref-utils--box"><span>right</span></span></div>
 

@@ -132,6 +132,7 @@ $cerb-u-radii: (0: 0, 1: 4px, 2: 6px, 3: 8px, 4: 10px);
 // Item-level align (overrides the container's align-items for this one child)
 .cerb-u-self-center { align-self: center; }
 .cerb-u-justify-center { justify-content: center; }
+.cerb-u-justify-end { justify-content: flex-end; }
 .cerb-u-justify-between { justify-content: space-between; }
 .cerb-u-flex-shrink-0 { flex-shrink: 0; }
 
