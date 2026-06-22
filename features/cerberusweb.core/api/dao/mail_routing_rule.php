@@ -7,8 +7,7 @@ class DAO_MailRoutingRule extends Cerb_ORMHelper {
 	const PRIORITY = 'priority';
 	const ROUTING_KATA = 'routing_kata';
 	const UPDATED_AT = 'updated_at';
-	const WORKFLOW_ID = 'workflow_id';
-	
+
 	const _CACHE_ALL = 'mail_routing_rules_all';
 	
 	private function __construct() {}
@@ -48,11 +47,6 @@ class DAO_MailRoutingRule extends Cerb_ORMHelper {
 		$validation
 			->addField(self::UPDATED_AT)
 			->timestamp()
-		;
-		$validation
-			->addField(self::WORKFLOW_ID)
-			->id()
-			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_WORKFLOW, true))
 		;
 		$validation
 			->addField('_fieldsets')
@@ -165,7 +159,7 @@ class DAO_MailRoutingRule extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, routing_kata, is_disabled, priority, created_at, updated_at, workflow_id ".
+		$sql = "SELECT id, name, routing_kata, is_disabled, priority, created_at, updated_at ".
 			"FROM mail_routing_rule ".
 			$where_sql.
 			$sort_sql.
@@ -285,7 +279,6 @@ class DAO_MailRoutingRule extends Cerb_ORMHelper {
 			$object->priority = intval($row['priority'] ?? 50);
 			$object->routing_kata = $row['routing_kata'] ?? '';
 			$object->updated_at = intval($row['updated_at'] ?? 0);
-			$object->workflow_id = intval($row['workflow_id'] ?? 0);
 			$objects[$object->id] = $object;
 		}
 		
@@ -336,15 +329,13 @@ class DAO_MailRoutingRule extends Cerb_ORMHelper {
 			"mail_routing_rule.is_disabled as %s, ".
 			"mail_routing_rule.priority as %s, ".
 			"mail_routing_rule.created_at as %s, ".
-			"mail_routing_rule.updated_at as %s, ".
-			"mail_routing_rule.workflow_id as %s ",
+			"mail_routing_rule.updated_at as %s ",
 			SearchFields_MailRoutingRule::ID,
 			SearchFields_MailRoutingRule::NAME,
 			SearchFields_MailRoutingRule::IS_DISABLED,
 			SearchFields_MailRoutingRule::PRIORITY,
 			SearchFields_MailRoutingRule::CREATED_AT,
-			SearchFields_MailRoutingRule::UPDATED_AT,
-			SearchFields_MailRoutingRule::WORKFLOW_ID
+			SearchFields_MailRoutingRule::UPDATED_AT
 		);
 		
 		$join_sql = "FROM mail_routing_rule ";
@@ -404,7 +395,6 @@ class SearchFields_MailRoutingRule extends DevblocksSearchFields {
 	const PRIORITY = 'm_priority';
 	const CREATED_AT = 'm_created_at';
 	const UPDATED_AT = 'm_updated_at';
-	const WORKFLOW_ID = 'm_workflow_id';
 
 	const VIRTUAL_SPARKLINE = '*_sparkline';
 	const VIRTUAL_USAGE = '*_usage';
@@ -425,7 +415,6 @@ class SearchFields_MailRoutingRule extends DevblocksSearchFields {
 
 	static function getCustomFieldContextKeys() {		return [
 			Context_MailRoutingRule::ID => new DevblocksSearchFieldContextKeys('mail_routing_rule.id', self::ID),
-			CerberusContexts::CONTEXT_WORKFLOW => new DevblocksSearchFieldContextKeys('mail_routing_rule.workflow_id', self::WORKFLOW_ID),
 		];
 	}
 	
@@ -518,7 +507,6 @@ class SearchFields_MailRoutingRule extends DevblocksSearchFields {
 			self::NAME => new DevblocksSearchField(self::NAME, 'mail_routing_rule', 'name', $translate->_('common.name'), null, true),
 			self::PRIORITY => new DevblocksSearchField(self::PRIORITY, 'mail_routing_rule', 'priority', $translate->_('common.priority'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'mail_routing_rule', 'updated_at', $translate->_('common.updated'), null, true),
-			self::WORKFLOW_ID => new DevblocksSearchField(self::WORKFLOW_ID, 'mail_routing_rule', 'workflow_id', $translate->_('common.workflow'), null, true),
 
 			// Virtual, display-only inline sparkline (matches, loaded async); not sortable
 			self::VIRTUAL_SPARKLINE => new DevblocksSearchField(self::VIRTUAL_SPARKLINE, '*', '', 'Usage', DevblocksSearchCriteria::TYPE_VIRTUAL_SPARKLINES, false),
@@ -552,7 +540,6 @@ class Model_MailRoutingRule extends DevblocksRecordModel {
 	public int $priority = 0;
 	public string $routing_kata = '';
 	public int $updated_at = 0;
-	public int $workflow_id = 0;
 	
 	/**
 	 * @param DevblocksDictionaryDelegate $dict
@@ -591,7 +578,6 @@ class View_MailRoutingRule extends C4_AbstractView implements IAbstractView_Subt
 			SearchFields_MailRoutingRule::NAME,
 			SearchFields_MailRoutingRule::IS_DISABLED,
 			SearchFields_MailRoutingRule::PRIORITY,
-			SearchFields_MailRoutingRule::WORKFLOW_ID,
 			SearchFields_MailRoutingRule::UPDATED_AT,
 			SearchFields_MailRoutingRule::VIRTUAL_SPARKLINE,
 		];
@@ -648,7 +634,6 @@ class View_MailRoutingRule extends C4_AbstractView implements IAbstractView_Subt
 				switch($field_key) {
 					case SearchFields_MailRoutingRule::IS_DISABLED:
 					case SearchFields_MailRoutingRule::PRIORITY:
-					case SearchFields_MailRoutingRule::WORKFLOW_ID:
 						$pass = true;
 						break;
 					
@@ -683,7 +668,6 @@ class View_MailRoutingRule extends C4_AbstractView implements IAbstractView_Subt
 				break;
 
 			case SearchFields_MailRoutingRule::PRIORITY:
-			case SearchFields_MailRoutingRule::WORKFLOW_ID:
 				$counts = $this->_getSubtotalCountForNumberColumn($context, $column);
 				break;
 				
@@ -755,14 +739,6 @@ class View_MailRoutingRule extends C4_AbstractView implements IAbstractView_Subt
 				[
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => ['param_key' => SearchFields_MailRoutingRule::VIRTUAL_USAGE],
-				],
-			'workflow.id' =>
-				[
-					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
-					'options' => ['param_key' => SearchFields_MailRoutingRule::WORKFLOW_ID],
-					'examples' => [
-						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_WORKFLOW, 'q' => ''],
-					]
 				],
 		];
 		
@@ -856,7 +832,6 @@ class View_MailRoutingRule extends C4_AbstractView implements IAbstractView_Subt
 			
 			case SearchFields_MailRoutingRule::ID:
 			case SearchFields_MailRoutingRule::PRIORITY:
-			case SearchFields_MailRoutingRule::WORKFLOW_ID:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 			
@@ -963,15 +938,6 @@ class Context_MailRoutingRule extends Extension_DevblocksContext implements IDev
 			'value' => $model->updated_at,
 		];
 		
-		$properties['workflow_id'] = [
-			'label' => mb_ucfirst($translate->_('common.workflow')),
-			'type' => Model_CustomField::TYPE_LINK,
-			'value' => $model->workflow_id,
-			'params' => [
-				'context' => CerberusContexts::CONTEXT_WORKFLOW,
-			],
-		];
-		
 		return $properties;
 	}
 	
@@ -1027,7 +993,6 @@ class Context_MailRoutingRule extends Extension_DevblocksContext implements IDev
 			'priority' => $prefix.$translate->_('common.priority'),
 			'routing_kata' => $prefix.$translate->_('Routing KATA'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
-			'workflow_id' => $prefix.$translate->_('common.workflow.id'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		];
 		
@@ -1040,7 +1005,6 @@ class Context_MailRoutingRule extends Extension_DevblocksContext implements IDev
 			'priority' => Model_CustomField::TYPE_SINGLE_LINE,
 			'routing_kata' => Model_CustomField::TYPE_MULTI_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
-			'workflow_id' => Model_CustomField::TYPE_NUMBER,
 			'record_url' => Model_CustomField::TYPE_URL,
 		];
 		
@@ -1068,8 +1032,7 @@ class Context_MailRoutingRule extends Extension_DevblocksContext implements IDev
 			$token_values['priority'] = $mail_routing_rule->priority;
 			$token_values['routing_kata'] = $mail_routing_rule->routing_kata;
 			$token_values['updated_at'] = $mail_routing_rule->updated_at;
-			$token_values['workflow_id'] = $mail_routing_rule->workflow_id;
-			
+
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($mail_routing_rule, $token_values);
 			
@@ -1090,7 +1053,6 @@ class Context_MailRoutingRule extends Extension_DevblocksContext implements IDev
 			'name' => DAO_MailRoutingRule::NAME,
 			'priority' => DAO_MailRoutingRule::PRIORITY,
 			'updated_at' => DAO_MailRoutingRule::UPDATED_AT,
-			'workflow_id' => DAO_MailRoutingRule::WORKFLOW_ID,
 		];
 	}
 	
@@ -1221,18 +1183,28 @@ class Context_MailRoutingRule extends Extension_DevblocksContext implements IDev
 			}
 			
 			$tpl->assign('model', $model);
-			
+
+			// Workflow-managed rules are version-controlled; warn that hand-edits get overwritten.
+			$workflow_id = DAO_WorkflowResource::getWorkflowIdByRecord(Context_MailRoutingRule::ID, $model->id);
+
+			if($workflow_id && ($workflow = DAO_Workflow::get($workflow_id))) {
+				$tpl->assign('workflow', $workflow);
+
+				if(($ctx_workflow = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_WORKFLOW, true)))
+					$tpl->assign('workflow_url', $ctx_workflow->profileGetUrl($workflow->id));
+			}
+
 			// Custom fields
 			$custom_fields = DAO_CustomField::getByContext($context, false);
 			$tpl->assign('custom_fields', $custom_fields);
-			
+
 			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds($context, $context_id);
 			if(isset($custom_field_values[$context_id]))
 				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
-			
+
 			$types = Model_CustomField::getTypes();
 			$tpl->assign('types', $types);
-			
+
 			// Editor toolbar
 			$autocomplete_suggestions = CerberusApplication::kataAutocompletions()->bucketRouting();
 			$tpl->assign('autocomplete_json', json_encode($autocomplete_suggestions));
@@ -1267,7 +1239,6 @@ class Context_MailRoutingRule extends Extension_DevblocksContext implements IDev
 					'is_disabled' => $model->is_disabled,
 					'priority' => $model->priority,
 					'routing_kata' => $model->routing_kata,
-					'workflow_id' => '{{workflow_id}}',
 				],
 			];
 		}

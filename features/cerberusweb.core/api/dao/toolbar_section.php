@@ -8,8 +8,7 @@ class DAO_ToolbarSection extends Cerb_ORMHelper {
 	const TOOLBAR_KATA = 'toolbar_kata';
 	const TOOLBAR_NAME = 'toolbar_name';
 	const UPDATED_AT = 'updated_at';
-	const WORKFLOW_ID = 'workflow_id';
-	
+
 	const _CACHE_ALL = 'toolbar_sections_all';
 	
 	private function __construct() {}
@@ -54,11 +53,6 @@ class DAO_ToolbarSection extends Cerb_ORMHelper {
 		$validation
 			->addField(self::UPDATED_AT)
 			->timestamp()
-		;
-		$validation
-			->addField(self::WORKFLOW_ID)
-			->id()
-			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_WORKFLOW, true))
 		;
 		$validation
 			->addField('_fieldsets')
@@ -171,7 +165,7 @@ class DAO_ToolbarSection extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, toolbar_kata, toolbar_name, is_disabled, priority, created_at, updated_at, workflow_id ".
+		$sql = "SELECT id, name, toolbar_kata, toolbar_name, is_disabled, priority, created_at, updated_at ".
 			"FROM toolbar_section ".
 			$where_sql.
 			$sort_sql.
@@ -259,7 +253,6 @@ class DAO_ToolbarSection extends Cerb_ORMHelper {
 			$object->toolbar_kata = $row['toolbar_kata'] ?? '';
 			$object->toolbar_name = $row['toolbar_name'] ?? '';
 			$object->updated_at = intval($row['updated_at'] ?? 0);
-			$object->workflow_id = intval($row['workflow_id'] ?? 0);
 			$objects[$object->id] = $object;
 		}
 		
@@ -311,16 +304,14 @@ class DAO_ToolbarSection extends Cerb_ORMHelper {
 			"toolbar_section.is_disabled as %s, ".
 			"toolbar_section.priority as %s, ".
 			"toolbar_section.created_at as %s, ".
-			"toolbar_section.updated_at as %s, ".
-			"toolbar_section.workflow_id as %s ",
+			"toolbar_section.updated_at as %s ",
 			SearchFields_ToolbarSection::ID,
 			SearchFields_ToolbarSection::NAME,
 			SearchFields_ToolbarSection::TOOLBAR_NAME,
 			SearchFields_ToolbarSection::IS_DISABLED,
 			SearchFields_ToolbarSection::PRIORITY,
 			SearchFields_ToolbarSection::CREATED_AT,
-			SearchFields_ToolbarSection::UPDATED_AT,
-			SearchFields_ToolbarSection::WORKFLOW_ID
+			SearchFields_ToolbarSection::UPDATED_AT
 		);
 		
 		$join_sql = "FROM toolbar_section ";
@@ -381,7 +372,6 @@ class SearchFields_ToolbarSection extends DevblocksSearchFields {
 	const PRIORITY = 't_priority';
 	const CREATED_AT = 't_created_at';
 	const UPDATED_AT = 't_updated_at';
-	const WORKFLOW_ID = 't_workflow_id';
 	
 	static private $_fields = null;
 	
@@ -399,7 +389,6 @@ class SearchFields_ToolbarSection extends DevblocksSearchFields {
 
 	static function getCustomFieldContextKeys() {		return [
 			Context_ToolbarSection::ID => new DevblocksSearchFieldContextKeys('toolbar_section.id', self::ID),
-			CerberusContexts::CONTEXT_WORKFLOW => new DevblocksSearchFieldContextKeys('toolbar_section.workflow_id', self::WORKFLOW_ID),
 		];
 	}
 	
@@ -458,7 +447,6 @@ class SearchFields_ToolbarSection extends DevblocksSearchFields {
 			self::PRIORITY => new DevblocksSearchField(self::PRIORITY, 'toolbar_section', 'priority', $translate->_('common.priority'), null, true),
 			self::TOOLBAR_NAME => new DevblocksSearchField(self::TOOLBAR_NAME, 'toolbar_section', 'toolbar_name', $translate->_('common.toolbar'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'toolbar_section', 'updated_at', $translate->_('common.updated'), null, true),
-			self::WORKFLOW_ID => new DevblocksSearchField(self::WORKFLOW_ID, 'toolbar_section', 'workflow_id', $translate->_('common.workflow'), null, true),
 		];
 		
 		// Virtual fields
@@ -487,7 +475,6 @@ class Model_ToolbarSection extends DevblocksRecordModel {
 	public string $toolbar_kata = '';
 	public string $toolbar_name = '';
 	public int $updated_at = 0;
-	public int $workflow_id = 0;
 	
 	public function getExtension($as_instance=true) : ?Extension_Toolbar {
 		if(!($toolbar = DAO_Toolbar::getByName($this->toolbar_name)))
@@ -523,7 +510,6 @@ class View_ToolbarSection extends C4_AbstractView implements IAbstractView_Subto
 			SearchFields_ToolbarSection::TOOLBAR_NAME,
 			SearchFields_ToolbarSection::IS_DISABLED,
 			SearchFields_ToolbarSection::PRIORITY,
-			SearchFields_ToolbarSection::WORKFLOW_ID,
 			SearchFields_ToolbarSection::UPDATED_AT,
 		];
 		
@@ -575,7 +561,6 @@ class View_ToolbarSection extends C4_AbstractView implements IAbstractView_Subto
 					case SearchFields_ToolbarSection::IS_DISABLED:
 					case SearchFields_ToolbarSection::TOOLBAR_NAME:
 					case SearchFields_ToolbarSection::PRIORITY:
-					case SearchFields_ToolbarSection::WORKFLOW_ID:
 						$pass = true;
 						break;
 					
@@ -614,7 +599,6 @@ class View_ToolbarSection extends C4_AbstractView implements IAbstractView_Subto
 				break;
 			
 			case SearchFields_ToolbarSection::PRIORITY:
-			case SearchFields_ToolbarSection::WORKFLOW_ID:
 				$counts = $this->_getSubtotalCountForNumberColumn($context, $column);
 				break;
 				
@@ -684,14 +668,6 @@ class View_ToolbarSection extends C4_AbstractView implements IAbstractView_Subto
 				[
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => ['param_key' => SearchFields_ToolbarSection::UPDATED_AT],
-				],
-			'workflow.id' =>
-				[
-					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
-					'options' => ['param_key' => SearchFields_ToolbarSection::WORKFLOW_ID],
-					'examples' => [
-						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_WORKFLOW, 'q' => ''],
-					]
 				],
 		];
 		
@@ -771,7 +747,6 @@ class View_ToolbarSection extends C4_AbstractView implements IAbstractView_Subto
 			
 			case SearchFields_ToolbarSection::ID:
 			case SearchFields_ToolbarSection::PRIORITY:
-			case SearchFields_ToolbarSection::WORKFLOW_ID:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 			
@@ -884,15 +859,6 @@ class Context_ToolbarSection extends Extension_DevblocksContext implements IDevb
 			'value' => $model->updated_at,
 		];
 		
-		$properties['workflow_id'] = [
-			'label' => mb_ucfirst($translate->_('common.workflow')),
-			'type' => Model_CustomField::TYPE_LINK,
-			'value' => $model->workflow_id,
-			'params' => [
-				'context' => CerberusContexts::CONTEXT_WORKFLOW,
-			],
-		];
-		
 		return $properties;
 	}
 	
@@ -950,7 +916,6 @@ class Context_ToolbarSection extends Extension_DevblocksContext implements IDevb
 			'toolbar_kata' => $prefix.$translate->_('Toolbar KATA'),
 			'toolbar_name' => $prefix.$translate->_('common.toolbar'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
-			'workflow_id' => $prefix.$translate->_('common.workflow.id'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		];
 		
@@ -964,7 +929,6 @@ class Context_ToolbarSection extends Extension_DevblocksContext implements IDevb
 			'toolbar_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'toolbar_kata' => Model_CustomField::TYPE_MULTI_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
-			'workflow_id' => Model_CustomField::TYPE_NUMBER,
 			'record_url' => Model_CustomField::TYPE_URL,
 		];
 		
@@ -993,8 +957,7 @@ class Context_ToolbarSection extends Extension_DevblocksContext implements IDevb
 			$token_values['toolbar_name'] = $toolbar_section->toolbar_name;
 			$token_values['toolbar_kata'] = $toolbar_section->toolbar_kata;
 			$token_values['updated_at'] = $toolbar_section->updated_at;
-			$token_values['workflow_id'] = $toolbar_section->workflow_id;
-			
+
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($toolbar_section, $token_values);
 			
@@ -1016,7 +979,6 @@ class Context_ToolbarSection extends Extension_DevblocksContext implements IDevb
 			'name' => DAO_ToolbarSection::NAME,
 			'priority' => DAO_ToolbarSection::PRIORITY,
 			'updated_at' => DAO_ToolbarSection::UPDATED_AT,
-			'workflow_id' => DAO_ToolbarSection::WORKFLOW_ID,
 		];
 	}
 	
@@ -1159,7 +1121,17 @@ class Context_ToolbarSection extends Extension_DevblocksContext implements IDevb
 			}
 			
 			$tpl->assign('model', $model);
-			
+
+			// Workflow-managed sections are version-controlled; warn that hand-edits get overwritten.
+			$workflow_id = DAO_WorkflowResource::getWorkflowIdByRecord(Context_ToolbarSection::ID, $model->id);
+
+			if($workflow_id && ($workflow = DAO_Workflow::get($workflow_id))) {
+				$tpl->assign('workflow', $workflow);
+
+				if(($ctx_workflow = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_WORKFLOW, true)))
+					$tpl->assign('workflow_url', $ctx_workflow->profileGetUrl($workflow->id));
+			}
+
 			// Custom fields
 			$custom_fields = DAO_CustomField::getByContext($context, false);
 			$tpl->assign('custom_fields', $custom_fields);

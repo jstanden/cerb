@@ -11,6 +11,8 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
+{include file="devblocks:cerberusweb.core::records/types/workflow/managed_callout.tpl" workflow=$workflow workflow_url=$workflow_url noun="custom field"}
+
 <table cellspacing="0" cellpadding="2" border="0" width="98%">
 	<tr>
 		<td width="1%" nowrap="nowrap"><abbr title="The label for this custom field."><b>{'common.name'|devblocks_translate|capitalize}:</b></abbr></td>

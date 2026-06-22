@@ -176,7 +176,6 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 							DAO_Workflow::UPDATED_AT => time(),
 							DAO_Workflow::CONFIG_KATA => '',
 							DAO_Workflow::WORKFLOW_KATA => '',
-							DAO_Workflow::RESOURCES_KATA => '',
 						];
 						
 						if('workflow.empty' == $name) {
@@ -1004,9 +1003,7 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 
 			if($import_kata) {
 				$was_workflow->importResources($import_kata);
-				DAO_Workflow::update($was_workflow->id, [
-					DAO_Workflow::RESOURCES_KATA => $was_workflow->resources_kata,
-				]);
+				DAO_WorkflowResource::setByWorkflow($was_workflow->id, $was_workflow->getResources()['records']);
 			}
 			
 			if($delete) {

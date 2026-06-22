@@ -45,7 +45,7 @@
             {if $model->config_kata}
             <button type="button" data-cerb-button-config-update data-cerb-template-section="config"><span class="cerb-icons cerb-icon-adjust"></span> Edit Configuration</button>
             {/if}
-            <button type="button" data-cerb-button-template-update><span class="cerb-icons cerb-icon-file-import"></span> Update Template</button>
+            <button type="button" data-cerb-button-template-update><span class="cerb-icons cerb-icon-edit"></span> Update Template</button>
         </div>
         {else}
             {if $templates_layout.filtering}

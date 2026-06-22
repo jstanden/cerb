@@ -93,8 +93,6 @@
                                 <abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>
                             {/if}
                         </td>
-                    {elseif in_array($column, ['m_workflow_id'])}
-                        <td data-column="{$column}">{if $result.$column}{$result.$column}{/if}</td>
                     {elseif $column == "*_sparkline"}
                         <td data-column="{$column}" style="width:160px;">
                             <div class="cerb-ui-sparkchart" data-cerb-spark="{$result.m_id}" style="min-width:140px;"></div>

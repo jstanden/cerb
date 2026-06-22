@@ -10,7 +10,6 @@ class DAO_AutomationEventListener extends Cerb_ORMHelper {
 	const NAME = 'name';
 	const PRIORITY = 'priority';
 	const UPDATED_AT = 'updated_at';
-	const WORKFLOW_ID = 'workflow_id';
 	
 	const _CACHE_ALL = 'automation_event_listeners_all';
 
@@ -58,11 +57,6 @@ class DAO_AutomationEventListener extends Cerb_ORMHelper {
 		$validation
 			->addField(self::UPDATED_AT)
 			->timestamp()
-		;
-		$validation
-			->addField(self::WORKFLOW_ID)
-			->id()
-			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_WORKFLOW, true))
 		;
 		$validation
 			->addField('_fieldsets')
@@ -168,7 +162,7 @@ class DAO_AutomationEventListener extends Cerb_ORMHelper {
 		
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
-		$sql = "SELECT id, name, event_name, is_disabled, priority, created_at, updated_at, event_kata, workflow_id ".
+		$sql = "SELECT id, name, event_name, is_disabled, priority, created_at, updated_at, event_kata ".
 			"FROM automation_event_listener ".
 			$where_sql.
 			$sort_sql.
@@ -257,7 +251,6 @@ class DAO_AutomationEventListener extends Cerb_ORMHelper {
 			$object->created_at = intval($row['created_at'] ?? 0);
 			$object->updated_at = intval($row['updated_at'] ?? 0);
 			$object->event_kata = $row['event_kata'] ?? '';
-			$object->workflow_id = intval($row['workflow_id'] ?? 0);
 			$objects[$object->id] = $object;
 		}
 		
@@ -312,16 +305,14 @@ class DAO_AutomationEventListener extends Cerb_ORMHelper {
 			"automation_event_listener.is_disabled as %s, ".
 			"automation_event_listener.priority as %s, ".
 			"automation_event_listener.created_at as %s, ".
-			"automation_event_listener.updated_at as %s, ".
-			"automation_event_listener.workflow_id as %s ",
+			"automation_event_listener.updated_at as %s ",
 			SearchFields_AutomationEventListener::ID,
 			SearchFields_AutomationEventListener::NAME,
 			SearchFields_AutomationEventListener::EVENT_NAME,
 			SearchFields_AutomationEventListener::IS_DISABLED,
 			SearchFields_AutomationEventListener::PRIORITY,
 			SearchFields_AutomationEventListener::CREATED_AT,
-			SearchFields_AutomationEventListener::UPDATED_AT,
-			SearchFields_AutomationEventListener::WORKFLOW_ID
+			SearchFields_AutomationEventListener::UPDATED_AT
 		);
 		
 		$join_sql = "FROM automation_event_listener ";
@@ -381,8 +372,7 @@ class SearchFields_AutomationEventListener extends DevblocksSearchFields {
 	const PRIORITY = 'a_priority';
 	const CREATED_AT = 'a_created_at';
 	const UPDATED_AT = 'a_updated_at';
-	const WORKFLOW_ID = 'a_workflow_id';
-	
+
 	static private $_fields = null;
 	
 	static function getTableName() : string {
@@ -400,7 +390,6 @@ class SearchFields_AutomationEventListener extends DevblocksSearchFields {
 	static function getCustomFieldContextKeys() {
 		return [
 			CerberusContexts::CONTEXT_AUTOMATION_EVENT_LISTENER => new DevblocksSearchFieldContextKeys('automation_event_listener.id', self::ID),
-			CerberusContexts::CONTEXT_WORKFLOW => new DevblocksSearchFieldContextKeys('automation_event_listener.workflow_id', self::WORKFLOW_ID),
 		];
 	}
 	
@@ -455,7 +444,6 @@ class SearchFields_AutomationEventListener extends DevblocksSearchFields {
 			self::NAME => new DevblocksSearchField(self::NAME, 'automation_event_listener', 'name', $translate->_('common.name'), null, true),
 			self::PRIORITY => new DevblocksSearchField(self::PRIORITY, 'automation_event_listener', 'priority', $translate->_('common.priority'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'automation_event_listener', 'updated_at', $translate->_('common.updated'), null, true),
-			self::WORKFLOW_ID => new DevblocksSearchField(self::WORKFLOW_ID, 'automation_event_listener', 'workflow_id', $translate->_('common.workflow'), null, true),
 		];
 		
 		// Virtual fields
@@ -481,7 +469,6 @@ class Model_AutomationEventListener extends DevblocksRecordModel {
 	public int $is_disabled = 0;
 	public int $priority = 0;
 	public int $updated_at = 0;
-	public int $workflow_id = 0;
 	public string $event_kata = '';
 	public string $event_name = '';
 	public string $name = '';
@@ -512,7 +499,6 @@ class View_AutomationEventListener extends C4_AbstractView implements IAbstractV
 			SearchFields_AutomationEventListener::EVENT_NAME,
 			SearchFields_AutomationEventListener::PRIORITY,
 			SearchFields_AutomationEventListener::IS_DISABLED,
-			SearchFields_AutomationEventListener::WORKFLOW_ID,
 			SearchFields_AutomationEventListener::UPDATED_AT,
 		];
 		
@@ -564,7 +550,6 @@ class View_AutomationEventListener extends C4_AbstractView implements IAbstractV
 					case SearchFields_AutomationEventListener::EVENT_NAME:
 					case SearchFields_AutomationEventListener::IS_DISABLED:
 					case SearchFields_AutomationEventListener::PRIORITY:
-					case SearchFields_AutomationEventListener::WORKFLOW_ID:
 						$pass = true;
 						break;
 					
@@ -603,7 +588,6 @@ class View_AutomationEventListener extends C4_AbstractView implements IAbstractV
 				break;
 			
 			case SearchFields_AutomationEventListener::PRIORITY:
-			case SearchFields_AutomationEventListener::WORKFLOW_ID:
 				$counts = $this->_getSubtotalCountForNumberColumn($context, $column);
 				break;
 			
@@ -673,14 +657,6 @@ class View_AutomationEventListener extends C4_AbstractView implements IAbstractV
 				[
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => ['param_key' => SearchFields_AutomationEventListener::UPDATED_AT],
-				],
-			'workflow.id' =>
-				[
-					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
-					'options' => ['param_key' => SearchFields_AutomationEventListener::WORKFLOW_ID],
-					'examples' => [
-						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_WORKFLOW, 'q' => ''],
-					]
 				],
 		];
 		
@@ -760,7 +736,6 @@ class View_AutomationEventListener extends C4_AbstractView implements IAbstractV
 			
 			case SearchFields_AutomationEventListener::ID:
 			case SearchFields_AutomationEventListener::PRIORITY:
-			case SearchFields_AutomationEventListener::WORKFLOW_ID:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 			
@@ -872,16 +847,7 @@ class Context_AutomationEventListener extends Extension_DevblocksContext impleme
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $model->updated_at,
 		];
-		
-		$properties['workflow_id'] = [
-			'label' => mb_ucfirst($translate->_('common.workflow')),
-			'type' => Model_CustomField::TYPE_LINK,
-			'value' => $model->workflow_id,
-			'params' => [
-				'context' => CerberusContexts::CONTEXT_WORKFLOW,
-			],
-		];
-		
+
 		return $properties;
 	}
 	
@@ -939,7 +905,6 @@ class Context_AutomationEventListener extends Extension_DevblocksContext impleme
 			'name' => $prefix.$translate->_('common.name'),
 			'priority' => $prefix.$translate->_('common.priority'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
-			'workflow_id' => $prefix.$translate->_('common.workflow.id'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		];
 		
@@ -953,7 +918,6 @@ class Context_AutomationEventListener extends Extension_DevblocksContext impleme
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'priority' => Model_CustomField::TYPE_NUMBER,
 			'updated_at' => Model_CustomField::TYPE_DATE,
-			'workflow_id' => Model_CustomField::TYPE_NUMBER,
 			'record_url' => Model_CustomField::TYPE_URL,
 		];
 		
@@ -982,8 +946,7 @@ class Context_AutomationEventListener extends Extension_DevblocksContext impleme
 			$token_values['name'] = $object->name;
 			$token_values['priority'] = $object->priority;
 			$token_values['updated_at'] = $object->updated_at;
-			$token_values['workflow_id'] = $object->workflow_id;
-			
+
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($object, $token_values);
 			
@@ -1005,7 +968,6 @@ class Context_AutomationEventListener extends Extension_DevblocksContext impleme
 			'name' => DAO_AutomationEventListener::NAME,
 			'priority' => DAO_AutomationEventListener::PRIORITY,
 			'updated_at' => DAO_AutomationEventListener::UPDATED_AT,
-			'workflow_id' => DAO_AutomationEventListener::WORKFLOW_ID,
 		];
 	}
 	
@@ -1147,20 +1109,30 @@ class Context_AutomationEventListener extends Extension_DevblocksContext impleme
 			}
 			
 			$tpl->assign('model', $model);
-			
+
+			// Workflow-managed listeners are version-controlled; warn that hand-edits get overwritten.
+			$workflow_id = DAO_WorkflowResource::getWorkflowIdByRecord(Context_AutomationEventListener::ID, $model->id);
+
+			if($workflow_id && ($workflow = DAO_Workflow::get($workflow_id))) {
+				$tpl->assign('workflow', $workflow);
+
+				if(($ctx_workflow = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_WORKFLOW, true)))
+					$tpl->assign('workflow_url', $ctx_workflow->profileGetUrl($workflow->id));
+			}
+
 			// Custom fields
 			$custom_fields = DAO_CustomField::getByContext($context, false);
 			$tpl->assign('custom_fields', $custom_fields);
-			
+
 			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds($context, $context_id);
 			if(isset($custom_field_values[$context_id]))
 				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
-			
+
 			$types = Model_CustomField::getTypes();
 			$tpl->assign('types', $types);
-			
+
 			// Editor toolbar
-			
+
 			$toolbar_dict = DevblocksDictionaryDelegate::instance([
 				'caller_name' => 'cerb.eventHandler.automation',
 				

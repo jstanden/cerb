@@ -1306,8 +1306,18 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 			if($model) {
 				if($model->id && !Context_CustomFieldset::isWriteableByActor($model, $active_worker))
 					DevblocksPlatform::dieWithHttpError(null, 403);
-				
+
 				$tpl->assign('model', $model);
+
+				// Workflow-managed fieldsets are version-controlled; warn that hand-edits get overwritten.
+				$workflow_id = DAO_WorkflowResource::getWorkflowIdByRecord(Context_CustomFieldset::ID, $model->id);
+
+				if($workflow_id && ($workflow = DAO_Workflow::get($workflow_id))) {
+					$tpl->assign('workflow', $workflow);
+
+					if(($ctx_workflow = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_WORKFLOW, true)))
+						$tpl->assign('workflow_url', $ctx_workflow->profileGetUrl($workflow->id));
+				}
 			}
 			
 			$types = Model_CustomField::getTypes();

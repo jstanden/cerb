@@ -675,7 +675,6 @@ class CerberusApplication extends DevblocksApplication {
 				$error = null;
 				$new_workflow = new Model_Workflow();
 				$new_workflow->config_kata = $was_workflow->config_kata;
-				$new_workflow->resources_kata = $was_workflow->resources_kata;
 				$new_workflow->workflow_kata = file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/' . $bundled_workflow . '.kata');
 				
 				if(false === ($new_props = $new_workflow->getMetadataFromTemplate()))

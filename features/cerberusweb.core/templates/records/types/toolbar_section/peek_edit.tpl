@@ -11,6 +11,8 @@
     <input type="hidden" name="do_delete" value="0">
     <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
+    {include file="devblocks:cerberusweb.core::records/types/workflow/managed_callout.tpl" workflow=$workflow workflow_url=$workflow_url noun="section"}
+
     <table cellspacing="0" cellpadding="2" border="0" width="98%">
         <tr>
             <td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate|capitalize}:</b></td>
@@ -152,6 +154,9 @@
             $popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
             $popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
             $popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
+
+            // Workflow link (when this section is workflow-managed)
+            $popup.find('a.cerb-peek-trigger').cerbPeekTrigger();
 
             // Editor
 

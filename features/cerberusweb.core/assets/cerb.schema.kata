@@ -760,15 +760,6 @@ tables:
         key: MUL
         default: 0
         extra@text:
-      workflow_id:
-        field: workflow_id
-        type: int unsigned
-        collation@text:
-        nullable: NOT NULL
-        key@text:
-        default: 0
-        extra@text:
-        references: workflow.id
     indexes:
       PRIMARY:
         columns:
@@ -7501,15 +7492,6 @@ tables:
         key: MUL
         default: 0
         extra@text:
-      workflow_id:
-        field: workflow_id
-        type: int unsigned
-        collation@text:
-        nullable: NOT NULL
-        key@text:
-        default: 0
-        extra@text:
-        references: workflow.id
     indexes:
       PRIMARY:
         columns:
@@ -11496,15 +11478,6 @@ tables:
         key: MUL
         default: 0
         extra@text:
-      workflow_id:
-        field: workflow_id
-        type: int unsigned
-        collation@text:
-        nullable: NOT NULL
-        key@text:
-        default: 0
-        extra@text:
-        references: workflow.id
     indexes:
       PRIMARY:
         columns:
@@ -12794,14 +12767,6 @@ tables:
         collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: UNI
-        default@text:
-        extra@text:
-      resources_kata:
-        field: resources_kata
-        type: mediumtext
-        collation: utf8mb3_unicode_ci
-        nullable: NULL
-        key@text:
         default@text:
         extra@text:
       updated_at:

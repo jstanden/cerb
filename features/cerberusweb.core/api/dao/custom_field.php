@@ -2611,6 +2611,17 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 			$tpl->assign('id', $context_id);
 			$tpl->assign('view_id', $view_id);
 			$tpl->assign('model', $model);
+
+			// Workflow-managed custom fields are version-controlled; warn that hand-edits get overwritten.
+			$workflow_id = DAO_WorkflowResource::getWorkflowIdByRecord(Context_CustomField::ID, $model->id);
+
+			if($workflow_id && ($workflow = DAO_Workflow::get($workflow_id))) {
+				$tpl->assign('workflow', $workflow);
+
+				if(($ctx_workflow = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_WORKFLOW, true)))
+					$tpl->assign('workflow_url', $ctx_workflow->profileGetUrl($workflow->id));
+			}
+
 			$tpl->display('devblocks:cerberusweb.core::internal/custom_fields/peek_edit.tpl');
 			
 		} else {

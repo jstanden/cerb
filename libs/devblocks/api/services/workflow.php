@@ -166,8 +166,6 @@ class _DevblocksWorkflowService {
 	}
 	
 	public function import(Model_Workflow $new_workflow, ?Model_Worker $as_worker, ?string &$error = null) : Model_Workflow|false {
-		$kata = DevblocksPlatform::services()->kata();
-		
 		// Modify a copy of the model, not the original
 		$changed_workflow = clone $new_workflow;
 		$was_workflow = null;
@@ -201,30 +199,29 @@ class _DevblocksWorkflowService {
 		$changed_workflow->id = $was_workflow->id;
 		
 		$results = $this->_syncChanges($was_workflow, $changed_workflow);
-		
-		$changed_workflow->resources_kata = $kata->emit($results->resources);
-		
+
+		// The synced record bindings are the source of truth, persisted directly to the pivot.
+		DAO_WorkflowResource::setByWorkflow($changed_workflow->id, $results->resources['records'] ?? []);
+
 		if($results->state == CerbWorkflowResults::STATE_ERROR) {
-			// On error, store the partial resource changes
+			// On error, store the partial resource changes (already persisted above)
 			DAO_Workflow::update($changed_workflow->id, [
 				DAO_Workflow::NAME => $changed_workflow->name,
 				DAO_Workflow::DESCRIPTION => $changed_workflow->description,
-				DAO_Workflow::RESOURCES_KATA => $changed_workflow->resources_kata,
 				DAO_Workflow::VERSION => $changed_workflow->version,
 			]);
-			
+
 			$error = $results->error;
 			return false;
 		}
-		
+
 		$has_extensions = $changed_workflow->getExtensionBits();
-		
+
 		$fields = [
 			DAO_Workflow::CONFIG_KATA => $changed_workflow->config_kata,
 			DAO_Workflow::DESCRIPTION => $changed_workflow->description,
 			DAO_Workflow::HAS_EXTENSIONS => $has_extensions,
 			DAO_Workflow::NAME => $changed_workflow->name,
-			DAO_Workflow::RESOURCES_KATA => $changed_workflow->resources_kata,
 			DAO_Workflow::UPDATED_AT => time(),
 			DAO_Workflow::WORKFLOW_KATA => $changed_workflow->workflow_kata,
 			DAO_Workflow::VERSION => $changed_workflow->version,

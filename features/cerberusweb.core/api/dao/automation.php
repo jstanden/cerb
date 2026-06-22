@@ -1874,6 +1874,16 @@ class Context_Automation extends Extension_DevblocksContext implements IDevblock
 			$types = Model_CustomField::getTypes();
 			$tpl->assign('types', $types);
 			
+			// Workflow-managed automations are version-controlled; warn that hand-edits get overwritten.
+			$workflow_id = DAO_WorkflowResource::getWorkflowIdByRecord(Context_Automation::ID, $model->id);
+
+			if($workflow_id && ($workflow = DAO_Workflow::get($workflow_id))) {
+				$tpl->assign('workflow', $workflow);
+
+				if(($ctx_workflow = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_WORKFLOW, true)))
+					$tpl->assign('workflow_url', $ctx_workflow->profileGetUrl($workflow->id));
+			}
+
 			// View
 			$tpl->assign('id', $context_id);
 			$tpl->assign('model', $model);

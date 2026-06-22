@@ -12,6 +12,8 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
+{include file="devblocks:cerberusweb.core::records/types/workflow/managed_callout.tpl" workflow=$workflow workflow_url=$workflow_url noun="custom fieldset"}
+
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
 	<tr>
 		<td width="1%" nowrap="nowrap" valign="top">
@@ -92,6 +94,8 @@ $(function() {
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
 		$popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
+
+		$popup.find('a.cerb-peek-trigger').cerbPeekTrigger();
 
 		// Owners
 		

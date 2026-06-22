@@ -765,6 +765,10 @@
 			<class name="SearchFields_Workflow" />
 			<class name="View_Workflow" />
 		</file>
+
+		<file path="api/dao/workflow_resource.php">
+			<class name="DAO_WorkflowResource" />
+		</file>
 		
 		<file path="api/dao/workspace_page.php">
 			<class name="Context_WorkspacePage" />

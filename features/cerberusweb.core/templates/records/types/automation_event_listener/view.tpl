@@ -95,8 +95,6 @@
 								<abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>
                             {/if}
 						</td>
-					{elseif in_array($column, ['a_workflow_id'])}
-						<td data-column="{$column}">{if $result.$column}{$result.$column}{/if}</td>
                     {else}
 						<td data-column="{$column}">{$result.$column}</td>
                     {/if}

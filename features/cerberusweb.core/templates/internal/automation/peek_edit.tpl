@@ -14,6 +14,8 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
+{include file="devblocks:cerberusweb.core::records/types/workflow/managed_callout.tpl" workflow=$workflow workflow_url=$workflow_url noun="automation"}
+
 <table cellspacing="0" cellpadding="2" border="0" width="98%">
 	<tr>
 		<td width="1%" nowrap="nowrap">
