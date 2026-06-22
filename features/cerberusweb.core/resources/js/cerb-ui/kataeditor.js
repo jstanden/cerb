@@ -27,8 +27,11 @@
  *     onAutocomplete: CerbUI.KataEditor.kataFieldSource(cerbAutocompleteSuggestions.kataAutomationPolicy),
  *   });
  *
- * The wrapped <textarea> keeps its name= and IS the value (transparent text over the mirror), so form submit
- * and external .val() reads keep working. CSS lives in cerb.css (.cerb-ui-kataeditor--*).
+ * Form integration: a textarea can only hold the folded PROJECTION, so when the authored <textarea> carries a
+ * name= it's kept as an inert hidden VALUE CARRIER and editing happens in a nameless clone. _fireChange() keeps
+ * the carrier = the full document, so native FormData(form) submit and external .val() reads always see the whole
+ * doc (folded or not). To SET the value from outside, call setValue() — not .val() on the field. CSS lives in
+ * cerb.css (.cerb-ui-kataeditor--*).
  */
 CerbUI.KataEditor = class {
 	static _instances = new WeakMap();
@@ -64,6 +67,26 @@ CerbUI.KataEditor = class {
 		this.gutter = el.querySelector('.cerb-ui-kataeditor--gutter');
 		this.caretAnchor = el.querySelector('.cerb-ui-kataeditor--caret-anchor');
 		if(!this.textarea || !this.field || !this.highlight || !this.caretAnchor) return;
+
+		// Form integration: a textarea can only hold the folded PROJECTION, so the authored field can't double as
+		// the form value — a submit while folded would post a truncated document. When it carries a name=, keep the
+		// authored textarea as an inert hidden VALUE CARRIER and edit in a nameless clone; _fireChange() keeps the
+		// carrier = this._model, so native FormData(form) always serializes the full document (folded or not).
+		this._valueField = null;
+		if(this.textarea.name) {
+			const carrier = this.textarea;
+			const editor = carrier.cloneNode(false);   // attributes only (incl. data-editor-lines); textarea text isn't cloned
+			editor.removeAttribute('name');             // …the clone must NOT be serialized
+			editor.removeAttribute('id');               // …nor duplicate the carrier's id
+			editor.value = carrier.value;               // shallow clone has no text — copy the initial value across
+			carrier.parentNode.insertBefore(editor, carrier);
+			carrier.classList.remove('cerb-ui-kataeditor--input');
+			carrier.classList.add('cerb-ui-kataeditor--value');
+			carrier.hidden = true;                      // still serialized — submission is gated by `disabled`, not visibility
+			carrier.setAttribute('aria-hidden', 'true');
+			this._valueField = carrier;
+			this.textarea = editor;
+		}
 
 		this.tab = ' '.repeat(this.opts.tabSize);
 		this._highlightRow = null;   // a MODEL row marked active in the gutter, or null
@@ -549,13 +572,22 @@ CerbUI.KataEditor = class {
 		this._syncScroll();
 	}
 
-	_fireChange() { for(const cb of this._changeCbs) { try { cb(this.getValue()); } catch(_) {} } }
+	_fireChange() {
+		if(this._valueField) this._valueField.value = this._model;   // keep the hidden form carrier = full document
+		for(const cb of this._changeCbs) { try { cb(this.getValue()); } catch(_) {} }
+	}
 
-	// Tab key: insert tabSize spaces at the caret, or indent every line touched by the selection.
+	// Tab key: insert tabSize spaces at the caret, or indent every line touched by the selection. As a special
+	// case, when nothing is selected and the caret sits at end-of-line with text behind it to complete, Tab asks
+	// for autocomplete suggestions instead of indenting (Tab-to-complete).
 	_indent() {
 		this._revealForEdit();
 		const ta = this.textarea, v = ta.value, s = ta.selectionStart, e = ta.selectionEnd;
 		if(s === e) {
+			const lineStart = v.lastIndexOf('\n', s - 1) + 1;
+			const nl = v.indexOf('\n', s);
+			const atEol = (nl === -1) ? (s === v.length) : (s === nl);
+			if(atEol && v.slice(lineStart, s).trim().length > 0) { this._ac.trigger(); return; }
 			this._setValueAndCaret(v.slice(0, s) + this.tab + v.slice(e), s + this.tab.length);
 			this._ac.clearTimer();
 			return;

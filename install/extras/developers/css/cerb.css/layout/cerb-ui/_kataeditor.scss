@@ -175,6 +175,10 @@
         }
     }
 
+    // Hidden value carrier: the authored named <textarea>, kept out of view but still form-submittable, holding the
+    // full document (the visible --input edits a nameless clone). Never rendered; the JS also sets `hidden`.
+    &--value { display: none; }
+
     // Zero-width marker the JS parks at the caret pixel; the suggestion menu opens just below it.
     &--caret-anchor {
         position: absolute;
