@@ -55,6 +55,21 @@
 		}
 	}
 
+	// A pressed data-toggle button. Reuses the legacy editor toolbar's --enabled tokens so a
+	// migrated editor toolbar keeps its yellow "on" affordance; the hover override holds the
+	// pressed look steady while the pointer is over it.
+	&--item-active {
+		background: var(--cerb-color-button-icon-enabled-background);
+		color: var(--cerb-color-button-icon-enabled);
+
+		> span.cerb-icons { color: var(--cerb-color-button-icon-enabled); }
+
+		&:hover {
+			background: var(--cerb-color-button-icon-enabled-background);
+			color: var(--cerb-color-button-icon-enabled);
+		}
+	}
+
 	// Count bubble: a floating pill in the button's top-right corner. Sized to slightly overlap the glyph so
 	// it reads clearly; defaults to the generic accent, a per-item data-badge-color (set inline by the JS)
 	// overrides the fill. The ring lifts it off the icon/strip.

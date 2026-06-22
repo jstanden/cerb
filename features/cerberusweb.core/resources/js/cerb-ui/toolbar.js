@@ -33,6 +33,11 @@
  *   data-badge   a count bubble (floating pill) on the strip button; data-badge-color tints it (else accent)
  *   data-value   arbitrary value surfaced to onSelect (non-interaction items, e.g. presets)
  *   data-interaction-uri / -params / -done  fire an interaction via cerbBotTrigger on select
+ *   data-toggle  client-state toggle button: clicking flips its pressed state (aria-pressed +
+ *                .cerb-ui-toolbar--item-active) and calls onSelect with the NEW item.pressed — it
+ *                never fires an interaction. Independent (not a radio group); give it a stable
+ *                data-key so host JS can drive it via setPressed(key,on)/isPressed(key).
+ *   data-pressed initial pressed state for a data-toggle item (data-pressed="0"/"false" = off)
  *   hidden (attribute) or class `cerb-ui-toolbar--hidden`  omit the item (role / record-type gating)
  *   data-hover (on a menu item)  open its menu on hover instead of click
  *
@@ -40,11 +45,13 @@
  *   new CerbUI.Toolbar(document.getElementById('tb'), {
  *     bare: false,                                  // false = strip chrome; true = icons + menus only;
  *                                                   //   'tiny' (or tiny:true) = small muted icons (searchquery --right look)
- *     onSelect: (item, sourceLi, e) => { ... },     // item = {key,value,label,interactionUri,interactionParams}
+ *     onSelect: (item, sourceLi, e) => { ... },     // item = {key,value,label,interactionUri,interactionParams,toggle,pressed}
  *     caller: { name: 'cerb.toolbar.demo', params: {} },  // passed through to cerbBotTrigger
  *     target: null, width: '50%',                   // target=jQuery el → inline interaction; null → popup
  *     start, done, error, reset                     // cerbBotTrigger lifecycle callbacks
  *   });
+ *   // Toggle buttons (<li data-toggle data-key="placeholders">): read/drive pressed state with
+ *   //   tb.isPressed('placeholders')  and  tb.setPressed('placeholders', true)
  *
  * CSS lives in cerb.css (.cerb-ui-toolbar--*) — this component never injects styles.
  */
@@ -77,6 +84,7 @@ CerbUI.Toolbar = class {
 		this.tiny = this.opts.bare === 'tiny' || this.opts.tiny || el.classList.contains('cerb-ui-toolbar--bare-tiny');
 		this.bare = this.tiny || !!this.opts.bare || el.classList.contains('cerb-ui-toolbar--bare');
 		this.menus = new Map();   // top-level item key -> CerbUI.Menu (built lazily)
+		this._toggles = new Map(); // toggle item key -> item descriptor (carries its rendered .btn)
 		this.strip = null;        // the rendered visible strip
 		this._hoverGroup = 'cerb-ui-toolbar-' + (CerbUI.Toolbar._seq = (CerbUI.Toolbar._seq || 0) + 1);
 
@@ -98,6 +106,33 @@ CerbUI.Toolbar = class {
 		this._teardown();
 		this.el.hidden = false;
 		CerbUI.Toolbar._instances.delete(this.el);
+	}
+
+	// Is the data-toggle item with this data-key currently pressed?
+	isPressed(key) {
+		const item = this._toggles.get(key);
+		return item ? !!item.pressed : false;
+	}
+
+	// Drive a data-toggle item's pressed state. Mirrors CerbUI.Switcher.setValue's {fireCallback}
+	// convention — silent by default so host-side syncs don't re-enter onSelect.
+	setPressed(key, on, opts = {}) {
+		const item = this._toggles.get(key);
+		if(!item) return this;
+
+		on = !!on;
+		item.pressed = on;
+		this._setPressed(item.btn, on);
+
+		if(item.sourceLi) {
+			if(on) item.sourceLi.setAttribute('data-pressed', '1');
+			else item.sourceLi.removeAttribute('data-pressed');
+		}
+
+		if(opts.fireCallback && typeof this.opts.onSelect === 'function')
+			this.opts.onSelect(item, item.sourceLi, null);
+
+		return this;
 	}
 
 	// ── Build ───────────────────────────────────────────────────────────
@@ -164,6 +199,8 @@ CerbUI.Toolbar = class {
 				value: li.dataset.value || null,
 				interactionUri: li.dataset.interactionUri || null,
 				interactionParams: li.dataset.interactionParams || null,
+				toggle: li.hasAttribute('data-toggle'),
+				pressed: li.hasAttribute('data-pressed') && li.getAttribute('data-pressed') !== '0' && li.getAttribute('data-pressed') !== 'false',
 				hover: this.opts.hover || li.hasAttribute('data-hover'),
 				hidden: li.hidden || li.classList.contains('cerb-ui-toolbar--hidden'),
 			});
@@ -205,11 +242,31 @@ CerbUI.Toolbar = class {
 
 			if(item.hover) this._buildMenu(item, btn); // eager so hover-open is wired
 			btn.addEventListener('click', (e) => { e.stopPropagation(); this._toggleMenu(item, btn); });
+		} else if(item.toggle) {
+			// A client-state toggle: flip pressed, mirror onto the source <li> (so refresh() keeps it),
+			// notify onSelect with the new state. No interaction is fired.
+			btn.classList.add('cerb-ui-toolbar--item-toggle');
+			item.btn = btn;
+			this._setPressed(btn, item.pressed);
+			this._toggles.set(item.key, item);
+
+			btn.addEventListener('click', (e) => {
+				e.stopPropagation();
+				this.setPressed(item.key, !item.pressed);
+				if(typeof this.opts.onSelect === 'function')
+					this.opts.onSelect(item, item.sourceLi, e);
+			});
 		} else {
 			btn.addEventListener('click', (e) => { e.stopPropagation(); this._activate(item.sourceLi, item, e); });
 		}
 
 		return btn;
+	}
+
+	// Reflect a toggle button's pressed state into the DOM (aria + the active wash).
+	_setPressed(btn, on) {
+		btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+		btn.classList.toggle('cerb-ui-toolbar--item-active', !!on);
 	}
 
 	// bare name -> cerb-icons glyph; a leading '.' means raw class list (same rule as CerbUI.Menu).
@@ -311,6 +368,7 @@ CerbUI.Toolbar = class {
 	_teardown() {
 		this.menus.forEach(menu => menu.destroy());
 		this.menus.clear();
+		this._toggles.clear();
 		if(this.strip) { this.strip.remove(); this.strip = null; }
 	}
 };

@@ -241,6 +241,47 @@ adminCheckbox.addEventListener('change', (e) => {
 });{/literal}</pre>
 			</div>
 		</div>
+
+		{* Example 5: toggle buttons — independent client-state pressed buttons (editor toolbar look) *}
+		<div class="cerb-ui-header">
+			<div class="cerb-ui-header--label">Toggle buttons &mdash; mark a <code>&lt;li&gt;</code> <code>data-toggle</code> and it becomes a client-state button that stays <b>pressed</b> (the yellow <code>--item-active</code> wash, matching the editor toolbar's old <code>--enabled</code> look). Clicking flips its state and calls <code>onSelect</code> with the new <code>item.pressed</code> &mdash; it <b>never</b> fires an interaction. Toggles are <b>independent</b> (not a radio group); seed one pressed with <code>data-pressed</code>, give each a stable <code>data-key</code>, and read/drive state with <code>tb.isPressed(key)</code> / <code>tb.setPressed(key, on)</code></div>
+		</div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<ul class="cerb-ui-toolbar" id="uiref-toolbar-toggle">
+					<li data-icon="bold" data-value="bold" title="Bold"></li>
+					<li></li>
+					<li data-icon="placeholders" data-toggle data-key="placeholders" data-pressed title="Placeholders"></li>
+					<li data-icon="lab" data-toggle data-key="tester" title="Test"></li>
+				</ul>
+				<div class="cerb-uiref-result">Pressed: <b id="uiref-toolbar-toggle-out">&mdash;</b></div>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>&lt;ul class="cerb-ui-toolbar" id="tb"&gt;
+	&lt;li data-icon="bold" data-value="bold" title="Bold"&gt;&lt;/li&gt;
+	&lt;li&gt;&lt;/li&gt;
+	&lt;!-- data-toggle = a pressed/unpressed button; data-pressed seeds it on; data-key targets it from JS --&gt;
+	&lt;li data-icon="placeholders" data-toggle data-key="placeholders" data-pressed title="Placeholders"&gt;&lt;/li&gt;
+	&lt;li data-icon="lab" data-toggle data-key="tester" title="Test"&gt;&lt;/li&gt;
+&lt;/ul&gt;</pre>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>{literal}const tb = new CerbUI.Toolbar(document.getElementById('tb'), {
+	onSelect: (item) => {
+		// A toggle reports its NEW state on item.pressed (no interaction is fired).
+		if(item.toggle) console.log(item.key, 'is now', item.pressed ? 'on' : 'off');
+	},
+});
+
+tb.isPressed('placeholders');        // true (seeded via data-pressed)
+tb.setPressed('tester', true);       // drive a toggle from code (silent — no onSelect)
+tb.setPressed('tester', false, { fireCallback: true }); // …or fire onSelect too{/literal}</pre>
+			</div>
+		</div>
 	</div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}">
@@ -308,6 +349,23 @@ adminCheckbox.addEventListener('change', (e) => {
 				if(del) del.hidden = !e.target.checked;
 				tb.refresh();
 			});
+		}
+	})();
+
+	// Toolbar #5 — independent toggle buttons (client-state pressed)
+	(function() {
+		const el = document.getElementById('uiref-toolbar-toggle');
+		const out = document.getElementById('uiref-toolbar-toggle-out');
+		if(el && window.CerbUI && CerbUI.Toolbar) {
+			const keys = ['placeholders', 'tester'];
+			const readout = function() {
+				const on = keys.filter(function(k) { return tb.isPressed(k); });
+				if(out) out.textContent = on.length ? on.join(', ') : '(none)';
+			};
+			const tb = new CerbUI.Toolbar(el, {
+				onSelect: function(item) { if(item.toggle) readout(); },
+			});
+			readout(); // placeholders starts pressed via data-pressed
 		}
 	})();
 })();
