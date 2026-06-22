@@ -1,0 +1,22 @@
+// cerb-ui-node-graph — the read-only graph viewer's chrome. The component (node-graph.js) is otherwise
+// chrome-less: the canvas fills this flex column and the HOST builds a toolbar (inserted above the canvas)
+// using the component's API (fit / fitLane / focusLane / getLaneCount + g.canvas.zoomIn()/zoomOut()).
+
+.cerb-ui-node-graph {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+
+	// The CerbUI.NodeCanvas fills the remaining height under any host toolbar.
+	&--canvas { flex: 1 1 auto; position: relative; min-height: 0; }
+
+	// Host-built toolbar bar + its pieces (a separator, a disabled tool, and an icon+count "flag" button).
+	&--toolbar { display: flex; gap: 0.25em; padding: 0.4em; border-bottom: 1px solid var(--cerb-color-background-contrast-225); }
+	&--toolsep { align-self: stretch; width: 1px; margin: 0.2em 0.35em; background: var(--cerb-color-background-contrast-225); }
+	&--tool:disabled { opacity: 0.4; cursor: default; }
+	&--laneflag { display: inline-flex; align-items: center; gap: 0.3em; }
+	&--lanecount { font-size: 0.85em; color: var(--cerb-color-background-contrast-150); }
+}
+
+// A read-only node wired to open something on double-click reads as clickable.
+.cerb-ui-node--clickable { cursor: pointer; }

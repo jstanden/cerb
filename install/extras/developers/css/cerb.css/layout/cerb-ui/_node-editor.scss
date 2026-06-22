@@ -1,0 +1,199 @@
+// cerb-ui-node-editor — the outer frame of CerbUI.NodeEditor: a toolbar row over a palette + canvas split.
+// Theme-aware throughout (colors via --cerb-color-* tokens; node header accents are per-schema inline).
+
+.cerb-ui-node-editor {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	min-height: 480px;
+	border: 1px solid var(--cerb-color-background-contrast-220);
+	border-radius: 8px;
+	overflow: hidden;
+	background: var(--cerb-color-background);
+
+	&--toolbar {
+		display: flex;
+		align-items: center;
+		gap: 0.4em;
+		padding: 0.5em 0.6em;
+		border-bottom: 1px solid var(--cerb-color-background-contrast-225);
+		background: var(--cerb-color-background-contrast-240);
+	}
+	&--tool {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35em;
+	}
+	&--tool-spacer { flex: 1 1 auto; }
+
+	&--main {
+		display: flex;
+		flex: 1 1 auto;
+		min-height: 0;   // let the canvas own the scroll/overflow, not the flex row
+	}
+
+	// Feed the sidebar's OWN width variable (don't hard-set width/flex) so its --collapsed icon-strip rule
+	// still wins when the rail is collapsed.
+	&--palette.cerb-ui-sidebar {
+		--cerb-ui-sidebar-width: 230px;
+		border-right: 1px solid var(--cerb-color-background-contrast-225);
+		// Recessed like the canvas (the contrast tokens only run lighter in dark mode) — a hair lighter than the
+		// canvas so it reads as a panel over it. Tiles inside keep their own (lighter) bg = raised cards.
+		background: color-mix(in srgb, var(--cerb-color-background) 88%, #000);
+	}
+	&--palette .cerb-ui-switcher { width: 100%; }
+	// The Blocks/Variables switcher is meaningless at icon width — hide it while collapsed.
+	&--palette.cerb-ui-sidebar--collapsed .cerb-ui-switcher { display: none; }
+
+	// A singleton type already on the canvas — its palette tile is disabled (not draggable) + diagonally hatched,
+	// like the "already used" Start tile in Kataflow. Deleting that node re-enables it.
+	&--tile-used {
+		pointer-events: none;   // also stops CerbUI.Draggable from picking it up
+		opacity: 0.5;
+		position: relative;
+	}
+	&--tile-used::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+		border-radius: 8px;
+		background: repeating-linear-gradient(135deg,
+			transparent 0 6px,
+			color-mix(in srgb, var(--cerb-color-text) 9%, transparent) 6px 12px);
+		pointer-events: none;
+	}
+	&--palette-empty {
+		padding: 1em;
+		color: var(--cerb-color-background-contrast-150);
+		font-style: italic;
+	}
+
+	&--canvas {
+		position: relative;
+		flex: 1 1 auto;
+		min-width: 0;
+		display: flex;
+	}
+
+	// Import / Export dialog bodies.
+	&--io { display: flex; flex-direction: column; gap: 0.75em; min-width: 480px; }
+	&--io-text {
+		width: 100%;
+		min-height: 320px;
+		font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+		font-size: 0.85em;
+		tab-size: 2;
+		resize: vertical;
+	}
+	&--io-error { border-color: var(--cerb-color-tag-red); }
+	&--io-actions { display: flex; justify-content: flex-end; }
+}
+
+// The drop-an-edge-on-empty-canvas picker, rendered as palette tiles (matches the sidebar).
+.cerb-ui-menu--panel.cerb-ui-node-editor--addmenu { min-width: 250px; }
+.cerb-ui-menu--item-tile {
+	height: auto;
+	padding: 3px 6px;
+}
+.cerb-ui-menu--item-tile .cerb-ui-tile {
+	display: flex;            // span the menu item's width
+	width: 100%;
+	border-color: transparent;
+	background: transparent;  // let the menu's own --item-active highlight show through
+}
+// On hover/selection the menu highlights with action-primary + inverse text; the tile's eyebrow hard-codes
+// its own muted gray, so pull it onto the active text color (dimmed) instead of low-contrast gray on blue.
+.cerb-ui-menu--item-active.cerb-ui-menu--item-tile .cerb-ui-tile--kind {
+	color: var(--cerb-color-action-primary-text);
+	opacity: 0.7;
+}
+
+// Expression Builder — a modal CerbUI.Dialog hosting a nested CerbUI.NodeEditor (scripting palette + Output).
+.cerb-ui-node-editor--exprbuilder {
+	display: flex;
+	flex-direction: column;
+	width: 100%;       // the Dialog sets the outer width (~90vw); fill it, don't double-constrain (no h-scroll)
+	height: 72vh;
+}
+.cerb-ui-node-editor--exprhead {
+	display: flex;
+	align-items: flex-end;
+	gap: 1.2em;
+	padding: 0 0 0.8em;
+	flex: 0 0 auto;
+}
+.cerb-ui-node-editor--exprfield { display: flex; flex-direction: column; gap: 0.25em; }
+.cerb-ui-node-editor--exprhead .cerb-ui-node-editor--exprfield:last-child { flex-direction: row; align-items: center; gap: 0.5em; }
+.cerb-ui-node-editor--exprlabel { font-size: 0.8em; color: var(--cerb-color-background-contrast-150); }
+.cerb-ui-node-editor--exprinput { padding: 0.35em 0.5em; min-width: 200px; }
+.cerb-ui-node-editor--exproptionallabel { color: var(--cerb-color-background-contrast-140); }
+.cerb-ui-node-editor--exprcanvas {
+	flex: 1 1 auto;
+	min-height: 0;
+	display: flex;
+	border-radius: 8px;
+	overflow: hidden;
+}
+.cerb-ui-node-editor--exprcanvas .cerb-ui-node-editor {
+	flex: 1 1 auto;
+	min-height: 0;
+}
+.cerb-ui-node-editor--exprfoot {
+	display: flex;
+	justify-content: flex-end;
+	gap: 0.6em;
+	padding-top: 0.8em;
+	flex: 0 0 auto;
+}
+
+// Blackboard — the palette's Variables tab + the add-variable modal.
+.cerb-ui-node-editor--palette-vars { padding: 0.5em; }
+.cerb-ui-node-editor--addvar {
+	display: block;
+	width: 100%;
+	margin-bottom: 0.6em;
+	padding: 0.4em;
+	border: 1px dashed var(--cerb-color-background-contrast-200);
+	border-radius: 6px;
+	background: transparent;
+	color: var(--cerb-color-link);
+	cursor: pointer;
+	appearance: none;
+	font-size: 0.9em;
+}
+.cerb-ui-node-editor--addvar:hover { background: var(--cerb-color-background-contrast-235); }
+.cerb-ui-node-editor--varlist { display: flex; flex-direction: column; gap: 0.3em; }
+// Variable rows look + behave like draggable palette tiles (grab cursor, hover lift).
+.cerb-ui-node-editor--varrow {
+	display: flex;
+	align-items: center;
+	gap: 0.4em;
+	padding: 0.35em 0.5em;
+	border: 1px solid var(--cerb-color-background-contrast-225);
+	border-radius: 6px;
+	background: var(--cerb-color-background-contrast-240);
+	cursor: grab;
+	transition: border-color 0.1s ease, background 0.1s ease;
+}
+.cerb-ui-node-editor--varrow:hover { border-color: var(--cerb-color-link); background: var(--cerb-color-background-contrast-235); }
+.cerb-ui-node-editor--varrow:active { cursor: grabbing; }
+.cerb-ui-node-editor--varrow .cerb-ui-tile { flex: 1 1 auto; min-width: 0; border: none; background: transparent; padding: 0; }
+.cerb-ui-node-editor--varrow .cerb-ui-tile--icon { width: 22px; height: 22px; }
+.cerb-ui-node-editor--varlock { flex: 0 0 auto; color: var(--cerb-color-background-contrast-160); font-size: 0.85em; }
+.cerb-ui-node-editor--varremove {
+	flex: 0 0 auto;
+	display: inline-flex;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	appearance: none;
+	color: var(--cerb-color-background-contrast-150);
+	cursor: pointer;
+	font-size: 0.85em;
+}
+.cerb-ui-node-editor--varremove:hover,
+.cerb-ui-node-editor--varremove:hover:has(> span.cerb-icons) { color: var(--cerb-color-tag-red); }
+
+.cerb-ui-node-editor--addvardialog { display: flex; flex-direction: column; gap: 1em; min-width: 360px; }
+.cerb-ui-node-editor--vartypebtn { width: 100%; text-align: left; }
+.cerb-ui-node-editor--varhint { margin-top: 0.3em; font-size: 0.8em; color: var(--cerb-color-tag-red); }

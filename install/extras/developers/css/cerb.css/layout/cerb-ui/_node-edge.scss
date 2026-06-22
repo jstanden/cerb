@@ -1,0 +1,45 @@
+// cerb-ui-node-edge — one connection path in the canvas edge-layer: a visible line + a fat invisible hit path,
+// plus the green/red states shown while a connection is being dragged. [TODO Phase 2] type-aware default coloring.
+
+.cerb-ui-node-canvas--edges marker path {
+	fill: var(--cerb-color-background-contrast-160);   // arrowhead tint
+}
+
+.cerb-ui-node-edge {
+	&--line {
+		fill: none;
+		stroke: var(--cerb-color-background-contrast-160);
+		stroke-width: 2px;
+		pointer-events: none;
+	}
+
+	&--hit {
+		fill: none;
+		stroke: transparent;
+		stroke-width: 14px;
+		pointer-events: stroke;   // the fat path captures clicks; the empty svg stays click-through
+		cursor: pointer;
+	}
+
+	&:hover &--line { stroke: var(--cerb-color-link); }
+
+	&--selected &--line { stroke: var(--cerb-color-link); stroke-width: 3px; }
+
+	// Live-connect feedback (also used by the provisional --temp drag path).
+	&--valid   { stroke: var(--cerb-color-tag-green); }
+	&--invalid { stroke: var(--cerb-color-tag-red); }
+	&--valid.cerb-ui-node-edge--line,
+	&--temp.cerb-ui-node-edge--valid { stroke: var(--cerb-color-tag-green); }
+	&--invalid.cerb-ui-node-edge--line,
+	&--temp.cerb-ui-node-edge--invalid { stroke: var(--cerb-color-tag-red); }
+	&--valid &--line { stroke: var(--cerb-color-tag-green); }
+	&--invalid &--line { stroke: var(--cerb-color-tag-red); }
+
+	&--temp {
+		fill: none;
+		stroke: var(--cerb-color-link);
+		stroke-width: 2px;
+		stroke-dasharray: 6 4;
+		pointer-events: none;
+	}
+}

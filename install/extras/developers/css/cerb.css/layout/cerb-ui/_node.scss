@@ -1,0 +1,395 @@
+// cerb-ui-node — one node card on the canvas: header (accent + icon + label), corner inlet/outlet handles,
+// and a content area (inline fields / param inlets / branch outlets in later phases). Theme-aware; the header
+// accent comes per-schema (inline style) over a tokenized card.
+
+.cerb-ui-node {
+	position: absolute;   // positioned in the canvas viewport via viewport-space coords (logical + OFFSET)
+	min-width: 180px;
+	border-radius: 8px;
+	background: var(--cerb-color-background-contrast-235, var(--cerb-color-background));
+	border: 1px solid var(--cerb-color-background-contrast-220);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+	color: var(--cerb-color-text);
+	user-select: none;
+
+	// Header — the sidebar cerb-ui-tile look: a colored icon square + kind/name on a neutral header (the accent
+	// lives in the icon square, not a full bar). Doubles as the drag handle.
+	&--header {
+		display: flex;
+		align-items: center;
+		padding: 0.45em 0.6em;
+		border-radius: 7px 7px 0 0;
+		background: var(--cerb-color-background-contrast-235);
+		color: var(--cerb-color-text);
+		border-bottom: 1px solid var(--cerb-color-background-contrast-220);
+		cursor: grab;
+
+		.cerb-ui-tile {
+			flex: 1 1 auto;
+			min-width: 0;
+			border: none;
+			background: transparent;
+			padding: 0;
+		}
+	}
+	&--header:active { cursor: grabbing; }
+
+	// Remove (×) — pinned to the header's right edge, revealed on hover/selection.
+	&--menu {
+		margin-left: auto;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0.1em;
+		border: 0;
+		border-radius: 4px;
+		background: transparent;
+		appearance: none;
+		color: inherit;
+		font-size: 0.95em;
+		line-height: 1;
+		cursor: pointer;
+		opacity: 0;
+		transition: opacity 0.1s ease, background-color 0.1s ease;
+	}
+	&--menu:hover { background: rgba(0, 0, 0, 0.25); }
+	&:hover &--menu,
+	&--selected &--menu { opacity: 0.85; }
+	&--menu:hover { opacity: 1; }
+	// Opt out of the global `button:has(> span.cerb-icons):hover` blue (it out-specifies a plain &:hover) —
+	// keep the × its inherited header color; only the background shades.
+	&--menu:hover:has(> span.cerb-icons) { color: inherit; }
+
+	&--body {
+		padding: 0.5em 0.75em;
+	}
+
+	// A per-node description/subtitle line (muted), e.g. an automation event's record description.
+	&--desc {
+		font-size: 0.8em;
+		line-height: 1.35;
+		color: var(--cerb-color-background-contrast-150);
+	}
+
+	// Read-only viewer: don't draw empty (unconnected) handles — only connected inlet arrowheads / outlet dots.
+	&--readonly &--handle:not(#{&}--handle-connected) { display: none; }
+
+	// Divider'd sub-sections (property sockets, branch outlets, "+ Add …"). The divider separates MULTIPLE
+	// sections; the first one sits right under the header (which is already a divider), so it gets none.
+	&--section {
+		margin-top: 0.5em;
+		padding-top: 0.5em;
+		border-top: 1px solid var(--cerb-color-background-contrast-220);
+	}
+	&--body > &--section:first-child {
+		margin-top: 0;
+		padding-top: 0;
+		border-top: 0;
+	}
+	&--section-label {
+		font-size: 0.72em;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		color: var(--cerb-color-background-contrast-150);
+		margin-bottom: 0.4em;
+	}
+
+	// Inline form fields: a label over a control, with a left-edge param inlet.
+	&--field { position: relative; margin-bottom: 0.45em; }
+	&--field-main { margin-left: 2px; }
+	&--field-label { font-size: 0.9em; color: var(--cerb-color-background-contrast-130); margin-bottom: 1px; }
+	&--field-input {
+		width: 100%;
+		box-sizing: border-box;
+		padding: 3px 6px;
+		font-size: 0.92em;
+		color: var(--cerb-color-text);
+		background: var(--cerb-color-background-contrast-250, var(--cerb-color-background));
+		border: 1px solid var(--cerb-color-background-contrast-210);
+		border-radius: 3px;
+	}
+	&--field .cerb-ui-toggle { margin-top: 1px; }
+
+	// Property socket rows: [pill] → NAME (inlet) / NAME → [pill] (outlet).
+	&--prop {
+		position: relative;
+		display: flex;
+		align-items: center;
+		gap: 0.4em;
+		min-height: 22px;
+		margin-bottom: 0.3em;
+	}
+	&--prop-label {
+		flex: 1 1 auto;
+		min-width: 0;
+		font-size: 0.78em;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		color: var(--cerb-color-background-contrast-150);
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	&--prop-arrow { flex: 0 0 auto; color: var(--cerb-color-background-contrast-160); }
+	&--socket {
+		flex: 0 0 auto;
+		display: inline-flex;
+		align-items: center;
+		min-width: 62px;
+		height: 18px;
+		padding: 0 6px;
+		background: color-mix(in srgb, var(--cerb-color-background-contrast-200) 30%, transparent);
+		border: 1px dashed var(--cerb-color-background-contrast-200);
+		border-radius: 9px;
+		cursor: pointer;
+		transition: border-color 0.15s ease;
+	}
+	&--socket:hover { border-color: var(--cerb-color-link); }
+	&--socket-placeholder { font-size: 0.72em; color: var(--cerb-color-background-contrast-150); }
+
+	// Flow branch outlet rows: NAME (right-aligned) + a handle on the right edge.
+	&--branch {
+		position: relative;
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+		min-height: 22px;
+		padding-right: 0.4em;
+		margin-bottom: 0.2em;
+	}
+	&--branch-label { font-size: 0.85em; color: var(--cerb-color-background-contrast-150); }
+
+	// "+ Add …" — dashed, accent-tinted (color set inline to the node's header color).
+	&--add {
+		display: block;
+		width: 100%;
+		margin-top: 0.3em;
+		padding: 5px;
+		font-size: 0.85em;
+		text-align: center;
+		background: transparent;
+		border: 1px dashed currentColor;
+		border-radius: 4px;
+		cursor: pointer;
+		opacity: 0.85;
+		appearance: none;
+	}
+	&--add:hover { opacity: 1; background: color-mix(in srgb, currentColor 10%, transparent); }
+
+	// Dynamic "+ Add output / outcome" rows: a small × remove, an editable key/name input, plus its handle.
+	&--dynrow {
+		position: relative;
+		display: flex;
+		align-items: center;
+		gap: 0.35em;
+		min-height: 24px;
+		margin-bottom: 0.25em;
+		padding: 0 0.4em;
+	}
+	&--dynkey { flex: 1 1 auto; min-width: 0; }
+	&--rowremove {
+		flex: 0 0 auto;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 16px;
+		height: 16px;
+		padding: 0;
+		border: 0;
+		border-radius: 4px;
+		background: transparent;
+		appearance: none;
+		color: var(--cerb-color-background-contrast-150);
+		cursor: pointer;
+		font-size: 0.8em;
+	}
+	&--rowremove:hover { background: var(--cerb-color-background-contrast-225); color: var(--cerb-color-tag-red); }
+	&--rowremove:hover:has(> span.cerb-icons) { color: var(--cerb-color-tag-red); }
+
+	// Param (field) / branch edge handles sit mid-row, just inside the card edge.
+	&--field-handle  { left: -8px;  top: 50%; margin-top: -5px; width: 10px; height: 10px; }
+	&--branch-handle { right: -8px; top: 50%; margin-top: -6px; }
+
+	// Handles — 12px circles riding just outside the card. Default: a dotted ring with NO fill (Kataflow look).
+	// `color` (currentColor) drives both the ring and the connected fill; data handles set it to their type color.
+	&--handle {
+		position: absolute;
+		width: 12px;
+		height: 12px;
+		border-radius: 50%;
+		box-sizing: border-box;
+		background: transparent;
+		color: var(--cerb-color-background-contrast-160);
+		border: 2px dotted currentColor;
+		cursor: crosshair;
+		z-index: 2;
+		transition: transform 0.1s ease;
+	}
+	&--handle:hover { transform: scale(1.3); }   // scale only — no button-blue on hover
+
+	// Connected: outlets become a solid filled dot; inlets hide so the edge's arrowhead points the flow
+	// (kept in layout via opacity:0 so edge geometry still measures the handle position).
+	&--handle-connected { border-style: solid; }
+	&--outlet#{&}--handle-connected,
+	&--branch-handle#{&}--handle-connected,
+	&--value-out#{&}--handle-connected { background: currentColor; }
+	// An expression node's value outlet fills PURPLE (its accent) when connected; gray dotted when open.
+	&--expr &--value-out#{&}--handle-connected { color: var(--cerb-color-tag-purple, #805ad5); }
+	// Connected inlet → the edge's arrowhead: a filled right-pointing triangle sitting on top of the node, the
+	// edge running into it (Kataflow's "inlet becomes the arrow"). Replaces the old hide + SVG marker.
+	&--inlet#{&}--handle-connected,
+	&--field-handle#{&}--handle-connected {
+		opacity: 1;
+		border: none;
+		background: currentColor;
+		clip-path: polygon(100% 50%, 0 0, 0 100%);
+		z-index: 6;
+	}
+
+	// Connection-drag target: the inlet under the cursor fills + glows green/red (matches the edge line; reads
+	// like a live pip). Compound selectors so opacity:1 wins over a connected inlet's opacity:0 when re-targeting.
+	&--handle#{&}--handle-target-valid,
+	&--handle#{&}--handle-target-invalid { border-style: solid; opacity: 1; transform: scale(1.15); }
+	&--handle#{&}--handle-target-valid {
+		border-color: var(--cerb-color-tag-green);
+		background: var(--cerb-color-tag-green);
+		box-shadow: 0 0 7px 2px color-mix(in srgb, var(--cerb-color-tag-green) 70%, transparent);
+	}
+	&--handle#{&}--handle-target-invalid {
+		border-color: var(--cerb-color-tag-red);
+		background: var(--cerb-color-tag-red);
+		box-shadow: 0 0 7px 2px color-mix(in srgb, var(--cerb-color-tag-red) 70%, transparent);
+	}
+
+	&--inlet  { top: -6px;    left: -6px; }
+	&--outlet { bottom: -6px; right: -6px; }
+
+	// Opt-in (schema `ports: 'center'`): single flow ports centered — inlet top-middle, outlet bottom-middle —
+	// so a chain of these reads as a clean vertical line. Edges re-measure handle centers live, so they follow.
+	&--ports-center &--inlet  { left: 50%; right: auto; margin-left: -6px; }
+	&--ports-center &--outlet { left: 50%; right: auto; margin-left: -6px; }
+	// Pin just the inlet to the LEFT-middle edge (e.g. a first listener fed from the event's side branch), while
+	// the outlet stays centered for the vertical chain. Wins over ports-center by source order.
+	&--inlet-corner &--inlet { top: 50%; left: -6px; right: auto; margin-top: -6px; margin-left: 0; }
+
+	// Container socket: an ordered, scrollable list of nested child nodes inside a parent (e.g. a listener's
+	// automations, a trigger's automations). Replaces branch-outlet fan-out for light/serial children.
+	&--container {
+		margin-top: 0.5em;
+		display: flex;
+		flex-direction: column;
+		gap: 5px;
+		max-height: 320px;
+		overflow-y: auto;
+		padding: 5px;
+		border-radius: 7px;
+		background: var(--cerb-color-background-contrast-235);
+	}
+
+	// Nested child node: rendered in-flow inside a container (not absolutely positioned on the canvas), full
+	// width, lighter chrome, no corner handles.
+	&--nested {
+		position: static;
+		width: 100%;
+		min-width: 0;
+		box-shadow: none;
+		cursor: default;
+	}
+	&--nested:hover { box-shadow: 0 0 0 1px var(--cerb-color-background-contrast-200); }
+
+	// Leaf node (no body): the card is a single panel, so the header fills it with full radius and no
+	// dangling bottom border.
+	&--leaf &--header { border-radius: 7px; border-bottom: 0; }
+
+	&--selected {
+		border-color: var(--cerb-color-link);
+		box-shadow: 0 0 0 2px var(--cerb-color-link), 0 2px 8px rgba(0, 0, 0, 0.22);
+	}
+
+	// Comment node — a free-floating dashed card (format toolbar + editable body). No header/handles; resizable.
+	&--comment {
+		min-width: 200px;
+		min-height: 120px;
+		width: 280px;
+		height: 160px;
+		border: 1px dashed var(--cerb-color-background-contrast-180);
+		background: color-mix(in srgb, var(--cerb-color-background) 92%, #000);
+		box-shadow: none;
+		resize: both;
+		overflow: hidden;
+		display: flex;
+		flex-direction: column;
+		cursor: move;
+	}
+	&--comment-toolbar {
+		display: flex;
+		gap: 0.3em;
+		padding: 0.4em 0.5em;
+		border-bottom: 1px dashed var(--cerb-color-background-contrast-200);
+	}
+	&--comment-btn {
+		min-width: 24px;
+		height: 22px;
+		padding: 0 0.4em;
+		border: 1px solid var(--cerb-color-background-contrast-210);
+		border-radius: 4px;
+		background: var(--cerb-color-background-contrast-235);
+		color: var(--cerb-color-text);
+		font-size: 0.8em;
+		cursor: pointer;
+		appearance: none;
+	}
+	&--comment-btn:hover { border-color: var(--cerb-color-link); }
+	&--comment-content {
+		flex: 1 1 auto;
+		padding: 0.6em 0.7em;
+		overflow: auto;
+		color: var(--cerb-color-text);
+		font-size: 0.92em;
+		line-height: 1.4;
+		outline: none;
+		cursor: text;
+	}
+	&--comment-content:empty::before {
+		content: attr(data-placeholder);
+		color: var(--cerb-color-background-contrast-150);
+		font-style: italic;
+	}
+
+	// Data-flow value input row (expression builder): [inlet] label.
+	&--valuein {
+		position: relative;
+		display: flex;
+		align-items: center;
+		min-height: 1.4em;
+		padding: 0.1em 0.5em 0.1em 0.9em;
+		font-size: 0.85em;
+	}
+	&--io-label { color: var(--cerb-color-background-contrast-140); white-space: nowrap; }
+	// A node's single value outlet sits on the right edge, vertically centered.
+	&--value-out { right: -6px; top: 50%; margin-top: -6px; }
+
+	// Compact "card" nodes (Expression / Global Variable) — a borderless mini cerb-ui-tile inside an accent card,
+	// so they match the palette tiles / node headers (icon square + kind eyebrow + name) + one value outlet.
+	&--expr,
+	&--var {
+		display: inline-flex;
+		align-items: flex-start;   // ⋮ menu rides the top-right; the value outlet sits at the bottom-right, clear of it
+		gap: 0.4em;
+		padding: 0.3em 0.5em 0.45em;
+		border-radius: 8px;
+		background: var(--cerb-color-background-contrast-235);
+		cursor: move;
+
+		.cerb-ui-tile { border: none; background: transparent; padding: 0; }
+		.cerb-ui-tile--icon { width: 24px; height: 24px; }
+	}
+	&--expr { border: 1.5px solid var(--cerb-color-tag-purple, #805ad5); }
+	&--var  { border: 1.5px solid var(--cerb-color-tag-blue, #3182ce); }
+	// The Expression node's icon square carries the "(f)" mark.
+	&--expr .cerb-ui-tile--icon { font-style: italic; font-weight: 700; font-size: 0.78em; }
+	&--expr-name-empty { color: var(--cerb-color-background-contrast-150); font-style: italic; font-weight: 400; }
+	// On the cards, the value outlet rides the bottom-right corner — well clear of the top-right ⋮ menu button.
+	&--expr &--value-out,
+	&--var &--value-out { top: auto; bottom: -6px; right: -6px; margin-top: 0; }
+}

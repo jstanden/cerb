@@ -127,6 +127,7 @@
 						<li data-target="context-chooser" data-icon="search">ContextChooser</li>
 						<li data-target="searchquery" data-icon="search">SearchQuery</li>
 						<li data-target="kataeditor" data-icon="placeholders">KataEditor</li>
+						<li data-target="node-editor" data-icon="branch">NodeEditor</li>
 					</ul>
 				</div>
 				<div class="cerb-ui-sidebar--section">
@@ -202,6 +203,7 @@
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/context-chooser.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/searchquery.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/kataeditor.tpl"}
+			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/node-editor.tpl"}
 
 			<h2 class="cerb-uiref-grouplabel" id="group-navigation">Navigation</h2>
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/menu.tpl"}

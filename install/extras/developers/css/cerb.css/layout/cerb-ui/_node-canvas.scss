@@ -1,0 +1,93 @@
+// cerb-ui-node-canvas — the pan/zoom surface + its viewport transform layer and SVG edge-layer.
+// Mirrors js-flow's Canvas: a large viewport offset so logical (0,0) is its center; here it's theme-aware
+// (tokenized surface + dot grid instead of js-flow's hard near-black).
+
+.cerb-ui-node-canvas {
+	position: relative;
+	flex: 1 1 auto;
+	overflow: hidden;
+	min-height: 360px;
+	cursor: grab;
+	// A recessed canvas, darker than its frame. The contrast tokens only run TOWARD text (lighter in dark mode),
+	// so there's no token darker than --cerb-color-background — derive one by mixing the background with black.
+	background-color: color-mix(in srgb, var(--cerb-color-background) 80%, #000);
+	// Subtle dot grid for spatial reference — a translucent gray reads on both a dark and a light canvas.
+	background-image: radial-gradient(rgba(127, 127, 127, 0.22) 1px, transparent 1px);
+	background-size: 22px 22px;
+
+	&--panning { cursor: grabbing; }
+
+	&--viewport {
+		position: absolute;
+		left: -5000px;   // logical (0,0) sits at the viewport's center (OFFSET = 5000)
+		top: -5000px;
+		width: 10000px;
+		height: 10000px;
+		transform-origin: 0 0;
+		// Promote to its own compositing layer: children then paint in local (integer) space and the fractional
+		// pan/zoom scale is applied only at composite time — so a node's :hover repaint can't re-snap its text by
+		// a pixel. Also smooths pan/zoom. One layer for the whole canvas (not per-node), so it stays cheap.
+		will-change: transform;
+	}
+
+	// Edges render beneath nodes, in the same viewport space, so one transform moves both.
+	&--edges {
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 100%;
+		height: 100%;
+		overflow: visible;
+		pointer-events: none;   // individual edge hit paths re-enable this
+	}
+
+	// Optional minimap — a proportional overview pinned bottom-right (a 2D canvas of node rects + a viewport box).
+	&--minimap {
+		position: absolute;
+		right: 10px;
+		bottom: 10px;
+		width: 190px;
+		height: 130px;
+		border: 1px solid var(--cerb-color-background-contrast-220);
+		border-radius: 7px;
+		overflow: hidden;
+		background: color-mix(in srgb, var(--cerb-color-background) 86%, transparent);
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
+		z-index: 20;
+		cursor: default;
+	}
+	&--minimap-canvas {
+		display: block;
+		width: 100%;
+		height: 100%;
+		cursor: pointer;
+	}
+	&--minimap-toggle {
+		position: absolute;
+		top: 2px;
+		right: 2px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 20px;
+		height: 20px;
+		padding: 0;
+		border: 0;
+		border-radius: 4px;
+		background: color-mix(in srgb, var(--cerb-color-background) 70%, transparent);
+		color: var(--cerb-color-background-contrast-150);
+		font-size: 0.8em;
+		line-height: 1;
+		cursor: pointer;
+	}
+	&--minimap-toggle:hover { color: var(--cerb-color-link); }
+
+	// Minimized: collapse to just the toggle button.
+	&--minimap-minimized {
+		width: 26px;
+		height: 26px;
+		background: color-mix(in srgb, var(--cerb-color-background) 86%, transparent);
+		.cerb-ui-node-canvas--minimap-canvas { display: none; }
+		.cerb-ui-node-canvas--minimap-toggle { top: 0; right: 0; width: 26px; height: 26px; border-radius: 7px; }
+	}
+}
