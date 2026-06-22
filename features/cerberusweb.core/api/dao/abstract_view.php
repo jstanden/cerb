@@ -2309,48 +2309,78 @@ abstract class C4_AbstractView {
 		$this->renderPage = 0;
 	}
 	
-	// Map a search-field type to a cerb-icon glyph + tag color. Shared by the worklist column picker
-	// (PageSection_InternalWorklists) and the query-autocomplete field list below, so the type→icon
-	// mapping stays in one place.
+	// Map a type to a cerb-icon glyph + tag color + human label, returned as [icon, color, label].
+	// The single source of truth shared by the worklist column picker (PageSection_InternalWorklists),
+	// the query-autocomplete field list below, and the Setup->Records reference (PageSection_ConfigRecords).
+	// Keyed by the worklist/search TYPE_* codes, custom-field codes, and the records-API validation type
+	// names (string/uint/timestamp/...), so all three vocabularies resolve from one map.
 	public static function getColumnDisplayMeta($type) : array {
 		$map = [
 			// Standard fields (DevblocksSearchCriteria::TYPE_*)
-			DevblocksSearchCriteria::TYPE_TEXT => ['text', 'blue'],
-			DevblocksSearchCriteria::TYPE_FULLTEXT => ['text', 'blue'],
-			DevblocksSearchCriteria::TYPE_SEARCH => ['search', 'blue'],
-			DevblocksSearchCriteria::TYPE_NUMBER => ['hash', 'green'],
-			DevblocksSearchCriteria::TYPE_DECIMAL => ['hash', 'green'],
-			DevblocksSearchCriteria::TYPE_NUMBER_MINUTES => ['clock', 'orange'],
-			DevblocksSearchCriteria::TYPE_NUMBER_SECONDS => ['clock', 'orange'],
-			DevblocksSearchCriteria::TYPE_NUMBER_MS => ['clock', 'orange'],
-			DevblocksSearchCriteria::TYPE_DATE => ['calendar', 'orange'],
-			DevblocksSearchCriteria::TYPE_BOOL => ['checked', 'green'],
-			DevblocksSearchCriteria::TYPE_WORKER => ['user', 'blue'],
-			DevblocksSearchCriteria::TYPE_CONTEXT => ['link', 'gray'],
-			DevblocksSearchCriteria::TYPE_GEO_POINT => ['location', 'red'],
-			DevblocksSearchCriteria::TYPE_VIRTUAL_SPARKLINES => ['chart-line', 'purple'],
+			DevblocksSearchCriteria::TYPE_BOOL => ['checked', 'green', 'Yes/No'],
+			DevblocksSearchCriteria::TYPE_CONTEXT => ['link', 'gray', 'Record'],
+			DevblocksSearchCriteria::TYPE_DATE => ['calendar', 'orange', 'Date'],
+			DevblocksSearchCriteria::TYPE_DECIMAL => ['hash', 'green', 'Decimal'],
+			DevblocksSearchCriteria::TYPE_FULLTEXT => ['text', 'blue', 'Text'],
+			DevblocksSearchCriteria::TYPE_GEO_POINT => ['location', 'red', 'Geo'],
+			DevblocksSearchCriteria::TYPE_NUMBER => ['hash', 'green', 'Number'],
+			DevblocksSearchCriteria::TYPE_NUMBER_MINUTES => ['clock', 'orange', 'Minutes'],
+			DevblocksSearchCriteria::TYPE_NUMBER_MS => ['clock', 'orange', 'Milliseconds'],
+			DevblocksSearchCriteria::TYPE_NUMBER_SECONDS => ['clock', 'orange', 'Seconds'],
+			DevblocksSearchCriteria::TYPE_SEARCH => ['search', 'blue', 'Search'],
+			DevblocksSearchCriteria::TYPE_SEARCH_INDEX => ['search', 'blue', 'Search'],
+			DevblocksSearchCriteria::TYPE_TEXT => ['text', 'blue', 'Text'],
+			DevblocksSearchCriteria::TYPE_VIRTUAL_DISTBAR => ['chart-bar-stacked', 'purple', 'Distribution bar'],
+			DevblocksSearchCriteria::TYPE_VIRTUAL_SPARKLINES => ['chart-line', 'purple', 'Sparklines'],
+			DevblocksSearchCriteria::TYPE_WORKER => ['user', 'blue', 'Worker'],
+
 			// Custom fields (Model_CustomField::TYPE_* single-char codes)
-			Model_CustomField::TYPE_SINGLE_LINE => ['text', 'blue'],
-			Model_CustomField::TYPE_MULTI_LINE => ['text', 'blue'],
-			Model_CustomField::TYPE_URL => ['link', 'gray'],
-			Model_CustomField::TYPE_LINK => ['link', 'gray'],
-			Model_CustomField::TYPE_NUMBER => ['hash', 'green'],
-			Model_CustomField::TYPE_DECIMAL => ['hash', 'green'],
-			Model_CustomField::TYPE_CURRENCY => ['hash', 'green'],
-			Model_CustomField::TYPE_DATE => ['calendar', 'orange'],
-			Model_CustomField::TYPE_CHECKBOX => ['checked', 'green'],
-			Model_CustomField::TYPE_MULTI_CHECKBOX => ['checked', 'green'],
-			Model_CustomField::TYPE_DROPDOWN => ['list', 'blue'],
-			Model_CustomField::TYPE_LIST => ['list', 'blue'],
-			Model_CustomField::TYPE_WORKER => ['user', 'blue'],
-			Model_CustomField::TYPE_FILE => ['file', 'gray'],
-			Model_CustomField::TYPE_FILES => ['file', 'gray'],
+			Model_CustomField::TYPE_CHECKBOX => ['checked', 'green', 'Checkbox'],
+			Model_CustomField::TYPE_CURRENCY => ['hash', 'green', 'Currency'],
+			Model_CustomField::TYPE_DATE => ['calendar', 'orange', 'Date'],
+			Model_CustomField::TYPE_DECIMAL => ['hash', 'green', 'Decimal'],
+			Model_CustomField::TYPE_DROPDOWN => ['list', 'blue', 'Picklist'],
+			Model_CustomField::TYPE_FILE => ['file', 'gray', 'File'],
+			Model_CustomField::TYPE_FILES => ['file', 'gray', 'Files: Multiple'],
+			Model_CustomField::TYPE_LINK => ['link', 'gray', 'Record Link'],
+			Model_CustomField::TYPE_LIST => ['list', 'blue', 'List'],
+			Model_CustomField::TYPE_MULTI_CHECKBOX => ['checked', 'green', 'Multiple Checkboxes'],
+			Model_CustomField::TYPE_MULTI_LINE => ['text', 'blue', 'Text: Multiple Lines'],
+			Model_CustomField::TYPE_NUMBER => ['hash', 'green', 'Number'],
+			Model_CustomField::TYPE_SINGLE_LINE => ['text', 'blue', 'Text: Single Line'],
+			Model_CustomField::TYPE_URL => ['link', 'gray', 'URL'],
+			Model_CustomField::TYPE_WORKER => ['user', 'blue', 'Worker'],
+
+			// Custom field extensions
+			CustomField_GeoPoint::ID => ['location', 'red', 'Geo'],
+			CustomField_RecordLinks::ID => ['link', 'gray', 'Record Links'],
+			CustomField_Slider::ID => ['adjust', 'green', 'Slider'],
+			'slider' => ['adjust', 'green', 'Slider'], // profileGetFields() uses this literal
+
+			// Records-API validation type names (Extension_DevblocksContext::getKeyMeta()'s `type`)
+			'string' => ['text', 'blue', 'Text'],
+			'stringOrArray' => ['text', 'blue', 'Text or list'],
+			'url' => ['link', 'gray', 'URL'],
+			'image' => ['picture', 'purple', 'Image'],
+			'uint' => ['hash', 'green', 'Number'],
+			'id' => ['hash', 'green', 'ID'],
+			'idArray' => ['hash', 'green', 'ID list'],
+			'float' => ['hash', 'green', 'Decimal'],
+			'timestamp' => ['calendar', 'orange', 'Date'],
+			'boolean' => ['checked', 'green', 'Yes/No'],
+			'geopoint' => ['location', 'red', 'Geo'],
+			'object' => ['placeholders', 'purple', 'Object'],
+			'fieldsets' => ['collection', 'gray', 'Fieldsets'],
+			'links' => ['link', 'gray', 'Links'],
+
+			// Manual
+			'virtual' => ['tag', 'gray', 'Virtual'],
 		];
 
 		if($type && array_key_exists($type, $map))
 			return $map[$type];
 
-		return ['tag', 'gray'];
+		return ['tag', 'gray', ''];
 	}
 
 	function getQueryAutocompleteSuggestions() {
