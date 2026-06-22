@@ -280,9 +280,10 @@ function DevblocksClass() {
 		if(eventData.return.hasOwnProperty('command')
 			&& 'object' == typeof eventData.return.command
 			&& 'object' == typeof editor
+			&& 'function' == typeof editor.execCommand
 		) {
 			let editor_command = eventData.return.command;
-			
+
 			if('editor_commands' === editor_command.name) {
 				editor.execCommand('openCommandPalette');
 			}
