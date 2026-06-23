@@ -86,6 +86,42 @@ ed.setMarker(2, { type:'info', title:'A gutter marker' });{/literal}</pre>
 			</div>
 		</div>
 
+		{* Example 3: client-side validation — the first syntax error becomes a gutter marker on its line *}
+		<div class="cerb-ui-header">
+			<div class="cerb-ui-header--label">Client-side validation &mdash; pass <code>validate: true</code> to lint on edit (debounced): the <b>first</b> JSON syntax error is marked in the gutter on its line, with the message as the marker's hover note. <code>JSON.parse</code> decides validity (so valid JSON is never falsely rejected) and a small internal locator pinpoints the line. The seeded value below has a trailing comma; fix it and the marker clears. <code>onValidate(result)</code> reports <code>{literal}{valid, row, column, message}{/literal}</code> &mdash; here it drives the status line</div>
+		</div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<div class="cerb-ui-jsoneditor" id="uiref-jsoneditor-validate">
+					<div class="cerb-ui-jsoneditor--gutter" aria-hidden="true"></div>
+					<div class="cerb-ui-jsoneditor--field">
+						<div class="cerb-ui-jsoneditor--highlight" aria-hidden="true"></div>
+						<textarea class="cerb-ui-jsoneditor--input" data-editor-lines="12" spellcheck="false">{literal}{
+  "name": "Cerb",
+  "roles": ["admin", "agent",],
+  "active": true
+}{/literal}</textarea>
+						<span class="cerb-ui-jsoneditor--caret-anchor"></span>
+					</div>
+				</div>
+				<div class="cerb-uiref-result">Status &middot; <b id="uiref-jsoneditor-validate-status">&mdash;</b></div>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>{literal}const ed = new CerbUI.JsonEditor(el, {
+	validate: true,              // lint on edit; mark the first error in the gutter
+	validateDelay: 300,          // debounce ms (default 300)
+	onValidate: (r) => {
+		// r = { valid:true } | { valid:false, row, column, position, message }
+		status.textContent = r.valid ? 'Valid JSON' : ('Line ' + (r.row + 1) + ': ' + r.message);
+	},
+});
+
+ed.validate();                 // also callable on demand; returns the same result{/literal}</pre>
+			</div>
+		</div>
+
 		{* Reference (no live demo): the public API, one method per line with a worked example *}
 		<div class="cerb-ui-header">
 			<div class="cerb-ui-header--label">The API &mdash; value &amp; folding rows are <b>MODEL</b> space; <code>getValue()</code> returns the whole document even when lines are folded away</div>
@@ -105,6 +141,10 @@ ed.scrollToLine(10);                            // scroll a MODEL row into view
 ed.insertSnippet('"key": $0');                  // $0 marks where the caret lands
 ed.getLine(2);                                  // text of a MODEL row
 ed.onChange((value) => { /* e.g. live-validate */ });
+
+// Validation (opt-in via the `validate` option; or call manually):
+ed.validate();                                  // {valid:true} | {valid:false, row, column, position, message}
+CerbUI.JsonEditor.lint('{"a":}');               // the pure linter (static; no editor needed)
 
 // Code folding (MODEL rows) — fold an object/array by its opening-bracket row:
 ed.fold(4);                                     // collapse the object/array opening at row 4
@@ -176,6 +216,25 @@ ed.clearMarkers();                              // remove every marker{/literal}
 		const el = document.getElementById('uiref-jsoneditor-readonly');
 		if(el && window.CerbUI && CerbUI.JsonEditor) {
 			new CerbUI.JsonEditor(el, { readOnly: true, minLines: 4, maxLines: 14 });
+		}
+	})();
+
+	// JsonEditor #3 — client-side validation: a gutter error marker + a live status readout
+	(function() {
+		const el = document.getElementById('uiref-jsoneditor-validate');
+		const status = document.getElementById('uiref-jsoneditor-validate-status');
+		if(el && window.CerbUI && CerbUI.JsonEditor) {
+			new CerbUI.JsonEditor(el, {
+				minLines: 5,
+				maxLines: 12,
+				validate: true,
+				onValidate: function(r) {
+					if(!status) return;
+					// textContent (never innerHTML) — the message is inert text either way.
+					status.textContent = r.valid ? 'Valid JSON' : ('Line ' + (r.row + 1) + ', column ' + (r.column + 1) + ': ' + r.message);
+					status.style.color = r.valid ? 'var(--cerb-color-tag-green)' : 'var(--cerb-color-tag-red)';
+				},
+			});
 		}
 	})();
 })();

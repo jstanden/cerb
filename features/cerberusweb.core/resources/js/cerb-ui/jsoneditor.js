@@ -43,6 +43,9 @@ CerbUI.JsonEditor = class {
 		readOnly: false,          // highlight + fold only; disable text-mutating keys (data-editor-readonly overrides)
 		placeholder: null,
 		onGutterClick: null,      // (modelRow, e) when the left marker column is clicked (e.g. toggle a breakpoint)
+		validate: false,          // when true, lint JSON on edit and mark the first syntax error in the gutter
+		validateDelay: 300,       // ms debounce for validation while typing
+		onValidate: null,         // (result) after each validate(): { valid, row?, column?, position?, message? }
 	};
 
 	constructor(el, opts = {}) {
@@ -89,6 +92,8 @@ CerbUI.JsonEditor = class {
 		this._markers = new Map();   // MODEL row -> gutter marker descriptor {type,icon,color,title,pip} (left of numbers)
 		this._changeCbs = [];
 		this._suppressInput = false; // true while _writeValue applies an edit (ignore the echoed `input` event)
+		this._validationRow = null;  // MODEL row of the current validation error marker (so we own/clear just it)
+		this._validateTimer = null;  // debounce timer for validate-on-edit
 
 		// ── Code folding (model + projection) ──
 		// The textarea can't hide rows, so folding keeps the FULL text in this._model (the source of truth) and
@@ -124,6 +129,8 @@ CerbUI.JsonEditor = class {
 		if(this.gutter) this.gutter.addEventListener('click', this._onGutterClick);
 
 		this._rebuildProjection();  // initial render (projection === model while nothing is folded)
+
+		if(this.opts.validate) this.validate();  // surface any error in the seeded value right away
 	}
 
 	// ── Public API ──────────────────────────────────────────────────────
@@ -225,6 +232,29 @@ CerbUI.JsonEditor = class {
 
 	onChange(cb) { if(typeof cb === 'function') this._changeCbs.push(cb); return this; }
 
+	// ── JSON validation ─────────────────────────────────────────────────
+	// Lint the full document and surface the FIRST syntax error as an `error` gutter marker on its line (the note
+	// is the marker's hover title). Returns the lint result. Callable manually; when the `validate` option is on it
+	// also runs debounced on every edit. Validation owns a single marker row (this._validationRow) so it clears
+	// only its own marker — a host marker on the same row is superseded while an error stands.
+	validate() {
+		const r = CerbUI.JsonEditor.lint(this._model);
+		if(this._validationRow !== null) { this.clearMarker(this._validationRow); this._validationRow = null; }
+		if(!r.valid) {
+			this._revealModelRow(r.row);              // make the line visible if it's folded away
+			this.setMarker(r.row, { type: 'error', title: r.message });
+			this._validationRow = r.row;
+		}
+		if(typeof this.opts.onValidate === 'function') { try { this.opts.onValidate(r); } catch(_) {} }
+		return r;
+	}
+
+	_scheduleValidate() {
+		if(!this.opts.validate) return;
+		if(this._validateTimer !== null) clearTimeout(this._validateTimer);
+		this._validateTimer = window.setTimeout(() => { this._validateTimer = null; this.validate(); }, this.opts.validateDelay);
+	}
+
 	// The enumerable shortcut list with OS-appropriate labels — for a future keyboard-shortcuts hint popup.
 	getShortcuts() {
 		const keys = CerbUI.editorCore.keys;
@@ -279,6 +309,7 @@ CerbUI.JsonEditor = class {
 	getLine(row) { const l = this._modelLines(); return (row >= 0 && row < l.length) ? l[row] : ''; }
 
 	destroy() {
+		if(this._validateTimer !== null) { clearTimeout(this._validateTimer); this._validateTimer = null; }
 		CerbUI.JsonEditor._instances.delete(this.el);
 		if(this.textarea) {
 			this.textarea.removeEventListener('input', this._onInput);
@@ -372,6 +403,7 @@ CerbUI.JsonEditor = class {
 		this._renderGutter();
 		this._scrollCaretIntoView();
 		this._fireChange();
+		this._scheduleValidate();
 	}
 
 	_handleKeydown(e) {
@@ -670,7 +702,9 @@ CerbUI.JsonEditor = class {
 					cls += mk.pip ? ' cerb-ui-jsoneditor--gutter-marker-pip' : (mk.icon ? (' cerb-icons cerb-icon-' + mk.icon) : '');
 					if(mk.type) cls += ' cerb-ui-jsoneditor--gutter-marker-' + mk.type;
 					if(mk.color) style = ' style="color:var(--cerb-color-tag-' + mk.color + ')"';
-					if(mk.title) attrs = ' title="' + esc(mk.title) + '"';
+					// esc() handles & < > ; also escape " for the attribute context (a validation message can carry
+					// user-derived text). Defense-in-depth: authored lint messages are quote-free anyway.
+					if(mk.title) attrs = ' title="' + esc(mk.title).replace(/"/g, '&quot;') + '"';
 				}
 				marker = '<span class="' + cls + '" data-model-row="' + mr + '"' + style + attrs + '></span>';
 			}
@@ -944,6 +978,126 @@ CerbUI.JsonEditor = class {
 			last = m.index + v.length;
 		}
 		if(last < line.length) toks.push({ type: 'text', value: line.slice(last) });
+	}
+
+	// ── JSON linter (pure; no DOM) ──────────────────────────────────────
+	// Returns { valid:true } or { valid:false, row, column, position, message } for the FIRST syntax error
+	// (row/column 0-based, row = MODEL row since it runs on the model text). Hybrid: JSON.parse is the AUTHORITY on
+	// validity (so we never false-reject valid JSON across engines), and _locate() — a small recursive-descent
+	// scanner — pinpoints WHERE, because engine error messages don't reliably carry a location. Empty/whitespace
+	// is valid (a host enforces "required" separately). Messages are fixed, quote-free phrases (never a `"`), so
+	// they're safe in the gutter title even before the attribute's own quote-escaping.
+	static lint(text) {
+		const s = (text == null) ? '' : String(text);
+		if(s.trim() === '') return { valid: true };
+		try { JSON.parse(s); return { valid: true }; } catch(_) {}
+
+		let loc = null;
+		try { loc = CerbUI.JsonEditor._locate(s); } catch(_) { loc = null; }
+		const pos = (loc && typeof loc.position === 'number') ? Math.max(0, Math.min(loc.position, s.length)) : 0;
+		const before = s.slice(0, pos);
+		const row = (before.match(/\n/g) || []).length;
+		const column = pos - (before.lastIndexOf('\n') + 1);
+		return { valid: false, row, column, position: pos, message: (loc && loc.message) || 'Invalid JSON' };
+	}
+
+	// Walk the JSON grammar over `s`, tracking an index, and return { position, message } at the first place it
+	// can't proceed (or null if it parses clean — shouldn't happen once JSON.parse has failed, but lint() falls
+	// back gracefully). Intentionally lenient where JSON.parse is stricter (raw control chars, leading zeros) —
+	// it's only a LOCATOR; JSON.parse already decided the text is invalid.
+	static _locate(s) {
+		let i = 0;
+		const n = s.length;
+		const isWs = (c) => c === ' ' || c === '\t' || c === '\n' || c === '\r';
+		const fail = (pos, message) => { throw { position: pos, message }; };
+		const skipWs = () => { while(i < n && isWs(s[i])) i++; };
+
+		const parseString = () => {                                  // assumes s[i] === '"'
+			const start = i; i++;
+			while(i < n) {
+				const c = s[i];
+				if(c === '\\') {
+					i++;
+					if(i >= n) fail(start, 'Unterminated string');
+					const e = s[i];
+					if('"\\/bfnrt'.indexOf(e) !== -1) { i++; continue; }
+					if(e === 'u') {
+						for(let k = 1; k <= 4; k++) { if(!/[0-9a-fA-F]/.test(s[i + k] || '')) fail(i, 'Invalid unicode escape'); }
+						i += 5; continue;
+					}
+					fail(i, 'Invalid string escape');
+				}
+				if(c === '"') { i++; return; }
+				if(c === '\n') fail(start, 'Unterminated string');   // JSON strings can't span lines
+				i++;
+			}
+			fail(start, 'Unterminated string');
+		};
+
+		const parseNumber = () => {
+			const re = /-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/y;
+			re.lastIndex = i;
+			const m = re.exec(s);
+			if(!m || m[0].length === 0) fail(i, 'Invalid number');
+			i += m[0].length;
+		};
+
+		const parseValue = () => {
+			skipWs();
+			if(i >= n) fail(i, 'Unexpected end of input');
+			const c = s[i];
+			if(c === '"') return parseString();
+			if(c === '{') return parseObject();
+			if(c === '[') return parseArray();
+			if(c === '-' || (c >= '0' && c <= '9')) return parseNumber();
+			if(s.startsWith('true', i)) { i += 4; return; }
+			if(s.startsWith('false', i)) { i += 5; return; }
+			if(s.startsWith('null', i)) { i += 4; return; }
+			fail(i, 'Unexpected character');
+		};
+
+		const parseObject = () => {
+			i++;                                                     // consume {
+			skipWs();
+			if(s[i] === '}') { i++; return; }
+			while(true) {
+				skipWs();
+				if(i >= n) fail(i, 'Unexpected end of input');
+				if(s[i] !== '"') fail(i, 'Expected a property name');
+				parseString();
+				skipWs();
+				if(s[i] !== ':') fail(i, "Expected ':' after a property name");
+				i++;
+				parseValue();
+				skipWs();
+				if(s[i] === ',') { i++; continue; }
+				if(s[i] === '}') { i++; return; }
+				fail(i, "Expected ',' or '}'");
+			}
+		};
+
+		const parseArray = () => {
+			i++;                                                     // consume [
+			skipWs();
+			if(s[i] === ']') { i++; return; }
+			while(true) {
+				parseValue();
+				skipWs();
+				if(s[i] === ',') { i++; continue; }
+				if(s[i] === ']') { i++; return; }
+				fail(i, "Expected ',' or ']'");
+			}
+		};
+
+		try {
+			parseValue();
+			skipWs();
+			if(i < n) return { position: i, message: 'Trailing characters after the JSON value' };
+			return null;
+		} catch(e) {
+			if(e && typeof e.position === 'number') return { position: e.position, message: e.message };
+			return null;
+		}
 	}
 };
 
