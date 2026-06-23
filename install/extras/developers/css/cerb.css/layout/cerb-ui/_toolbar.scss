@@ -3,72 +3,133 @@
 // and renders a `--strip` after it; menu triggers open a CerbUI.Menu (which carries its own chrome).
 // Structural only — colors are tokens. Default form has light strip chrome (sits above a textarea/editor);
 // the `--bare` modifier drops the chrome to just icons + menus (for tight slots, e.g. searchquery --right).
+//
+// The strip/button/active looks are factored into mixins so hand-coded toolbars (e.g. a record profile's
+// built-in buttons sitting beside an injected CerbUI strip) can borrow the same style and read seamlessly —
+// `@include` a mixin, or apply the public `.cerb-ui-toolbar-strip` / `.cerb-ui-toolbar-button`(`--active`)
+// classes to plain markup.
+
+// The strip frame: an inline-flex rail with light chrome. `isolation: isolate` contains badge stacking
+// locally — badges layer above sibling buttons WITHIN the strip while the strip still layers normally
+// wherever it sits (incl. popups), so no hardcoded z-index is needed.
+@mixin cerb-ui-toolbar-strip {
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+	padding: 3px;
+	box-sizing: border-box;
+	background: var(--cerb-color-background-contrast-240);
+	border: 1px solid var(--cerb-color-background-contrast-220);
+	border-radius: 6px;
+	isolation: isolate;
+}
+
+// A single toolbar button: icon (+ optional label) with a hover wash; native chrome reset.
+@mixin cerb-ui-toolbar-button {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35em;
+	position: relative;
+	height: 28px;
+	margin: 0;
+	padding: 0 0.5em;
+	border: 0;
+	border-radius: 5px;
+	background: transparent;
+	color: var(--cerb-color-text);
+	font: inherit;
+	line-height: 1;
+	white-space: nowrap;
+	cursor: pointer;
+
+	&::-moz-focus-inner { border: 0; padding: 0; }
+
+	> span.cerb-icons { font-size: 1.3em; }
+
+	// Hover wash + the app's normal icon-button hover color (matches the global
+	// `button:has(> span.cerb-icons):hover` rule in cerb-icons.scss). Setting it here — rather than
+	// leaning on that global rule — means it rides at the button's own specificity, so it still wins
+	// inside a hybrid toolbar whose wrapper sets a resting color at higher specificity.
+	&:hover {
+		background: var(--cerb-color-background-contrast-230);
+		color: var(--cerb-color-button-icon--hover);
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--cerb-color-action-primary);
+		outline-offset: -1px;
+	}
+}
+
+// A pressed/enabled button. Reuses the legacy editor toolbar's --enabled tokens so a migrated editor
+// toolbar keeps its yellow "on" affordance; the hover override holds the pressed look steady.
+@mixin cerb-ui-toolbar-button-active {
+	background: var(--cerb-color-button-icon-enabled-background);
+	color: var(--cerb-color-button-icon-enabled);
+
+	> span.cerb-icons { color: var(--cerb-color-button-icon-enabled); }
+
+	&:hover {
+		background: var(--cerb-color-button-icon-enabled-background);
+		color: var(--cerb-color-button-icon-enabled);
+	}
+}
+
+// Hybrid rail: make a wrapper that holds BOTH hand-coded buttons and an injected dynamic toolbar read as one
+// seamless strip (e.g. a record profile/card top toolbar). The wrapper becomes the strip frame; plain
+// built-in `<button>`s borrow the item look; the dynamic-toolbar wrapper (`[data-cerb-toolbar]`) collapses
+// via `display:contents` so its buttons line up as rail items; the injected `--strip` is flattened so it
+// doesn't double-frame. Excluded: the setup gear (`[data-cerb-toolbar-setup]`, wears `.cerb-ui-toolbar-config-button`)
+// and `.cerb-ui-button`s (e.g. a `--split` primary action keeps its own chrome).
+@mixin cerb-ui-toolbar-hybrid {
+	@include cerb-ui-toolbar-strip;
+	flex-wrap: wrap;
+	width: fit-content;
+	max-width: 100%;
+
+	// Collapse the dynamic-toolbar wrapper so its contents (the injected strip) join the rail directly.
+	// (Drop any inline `display` on that element in the template, or it will win over this.)
+	[data-cerb-toolbar] { display: contents; }
+
+	button:not([data-cerb-toolbar-setup]):not(.cerb-ui-button) {
+		@include cerb-ui-toolbar-button;
+	}
+
+	.cerb-ui-toolbar--strip {
+		background: transparent;
+		border: 0;
+		border-radius: 0;
+		padding: 0;
+	}
+}
+
 .cerb-ui-toolbar {
 	// The authored source list is the data/menu source; JS sets `hidden`, this is just a backstop.
 	&[hidden] { display: none; }
 
+	// Default overflow: over-wide strips flow to multiple rows (keeps every action visible).
 	&--strip {
-		display: inline-flex;
-		align-items: center;
-		gap: 2px;
-		padding: 3px;
-		box-sizing: border-box;
-		background: var(--cerb-color-background-contrast-240);
-		border: 1px solid var(--cerb-color-background-contrast-220);
-		border-radius: 6px;
-		// Contain badge stacking locally: badges layer above sibling buttons WITHIN the strip (the badge's
-		// z-index below), while the strip as a whole still layers normally wherever it sits (incl. popups).
-		// No hardcoded z-index needed — isolation scopes the battle to this component.
-		isolation: isolate;
+		@include cerb-ui-toolbar-strip;
+		flex-wrap: wrap;
 	}
 
-	// A single toolbar button: icon (+ optional label) with a hover wash; native chrome reset.
-	&--item {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.35em;
-		position: relative;
-		height: 28px;
-		margin: 0;
-		padding: 0 0.5em;
-		border: 0;
-		border-radius: 5px;
-		background: transparent;
-		color: var(--cerb-color-text);
-		font: inherit;
-		line-height: 1;
-		white-space: nowrap;
-		cursor: pointer;
+	// overflow:'menu' — stay one row; the component (ResizeObserver) collapses trailing items into a
+	// trailing '…' more-vertical menu. Items keep their natural width (flex-shrink:0) so measurement is
+	// clean; the strip clips while the JS decides what to hide.
+	&--strip-overflow-menu {
+		flex-wrap: nowrap;
+		overflow: hidden;
+		max-width: 100%;
 
-		&::-moz-focus-inner { border: 0; padding: 0; }
-
-		> span.cerb-icons { font-size: 1.3em; }
-
-		&:hover {
-			background: var(--cerb-color-background-contrast-230);
-			color: var(--cerb-color-link);
-		}
-
-		&:focus-visible {
-			outline: 2px solid var(--cerb-color-action-primary);
-			outline-offset: -1px;
-		}
+		.cerb-ui-toolbar--item { flex-shrink: 0; }
 	}
 
-	// A pressed data-toggle button. Reuses the legacy editor toolbar's --enabled tokens so a
-	// migrated editor toolbar keeps its yellow "on" affordance; the hover override holds the
-	// pressed look steady while the pointer is over it.
-	&--item-active {
-		background: var(--cerb-color-button-icon-enabled-background);
-		color: var(--cerb-color-button-icon-enabled);
+	// overflow:'none' — one row, clipped, no menu.
+	&--strip-nowrap { flex-wrap: nowrap; }
 
-		> span.cerb-icons { color: var(--cerb-color-button-icon-enabled); }
+	&--item { @include cerb-ui-toolbar-button; }
 
-		&:hover {
-			background: var(--cerb-color-button-icon-enabled-background);
-			color: var(--cerb-color-button-icon-enabled);
-		}
-	}
+	&--item-active { @include cerb-ui-toolbar-button-active; }
 
 	// Count bubble: a floating pill in the button's top-right corner. Sized to slightly overlap the glyph so
 	// it reads clearly; defaults to the generic accent, a per-item data-badge-color (set inline by the JS)
@@ -141,4 +202,78 @@
 			color: var(--cerb-color-link);
 		}
 	}
+}
+
+// Public hooks for hybrid toolbars: apply these to hand-coded markup (a wrapper + its <button>s) so a
+// built-in toolbar matches the dynamic CerbUI strip and the two read as one. See `.cerb-profile-toolbar`.
+.cerb-ui-toolbar-strip { @include cerb-ui-toolbar-strip; }
+.cerb-ui-toolbar-button { @include cerb-ui-toolbar-button; }
+.cerb-ui-toolbar-button--active { @include cerb-ui-toolbar-button-active; }
+
+// One-class hybrid rail: drop this on a wrapper that holds built-in buttons + an injected `[data-cerb-toolbar]`
+// (record profile/card/message action bars) to fuse them into one seamless strip. See cerb-ui-toolbar-hybrid.
+.cerb-ui-toolbar-rail { @include cerb-ui-toolbar-hybrid; }
+
+// A split button (`.cerb-ui-button--split`) inside a toolbar strip/rail reads as flat toolbar items — same
+// height, transparent fill, hover wash — so it sits flush with the rail instead of towering as a standalone
+// gradient button. The split join (rounded outer corners, flat inner, narrow seamed caret) is layered back
+// on. Split buttons are expected to live in a strip; the standalone gradient base (in _button.scss) remains
+// for any out-of-strip use (e.g. the reply Send button row).
+.cerb-ui-toolbar--strip,
+.cerb-ui-toolbar-rail {
+	.cerb-ui-button--split > .cerb-ui-button {
+		@include cerb-ui-toolbar-button;
+
+		&:not(:first-child) { border-top-left-radius: 0; border-bottom-left-radius: 0; }
+		&:not(:last-child) { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+
+		&:last-child {
+			padding-left: 0.4em;
+			padding-right: 0.4em;
+
+			// Short, vertically-centered seam between the halves — not a full-height toolbar divider.
+			&::before {
+				content: '';
+				position: absolute;
+				left: 0;
+				top: 50%;
+				transform: translateY(-50%);
+				width: 1px;
+				height: 60%;
+				background: var(--cerb-color-background-contrast-220);
+			}
+		}
+	}
+}
+
+// An inline toolbar config affordance — the common gear that opens a toolbar's own setup/KATA (superuser).
+// A toolbar button that rests muted so it reads as secondary chrome in the rail; hover lifts it to the
+// normal icon-button hover color.
+.cerb-ui-toolbar-config-button {
+	@include cerb-ui-toolbar-button;
+	color: var(--cerb-color-background-contrast-150);
+}
+
+// `badgeStyle: 'count'` — a calm leading inline tally (echoes the old DIV.badge-count) instead of the
+// floating corner alert pill. The badge is already the button's first child, so dropping the absolute
+// positioning lets it sit in normal flow, left of the icon/label.
+.cerb-ui-toolbar--badge-count .cerb-ui-toolbar--badge {
+	position: static;
+	top: auto;
+	right: auto;
+	min-width: 0;
+	box-shadow: none;
+	font-weight: 500;
+	background: var(--cerb-color-button-icon);
+	color: var(--cerb-color-text-inverse);
+}
+
+// Editor-toolbar bridge: when a CerbUI toolbar strip is hosted inside the legacy `.cerb-code-editor-toolbar`
+// chrome (mail compose/reply, comment editor, and KATA/code editors), drop the strip's own frame so the
+// buttons read flat against the editor toolbar's own background instead of double-framing it.
+.cerb-code-editor-toolbar .cerb-ui-toolbar--strip {
+	background: transparent;
+	border: 0;
+	border-radius: 0;
+	padding: 0;
 }
