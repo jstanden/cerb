@@ -74,6 +74,7 @@
 		<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerb-ui/editor-core.js{/devblocks_url}?v={$smarty.now}"></script>
 		<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerb-ui/searchquery.js{/devblocks_url}?v={$smarty.now}"></script>
 		<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerb-ui/kataeditor.js{/devblocks_url}?v={$smarty.now}"></script>
+		<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerb-ui/jsoneditor.js{/devblocks_url}?v={$smarty.now}"></script>
 		<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerb-ui/dialog.js{/devblocks_url}?v={$smarty.now}"></script>
 		<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerb-ui/confirm.js{/devblocks_url}?v={$smarty.now}"></script>
 		<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerb-ui/form.js{/devblocks_url}?v={$smarty.now}"></script>
