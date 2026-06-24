@@ -1,11 +1,17 @@
 {$is_writeable = CerberusContexts::isWriteableByActor(CerberusContexts::CONTEXT_WORKSPACE_PAGE, $page, $active_worker)}
 {if !$is_writeable && empty($page_tabs)}
-	<div class="help-box">
-		<h1 style="margin-bottom:5px;text-align:left;">This workspace is empty</h1>
-		
-		<p>
-			This page has no content and you don't have permission to modify it.  You'll have to wait until someone else adds something.
-		</p>
+	<div class="cerb-ui-panel cerb-ui-panel--spaced cerb-ui-panel--warn">
+		<div class="cerb-ui-header cerb-ui-header--center">
+			<div class="cerb-ui-callout">
+				<span class="cerb-icons cerb-icon-circle-info cerb-ui-callout--icon"></span>
+				<div>
+					<div class="cerb-ui-header--title-sm">This workspace is empty</div>
+					<div class="cerb-ui-header--subtitle">
+						This page has no content and you don't have permission to modify it.  You'll have to wait until someone else adds something.
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 {else}
 

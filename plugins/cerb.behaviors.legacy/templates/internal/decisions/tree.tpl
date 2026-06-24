@@ -4,10 +4,19 @@
 {$tree_depths = $tree_data.depths}
 
 {if empty($tree_nodes) && $is_writeable}
-<div class="help-box">
-<h1>Let's build this behavior!</h1>
-Click on the <div class="badge badge-lightgray" style="color:var(--cerb-color-text);font-weight:bold;">{$event->name}</div> event below to add decisions, actions, loops, and subroutines to your behavior. 
-For more information, see <a href="https://cerb.ai/docs/bots/" target="_blank" rel="noopener">Bots</a> in the <a href="https://cerb.ai/docs/home/" target="_blank" rel="noopener">documentation</a>.
+<div class="cerb-ui-panel cerb-ui-panel--spaced cerb-ui-panel--note">
+	<div class="cerb-ui-header cerb-ui-header--center">
+		<div class="cerb-ui-callout">
+			<span class="cerb-icons cerb-icon-circle-info cerb-ui-callout--icon"></span>
+			<div>
+				<div class="cerb-ui-header--title-sm">Let's build this behavior!</div>
+				<div class="cerb-ui-header--subtitle">
+					Click on the <div class="badge badge-lightgray" style="color:var(--cerb-color-text);font-weight:bold;">{$event->name}</div> event below to add decisions, actions, loops, and subroutines to your behavior.
+					For more information, see <a href="https://cerb.ai/docs/bots/" target="_blank" rel="noopener">Bots</a> in the <a href="https://cerb.ai/docs/home/" target="_blank" rel="noopener">documentation</a>.
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 {/if}
 

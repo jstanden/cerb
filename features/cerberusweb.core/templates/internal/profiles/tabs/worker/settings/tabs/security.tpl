@@ -29,8 +29,15 @@
 
 		{if $mfa_backup_code_count > 2}
 		{elseif $mfa_backup_code_count > 0}
-			<div class="help-box">
-				<p><span class="cerb-icons cerb-icon-alert" style="vertical-align:middle;"></span> Only {$mfa_backup_code_count} backup codes remaining</p>
+			<div class="cerb-ui-panel cerb-ui-panel--spaced cerb-ui-panel--warn">
+				<div class="cerb-ui-header cerb-ui-header--center">
+					<div class="cerb-ui-callout">
+						<span class="cerb-icons cerb-icon-alert cerb-ui-callout--icon"></span>
+						<div>
+							<div class="cerb-ui-header--subtitle">Only {$mfa_backup_code_count} backup codes remaining</div>
+						</div>
+					</div>
+				</div>
 			</div>
 		{else}
 			<div class="cerb-ui-panel cerb-ui-panel--spaced cerb-ui-panel--alert">

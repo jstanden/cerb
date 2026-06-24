@@ -12,9 +12,16 @@
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 {if !$model->id}
-<div class="help-box">
-	<h1>Building packages</h1>
-	Learn how to create packages in the <a href="https://cerb.ai/docs/packages/" target="_blank">documentation</a>.
+<div class="cerb-ui-panel cerb-ui-panel--spaced cerb-ui-panel--note">
+	<div class="cerb-ui-header cerb-ui-header--center">
+		<div class="cerb-ui-callout">
+			<span class="cerb-icons cerb-icon-circle-info cerb-ui-callout--icon"></span>
+			<div>
+				<div class="cerb-ui-header--title-sm">Building packages</div>
+				<div class="cerb-ui-header--subtitle">Learn how to create packages in the <a href="https://cerb.ai/docs/packages/" target="_blank">documentation</a>.</div>
+			</div>
+		</div>
+	</div>
 </div>
 {/if}
 

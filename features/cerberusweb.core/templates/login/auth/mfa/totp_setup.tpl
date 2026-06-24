@@ -10,10 +10,15 @@
 	<h1 class="cerb-login-h1">Set up two-factor authentication</h1>
 	<p class="cerb-login-sub">Access to your account requires a one-time code that changes every 30 seconds.</p>
 
-	<div class="help-box" style="margin-bottom:16px;">
-		<p style="margin:0;">
-			"Two factor" means <b>something you know</b> (your password) and <b>something you have</b> (a one-time code from your mobile device). Requiring both makes it much harder for someone else to access your account.
-		</p>
+	<div class="cerb-ui-panel cerb-ui-panel--spaced cerb-ui-panel--note">
+		<div class="cerb-ui-header cerb-ui-header--center">
+			<div class="cerb-ui-callout">
+				<span class="cerb-icons cerb-icon-circle-info cerb-ui-callout--icon"></span>
+				<div>
+					<div class="cerb-ui-header--subtitle">"Two factor" means <b>something you know</b> (your password) and <b>something you have</b> (a one-time code from your mobile device). Requiring both makes it much harder for someone else to access your account.</div>
+				</div>
+			</div>
+		</div>
 	</div>
 
 	{if !empty($error)}

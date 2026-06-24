@@ -1,11 +1,17 @@
 <div class="cerb-conversation" id="widget{$widget->id}">
 	{if !empty($merge_parent)}
-	<div class="help-box">
-		<h1>This record was merged</h1>
-		
-		<p>
-		You can find the new record here: <a href="{devblocks_url}c=profiles&w=ticket&mask={$merge_parent->mask}{/devblocks_url}"><b>[#{$merge_parent->mask}] {$merge_parent->subject}</b></a>
-		</p>
+	<div class="cerb-ui-panel cerb-ui-panel--spaced cerb-ui-panel--warn">
+		<div class="cerb-ui-header cerb-ui-header--center">
+			<div class="cerb-ui-callout">
+				<span class="cerb-icons cerb-icon-circle-info cerb-ui-callout--icon"></span>
+				<div>
+					<div class="cerb-ui-header--title-sm">This record was merged</div>
+					<div class="cerb-ui-header--subtitle">
+						You can find the new record here: <a href="{devblocks_url}c=profiles&w=ticket&mask={$merge_parent->mask}{/devblocks_url}"><b>[#{$merge_parent->mask}] {$merge_parent->subject}</b></a>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 	{/if}
 

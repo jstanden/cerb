@@ -20,6 +20,15 @@
         </div>
     {/foreach}
 {else}
-    <div class="help-box">Your server is fully compatible with Cerb.</div>
+    <div class="cerb-ui-panel cerb-ui-panel--spaced cerb-ui-panel--note">
+        <div class="cerb-ui-header cerb-ui-header--center">
+            <div class="cerb-ui-callout">
+                <span class="cerb-icons cerb-icon-circle-ok cerb-ui-callout--icon"></span>
+                <div>
+                    <div class="cerb-ui-header--subtitle">Your server is fully compatible with Cerb.</div>
+                </div>
+            </div>
+        </div>
+    </div>
 {/if}
 </div>

@@ -1,14 +1,22 @@
 {if empty($workspace_tabs) && CerberusContexts::isWriteableByActor(CerberusContexts::CONTEXT_WORKSPACE_PAGE, $page, $active_worker)}
-<div class="help-box">
-	<h1 style="margin-bottom:5px;text-align:left;">Let's add some tabs to your page</h1>
-	
-	<p>
-		Once you've created a new workspace page you can add tabs to organize your content.
-	</p>
+<div class="cerb-ui-panel cerb-ui-panel--spaced cerb-ui-panel--warn">
+	<div class="cerb-ui-header cerb-ui-header--center">
+		<div class="cerb-ui-callout">
+			<span class="cerb-icons cerb-icon-circle-info cerb-ui-callout--icon"></span>
+			<div>
+				<div class="cerb-ui-header--title-sm">Let's add some tabs to your page</div>
+				<div class="cerb-ui-header--subtitle">
+					<p>
+						Once you've created a new workspace page you can add tabs to organize your content.
+					</p>
 
-	<p>
-		Depending on the plugins you have installed, a tab can be one of several <b>types</b>.  The default is <i>Worklists</i>, which displays as many lists of specific information as you want.  The other tab types are specialized for specific purposes, such as informational dashboards and browsing the knowledgebase by category.
-	</p>
+					<p>
+						Depending on the plugins you have installed, a tab can be one of several <b>types</b>.  The default is <i>Worklists</i>, which displays as many lists of specific information as you want.  The other tab types are specialized for specific purposes, such as informational dashboards and browsing the knowledgebase by category.
+					</p>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 {/if}
 

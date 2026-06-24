@@ -5,9 +5,18 @@
 {$data = $results[0]}
 
 {if !$total}
-<div class="help-box">
-<h1>Add a new behavior</h1>
-Click on the <span class="cerb-icons cerb-icon-circle-plus"></span> icon below to add a new <a href="https://cerb.ai/docs/bots/" target="_blank" rel="noopener">behavior</a> to the worklist.
+<div class="cerb-ui-panel cerb-ui-panel--spaced cerb-ui-panel--note">
+	<div class="cerb-ui-header cerb-ui-header--center">
+		<div class="cerb-ui-callout">
+			<span class="cerb-icons cerb-icon-circle-info cerb-ui-callout--icon"></span>
+			<div>
+				<div class="cerb-ui-header--title-sm">Add a new behavior</div>
+				<div class="cerb-ui-header--subtitle">
+					Click on the <span class="cerb-icons cerb-icon-circle-plus"></span> icon below to add a new <a href="https://cerb.ai/docs/bots/" target="_blank" rel="noopener">behavior</a> to the worklist.
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 {/if}
 

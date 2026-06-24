@@ -1,7 +1,16 @@
 <div style="padding:10px;">
-	<div class="help-box">
-		<p>Each code can be used once if you lose access to your authenticator app.</p>
-		<p>Save these backup codes. They will not be shown again.</p>
+	<div class="cerb-ui-panel cerb-ui-panel--spaced cerb-ui-panel--warn">
+		<div class="cerb-ui-header cerb-ui-header--center">
+			<div class="cerb-ui-callout">
+				<span class="cerb-icons cerb-icon-circle-info cerb-ui-callout--icon"></span>
+				<div>
+					<div class="cerb-ui-header--subtitle">
+						<p>Each code can be used once if you lose access to your authenticator app.</p>
+						<p>Save these backup codes. They will not be shown again.</p>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 
 	<div class="cerb-code-editor-toolbar">

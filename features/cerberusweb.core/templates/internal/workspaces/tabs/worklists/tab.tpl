@@ -1,14 +1,20 @@
 {if empty($worklists)}
 <form action="#">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
-<div class="help-box">
-	<h1 style="margin-bottom:5px;text-align:left;">Let's put this workspace to good use</h1>
-	
-	<p>
-		You now have a blank worklists tab.  You can click the  
-		<button type="button" data-cerb-button="edit_menu"><span class="cerb-icons cerb-icon-gear"></span></button>
-		button and select <b>Edit Tab</b> from the menu to display any number of worklists right here in a single place. 
-	</p>
+<div class="cerb-ui-panel cerb-ui-panel--spaced cerb-ui-panel--note">
+	<div class="cerb-ui-header cerb-ui-header--center">
+		<div class="cerb-ui-callout">
+			<span class="cerb-icons cerb-icon-circle-info cerb-ui-callout--icon"></span>
+			<div>
+				<div class="cerb-ui-header--title-sm">Let's put this workspace to good use</div>
+				<div class="cerb-ui-header--subtitle">
+					You now have a blank worklists tab.  You can click the
+					<button type="button" data-cerb-button="edit_menu"><span class="cerb-icons cerb-icon-gear"></span></button>
+					button and select <b>Edit Tab</b> from the menu to display any number of worklists right here in a single place.
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 </form>
 {/if}
