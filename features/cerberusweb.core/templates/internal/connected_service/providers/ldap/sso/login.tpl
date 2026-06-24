@@ -6,9 +6,16 @@
 
 <div style="vertical-align:middle;max-width:500px;margin:20px auto 20px auto;padding:5px 20px 20px 20px;border-radius:5px;box-shadow:darkgray 0px 0px 5px;">
 	{if !empty($error)}
-	<div class="error-box" style="border:0;">
-		<h1>{'common.error'|devblocks_translate|capitalize}</h1>
-		<p>{Page_Login::getErrorMessage($error)}</p>
+	<div class="cerb-ui-panel cerb-ui-panel--spaced cerb-ui-panel--alert">
+		<div class="cerb-ui-header cerb-ui-header--center">
+			<div class="cerb-ui-callout">
+				<span class="cerb-icons cerb-icon-alert cerb-ui-callout--icon"></span>
+				<div>
+					<div class="cerb-ui-header--title-sm">{'common.error'|devblocks_translate|capitalize}</div>
+					<div class="cerb-ui-header--subtitle">{Page_Login::getErrorMessage($error)}</div>
+				</div>
+			</div>
+		</div>
 	</div>
 	{/if}
 

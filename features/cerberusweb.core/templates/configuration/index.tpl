@@ -176,14 +176,16 @@
 <br clear="all" style="clear:both;">
 
 {if $install_dir_warning && !$smarty.const.DEVELOPMENT_MODE}
-<div class="error-box" style="margin-top:0.5em;">
-	<h1>
-		<span class="cerb-icons cerb-icon-alert"></span>
-		Install Directory
-	</h1>
-	<p>
-		<strong>Warning:</strong> The 'install' directory still exists.  This is a potential security risk.  Please delete it.
-	</p>
+<div class="cerb-ui-panel cerb-ui-panel--spaced cerb-ui-panel--warn cerb-u-mt-2">
+	<div class="cerb-ui-header cerb-ui-header--center">
+		<div class="cerb-ui-callout">
+			<span class="cerb-icons cerb-icon-alert cerb-ui-callout--icon"></span>
+			<div>
+				<div class="cerb-ui-header--title-sm">Install Directory</div>
+				<div class="cerb-ui-header--subtitle"><strong>Warning:</strong> The 'install' directory still exists.  This is a potential security risk.  Please delete it.</div>
+			</div>
+		</div>
+	</div>
 </div>
 {/if}
 

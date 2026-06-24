@@ -1,12 +1,16 @@
 {if !empty($profile->id) && !empty($storage_schema_stats)}
-<div class="error-box">
-	<h1>
-		<span class="cerb-icons cerb-icon-alert"></span>
-		Warning!
-	</h1>
-	<p>
-		You are changing the configuration of an active storage profile.  Unless you are very careful you may lose content.  You cannot delete this profile until you've migrated its content to another location.
-	</p>
+<div class="cerb-ui-panel cerb-ui-panel--spaced cerb-ui-panel--alert">
+	<div class="cerb-ui-header cerb-ui-header--center">
+		<div class="cerb-ui-callout">
+			<span class="cerb-icons cerb-icon-alert cerb-ui-callout--icon"></span>
+			<div>
+				<div class="cerb-ui-header--title-sm">Warning!</div>
+				<div class="cerb-ui-header--subtitle">
+					You are changing the configuration of an active storage profile.  Unless you are very careful you may lose content.  You cannot delete this profile until you've migrated its content to another location.
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 {/if}
 

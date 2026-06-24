@@ -10,8 +10,15 @@
 		{include file="devblocks:cerberusweb.core::ui/sheets/render.tpl"}
 	{/if}
 {elseif !$active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_CONNECTED_SERVICE}.create")}
-	<div class="error-box">
-		<p>You must create at least one <b>connected service</b> first.</p>
+	<div class="cerb-ui-panel cerb-ui-panel--spaced cerb-ui-panel--alert">
+		<div class="cerb-ui-header cerb-ui-header--center">
+			<div class="cerb-ui-callout">
+				<span class="cerb-icons cerb-icon-alert cerb-ui-callout--icon"></span>
+				<div>
+					<div class="cerb-ui-header--subtitle">You must create at least one <b>connected service</b> first.</div>
+				</div>
+			</div>
+		</div>
 	</div>
 {/if}
 

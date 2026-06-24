@@ -27,15 +27,6 @@
 	H1, H2, H3 {
 		color: var(--cerb-color-text);
 	}
-
-	.error-box {
-		margin-bottom: 16px;
-		border: 0;
-
-		H1 {
-			color: var(--cerb-color-error-text);
-		}
-	}
 }
 
 .cerb-login-brand {

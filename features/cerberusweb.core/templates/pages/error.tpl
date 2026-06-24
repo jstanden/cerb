@@ -4,12 +4,18 @@
 </div>
 {/if}
 
-<div class="error-box" style="margin-top:10px;">
-	{if $error_title}
-		<h1>{$error_title}</h1>
-	{/if}
-
-	<div>
-		{$error_message}
+<div class="cerb-ui-panel cerb-ui-panel--spaced cerb-ui-panel--warn cerb-u-mt-2">
+	<div class="cerb-ui-header cerb-ui-header--center">
+		<div class="cerb-ui-callout">
+			<span class="cerb-icons cerb-icon-alert cerb-ui-callout--icon"></span>
+			<div>
+				{if $error_title}
+					<div class="cerb-ui-header--title-sm">{$error_title}</div>
+				{/if}
+				<div class="cerb-ui-header--subtitle">
+					{$error_message}
+				</div>
+			</div>
+		</div>
 	</div>
 </div>

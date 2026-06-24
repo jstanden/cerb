@@ -54,12 +54,19 @@
 	<br>
 	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> Start migration</button>
 {else}
-	<div class="error-box">
-		<h1><span class="cerb-icons cerb-icon-alert"></span> No destinations</h1>
-		<p>
-			There are no available storage destinations to migrate to.
-			Please create a new storage profile first.
-		</p>
+	<div class="cerb-ui-panel cerb-ui-panel--spaced cerb-ui-panel--alert">
+		<div class="cerb-ui-header cerb-ui-header--center">
+			<div class="cerb-ui-callout">
+				<span class="cerb-icons cerb-icon-alert cerb-ui-callout--icon"></span>
+				<div>
+					<div class="cerb-ui-header--title-sm">No destinations</div>
+					<div class="cerb-ui-header--subtitle">
+						There are no available storage destinations to migrate to.
+						Please create a new storage profile first.
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 {/if}
 

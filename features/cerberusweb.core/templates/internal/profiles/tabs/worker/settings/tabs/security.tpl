@@ -33,8 +33,15 @@
 				<p><span class="cerb-icons cerb-icon-alert" style="vertical-align:middle;"></span> Only {$mfa_backup_code_count} backup codes remaining</p>
 			</div>
 		{else}
-			<div class="error-box">
-				<p><span class="cerb-icons cerb-icon-alert" style="vertical-align:middle;"></span> No backup codes remaining</p>
+			<div class="cerb-ui-panel cerb-ui-panel--spaced cerb-ui-panel--alert">
+				<div class="cerb-ui-header cerb-ui-header--center">
+					<div class="cerb-ui-callout">
+						<span class="cerb-icons cerb-icon-alert cerb-ui-callout--icon"></span>
+						<div>
+							<div class="cerb-ui-header--subtitle">No backup codes remaining</div>
+						</div>
+					</div>
+				</div>
 			</div>
 		{/if}
 	</div>

@@ -11,9 +11,16 @@
 	<p class="cerb-login-sub">Enter your email address and we'll send a recovery code.</p>
 
 	{if !empty($error)}
-	<div class="error-box">
-		<h1>{'common.error'|devblocks_translate|capitalize}</h1>
-		<p>{Page_Login::getErrorMessage($error)}</p>
+	<div class="cerb-ui-panel cerb-ui-panel--spaced cerb-ui-panel--alert">
+		<div class="cerb-ui-header cerb-ui-header--center">
+			<div class="cerb-ui-callout">
+				<span class="cerb-icons cerb-icon-alert cerb-ui-callout--icon"></span>
+				<div>
+					<div class="cerb-ui-header--title-sm">{'common.error'|devblocks_translate|capitalize}</div>
+					<div class="cerb-ui-header--subtitle">{Page_Login::getErrorMessage($error)}</div>
+				</div>
+			</div>
+		</div>
 	</div>
 	{/if}
 

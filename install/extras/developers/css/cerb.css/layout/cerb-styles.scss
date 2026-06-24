@@ -914,58 +914,6 @@ TABLE.calendar {
 	}
 }
 
-// Error Handling
-
-DIV.error-box {
-	background-color: var(--cerb-color-error-background);
-	color: var(--cerb-color-error-text);
-	margin-bottom: 10px;
-	padding: 10px;
-	border-radius: 5px;
-
-	H1 {
-		color: var(--cerb-color-error-text);
-		margin-bottom: 5px;
-	}
-
-	P {
-		margin: 0 0 5px 5px;
-	}
-}
-
-// Help box
-
-DIV.help-box {
-	background-color: var(--cerb-color-help-background);
-	color: var(--cerb-color-help-text);
-	margin-bottom: 10px;
-	padding: 10px;
-	border-radius: 5px;
-
-	H1 {
-		color:var(--cerb-color-help-text);
-		margin-bottom: 5px;
-	}
-
-	P {
-		margin:0 0 5px 5px;
-	}
-
-	A {
-		font-weight:bold;
-		color: var(--cerb-color-help-text);
-	}
-
-	SPAN.help.callout-worklist {
-		font-weight:bold;
-		color: var(--cerb-color-table-header-text);
-		background-color: var(--cerb-color-table-header-background);
-		padding:5px 10px;
-
-		border-radius: 5px 5px 0 0;
-	}
-}
-
 // Misc common DIVs
 
 .cerb-comment {

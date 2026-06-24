@@ -1,10 +1,19 @@
 {if !$success}
-	<div class="error-box">
-		<span data-cerb-link="remove_div" style="float:right;cursor:pointer;font-size:1.5em;"><span class="cerb-icons cerb-icon-circle-remove"></span></span>
-		<h1 style="font-size:1.5em;font-weight:bold;">Error!</h1>
-		<p>
-			<pre class="emailbody" dir="auto">{$output|default:''|escape nofilter}</pre>
-		</p>
+	<div class="cerb-ui-panel cerb-ui-panel--spaced cerb-ui-panel--alert">
+		<div class="cerb-ui-header cerb-ui-header--center">
+			<div class="cerb-ui-callout">
+				<span class="cerb-icons cerb-icon-alert cerb-ui-callout--icon"></span>
+				<div>
+					<div class="cerb-ui-header--title-sm">Error!</div>
+					<div class="cerb-ui-header--subtitle">
+						<pre class="emailbody" dir="auto">{$output|default:''|escape nofilter}</pre>
+					</div>
+				</div>
+			</div>
+			<div class="cerb-ui-header--right">
+				<span data-cerb-link="remove_div" style="cursor:pointer;"><span class="cerb-icons cerb-icon-circle-remove"></span></span>
+			</div>
+		</div>
 	</div>
 {else}
 	<div class="help-box">

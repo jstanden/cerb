@@ -15,14 +15,18 @@
 	{if $model->enabled && $model->num_fails}
 	<tr>
 		<td colspan="2">
-			<div class="error-box">
-				<h1>
-					<span class="cerb-icons cerb-icon-circle-exclamation-mark"></span>
-					Error!
-				</h1>
-				<p>
-					This mailbox has failed to check mail for {$model->num_fails} consecutive attempt{if $model->num_fails > 1}s{/if}.
-				</p>
+			<div class="cerb-ui-panel cerb-ui-panel--spaced cerb-ui-panel--alert">
+				<div class="cerb-ui-header cerb-ui-header--center">
+					<div class="cerb-ui-callout">
+						<span class="cerb-icons cerb-icon-alert cerb-ui-callout--icon"></span>
+						<div>
+							<div class="cerb-ui-header--title-sm">Error!</div>
+							<div class="cerb-ui-header--subtitle">
+								This mailbox has failed to check mail for {$model->num_fails} consecutive attempt{if $model->num_fails > 1}s{/if}.
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 		</td>
 	</tr>
