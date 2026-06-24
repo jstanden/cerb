@@ -15,7 +15,7 @@
 						<span class="cerb-ui-searchquery--caret-anchor"></span>
 					</div>
 					<div class="cerb-ui-searchquery--right">
-						<a data-action="autocomplete" style="cursor:pointer;color:var(--cerb-color-background-contrast-150);" title="Suggestions (Ctrl/⌘+Space)"><span class="cerb-icons cerb-icon-sparkles"></span></a>
+						<a data-action="autocomplete" style="cursor:pointer;color:var(--cerb-color-background-contrast-150);" title="Suggestions (Ctrl/⌘+Space)"><span class="cerb-icons cerb-icon-autocomplete"></span></a>
 					</div>
 				</div>
 				<div class="cerb-uiref-result">Search: <b id="uiref-searchquery-adapter-out">&mdash;</b></div>
@@ -78,7 +78,7 @@ el.querySelector('[data-action=autocomplete]').addEventListener('click', () => s
 						<span class="cerb-ui-searchquery--caret-anchor"></span>
 					</div>
 					<div class="cerb-ui-searchquery--right">
-						<a data-action="autocomplete" style="cursor:pointer;color:var(--cerb-color-background-contrast-150);" title="Suggestions (Ctrl/⌘+Space)"><span class="cerb-icons cerb-icon-sparkles"></span></a>
+						<a data-action="autocomplete" style="cursor:pointer;color:var(--cerb-color-background-contrast-150);" title="Suggestions (Ctrl/⌘+Space)"><span class="cerb-icons cerb-icon-autocomplete"></span></a>
 					</div>
 				</div>
 				<div class="cerb-uiref-result">Search: <b id="uiref-searchquery-custom-out">&mdash;</b></div>
@@ -135,7 +135,7 @@ new CerbUI.SearchQuery(el, {
 						<span class="cerb-ui-searchquery--caret-anchor"></span>
 					</div>
 					<div class="cerb-ui-searchquery--right">
-						<a data-action="autocomplete" style="cursor:pointer;color:var(--cerb-color-background-contrast-150);" title="Suggestions (Ctrl/⌘+Space)"><span class="cerb-icons cerb-icon-sparkles"></span></a>
+						<a data-action="autocomplete" style="cursor:pointer;color:var(--cerb-color-background-contrast-150);" title="Suggestions (Ctrl/⌘+Space)"><span class="cerb-icons cerb-icon-autocomplete"></span></a>
 						<a style="cursor:pointer;color:var(--cerb-color-background-contrast-150);" title="Saved queries"><span class="cerb-icons cerb-icon-bookmark"></span></a>
 						<a data-action="config" style="cursor:pointer;color:var(--cerb-color-background-contrast-150);" title="Filter mode"><span class="cerb-icons cerb-icon-gear"></span></a>
 					</div>
