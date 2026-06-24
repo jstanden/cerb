@@ -69,4 +69,49 @@
 			color: var(--cerb-color-text);
 		}
 	}
+
+	// Split variant: a primary action joined to a caret that opens a CerbUI.Menu — the successor to the old
+	// `.split-left`/`.split-right` pair. Wrap exactly two `.cerb-ui-button` halves; this joins them (rounded
+	// outer corners, flat inner edges, a hairline seam) and narrows the trailing caret half. This base is the
+	// STANDALONE (gradient) look; inside a `.cerb-ui-toolbar--strip`/`.cerb-ui-toolbar-rail` the halves are
+	// re-styled as flat toolbar items so the split sits flush in the rail (see cerb-ui/_toolbar.scss). Wire as:
+	//   const menu = new CerbUI.Menu(sourceUl, { onSelect: (rl, sl) => $(sl).find('a').trigger('click') });
+	//   $caret.on('click', e => { e.stopPropagation(); menu.isOpen() ? menu.close() : menu.open(caretEl); });
+	&--split {
+		display: inline-flex;
+		vertical-align: middle;
+
+		> .cerb-ui-button {
+			margin: 0;
+
+			&:not(:first-child) {
+				border-top-left-radius: 0;
+				border-bottom-left-radius: 0;
+			}
+
+			&:not(:last-child) {
+				border-top-right-radius: 0;
+				border-bottom-right-radius: 0;
+			}
+		}
+
+		// The trailing caret half: narrow, icon-only, with a short centered seam from the primary.
+		> .cerb-ui-button:last-child {
+			position: relative;
+			padding-left: 0.4em;
+			padding-right: 0.4em;
+
+			// Short, vertically-centered seam between the halves — not a full-height toolbar divider.
+			&::before {
+				content: '';
+				position: absolute;
+				left: 0;
+				top: 50%;
+				transform: translateY(-50%);
+				width: 1px;
+				height: 60%;
+				background: rgba(0, 0, 0, 0.18);
+			}
+		}
+	}
 }

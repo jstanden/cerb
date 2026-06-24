@@ -389,30 +389,6 @@ BUTTON.red {
 	}
 }
 
-BUTTON.split-left {
-	vertical-align: top;
-	margin-right: 0;
-	border-right: 0;
-
-	border-radius: 5px 0 0 5px;
-
-	SPAN {
-		vertical-align: middle;
-	}
-}
-
-BUTTON.split-right {
-	vertical-align: top;
-	margin-left: 0;
-	padding: 5px 2px;
-	border-radius: 0 5px 5px 0;
-	
-	.cerb-icon-chevron-down {
-		font-size: var(--cerb-font-size);
-		color: var(--cerb-color-button-icon);
-	}
-}
-
 // Notifications
 
 @keyframes cerbBellJiggle {
