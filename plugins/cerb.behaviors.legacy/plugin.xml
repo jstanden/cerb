@@ -384,6 +384,7 @@
                     </value>
                 </param>
                 <param key="alias" value="bot" />
+                <param key="icon" value="bot" />
                 <param key="dao_class" value="DAO_Bot" />
                 <param key="view_class" value="View_Bot" />
                 <param key="options">
@@ -427,6 +428,7 @@
                     </value>
                 </param>
                 <param key="alias" value="scheduled_behavior" />
+                <param key="icon" value="clock" />
                 <param key="dao_class" value="DAO_ContextScheduledBehavior" />
                 <param key="view_class" value="View_ContextScheduledBehavior" />
                 <param key="options">
@@ -474,6 +476,7 @@
                     </value>
                 </param>
                 <param key="alias" value="behavior" />
+                <param key="icon" value="branch" />
                 <param key="dao_class" value="DAO_TriggerEvent" />
                 <param key="view_class" value="View_TriggerEvent" />
                 <param key="options">

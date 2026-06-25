@@ -72,6 +72,7 @@
 					</value>
 				</param>
 				<param key="alias" value="project_board" />
+				<param key="icon" value="kanban" />
 				<param key="dao_class" value="DAO_ProjectBoard" />
 				<param key="view_class" value="View_ProjectBoard" />
 				<param key="options">
@@ -117,6 +118,7 @@
 					</value>
 				</param>
 				<param key="alias" value="project_board_column" />
+				<param key="icon" value="kanban" />
 				<param key="dao_class" value="DAO_ProjectBoardColumn" />
 				<param key="view_class" value="View_ProjectBoardColumn" />
 				<param key="options">

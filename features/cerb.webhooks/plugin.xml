@@ -121,6 +121,7 @@
 					</value>
 				</param>
 				<param key="alias" value="webhook_listener" />
+				<param key="icon" value="webhook" />
 				<param key="dao_class" value="DAO_WebhookListener" />
 				<param key="view_class" value="View_WebhookListener" />
 				<param key="options">

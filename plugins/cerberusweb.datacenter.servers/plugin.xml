@@ -85,6 +85,7 @@
 					</value>
 				</param>
 				<param key="alias" value="server" />
+				<param key="icon" value="server" />
 				<param key="dao_class" value="DAO_Server" />
 				<param key="view_class" value="View_Server" />
 				<param key="options">

@@ -315,6 +315,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 					$manifest->class = 'Context_AbstractCustomRecord_' . $custom_record->id;
 					$manifest->params = [
 						'alias' => $custom_record->uri,
+						'icon' => $custom_record->params['icon'] ?? 'collection',
 						'dao_class' => 'DAO_AbstractCustomRecord_' . $custom_record->id,
 						'view_class' => 'View_AbstractCustomRecord_' . $custom_record->id,
 						'acl' => [
@@ -461,10 +462,15 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		
 		if(empty($results['singular']))
 			$results['singular'] = mb_convert_case($ctx_manifest->name, MB_CASE_LOWER);
-		
+
 		return $results;
 	}
-	
+
+	// The `cerb-icons` glyph name for this record type (from the `icon` manifest param); `circle` when unset.
+	function getIcon() : string {
+		return $this->manifest->params['icon'] ?? 'circle';
+	}
+
 	/**
 	 * @param string $alias
 	 * @param bool $as_instance

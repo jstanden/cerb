@@ -82,6 +82,7 @@
 					</value>
 				</param>
 				<param key="alias" value="webapi_credentials" />
+				<param key="icon" value="token" />
 				<param key="dao_class" value="DAO_WebApiCredentials" />
 				<param key="view_class" value="View_WebApiCredentials" />
 				<param key="options">

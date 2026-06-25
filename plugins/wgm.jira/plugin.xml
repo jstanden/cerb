@@ -105,6 +105,7 @@
 					</value>
 				</param>
 				<param key="alias" value="jira_project" />
+				<param key="icon" value="folder" />
 				<param key="dao_class" value="DAO_JiraProject" />
 				<param key="view_class" value="View_JiraProject" />
 				<param key="options">
@@ -148,6 +149,7 @@
 					</value>
 				</param>
 				<param key="alias" value="jira_issue" />
+				<param key="icon" value="bug" />
 				<param key="dao_class" value="DAO_JiraIssue" />
 				<param key="view_class" value="View_JiraIssue" />
 				<param key="options">

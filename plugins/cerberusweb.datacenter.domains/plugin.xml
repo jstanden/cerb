@@ -87,6 +87,7 @@
 					</value>
 				</param>
 				<param key="alias" value="domain" />
+				<param key="icon" value="globe" />
 				<param key="dao_class" value="DAO_Domain" />
 				<param key="view_class" value="View_Domain" />
 				<param key="options">

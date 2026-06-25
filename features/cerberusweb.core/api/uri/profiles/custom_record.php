@@ -83,7 +83,11 @@ class PageSection_ProfilesCustomRecord extends Extension_PageSection {
 				$name_plural = DevblocksPlatform::importGPC($_POST['name_plural'] ?? null, 'string', '');
 				$uri = DevblocksPlatform::importGPC($_POST['uri'] ?? null, 'string', '');
 				$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
-				
+
+				// Only persist a valid cerb-icon name; otherwise fall back to the record-type default
+				if(isset($params['icon']) && !in_array($params['icon'], DevblocksPlatform::services()->ui()->getCerbIcons(), true))
+					unset($params['icon']);
+
 				$error = null;
 				
 				if(empty($id)) { // New

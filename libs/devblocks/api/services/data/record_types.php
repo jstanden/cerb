@@ -105,6 +105,7 @@ class _DevblocksDataProviderRecordTypes extends _DevblocksDataProvider {
 				'uri' => $aliases['uri'],
 				'label_singular' => DevblocksPlatform::strTitleCase($aliases['singular']),
 				'label_plural' => DevblocksPlatform::strTitleCase($aliases['plural']),
+				'icon' => $record_type_ext->manifest->params['icon'] ?? 'circle',
 				'is_custom' => $is_custom,
 			];
 		}

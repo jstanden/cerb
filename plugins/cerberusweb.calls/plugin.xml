@@ -92,6 +92,7 @@
 					</value>
 				</param>
 				<param key="alias" value="call" />
+				<param key="icon" value="phone-handset" />
 				<param key="dao_class" value="DAO_CallEntry" />
 				<param key="view_class" value="View_CallEntry" />
 				<param key="options">

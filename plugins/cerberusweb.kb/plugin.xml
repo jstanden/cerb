@@ -102,6 +102,7 @@
 					</value>
 				</param>
 				<param key="alias" value="kb_article" />
+				<param key="icon" value="book-open" />
 				<param key="dao_class" value="DAO_KbArticle" />
 				<param key="view_class" value="View_KbArticle" />
 				<param key="options">
@@ -151,6 +152,7 @@
 					</value>
 				</param>
 				<param key="alias" value="kb_category" />
+				<param key="icon" value="book" />
 				<param key="dao_class" value="DAO_KbCategory" />
 				<param key="view_class" value="View_KbCategory" />
 				<param key="options">

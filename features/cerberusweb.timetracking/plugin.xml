@@ -88,6 +88,7 @@
 					</value>
 				</param>
 				<param key="alias" value="timetracking_activity" />
+				<param key="icon" value="clock" />
 				<param key="dao_class" value="DAO_TimeTrackingActivity" />
 				<param key="view_class" value="View_TimeTrackingActivity" />
 				<param key="options">
@@ -140,6 +141,7 @@
 					</value>
 				</param>
 				<param key="alias" value="time_entry" />
+				<param key="icon" value="stopwatch" />
 				<param key="dao_class" value="DAO_TimeTrackingEntry" />
 				<param key="view_class" value="View_TimeTracking" />
 				<param key="options">

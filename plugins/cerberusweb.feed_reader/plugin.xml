@@ -97,6 +97,7 @@
 					</value>
 				</param>
 				<param key="alias" value="feed" />
+				<param key="icon" value="rss" />
 				<param key="dao_class" value="DAO_Feed" />
 				<param key="view_class" value="View_Feed" />
 				<param key="options">
@@ -140,6 +141,7 @@
 					</value>
 				</param>
 				<param key="alias" value="feed_item" />
+				<param key="icon" value="newspaper" />
 				<param key="dao_class" value="DAO_FeedItem" />
 				<param key="view_class" value="View_FeedItem" />
 				<param key="options">

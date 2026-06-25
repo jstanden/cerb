@@ -1169,6 +1169,7 @@
 					</value>
 				</param>
 				<param key="alias" value="app" />
+				<param key="icon" value="cube" />
 				<param key="dao_class" value="" />
 				<param key="view_class" value="" />
 				<param key="options">
@@ -1201,6 +1202,7 @@
 					</value>
 				</param>
 				<param key="alias" value="workflow" />
+				<param key="icon" value="nodes" />
 				<param key="dao_class" value="DAO_Workflow" />
 				<param key="view_class" value="View_Workflow" />
 				<param key="options">
@@ -1247,6 +1249,7 @@
 					</value>
 				</param>
 				<param key="alias" value="attachment" />
+				<param key="icon" value="paperclip" />
 				<param key="dao_class" value="DAO_Attachment" />
 				<param key="view_class" value="View_Attachment" />
 				<param key="options">
@@ -1288,6 +1291,7 @@
 					</value>
 				</param>
 				<param key="alias" value="automation" />
+				<param key="icon" value="zap" />
 				<param key="dao_class" value="DAO_Automation" />
 				<param key="view_class" value="View_Automation" />
 				<param key="options">
@@ -1331,6 +1335,7 @@
 					</value>
 				</param>
 				<param key="alias" value="automation_event" />
+				<param key="icon" value="bell" />
 				<param key="dao_class" value="DAO_AutomationEvent" />
 				<param key="view_class" value="View_AutomationEvent" />
 				<param key="options">
@@ -1372,6 +1377,7 @@
 					</value>
 				</param>
 				<param key="alias" value="automation_event_listener" />
+				<param key="icon" value="antenna" />
 				<param key="dao_class" value="DAO_AutomationEventListener" />
 				<param key="view_class" value="View_AutomationEventListener" />
 				<param key="options">
@@ -1412,6 +1418,7 @@
 					</value>
 				</param>
 				<param key="alias" value="automation_resource" />
+				<param key="icon" value="cube" />
 				<param key="dao_class" value="DAO_AutomationResource" />
 				<param key="view_class" value="View_AutomationResource" />
 				<param key="options">
@@ -1444,6 +1451,7 @@
 					</value>
 				</param>
 				<param key="alias" value="automation_timer" />
+				<param key="icon" value="stopwatch" />
 				<param key="dao_class" value="DAO_AutomationTimer" />
 				<param key="view_class" value="View_AutomationTimer" />
 				<param key="options">
@@ -1486,6 +1494,7 @@
 					</value>
 				</param>
 				<param key="alias" value="profile_tab" />
+				<param key="icon" value="tab" />
 				<param key="dao_class" value="DAO_ProfileTab" />
 				<param key="view_class" value="View_ProfileTab" />
 				<param key="options">
@@ -1532,6 +1541,7 @@
 					</value>
 				</param>
 				<param key="alias" value="package" />
+				<param key="icon" value="archive" />
 				<param key="dao_class" value="DAO_PackageLibrary" />
 				<param key="view_class" value="View_PackageLibrary" />
 				<param key="options">
@@ -1577,6 +1587,7 @@
 					</value>
 				</param>
 				<param key="alias" value="profile_widget" />
+				<param key="icon" value="widget" />
 				<param key="dao_class" value="DAO_ProfileWidget" />
 				<param key="view_class" value="View_ProfileWidget" />
 				<param key="options">
@@ -1625,6 +1636,7 @@
 					</value>
 				</param>
 				<param key="alias" value="connected_account" />
+				<param key="icon" value="plug" />
 				<param key="dao_class" value="DAO_ConnectedAccount" />
 				<param key="view_class" value="View_ConnectedAccount" />
 				<param key="options">
@@ -1667,6 +1679,7 @@
 					</value>
 				</param>
 				<param key="alias" value="connected_service" />
+				<param key="icon" value="cloud" />
 				<param key="dao_class" value="DAO_ConnectedService" />
 				<param key="view_class" value="View_ConnectedService" />
 				<param key="options">
@@ -1710,6 +1723,7 @@
 					</value>
 				</param>
 				<param key="alias" value="contact" />
+				<param key="icon" value="id-card" />
 				<param key="dao_class" value="DAO_Contact" />
 				<param key="view_class" value="View_Contact" />
 				<param key="options">
@@ -1759,6 +1773,7 @@
 					</value>
 				</param>
 				<param key="alias" value="saved_search" />
+				<param key="icon" value="bookmark" />
 				<param key="dao_class" value="DAO_ContextSavedSearch" />
 				<param key="view_class" value="View_ContextSavedSearch" />
 				<param key="options">
@@ -1799,6 +1814,7 @@
 					</value>
 				</param>
 				<param key="alias" value="currency" />
+				<param key="icon" value="coins" />
 				<param key="dao_class" value="DAO_Currency" />
 				<param key="view_class" value="View_Currency" />
 				<param key="options">
@@ -1848,6 +1864,7 @@
 					</value>
 				</param>
 				<param key="alias" value="custom_field" />
+				<param key="icon" value="form" />
 				<param key="dao_class" value="DAO_CustomField" />
 				<param key="view_class" value="View_CustomField" />
 				<param key="options">
@@ -1887,6 +1904,7 @@
 					</value>
 				</param>
 				<param key="alias" value="custom_record" />
+				<param key="icon" value="table" />
 				<param key="dao_class" value="DAO_CustomRecord" />
 				<param key="view_class" value="View_CustomRecord" />
 				<param key="options">
@@ -1936,6 +1954,7 @@
 					</value>
 				</param>
 				<param key="alias" value="address" />
+				<param key="icon" value="mention" />
 				<param key="dao_class" value="DAO_Address" />
 				<param key="view_class" value="View_Address" />
 				<param key="options">
@@ -1986,6 +2005,7 @@
 					</value>
 				</param>
 				<param key="alias" value="bucket" />
+				<param key="icon" value="bucket" />
 				<param key="dao_class" value="DAO_Bucket" />
 				<param key="view_class" value="View_Bucket" />
 				<param key="options">
@@ -2028,6 +2048,7 @@
 					</value>
 				</param>
 				<param key="alias" value="calendar" />
+				<param key="icon" value="calendar" />
 				<param key="dao_class" value="DAO_Calendar" />
 				<param key="view_class" value="View_Calendar" />
 				<param key="options">
@@ -2074,6 +2095,7 @@
 					</value>
 				</param>
 				<param key="alias" value="calendar_event" />
+				<param key="icon" value="calendar" />
 				<param key="dao_class" value="DAO_CalendarEvent" />
 				<param key="view_class" value="View_CalendarEvent" />
 				<param key="options">
@@ -2122,6 +2144,7 @@
 					</value>
 				</param>
 				<param key="alias" value="calendar_recurring_event" />
+				<param key="icon" value="repeat" />
 				<param key="dao_class" value="DAO_CalendarRecurringProfile" />
 				<param key="view_class" value="View_CalendarRecurringProfile" />
 				<param key="options">
@@ -2165,6 +2188,7 @@
 					</value>
 				</param>
 				<param key="alias" value="card_widget" />
+				<param key="icon" value="widget" />
 				<param key="dao_class" value="DAO_CardWidget" />
 				<param key="view_class" value="View_CardWidget" />
 				<param key="options">
@@ -2211,6 +2235,7 @@
 					</value>
 				</param>
 				<param key="alias" value="comment" />
+				<param key="icon" value="comments" />
 				<param key="dao_class" value="DAO_Comment" />
 				<param key="view_class" value="View_Comment" />
 				<param key="options">
@@ -2255,6 +2280,7 @@
 					</value>
 				</param>
 				<param key="alias" value="custom_fieldset" />
+				<param key="icon" value="form" />
 				<param key="dao_class" value="DAO_CustomFieldset" />
 				<param key="view_class" value="View_CustomFieldset" />
 				<param key="options">
@@ -2301,6 +2327,7 @@
 					</value>
 				</param>
 				<param key="alias" value="activity_log" />
+				<param key="icon" value="history" />
 				<param key="dao_class" value="DAO_ContextActivityLog" />
 				<param key="view_class" value="View_ContextActivityLog" />
 				<param key="options">
@@ -2334,6 +2361,7 @@
 					</value>
 				</param>
 				<param key="alias" value="draft" />
+				<param key="icon" value="edit" />
 				<param key="dao_class" value="DAO_MailQueue" />
 				<param key="view_class" value="View_MailQueue" />
 				<param key="options">
@@ -2376,6 +2404,7 @@
 					</value>
 				</param>
 				<param key="alias" value="email_signature" />
+				<param key="icon" value="signature" />
 				<param key="dao_class" value="DAO_EmailSignature" />
 				<param key="view_class" value="View_EmailSignature" />
 				<param key="options">
@@ -2469,6 +2498,7 @@
 					</value>
 				</param>
 				<param key="alias" value="html_template" />
+				<param key="icon" value="template" />
 				<param key="dao_class" value="DAO_MailHtmlTemplate" />
 				<param key="view_class" value="View_MailHtmlTemplate" />
 				<param key="options">
@@ -2513,6 +2543,7 @@
 					</value>
 				</param>
 				<param key="alias" value="gpg_private_key" />
+				<param key="icon" value="key" />
 				<param key="dao_class" value="DAO_GpgPrivateKey" />
 				<param key="view_class" value="View_GpgPrivateKey" />
 				<param key="options">
@@ -2557,6 +2588,7 @@
 					</value>
 				</param>
 				<param key="alias" value="gpg_public_key" />
+				<param key="icon" value="key" />
 				<param key="dao_class" value="DAO_GpgPublicKey" />
 				<param key="view_class" value="View_GpgPublicKey" />
 				<param key="options">
@@ -2601,6 +2633,7 @@
 					</value>
 				</param>
 				<param key="alias" value="group" />
+				<param key="icon" value="users" />
 				<param key="dao_class" value="DAO_Group" />
 				<param key="view_class" value="View_Group" />
 				<param key="options">
@@ -2643,6 +2676,7 @@
 					</value>
 				</param>
 				<param key="alias" value="mail_delivery_log" />
+				<param key="icon" value="send" />
 				<param key="dao_class" value="DAO_MailDeliveryLog" />
 				<param key="view_class" value="View_MailDeliveryLog" />
 				<param key="options">
@@ -2682,6 +2716,7 @@
 					</value>
 				</param>
 				<param key="alias" value="mail_inbound_log" />
+				<param key="icon" value="inbox" />
 				<param key="dao_class" value="DAO_MailInboundLog" />
 				<param key="view_class" value="View_MailInboundLog" />
 				<param key="options">
@@ -2721,6 +2756,7 @@
 					</value>
 				</param>
 				<param key="alias" value="mail_routing_rule" />
+				<param key="icon" value="signpost" />
 				<param key="dao_class" value="DAO_MailRoutingRule" />
 				<param key="view_class" value="View_MailRoutingRule" />
 				<param key="options">
@@ -2765,6 +2801,7 @@
 					</value>
 				</param>
 				<param key="alias" value="mail_transport" />
+				<param key="icon" value="send" />
 				<param key="dao_class" value="DAO_MailTransport" />
 				<param key="view_class" value="View_MailTransport" />
 				<param key="options">
@@ -2812,6 +2849,7 @@
 					</value>
 				</param>
 				<param key="alias" value="message" />
+				<param key="icon" value="mail" />
 				<param key="dao_class" value="DAO_Message" />
 				<param key="view_class" value="View_Message" />
 				<param key="options">
@@ -2856,6 +2894,7 @@
 					</value>
 				</param>
 				<param key="alias" value="metric" />
+				<param key="icon" value="gauge" />
 				<param key="dao_class" value="DAO_Metric" />
 				<param key="view_class" value="View_Metric" />
 				<param key="options">
@@ -2898,6 +2937,7 @@
 					</value>
 				</param>
 				<param key="alias" value="notification" />
+				<param key="icon" value="bell" />
 				<param key="dao_class" value="DAO_Notification" />
 				<param key="view_class" value="View_Notification" />
 				<param key="options">
@@ -2936,6 +2976,7 @@
 					</value>
 				</param>
 				<param key="alias" value="oauth_app" />
+				<param key="icon" value="token" />
 				<param key="dao_class" value="DAO_OAuthApp" />
 				<param key="view_class" value="View_OAuthApp" />
 				<param key="options">
@@ -2982,6 +3023,7 @@
 					</value>
 				</param>
 				<param key="alias" value="org" />
+				<param key="icon" value="building-office" />
 				<param key="dao_class" value="DAO_ContactOrg" />
 				<param key="view_class" value="View_ContactOrg" />
 				<param key="options">
@@ -3032,6 +3074,7 @@
 					</value>
 				</param>
 				<param key="alias" value="mailbox" />
+				<param key="icon" value="mailbox" />
 				<param key="dao_class" value="DAO_Mailbox" />
 				<param key="view_class" value="View_Mailbox" />
 				<param key="options">
@@ -3075,6 +3118,7 @@
 					</value>
 				</param>
 				<param key="alias" value="snippet" />
+				<param key="icon" value="quote" />
 				<param key="dao_class" value="DAO_Snippet" />
 				<param key="view_class" value="View_Snippet" />
 				<param key="options">
@@ -3118,6 +3162,7 @@
 					</value>
 				</param>
 				<param key="alias" value="task" />
+				<param key="icon" value="todo" />
 				<param key="dao_class" value="DAO_Task" />
 				<param key="view_class" value="View_Task" />
 				<param key="options">
@@ -3164,6 +3209,7 @@
 					</value>
 				</param>
 				<param key="alias" value="task_project" />
+				<param key="icon" value="collection" />
 				<param key="dao_class" value="DAO_TaskProject" />
 				<param key="view_class" value="View_TaskProject" />
 				<param key="options">
@@ -3212,6 +3258,7 @@
 					</value>
 				</param>
 				<param key="alias" value="ticket" />
+				<param key="icon" value="ticket" />
 				<param key="dao_class" value="DAO_Ticket" />
 				<param key="view_class" value="View_Ticket" />
 				<param key="options">
@@ -3261,6 +3308,7 @@
 					</value>
 				</param>
 				<param key="alias" value="toolbar" />
+				<param key="icon" value="toolbox" />
 				<param key="dao_class" value="DAO_Toolbar" />
 				<param key="view_class" value="View_Toolbar" />
 				<param key="options">
@@ -3302,6 +3350,7 @@
 					</value>
 				</param>
 				<param key="alias" value="toolbar_section" />
+				<param key="icon" value="toolbox" />
 				<param key="dao_class" value="DAO_ToolbarSection" />
 				<param key="view_class" value="View_ToolbarSection" />
 				<param key="options">
@@ -3351,6 +3400,7 @@
 					</value>
 				</param>
 				<param key="alias" value="worker" />
+				<param key="icon" value="user" />
 				<param key="dao_class" value="DAO_Worker" />
 				<param key="view_class" value="View_Worker" />
 				<param key="options">
@@ -3396,6 +3446,7 @@
 					</value>
 				</param>
 				<param key="alias" value="community_portal" />
+				<param key="icon" value="globe" />
 				<param key="dao_class" value="DAO_CommunityTool" />
 				<param key="view_class" value="View_CommunityPortal" />
 				<param key="options">
@@ -3439,6 +3490,7 @@
 					</value>
 				</param>
 				<param key="alias" value="queue" />
+				<param key="icon" value="list" />
 				<param key="dao_class" value="DAO_Queue" />
 				<param key="view_class" value="View_Queue" />
 				<param key="options">
@@ -3480,6 +3532,7 @@
 					</value>
 				</param>
 				<param key="alias" value="queue_job" />
+				<param key="icon" value="hourglass" />
 				<param key="dao_class" value="DAO_QueueJob" />
 				<param key="view_class" value="View_QueueJob" />
 				<param key="options">
@@ -3521,6 +3574,7 @@
 					</value>
 				</param>
 				<param key="alias" value="service_token" />
+				<param key="icon" value="token" />
 				<param key="dao_class" value="DAO_ServiceToken" />
 				<param key="view_class" value="View_ServiceToken" />
 				<param key="options">
@@ -3561,6 +3615,7 @@
 					</value>
 				</param>
 				<param key="alias" value="search_index" />
+				<param key="icon" value="search" />
 				<param key="dao_class" value="DAO_SearchIndex" />
 				<param key="view_class" value="View_SearchIndex" />
 				<param key="options">
@@ -3602,6 +3657,7 @@
 					</value>
 				</param>
 				<param key="alias" value="reminder" />
+				<param key="icon" value="clock" />
 				<param key="dao_class" value="DAO_Reminder" />
 				<param key="view_class" value="View_Reminder" />
 				<param key="options">
@@ -3645,6 +3701,7 @@
 					</value>
 				</param>
 				<param key="alias" value="resource" />
+				<param key="icon" value="file" />
 				<param key="dao_class" value="DAO_Resource" />
 				<param key="view_class" value="View_Resource" />
 				<param key="options">
@@ -3687,6 +3744,7 @@
 					</value>
 				</param>
 				<param key="alias" value="role" />
+				<param key="icon" value="shield" />
 				<param key="dao_class" value="DAO_WorkerRole" />
 				<param key="view_class" value="View_WorkerRole" />
 				<param key="options">
@@ -3731,6 +3789,7 @@
 					</value>
 				</param>
 				<param key="alias" value="workspace_page" />
+				<param key="icon" value="dashboard" />
 				<param key="dao_class" value="DAO_WorkspacePage" />
 				<param key="view_class" value="View_WorkspacePage" />
 				<param key="options">
@@ -3774,6 +3833,7 @@
 					</value>
 				</param>
 				<param key="alias" value="workspace_tab" />
+				<param key="icon" value="tab" />
 				<param key="dao_class" value="DAO_WorkspaceTab" />
 				<param key="view_class" value="View_WorkspaceTab" />
 				<param key="options">
@@ -3817,6 +3877,7 @@
 					</value>
 				</param>
 				<param key="alias" value="workspace_widget" />
+				<param key="icon" value="widget" />
 				<param key="dao_class" value="DAO_WorkspaceWidget" />
 				<param key="view_class" value="View_WorkspaceWidget" />
 				<param key="options">
@@ -3860,6 +3921,7 @@
 					</value>
 				</param>
 				<param key="alias" value="workspace_list" />
+				<param key="icon" value="table" />
 				<param key="dao_class" value="DAO_WorkspaceList" />
 				<param key="view_class" value="View_WorkspaceList" />
 				<param key="options">

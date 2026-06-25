@@ -83,6 +83,7 @@
 					</value>
 				</param>
 				<param key="alias" value="classifier" />
+				<param key="icon" value="brain" />
 				<param key="dao_class" value="DAO_Classifier" />
 				<param key="view_class" value="View_Classifier" />
 				<param key="options">
@@ -123,6 +124,7 @@
 					</value>
 				</param>
 				<param key="alias" value="classifier_class" />
+				<param key="icon" value="brain" />
 				<param key="dao_class" value="DAO_ClassifierClass" />
 				<param key="view_class" value="View_ClassifierClass" />
 				<param key="options">
@@ -166,6 +168,7 @@
 					</value>
 				</param>
 				<param key="alias" value="classifier_entity" />
+				<param key="icon" value="brain" />
 				<param key="dao_class" value="DAO_ClassifierEntity" />
 				<param key="view_class" value="View_ClassifierEntity" />
 				<param key="options">
@@ -207,6 +210,7 @@
 					</value>
 				</param>
 				<param key="alias" value="classifier_example" />
+				<param key="icon" value="quote" />
 				<param key="dao_class" value="DAO_ClassifierExample" />
 				<param key="view_class" value="View_ClassifierExample" />
 				<param key="options">
