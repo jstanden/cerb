@@ -1,4 +1,4 @@
-$timestamp: 2026053101;
+$timestamp: 2026062301;
 
 :root {
   color-scheme: light;
@@ -179,6 +179,9 @@ $timestamp: 2026053101;
   --cerb-editor-syntax-var: rgb(127,0,85);
   
   --cerb-editor-gutter-border: rgb(188,188,188);
+  // Gutter surface tint. Aliases the adaptive contrast scale so one :root definition serves both
+  // themes: rgb(240,240,240) in light, rgb(47,47,47) in dark (the closest step to the gutter target).
+  --cerb-editor-gutter-background: var(--cerb-color-background-contrast-240);
   --cerb-editor-diff-line: rgb(216,242,255);
   --cerb-editor-diff-border: rgb(162,215,242);
   
@@ -316,7 +319,7 @@ $timestamp: 2026053101;
   --cerb-editor-syntax-uri: rgb(255,255,255);
   --cerb-editor-syntax-var: rgb(186,186,186);
 
-  --cerb-editor-gutter-border: rgb(0,0,0);
+  --cerb-editor-gutter-border: rgb(80,80,80);
   --cerb-editor-diff-line: rgb(0,77,122);
   --cerb-editor-diff-border: rgb(0,53,84);
 }
