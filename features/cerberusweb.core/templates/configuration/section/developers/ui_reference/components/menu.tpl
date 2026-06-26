@@ -54,6 +54,7 @@
 const trigger = document.getElementById('trigger');
 
 const menu = new CerbUI.Menu(ul, {
+	clickTrigger:    trigger, // element that TOGGLES the menu on click (anchored to it); no manual handler needed
 	onSelect:        function(li, src, e) { out.textContent = src.dataset.id; }, // leaf click / Enter
 	onClose:         function() {},        // menu fully closed (all panels removed)
 	// closeOnSelect: true,                // false = stay open after a pick (add several in a row)
@@ -72,7 +73,7 @@ const menu = new CerbUI.Menu(ul, {
 	openDelay:       80,    // ms hover delay before a submenu opens
 	virtBuffer:      6,     // extra rows above/below the visible window
 	inline:          false, // render the root in document flow vs. floating
-	hoverTrigger:    null,  // element that opens on mouseenter / closes on mouseleave
+	hoverTrigger:    null,  // opens on mouseenter / closes on mouseleave (the hover counterpart to clickTrigger)
 	hoverGroup:      null,  // links sibling hover menus (only one open per group)
 	hoverCloseDelay: 150,   // ms before a hover menu closes after the mouse leaves
 	fixed:           false, // position:fixed instead of absolute
@@ -86,8 +87,7 @@ const menu = new CerbUI.Menu(ul, {
 	filterShowPath:  true   // show the ancestor breadcrumb (eyebrow) above each flattened deep match; false hides it
 });
 
-// open from a trigger (toggle); menu.open(anchor) floats below the anchor
-trigger.addEventListener('click', () => menu.isOpen() ? menu.close() : menu.open(trigger));
+// clickTrigger (above) wires the toggle for you; to drive it yourself: menu.open(anchor) / menu.close() / menu.isOpen()
 // CerbUI.Menu.from(ul) -> the instance for a source UL{/literal}</pre>
 			</div>
 		</div>
@@ -229,7 +229,8 @@ new CerbUI.Menu(ul2, { hoverTrigger: btn2, hoverGroup: 'nav' });{/literal}</pre>
 		const trigger = document.getElementById('uiref-menu-small-trigger');
 		const out = document.getElementById('uiref-menu-small-out');
 		if(ul && trigger && window.CerbUI && CerbUI.Menu) {
-			const menu = new CerbUI.Menu(ul, {
+			new CerbUI.Menu(ul, {
+				clickTrigger: trigger,
 				onSelect: function(li, src) { if(out) out.textContent = src.dataset.id || li.textContent; },
 				onRenderItem: function(li, src) {
 					const icon = src.dataset.icon; // bare name -> a cerb-icon; ".foo" -> raw class(es)
@@ -241,7 +242,6 @@ new CerbUI.Menu(ul2, { hoverTrigger: btn2, hoverGroup: 'nav' });{/literal}</pre>
 					}
 				}
 			});
-			trigger.addEventListener('click', function() { menu.isOpen() ? menu.close() : menu.open(trigger); });
 		}
 	})();
 

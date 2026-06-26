@@ -22,6 +22,7 @@
  *   const menu = new CerbUI.Menu(ulEl, { onSelect: (li, src, e) => { ... } });
  *   menu.open(anchorEl);   // float below the anchor (submenus cascade)
  *   menu.close();
+ *   // or hand the menu its trigger:  new CerbUI.Menu(ulEl, { clickTrigger: btnEl, onSelect })  // click toggles open
  *   CerbUI.Menu.from(ulEl) // -> the instance for a source UL
  *
  * CSS lives in cerb.css (.cerb-ui-menu--*) — this component never injects styles. The .cerb-ui-menu--item
@@ -48,6 +49,7 @@ CerbUI.Menu = class {
 		virtBuffer: 6,        // extra rows rendered above/below the visible window
 		inline: false,        // render the root panel in document flow vs. floating
 		hoverTrigger: null,   // element that opens on mouseenter / closes on mouseleave
+		clickTrigger: null,   // element that TOGGLES the menu on click (anchored to it) — the click-to-open counterpart to hoverTrigger
 		hoverGroup: null,     // links sibling hover menus (only one open per group)
 		hoverCloseDelay: 150, // ms before a hover menu closes after the mouse leaves
 		fixed: false,         // position:fixed instead of absolute for floating panels
@@ -79,12 +81,14 @@ CerbUI.Menu = class {
 		this.filterPinned = false; // a live filter query keeps a hover menu open even when the mouse leaves
 		this.triggerEnter = null;
 		this.triggerLeave = null;
+		this.triggerClick = null;
 		this.anchor = null;
 		this.docDown = null;
 		this.docKey = null;
 
 		CerbUI.Menu._instances.set(ul, this);
 		if(this.opts.hoverTrigger) this._bindHoverTrigger(this.opts.hoverTrigger);
+		if(this.opts.clickTrigger) this._bindClickTrigger(this.opts.clickTrigger);
 		if(this.opts.hoverGroup) {
 			let g = CerbUI.Menu._hoverGroups.get(this.opts.hoverGroup);
 			if(!g) { g = new Set(); CerbUI.Menu._hoverGroups.set(this.opts.hoverGroup, g); }
@@ -251,6 +255,9 @@ CerbUI.Menu = class {
 		if(this.opts.hoverTrigger && this.triggerEnter && this.triggerLeave) {
 			this.opts.hoverTrigger.removeEventListener('mouseenter', this.triggerEnter);
 			this.opts.hoverTrigger.removeEventListener('mouseleave', this.triggerLeave);
+		}
+		if(this.opts.clickTrigger && this.triggerClick) {
+			this.opts.clickTrigger.removeEventListener('click', this.triggerClick);
 		}
 		this.close();
 	}
@@ -618,6 +625,25 @@ CerbUI.Menu = class {
 		this.triggerLeave = () => this._hoverOut();
 		el.addEventListener('mouseenter', this.triggerEnter);
 		el.addEventListener('mouseleave', this.triggerLeave);
+	}
+
+	// Click-to-toggle: open anchored to the trigger, or close if already open. open()'s capture-phase outside-close
+	// ignores clicks on the anchor, so a second click on the trigger reaches this handler and closes the menu.
+	_bindClickTrigger(el) {
+		this.triggerClick = (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			if(this.isOpen()) {
+				this.close();
+				return;
+			}
+			if(this.opts.hoverGroup) {
+				const g = CerbUI.Menu._hoverGroups.get(this.opts.hoverGroup);
+				if(g) g.forEach(m => { if(m !== this) m.close(); });
+			}
+			this.open(el);
+		};
+		el.addEventListener('click', this.triggerClick);
 	}
 
 	_hoverIn() {
