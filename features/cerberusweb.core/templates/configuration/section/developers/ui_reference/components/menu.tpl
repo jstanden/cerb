@@ -78,7 +78,12 @@ const menu = new CerbUI.Menu(ul, {
 	fixed:           false, // position:fixed instead of absolute
 	filter:          false, // type-to-filter: start typing to reveal a search box that narrows the list
 	filterPlaceholder: 'Filter…',
-	filterEmptyText: 'No matches'
+	filterEmptyText: 'No matches',
+	filterDedupe:    false, // de-dupe flattened filter matches (nested menus only): true keys each item by
+	                        // interaction uri+params / behavior id / href / else lowercased label; or pass a
+	                        // fn(sourceLi)->string. First match wins, and root leaves flatten before nested
+	                        // ones, so a top-level copy beats the same item buried in a submenu
+	filterShowPath:  true   // show the ancestor breadcrumb (eyebrow) above each flattened deep match; false hides it
 });
 
 // open from a trigger (toggle); menu.open(anchor) floats below the anchor

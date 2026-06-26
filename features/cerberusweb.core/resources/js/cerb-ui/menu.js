@@ -9,7 +9,8 @@
  *   - positions with viewport flip/clamp (no layout thrash),
  *   - optional type-to-filter (filter:true): start typing to reveal a search box (hidden until used,
  *     tucks away when emptied). A flat menu filters its labels in place; a nested menu searches a
- *     flattened list of ALL leaves and shows matches with breadcrumb context.
+ *     flattened list of ALL leaves and shows matches with breadcrumb context (filterShowPath:false hides
+ *     the breadcrumb; filterDedupe collapses the same action appearing at multiple depths).
  *
  * Markup (progressive enhancement): an authored UL > LI for the menu, UL > LI > UL > LI for a submenu.
  * An empty/whitespace <li> is a separator. Only data-* attributes are mirrored onto the rendered item
@@ -56,6 +57,11 @@ CerbUI.Menu = class {
 		filterPlaceholder: 'Filter…',
 		filterIcon: null,     // cerb-icons name (e.g. 'search') shown inside the filter box, before the input
 		filterEmptyText: 'No matches',
+		filterDedupe: false,  // de-dupe flattened filter results (nested menus only): true keys by interaction
+		                      // uri+params / behavior id / href / else lowercased label; or a fn(sourceLi)->string.
+		                      // First match wins — and since root leaves flatten before nested ones, a top-level
+		                      // copy beats the same item buried in a submenu.
+		filterShowPath: true, // show the ancestor breadcrumb (eyebrow) on flattened deep matches
 	};
 
 	static from(el) {
@@ -120,6 +126,19 @@ CerbUI.Menu = class {
 			});
 		}
 		return out;
+	}
+
+	// Stable identity for a source <li> used by filterDedupe: an interaction (uri + params) or behavior id is
+	// the same action wherever it appears in the tree; otherwise fall back to an <a href>, else the label.
+	static _itemKey(el, label) {
+		const uri = el.getAttribute('data-interaction-uri');
+		if(uri) return 'i:' + uri + '?' + (el.getAttribute('data-interaction-params') || '');
+		const bid = el.getAttribute('data-behavior-id');
+		if(bid) return 'b:' + bid;
+		const a = el.querySelector ? el.querySelector('a') : null;
+		const href = a ? (a.getAttribute('href') || '') : '';
+		if(href) return 'h:' + href;
+		return 'l:' + (label || '').trim().toLowerCase();
 	}
 
 	static _spacerLi() {
@@ -393,9 +412,21 @@ CerbUI.Menu = class {
 		if(!query) {
 			pnl.items = this.root;
 		} else if(this._hasNesting()) {
-			pnl.items = this._flatten()
-				.filter(leaf => leaf.search.includes(query))
-				.map(leaf => ({ el: leaf.el, label: leaf.label, children: null, pathLabel: leaf.pathLabel }));
+			let leaves = this._flatten().filter(leaf => leaf.search.includes(query));
+			if(this.opts.filterDedupe) {
+				const keyFn = typeof this.opts.filterDedupe === 'function'
+					? (leaf => this.opts.filterDedupe(leaf.el))
+					: (leaf => leaf.key);
+				const seen = new Set();
+				leaves = leaves.filter(leaf => {
+					const k = keyFn(leaf);
+					if(seen.has(k)) return false;
+					seen.add(k);
+					return true;
+				});
+			}
+			const showPath = this.opts.filterShowPath !== false;
+			pnl.items = leaves.map(leaf => ({ el: leaf.el, label: leaf.label, children: null, pathLabel: showPath ? leaf.pathLabel : '' }));
 		} else {
 			pnl.items = this.root.filter(it => !it.separator && (it.label || '').toLowerCase().includes(query));
 		}
@@ -432,6 +463,7 @@ CerbUI.Menu = class {
 						label: it.label,
 						pathLabel: trail.length ? trail.join(' › ') : '', // › = "›" breadcrumb separator
 						search: trail.concat(it.label).join(' ').toLowerCase(),
+						key: CerbUI.Menu._itemKey(it.el, it.label), // identity for filterDedupe
 					});
 				}
 			}
