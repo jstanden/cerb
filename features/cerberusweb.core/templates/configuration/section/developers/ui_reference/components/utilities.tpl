@@ -91,6 +91,7 @@
 				<code class="cerb-uiref-utils--name cerb-u-italic" data-cerb-uiref-copy data-cerb-uiref-source title="Copy to clipboard">cerb-u-italic</code>
 				<code class="cerb-uiref-utils--name cerb-u-text-uppercase" data-cerb-uiref-copy data-cerb-uiref-source title="Copy to clipboard">cerb-u-text-uppercase</code>
 				<code class="cerb-uiref-utils--name cerb-u-text-muted" data-cerb-uiref-copy data-cerb-uiref-source title="Copy to clipboard">cerb-u-text-muted</code>
+				<code class="cerb-uiref-utils--name cerb-u-underline-hover" data-cerb-uiref-copy data-cerb-uiref-source title="Copy to clipboard">cerb-u-underline-hover</code>
 			</div>
 
 			<code class="cerb-uiref-utils--name" data-cerb-uiref-copy data-cerb-uiref-source title="Copy to clipboard">cerb-u-text-center</code>

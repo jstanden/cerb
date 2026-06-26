@@ -21,6 +21,9 @@
 .cerb-u-text-uppercase { text-transform: uppercase; }
 // Muted/secondary text — the design system's standard de-emphasized text color
 .cerb-u-text-muted { color: var(--cerb-color-background-contrast-150); }
+// Link affordance: no underline at rest, underline on hover (replaces ad-hoc A.no-underline + :hover rules)
+.cerb-u-underline-hover { text-decoration: none; }
+.cerb-u-underline-hover:hover { text-decoration: underline; }
 
 // Font weight scale — numeric steps map straight to the CSS value (Bootstrap-style `fw-*` prefix);
 // e.g. cerb-u-fw-700 = bold, cerb-u-fw-400 = normal. 800 is headroom (not yet used in components).
