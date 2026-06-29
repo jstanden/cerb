@@ -109,8 +109,16 @@ CerbUI.RecordChooser = class {
 			name:              null,
 			value:             null,
 			onSelect:          null,
+			onResults:         null,  // (items, query) after each autocomplete search renders
 			exclude:           null, // () => [ids] — extra ids to hide from autocomplete (e.g. an adder whose
 			                         // selections live elsewhere, so this.values doesn't reflect them)
+			searchButton:      true,  // false = autocomplete only (no magnifying-glass worklist popup). For an
+			                          // inline adder where the full-popup jQuery-UI dialog is unwanted.
+			query:             '',   // scope query appended to the autocomplete request (e.g. 'group:(id:5)');
+			                         // read live, so callers can re-scope at runtime via setQuery()
+			create:            false, // opt-in inline create: true | 'if-null'. Renders a "+" that opens the
+			                          // context's create peek; the saved record is added. The CALLER opts in
+			                          // (gate it on the worker's create permission); the peek save re-checks.
 		}, opts);
 
 		// Initial value(s): an explicit `value` option (an item object, a "context:id" string, or an array
@@ -155,7 +163,34 @@ CerbUI.RecordChooser = class {
 		this.searchBtn.innerHTML = '<span class="cerb-icons cerb-icon-search" aria-hidden="true"></span>';
 
 		this.el.appendChild(this.fieldEl);
-		this.el.appendChild(this.searchBtn);
+		if(this.opts.searchButton !== false) this.el.appendChild(this.searchBtn);
+
+		// Opt-in "+" create button — opens the context's create peek (context_id 0) via the existing peek
+		// system; on save the new record is added as a selection. Caller gates this on create permission.
+		this.createBtn = null;
+		if(this.opts.create) {
+			this.createBtn = document.createElement('button');
+			this.createBtn.type = 'button';
+			this.createBtn.className = 'cerb-ui-record-chooser--create-btn';
+			this.createBtn.setAttribute('aria-label', 'Create');
+			this.createBtn.setAttribute('data-context', this._context());
+			this.createBtn.setAttribute('data-context-id', '0');
+			this.createBtn.innerHTML = '<span class="cerb-icons cerb-icon-circle-plus" aria-hidden="true"></span>';
+			this.el.appendChild(this.createBtn);
+
+			// Dismiss the inline autocomplete when the create peek is invoked (mouse OR keyboard Enter fires
+			// click), matching the search button's openSearch() → core.close() behavior.
+			this.createBtn.addEventListener('click', () => { if(this.core) this.core.close(); });
+
+			if(window.jQuery && jQuery.fn.cerbPeekTrigger) {
+				jQuery(this.createBtn).cerbPeekTrigger();
+				jQuery(this.createBtn).on('cerb-peek-saved', (e) => {
+					e.stopPropagation();
+					if(e.id == null || e.id === '') return;
+					this._choose({ context: this._context(), id: e.id, label: e.label || ('#' + e.id), image_url: e.record_image_url || '' });
+				});
+			}
+		}
 
 		// Hidden form fields — kept INSIDE the chooser element (display:none, no layout effect) so the
 		// passthrough input travels with the component and is unambiguously inside the surrounding form.
@@ -169,6 +204,7 @@ CerbUI.RecordChooser = class {
 			closeOnSelect: !this.opts.multiple, // multi: stay open to add several
 			search:        (q, page) => this._search(q, page),
 			onSelect:      (item) => this._choose(item),
+			onResults:     (items, query) => { if(typeof this.opts.onResults === 'function') this.opts.onResults(items, query); },
 		});
 
 		this._onFocus = () => { if(this.opts.multiple || !this.values.length) this.core.open(); };
@@ -177,6 +213,7 @@ CerbUI.RecordChooser = class {
 		this._onElClick = (e) => {
 			if(e.target.closest('.cerb-ui-record-chooser--tile')) return;
 			if(e.target.closest('.cerb-ui-record-chooser--search-btn')) return;
+			if(e.target.closest('.cerb-ui-record-chooser--create-btn')) return;
 			if(e.target === this.input) return;
 			if(!this.input.hidden) this.input.focus();
 		};
@@ -226,6 +263,7 @@ CerbUI.RecordChooser = class {
 			const context = this._context();
 			const args = 'c=internal&a=invoke&module=records&action=autocomplete'
 				+ '&context=' + encodeURIComponent(context)
+				+ '&query=' + encodeURIComponent(this.opts.query || '')
 				+ '&term=' + encodeURIComponent(query || '');
 			genericAjaxGet('', args, (json) => {
 				const rows = Array.isArray(json) ? json : [];
@@ -258,7 +296,11 @@ CerbUI.RecordChooser = class {
 		const uid = 'recordchooser' + (window.Devblocks && Devblocks.uniqueId ? Devblocks.uniqueId() : '');
 		const url = 'c=internal&a=invoke&module=records&action=chooserOpen'
 			+ '&context=' + encodeURIComponent(context)
-			+ '&single=' + (this.opts.multiple ? '0' : '1');
+			+ '&single=' + (this.opts.multiple ? '0' : '1')
+			// Scope the popup worklist to the same `query` as the inline autocomplete (as enforced required
+			// params, `qr`, so the user can't broaden to records the chooser shouldn't allow). Read live, so
+			// setQuery() re-scopes the popup too (e.g. a coupled "On:" event select).
+			+ (this.opts.query ? '&qr=' + encodeURIComponent(this.opts.query) : '');
 		const $chooser = genericAjaxPopup(uid, url, null, true, '90%');
 		// The legacy chooser is a jQuery-UI dialog (z ~100). If it was spawned from inside a CerbUI.Dialog
 		// (z 9000+), lift it above so it isn't hidden behind the dialog.
@@ -287,6 +329,13 @@ CerbUI.RecordChooser = class {
 		} else {
 			this.values = [item];
 			this._syncState();
+			// Single-filled hides the input + search button, so a keyboard pick (autocomplete OR the search
+			// popup, which doesn't restore focus) would drop focus to <body>. Land it on the chip's × instead.
+			requestAnimationFrame(() => {
+				const tile = this.tilesEl.lastElementChild;
+				const clear = tile && tile.querySelector('.cerb-ui-record-chooser--clear');
+				if(clear) clear.focus();
+			});
 		}
 		if(typeof this.opts.onSelect === 'function') this.opts.onSelect(item);
 	}
@@ -332,8 +381,15 @@ CerbUI.RecordChooser = class {
 			name.className = 'cerb-peek-trigger no-underline cerb-ui-record-chooser--label';
 			name.setAttribute('data-context', item.context);
 			name.setAttribute('data-context-id', item.id);
+			// The peek-trigger anchor has no href, so it isn't a tab stop and cerbPeekTrigger only binds click.
+			// Make the chip keyboard-reachable (it opens the record peek) and map Enter/Space → click.
+			name.setAttribute('tabindex', '0');
+			name.setAttribute('role', 'button');
 			name.textContent = item.label;
 			if(window.jQuery && jQuery.fn.cerbPeekTrigger) jQuery(name).cerbPeekTrigger();
+			name.addEventListener('keydown', (e) => {
+				if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); name.click(); }
+			});
 		}
 		tile.appendChild(name);
 
@@ -361,6 +417,7 @@ CerbUI.RecordChooser = class {
 		this.iconEl.hidden = multi || filled;            // leading icon only for single-empty
 		this.input.hidden = !multi && filled;            // single-filled hides the input
 		this.searchBtn.hidden = !multi && filled;        // …and the search button
+		if(this.createBtn) this.createBtn.hidden = !multi && filled; // single-filled hides "+"; multiple keeps it
 		this.el.classList.toggle('cerb-ui-record-chooser--has-tiles', filled); // collapse the idle input when tiles exist
 
 		// Hidden form fields. Multi → one `name[]` per value (none when empty). Single → ALWAYS one hidden
@@ -404,7 +461,24 @@ CerbUI.RecordChooser = class {
 		if(focus) requestAnimationFrame(() => this.input.focus());
 	}
 
+	// Re-scope the autocomplete at runtime (e.g. owner scoped to the currently-selected group)
+	setQuery(query) { this.opts.query = query || ''; }
+
+	// Re-target the searched context at runtime (e.g. a "Type" select driving a single-type chooser).
+	// _context() reads opts.context live, so this re-points both the autocomplete and the search popup.
+	setContext(context) { this.opts.context = context || ''; }
+
 	openSearchPopup() { this.openSearch(); }
+
+	// (Re)open the inline autocomplete — e.g. an adder that keeps suggesting after each pick. Deferred a
+	// frame so it runs after _choose's own focus handling (single-select refocuses the just-removed tile).
+	openAutocomplete() {
+		requestAnimationFrame(() => {
+			if(this.input.hidden) return;
+			this.input.focus();
+			this.core.open();
+		});
+	}
 
 	destroy() {
 		CerbUI.RecordChooser._instances.delete(this.el);
