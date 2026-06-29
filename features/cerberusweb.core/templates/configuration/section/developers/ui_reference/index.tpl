@@ -121,6 +121,7 @@
 						<li data-target="form" data-icon="form">Form</li>
 						<li data-target="datepicker" data-icon="calendar">Datepicker</li>
 						<li data-target="colorpicker" data-icon="color-palette">ColorPicker</li>
+						<li data-target="iconpicker" data-icon="sparkles">IconPicker</li>
 						<li data-target="priority-picker" data-icon="collection">PriorityPicker</li>
 						<li data-target="selectmenu" data-icon="chevron-down">SelectMenu</li>
 						<li data-target="record-chooser" data-icon="search">RecordChooser</li>
@@ -200,6 +201,7 @@
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/form.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/datepicker.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/colorpicker.tpl"}
+			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/iconpicker.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/priority-picker.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/selectmenu.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/record-chooser.tpl"}

@@ -1,0 +1,104 @@
+// IconPicker (CerbUI.IconPicker): a small icon "well" (a button showing the chosen cerb-icon) that opens a
+// floating panel with a filterable grid of every cerb-icon + name. Modeled on CerbUI.ColorPicker.
+// Structural only; colors are tokens, so dark mode is automatic.
+
+.cerb-ui-iconpicker {
+	display: inline-flex;
+	vertical-align: middle;
+}
+
+// The value-holding <input> stays in the DOM (form submit) but is visually removed
+.cerb-ui-iconpicker--input { display: none; }
+
+// The well button — icon-sized, looks like a small control
+.cerb-ui-iconpicker--button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.9em;
+	height: 1.8em;
+	padding: 0;
+	border: 1px solid var(--cerb-color-background-contrast-220);
+	border-radius: 5px;
+	background: var(--cerb-color-background-contrast-235);
+	color: var(--cerb-color-text);
+	cursor: pointer;
+
+	&:hover { background: var(--cerb-color-background-contrast-240); border-color: var(--cerb-color-action-primary); }
+	&:active { background: var(--cerb-color-background-contrast-245); }
+
+	.cerb-icons { font-size: 1.15em; }
+}
+
+.cerb-ui-iconpicker--empty .cerb-ui-iconpicker--button { color: var(--cerb-color-background-contrast-150); }
+
+// ── Floating panel ───────────────────────────────────────────────────────────
+.cerb-ui-iconpicker--panel {
+	position: absolute;
+	z-index: 10001; // above dialogs/popups (matches the menu/chooser layer)
+	box-sizing: border-box;
+	width: 320px;
+	max-width: 92vw;
+	padding: 0.5em;
+	background: var(--cerb-color-background);
+	color: var(--cerb-color-text);
+	border: 1px solid var(--cerb-color-background-contrast-220);
+	border-radius: 8px;
+	box-shadow: 0 0 10px 3px var(--cerb-color-shadow-menu);
+
+	&[hidden] { display: none; }
+}
+
+.cerb-ui-iconpicker--search {
+	width: 100%;
+	box-sizing: border-box;
+	margin-bottom: 0.5em;
+}
+
+.cerb-ui-iconpicker--grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
+	gap: 0.3em;
+	max-height: 280px;
+	overflow-y: auto;
+}
+
+.cerb-ui-iconpicker--cell {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-start;
+	gap: 0.35em;
+	min-height: 4.5em;
+	padding: 0.55em 0.25em;
+	border: 0;
+	border-radius: 6px;
+	background: none;
+	color: var(--cerb-color-text);
+	cursor: pointer;
+
+	&:hover { background: var(--cerb-color-background-contrast-240); color: var(--cerb-color-link); }
+	// Keyboard "active" cell (aria-activedescendant) — focus stays in the filter box, so this is the
+	// only visible cursor for arrow-key navigation.
+	&--active {
+		background: var(--cerb-color-background-contrast-240);
+		color: var(--cerb-color-link);
+		outline: 2px solid var(--cerb-color-action-primary);
+		outline-offset: -2px;
+	}
+	.cerb-icons { font-size: 1.8em; }
+	&[hidden] { display: none; } // beats the flex display at equal specificity
+}
+
+.cerb-ui-iconpicker--cell-name {
+	width: 100%;
+	font-size: 0.72em;
+	line-height: 1.2;
+	text-align: center;
+	color: var(--cerb-color-background-contrast-150);
+	overflow-wrap: anywhere; // wrap long names instead of cropping
+}
+
+.cerb-ui-iconpicker--clear {
+	margin-top: 0.5em;
+}

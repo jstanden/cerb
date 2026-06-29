@@ -67,6 +67,8 @@ class Controller_UI extends DevblocksControllerExtension {
 				return $this->_uiAction_getContextPlaceholdersJson();
 			case 'getMentionsJson':
 				return $this->_uiAction_getMentionsJson();
+			case 'iconsJson':
+				return $this->_uiAction_iconsJson();
 			case 'image':
 				return $this->_uiAction_image();
 			case 'kataSuggestionsAutomationCommandParamsJson':
@@ -413,6 +415,13 @@ class Controller_UI extends DevblocksControllerExtension {
 		echo json_encode([]);
 	}
 	
+	// The full list of cerb-icons names — drives CerbUI.IconPicker (fetched once, client-cached).
+	private function _uiAction_iconsJson() {
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+		$icons = DevblocksPlatform::services()->ui()->getCerbIcons();
+		echo json_encode(array_values($icons));
+	}
+
 	private function _uiAction_kataSuggestionsIconJson() {
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		
