@@ -85,6 +85,8 @@ CerbUI.chooserCore = (function() {
 			hideOnEmpty: null,           // 0 matches → hide the panel (no placeholder); null = auto (on for inline autocomplete, off for the self-contained popup)
 			onSelect:    null,           // (item) => {}
 			onClose:     null,
+			onResults:   null,           // (items, query) => {} after each search renders (e.g. an adder that
+			                             // hides itself when the empty query returns nothing left to add)
 		}, opts);
 
 		let open = false;
@@ -204,7 +206,7 @@ CerbUI.chooserCore = (function() {
 				empty.className = 'cerb-ui-chooser--empty';
 				empty.textContent = loading ? '…' : o.emptyText;
 				list.appendChild(empty);
-			} else if(hideOnEmpty && panel.hidden) {
+			} else if(open && hideOnEmpty && panel.hidden) {
 				panel.hidden = false; // results returned after a hide → show again (positioned below)
 			}
 
@@ -240,9 +242,11 @@ CerbUI.chooserCore = (function() {
 				more = !!res.more;
 				items = append ? items.concat(res.results || []) : (res.results || []);
 				renderRows(append);
+				if(typeof o.onResults === 'function') o.onResults(items, query);
 			} catch(e) {
 				items = append ? items : [];
 				renderRows(false);
+				if(typeof o.onResults === 'function') o.onResults(items, query);
 			} finally {
 				loading = false;
 			}
@@ -297,7 +301,10 @@ CerbUI.chooserCore = (function() {
 		function doOpen() {
 			if(open) return;
 			open = true;
-			panel.hidden = false;
+			// Inline autocomplete (hideOnEmpty) stays hidden until the first results arrive — an empty
+			// query or a 0-match search then never flashes a blank menu (renderRows reveals it). The
+			// self-contained popup (shows a "No matches" line) still opens immediately.
+			if(!hideOnEmpty) panel.hidden = false;
 			position();
 			if(!useExternalInput) search.value = ''; // our own box starts empty; an external field keeps its text
 			query = search.value.trim();
