@@ -27,6 +27,10 @@ CerbUI.Switcher = class {
 		if(!this.el || !this._buttons.length)
 			return;
 
+		// A bare <button> defaults to type=submit; inside a form, keyboard Enter (or a click) would submit it.
+		// Force type=button so the segmented control only fires onSelect.
+		this._buttons.forEach((b) => { if(!b.getAttribute('type')) b.type = 'button'; });
+
 		// Resolve the initial value: explicit option -> stored -> existing active button -> first button
 		let initial = options.value;
 
