@@ -13,7 +13,7 @@
 		var $input = $prompt.find('input');
 
 		{if 'date' == $type}
-		$input.cerbDateInputHelper();
+		$input.each(function() { if(window.CerbUI && CerbUI.DatePicker) new CerbUI.DatePicker.FormInput(this); });
 		{/if}
 	});
 </script>

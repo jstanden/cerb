@@ -26,6 +26,46 @@
 	}
 }
 
+// ── FormInput: the toggle inset as a leading icon-button INSIDE the field (CerbUI.DatePicker.FormInput) ──
+// As a sibling after the input the toggle wraps to a new line in tight cells; here it floats at the field's
+// left edge (like other leading icon hints), styled like the RecordChooser search/add buttons, with the
+// input reserving room for it (and for typing) via padding.
+.cerb-ui-datepicker-forminput {
+	position: relative;
+	// Transparent to layout: grow as the input would have (the input usually carries flex:1 1 auto in a flex
+	// row), and fill the width as a block-level flex container in a table cell — otherwise the wrapper would
+	// shrink-wrap and the field reads much narrower than sibling choosers/inputs.
+	display: flex;
+	flex: 1 1 auto;
+	min-width: 0;
+
+	> input {
+		// Fill the wrapper (the toggle is position:absolute, so it takes no flex space); reserve room on the
+		// left for the inset toggle. min-width:0 lets it shrink in tight cells instead of overflowing.
+		flex: 1 1 auto;
+		min-width: 0;
+		padding-left: 2.9em;
+	}
+
+	> .cerb-ui-datepicker--toggle {
+		position: absolute;
+		left: 4px;
+		top: 50%;
+		transform: translateY(-50%);
+
+		// Match .cerb-ui-record-chooser--search-btn / --create-btn
+		width: 1.9em;
+		height: 1.6em;
+		padding: 0;
+		border: 1px solid var(--cerb-color-background-contrast-220);
+		border-radius: 5px;
+		background: var(--cerb-color-background-contrast-235);
+
+		&:hover { background: var(--cerb-color-background-contrast-240); border-color: var(--cerb-color-action-primary); }
+		&:active { background: var(--cerb-color-background-contrast-245); }
+	}
+}
+
 .cerb-ui-datepicker {
 	position: absolute;
 	z-index: 10001; // above jQuery UI dialogs (~100s), .cerb-float popups (2500), and tooltips (10000)

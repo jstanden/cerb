@@ -248,7 +248,7 @@ $(function() {
 		
 		// Date helper
 		$popup.find('input[name="params[status][reopen_at]"]')
-			.cerbDateInputHelper()
+			.each(function() { if(window.CerbUI && CerbUI.DatePicker) new CerbUI.DatePicker.FormInput(this); })
 			;
 		
 		// Checkboxes

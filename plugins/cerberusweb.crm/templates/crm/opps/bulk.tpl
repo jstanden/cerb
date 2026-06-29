@@ -104,7 +104,7 @@ $(function() {
 		});
 
 		$popup.find('input[name=closed_date]')
-			.cerbDateInputHelper()
+			.each(function() { if(window.CerbUI && CerbUI.DatePicker) new CerbUI.DatePicker.FormInput(this); })
 			.next('button').on('click', function(e) {
 				e.stopPropagation();
 			}

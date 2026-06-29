@@ -752,3 +752,134 @@ CerbUI.DatePicker = class {
 		this.el.remove();
 	}
 };
+
+/*
+ * CerbUI.DatePicker.FormInput — the full free-text date field (replaces the legacy jQuery `cerbDateInputHelper`).
+ * Composes a CerbUI.DatePicker (calendar button) + a CerbUI.TextChooser token autocomplete (calendar/timezone
+ * tokens) + a server-side natural-language parse: on blur/Enter the typed value (e.g. "+2 hours @Cal",
+ * "next monday 5pm America/New York") is POSTed to calendars/parseDateJson and replaced with the resolved date.
+ * Fires a `cerb-date-changed` CustomEvent on the input after a successful parse (the one public event).
+ *
+ *   new CerbUI.DatePicker.FormInput(inputEl, { submit: fn });  // submit: optional, run on Ctrl+Shift+Enter
+ *
+ * Requires CerbUI.DatePicker + CerbUI.TextChooser + genericAjaxPost.
+ */
+CerbUI.DatePicker.FormInput = class {
+	static _instances = new WeakMap();
+	static from(el) { return CerbUI.DatePicker.FormInput._instances.get(el); }
+
+	constructor(inputEl, opts = {}) {
+		this.inputEl = (inputEl && inputEl.jquery) ? inputEl[0] : ((typeof inputEl === 'string') ? document.querySelector(inputEl) : inputEl);
+		if(!this.inputEl || !window.CerbUI || !CerbUI.DatePicker || !CerbUI.TextChooser) return;
+		if(CerbUI.DatePicker.FormInput._instances.has(this.inputEl)) return CerbUI.DatePicker.FormInput.from(this.inputEl);
+
+		this.opts = Object.assign({ submit: null }, opts);
+		this._changed = false;            // value edited since the last parse — drives parse-on-blur/enter
+		this._suppressEnterParse = false; // a suggestion was just accepted via Enter — don't ALSO parse that Enter
+
+		this.inputEl.setAttribute('placeholder', '+2 hours; +4 hours @Calendar; Jan 15 2018 2pm; 5pm America/New York');
+
+		// Calendar popup (button trigger). Picking a day marks the field changed so the next blur re-parses it
+		// (round-tripping the formatted date through the server parser + firing cerb-date-changed).
+		this.picker = new CerbUI.DatePicker(this.inputEl, {
+			trigger:      'button',
+			parseFormat:  'DDD, DD MMM YYYY',
+			outputFormat: 'DDD, DD MMM YYYY',
+			onSelect:     () => { this._changed = true; },
+		});
+
+		// Tuck the calendar toggle inside the field's right edge — as a sibling after the input it wraps to a
+		// new line in tight cells. Wrap input + toggle in a relative box; CSS pins the button inside on the right.
+		const toggle = this.picker.toggleBtn;
+		if(toggle && this.inputEl.parentNode) {
+			this._fieldWrap = document.createElement('span');
+			this._fieldWrap.className = 'cerb-ui-datepicker-forminput';
+			this.inputEl.parentNode.insertBefore(this._fieldWrap, this.inputEl);
+			this._fieldWrap.appendChild(this.inputEl);
+			this._fieldWrap.appendChild(toggle);
+		}
+
+		// Token autocomplete: complete the last space-delimited word against calendar names + timezones.
+		this.tc = new CerbUI.TextChooser(this.inputEl, {
+			minLength: 1,
+			source:    'c=internal&a=invoke&module=calendars&action=getDateInputAutoCompleteOptionsJson',
+			getTerm:   function(v) { return v.split(' ').pop(); },
+			onSelect:  (item, input) => {
+				const terms = input.value.split(' ');
+				terms.pop();
+				terms.push(item.value);
+				terms.push('');
+				input.value = terms.join(' ');
+				this._changed = true;
+				this._suppressEnterParse = true;
+			},
+		});
+
+		this._onBlur = () => this._parse(null);
+		this._onKeydown = (e) => {
+			this._changed = true;
+			if(e.key === 'Enter' || e.keyCode === 13) {
+				e.preventDefault();
+				// chooserCore (created first) already handled an active suggestion → its onSelect set this flag.
+				if(this._suppressEnterParse) { this._suppressEnterParse = false; return; }
+				this._parse(e);
+			}
+		};
+		this.inputEl.addEventListener('blur', this._onBlur);
+		this.inputEl.addEventListener('keydown', this._onKeydown);
+
+		CerbUI.DatePicker.FormInput._instances.set(this.inputEl, this);
+	}
+
+	_submit() { if(typeof this.opts.submit === 'function') this.opts.submit(); }
+
+	// Ctrl+Shift+Enter runs the optional submit hook (after a successful parse, or immediately when unchanged).
+	_isSubmitChord(e) { return !!(e && e.shiftKey && e.ctrlKey && (e.key === 'Enter' || e.keyCode === 13)); }
+
+	_parse(keyEvt) {
+		const input = this.inputEl;
+
+		if(!this._changed) {
+			if(this._isSubmitChord(keyEvt)) this._submit();
+			return;
+		}
+
+		if(this.tc) this.tc.close();
+
+		// Leave placeholder expressions ({{…}}) untouched — don't resolve them to a literal date.
+		if(input.value.indexOf('{') !== -1)
+			return;
+
+		const fd = new FormData();
+		fd.set('c', 'internal');
+		fd.set('a', 'invoke');
+		fd.set('module', 'calendars');
+		fd.set('action', 'parseDateJson');
+		fd.set('date', input.value);
+
+		const self = this;
+		genericAjaxPost(fd, '', '', function(json) {
+			if(json === false || json == null) {
+				input.value = ''; // [TODO] surface a parse error inline
+			} else {
+				input.value = json.to_string;
+				input.dispatchEvent(new CustomEvent('cerb-date-changed', { bubbles: true }));
+			}
+			if(self._isSubmitChord(keyEvt)) self._submit();
+			self._changed = false;
+		});
+	}
+
+	destroy() {
+		CerbUI.DatePicker.FormInput._instances.delete(this.inputEl);
+		this.inputEl.removeEventListener('blur', this._onBlur);
+		this.inputEl.removeEventListener('keydown', this._onKeydown);
+		if(this.tc) this.tc.destroy();
+		if(this.picker) this.picker.destroy();
+		// Unwrap: lift the input back out and drop the field box (the toggle was already removed by the picker).
+		if(this._fieldWrap && this._fieldWrap.parentNode) {
+			this._fieldWrap.parentNode.insertBefore(this.inputEl, this._fieldWrap);
+			this._fieldWrap.remove();
+		}
+	}
+};

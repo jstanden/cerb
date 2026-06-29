@@ -741,15 +741,15 @@ $(function() {
 		// Dates
 		
 		$frm.find('input[name=send_at]')
-			.cerbDateInputHelper()
+			.each(function() { if(window.CerbUI && CerbUI.DatePicker) new CerbUI.DatePicker.FormInput(this); })
 			;
 			
 		$frm.find('input[name=ticket_reopen]')
-			.cerbDateInputHelper({
+			.each(function() { if(window.CerbUI && CerbUI.DatePicker) new CerbUI.DatePicker.FormInput(this, {
 				submit: function(e) {
 					$('#reply{$message->id}_buttons a.send').click();
 				}
-			})
+			}); })
 			
 		// Insert suggested on click
 

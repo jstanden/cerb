@@ -24,7 +24,7 @@
 					return;
 				}
 			})
-			.cerbDateInputHelper()
+			.each(function() { if(window.CerbUI && CerbUI.DatePicker) new CerbUI.DatePicker.FormInput(this); })
 			.on('cerb-date-changed', function(e) {
 				$button_send.fadeIn().focus();
 			})

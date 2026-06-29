@@ -83,6 +83,28 @@ new CerbUI.DatePicker(buttonEl, {
 // picker.refreshIndicators();  // drop the cache + repaint after data changes</pre>
 			</div>
 		</div>
+
+		{* Example: FormInput — the free-text natural-language date field (replaces legacy cerbDateInputHelper) *}
+		<div class="cerb-ui-header">
+			<div class="cerb-ui-header--label">FormInput &mdash; free-text date field: type <code>+2 hours</code>, <code>next monday 5pm America/New York</code>, or an <code>@Calendar</code> token (autocompleted); blur or <code>Enter</code> resolves it server-side. Fires <code>cerb-date-changed</code></div>
+		</div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<input type="text" id="uiref-datepicker-forminput" size="40">
+				<span class="cerb-uiref-result" style="margin-left:0.7em;">Resolved: <b id="uiref-datepicker-forminput-result">&mdash;</b></span>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>// Calendar button + calendar/timezone autocomplete + server-side natural-language parse.
+new CerbUI.DatePicker.FormInput(el, {
+	// submit: function() { /* run on Ctrl+Shift+Enter, after the date resolves */ },
+});
+
+// fires `cerb-date-changed` on the input after a successful parse:
+el.addEventListener('cerb-date-changed', () =&gt; console.log(el.value));</pre>
+			</div>
+		</div>
 	</div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}">
@@ -125,6 +147,16 @@ new CerbUI.DatePicker(buttonEl, {
 				},
 				onSelect: function(date, formatted) { if(out) out.textContent = formatted; },
 			});
+		}
+	})();
+
+	// DatePicker.FormInput: free-text natural-language date field
+	(function() {
+		const el = document.getElementById('uiref-datepicker-forminput');
+		const out = document.getElementById('uiref-datepicker-forminput-result');
+		if(el && window.CerbUI && CerbUI.DatePicker && CerbUI.DatePicker.FormInput) {
+			new CerbUI.DatePicker.FormInput(el);
+			el.addEventListener('cerb-date-changed', function() { if(out) out.textContent = el.value || '—'; });
 		}
 	})();
 })();
