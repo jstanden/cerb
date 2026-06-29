@@ -117,6 +117,7 @@
 					<ul>
 						<li data-target="button" data-icon="pointer">Button</li>
 						<li data-target="toggle" data-icon="toggle">Toggle</li>
+						<li data-target="slider" data-icon="slider">Slider</li>
 						<li data-target="switcher" data-icon="adjust">Switcher</li>
 						<li data-target="form" data-icon="form">Form</li>
 						<li data-target="datepicker" data-icon="calendar">Datepicker</li>
@@ -204,6 +205,7 @@
 			<h2 class="cerb-uiref-grouplabel" id="group-inputs">Inputs &amp; editors</h2>
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/button.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/toggle.tpl"}
+			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/slider.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/switcher.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/form.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/datepicker.tpl"}

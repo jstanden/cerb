@@ -1,0 +1,114 @@
+// Slider: a draggable 0..N value control (successor to the legacy jQuery-UI .cerb-delta-slider).
+// Markup is built by CerbUI.Slider from a host <div class="cerb-ui-slider"> + hidden <input>.
+// A `--fill` custom property drives both the range bar and the thumb border, so the delta-color
+// state classes only have to reassign one variable.
+.cerb-ui-slider {
+	--cerb-ui-slider-track-h: 7px;
+	--cerb-ui-slider-thumb: 16px;
+	--cerb-ui-slider-fill: var(--cerb-color-link);
+
+	position: relative;
+	display: block;
+	width: 100%;
+	box-sizing: border-box;
+	// Room so the thumb (centered on its position) isn't clipped at the ends or top (bubble)
+	padding: calc(var(--cerb-ui-slider-thumb) / 2) calc(var(--cerb-ui-slider-thumb) / 2);
+	user-select: none;
+	touch-action: none;
+
+	&--track {
+		position: relative;
+		height: var(--cerb-ui-slider-track-h);
+		background-color: var(--cerb-color-background-contrast-220);
+		border-radius: 999px;
+		box-shadow: inset 0 0 0 1px var(--cerb-color-background-contrast-200);
+	}
+
+	&--range {
+		position: absolute;
+		top: 0;
+		height: 100%;
+		background-color: var(--cerb-ui-slider-fill);
+		border-radius: 999px;
+	}
+
+	&--midpoint {
+		position: absolute;
+		top: 50%;
+		width: 2px;
+		height: calc(var(--cerb-ui-slider-track-h) + 8px);
+		transform: translate(-50%, -50%);
+		background-color: var(--cerb-color-background-contrast-180);
+		border-radius: 2px;
+		pointer-events: none;
+	}
+
+	&--thumb {
+		position: absolute;
+		top: 50%;
+		left: 0;
+		width: var(--cerb-ui-slider-thumb);
+		height: var(--cerb-ui-slider-thumb);
+		transform: translate(-50%, -50%);
+		background-color: white;
+		border: 2px solid var(--cerb-ui-slider-fill);
+		border-radius: 50%;
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+		cursor: grab;
+		outline: none;
+		transition: width 0.12s ease, height 0.12s ease, box-shadow 0.12s ease;
+	}
+
+	&--thumb:focus-visible {
+		box-shadow: 0 0 0 4px var(--cerb-color-background-contrast-200);
+	}
+
+	// Enlarge the handle on hover / while dragging
+	&--thumb:hover,
+	&.cerb-ui-slider--dragging &--thumb {
+		width: calc(var(--cerb-ui-slider-thumb) + 5px);
+		height: calc(var(--cerb-ui-slider-thumb) + 5px);
+	}
+
+	&.cerb-ui-slider--dragging &--thumb {
+		cursor: grabbing;
+	}
+
+	// Delta coloring (set when a midpoint is configured)
+	&.cerb-ui-slider--below { --cerb-ui-slider-fill: var(--cerb-color-ui-slider-low); }
+	&.cerb-ui-slider--above { --cerb-ui-slider-fill: var(--cerb-color-ui-slider-high); }
+	&.cerb-ui-slider--at    { --cerb-ui-slider-fill: var(--cerb-color-background-contrast-170); }
+
+	// Inverted scale (e.g. responsibilities): below = red, above = green
+	&.cerb-ui-slider--invert.cerb-ui-slider--below { --cerb-ui-slider-fill: var(--cerb-color-ui-slider-high); }
+	&.cerb-ui-slider--invert.cerb-ui-slider--above { --cerb-ui-slider-fill: var(--cerb-color-ui-slider-low); }
+
+	&.cerb-ui-slider--disabled {
+		opacity: 0.5;
+		pointer-events: none;
+	}
+
+	// Read-only static render (worklist cells, profile readouts): a solid colored dot on the track,
+	// positioned + colored in markup via the state classes. No JS, no interaction.
+	&.cerb-ui-slider--readonly {
+		display: inline-block;
+		width: auto;
+		vertical-align: middle;
+		cursor: default;
+		touch-action: auto;
+
+		.cerb-ui-slider--thumb {
+			background-color: var(--cerb-ui-slider-fill);
+			border: 0;
+			box-shadow: none;
+			cursor: default;
+			transition: none;
+		}
+
+		// No hover-enlarge on a read-only indicator
+		.cerb-ui-slider--thumb:hover {
+			width: var(--cerb-ui-slider-thumb);
+			height: var(--cerb-ui-slider-thumb);
+		}
+	}
+}
