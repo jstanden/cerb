@@ -51,6 +51,50 @@
 		box-shadow: none;
 	}
 
+	// CerbUI.TextChooser with a leading icon: indent the text past the glyph. The wrapped input keeps the
+	// form chrome (above) but needs extra left padding; it has no class of its own, so target it via the
+	// wrapper. Same specificity as the input[type] rule above, declared LATER so this padding-left wins
+	// (otherwise the form's `padding` shorthand resets it — fine in the icon-less gallery, not here).
+	.cerb-ui-text-chooser--has-icon > input { padding-left: 2.2em; }
+
+	// CerbUI.DatePicker.FormInput: same story — the leading calendar toggle-button overlays the input's left,
+	// so indent the typed text past it (the partial sets this too, but the form's `padding` shorthand resets
+	// it; restoring it here at equal specificity but later source order wins).
+	.cerb-ui-datepicker-forminput > input { padding-left: 2.9em; }
+
+	// Password inputs carry an inset lock icon (cerb-styles' INPUT[type=password] background). The form's
+	// `padding` shorthand above resets its reserved left room — restore it here (later source order wins) so
+	// the typed text clears the lock instead of overlapping it.
+	input[type="password"] { padding-left: 2.2em; }
+
+	// The overlay editors (KataEditor / JsonEditor / ScriptingEditor / DataQuery / SearchQuery / MarkdownEditor)
+	// each render a transparent <textarea> over a colored mirror inside .cerb-ui-<editor>. The `textarea` rule
+	// above (0,1,1, and imported AFTER these components) out-specifies the component's own --input (0,1,0) and
+	// would re-add native chrome + opaque text + the wrong padding (which drifts the text off its mirror). Reset
+	// the shared chrome here (with :focus, so (0,3,1) also beats the form's focus rule) and restore each
+	// component's padding — it MUST match that component's --highlight mirror. When adding a new overlay editor,
+	// add it to both lists.
+	textarea.cerb-ui-kataeditor--input,      textarea.cerb-ui-kataeditor--input:focus,
+	textarea.cerb-ui-jsoneditor--input,      textarea.cerb-ui-jsoneditor--input:focus,
+	textarea.cerb-ui-scriptingeditor--input, textarea.cerb-ui-scriptingeditor--input:focus,
+	textarea.cerb-ui-dataquery--input,       textarea.cerb-ui-dataquery--input:focus,
+	textarea.cerb-ui-searchquery--input,     textarea.cerb-ui-searchquery--input:focus,
+	textarea.cerb-ui-markdowneditor--input,  textarea.cerb-ui-markdowneditor--input:focus {
+		border: 0;
+		border-radius: 0;
+		background: transparent;
+		color: transparent;
+		outline: none;
+		box-shadow: none;
+	}
+
+	textarea.cerb-ui-kataeditor--input      { padding: var(--cerb-ui-kataeditor-pad-y) var(--cerb-ui-kataeditor-pad-x); }
+	textarea.cerb-ui-jsoneditor--input      { padding: var(--cerb-ui-jsoneditor-pad-y) var(--cerb-ui-jsoneditor-pad-x); }
+	textarea.cerb-ui-scriptingeditor--input { padding: var(--cerb-ui-scriptingeditor-pad-y) var(--cerb-ui-scriptingeditor-pad-x); }
+	textarea.cerb-ui-dataquery--input       { padding: var(--cerb-ui-dataquery-pad-y) var(--cerb-ui-dataquery-pad-x); }
+	textarea.cerb-ui-searchquery--input     { padding: var(--cerb-ui-searchquery-pad-y) 0; }
+	textarea.cerb-ui-markdowneditor--input  { padding: var(--cerb-ui-markdowneditor-pad-y) var(--cerb-ui-markdowneditor-pad-x); }
+
 	textarea {
 		line-height: 1.5;
 	}
@@ -91,10 +135,14 @@
 	color: var(--cerb-color-tag-red);
 }
 
-// Inline muted helper beside a label ("optional", "(leave blank…)")
+// Inline muted helper beside a label ("optional", "(leave blank…)"). Sits to the RIGHT of the label text
+// with a gap so it never abuts/collides with it (e.g. "PASSPHRASE optional"); normal-case (the label is
+// uppercase) so the hint reads as a distinct aside.
 .cerb-ui-form--hint {
+	margin-left: 0.5em;
 	font-size: 0.85em;
 	font-weight: normal;
+	text-transform: none;
 	color: var(--cerb-color-background-contrast-150);
 }
 
