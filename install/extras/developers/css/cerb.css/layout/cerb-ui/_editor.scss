@@ -23,6 +23,64 @@
 // color (white) and just dim it so it still reads as secondary.
 .cerb-ui-menu--item-active .cerb-ui-editor-menu-hint { color: inherit; opacity: 0.7; }
 
+// Wider panel for rich / two-line suggestion rows (avatar @mentions, or a #command label + description) so the
+// label and its description have room — overrides the base menu panel's 320px cap. editor-core adds the class
+// (panelClass) only when a row carries an avatar or a subtitle.
+.cerb-ui-menu--panel.cerb-ui-editor-menu--wide {
+    min-width: 340px;
+    max-width: 520px;
+}
+
+// ── Rich suggestion rows (e.g. @mention: avatar + name/@handle on one line + an optional subtitle line) ──
+// Opt-in: only items whose source supplied avatar fields get this layout (editor-core adds --rich). The row
+// height is FIXED at 40px so it stays in lockstep with the Menu's itemHeight (40) for virtualized scroll math
+// (rows without a subtitle just centre the single line in the same 40px so every row is uniform height).
+.cerb-ui-menu--item.cerb-ui-editor-menu--rich {
+    height: 40px;
+    align-items: center;
+    gap: 0.6em;
+}
+.cerb-ui-editor-menu--avatar {
+    flex: 0 0 auto;
+}
+.cerb-ui-editor-menu--text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    line-height: 1.25;
+    overflow: hidden;
+}
+// Line 1 — name (left) + @handle (right).
+.cerb-ui-editor-menu--nameline {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5em;
+    min-width: 0;
+}
+.cerb-ui-editor-menu--name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.cerb-ui-editor-menu--handle {
+    flex: 0 0 auto;
+    color: var(--cerb-color-background-contrast-150);
+    font-size: 0.9em;
+}
+.cerb-ui-menu--item-active .cerb-ui-editor-menu--handle { color: inherit; opacity: 0.7; }
+// Line 2 — the subtitle (e.g. job title), muted.
+.cerb-ui-editor-menu--sub {
+    font-size: 0.82em;
+    color: var(--cerb-color-background-contrast-150);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.cerb-ui-menu--item-active .cerb-ui-editor-menu--sub { color: inherit; opacity: 0.7; }
+
 // ── KataScript (Twig-syntax) token colors, shared by every editor that embeds scripting tags ──
 // Produced by CerbUI.editorCore.kataScript.tokenize(); reuse the legacy --cerb-editor-syntax-twig* palette.
 // COLOR ONLY — never font-weight/style, or the mirror's glyph advances stop matching the textarea's and the

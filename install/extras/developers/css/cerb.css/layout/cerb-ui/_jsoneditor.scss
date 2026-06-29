@@ -23,6 +23,7 @@
         flex-shrink: 0;
         box-sizing: border-box;
         padding: var(--cerb-ui-jsoneditor-pad-y) 0.5em;
+        background: var(--cerb-editor-gutter-background);
         border-right: 1px solid var(--cerb-editor-gutter-border, var(--cerb-color-background-contrast-200));
         overflow: hidden;
         line-height: 1.5;
