@@ -27,6 +27,76 @@ CerbUI.RecordChooser = class {
 	static _instances = new WeakMap();
 	static from(el) { return CerbUI.RecordChooser._instances.get(el); }
 
+	// Attach a record-search popup to a trigger element (e.g. a clickable "ID" label) that, on pick, inserts
+	// the chosen record's id into a sibling text field — for DUAL-PURPOSE fields that also accept render-time
+	// placeholders ({{...}}), where we only write a literal id when the user explicitly picks one. Replaces the
+	// legacy `<a class="cerb-chooser">.cerbChooserTrigger()` + `cerb-chooser-selected` wiring. Reuses chooserCore
+	// (its own search box, anchored to the link) + the autocomplete endpoint. The context is read from the
+	// link's `data-context` unless `opts.context` is given. Default insert format is `id{# label #}` (a Cerb
+	// placeholder comment — the `#}` keeps the human label visible while the value resolves to the id).
+	static pickerLink(linkEl, opts = {}) {
+		linkEl = (linkEl && linkEl.jquery) ? linkEl[0] : linkEl;
+		if(!linkEl || !window.CerbUI || !CerbUI.chooserCore) return null;
+
+		// Read live so a dynamic data-context (e.g. a "Type" <select> driving the search) takes effect per
+		// search; static callers (fixed data-context / opts.context) re-read the same value — no change.
+		const getContext = () => opts.context || linkEl.getAttribute('data-context') || '';
+		const query = opts.query || '';
+		let inputEl = opts.input || null;
+		if(inputEl && inputEl.jquery) inputEl = inputEl[0];
+
+		const onPick = (typeof opts.onPick === 'function') ? opts.onPick : function(item) {
+			if(!inputEl) return;
+			const val = item.id + '{# ' + item.label + ' #}';
+			// The input may have been enhanced into a CerbUI.ScriptingEditor (e.g. legacy-bot `.placeholders`
+			// fields): the original input is then a hidden value-carrier and the visible surface is the editor,
+			// which only syncs editor→carrier. Writing inputEl.value alone updates the carrier but not the visible
+			// editor (the pick wouldn't appear until reload). Drive the editor instead when present.
+			const wrap = inputEl.closest && inputEl.closest('.cerb-ui-scriptingeditor');
+			const ed = (wrap && window.CerbUI && CerbUI.ScriptingEditor && CerbUI.ScriptingEditor.from)
+				? CerbUI.ScriptingEditor.from(wrap) : null;
+			if(ed && typeof ed.setValue === 'function') ed.setValue(val);
+			else inputEl.value = val;
+		};
+
+		const search = (term) => new Promise((resolve) => {
+			if(typeof genericAjaxGet !== 'function') { resolve({ results: [], more: false }); return; }
+			const context = getContext();
+			const args = 'c=internal&a=invoke&module=records&action=autocomplete'
+				+ '&context=' + encodeURIComponent(context)
+				+ '&query=' + encodeURIComponent(query)
+				+ '&term=' + encodeURIComponent(term || '');
+			genericAjaxGet('', args, (json) => {
+				const rows = Array.isArray(json) ? json : [];
+				resolve({
+					results: rows.filter((r) => r.value && r.value !== '0').map((r) => ({
+						context:   context,
+						id:        r.value,
+						label:     r.label,
+						image_url: r.icon || '',
+						sublabel:  r.meta ? Object.values(r.meta).filter(Boolean).join(' · ') : '',
+					})),
+					more: false,
+				});
+			}, { error: () => resolve({ results: [], more: false }) });
+		});
+
+		const core = CerbUI.chooserCore.create({
+			anchor:        linkEl,
+			search:        search,
+			closeOnSelect: true,
+			onSelect:      (item) => onPick(item),
+		});
+
+		linkEl.addEventListener('click', (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			core.isOpen() ? core.close() : core.open();
+		});
+
+		return core;
+	}
+
 	constructor(el, opts = {}) {
 		this.el = (typeof el === 'string') ? document.querySelector(el) : el;
 		if(!this.el) return;

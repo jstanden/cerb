@@ -91,6 +91,43 @@
 // Click empty space to type; click a tile for its card peek; × removes a tile.</pre>
 			</div>
 		</div>
+
+		{* Picker link — a static helper that attaches a search popup to a trigger and writes the picked id into a sibling field *}
+		<div class="cerb-ui-header">
+			<div class="cerb-ui-header--label">Picker link (<code>CerbUI.RecordChooser.pickerLink</code>) &mdash; a <strong>static helper</strong> (no instance/chip). Attach a record-search popup to a clickable trigger (e.g. an &ldquo;ID&rdquo; label); on pick it inserts the chosen record&rsquo;s id into a sibling text field. For <strong>dual-purpose fields</strong> that also accept render-time placeholders (<code>{literal}{{…}}{/literal}</code>) &mdash; it only writes a literal id when the user explicitly picks one. The context comes from the link&rsquo;s <code>data-context</code> (read live, so a coupled &ldquo;Type&rdquo; select can drive it) unless <code>opts.context</code> is given. Default insert format is <code>{literal}id{# label #}{/literal}</code> &mdash; a Cerb placeholder comment that keeps the human label visible while the value resolves to the id</div>
+		</div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-2">
+					<a href="javascript:;" id="uiref-recordchooser-pickerlink" data-context="worker" class="no-underline"><span class="cerb-icons cerb-icon-search"></span> Pick a worker&hellip;</a>
+					<input type="text" id="uiref-recordchooser-pickerlink-input" size="40" placeholder="picked id appears here (or type {literal}{{placeholders}}{/literal})">
+				</div>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>&lt;!-- the trigger carries the context; the input is the dual-purpose field it writes into --&gt;
+&lt;a href="javascript:;" data-context="worker"&gt;&lt;span class="cerb-icons cerb-icon-search"&gt;&lt;/span&gt; Pick a worker&hellip;&lt;/a&gt;
+&lt;input type="text" name="worker_id" size="40"&gt;</pre>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>{literal}const core = CerbUI.RecordChooser.pickerLink(linkEl, {
+	input:   inputEl,                  // the sibling field to write into (DOM node or jQuery)
+	context: 'worker',                 // optional: overrides the link's data-context (read live if omitted)
+	query:   'group:(id:5)',           // optional: scope query appended to the autocomplete request
+	onPick:  function(item) {          // optional: custom handler. Default writes `id{# label #}` to `input`.
+		// item = { context, id, label, image_url, sublabel }
+		inputEl.value = item.id;       // …e.g. write the bare id instead
+	},
+});
+
+// Returns the chooserCore instance (core.open()/close()/isOpen()). The link click toggles it.
+// If `input` is a CerbUI.ScriptingEditor (legacy-bot .placeholders fields), the default onPick drives the
+// editor so the pick shows immediately. Replaces the legacy <a class="cerb-chooser">.cerbChooserTrigger().{/literal}</pre>
+			</div>
+		</div>
 	</div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}">
@@ -122,6 +159,13 @@
 			multiple: true,
 			searchPlaceholder: 'Add workers…',
 		});
+	}
+
+	// Picker link: a static helper — search popup on the trigger writes the picked id into the sibling field
+	const elPickerLink = document.getElementById('uiref-recordchooser-pickerlink');
+	const elPickerInput = document.getElementById('uiref-recordchooser-pickerlink-input');
+	if(elPickerLink && elPickerInput && window.CerbUI && CerbUI.RecordChooser && CerbUI.RecordChooser.pickerLink) {
+		CerbUI.RecordChooser.pickerLink(elPickerLink, { input: elPickerInput });
 	}
 })();
 </script>
