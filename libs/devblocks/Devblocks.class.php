@@ -1380,13 +1380,18 @@ class DevblocksPlatform extends DevblocksEngine {
 		if($bits > $max_bits)
 			$bits = $max_bits;
 		
+		// 2^63 and up overflow PHP_INT_MAX, so pow() would return a float;
+		// clamp to the representable signed range so callers always get an int
+		if($bits >= $max_bits)
+			return $is_negative ? PHP_INT_MIN : PHP_INT_MAX;
+
 		$int = pow(2, $bits);
-		
+
 		if($is_negative) {
 			$int *= -1;
 		}
-		
-		return $int;
+
+		return intval($int);
 	}
 	
 	/**
