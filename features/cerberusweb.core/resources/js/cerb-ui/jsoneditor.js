@@ -207,7 +207,8 @@ CerbUI.JsonEditor = class {
 		if(this.opts.readOnly) return this;
 		const ta = this.textarea;
 		const s = ta.selectionStart, e = ta.selectionEnd;
-		let insert = String(text == null ? '' : text);
+		// Accept Ace-format snippets: flatten numbered tab-stops to defaults + mark the first as `$0` (idempotent).
+		let insert = CerbUI.editorCore.aceSnippetToCerb(String(text == null ? '' : text));
 		let off = insert.length;
 		const m = insert.indexOf('$0');
 		if(m !== -1) { off = m; insert = insert.slice(0, m) + insert.slice(m + 2); }
