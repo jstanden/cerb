@@ -168,10 +168,11 @@ ed.clearMarkers();                              // remove every marker{/literal}
 
 		{* Reference (no live demo): the built-in keyboard shortcuts — also enumerable via getShortcuts() *}
 		<div class="cerb-ui-header">
-			<div class="cerb-ui-header--label">Keyboard shortcuts &mdash; <kbd class="cerb-ui-kbd">Mod</kbd> is <kbd class="cerb-ui-kbd">&#8984;</kbd> on macOS, <kbd class="cerb-ui-kbd">Ctrl</kbd> on Windows &amp; Linux. (In <code>readOnly</code> mode only the fold / resize shortcuts are active.)</div>
+			<div class="cerb-ui-header--label">Keyboard shortcuts &mdash; <kbd class="cerb-ui-kbd">Mod</kbd> is <kbd class="cerb-ui-kbd">&#8984;</kbd> on macOS, <kbd class="cerb-ui-kbd">Ctrl</kbd> on Windows &amp; Linux. (In <code>readOnly</code> mode only the fold / resize / find shortcuts are active.)</div>
 		</div>
 		<div class="cerb-uiref-example">
 			<ul class="cerb-uiref-keys">
+				<li><kbd class="cerb-ui-kbd">Mod</kbd> + <kbd class="cerb-ui-kbd">F</kbd> &mdash; find &amp; replace (<kbd class="cerb-ui-kbd">Enter</kbd> / <kbd class="cerb-ui-kbd">Shift</kbd> + <kbd class="cerb-ui-kbd">Enter</kbd> next / prev with wrap-around, <kbd class="cerb-ui-kbd">Aa</kbd> case &amp; <kbd class="cerb-ui-kbd">.*</kbd> regex toggles, <kbd class="cerb-ui-kbd">Esc</kbd> to close). Matches inside a collapsed fold are revealed on navigate; find works in <code>readOnly</code> too (no replace row)</li>
 				<li><kbd class="cerb-ui-kbd">Mod</kbd> + <kbd class="cerb-ui-kbd">[</kbd> / <kbd class="cerb-ui-kbd">Mod</kbd> + <kbd class="cerb-ui-kbd">]</kbd> &mdash; fold / unfold the object or array at the caret</li>
 				<li><kbd class="cerb-ui-kbd">Tab</kbd> / <kbd class="cerb-ui-kbd">Shift</kbd> + <kbd class="cerb-ui-kbd">Tab</kbd> &mdash; indent / dedent the current line or selection</li>
 				<li><kbd class="cerb-ui-kbd">Mod</kbd> + <kbd class="cerb-ui-kbd">D</kbd> or <kbd class="cerb-ui-kbd">Alt</kbd> + <kbd class="cerb-ui-kbd">D</kbd> &mdash; delete the current line</li>

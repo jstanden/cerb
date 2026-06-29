@@ -110,6 +110,7 @@ ed.clearHighlight();                            // remove it{/literal}</pre>
 		<div class="cerb-uiref-example">
 			<ul class="cerb-uiref-keys">
 				<li><kbd class="cerb-ui-kbd">Mod</kbd> + <kbd class="cerb-ui-kbd">Space</kbd> &mdash; show autocomplete suggestions (<kbd class="cerb-ui-kbd">&darr;</kbd> to pick, <kbd class="cerb-ui-kbd">Esc</kbd> to dismiss)</li>
+				<li><kbd class="cerb-ui-kbd">Mod</kbd> + <kbd class="cerb-ui-kbd">F</kbd> &mdash; find &amp; replace (<kbd class="cerb-ui-kbd">Enter</kbd> / <kbd class="cerb-ui-kbd">Shift</kbd> + <kbd class="cerb-ui-kbd">Enter</kbd> next / prev with wrap-around, <kbd class="cerb-ui-kbd">Aa</kbd> case &amp; <kbd class="cerb-ui-kbd">.*</kbd> regex toggles, <kbd class="cerb-ui-kbd">Esc</kbd> to close). Matches inside a collapsed fold are revealed on navigate</li>
 				<li><kbd class="cerb-ui-kbd">Tab</kbd> / <kbd class="cerb-ui-kbd">Shift</kbd> + <kbd class="cerb-ui-kbd">Tab</kbd> &mdash; indent / dedent the current line or selection</li>
 				<li><kbd class="cerb-ui-kbd">Mod</kbd> + <kbd class="cerb-ui-kbd">/</kbd> &mdash; toggle <code>#&nbsp;comment</code> on the current line or the selected lines</li>
 				<li><kbd class="cerb-ui-kbd">Mod</kbd> + <kbd class="cerb-ui-kbd">D</kbd> or <kbd class="cerb-ui-kbd">Alt</kbd> + <kbd class="cerb-ui-kbd">D</kbd> &mdash; delete the current line</li>

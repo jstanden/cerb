@@ -1106,3 +1106,573 @@ CerbUI.editorCore.attachToolbar = function(editor, opts, defaults) {
 	});
 	return editor._editorToolbar;
 };
+
+/*
+ * ── Find/Replace (Ctrl/Cmd+F) — one shared controller + a thin per-editor adapter ──────────────────────────
+ *
+ * editor-core loads before every editor in the bundle, so FindController is visible to all of them. The
+ * controller owns everything language-agnostic: the floating panel DOM, the in-panel keyboard state machine,
+ * substring match computation (regex/replace land in later phases — their UI is scaffolded but hidden here),
+ * the decoration "bands" painted behind the mirror text, and prev/next navigation with wrap-around. Each editor
+ * contributes a small ADAPTER (built once in its constructor) that isolates the only real difference between the
+ * editors: folding (Kata/Json map model⇄view offsets) vs. 1:1 (Scripting/Markdown where getValue() === textarea
+ * value). The adapter is built by makeFindAdapter() below from the methods every editor already exposes, so a
+ * host editor's wiring is just: build the adapter, add a Mod-F shortcut, call repaintBands() in _renderHighlight,
+ * and destroy() it.
+ *
+ * Bands are absolutely-positioned <div>s appended into the editor's scroll-synced overlay (--highlight) at
+ * z-index:-1, exactly like KataEditor's --active-line / --line-deco — so they track scroll for free and read
+ * BEHIND the colored mirror text. Every _renderHighlight() wipes the mirror, so the editor re-invokes
+ * repaintBands() right after (the same spot the active-line band is re-added).
+ */
+
+// Measure the pixel width of `text` in the textarea's font via a cached <canvas> 2d context — O(text length) but
+// NO DOM layout, so it's cheap even on huge documents (unlike caretCoords, which slices value.slice(0,offset) and
+// lays out the whole prefix). Used for horizontal band geometry in no-wrap code editors (monospace, letter-spacing
+// normal, tabs sanitized to spaces — so canvas measureText matches the rendered glyph advance).
+CerbUI.editorCore._measureWidth = function(cs, text) {
+	if(!text) return 0;
+	let ctx = CerbUI.editorCore._measureCtx;
+	if(!ctx) ctx = CerbUI.editorCore._measureCtx = document.createElement('canvas').getContext('2d');
+	const font = cs.fontStyle + ' ' + cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily;
+	if(CerbUI.editorCore._measureFont !== font) { ctx.font = font; CerbUI.editorCore._measureFont = font; }
+	return ctx.measureText(text).width;
+};
+
+// Per-visual-line content rects for a MODEL offset range, in the overlay's coordinate space (children of the
+// scroll-synced --highlight). Split the range at MODEL newlines; skip folded (mapRow < 0) and OFF-SCREEN segments
+// (the overlay clips them anyway — and skipping avoids the expensive measure). For each visible segment in a NO-WRAP
+// editor (white-space:pre — Kata/Json/Scripting), geometry is cheap: top = padTop + viewRow*lh, left/width from a
+// canvas measure of the line's prefix (short string, no layout). Wrapping editors (Markdown, pre-wrap) fall back to
+// caretCoords so wrapped rows stay correct (those docs are small).
+//   modelLines() -> the full document's lines (a visible folded-editor model line == its view line, folds drop whole lines)
+//   mapRow(modelRow) -> viewRow (-1 = hidden in a fold)   mapOffset(modelOffset) -> view offset (for the wrap fallback)
+CerbUI.editorCore.computeFindRects = function(textarea, overlay, mStart, mEnd, modelLines, mapRow, mapOffset) {
+	const lines = modelLines();
+	const cs = window.getComputedStyle(textarea);
+	const lh = parseFloat(cs.lineHeight) || (parseFloat(cs.fontSize) * 1.5);
+	const padTop = parseFloat(cs.paddingTop) || 0;
+	const padLeft = parseFloat(cs.paddingLeft) || 0;
+	const noWrap = (cs.whiteSpace === 'pre');
+	// Visible view-row band (+small margin) — segments outside it are clipped by the overlay, so don't measure them.
+	const firstVis = Math.floor(textarea.scrollTop / lh) - 2;
+	const lastVis = Math.ceil((textarea.scrollTop + textarea.clientHeight) / lh) + 2;
+	const rects = [];
+	let acc = 0;
+	for(let r = 0; r < lines.length; r++) {
+		const lineStart = acc, lineEnd = acc + lines[r].length; // offsets exclude the trailing newline
+		acc = lineEnd + 1;
+		if(lineEnd < mStart) continue;        // line entirely before the range
+		if(lineStart > mEnd) break;           // line entirely after — done
+		const vr = mapRow(r);
+		if(vr < 0) continue;                  // folded away (no band, but the match stays navigable)
+		if(vr < firstVis || vr > lastVis) continue;   // off-screen — clipped anyway, skip the measure
+		const segStart = Math.max(mStart, lineStart);
+		const segEnd = Math.min(mEnd, lineEnd);
+		if(noWrap) {
+			const pre = lines[r].slice(0, segStart - lineStart);
+			const left = padLeft + CerbUI.editorCore._measureWidth(cs, pre);
+			const width = Math.max(2, CerbUI.editorCore._measureWidth(cs, lines[r].slice(segStart - lineStart, segEnd - lineStart)));
+			rects.push({ left: left, top: padTop + vr * lh, width: width, height: lh });
+		} else {
+			const cS = CerbUI.editorCore.caretCoords(textarea, mapOffset(segStart));
+			const cE = CerbUI.editorCore.caretCoords(textarea, mapOffset(segEnd));
+			const width = (cE.top === cS.top) ? Math.max(2, cE.left - cS.left) : Math.max(2, overlay.clientWidth - cS.left);
+			rects.push({ left: cS.left, top: cS.top, width: width, height: cS.height });
+		}
+	}
+	return rects;
+};
+
+// Build a FindController adapter from the methods an editor already exposes. `mode` is 'folding' (Kata/Json:
+// getValue() is the full model, _modelRowToViewRow/_modelOffsetToViewOffset bridge to the projection) or
+// 'linear' (Scripting/Markdown: the textarea IS the value, offsets map 1:1).
+CerbUI.editorCore.makeFindAdapter = function(ed, mode) {
+	const folding = (mode === 'folding');
+	const modelLines = folding ? () => ed._modelLines() : () => ed.getValue().split('\n');
+	const mapRow = folding ? (r) => ed._modelRowToViewRow(r) : () => 0;
+	const mapOffset = folding ? (o) => ed._modelOffsetToViewOffset(o) : (o) => o;
+	const rowOfOffset = (o) => {
+		const L = modelLines();
+		let acc = 0;
+		for(let r = 0; r < L.length; r++) { if(o <= acc + L[r].length) return r; acc += L[r].length + 1; }
+		return Math.max(0, L.length - 1);
+	};
+	return {
+		hostEl: () => ed.el,
+		fieldEl: () => ed.field,
+		overlayEl: () => ed.highlight,
+		textareaEl: () => ed.textarea,
+		getText: () => ed.getValue(),
+		readOnly: () => !!(ed.opts && ed.opts.readOnly),
+		// Reveal any fold hiding the match, select the MODEL range, and scroll it into view. We do NOT focus the
+		// textarea — focus stays in the find input so Enter/Shift-Enter keep cycling matches.
+		revealRange: (mStart, mEnd) => {
+			if(folding) {
+				const row = rowOfOffset(mStart);
+				ed._revealModelRow(row);
+				ed.textarea.setSelectionRange(ed._modelOffsetToViewOffset(mStart), ed._modelOffsetToViewOffset(mEnd));
+				ed.scrollToLine(row);
+			} else {
+				const ta = ed.textarea;
+				ta.setSelectionRange(mStart, mEnd);
+				const c = CerbUI.editorCore.caretCoords(ta, mStart);
+				if(c.top < ta.scrollTop) ta.scrollTop = Math.max(0, c.top - c.height);
+				else if(c.top + c.height > ta.scrollTop + ta.clientHeight) ta.scrollTop = c.top + c.height - ta.clientHeight + c.height;
+				if(typeof ed._syncScroll === 'function') ed._syncScroll();
+			}
+		},
+		rectsForRange: (mStart, mEnd) => CerbUI.editorCore.computeFindRects(ed.textarea, ed.highlight, mStart, mEnd, modelLines, mapRow, mapOffset),
+
+		// The MODEL-offset span currently in (or near) the viewport — so the painter can skip matches that aren't
+		// visible BEFORE calling rectsForRange (the overlay clips them anyway). One O(model) pass per paint.
+		visibleModelRange: () => {
+			const ta = ed.textarea, cs = window.getComputedStyle(ta);
+			const lh = parseFloat(cs.lineHeight) || (parseFloat(cs.fontSize) * 1.5);
+			if(!(lh > 0)) return null;
+			const lines = modelLines();
+			const firstV = Math.max(0, Math.floor(ta.scrollTop / lh) - 8);
+			const lastV = Math.ceil((ta.scrollTop + ta.clientHeight) / lh) + 8;
+			const startRow = folding ? ed._viewRowToModelRow(firstV) : Math.min(firstV, lines.length - 1);
+			const endRow = folding ? ed._viewRowToModelRow(lastV) : Math.min(lastV, lines.length - 1);
+			let acc = 0, startOff = 0, endOff = 0;
+			for(let r = 0; r < lines.length; r++) {
+				if(r === startRow) startOff = acc;
+				if(r === endRow) { endOff = acc + lines[r].length; break; }
+				acc += lines[r].length + 1;
+			}
+			return [startOff, endOff];
+		},
+
+		// Replace a single MODEL range — always through the editor's undo-safe (execCommand-backed) edit path so
+		// native Cmd/Ctrl+Z still works and the model/projection/change-tracking stay consistent.
+		replaceRange: (mStart, mEnd, text) => {
+			if(folding) {
+				// Reveal first so the span is in the projection, edit the projection (mapped), and let the editor
+				// fold the change back into the model (_setValueAndCaret -> _applyProjectionEditToModel).
+				ed._revealModelRow(rowOfOffset(mStart));
+				const proj = ed.textarea.value;
+				const vS = ed._modelOffsetToViewOffset(mStart), vE = ed._modelOffsetToViewOffset(mEnd);
+				ed._setValueAndCaret(proj.slice(0, vS) + text + proj.slice(vE), vS + text.length);
+			} else if(typeof ed._setValueAndCaret === 'function') {
+				const v = ed.getValue();
+				ed._setValueAndCaret(v.slice(0, mStart) + text + v.slice(mEnd), mStart + text.length);
+			} else if(typeof ed._replaceRange === 'function') {
+				ed._replaceRange(mStart, mEnd, text);   // MarkdownEditor's execCommand primitive
+			}
+		},
+
+		// Apply the whole-document replacement as ONE edit so Replace-All is a single undo entry. Folding editors
+		// unfold first so the projection equals the model and the single span covers everything.
+		replaceAll: (newText) => {
+			if(folding) {
+				ed.unfoldAll();
+				ed._setValueAndCaret(newText, Math.min(ed.textarea.selectionStart, newText.length));
+			} else if(typeof ed._setValueAndCaret === 'function') {
+				ed._setValueAndCaret(newText, Math.min(ed.textarea.selectionStart, newText.length));
+			} else if(typeof ed._replaceRange === 'function') {
+				ed._replaceRange(0, ed.getValue().length, newText);   // MarkdownEditor — whole-doc swap, one undo
+			}
+		},
+	};
+};
+
+// ── Shared Mod-F interception (one document-level capture handler for every editor) ────────────────────────
+// Every FindController registers here; the handler routes Cmd/Ctrl+F to the editor that owns focus (or, when
+// focus drifted to surrounding popup/dialog chrome, the most recently focused editor still in the DOM). Bound
+// once, in capture phase, so it runs before the browser's native find and regardless of DOM re-parenting.
+CerbUI.editorCore._findControllers = CerbUI.editorCore._findControllers || new Set();
+CerbUI.editorCore._findLastFocused = CerbUI.editorCore._findLastFocused || null;
+CerbUI.editorCore._findRegister = function(fc) {
+	CerbUI.editorCore._findControllers.add(fc);
+	if(CerbUI.editorCore._findDocBound) return;
+	document.addEventListener('keydown', CerbUI.editorCore._findOnDocKeydown, true);
+	CerbUI.editorCore._findDocBound = true;
+};
+CerbUI.editorCore._findOnDocKeydown = function(e) {
+	if(e.code !== 'KeyF' || !(e.metaKey || e.ctrlKey) || e.altKey || e.shiftKey) return;
+	const ae = document.activeElement;
+	const controllers = CerbUI.editorCore._findControllers;
+	// Already typing in a find panel? leave Mod-F to the panel's own keymap (re-focus + select-all).
+	for(const fc of controllers) { if(fc.panel && fc.panel.contains(ae)) return; }
+	// Prefer the editor that owns focus; else fall back to the most recently focused editor still connected.
+	let target = null;
+	for(const fc of controllers) { if(fc._host && fc._host.contains(ae)) { target = fc; break; } }
+	if(!target) {
+		const last = CerbUI.editorCore._findLastFocused;
+		if(last && controllers.has(last) && last._host && last._host.isConnected) target = last;
+	}
+	if(!target) return;   // Mod-F with no editor focused — let the browser have it
+	e.preventDefault();
+	e.stopPropagation();
+	if(target.editor._ac && typeof target.editor._ac.close === 'function') target.editor._ac.close();
+	target.open();
+};
+
+CerbUI.editorCore.FindController = class {
+	constructor(editor, adapter) {
+		this.editor = editor;
+		this.adapter = adapter;
+		this.panel = null;
+		this.matches = [];        // [{start,end}] in MODEL offsets
+		this.currentIndex = -1;
+		this.query = '';
+		this.caseSensitive = false;
+		this.useRegex = false;
+		this._regexError = null;  // last invalid-regex message (phase 2), or null
+		this._debounce = null;
+		this._savedSel = null;    // editor caret/selection at open, restored on Esc
+
+		// Open find on Mod-F via a single DOCUMENT-level capture handler (see _findEnsureDocHandler below) rather
+		// than a listener on each editor root. A per-host listener is fragile in some embeddings: the workflow
+		// record popup is a jQuery-UI dialog built by genericAjaxPopup, which re-parents content, so the host
+		// listener never saw the keydown and the browser's native find won. The document handler is immune to node
+		// moves and to which inner element holds focus; it routes Mod-F to whichever editor owns (or most recently
+		// held) focus. We track the last-focused editor via a focusin listener on the host for the fallback path.
+		this._host = (typeof adapter.hostEl === 'function') ? adapter.hostEl() : null;
+		CerbUI.editorCore._findRegister(this);
+		if(this._host) {
+			this._onHostFocusIn = () => { CerbUI.editorCore._findLastFocused = this; };
+			this._host.addEventListener('focusin', this._onHostFocusIn);
+		}
+	}
+
+	// Phase 1: paint at most this many match bands; above it we paint only the current match (the count + the
+	// navigable matches array stay exact — only the decoration is capped, for cost).
+	static BAND_CAP = 500;
+
+	isOpen() { return !!(this.panel && !this.panel.hidden); }
+
+	// Find works even in readOnly editors (the replace row stays hidden — phase 3).
+	open() {
+		if(!this.panel) this._build();
+		// Close any open autocomplete so its menu doesn't fight the panel.
+		if(this.editor._ac && typeof this.editor._ac.close === 'function') this.editor._ac.close();
+
+		const ta = this.adapter.textareaEl();
+		this._savedSel = { start: ta.selectionStart, end: ta.selectionEnd };
+
+		this.panel.hidden = false;
+		// Seed from a single-line selection (Ace parity); otherwise keep the previous query.
+		const sel = (typeof this.editor.getSelectedText === 'function') ? this.editor.getSelectedText() : '';
+		if(sel && sel.indexOf('\n') === -1) this.input.value = sel;
+		this.input.focus();
+		this.input.select();
+		this._recompute(true);
+	}
+
+	close() {
+		if(!this.panel || this.panel.hidden) return;
+		this.panel.hidden = true;
+		this.matches = [];
+		this.currentIndex = -1;
+		this._clearBands();
+		const ta = this.adapter.textareaEl();
+		ta.focus();
+		if(this._savedSel) ta.setSelectionRange(this._savedSel.start, this._savedSel.end);
+	}
+
+	destroy() {
+		if(this._debounce !== null) { clearTimeout(this._debounce); this._debounce = null; }
+		CerbUI.editorCore._findControllers.delete(this);
+		if(CerbUI.editorCore._findLastFocused === this) CerbUI.editorCore._findLastFocused = null;
+		if(this._host && this._onHostFocusIn) this._host.removeEventListener('focusin', this._onHostFocusIn);
+		this._clearBands();
+		if(this.panel && this.panel.parentNode) this.panel.parentNode.removeChild(this.panel);
+		this.panel = null;
+	}
+
+	// Called by the host editor's _renderHighlight() AFTER it rebuilds the mirror (which wipes our bands).
+	repaintBands() { if(this.isOpen()) this._paintBands(); }
+
+	// ── Panel ───────────────────────────────────────────────────────────
+	_build() {
+		const panel = document.createElement('div');
+		panel.className = 'cerb-ui-editor-find';
+		panel.hidden = true;
+		panel.setAttribute('role', 'search');
+		panel.innerHTML =
+			'<div class="cerb-ui-editor-find--row">'
+			+ '<button type="button" class="cerb-ui-editor-find--toggle cerb-ui-editor-find--case" title="Match case" aria-pressed="false">Aa</button>'
+			+ '<button type="button" class="cerb-ui-editor-find--toggle cerb-ui-editor-find--regex" title="Regular expression" aria-pressed="false">.*</button>'
+			+ '<input type="text" class="cerb-ui-editor-find--input" placeholder="Find" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off">'
+			+ '<span class="cerb-ui-editor-find--count">0 / 0</span>'
+			+ '<button type="button" class="cerb-ui-editor-find--btn cerb-ui-editor-find--prev" title="Previous (Shift+Enter)"><span class="cerb-icons cerb-icon-chevron-up"></span></button>'
+			+ '<button type="button" class="cerb-ui-editor-find--btn cerb-ui-editor-find--next" title="Next (Enter)"><span class="cerb-icons cerb-icon-chevron-down"></span></button>'
+			+ '<button type="button" class="cerb-ui-editor-find--btn cerb-ui-editor-find--close" title="Close (Esc)"><span class="cerb-icons cerb-icon-circle-remove"></span></button>'
+			+ '</div>'
+			// Replace row — phase 3 (scaffolded, hidden).
+			+ '<div class="cerb-ui-editor-find--row cerb-ui-editor-find--replace-row" hidden>'
+			+ '<input type="text" class="cerb-ui-editor-find--replace-input" placeholder="Replace" spellcheck="false" autocomplete="off">'
+			+ '<button type="button" class="cerb-ui-editor-find--btn cerb-ui-editor-find--replace">Replace</button>'
+			+ '<button type="button" class="cerb-ui-editor-find--btn cerb-ui-editor-find--replace-all">All</button>'
+			+ '</div>';
+
+		this.adapter.hostEl().appendChild(panel);
+		this.panel = panel;
+		this.input = panel.querySelector('.cerb-ui-editor-find--input');
+		this.count = panel.querySelector('.cerb-ui-editor-find--count');
+		const caseBtn = panel.querySelector('.cerb-ui-editor-find--case');
+
+		this.input.addEventListener('input', () => {
+			if(this._debounce !== null) clearTimeout(this._debounce);
+			this._debounce = setTimeout(() => { this._debounce = null; this._recompute(true); }, 150);
+		});
+		this.input.addEventListener('keydown', (e) => this._onInputKeydown(e));
+		caseBtn.addEventListener('click', () => {
+			this.caseSensitive = !this.caseSensitive;
+			caseBtn.setAttribute('aria-pressed', this.caseSensitive ? 'true' : 'false');
+			caseBtn.classList.toggle('cerb-ui-editor-find--toggle-on', this.caseSensitive);
+			this.input.focus();
+			this._recompute(true);
+		});
+		const regexBtn = panel.querySelector('.cerb-ui-editor-find--regex');
+		regexBtn.addEventListener('click', () => {
+			this.useRegex = !this.useRegex;
+			regexBtn.setAttribute('aria-pressed', this.useRegex ? 'true' : 'false');
+			regexBtn.classList.toggle('cerb-ui-editor-find--toggle-on', this.useRegex);
+			this.input.focus();
+			this._recompute(true);
+		});
+		panel.querySelector('.cerb-ui-editor-find--prev').addEventListener('click', () => { this._navigate(-1); this.input.focus(); });
+		panel.querySelector('.cerb-ui-editor-find--next').addEventListener('click', () => { this._navigate(1); this.input.focus(); });
+		panel.querySelector('.cerb-ui-editor-find--close').addEventListener('click', () => this.close());
+
+		// Replace row (phase 3) — shown only when the editor is editable (readOnly hides it).
+		this.replaceInput = panel.querySelector('.cerb-ui-editor-find--replace-input');
+		this._canReplace = !this.adapter.readOnly();
+		if(this._canReplace) {
+			panel.querySelector('.cerb-ui-editor-find--replace-row').hidden = false;
+			this.replaceInput.addEventListener('keydown', (e) => this._onReplaceKeydown(e));
+			panel.querySelector('.cerb-ui-editor-find--replace').addEventListener('click', () => this._replaceCurrent());
+			panel.querySelector('.cerb-ui-editor-find--replace-all').addEventListener('click', () => this._replaceAll());
+		}
+	}
+
+	_onInputKeydown(e) {
+		if(e.key === 'Enter') {
+			e.preventDefault();
+			this._navigate(e.shiftKey ? -1 : 1);
+			return;
+		}
+		if(e.key === 'Escape') { e.preventDefault(); this.close(); return; }
+		// Tab into the replace field (when shown) — the find↔replace toggle.
+		if(e.key === 'Tab' && !e.shiftKey && this._canReplace && this.replaceInput) {
+			e.preventDefault();
+			this.replaceInput.focus();
+			return;
+		}
+		// Mod-F while the panel already has focus re-selects the query (Ace behavior) instead of bubbling.
+		if(e.code === 'KeyF' && (e.metaKey || e.ctrlKey) && !e.altKey && !e.shiftKey) {
+			e.preventDefault();
+			this.input.select();
+			return;
+		}
+	}
+
+	_onReplaceKeydown(e) {
+		if(e.key === 'Enter') { e.preventDefault(); this._replaceCurrent(); return; }
+		if(e.key === 'Escape') { e.preventDefault(); this.close(); return; }
+		if(e.key === 'Tab' && e.shiftKey) { e.preventDefault(); this.input.focus(); return; }
+		if(e.code === 'KeyF' && (e.metaKey || e.ctrlKey) && !e.altKey && !e.shiftKey) {
+			e.preventDefault();
+			this.input.focus();
+			this.input.select();
+			return;
+		}
+	}
+
+	// ── Matching ────────────────────────────────────────────────────────
+	// `keepIndex` true picks the match nearest the saved caret (open / retype); false keeps stepping from where we
+	// are. Phase 1 is a plain case-folded substring scan; phase 2 swaps in a RegExp matcher here.
+	_recompute(keepIndex) {
+		this.query = this.input.value;
+		this.matches = this._computeMatches(this.query);
+		if(this.matches.length) {
+			if(keepIndex) {
+				const caret = this._savedSel ? this._savedSel.start : 0;
+				const idx = this.matches.findIndex(m => m.start >= caret);
+				this.currentIndex = (idx >= 0) ? idx : 0;
+			} else if(this.currentIndex < 0 || this.currentIndex >= this.matches.length) {
+				this.currentIndex = 0;
+			}
+		} else {
+			this.currentIndex = -1;
+		}
+		this._paintBands();
+		this._updateCounter();
+		// Reveal the current match ONLY when it's off-screen — otherwise typing would scroll + repaint the editor on
+		// every keystroke (the "re-styling while searching" churn on large docs). Explicit next/prev always reveals.
+		if(this.currentIndex >= 0) {
+			const m = this.matches[this.currentIndex];
+			const vis = (typeof this.adapter.visibleModelRange === 'function') ? this.adapter.visibleModelRange() : null;
+			if(!vis || m.start > vis[1] || m.end < vis[0]) this.adapter.revealRange(m.start, m.end);
+		}
+	}
+
+	// Phase 1 cap on total matches — keeps a pathological pattern (e.g. `.` on a huge doc) from freezing the loop.
+	// The counter/navigation stay exact up to this many; band painting is separately capped by BAND_CAP.
+	static MATCH_CAP = 10000;
+
+	_computeMatches(q) {
+		this._regexError = null;
+		if(!q) return [];
+		return this.useRegex ? this._computeRegexMatches(q) : this._computeSubstringMatches(q);
+	}
+
+	_computeSubstringMatches(q) {
+		const text = this.adapter.getText();
+		// Cache the lowercased doc so retyping doesn't re-lowercase the whole (possibly huge) document each keystroke.
+		let hay;
+		if(this.caseSensitive) hay = text;
+		else if(this._lcKey === text) hay = this._lcText;
+		else { hay = text.toLowerCase(); this._lcText = hay; this._lcKey = text; }
+		const needle = this.caseSensitive ? q : q.toLowerCase();
+		const out = [];
+		let i = 0;
+		const step = Math.max(1, needle.length);
+		const cap = CerbUI.editorCore.FindController.MATCH_CAP;
+		while((i = hay.indexOf(needle, i)) !== -1) {
+			out.push({ start: i, end: i + q.length });   // groups[0] (whole match) is text.slice(start,end)
+			i += step;
+			if(out.length >= cap) break;
+		}
+		return out;
+	}
+
+	// Capture groups are kept on each match (`groups` = the RegExpExecArray) for phase-3 `$1`/`$&` expansion. A
+	// zero-width match (e.g. `a*`, a lookahead) advances lastIndex by one so the scan can't spin forever; such
+	// matches stay counted + navigable but paint no band (see _paintBands).
+	_computeRegexMatches(q) {
+		let re;
+		try {
+			re = new RegExp(q, 'g' + (this.caseSensitive ? '' : 'i'));
+		} catch(err) {
+			this._regexError = (err && err.message) ? err.message : 'Invalid regular expression';
+			return [];
+		}
+		const text = this.adapter.getText();
+		const out = [];
+		const cap = CerbUI.editorCore.FindController.MATCH_CAP;
+		let m;
+		while((m = re.exec(text)) !== null) {
+			out.push({ start: m.index, end: m.index + m[0].length, groups: m });
+			if(re.lastIndex === m.index) re.lastIndex++;   // zero-width — don't loop on the same position
+			if(out.length >= cap) break;
+		}
+		return out;
+	}
+
+	_navigate(dir) {
+		if(!this.matches.length) return;
+		const n = this.matches.length;
+		this.currentIndex = (this.currentIndex + dir + n) % n;   // wrap-around
+		const m = this.matches[this.currentIndex];
+		this.adapter.revealRange(m.start, m.end);
+		this._paintBands();
+		this._updateCounter();
+	}
+
+	// ── Replace (phase 3) ───────────────────────────────────────────────
+	// The replacement text for one match. Literal in substring mode; in regex mode `$&` (whole match), `$1`..`$99`
+	// (capture groups), and `$$` (a literal `$`) expand from the match's stored RegExpExecArray.
+	_expandReplacement(m) {
+		const rep = this.replaceInput ? this.replaceInput.value : '';
+		if(!this.useRegex) return rep;
+		const g = m.groups || [];
+		return rep.replace(/\$(\$|&|\d{1,2})/g, (whole, k) => {
+			if(k === '$') return '$';
+			if(k === '&') return (g[0] != null) ? g[0] : '';
+			const n = parseInt(k, 10);
+			return (g[n] != null) ? g[n] : '';
+		});
+	}
+
+	// Replace the current match, then recompute and advance to the next match after the replacement.
+	_replaceCurrent() {
+		if(!this._canReplace || this.currentIndex < 0 || !this.matches.length) return;
+		const m = this.matches[this.currentIndex];
+		const rep = this._expandReplacement(m);
+		this.matches = [];                 // drop stale offsets before the edit re-renders (repaintBands no-ops)
+		this.adapter.replaceRange(m.start, m.end, rep);
+		this._afterEdit(m.start + rep.length);
+		if(this.replaceInput) this.replaceInput.focus();
+	}
+
+	// Replace every match in ONE edit (single undo). Build the new full document by splicing each match's
+	// replacement in document order, then hand the whole text to the adapter.
+	_replaceAll() {
+		if(!this._canReplace || !this.matches.length) return;
+		const text = this.adapter.getText();
+		let out = '', last = 0;
+		for(const m of this.matches) {
+			if(m.start < last) continue;   // skip any overlap (defensive — matches are non-overlapping by construction)
+			out += text.slice(last, m.start) + this._expandReplacement(m);
+			last = m.end;
+		}
+		out += text.slice(last);
+		this.matches = [];
+		this.adapter.replaceAll(out);
+		this._afterEdit(0);
+		if(this.replaceInput) this.replaceInput.focus();
+	}
+
+	// After any replace the document changed: re-scan, place the current match at/after `caretPos` (wrapping to the
+	// first), reveal it, and repaint. Called once the editor's own edit-driven re-render has settled.
+	_afterEdit(caretPos) {
+		this.matches = this._computeMatches(this.query);
+		if(this.matches.length) {
+			const idx = this.matches.findIndex(mm => mm.start >= caretPos);
+			this.currentIndex = (idx >= 0) ? idx : 0;
+			this.adapter.revealRange(this.matches[this.currentIndex].start, this.matches[this.currentIndex].end);
+		} else {
+			this.currentIndex = -1;
+		}
+		this._paintBands();
+		this._updateCounter();
+	}
+
+	// ── Bands + counter ─────────────────────────────────────────────────
+	_clearBands() {
+		const ov = this.adapter.overlayEl();
+		if(ov) ov.querySelectorAll('.cerb-ui-editor-find--match, .cerb-ui-editor-find--current').forEach(n => n.remove());
+	}
+
+	_paintBands() {
+		const ov = this.adapter.overlayEl();
+		if(!ov) return;
+		this._clearBands();
+		if(!this.matches.length) return;
+		const paint = (m, current) => {
+			if(m.end <= m.start) return;   // zero-width regex match — counted + navigable, but nothing to paint
+			const rects = this.adapter.rectsForRange(m.start, m.end);
+			for(const r of rects) {
+				const band = document.createElement('div');
+				band.className = current ? 'cerb-ui-editor-find--current' : 'cerb-ui-editor-find--match';
+				band.style.left = r.left + 'px';
+				band.style.top = r.top + 'px';
+				band.style.width = r.width + 'px';
+				band.style.height = r.height + 'px';
+				ov.appendChild(band);
+			}
+		};
+		// Only paint matches in (or near) the viewport — off-screen bands are clipped by the overlay anyway, and
+		// skipping them here avoids a rectsForRange (whole-doc split + measure) call per off-screen match. On a huge
+		// doc this is the difference between painting ~tens of bands and ~hundreds. `null` (adapter w/o the hook) =
+		// paint all (still capped below).
+		const vis = (typeof this.adapter.visibleModelRange === 'function') ? this.adapter.visibleModelRange() : null;
+		const inView = (m) => !vis || (m.end >= vis[0] && m.start <= vis[1]);
+		if(this.matches.length <= CerbUI.editorCore.FindController.BAND_CAP)
+			this.matches.forEach((m, i) => { if(i !== this.currentIndex && inView(m)) paint(m, false); });
+		// Current match appended LAST so it reads over the other bands (revealRange already scrolled it into view).
+		if(this.currentIndex >= 0) paint(this.matches[this.currentIndex], true);
+	}
+
+	_updateCounter() {
+		const n = this.matches.length;
+		this.count.textContent = this._regexError ? '!' : ((n ? (this.currentIndex + 1) : 0) + ' / ' + n);
+		this.panel.classList.toggle('cerb-ui-editor-find--nomatch', !!this.query && (n === 0 || !!this._regexError));
+		// Surface an invalid pattern as a hover tooltip on the query field (red state already shows via --nomatch).
+		this.input.title = this._regexError || '';
+	}
+};

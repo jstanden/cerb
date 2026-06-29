@@ -175,6 +175,9 @@ CerbUI.KataEditor = class {
 
 		// Core editor-family hook: a caller can add extensible toolbar `sections` to any editor (opt-in via opts.toolbar).
 		CerbUI.editorCore.attachToolbar(this, this.opts);
+
+		// Find/Replace (Mod-F) — shared controller + a folding adapter (model⇄projection offset mapping).
+		this._find = new CerbUI.editorCore.FindController(this, CerbUI.editorCore.makeFindAdapter(this, 'folding'));
 	}
 
 	// ── Public API (mirrors the Ace surface the automation editor depends on) ──
@@ -415,6 +418,7 @@ CerbUI.KataEditor = class {
 
 	destroy() {
 		if(this._editorToolbar && typeof this._editorToolbar.destroy === 'function') this._editorToolbar.destroy();
+		if(this._find) this._find.destroy();
 		this._ac.destroy();
 		CerbUI.KataEditor._instances.delete(this.el);
 		if(this.textarea) {
@@ -450,6 +454,10 @@ CerbUI.KataEditor = class {
 			{ id:'dedent',       keys:['Shift-Tab'],      label:'Dedent',          menu:'close', run:() => this._dedent() },
 			{ id:'toggleComment',keys:['Mod-Slash'],      label:'Toggle comment',  menu:'close', run:() => this._toggleComment() },
 			{ id:'autocomplete', keys:['Mod-Space'],      label:'Show suggestions',menu:'open',  run:() => this._ac.trigger() },
+		];
+		// Find is available even in readOnly editors (replace is gated separately).
+		const find = [
+			{ id:'find', keys:['Mod-F'], label:'Find', menu:'close', run:() => this._find.open() },
 		];
 		const list = (this.opts.readOnly ? fold : edit.concat(fold)).concat(find);
 		const keys = CerbUI.editorCore.keys;

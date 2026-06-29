@@ -131,6 +131,12 @@ CerbUI.JsonEditor = class {
 		this._rebuildProjection();  // initial render (projection === model while nothing is folded)
 
 		if(this.opts.validate) this.validate();  // surface any error in the seeded value right away
+
+		// Core editor-family hook: a caller can add extensible toolbar `sections` to any editor (opt-in via opts.toolbar).
+		CerbUI.editorCore.attachToolbar(this, this.opts);
+
+		// Find/Replace (Mod-F) — shared controller + a folding adapter (model⇄projection offset mapping).
+		this._find = new CerbUI.editorCore.FindController(this, CerbUI.editorCore.makeFindAdapter(this, 'folding'));
 	}
 
 	// ── Public API ──────────────────────────────────────────────────────
@@ -309,6 +315,7 @@ CerbUI.JsonEditor = class {
 	getLine(row) { const l = this._modelLines(); return (row >= 0 && row < l.length) ? l[row] : ''; }
 
 	destroy() {
+		if(this._find) this._find.destroy();
 		if(this._validateTimer !== null) { clearTimeout(this._validateTimer); this._validateTimer = null; }
 		CerbUI.JsonEditor._instances.delete(this.el);
 		if(this.textarea) {
@@ -338,7 +345,10 @@ CerbUI.JsonEditor = class {
 			{ id:'indent',       keys:['Tab'],            label:'Indent',          run:() => this._indent() },
 			{ id:'dedent',       keys:['Shift-Tab'],      label:'Dedent',          run:() => this._dedent() },
 		];
-		const list = this.opts.readOnly ? fold : edit.concat(fold);
+		const find = [
+			{ id:'find', keys:['Mod-F'], label:'Find', run:() => this._find.open() },
+		];
+		const list = (this.opts.readOnly ? fold : edit.concat(fold)).concat(find);
 		for(const sc of list) sc._parsed = sc.keys.map(k => keys.parse(k));
 		return list;
 	}
@@ -591,6 +601,7 @@ CerbUI.JsonEditor = class {
 		let toks = this._tokenize(this.textarea.value);
 		toks = this._injectIndentGuides(this._injectFoldMarks(toks));
 		CerbUI.editorCore.renderTokens(this.highlight, toks, CerbUI.JsonEditor._TOK_CLASS);
+		if(this._find) this._find.repaintBands();   // re-add find-match bands (the mirror was just wiped)
 		this._syncScroll();
 	}
 

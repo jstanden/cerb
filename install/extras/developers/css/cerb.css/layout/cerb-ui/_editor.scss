@@ -31,3 +31,147 @@
 .cerb-ui-editor--tok-kscript-string { color: var(--cerb-editor-syntax-string); }
 .cerb-ui-editor--tok-kscript-number { color: var(--cerb-editor-syntax-numeric); }
 .cerb-ui-editor--tok-kscript-func   { color: var(--cerb-editor-syntax-function); }
+
+// ── Find/Replace (Ctrl/Cmd+F) — shared by every editor in the family (CerbUI.editorCore.FindController) ──
+// The controller mounts the floating panel into the editor's root element, so the root must be a positioning
+// context. The editors are display:flex with overflow:hidden already; adding position:relative is inert otherwise.
+.cerb-ui-kataeditor,
+.cerb-ui-jsoneditor,
+.cerb-ui-scriptingeditor,
+.cerb-ui-dataquery,
+.cerb-ui-markdowneditor {
+    position: relative;
+}
+
+// The floating panel, anchored top-right over the field (above the textarea at z-index:1).
+.cerb-ui-editor-find {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 4px;
+    background: var(--cerb-color-background);
+    border: 1px solid var(--cerb-color-background-contrast-220);
+    border-radius: 5px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    font-family: var(--cerb-font-stack);
+    font-size: var(--cerb-font-size);
+
+    // An author `display` beats the UA `[hidden]{display:none}` rule, so restore it explicitly — otherwise the
+    // panel never hides on Close and the (phase-3) replace row shows despite its `hidden` attribute.
+    &[hidden] { display: none; }
+
+    &--row {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+
+        &[hidden] { display: none; }
+    }
+
+    &--input,
+    &--replace-input {
+        box-sizing: border-box;
+        width: 14em;
+        margin: 0;
+        padding: 2px 6px;
+        border: 1px solid var(--cerb-color-background-contrast-200);
+        border-radius: 3px;
+        background: var(--cerb-color-background);
+        color: var(--cerb-color-text);
+        font-family: var(--cerb-font-stack-fixed);
+        font-size: 0.95em;
+        line-height: 1.5;
+
+        &:focus { outline: none; border-color: var(--cerb-color-action-primary); }
+    }
+
+    // Match counter ("3 / 12") — muted, fixed width so the nav buttons don't jump as digits change.
+    &--count {
+        min-width: 4em;
+        padding: 0 2px;
+        text-align: center;
+        font-size: 0.85em;
+        font-variant-numeric: tabular-nums;
+        color: var(--cerb-color-background-contrast-150);
+        white-space: nowrap;
+    }
+
+    // Icon nav buttons (prev/next/close) — strip native chrome, tint on hover.
+    &--btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        height: 1.6em;
+        min-width: 1.6em;
+        padding: 0 0.3em;
+        margin: 0;
+        border: 0;
+        border-radius: 3px;
+        background: transparent;
+        color: var(--cerb-color-text);
+        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+
+        &:hover { background: color-mix(in srgb, currentColor 14%, transparent); }
+        &:focus-visible { outline: 1px solid var(--cerb-color-action-primary); }
+
+        .cerb-icons { font-size: 1em; }
+    }
+
+    // The text toggles (Aa case, .* regex) — a bordered chip that fills in when active (aria-pressed).
+    &--toggle {
+        box-sizing: border-box;
+        height: 1.6em;
+        min-width: 1.8em;
+        padding: 0 0.3em;
+        margin: 0;
+        border: 1px solid var(--cerb-color-background-contrast-200);
+        border-radius: 3px;
+        background: transparent;
+        color: var(--cerb-color-background-contrast-150);
+        font-family: var(--cerb-font-stack-fixed);
+        font-size: 0.85em;
+        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+
+        &:hover { color: var(--cerb-color-text); }
+        &:focus-visible { outline: 1px solid var(--cerb-color-action-primary); }
+    }
+    &--toggle-on {
+        background: var(--cerb-color-action-primary);
+        border-color: var(--cerb-color-action-primary);
+        color: #fff;
+    }
+
+    // No-match state: the counter + query field read red.
+    &--nomatch {
+        .cerb-ui-editor-find--count { color: var(--cerb-color-tag-red); }
+        .cerb-ui-editor-find--input { border-color: var(--cerb-color-tag-red); color: var(--cerb-color-tag-red); }
+    }
+}
+
+// Match decoration bands — absolutely positioned (inline coords) inside each editor's scroll-synced --highlight
+// overlay, painted BEHIND the colored mirror text (z-index:-1), exactly like KataEditor's --active-line band.
+// All matches get a soft tint; the current match a stronger fill + outline, and is appended last so it reads over
+// the rest. Shared classes (not per-editor) because the coordinate origin is the same overlay box everywhere.
+.cerb-ui-editor-find--match,
+.cerb-ui-editor-find--current {
+    position: absolute;
+    z-index: -1;
+    pointer-events: none;
+    border-radius: 2px;
+}
+.cerb-ui-editor-find--match {
+    background: color-mix(in srgb, var(--cerb-color-tag-orange) 26%, transparent);
+}
+.cerb-ui-editor-find--current {
+    background: color-mix(in srgb, var(--cerb-color-tag-orange) 55%, transparent);
+    outline: 1px solid var(--cerb-color-tag-orange);
+}
