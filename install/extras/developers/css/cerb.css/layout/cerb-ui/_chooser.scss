@@ -109,14 +109,17 @@
 // ── RecordChooser field (autocomplete input + magnifier) ─────────────────────
 .cerb-ui-record-chooser {
 	display: inline-flex;
-	align-items: center;
+	// Top-align so the search/＋ buttons sit on the first row of tiles (a multi-select field wraps its
+	// tiles onto several rows; centering would float the buttons to the vertical middle).
+	align-items: flex-start;
 	gap: 0.5em;
 	max-width: 100%;
 	min-width: 220px;
+	box-sizing: border-box;
 	padding: 0.35em 0.7em;
 	border: 1px solid var(--cerb-color-background-contrast-220);
 	border-radius: 6px;
-	background: var(--cerb-color-background);
+	background: var(--cerb-color-form-input-background);
 	color: inherit;
 
 	&:hover,
@@ -134,6 +137,9 @@
 	gap: 0.35em;
 	flex: 1 1 auto;
 	min-width: 0;
+	// Floor the field to a tile's height (avatar is a fixed 22px) so the empty/placeholder state is the
+	// same height as a selected record — using px (not em) so it holds at any inherited font size.
+	min-height: 22px;
 }
 
 // Tiles flow with the input (display:contents so they participate in the field's wrap)
@@ -192,22 +198,27 @@
 	margin: 0;
 	background: none;
 	color: inherit;
+	caret-color: var(--cerb-color-text);
 	font: inherit;
+	line-height: 22px;
 	outline: none;
 	box-shadow: none;
 	-webkit-appearance: none;
 	appearance: none;
-	transition: opacity 0.12s ease;
 }
 .cerb-ui-record-chooser--input[hidden] { display: none; }
 
-// Multiple + tiles present: collapse the idle input (hide the placeholder/text); reveal + grow on
-// hover or focus, so the field stays compact until you intend to add more.
+// Multiple + tiles present: keep the idle input compact (no placeholder text), then grow on hover or
+// focus so you can add more. It stays a NONZERO width even when idle — a width:0 input would otherwise
+// place the caret in a zero-width box on focus, leaving it invisible until the first keystroke.
 .cerb-ui-record-chooser--multiple.cerb-ui-record-chooser--has-tiles:not(:hover):not(:focus-within) .cerb-ui-record-chooser--input {
-	flex: 0 0 0;
-	width: 0;
-	min-width: 0;
-	opacity: 0;
+	flex: 0 1 auto;
+	min-width: 1.5em;
+}
+// With tiles already present the in-field "Participants" placeholder is redundant (the field label says
+// so) and clutters the caret position — hide it whenever tiles exist, leaving a clean cursor.
+.cerb-ui-record-chooser--multiple.cerb-ui-record-chooser--has-tiles .cerb-ui-record-chooser--input::placeholder {
+	color: transparent;
 }
 
 .cerb-ui-record-chooser--label {
@@ -229,7 +240,8 @@
 }
 
 // Search button — looks like an actual button (it opens the full search popup), not decoration
-.cerb-ui-record-chooser--search-btn {
+.cerb-ui-record-chooser--search-btn,
+.cerb-ui-record-chooser--create-btn {
 	flex: 0 0 auto;
 	display: inline-flex;
 	align-items: center;
@@ -249,6 +261,9 @@
 	&:active { background: var(--cerb-color-background-contrast-245); }
 	&[hidden] { display: none; } // explicit display: otherwise beats the UA [hidden] rule
 }
+
+// The opt-in "+" create button sits just after the search magnifier
+.cerb-ui-record-chooser--create-btn { margin-left: 0.25em; }
 
 // Empty-state leading glyph: a plain abstract user icon (no avatar circle)
 .cerb-ui-record-chooser--empty-icon {
