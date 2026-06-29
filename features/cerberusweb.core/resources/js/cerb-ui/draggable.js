@@ -56,10 +56,13 @@ CerbUI.Draggable = class {
 
 	refresh() { this._applyItemClasses(); return this; }
 
-	// The draggable item that owns a pointer target (the element itself, or a matching child).
+	// The draggable item that owns a pointer target (the element itself, or the INNERMOST matching child — so a
+	// nested item tree drags the clicked node, not an enclosing ancestor; flat palettes resolve the same item).
 	_itemFor(target) {
 		if(!this.opts.items) return (this.el === target || this.el.contains(target)) ? this.el : null;
-		return Array.from(this.el.querySelectorAll(this.opts.items)).find(it => it === target || it.contains(target)) || null;
+		if(!(target instanceof Element)) return null;
+		const item = target.closest(this.opts.items);
+		return (item && this.el.contains(item)) ? item : null;
 	}
 
 	_onPointerDown(e) {
