@@ -18,6 +18,7 @@ const el = CerbUI.Avatar.create({
 	seed:      '',          // hashes to the color; stable per identity (defaults to label if omitted)
 	imageUrl:  '',          // optional photo — the monogram shows first, the image swaps in on load
 	icon:      '',          // a cerb-icons name → paints that glyph instead of initials (e.g. 'bot', 'calendar')
+	color:     '',          // any CSS color → forces the background instead of the seed-derived hue (e.g. a category's configured color)
 	size:      0,           // px; scales the circle + font together (0 = CSS default, 22px)
 	className: '',          // extra class(es) added alongside cerb-ui-avatar
 	tag:       'span',      // the element tag to create
@@ -35,7 +36,7 @@ CerbUI.Avatar.color('worker:5');            // a stable css color for that seed
 CerbUI.Avatar.hash('worker:5');             // the 32-bit seed hash
 
 // ── data-* attributes read by the enhancer ──
-// data-avatar="Jane Doe"  data-avatar-seed="worker:5"  data-avatar-image="/avatar/worker/5"  data-avatar-size="32"  data-avatar-icon="bot"{/literal}</pre>
+// data-avatar="Jane Doe"  data-avatar-seed="worker:5"  data-avatar-image="/avatar/worker/5"  data-avatar-size="32"  data-avatar-icon="bot"  data-avatar-color="#c0392b"{/literal}</pre>
 			</div>
 		</div>
 
@@ -69,6 +70,24 @@ CerbUI.Avatar.hash('worker:5');             // the 32-bit seed hash
 
 // …or on server-rendered markup via the enhancer:
 // &lt;span class="cerb-ui-avatar" data-avatar-icon="bot" data-avatar-seed="cerb.contexts.bot"&gt;&lt;/span&gt;{/literal}</pre>
+			</div>
+		</div>
+
+		{* Example: static color — `color` forces the background, overriding the seed-derived hue *}
+		<div class="cerb-ui-header">
+			<div class="cerb-ui-header--label">Static color &mdash; pass <code>color</code> (any CSS color) to <strong>force the background</strong> instead of the hash-locked hue from <code>seed</code>. Use it when a record carries its own configured color (a category, a status, a calendar). Pairs with <code>icon</code> or initials; the foreground stays readable</div>
+		</div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<div id="uiref-avatar-colors" class="cerb-u-flex cerb-u-flex-wrap cerb-u-items-center cerb-u-gap-2"></div>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>{literal}CerbUI.Avatar.create({ icon: 'calendar', color: '#c0392b', size: 32 });
+
+// …or on server-rendered markup via the enhancer:
+// &lt;span class="cerb-ui-avatar" data-avatar-icon="calendar" data-avatar-color="#c0392b"&gt;&lt;/span&gt;{/literal}</pre>
 			</div>
 		</div>
 
@@ -220,6 +239,24 @@ new CerbUI.AvatarStack(el2, {
 		icons.forEach(function(i) {
 			const el = CerbUI.Avatar.create({ icon: i.icon, seed: i.seed, size: 32 });
 			el.setAttribute('title', i.title);
+			host.appendChild(el);
+		});
+	})();
+
+	// Static color: `color` forces the background, paired with an icon or initials
+	(function() {
+		const host = document.getElementById('uiref-avatar-colors');
+		if(!host) return;
+		const swatches = [
+			{ icon: 'calendar', color: '#c0392b', title: 'Holidays' },
+			{ icon: 'calendar', color: '#2980b9', title: 'On-call' },
+			{ icon: 'tag', color: '#27ae60', title: 'Billing' },
+			{ icon: 'tag', color: '#8e44ad', title: 'Escalations' },
+			{ label: 'Acme', color: '#d35400', title: 'Acme (static)' }
+		];
+		swatches.forEach(function(s) {
+			const el = CerbUI.Avatar.create({ icon: s.icon, label: s.label, color: s.color, size: 32 });
+			el.setAttribute('title', s.title);
 			host.appendChild(el);
 		});
 	})();

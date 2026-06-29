@@ -15,8 +15,11 @@
  * Pass an `icon` (option) or data-avatar-icon (a cerb-icons name) to paint a glyph inside the color-locked
  * circle instead of initials — e.g. a record-type / category avatar that's an icon, not a person's monogram.
  *
+ * Pass a `color` (option) or data-avatar-color (any CSS color) to force the background instead of the
+ * seed-derived one — e.g. a category avatar tinted to its configured color.
+ *
  * Enhancer data-* attributes (all optional except the label):
- *   data-avatar="Jane Doe"  data-avatar-seed="worker:5"  data-avatar-image="/avatar/worker/5"  data-avatar-size="32"  data-avatar-icon="bot"
+ *   data-avatar="Jane Doe"  data-avatar-seed="worker:5"  data-avatar-image="/avatar/worker/5"  data-avatar-size="32"  data-avatar-icon="bot"  data-avatar-color="#c0392b"
  *
  * CerbUI.AvatarStack — a row of overlapping avatars with a trailing "+N" for the overflow. Enhance a
  * container of [data-avatar] children (new CerbUI.AvatarStack(el)) or pass { items:[…], max, size }.
@@ -66,7 +69,7 @@ CerbUI.Avatar = class {
 		}
 		const label = spec.label || '';
 		const seed = (spec.seed != null && spec.seed !== '') ? spec.seed : label;
-		el.style.backgroundColor = CerbUI.Avatar.color(seed);
+		el.style.backgroundColor = (spec.color != null && spec.color !== '') ? spec.color : CerbUI.Avatar.color(seed);
 		el.style.backgroundImage = '';
 		if(spec.icon) {
 			// A cerb-icons glyph in place of initials (inherits the avatar's foreground color).
@@ -127,6 +130,7 @@ CerbUI.Avatar = class {
 			seed:     opts.seed     != null ? opts.seed     : (d.avatarSeed || ''),
 			imageUrl: opts.imageUrl != null ? opts.imageUrl : (d.avatarImage || ''),
 			icon:     opts.icon     != null ? opts.icon     : (d.avatarIcon || ''),
+			color:    opts.color    != null ? opts.color    : (d.avatarColor || ''),
 			size:     sizeAttr || 0,
 			enqueue:  opts.enqueue,
 		};
