@@ -83,6 +83,7 @@ CerbUI.chooserCore = (function() {
 			pageSize:    25,
 			closeOnSelect: true,         // false = stay open after a pick (multi-select: add several)
 			hideOnEmpty: null,           // 0 matches → hide the panel (no placeholder); null = auto (on for inline autocomplete, off for the self-contained popup)
+			plain:       false,          // true = plain text rows (no monogram avatar); an optional per-item `icon` (cerb-icons name) renders a leading glyph instead. For text suggestions (CerbUI.TextChooser) where a record avatar would be meaningless.
 			onSelect:    null,           // (item) => {}
 			onClose:     null,
 			onResults:   null,           // (items, query) => {} after each search renders (e.g. an adder that
@@ -175,7 +176,17 @@ CerbUI.chooserCore = (function() {
 				if(append && i < list.children.length) return; // skip already-rendered
 				const row = document.createElement('li');
 				row.className = 'cerb-ui-chooser--item';
-				row.appendChild(_buildAvatar(item));
+				if(o.plain) {
+					// Plain text suggestion: no monogram. An optional per-item `icon` paints a leading glyph.
+					if(item.icon) {
+						const ic = document.createElement('span');
+						ic.className = 'cerb-icons cerb-icon-' + item.icon + ' cerb-ui-chooser--icon';
+						ic.setAttribute('aria-hidden', 'true');
+						row.appendChild(ic);
+					}
+				} else {
+					row.appendChild(_buildAvatar(item));
+				}
 				// Vertical text stack: label, plus an optional muted second line (e.g. a worker's title)
 				const text = document.createElement('span');
 				text.className = 'cerb-ui-chooser--text';
@@ -190,10 +201,13 @@ CerbUI.chooserCore = (function() {
 					text.appendChild(sub);
 				}
 				row.appendChild(text);
+				// Keep focus on the search field while picking (standard autocomplete behavior) — a row
+				// click otherwise blurs an inline input, misfiring host blur handlers (e.g. date parse-on-blur).
+				row.addEventListener('mousedown', function(e) { e.preventDefault(); });
 				row.addEventListener('click', function() { choose(item); });
 				row.addEventListener('mousemove', function() { setActive(i); });
 				list.appendChild(row);
-				io.observe(row);
+				if(!o.plain) io.observe(row); // no avatars to lazy-load in plain mode
 			});
 
 			if(!items.length) {

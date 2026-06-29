@@ -85,6 +85,38 @@
 	text-align: center;
 }
 
+// Plain-mode (CerbUI.TextChooser) row glyph — sits where the avatar would, muted like a hint
+.cerb-ui-chooser--icon {
+	flex: 0 0 auto;
+	color: var(--cerb-color-background-contrast-150);
+}
+
+// ── TextChooser field (plain input + optional leading icon; suggestions write text, no tile) ──
+// block so the wrapper fills its container (a cerb-ui-form--field column, a table cell, …) — wrapping a
+// full-width input in an icon wrapper then doesn't shrink the field.
+.cerb-ui-text-chooser {
+	position: relative;
+	display: block;
+
+	.cerb-ui-text-chooser--icon {
+		position: absolute;
+		left: 0.6em;
+		top: 50%;
+		transform: translateY(-50%);
+		display: flex;
+		color: var(--cerb-color-background-contrast-150);
+		pointer-events: none;
+	}
+
+	// The wrapped input fills the wrapper by default; an explicit inline width on the input still wins
+	// (fixed-width fields keep their size, icon aligned to the input's left edge).
+	&.cerb-ui-text-chooser--has-icon > input {
+		width: 100%;
+		box-sizing: border-box;
+		padding-left: 2.2em;
+	}
+}
+
 // ── Avatar / monogram cell (shared by the popup rows + the RecordChooser trigger) ──
 .cerb-ui-chooser--avatar {
 	flex: 0 0 auto;
