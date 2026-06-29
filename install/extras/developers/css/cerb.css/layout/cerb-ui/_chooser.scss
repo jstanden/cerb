@@ -17,6 +17,11 @@
 	overflow: hidden;
 }
 
+// Above other popups
+.cerb-ui-chooser--panel-inline {
+	z-index: 10002;
+}
+
 .cerb-ui-chooser--head {
 	padding: 0.5em;
 	border-bottom: 1px solid var(--cerb-color-background-contrast-220);
