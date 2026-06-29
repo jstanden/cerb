@@ -935,3 +935,174 @@ CerbUI.editorCore.searchQuery = {
 		return { path, prefix, prefixRaw, caret };
 	},
 };
+
+/*
+ * EditorToolbar — the built-in CerbUI.Toolbar strip shared by the editor family. Because we own the editors, an
+ * editor that has toolbar-able actions (today only MarkdownEditor's formatting) builds one of these in its own
+ * constructor instead of every call site hand-authoring a button strip. It builds a `cerb-ui-toolbar` <ul> of the
+ * editor's built-in actions, MERGES any host-provided toolbar section <ul>s into it (via CerbUI.Toolbar's own
+ * `sections` — e.g. a worker-configured toolbar record rendered to DOM by ui/toolbar/render.tpl), and inserts the
+ * strip (plus an optional markdown↔plaintext switcher) ABOVE the editor element. CerbUI.Toolbar does the rendering,
+ * dividers, interaction firing, and overflow; this just composes the source list + routes clicks through ONE
+ * dispatch:
+ *
+ *     onAction(value, editor, item, sourceLi)  -> truthy = the host handled it (stop here)
+ *                                              -> falsy  = run the editor's built-in handler (if any)
+ *
+ * So a host conditionally OVERRIDES any built-in (intercept 'bold') and otherwise lets the editor do its default;
+ * host section items (read their data-value / `.cerb-bot-trigger` class / data-* off `sourceLi`) are handled in
+ * onAction, or fire as interactions through CerbUI.Toolbar directly. Per-item callbacks are gone — everything is
+ * the one `onAction` keyed by the clicked item's value.
+ *
+ *   spec = {
+ *     anchor:      el,                              // insert the strip before this (defaults to editor.el)
+ *     builtins:    { name: { icon, title, fn } },   // the editor's built-in actions; fn(editor) is the default
+ *     buttons:     ['bold','italic',…],             // which built-ins to show, in order (default: all builtin keys)
+ *     formatClass: 'cerb-format-md-item',           // built-in items hidden while the switcher is in 'plaintext'
+ *     mode:        false | { value, onSelect },     // optional markdown↔plaintext switcher (value = initial)
+ *     sections:    [ul|selector, …],                // host toolbar section <ul>s merged after the built-ins
+ *     onAction:    (value, editor, item, sourceLi) => bool,   // host override; first crack at every click
+ *     toolbarOpts: { … },                           // passthrough to CerbUI.Toolbar (caller/start/done/bare/overflow/…)
+ *   }
+ */
+CerbUI.editorCore.EditorToolbar = class {
+	constructor(editor, spec = {}) {
+		if(!editor || !window.CerbUI || !CerbUI.Toolbar) return;
+		const anchor = spec.anchor || editor.el;
+		if(!anchor || !anchor.parentNode) return;
+
+		this.editor = editor;
+		this._formatClass = spec.formatClass || null;
+
+		const builtins = spec.builtins || {};
+		const buttons = Array.isArray(spec.buttons) ? spec.buttons : Object.keys(builtins);
+
+		const bar = document.createElement('div');
+		// No bottom margin — the strip sits flush on top of the editor (connected, like the old hand-authored toolbars).
+		bar.className = 'cerb-ui-editor-toolbar cerb-u-flex cerb-u-items-center cerb-u-gap-2';
+		this.el = bar;
+
+		// Optional markdown↔plaintext switcher; flips the editor's mode (via spec.mode.onSelect) and hides the
+		// format buttons in plaintext (they'd be meaningless).
+		if(spec.mode) {
+			const sw = document.createElement('div');
+			sw.className = 'cerb-ui-switcher';
+			sw.innerHTML = '<button type="button" data-value="markdown" title="Markdown"><span class="cerb-icons cerb-icon-paintbrush"></span></button>'
+				+ '<button type="button" data-value="plaintext" title="Plain text"><span class="cerb-icons cerb-icon-text"></span></button>';
+			bar.appendChild(sw);
+			this.switcher = new CerbUI.Switcher(sw, {
+				value: spec.mode.value || 'markdown',
+				onSelect: (v) => {
+					this.toggleFormatItems(v === 'markdown');
+					if(typeof spec.mode.onSelect === 'function') spec.mode.onSelect(v);
+				},
+			});
+		}
+
+		const ul = document.createElement('ul');
+		ul.className = 'cerb-ui-toolbar';
+		this.ul = ul;
+
+		buttons.forEach(name => {
+			const b = builtins[name];
+			if(!b) return;
+			const li = document.createElement('li');
+			li.dataset.value = name;
+			if(b.icon) li.dataset.icon = b.icon;
+			if(b.title) li.title = b.title;
+			if(this._formatClass) li.className = this._formatClass;
+			ul.appendChild(li);
+		});
+
+		bar.appendChild(ul);
+		anchor.parentNode.insertBefore(bar, anchor);
+
+		// CerbUI.Toolbar renders the strip, folds in the host sections (divider between), and fires interactions.
+		this.toolbar = new CerbUI.Toolbar(ul, Object.assign({}, spec.toolbarOpts, {
+			sections: spec.sections,
+			onSelect: (item, sourceLi, e) => {
+				const v = item ? item.value : null;
+				// onAction gets first crack at EVERY activation — including value-less items (e.g. a placeholder-tree
+				// leaf carrying only data-token on its sourceLi). `e` is the click event (e.currentTarget = the strip
+				// button) for anchoring popups. Truthy return = handled.
+				if(typeof spec.onAction === 'function' && spec.onAction(v, editor, item, sourceLi, e)) return;
+				if(!v) return;
+				const b = builtins[v];
+				if(b && typeof b.fn === 'function') { b.fn(editor); return; }
+				if(typeof editor[v] === 'function') editor[v]();  // a method named for the value (else a no-op host item)
+			},
+		}));
+
+		if(spec.mode && spec.mode.value === 'plaintext')
+			this.toggleFormatItems(false);
+	}
+
+	// Drive the markdown↔plaintext switcher programmatically (e.g. a pasted image forcing markdown). Fires the
+	// switcher's onSelect so the editor mode, format-item visibility, and the host onMode all sync. No-op if there's
+	// no switcher.
+	setMode(value) {
+		if(this.switcher && typeof this.switcher.setValue === 'function')
+			this.switcher.setValue(value, { fireCallback: true });
+		return this;
+	}
+
+	toggleFormatItems(show) {
+		if(!this.ul || !this._formatClass) return;
+		const items = this.ul.querySelectorAll('.' + this._formatClass);
+		items.forEach(li => { li.hidden = !show; });
+		// Hide the divider trailing the formatting section too — otherwise a leading divider floats before the
+		// host sections once the format buttons are gone (plaintext mode).
+		if(items.length) {
+			const next = items[items.length - 1].nextElementSibling;
+			if(next instanceof HTMLLIElement && next.children.length === 0 && next.textContent.trim() === ''
+					&& !next.dataset.icon && !next.dataset.label)
+				next.hidden = !show;
+		}
+		if(this.toolbar && typeof this.toolbar.refresh === 'function') this.toolbar.refresh();
+	}
+
+	destroy() {
+		if(this.toolbar && typeof this.toolbar.destroy === 'function') this.toolbar.destroy();
+		if(this.switcher && typeof this.switcher.destroy === 'function') this.switcher.destroy();
+		if(this.el && this.el.parentNode) this.el.parentNode.removeChild(this.el);
+	}
+};
+
+/*
+ * attachToolbar(editor, opts, defaults) — the CORE editor-family hook for a built-in toolbar. EVERY editor calls
+ * this at the end of its constructor, so a caller can add extensible toolbar `sections` to ANY editor (the strip is
+ * inserted above the field). Editors that publish a static `TOOLBAR_BUILTINS` map (today only MarkdownEditor's
+ * formatting) also get those buttons; editors without one are sections-only. No `opts.toolbar` → nothing is built;
+ * `opts.readOnly` suppresses it. `defaults` lets an editor seed config (MarkdownEditor passes `{mode:true}` so its
+ * markdown↔plaintext switcher is on by default). Stores the instance on `editor._editorToolbar` (cleaned up in the
+ * editor's destroy).
+ *
+ *   opts.toolbar = true | { buttons, mode, onMode, sections, onAction, toolbarOpts }
+ */
+CerbUI.editorCore.attachToolbar = function(editor, opts, defaults) {
+	opts = opts || {};
+	if(!editor || !opts.toolbar || opts.readOnly) return null;
+
+	const cfg = Object.assign({}, defaults || {}, (opts.toolbar === true) ? {} : opts.toolbar);
+	const builtins = (editor.constructor && editor.constructor.TOOLBAR_BUILTINS) || {};
+
+	// A markdown↔plaintext switcher only when the config asks for it AND the editor actually has modes.
+	let mode = false;
+	if(cfg.mode && typeof editor.setMode === 'function') {
+		mode = {
+			value: (typeof editor.getMode === 'function') ? editor.getMode() : 'markdown',
+			onSelect: (v) => { editor.setMode(v); if(typeof cfg.onMode === 'function') cfg.onMode(v); },
+		};
+	}
+
+	editor._editorToolbar = new CerbUI.editorCore.EditorToolbar(editor, {
+		builtins: builtins,
+		buttons: cfg.buttons,
+		formatClass: cfg.formatClass || 'cerb-ui-editor-toolbar--format',
+		mode: mode,
+		sections: cfg.sections,
+		onAction: cfg.onAction,
+		toolbarOpts: cfg.toolbarOpts,
+	});
+	return editor._editorToolbar;
+};
