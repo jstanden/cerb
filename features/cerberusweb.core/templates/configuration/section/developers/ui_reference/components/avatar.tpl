@@ -55,6 +55,24 @@ CerbUI.Avatar.hash('worker:5');             // the 32-bit seed hash
 			</div>
 		</div>
 
+		{* Example: tile — the --tile modifier swaps the circle for a rounded square *}
+		<div class="cerb-ui-header">
+			<div class="cerb-ui-header--label">Tile &mdash; add <code>cerb-ui-avatar--tile</code> for a rounded square instead of a circle. Reads better at larger sizes (profile / card headers). The radius is a percentage so it scales with <code>size</code>; override per-instance with <code>--cerb-ui-avatar-radius</code></div>
+		</div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<div id="uiref-avatar-tile" class="cerb-u-flex cerb-u-flex-wrap cerb-u-items-center cerb-u-gap-3"></div>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>{literal}CerbUI.Avatar.create({ label: 'Acme', seed: 'org:42', size: 48, className: 'cerb-ui-avatar--tile' });
+
+// …or on server-rendered markup:
+// &lt;span class="cerb-ui-avatar cerb-ui-avatar--tile" data-avatar="Acme" data-avatar-seed="org:42" data-avatar-size="48"&gt;&lt;/span&gt;{/literal}</pre>
+			</div>
+		</div>
+
 		{* Example: icon — a cerb-icons glyph in place of initials, inside the same hash-locked circle *}
 		<div class="cerb-ui-header">
 			<div class="cerb-ui-header--label">Icon &mdash; pass <code>icon</code> (a <a href="#icon">cerb-icons</a> name) and the avatar paints that glyph instead of initials, still over the <strong>hash-locked color</strong> from <code>seed</code>. Use it for record-type / category avatars that read better as a symbol than a monogram. The glyph inherits the avatar's foreground color</div>
@@ -188,6 +206,41 @@ new CerbUI.AvatarStack(el2, {
 });{/literal}</pre>
 			</div>
 		</div>
+
+		{* Example: badged avatar — a circular status pill pinned to the avatar's corner *}
+		<div class="cerb-ui-header">
+			<div class="cerb-ui-header--label">Badged &mdash; wrap an avatar in <code>cerb-avatar-badged</code> and drop a <a href="#pill">cerb-ui-pill--circle</a> alongside it to pin a status to the bottom-right corner. The badge sits outside the avatar's clip and gets a ring in the page background. Used for the conversation timeline (sent / received / draft / comment)</div>
+		</div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<div id="uiref-avatar-badged" class="cerb-u-flex cerb-u-flex-wrap cerb-u-items-center cerb-u-gap-3">
+					<span class="cerb-avatar-badged">
+						<span class="cerb-ui-avatar" data-avatar="Jane Doe" data-avatar-seed="worker:1" data-avatar-size="48"></span>
+						<span class="cerb-ui-pill cerb-ui-pill--circle cerb-ui-pill--red" title="Received"><span class="cerb-icons cerb-icon-download"></span></span>
+					</span>
+					<span class="cerb-avatar-badged">
+						<span class="cerb-ui-avatar" data-avatar="Ravi Patel" data-avatar-seed="worker:2" data-avatar-size="48"></span>
+						<span class="cerb-ui-pill cerb-ui-pill--circle cerb-ui-pill--green" title="Sent"><span class="cerb-icons cerb-icon-upload"></span></span>
+					</span>
+					<span class="cerb-avatar-badged">
+						<span class="cerb-ui-avatar" data-avatar="Mia Wong" data-avatar-seed="worker:3" data-avatar-size="48"></span>
+						<span class="cerb-ui-pill cerb-ui-pill--circle cerb-ui-pill--gray" title="Draft"><span class="cerb-icons cerb-icon-edit"></span></span>
+					</span>
+					<span class="cerb-avatar-badged">
+						<span class="cerb-ui-avatar" data-avatar="Sam Lee" data-avatar-seed="worker:4" data-avatar-size="48"></span>
+						<span class="cerb-ui-pill cerb-ui-pill--circle cerb-ui-pill--blue" title="Comment"><span class="cerb-icons cerb-icon-comments"></span></span>
+					</span>
+				</div>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>&lt;span class="cerb-avatar-badged"&gt;
+	&lt;span class="cerb-ui-avatar" data-avatar="Jane Doe" data-avatar-seed="worker:1" data-avatar-size="48"&gt;&lt;/span&gt;
+	&lt;span class="cerb-ui-pill cerb-ui-pill--circle cerb-ui-pill--green" title="Sent"&gt;&lt;span class="cerb-icons cerb-icon-upload"&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;/span&gt;</pre>
+			</div>
+		</div>
 	</div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}">
@@ -221,6 +274,21 @@ new CerbUI.AvatarStack(el2, {
 		if(!host) return;
 		[22, 32, 48, 64].forEach(function(size) {
 			host.appendChild(CerbUI.Avatar.create({ label: 'Acme', seed: 'org:42', size: size }));
+		});
+	})();
+
+	// Tile: the --tile modifier (rounded square), demoed across a monogram, an icon, and a few sizes
+	(function() {
+		const host = document.getElementById('uiref-avatar-tile');
+		if(!host) return;
+		[
+			{ label: 'Acme', seed: 'org:42', size: 32 },
+			{ label: 'Acme', seed: 'org:42', size: 48 },
+			{ label: 'Acme', seed: 'org:42', size: 64 },
+			{ icon: 'building-office', seed: 'cerb.contexts.org', size: 64 }
+		].forEach(function(s) {
+			s.className = 'cerb-ui-avatar--tile';
+			host.appendChild(CerbUI.Avatar.create(s));
 		});
 	})();
 
@@ -282,6 +350,9 @@ new CerbUI.AvatarStack(el2, {
 
 	// Enhance in place: paint every server-rendered [data-avatar] within the scope
 	CerbUI.Avatar.enhance('#uiref-avatar-enhance');
+
+	// Badged: paint the avatars that carry a corner status pill
+	CerbUI.Avatar.enhance('#uiref-avatar-badged');
 
 	// Avatar stack: enhance the data-avatar children (data-max caps the footprint with a +N)
 	if(CerbUI.AvatarStack) {

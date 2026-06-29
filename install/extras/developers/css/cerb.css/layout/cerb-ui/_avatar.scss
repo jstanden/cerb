@@ -20,6 +20,28 @@
 	user-select: none;
 
 	img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+	// Tile variant — a rounded square for larger avatars (profile/card headers) where a soft rect reads
+	// better than a circle. Radius is a percentage so it scales with the inline size; override per-instance
+	// via the `--cerb-ui-avatar-radius` custom property.
+	&.cerb-ui-avatar--tile { border-radius: var(--cerb-ui-avatar-radius, 22%); }
+}
+
+// Badged avatar: a positioning context that pins a small circular status pill (sent/received/
+// draft/comment) to the bottom-right corner of an avatar. The inner avatar may be a .cerb-ui-avatar
+// or a plain <img>; the badge sits outside the avatar's overflow:hidden so it isn't clipped.
+.cerb-avatar-badged {
+	position: relative;
+	display: inline-block;
+	line-height: 0; // kill the inline-image descender gap
+
+	> .cerb-ui-pill {
+		position: absolute;
+		right: -2px;
+		bottom: -2px;
+		// Ring in the page bg so the badge separates cleanly from the avatar edge
+		box-shadow: 0 0 0 2px var(--cerb-color-background);
+	}
 }
 
 // Avatar stack: a row of overlapping avatars + a trailing "+N" overflow bubble (CerbUI.AvatarStack).
