@@ -1,0 +1,53 @@
+// DiffViewer: a read-only side-by-side KATA diff — the plain-JS replacement for the ace-diff changeset viewer.
+// Two .cerb-ui-kataeditor panes (left = historical, right = current) with a center --connector SVG. The panes
+// are read-only KataEditors; this file styles the layout, the per-line add/remove tints (painted via KataEditor
+// --line-deco bands), and the connector bands. Behavior + geometry live in JS (CerbUI.DiffViewer).
+.cerb-ui-diffviewer {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+
+    &--pane {
+        flex: 1 1 0;
+        min-width: 0;
+        display: flex;
+
+        > .cerb-ui-kataeditor {
+            flex: 1;
+            min-width: 0;
+        }
+    }
+
+    // Center gutter the connector bands are drawn into. Fixed width; the editor gutter background so the curves
+    // read as bridging the two panes. An inline <svg> has a 300px intrinsic width, and flex items default to
+    // min-width:auto — so WITHOUT an explicit width + min-width:0 the basis is ignored and it balloons to 300px.
+    &--connector {
+        flex: 0 0 50px;
+        width: 50px;
+        min-width: 0;
+        align-self: stretch;
+        background: var(--cerb-editor-gutter-background);
+        overflow: visible;
+    }
+
+    // Per-line tints (applied to KataEditor --line-deco bands). Removed = red on the left pane, added = green on
+    // the right; the same 18% mix as the active-line band keeps the KATA glyphs legible over the tint.
+    &--line-removed { background: color-mix(in srgb, var(--cerb-color-tag-red) 18%, transparent); }
+    &--line-added   { background: color-mix(in srgb, var(--cerb-color-tag-green) 18%, transparent); }
+
+    // Connector bands bridging a change block across the gutter — filled, no stroke, a touch stronger than the
+    // line tints so the curve reads against the gutter. added (right-only) green, removed (left-only) red, a
+    // two-sided change neutral blue.
+    &--connector-band { stroke: none; }
+    &--connector-removed { fill: color-mix(in srgb, var(--cerb-color-tag-red) 22%, transparent); }
+    &--connector-added   { fill: color-mix(in srgb, var(--cerb-color-tag-green) 22%, transparent); }
+    &--connector-changed { fill: color-mix(in srgb, var(--cerb-color-tag-blue) 18%, transparent); }
+
+    // Pure insertion/deletion boundary rule — drawn INSIDE the editor that has no lines for the change, as a thin
+    // border on the line-deco band at that boundary row (top rule normally; bottom rule when it's past the last
+    // line). The band itself stays transparent; only the border shows.
+    &--gap-added       { border-top:    1px solid color-mix(in srgb, var(--cerb-color-tag-green) 60%, transparent); }
+    &--gap-added-end   { border-bottom: 1px solid color-mix(in srgb, var(--cerb-color-tag-green) 60%, transparent); }
+    &--gap-removed     { border-top:    1px solid color-mix(in srgb, var(--cerb-color-tag-red) 60%, transparent); }
+    &--gap-removed-end { border-bottom: 1px solid color-mix(in srgb, var(--cerb-color-tag-red) 60%, transparent); }
+}
