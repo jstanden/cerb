@@ -1,9 +1,9 @@
 	<div class="cerb-uiref-component" id="kataeditor">
 		<div class="cerb-uiref-component--label"><span class="cerb-icons cerb-icon-placeholders"></span>KataEditor</div>
 
-		{* Example 1: schema-driven — the kataFieldSource adapter against a real cerbAutocompleteSuggestions schema *}
+		{* Example 1: schema-driven — the kataFieldSource adapter against a real CerbUI.editorCore.autocompleteSchemas schema *}
 		<div class="cerb-ui-header">
-			<div class="cerb-ui-header--label">A multi-line textarea editor for Cerb's <b>KATA</b> syntax (the eventual Ace replacement) &mdash; live highlighting (keys, <code>/identifiers</code>, <code>@annotations</code>, values, <code>{literal}{{ scripting }}{/literal}</code>, <code>#&nbsp;comments</code>), a line-number gutter, indentation guides (<code>indentGuides</code>, on by default), and Tab = 2 spaces / Shift+Tab dedent. <b>The usual setup:</b> <code>kataFieldSource(schema)</code> wires KATA autocomplete to a path-keyed suggestion map (static keys + dynamic types that hit Cerb's endpoints). Ctrl/&#8984;+Space to suggest, &darr; to pick. Try a new <code>series:</code> child, or <code>metric:</code> (dynamic names) and <code>filters:</code> (dynamic dimensions). <b>KataScript</b> autocomplete is built in wherever a tag is open (each suggestion shows a colored type icon): <code>{literal}{%{/literal} f</code> &rarr; <code>for</code> (command), <code>{literal}{{{/literal} </code> &rarr; functions, after a <code>|</code> pipe &rarr; filters, and inside a call's <code>(&hellip;</code> &rarr; that function/filter's <b>arguments</b> (try <code>{literal}{{ array_column({/literal}</code>). <b>Gutter markers</b> render left of the numbers &mdash; this demo seeds a warning on line&nbsp;3 and toggles a breakpoint pip when you click the left margin</div>
+			<div class="cerb-ui-header--label">A multi-line textarea editor for Cerb's <b>KATA</b> syntax (the eventual Ace replacement) &mdash; live highlighting (keys, <code>/identifiers</code>, <code>@annotations</code>, values, <code>{literal}{{ scripting }}{/literal}</code>, <code>#&nbsp;comments</code>), a line-number gutter, indentation guides (<code>indentGuides</code>, on by default), and Tab = 2 spaces / Shift+Tab dedent. <b>Ctrl/&#8984;+F</b> opens find &amp; replace (live match count, prev/next with wrap, case &amp; regex toggles &mdash; folded matches reveal on navigate). <b>The usual setup:</b> <code>kataFieldSource(schema)</code> wires KATA autocomplete to a path-keyed suggestion map (static keys + dynamic types that hit Cerb's endpoints). Ctrl/&#8984;+Space to suggest, &darr; to pick. Try a new <code>series:</code> child, or <code>metric:</code> (dynamic names) and <code>filters:</code> (dynamic dimensions). <b>KataScript</b> autocomplete is built in wherever a tag is open (each suggestion shows a colored type icon): <code>{literal}{%{/literal} f</code> &rarr; <code>for</code> (command), <code>{literal}{{{/literal} </code> &rarr; functions, after a <code>|</code> pipe &rarr; filters, and inside a call's <code>(&hellip;</code> &rarr; that function/filter's <b>arguments</b> (try <code>{literal}{{ array_column({/literal}</code>). <b>Gutter markers</b> render left of the numbers &mdash; this demo seeds a warning on line&nbsp;3 and toggles a breakpoint pip when you click the left margin</div>
 		</div>
 		<div class="cerb-uiref-example">
 			<div class="cerb-uiref-demo">
@@ -47,7 +47,7 @@ const ed = new CerbUI.KataEditor(el, {
 	// kataFieldSource(map, opts?) — a ready-made source: looks the normalized key-path up in a path-keyed
 	// suggestion map. Values are a static Array, or a dynamic { type, params? } that POSTs to Cerb's
 	// c=ui&a=kataSuggestions<Type>Json endpoints (reading sibling values back out of the editor).
-	onAutocomplete: CerbUI.KataEditor.kataFieldSource(cerbAutocompleteSuggestions.kataSchemaMetricsExplorerSeries),
+	onAutocomplete: CerbUI.KataEditor.kataFieldSource(CerbUI.editorCore.autocompleteSchemas.kataSchemaMetricsExplorerSeries),
 	// onGutterClick: (modelRow, e) => {}, // click the left marker margin (e.g. toggle a breakpoint)
 });{/literal}</pre>
 			</div>
@@ -94,7 +94,12 @@ ed.setMarker(6, {icon:'stopwatch', color:'purple', title:'await:'}); // any cerb
 ed.setMarker(8, {pip:true, color:'red', title:'Breakpoint'});        // a colored dot instead of an icon
 ed.clearMarker(2);                              // remove one row's marker
 ed.getMarkers();                                // Map(modelRow -> {type,icon,color,title,pip})
-ed.clearMarkers();                              // remove every marker{/literal}</pre>
+ed.clearMarkers();                              // remove every marker
+
+// Active "matched" line — full-width body band + tinted gutter cell (e.g. a tester's matched rule):
+ed.highlightLine(2);                            // default accent (red)
+ed.highlightLine(2, {color:'green'});           // any Cerb tag color: red|green|blue|orange|purple|gray
+ed.clearHighlight();                            // remove it{/literal}</pre>
 			</div>
 		</div>
 
@@ -152,19 +157,77 @@ const localSource = function(ctx) {
 new CerbUI.KataEditor(el, { onAutocomplete: localSource, minLines: 4, maxLines: 10 });{/literal}</pre>
 			</div>
 		</div>
+
+		{* Example 3: sections-only toolbar — KataEditor ships no built-in buttons, the caller supplies its own *}
+		<div class="cerb-ui-header">
+			<div class="cerb-ui-header--label"><b>Toolbar sections</b> &mdash; every editor can show a built-in <code>cerb-ui-toolbar</code> strip above the field. KataEditor publishes no formatting buttons (no <code>TOOLBAR_BUILTINS</code>), so it's <b>sections-only</b>: the caller passes its own <code>cerb-ui-toolbar</code> <code>&lt;ul&gt;</code>(s) via <code>toolbar.sections</code> and the editor merges + wires them. One <code>onAction(value, editor, item, sourceLi)</code> handles every click &mdash; here it delegates to the editor's own <code>foldAll()</code>/<code>unfoldAll()</code> or runs a custom snippet insert</div>
+		</div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<ul class="cerb-ui-toolbar" id="uiref-kataeditor-sections-toolbar" hidden>
+					<li data-value="foldAll" data-icon="chevron-right" title="Fold all"></li>
+					<li data-value="unfoldAll" data-icon="chevron-down" title="Unfold all"></li>
+					<li></li>
+					<li data-value="snippet" data-icon="clipboard" title="Insert label snippet"></li>
+				</ul>
+				<div class="cerb-ui-kataeditor" id="uiref-kataeditor-sections">
+					<div class="cerb-ui-kataeditor--gutter" aria-hidden="true"></div>
+					<div class="cerb-ui-kataeditor--field">
+						<div class="cerb-ui-kataeditor--highlight" aria-hidden="true"></div>
+						<textarea class="cerb-ui-kataeditor--input" data-editor-lines="10" spellcheck="false">series/opened:
+  metric: ticket.created
+  function: count
+series/closed:
+  metric: ticket.closed
+  function: count
+</textarea>
+						<span class="cerb-ui-kataeditor--caret-anchor"></span>
+					</div>
+				</div>
+				<div class="cerb-uiref-result">Last action &middot; <b id="uiref-kataeditor-sections-out">&mdash;</b></div>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>&lt;!-- The host section: a cerb-ui-toolbar &lt;ul&gt; the editor merges into its strip (it builds the strip itself). --&gt;
+&lt;ul class="cerb-ui-toolbar" id="more" hidden&gt;
+	&lt;li data-value="foldAll" data-icon="chevron-right" title="Fold all"&gt;&lt;/li&gt;
+	&lt;li data-value="unfoldAll" data-icon="chevron-down" title="Unfold all"&gt;&lt;/li&gt;
+	&lt;li&gt;&lt;/li&gt;
+	&lt;li data-value="snippet" data-icon="clipboard" title="Insert label snippet"&gt;&lt;/li&gt;
+&lt;/ul&gt;</pre>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>{literal}// KataEditor publishes no TOOLBAR_BUILTINS, so it has no formatting buttons — a caller adds its own via `sections`.
+// One onAction routes every click by value: delegate to the editor's own methods (foldAll/unfoldAll) or run a
+// custom action. (Returning falsy would fall through to a built-in, of which KataEditor has none.)
+new CerbUI.KataEditor(el, {
+	toolbar: {
+		sections: [document.getElementById('more')],
+		onAction: (value, ed, item, sourceLi) => {
+			if(value === 'snippet') { ed.insertSnippet('label: $0'); ed.focus(); return true; }
+			if(typeof ed[value] === 'function') { ed[value](); return true; } // foldAll / unfoldAll
+			return false;
+		},
+	},
+});{/literal}</pre>
+			</div>
+		</div>
 	</div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}">
 (function() {
-	// KataEditor #1 — the kataFieldSource adapter against a real cerbAutocompleteSuggestions schema
+	// KataEditor #1 — the kataFieldSource adapter against a real CerbUI.editorCore.autocompleteSchemas schema
 	(function() {
 		const el = document.getElementById('uiref-kataeditor-schema');
 		const out = document.getElementById('uiref-kataeditor-schema-path');
-		if(el && window.CerbUI && CerbUI.KataEditor && window.cerbAutocompleteSuggestions) {
+		if(el && window.CerbUI && CerbUI.KataEditor && CerbUI.editorCore && CerbUI.editorCore.autocompleteSchemas) {
 			const ed = new CerbUI.KataEditor(el, {
 				minLines: 6,
 				maxLines: 16,
-				onAutocomplete: CerbUI.KataEditor.kataFieldSource(cerbAutocompleteSuggestions.kataSchemaMetricsExplorerSeries),
+				onAutocomplete: CerbUI.KataEditor.kataFieldSource(CerbUI.editorCore.autocompleteSchemas.kataSchemaMetricsExplorerSeries),
 				// Click the left gutter margin to toggle a breakpoint pip (markers render left of the numbers).
 				onGutterClick: function(row) {
 					const mk = ed.getMarkers().get(row);
@@ -174,6 +237,8 @@ new CerbUI.KataEditor(el, { onAutocomplete: localSource, minLines: 4, maxLines: 
 			});
 			// A seeded marker so the gutter column shows an icon example (errors/warnings/info live left of #s).
 			ed.setMarker(2, { type:'warning', title:'Example warning' });
+			// A seeded active "matched" line: full-width body band + tinted gutter cell (default accent is red).
+			ed.highlightLine(4, { color:'green' });
 			// Show the editor state at the caret as you move around: inside a script tag, the KataScript
 			// context (open delimiter / sub-context / partial word, or the enclosing call for args); else the path.
 			const ta = el.querySelector('.cerb-ui-kataeditor--input');
@@ -214,6 +279,27 @@ new CerbUI.KataEditor(el, { onAutocomplete: localSource, minLines: 4, maxLines: 
 				return CerbUI.editorCore.filterItems(items, ctx.prefix);
 			};
 			new CerbUI.KataEditor(el, { onAutocomplete: localSource, minLines: 4, maxLines: 10 });
+		}
+	})();
+
+	// KataEditor #3 — a caller-provided sections-only toolbar (no built-in formatting buttons)
+	(function() {
+		const el = document.getElementById('uiref-kataeditor-sections');
+		const more = document.getElementById('uiref-kataeditor-sections-toolbar');
+		const out = document.getElementById('uiref-kataeditor-sections-out');
+		if(el && more && window.CerbUI && CerbUI.KataEditor) {
+			new CerbUI.KataEditor(el, {
+				minLines: 6,
+				maxLines: 12,
+				toolbar: {
+					sections: [more],
+					onAction: function(value, ed) {
+						if(value === 'snippet') { ed.insertSnippet('label: $0'); ed.focus(); if(out) out.textContent = 'insertSnippet'; return true; }
+						if(typeof ed[value] === 'function') { ed[value](); if(out) out.textContent = value; return true; }
+						return false;
+					},
+				},
+			});
 		}
 	})();
 })();

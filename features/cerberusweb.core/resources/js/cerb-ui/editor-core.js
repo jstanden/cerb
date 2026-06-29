@@ -80,10 +80,10 @@ CerbUI.editorCore = {
 		'whiteSpace', 'wordWrap', 'overflowWrap',
 	],
 
-	// Render a token list into the mirror --highlight element. `classMap` maps a token's `type` to a CSS class
-	// (no class = plain text). A trailing newline collapses the mirror's last line, so pad it to keep heights
-	// in lockstep with the textarea.
-	renderTokens: function(highlightEl, tokens, classMap) {
+	// Build the mirror HTML string for a token list (no DOM write). Split out from renderTokens so a windowed
+	// renderer (KataEditor's viewport virtualization) can compose it between spacer <div>s. A trailing newline
+	// collapses the last line under `white-space:pre`, so pad it to keep heights in lockstep with the textarea.
+	tokensToHtml: function(tokens, classMap) {
 		const esc = CerbUI.editorCore.escapeHtml;
 		let html = '';
 		for(const t of tokens) {
@@ -94,7 +94,24 @@ CerbUI.editorCore = {
 			html += cls ? ('<span class="' + cls + '">' + esc(t.value) + '</span>') : esc(t.value);
 		}
 		if(html.endsWith('\n')) html += ' ';
-		highlightEl.innerHTML = html;
+		return html;
+	},
+
+	// Render a token list into the mirror --highlight element. `classMap` maps a token's `type` to a CSS class
+	// (no class = plain text).
+	renderTokens: function(highlightEl, tokens, classMap) {
+		highlightEl.innerHTML = CerbUI.editorCore.tokensToHtml(tokens, classMap);
+	},
+
+	// Pure viewport math for row virtualization: given the textarea's scroll position + height and the line
+	// height, return the clamped [first,last] VIEW-row range to paint (plus `overscan` buffer rows each side).
+	// Node-testable (no DOM). `viewRowCount` is the projection's line count.
+	computeWindow: function(scrollTop, clientHeight, lh, viewRowCount, overscan) {
+		if(!(lh > 0) || viewRowCount <= 0) return { first: 0, last: Math.max(0, viewRowCount - 1) };
+		const over = (overscan == null) ? 12 : overscan;
+		const first = Math.max(0, Math.min(Math.floor(scrollTop / lh) - over, viewRowCount - 1));
+		const last = Math.min(viewRowCount - 1, Math.ceil((scrollTop + clientHeight) / lh) + over);
+		return { first: first, last: Math.max(first, last) };
 	},
 
 	syncScroll: function(textarea, highlightEl) {
@@ -210,6 +227,22 @@ CerbUI.editorCore = {
 	},
 };
 
+// Run `cb` once, the first time `el` becomes visible. For editors constructed/setValue'd inside a display:none
+// panel (preview tabs, collapsed fieldsets): a hidden textarea reports scrollHeight 0, so _autosize would clamp
+// to minLines and never recover. This lets _autosize defer the measure until the panel is revealed. Returns a
+// disposer; degrades to a no-op where IntersectionObserver is unavailable.
+CerbUI.editorCore.onFirstReveal = function(el, cb) {
+	if(typeof IntersectionObserver === 'undefined') return function() {};
+	let obs = new IntersectionObserver(function(entries) {
+		if(!obs) return; // already fired/disposed — ignore any trailing batch
+		for(const e of entries) {
+			if(e.isIntersecting) { obs.disconnect(); obs = null; cb(); break; }
+		}
+	});
+	obs.observe(el);
+	return function() { if(obs) { obs.disconnect(); obs = null; } };
+};
+
 /*
  * CerbUI.editorCore.Autocomplete — the caret-anchored suggestion-menu controller shared by both editors.
  *
@@ -241,9 +274,14 @@ CerbUI.editorCore.Autocomplete = class {
 		this._token = 0;     // monotonic guard
 		this._timer = null;  // debounce timer
 		this.navigated = false; // true once the user arrows INTO the menu
+		this._pointerInMenu = false; // true while the mouse is hovering the open menu (Enter then selects the hovered row)
 	}
 
 	isOpen() { return !!(this._menu && this._menu.isOpen()); }
+
+	// True while the pointer is over the open menu — so a host's Enter handler can select the hover-highlighted
+	// row even when the user never arrowed into the list (the menu popped up under a resting mouse).
+	pointerInMenu() { return this._pointerInMenu; }
 
 	schedule() {
 		this.clearTimer();
@@ -289,8 +327,10 @@ CerbUI.editorCore.Autocomplete = class {
 
 		const ul = document.createElement('ul'); // detached; CerbUI.Menu only reads its <li> children
 		ul.hidden = true;
+		let _i = 0;
 		for(const it of items) {
 			const li = document.createElement('li');
+			li.dataset.acIndex = String(_i++); // back-reference to the source item for the per-item onSelect hook
 			li.textContent = (it.caption != null) ? it.caption : (it.value != null ? it.value : '');
 			li.dataset.value = (it.value != null) ? it.value : (it.caption != null ? it.caption : '');
 			if(it.snippet != null) li.dataset.snippet = it.snippet;
@@ -298,31 +338,141 @@ CerbUI.editorCore.Autocomplete = class {
 			if(it.hint) li.dataset.hint = it.hint;
 			if(it.icon) li.dataset.icon = it.icon;
 			if(it.iconColor) li.dataset.iconColor = it.iconColor;
+			// Optional rich-row fields (e.g. @mention: avatar + name + right-aligned handle + a subtitle line).
+			// Purely additive — only set when a source supplies them, so plain icon/hint sources are unaffected.
+			if(it.avatar) {
+				li.dataset.avatarLabel = it.avatar.label || (it.caption || '');
+				if(it.avatar.seed) li.dataset.avatarSeed = it.avatar.seed;
+				if(it.avatar.imageUrl) li.dataset.avatarImage = it.avatar.imageUrl;
+			}
+			if(it.handle) li.dataset.handle = it.handle;
+			if(it.subtitle) li.dataset.subtitle = it.subtitle;
 			ul.appendChild(li);
 		}
 		this._menuUl = ul;
+		this._items = items; // kept so onSelect can reach a chosen item's custom onSelect hook
 		this.navigated = false; // a fresh list isn't navigated until the user arrows into it
+
+		// Rich rows (avatar @mentions, or a two-line label + description like #commands) are taller — itemHeight
+		// must match the CSS height for the virtualized-scroll math, and they get a wider panel so the label and
+		// its description aren't truncated.
+		const richRows = items.some(it => it && (it.avatar || it.subtitle));
 
 		this._menu = new CerbUI.Menu(ul, {
 			// absolute (not fixed) so the dropdown is placed at document coords and scrolls WITH the field/page,
 			// staying glued to the caret instead of locking to the viewport.
 			fixed: false,
 			closeOnSelect: true,
+			itemHeight: richRows ? 40 : 28,
+			panelClass: richRows ? 'cerb-ui-editor-menu--wide' : undefined,
 			onRenderItem: (li, src) => this._renderItem(li, src),
 			onClose: () => { this.navigated = false; },
-			onSelect: (li, src) => this._apply({
-				insert: (src.dataset.snippet != null) ? src.dataset.snippet : src.dataset.value,
-				suppress: src.dataset.suppress === '1',
-			}),
+			onSelect: (li, src) => {
+				// A source item may carry its own onSelect(editor, ac) for non-default insertion (e.g. the reply
+				// composer's #delete_quote_from_here / #snippet picks). When present it fully handles the pick.
+				const item = this._items ? this._items[+(src.dataset.acIndex)] : null;
+				if(item && typeof item.onSelect === 'function') {
+					this.close();
+					item.onSelect(this.opts.editor, this);
+					return;
+				}
+				this._apply({
+					insert: (src.dataset.snippet != null) ? src.dataset.snippet : src.dataset.value,
+					suppress: src.dataset.suppress === '1',
+				});
+			},
 		});
 
 		this._positionAnchor(sp.caret);
 		this._menu.open(this.caretAnchor);
+
+		// Track whether the pointer is over the menu so a hovered row is Enter-selectable (mouseover, not
+		// mouseenter, so it also fires when the menu pops up under an already-resting mouse).
+		this._pointerInMenu = false;
+		const panel = (this._menu.pnls && this._menu.pnls[0]) ? (this._menu.pnls[0].outer || this._menu.pnls[0].el) : null;
+		if(panel) {
+			panel.addEventListener('mouseover', () => { this._pointerInMenu = true; });
+			panel.addEventListener('mouseleave', () => { this._pointerInMenu = false; });
+		}
 	}
 
-	// onRenderItem hook: optional leading icon (tinted by tag color via a custom property the active-row
-	// highlight can override) + a muted right-aligned hint (e.g. a field type or doc snippet).
+	// onRenderItem hook: a rich avatar row (@mention: avatar + name/handle on one line + a subtitle line) when
+	// the source supplied avatar fields, else the plain leading-icon + muted right-aligned hint.
 	_renderItem(li, src) {
+		if(src.dataset.avatarLabel && window.CerbUI && CerbUI.Avatar && typeof CerbUI.Avatar.create === 'function') {
+			li.classList.add('cerb-ui-editor-menu--rich');
+
+			// The name lives in the Menu's --label span; move its text into our own text column.
+			const labelEl = li.querySelector('.cerb-ui-menu--label');
+			const name = labelEl ? labelEl.textContent : src.dataset.avatarLabel;
+			if(labelEl) labelEl.remove();
+
+			const avatar = CerbUI.Avatar.create({
+				label: src.dataset.avatarLabel,
+				seed: src.dataset.avatarSeed || src.dataset.avatarLabel,
+				imageUrl: src.dataset.avatarImage || null,
+				size: 28,
+			});
+			avatar.classList.add('cerb-ui-editor-menu--avatar');
+			li.insertBefore(avatar, li.firstChild);
+
+			// Line 1: name (left) + the @handle (right). Line 2 (optional): the subtitle (e.g. title).
+			const text = document.createElement('span');
+			text.className = 'cerb-ui-editor-menu--text';
+
+			const nameLine = document.createElement('span');
+			nameLine.className = 'cerb-ui-editor-menu--nameline';
+			const nameSpan = document.createElement('span');
+			nameSpan.className = 'cerb-ui-editor-menu--name';
+			nameSpan.textContent = name;
+			nameLine.appendChild(nameSpan);
+			if(src.dataset.handle) {
+				const h = document.createElement('span');
+				h.className = 'cerb-ui-editor-menu--handle';
+				h.textContent = src.dataset.handle;
+				nameLine.appendChild(h);
+			}
+			text.appendChild(nameLine);
+
+			if(src.dataset.subtitle) {
+				const sub = document.createElement('span');
+				sub.className = 'cerb-ui-editor-menu--sub';
+				sub.textContent = src.dataset.subtitle;
+				text.appendChild(sub);
+			}
+			li.insertBefore(text, avatar.nextSibling);
+			return;
+		}
+
+		// Two-line row WITHOUT an avatar (e.g. #command: the label on top, its description muted below) — keeps
+		// the label from being truncated by a right-aligned hint.
+		if(src.dataset.subtitle) {
+			li.classList.add('cerb-ui-editor-menu--rich');
+
+			const labelEl = li.querySelector('.cerb-ui-menu--label');
+			const name = labelEl ? labelEl.textContent : (src.dataset.value || '');
+			if(labelEl) labelEl.remove();
+
+			const text = document.createElement('span');
+			text.className = 'cerb-ui-editor-menu--text';
+
+			const nameLine = document.createElement('span');
+			nameLine.className = 'cerb-ui-editor-menu--nameline';
+			const nameSpan = document.createElement('span');
+			nameSpan.className = 'cerb-ui-editor-menu--name';
+			nameSpan.textContent = name;
+			nameLine.appendChild(nameSpan);
+			text.appendChild(nameLine);
+
+			const sub = document.createElement('span');
+			sub.className = 'cerb-ui-editor-menu--sub';
+			sub.textContent = src.dataset.subtitle;
+			text.appendChild(sub);
+
+			li.appendChild(text);
+			return;
+		}
+
 		if(src.dataset.icon) {
 			const ico = document.createElement('span');
 			const name = src.dataset.icon;
@@ -349,6 +499,12 @@ CerbUI.editorCore.Autocomplete = class {
 		if(typeof this.opts.onAfterApply === 'function') this.opts.onAfterApply();
 		this.textarea.focus();
 		if(suppress) return;
+		// Don't immediately re-open the menu when the pick COMPLETED the current token — a non-empty prefix at
+		// the new caret means we'd just re-offer the value we inserted. Re-suggest only when the caret was left
+		// in a fresh slot (empty prefix), i.e. a chain like `sender:($0)` descending into a new scope. Typing
+		// re-triggers normally via the input handler.
+		const sp = this.opts.onScope(this.textarea.value, this.textarea.selectionStart);
+		if(sp && sp.prefix) return;
 		this.trigger();
 	}
 
@@ -385,6 +541,7 @@ CerbUI.editorCore.Autocomplete = class {
 			this._menu = null;
 		}
 		this._menuUl = null;
+		this._pointerInMenu = false;
 	}
 
 	destroy() {
@@ -392,6 +549,12 @@ CerbUI.editorCore.Autocomplete = class {
 		this.close();
 	}
 };
+
+// KATA field-autocomplete schema maps (kataToolbar, kataSchemaSheet, …), relocated from cerberus.js to
+// autocomplete-schemas.js. Canonical accessor for the per-context suggestion maps fed to
+// CerbUI.KataEditor.kataFieldSource(). Attached here (not in autocomplete-schemas.js) because this file
+// reassigns CerbUI.editorCore wholesale above and loads after that file in both dev and the bundle.
+CerbUI.editorCore.autocompleteSchemas = (typeof cerbAutocompleteSuggestions !== 'undefined' && cerbAutocompleteSuggestions) || {};
 
 /*
  * CerbUI.editorCore.kataScript — composable highlighting + autocomplete for Cerb's scripting tags.

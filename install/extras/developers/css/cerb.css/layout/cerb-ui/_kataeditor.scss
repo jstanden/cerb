@@ -6,6 +6,9 @@
 .cerb-ui-kataeditor {
     --cerb-ui-kataeditor-pad-y: 0.4em;
     --cerb-ui-kataeditor-pad-x: 0.6em;
+    // Accent for the active/"matched" line (gutter cell + body band). A Cerb tag color; the JS overrides it inline
+    // per-call when highlightLine(row, {color}) is given. Default = red (e.g. the routing tester's matched rule).
+    --cerb-ui-kataeditor-active-accent: var(--cerb-color-tag-red);
 
     display: flex;
     align-items: stretch;
@@ -23,6 +26,7 @@
         flex-shrink: 0;
         box-sizing: border-box;
         padding: var(--cerb-ui-kataeditor-pad-y) 0.5em;
+        background: var(--cerb-editor-gutter-background);
         border-right: 1px solid var(--cerb-editor-gutter-border, var(--cerb-color-background-contrast-200));
         overflow: hidden;
         line-height: 1.5;
@@ -34,9 +38,42 @@
     }
 
     // The gutter isn't overlaid with the caret, so weight changes here are safe (no glyph-advance concerns).
+    // Active/"matched" row: a solid accent cell with a white number (mirrors the body line band below).
     &--gutter-line-active {
-        color: var(--cerb-color-text);
+        background: var(--cerb-ui-kataeditor-active-accent);
+        color: #fff;
         font-weight: 600;
+        border-radius: 3px;
+    }
+
+    // Active-line body band: a full-width tint painted BEHIND the colored mirror text (the JS appends it to
+    // --highlight at z-index:-1 and positions top/height inline). color-mix keeps the glyphs crisp over the tint.
+    &--active-line {
+        position: absolute;
+        left: 0;
+        right: 0;
+        z-index: -1;
+        pointer-events: none;
+        background: color-mix(in srgb, var(--cerb-ui-kataeditor-active-accent) 18%, transparent);
+    }
+
+    // Full-width line decoration band — same painting model as --active-line (behind the mirror text), but a SET
+    // of rows each carrying a caller-supplied class for its color. The base only positions; the color class wins
+    // (e.g. CerbUI.DiffViewer's --line-added / --line-removed tints). No background here so the class can set it.
+    &--line-deco {
+        position: absolute;
+        left: 0;
+        right: 0;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    // Viewport-virtualization spacers (large docs): empty block <div>s above/below the rendered row window, sized
+    // inline (height) to stand in for the off-screen rows so the mirror/gutter content height stays equal to the
+    // full document height and scroll-sync (scrollTop mirroring) keeps the window aligned with the textarea.
+    &--vspace {
+        display: block;
+        pointer-events: none;
     }
 
     // Each gutter row is a flex line: marker (left) | number (flex, right-aligned) | fold chevron (right).
@@ -210,4 +247,22 @@
     // meet (continuous, not dashed); vertical padding on an INLINE box paints but doesn't reflow, so there's no
     // height change and no caret drift.
     &--indent-guide { box-shadow: inset 1px 0 0 var(--cerb-color-background-contrast-225); padding: 0.35em 0; }
+}
+
+// Read-only viewer: a muted caret (the field can't be edited, but folding + selection still work).
+.cerb-ui-kataeditor--readonly .cerb-ui-kataeditor--input {
+    caret-color: transparent;
+}
+
+// A CerbUI.Toolbar overlaid at the editor's top-right corner (like SearchQuery's --right toolbar). The
+// editor is overflow:hidden, so the floating strip lives on this relative wrapper AROUND it, not inside.
+.cerb-ui-kataeditor-wrap {
+    position: relative;
+
+    > .cerb-ui-toolbar--strip {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        z-index: 2;
+    }
 }

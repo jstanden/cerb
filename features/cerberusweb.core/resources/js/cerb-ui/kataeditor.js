@@ -24,7 +24,7 @@
  * Usage:
  *   new CerbUI.KataEditor(document.getElementById('ed'), {
  *     minLines: 4, maxLines: 25,
- *     onAutocomplete: CerbUI.KataEditor.kataFieldSource(cerbAutocompleteSuggestions.kataAutomationPolicy),
+ *     onAutocomplete: CerbUI.KataEditor.kataFieldSource(CerbUI.editorCore.autocompleteSchemas.kataAutomationPolicy),
  *   });
  *
  * Form integration: a textarea can only hold the folded PROJECTION, so when the authored <textarea> carries a
@@ -48,7 +48,15 @@ CerbUI.KataEditor = class {
 		placeholder: null,
 		onGutterClick: null,      // (modelRow, e) when the left marker column is clicked (e.g. toggle a breakpoint)
 		onOpenUri: null,          // (uri) override for the hover "Open" action on a cerb: URI (default: open its peek)
+		readOnly: false,          // highlight + fold only; disable text-mutating keys (data-editor-readonly overrides)
+		folding: true,            // false = never foldable (no chevrons); keeps 1 model row = 1 view row (e.g. a diff pane)
 	};
+
+	// Viewport virtualization (large docs): at or below this many VIEW rows we paint the whole mirror + gutter
+	// (today's exact path — zero alignment risk for the common small doc); above it we paint only the visible
+	// window + OVERSCAN buffer rows, with block spacer <div>s above/below so scroll-sync still lines up.
+	static _VIRTUALIZE_MIN_ROWS = 200;
+	static _OVERSCAN = 12;
 
 	constructor(el, opts = {}) {
 		el = (typeof el === 'string') ? document.querySelector(el) : el;
@@ -57,9 +65,10 @@ CerbUI.KataEditor = class {
 		this.el = el;
 		this.opts = Object.assign({}, CerbUI.KataEditor._DEFAULTS, opts);
 
-		const lines = el.querySelector('.cerb-ui-kataeditor--input') &&
-			el.querySelector('.cerb-ui-kataeditor--input').getAttribute('data-editor-lines');
+		const input0 = el.querySelector('.cerb-ui-kataeditor--input');
+		const lines = input0 && input0.getAttribute('data-editor-lines');
 		if(lines) this.opts.maxLines = parseInt(lines, 10) || this.opts.maxLines;
+		if(input0 && input0.hasAttribute('data-editor-readonly')) this.opts.readOnly = true;
 
 		this.textarea = el.querySelector('.cerb-ui-kataeditor--input');
 		this.field = el.querySelector('.cerb-ui-kataeditor--field');
@@ -89,8 +98,10 @@ CerbUI.KataEditor = class {
 		}
 
 		this.tab = ' '.repeat(this.opts.tabSize);
-		this._highlightRow = null;   // a MODEL row marked active in the gutter, or null
+		this._highlightRow = null;   // a MODEL row marked active (line band + gutter cell), or null
+		this._highlightColor = null; // optional Cerb tag color name for the active line (e.g. 'red'); null = default
 		this._markers = new Map();   // MODEL row -> gutter marker descriptor {type,icon,color,title,pip} (left of numbers)
+		this._lineDecos = new Map(); // MODEL row -> CSS class for a full-width body band (e.g. a diff add/remove tint)
 		this._changeCbs = [];
 		this._suppressInput = false; // true while _writeValue applies an edit (ignore the echoed `input` event)
 
@@ -102,12 +113,28 @@ CerbUI.KataEditor = class {
 		this._hidden = new Set();    // cached set of hidden MODEL rows (= union of every fold's startRow+1..endRow)
 		this._lastProjection = this.textarea.value; // last textarea value we reconciled into the model
 
+		// ── Viewport-virtualization render model (rebuilt only when the projection text changes) ──
+		this._renderModelKey = null; // projection text the cached render model was built from (single-slot)
+		this._lineToks = null;       // per-VIEW-line token arrays (grouped from _tokenize's flat output)
+		this._indents = null;        // per-VIEW-line leading-space count (-1 blank), for indent-guide context
+		this._viewToModel = null;    // view-row -> model-row map (for the windowed gutter)
+		this._foldMarkRows = new Set(); // VIEW rows that are collapsed fold headers (paint a fold indicator)
+		this._renderedFirst = 0;     // currently-painted window [first,last] (view rows), for the scroll moved-check
+		this._renderedLast = -1;
+		this._painting = false;      // re-entry guard: _paintHighlightWindow ends in _syncScroll
+		this._scrollRaf = 0;         // rAF handle coalescing the scroll-driven window repaint
+		this._lineHeight = 0;        // cached lineHeight px (refreshed in _autosize / paint), avoids per-scroll getComputedStyle
+
 		// Code, not prose — disable the browser's text-assist features that fight the overlay + suggestions.
 		this.textarea.spellcheck = false;
 		this.textarea.setAttribute('autocomplete', 'off');
 		this.textarea.setAttribute('autocorrect', 'off');
 		this.textarea.setAttribute('autocapitalize', 'off');
 		if(this.opts.placeholder != null) this.textarea.placeholder = this.opts.placeholder;
+		if(this.opts.readOnly) {
+			this.textarea.readOnly = true;
+			this.el.classList.add('cerb-ui-kataeditor--readonly');
+		}
 
 		this._ac = new CerbUI.editorCore.Autocomplete({
 			textarea: this.textarea,
@@ -134,7 +161,7 @@ CerbUI.KataEditor = class {
 
 		this._onInput = (e) => this._handleInput(e);
 		this._onKeydown = (e) => this._handleKeydown(e);
-		this._onScroll = () => this._syncScroll();
+		this._onScroll = () => this._handleScroll();
 		this._onBlur = () => { this._ac.clearTimer(); };
 		this._onGutterClick = (e) => this._handleGutterClick(e);
 
@@ -145,6 +172,9 @@ CerbUI.KataEditor = class {
 		if(this.gutter) this.gutter.addEventListener('click', this._onGutterClick);
 
 		this._rebuildProjection();  // initial render (projection === model while nothing is folded)
+
+		// Core editor-family hook: a caller can add extensible toolbar `sections` to any editor (opt-in via opts.toolbar).
+		CerbUI.editorCore.attachToolbar(this, this.opts);
 	}
 
 	// ── Public API (mirrors the Ace surface the automation editor depends on) ──
@@ -157,7 +187,8 @@ CerbUI.KataEditor = class {
 		this._model = str ?? '';
 		this._folds = [];                 // a fresh document drops all folds
 		this._markers.clear();            // …and all row-keyed gutter markers
-		this._rebuildProjection();
+		this._lineDecos.clear();          // …and all row-keyed line decorations (diff bands)
+		this._rebuildProjection(0);       // a fresh document starts at the top (caret + scroll), like the editor family
 		this._fireChange();
 		return this;
 	}
@@ -220,8 +251,32 @@ CerbUI.KataEditor = class {
 
 	// Highlight a MODEL row in the gutter — the hook the run-step line marker / phase-2 error callouts use.
 	// Reveals the row if it's hidden inside a fold so the marker is actually visible.
-	highlightLine(row) { this._highlightRow = row; this._revealModelRow(row); this._renderGutter(); return this; }
-	clearHighlight() { this._highlightRow = null; this._renderGutter(); return this; }
+	// Mark a MODEL row "active": a full-width line band in the editor body + a tinted gutter cell. `opts.color` is a
+	// Cerb tag color name ('red'|'green'|'blue'|'orange'|'purple'|'gray'); omitted = the component default accent.
+	highlightLine(row, opts) { this._highlightRow = row; this._highlightColor = (opts && opts.color) || null; this._revealModelRow(row); this._renderActiveLineBand(); this._renderGutter(); return this; }
+	clearHighlight() { this._highlightRow = null; this._highlightColor = null; this._renderActiveLineBand(); this._renderGutter(); return this; }
+
+	// The active-line background band, painted BEHIND the colored mirror text (z-index:-1 inside --highlight, which
+	// is the scroll-synced overlay, so the band tracks both axes of scroll). Recreated on each highlight repaint
+	// because _renderHighlight() replaces the mirror's innerHTML. Positioned by VIEW row (folds shift rows).
+	_renderActiveLineBand() {
+		if(!this.highlight) return;
+		const prev = this.highlight.querySelector('.cerb-ui-kataeditor--active-line');
+		if(prev) prev.remove();
+		if(this._highlightRow == null) return;
+		const vr = this._modelRowToViewRow(this._highlightRow);
+		if(vr < 0) return;                                  // hidden inside a collapsed fold
+		const cs = window.getComputedStyle(this.textarea);
+		const lh = parseFloat(cs.lineHeight) || (parseFloat(cs.fontSize) * 1.5);
+		const padTop = parseFloat(cs.paddingTop) || 0;
+		const band = document.createElement('div');
+		band.className = 'cerb-ui-kataeditor--active-line';
+		band.style.top = (padTop + vr * lh) + 'px';
+		band.style.height = lh + 'px';
+		if(this._highlightColor)
+			band.style.setProperty('--cerb-ui-kataeditor-active-accent', 'var(--cerb-color-tag-' + this._highlightColor + ')');
+		this.highlight.appendChild(band);
+	}
 
 	// ── Gutter markers (LEFT of the line numbers; MODEL-space) ──
 	// Host-driven per-line marks: parse errors/warnings (KATA `_line` metadata), a run cursor / `await:`
@@ -243,6 +298,19 @@ CerbUI.KataEditor = class {
 	clearMarker(modelRow) { if(this._markers.delete(modelRow)) this._renderGutter(); return this; }
 	clearMarkers() { if(this._markers.size) { this._markers.clear(); this._renderGutter(); } return this; }
 	getMarkers() { return new Map(this._markers); }
+
+	// ── Line decorations (full-width body bands; MODEL rows) ──
+	// Replace the whole set of line bands in one shot: a Map or plain object of MODEL row -> CSS class. Each row
+	// gets a tinted full-width band behind its text (the class supplies the color). CerbUI.DiffViewer drives this
+	// to paint add/remove lines; it's deliberately generic (any host could tint matched/error lines).
+	setLineDecorations(map) {
+		this._lineDecos = new Map();
+		if(map instanceof Map) { for(const [k, v] of map) this._lineDecos.set(k | 0, v); }
+		else if(map && typeof map === 'object') { for(const k in map) this._lineDecos.set(parseInt(k, 10), map[k]); }
+		this._renderLineDecorations();
+		return this;
+	}
+	clearLineDecorations() { if(this._lineDecos.size) { this._lineDecos.clear(); this._renderLineDecorations(); } return this; }
 
 	onChange(cb) { if(typeof cb === 'function') this._changeCbs.push(cb); return this; }
 
@@ -346,6 +414,7 @@ CerbUI.KataEditor = class {
 	getLine(row) { const l = this._modelLines(); return (row >= 0 && row < l.length) ? l[row] : ''; }
 
 	destroy() {
+		if(this._editorToolbar && typeof this._editorToolbar.destroy === 'function') this._editorToolbar.destroy();
 		this._ac.destroy();
 		CerbUI.KataEditor._instances.delete(this.el);
 		if(this.textarea) {
@@ -355,6 +424,8 @@ CerbUI.KataEditor = class {
 			this.textarea.removeEventListener('blur', this._onBlur);
 		}
 		if(this.gutter && this._onGutterClick) this.gutter.removeEventListener('click', this._onGutterClick);
+		if(this._revealDisposer) { this._revealDisposer(); this._revealDisposer = null; }
+		if(this._scrollRaf) { cancelAnimationFrame(this._scrollRaf); this._scrollRaf = 0; }
 	}
 
 	// ── Keyboard shortcuts (abstract, enumerable registry) ──────────────
@@ -364,19 +435,23 @@ CerbUI.KataEditor = class {
 	// (plain ↑/↓, Enter, Escape) stay imperative in _handleKeydown — they branch on menu state, not commands.
 
 	_buildShortcuts() {
-		const list = [
+		// Read-only editors only fold/resize — never mutate text or pop autocomplete.
+		const fold = [
+			{ id:'fold',         keys:['Mod-BracketLeft'],  label:'Fold',          menu:'close', run:() => this._foldAtCaret() },
+			{ id:'unfold',       keys:['Mod-BracketRight'], label:'Unfold',        menu:'close', run:() => this._unfoldAtCaret() },
+			{ id:'growEditor',   keys:['Mod-Shift-ArrowDown'], label:'Taller editor',  menu:'close', run:() => this._resizeMaxLines(1) },
+			{ id:'shrinkEditor', keys:['Mod-Shift-ArrowUp'],   label:'Shorter editor', menu:'close', run:() => this._resizeMaxLines(-1) },
+		];
+		const edit = [
 			{ id:'deleteLine',   keys:['Mod-D','Alt-D'],  label:'Delete line',     menu:'close', run:() => this._deleteLine() },
 			{ id:'moveLineUp',   keys:['Alt-ArrowUp'],    label:'Move line up',    menu:'close', run:() => this._moveLine(-1) },
 			{ id:'moveLineDown', keys:['Alt-ArrowDown'],  label:'Move line down',  menu:'close', run:() => this._moveLine(1) },
 			{ id:'indent',       keys:['Tab'],            label:'Indent',          menu:'close', run:() => this._indent() },
 			{ id:'dedent',       keys:['Shift-Tab'],      label:'Dedent',          menu:'close', run:() => this._dedent() },
 			{ id:'toggleComment',keys:['Mod-Slash'],      label:'Toggle comment',  menu:'close', run:() => this._toggleComment() },
-			{ id:'fold',         keys:['Mod-BracketLeft'],  label:'Fold',          menu:'close', run:() => this._foldAtCaret() },
-			{ id:'unfold',       keys:['Mod-BracketRight'], label:'Unfold',        menu:'close', run:() => this._unfoldAtCaret() },
-			{ id:'growEditor',   keys:['Mod-Shift-ArrowDown'], label:'Taller editor',  menu:'close', run:() => this._resizeMaxLines(1) },
-			{ id:'shrinkEditor', keys:['Mod-Shift-ArrowUp'],   label:'Shorter editor', menu:'close', run:() => this._resizeMaxLines(-1) },
 			{ id:'autocomplete', keys:['Mod-Space'],      label:'Show suggestions',menu:'open',  run:() => this._ac.trigger() },
 		];
+		const list = (this.opts.readOnly ? fold : edit.concat(fold)).concat(find);
 		const keys = CerbUI.editorCore.keys;
 		for(const sc of list) sc._parsed = sc.keys.map(k => keys.parse(k));
 		return list;
@@ -511,7 +586,7 @@ CerbUI.KataEditor = class {
 		}
 
 		// Enter (menu closed) — newline with KATA auto-indent.
-		if(e.key === 'Enter') {
+		if(!this.opts.readOnly && e.key === 'Enter') {
 			e.preventDefault();
 			this._insertNewline();
 		}
@@ -541,6 +616,12 @@ CerbUI.KataEditor = class {
 		let so = old.length, sn = value.length;
 		while(so > p && sn > p && old[so - 1] === value[sn - 1]) { so--; sn--; }
 		const insert = value.slice(p, sn);
+
+		// execCommand('insertText') is pathologically slow on large spans (a Replace-All across a 9k-line doc
+		// hangs for a minute). Above this threshold, write directly — fast, at the cost of native undo for this
+		// one bulk op. The caller sets the caret + calls _refresh(), so no input event / render is needed here.
+		const BIG_EDIT = 10000;
+		if(Math.max(so - p, insert.length) > BIG_EDIT) { ta.value = value; return; }
 
 		let ok = false;
 		this._suppressInput = true;   // execCommand re-emits `input` synchronously; the caller drives the refresh
@@ -742,10 +823,158 @@ CerbUI.KataEditor = class {
 	// ── Highlighting + gutter + sizing ──────────────────────────────────
 
 	_renderHighlight() {
-		let toks = this._tokenize(this.textarea.value);
-		toks = this._injectIndentGuides(this._injectFoldMarks(toks));
-		CerbUI.editorCore.renderTokens(this.highlight, toks, CerbUI.KataEditor._TOK_CLASS);
+		this._buildRenderModel();
+		this._paintHighlightWindow();
+	}
+
+	// Build (+cache) the per-view-line render model from the current projection text: grouped line tokens, leading
+	// indent depths, the view→model row map, and the collapsed-header view-row set. O(doc) but cheap (no DOM);
+	// rebuilt only when the projection text changes, so scrolling reuses it. Tokenizing the WHOLE doc here is what
+	// keeps multi-line state (open {{ }}/{% %} tags, @text blocks) correct no matter which rows we later paint.
+	_buildRenderModel() {
+		const proj = this.textarea.value;
+		if(this._renderModelKey === proj && this._lineToks) return;
+		this._renderModelKey = proj;
+
+		const flat = this._tokenize(proj);
+		const lineToks = [[]];                              // group the flat stream on its standalone '\n' tokens
+		for(const t of flat) {
+			if(t.type === 'text' && t.value === '\n') { lineToks.push([]); continue; }
+			lineToks[lineToks.length - 1].push(t);
+		}
+		this._lineToks = lineToks;
+
+		this._indents = proj.split('\n').map(s => { let i = 0; while(i < s.length && s[i] === ' ') i++; return (i === s.length) ? -1 : i; });
+
+		const v2m = [], total = this._modelLines().length;
+		for(let mr = 0; mr < total; mr++) if(!this._hidden.has(mr)) v2m.push(mr);
+		this._viewToModel = v2m;
+
+		this._foldMarkRows = new Set();
+		for(const f of this._folds) { const vr = this._modelRowToViewRow(f.startRow); if(vr >= 0) this._foldMarkRows.add(vr); }
+	}
+
+	// Reconstruct the flat token stream (with '\n' separators) from the cached per-line groups — equals
+	// _tokenize(proj) exactly, so the legacy fold-mark + indent-guide passes produce identical output.
+	_flatTokens() {
+		const out = [];
+		for(let r = 0; r < this._lineToks.length; r++) {
+			if(r > 0) out.push({ type: 'text', value: '\n' });
+			for(const t of this._lineToks[r]) out.push(t);
+		}
+		return out;
+	}
+
+	// The tokens for one VIEW row WITH indent guides injected (the per-line equivalent of _injectIndentGuides):
+	// blank lines get phantom guides at the surrounding depth; indented lines peel their leading whitespace into
+	// guide tokens. Used by the windowed painter (the full-render path keeps using _injectIndentGuides).
+	_lineTokensWithGuides(row) {
+		const base = this._lineToks[row] || [];
+		const tab = this.opts.tabSize;
+		if(!this.opts.indentGuides || tab <= 0) return base;
+		if(base.length === 0) {                             // truly-empty line — phantom guides at surrounding depth
+			const d = this._blankDepth(row, this._indents);
+			return (d >= tab) ? this._guides(d) : base;
+		}
+		// Peel leading whitespace from the first token (matches _injectIndentGuides: drives off the token's own
+		// spaces, so an all-spaces line peels its real width rather than a phantom neighbor depth).
+		const v = base[0].value;
+		let sp = 0; while(sp < v.length && v[sp] === ' ') sp++;
+		if(sp >= tab) {
+			const out = this._guides(sp);
+			const rest = v.slice(sp);
+			if(rest.length) out.push({ type: base[0].type, value: rest });
+			for(let i = 1; i < base.length; i++) out.push(base[i]);
+			return out;
+		}
+		return base;
+	}
+
+	// Shared indent-guide helpers (single source for the full + windowed paths).
+	_blankDepth(row, indents) {
+		let p = 0, n = 0;
+		for(let r = row - 1; r >= 0; r--) if(indents[r] >= 0) { p = indents[r]; break; }
+		for(let r = row + 1; r < indents.length; r++) if(indents[r] >= 0) { n = indents[r]; break; }
+		return Math.max(p, n);
+	}
+	_guides(depth) {
+		const tab = this.opts.tabSize, out = [];
+		const levels = Math.floor(depth / tab);
+		for(let i = 0; i < levels; i++) out.push({ type: 'indent-guide', value: ' '.repeat(tab) });
+		const rem = depth - levels * tab;
+		if(rem > 0) out.push({ type: 'text', value: ' '.repeat(rem) });
+		return out;
+	}
+
+	// The visible viewport height, CLAMPED to maxLines so a not-yet-autosized (momentarily full-height) textarea
+	// doesn't compute a window spanning the whole doc on first paint.
+	_viewportHeight(lh) {
+		const ch = this.textarea.clientHeight || 0;
+		return Math.min(ch, this.opts.maxLines * lh);
+	}
+
+	// Paint the mirror. Small docs (<= _VIRTUALIZE_MIN_ROWS): render every row (today's exact path — legacy
+	// fold-marks + indent-guides over the flat stream). Large docs: render only the [first,last] view-row window
+	// + OVERSCAN, framed by block spacer <div>s so the mirror's content height stays = full-doc height and
+	// `highlight.scrollTop = textarea.scrollTop` keeps the window aligned. Re-adds the active-line / line-deco /
+	// find bands (absolute children, unaffected by the spacers).
+	_paintHighlightWindow() {
+		const ta = this.textarea, hl = this.highlight;
+		const cs = window.getComputedStyle(ta);
+		const lh = parseFloat(cs.lineHeight) || (parseFloat(cs.fontSize) * 1.5);
+		this._lineHeight = lh;
+		const vrc = this._lineToks.length;
+		const TOK = CerbUI.KataEditor._TOK_CLASS;
+		this._painting = true;
+
+		if(vrc <= CerbUI.KataEditor._VIRTUALIZE_MIN_ROWS) {
+			const toks = this._injectIndentGuides(this._injectFoldMarks(this._flatTokens()));
+			hl.innerHTML = CerbUI.editorCore.tokensToHtml(toks, TOK);
+			this._renderedFirst = 0; this._renderedLast = vrc - 1;
+		} else {
+			const win = CerbUI.editorCore.computeWindow(ta.scrollTop, this._viewportHeight(lh), lh, vrc, CerbUI.KataEditor._OVERSCAN);
+			const winToks = [];
+			for(let r = win.first; r <= win.last; r++) {
+				if(r > win.first) winToks.push({ type: 'text', value: '\n' });
+				const lt = this._lineTokensWithGuides(r);
+				for(const t of lt) winToks.push(t);
+				if(this._foldMarkRows.has(r)) winToks.push({ type: 'foldmark', value: '' });
+			}
+			const top = win.first * lh, bottom = (vrc - 1 - win.last) * lh;
+			let html = '';
+			if(top > 0) html += '<div class="cerb-ui-kataeditor--vspace" style="height:' + top + 'px"></div>';
+			html += CerbUI.editorCore.tokensToHtml(winToks, TOK);
+			if(bottom > 0) html += '<div class="cerb-ui-kataeditor--vspace" style="height:' + bottom + 'px"></div>';
+			hl.innerHTML = html;
+			this._renderedFirst = win.first; this._renderedLast = win.last;
+		}
+
+		this._renderActiveLineBand();    // re-add the band (the innerHTML write wiped the mirror)
+		this._renderLineDecorations();   // …and any full-width line decorations (diff add/remove tints)
+		if(this._find) this._find.repaintBands();   // …and any find-match bands (guarded: runs during construction too)
 		this._syncScroll();
+		this._painting = false;
+	}
+
+	// Full-width body bands for a set of MODEL rows, each carrying a caller-supplied CSS class — painted BEHIND
+	// the mirror text like the active-line band (z-index:-1 inside --highlight, so they track scroll). Re-applied
+	// on every _renderHighlight (renderTokens wipes the mirror). Used by CerbUI.DiffViewer for add/remove tints.
+	_renderLineDecorations() {
+		if(!this.highlight) return;
+		this.highlight.querySelectorAll('.cerb-ui-kataeditor--line-deco').forEach(n => n.remove());
+		if(!this._lineDecos || !this._lineDecos.size) return;
+		const cs = window.getComputedStyle(this.textarea);
+		const lh = parseFloat(cs.lineHeight) || (parseFloat(cs.fontSize) * 1.5);
+		const padTop = parseFloat(cs.paddingTop) || 0;
+		for(const [mr, cls] of this._lineDecos) {
+			const vr = this._modelRowToViewRow(mr);
+			if(vr < 0) continue;                              // hidden inside a fold (n/a when folding is off)
+			const band = document.createElement('div');
+			band.className = 'cerb-ui-kataeditor--line-deco' + (cls ? (' ' + cls) : '');
+			band.style.top = (padTop + vr * lh) + 'px';
+			band.style.height = lh + 'px';
+			this.highlight.appendChild(band);
+		}
 	}
 
 	// Append a zero-text `foldmark` token at the end of each collapsed header's VIEW row so the mirror paints a
@@ -779,30 +1008,16 @@ CerbUI.KataEditor = class {
 		const tab = this.opts.tabSize;
 		if(!this.opts.indentGuides || tab <= 0) return toks;
 
-		// Per view-line leading-space count (-1 = blank), for the blank-line contextual depth.
+		// Per view-line leading-space count (-1 = blank), for the blank-line contextual depth. (The windowed
+		// painter uses the cached this._indents + the same _blankDepth/_guides helpers, so the two paths agree.)
 		const indents = this.textarea.value.split('\n').map(s => {
 			let i = 0; while(i < s.length && s[i] === ' ') i++;
 			return (i === s.length) ? -1 : i;          // all-spaces or empty -> blank
 		});
-		const blankDepth = (row) => {
-			let p = 0, n = 0;
-			for(let r = row - 1; r >= 0; r--) if(indents[r] >= 0) { p = indents[r]; break; }
-			for(let r = row + 1; r < indents.length; r++) if(indents[r] >= 0) { n = indents[r]; break; }
-			return Math.max(p, n);
-		};
-		// `depth` columns of leading whitespace -> a guide token per full tabSize level + a plain remainder.
-		const guides = (depth) => {
-			const out = [];
-			const levels = Math.floor(depth / tab);
-			for(let i = 0; i < levels; i++) out.push({ type: 'indent-guide', value: ' '.repeat(tab) });
-			const rem = depth - levels * tab;
-			if(rem > 0) out.push({ type: 'text', value: ' '.repeat(rem) });
-			return out;
-		};
 
 		const out = [];
 		let row = 0, atLineStart = true;
-		const closeBlankLine = () => { const d = blankDepth(row); if(d >= tab) out.push(...guides(d)); };
+		const closeBlankLine = () => { const d = this._blankDepth(row, indents); if(d >= tab) out.push(...this._guides(d)); };
 
 		for(const t of toks) {
 			if(t.type === 'text' && t.value === '\n') {
@@ -815,7 +1030,7 @@ CerbUI.KataEditor = class {
 				const v = t.value;
 				let sp = 0; while(sp < v.length && v[sp] === ' ') sp++;
 				if(sp >= tab) {                            // at least one full indent level — peel it into guides
-					out.push(...guides(sp));
+					out.push(...this._guides(sp));
 					const rest = v.slice(sp);
 					if(rest.length) out.push({ type: t.type, value: rest });
 					continue;
@@ -830,11 +1045,40 @@ CerbUI.KataEditor = class {
 	_syncScroll() {
 		CerbUI.editorCore.syncScroll(this.textarea, this.highlight);
 		if(this.gutter) this.gutter.scrollTop = this.textarea.scrollTop;
+		this._repaintWindowIfMoved();
+	}
+
+	// Native textarea scroll: mirror the decorative layers synchronously (cheap), and coalesce the heavier window
+	// repaint to one per frame so a fast fling doesn't rebuild the mirror on every scroll event.
+	_handleScroll() {
+		CerbUI.editorCore.syncScroll(this.textarea, this.highlight);
+		if(this.gutter) this.gutter.scrollTop = this.textarea.scrollTop;
+		if(this._scrollRaf) return;
+		this._scrollRaf = requestAnimationFrame(() => { this._scrollRaf = 0; this._repaintWindowIfMoved(); });
+	}
+
+	// Repaint the windowed mirror + gutter when the viewport has scrolled out of the currently-painted overscan
+	// band. No-op while painting (paint ends in _syncScroll), for small docs (never windowed), or when still in band.
+	_repaintWindowIfMoved() {
+		if(this._painting || !this._lineToks) return;
+		const vrc = this._lineToks.length;
+		if(vrc <= CerbUI.KataEditor._VIRTUALIZE_MIN_ROWS) return;
+		const lh = this._lineHeight || (parseFloat(window.getComputedStyle(this.textarea).lineHeight) || 0);
+		if(!(lh > 0)) return;
+		const win = CerbUI.editorCore.computeWindow(this.textarea.scrollTop, this._viewportHeight(lh), lh, vrc, CerbUI.KataEditor._OVERSCAN);
+		if(win.first >= this._renderedFirst && win.last <= this._renderedLast) return;   // still inside the painted band
+		this._paintHighlightWindow();
+		this._renderGutter();
 	}
 
 	// MODEL row -> the first cerb: URI on that line, for the gutter "open record" marker. Same regex the tokenizer
 	// uses for the 'uri' token; only complete `cerb:<context>:<id>` URIs (3 colon-parts) get a marker.
+	// Memoized by the model text (a whole-doc regex scan) so scroll-driven gutter repaints don't recompute it.
 	_uriRowsMap() {
+		if(this._uriRowsKey !== this._model) { this._uriRowsCache = this._computeUriRowsMap(); this._uriRowsKey = this._model; }
+		return this._uriRowsCache;
+	}
+	_computeUriRowsMap() {
 		const map = new Map(), RX = /cerb:[^\s)\]]+/, lines = this._modelLines();
 		for(let i = 0; i < lines.length; i++) {
 			const m = lines[i].match(RX);
@@ -863,54 +1107,80 @@ CerbUI.KataEditor = class {
 
 	_renderGutter() {
 		if(!this.gutter) return;
-		const hidden = this._hidden;
+		this._buildRenderModel();
 		// Map each foldable header row -> collapsed? (a detected range that's also in _folds is collapsed).
 		const headerState = new Map();
 		for(const r of this._foldableRanges()) headerState.set(r.headerRow, false);
 		for(const f of this._folds) headerState.set(f.startRow, true);
-		const anyFoldable = headerState.size > 0;             // reserve the chevron column only when needed
-		// A clickable "open record" marker on every line that carries a cerb: URI (search icon).
 		const uriRows = this._uriRowsMap();
-		// Reserve the LEFT marker column when any marker (host or URI) exists, or whenever a gutter-click handler is
-		// wired (so an empty margin stays clickable to add a breakpoint).
-		const anyMarker = this._markers.size > 0 || uriRows.size > 0 || typeof this.opts.onGutterClick === 'function';
-		const esc = CerbUI.editorCore.escapeHtml;
-		const mCount = this._modelLines().length;
-		let html = '';
-		for(let mr = 0; mr < mCount; mr++) {
-			if(hidden.has(mr)) continue;                       // collapsed-away rows have no gutter line
-			const num = mr + 1;                                // MODEL number — jumps across folds (1,2,6…)
-			const active = (this._highlightRow === mr) ? ' cerb-ui-kataeditor--gutter-line-active' : '';
-			const isHeader = headerState.has(mr);
-			// Marker slot, LEFT of the numbers (icon or pip). A reserved empty slot keeps the column aligned and
-			// stays clickable; markers on rows hidden inside a fold simply don't render (the row is skipped above).
-			let marker = '';
-			if(anyMarker) {
-				const mk = this._markers.get(mr);
-				const uri = mk ? null : uriRows.get(mr);   // a host marker wins the slot; the URI marker fills the rest
-				let cls = 'cerb-ui-kataeditor--gutter-marker', style = '', attrs = '';
-				if(mk) {
-					cls += mk.pip ? ' cerb-ui-kataeditor--gutter-marker-pip' : (mk.icon ? (' cerb-icons cerb-icon-' + mk.icon) : '');
-					if(mk.type) cls += ' cerb-ui-kataeditor--gutter-marker-' + mk.type;
-					if(mk.color) style = ' style="color:var(--cerb-color-tag-' + mk.color + ')"';
-					if(mk.title) attrs = ' title="' + esc(mk.title) + '"';
-				} else if(uri) {
-					cls += ' cerb-icons cerb-icon-search cerb-ui-kataeditor--gutter-marker-uri';
-					attrs = ' title="' + esc('Open ' + uri) + '" data-uri="' + esc(uri) + '"';
-				}
-				marker = '<span class="' + cls + '" data-model-row="' + mr + '"' + style + attrs + '></span>';
-			}
-			// Fold chevron sits to the RIGHT of the right-aligned number; an empty slot keeps the column aligned.
-			const slot = !anyFoldable ? '' :
-				('<span class="cerb-ui-kataeditor--gutter-fold' +
-					(isHeader ? (' cerb-icons cerb-icon-' + (headerState.get(mr) ? 'chevron-right' : 'chevron-down')) : '') +
-					'"' + (isHeader ? (' data-fold-row="' + mr + '"') : '') + '></span>');
-			const foldable = isHeader ? ' cerb-ui-kataeditor--gutter-line-foldable' : '';
-			html += '<div class="cerb-ui-kataeditor--gutter-line' + active + foldable + '">' +
-				marker + '<span class="cerb-ui-kataeditor--gutter-num">' + num + '</span>' + slot + '</div>';
+		const ctx = {
+			headerState: headerState,
+			uriRows: uriRows,
+			anyFoldable: headerState.size > 0,             // reserve the chevron column only when needed
+			// Reserve the LEFT marker column when any marker (host or URI) exists, or a gutter-click handler is wired.
+			anyMarker: this._markers.size > 0 || uriRows.size > 0 || typeof this.opts.onGutterClick === 'function',
+			esc: CerbUI.editorCore.escapeHtml,
+		};
+		const v2m = this._viewToModel, vrc = v2m.length;
+
+		if(vrc <= CerbUI.KataEditor._VIRTUALIZE_MIN_ROWS) {
+			let html = '';
+			for(let vr = 0; vr < vrc; vr++) html += this._gutterRowHtml(v2m[vr], ctx);
+			this.gutter.style.minWidth = '';               // small docs size to content (today's behavior)
+			this.gutter.innerHTML = html;
+		} else {
+			const lh = this._lineHeight || (parseFloat(window.getComputedStyle(this.textarea).lineHeight) || 0);
+			const win = CerbUI.editorCore.computeWindow(this.textarea.scrollTop, this._viewportHeight(lh), lh, vrc, CerbUI.KataEditor._OVERSCAN);
+			const top = win.first * lh, bottom = (vrc - 1 - win.last) * lh;
+			// Stable gutter width: reserve the widest model line-number + the (whole-doc-constant) marker/chevron
+			// columns so scrolling from 1-digit to N-digit numbers doesn't shift the editor horizontally.
+			const digits = String(this._modelLines().length).length;
+			const extraEm = 1 + (ctx.anyMarker ? 1.25 : 0) + (ctx.anyFoldable ? 1.25 : 0);
+			this.gutter.style.minWidth = 'calc(' + digits + 'ch + ' + extraEm + 'em)';
+			let html = '';
+			if(top > 0) html += '<div class="cerb-ui-kataeditor--vspace" style="height:' + top + 'px"></div>';
+			for(let vr = win.first; vr <= win.last; vr++) html += this._gutterRowHtml(v2m[vr], ctx);
+			if(bottom > 0) html += '<div class="cerb-ui-kataeditor--vspace" style="height:' + bottom + 'px"></div>';
+			this.gutter.innerHTML = html;
 		}
-		this.gutter.innerHTML = html;
 		this.gutter.scrollTop = this.textarea.scrollTop;
+	}
+
+	// One gutter row's HTML for MODEL row `mr` (number jumps across folds: 1,2,6…). Shared by the full + windowed
+	// gutter paths; `ctx` carries the whole-doc-constant header/marker maps so every row reserves the same columns.
+	_gutterRowHtml(mr, ctx) {
+		const num = mr + 1;
+		const isActive = (this._highlightRow === mr);
+		const active = isActive ? ' cerb-ui-kataeditor--gutter-line-active' : '';
+		// Tint the active gutter cell with the caller's tag color (if any), matching the line band.
+		const activeStyle = (isActive && this._highlightColor)
+			? ' style="--cerb-ui-kataeditor-active-accent:var(--cerb-color-tag-' + this._highlightColor + ')"' : '';
+		const isHeader = ctx.headerState.has(mr);
+		// Marker slot, LEFT of the numbers (icon or pip). A reserved empty slot keeps the column aligned and clickable.
+		let marker = '';
+		if(ctx.anyMarker) {
+			const mk = this._markers.get(mr);
+			const uri = mk ? null : ctx.uriRows.get(mr);   // a host marker wins the slot; the URI marker fills the rest
+			let cls = 'cerb-ui-kataeditor--gutter-marker', style = '', attrs = '';
+			if(mk) {
+				cls += mk.pip ? ' cerb-ui-kataeditor--gutter-marker-pip' : (mk.icon ? (' cerb-icons cerb-icon-' + mk.icon) : '');
+				if(mk.type) cls += ' cerb-ui-kataeditor--gutter-marker-' + mk.type;
+				if(mk.color) style = ' style="color:var(--cerb-color-tag-' + mk.color + ')"';
+				if(mk.title) attrs = ' title="' + ctx.esc(mk.title) + '"';
+			} else if(uri) {
+				cls += ' cerb-icons cerb-icon-search cerb-ui-kataeditor--gutter-marker-uri';
+				attrs = ' title="' + ctx.esc('Open ' + uri) + '" data-uri="' + ctx.esc(uri) + '"';
+			}
+			marker = '<span class="' + cls + '" data-model-row="' + mr + '"' + style + attrs + '></span>';
+		}
+		// Fold chevron sits to the RIGHT of the right-aligned number; an empty slot keeps the column aligned.
+		const slot = !ctx.anyFoldable ? '' :
+			('<span class="cerb-ui-kataeditor--gutter-fold' +
+				(isHeader ? (' cerb-icons cerb-icon-' + (ctx.headerState.get(mr) ? 'chevron-right' : 'chevron-down')) : '') +
+				'"' + (isHeader ? (' data-fold-row="' + mr + '"') : '') + '></span>');
+		const foldable = isHeader ? ' cerb-ui-kataeditor--gutter-line-foldable' : '';
+		return '<div class="cerb-ui-kataeditor--gutter-line' + active + foldable + '"' + activeStyle + '>' +
+			marker + '<span class="cerb-ui-kataeditor--gutter-num">' + num + '</span>' + slot + '</div>';
 	}
 
 	// ⌘/Ctrl+Shift+↓ / ↑ — grow/shrink the editor's max visible rows (in-memory for this session). Capped at the
@@ -928,8 +1198,14 @@ CerbUI.KataEditor = class {
 
 	_autosize() {
 		const ta = this.textarea;
+		if(!ta.getClientRects().length) { // hidden (e.g. a display:none preview panel) — defer the measure
+			if(!this._revealDisposer)      // until revealed, else scrollHeight 0 would clamp us to minLines
+				this._revealDisposer = CerbUI.editorCore.onFirstReveal(this.el, () => { this._revealDisposer = null; this._autosize(); });
+			return;
+		}
 		const cs = window.getComputedStyle(ta);
 		const lh = parseFloat(cs.lineHeight) || (parseFloat(cs.fontSize) * 1.5);
+		this._lineHeight = lh;
 		const padY = (parseFloat(cs.paddingTop) || 0) + (parseFloat(cs.paddingBottom) || 0);
 		const minH = this.opts.minLines * lh + padY;
 		const maxH = this.opts.maxLines * lh + padY;
@@ -1110,7 +1386,14 @@ CerbUI.KataEditor = class {
 
 	// Foldable indentation subtrees in MODEL space: a `key:` header with at least one deeper-indented child.
 	// Reuses the tokenizer's key-line regex; blanks belong to the subtree, trailing blanks are trimmed off.
+	// Memoized by the model text (depends only on _model + opts.folding, NOT on which folds are collapsed) so
+	// scroll-driven gutter repaints reuse it.
 	_foldableRanges() {
+		if(this._foldableKey !== this._model) { this._foldableCache = this._computeFoldableRanges(); this._foldableKey = this._model; }
+		return this._foldableCache;
+	}
+	_computeFoldableRanges() {
+		if(this.opts.folding === false) return [];   // folding disabled (e.g. a diff pane) — nothing is ever foldable
 		const lines = this._modelLines();
 		const KEY = /^(\s*)([\w.]+)(\/[^\s:@]+)?((?:@[A-Za-z0-9_]+)(?:,[A-Za-z0-9_]+)*)?:/;
 		const out = [];
@@ -1262,15 +1545,27 @@ CerbUI.KataEditor = class {
 		return { path, prefix, prefixRaw, caret };
 	}
 
-	// True when the caret sits where autocomplete must stay quiet: inside an @annotation text block (an
-	// annotated, value-less key opens a block; every deeper-or-blank line is literal content until the indent
-	// returns to <= the key's indent), or on a `#` comment line. Mirrors the tokenizer's block tracking so the
-	// two agree exactly — a CRLF after `field@text:` makes the lines below it a block, not new keys.
+	// True when the caret sits where autocomplete must stay quiet: immediately after a completed inline key
+	// (`key@anno:`) before its separating whitespace; inside an @annotation text block (an annotated, value-less
+	// key opens a block; every deeper-or-blank line is literal content until the indent returns to <= the key's
+	// indent); or on a `#` comment line. Mirrors the tokenizer's block tracking so the two agree exactly — a CRLF
+	// after `field@text:` makes the lines below it a block, not new keys.
 	_autocompleteSuppressed(text, caret) {
 		const caretLineIdx = (text.slice(0, caret).match(/\n/g) || []).length;
 		const lines = text.split('\n');
 		const KEY = /^(\s*)([\w.]+)(\/[^\s:@]+)?((?:@[A-Za-z0-9_]+)(?:,[A-Za-z0-9_]+)*)?:/;
 		let blockIndent = null;
+
+		// A just-completed key is still the field tag (it ends in `:`), not a value slot — KATA writes an inline
+		// value as `key: value` (a space after the colon) and an indented value as `key:` + CRLF + indent. Until
+		// one of those whitespace separators exists, stay quiet rather than popping suggestions glued to the colon.
+		// The CRLF+indent case drops the caret onto a fresh line below (no same-line key here), so it's allowed;
+		// only the no-whitespace, same-line position (caret right after the colon, or `key:val` typed without a
+		// space) is suppressed.
+		const lineStart = text.lastIndexOf('\n', caret - 1) + 1;
+		const beforeOnLine = text.slice(lineStart, caret);
+		const km = beforeOnLine.match(KEY);
+		if(km && !/^\s/.test(beforeOnLine.slice(km[0].length))) return true;
 
 		for(let li = 0; li <= caretLineIdx; li++) {
 			const line = lines[li];
@@ -1335,7 +1630,7 @@ CerbUI.KataEditor._MARKER_TYPES = {
  *
  * `suggestionMap` is a path-keyed object: each key is a normalized KATA scope (colon-joined, e.g.
  * `automation:inputs:`) and each value is either a static Array of suggestions, or a dynamic descriptor
- * `{ type, params? }`. It's typically one of the global `cerbAutocompleteSuggestions.*` schemas (e.g.
+ * `{ type, params? }`. It's typically one of the global `CerbUI.editorCore.autocompleteSchemas.*` schemas (e.g.
  * `kataAutomationPolicy`, `kataSchemaMetricsExplorerSeries`, `kataToolbar`) or a per-trigger JSON blob. A `'*'`
  * key may hold a { regexPattern -> suggestions } bucket for variable paths.
  *
@@ -1514,10 +1809,13 @@ CerbUI.KataEditor.kataFieldSource = function(suggestionMap, opts) {
 		const prefix = ctx.prefix || '';
 		let completions = suggestionMap[scopeKey];
 
-		// Fall back to the '*' regex-pattern bucket for variable (identifier-bearing) paths.
+		// Fall back to the '*' regex-pattern bucket for variable (identifier-bearing) paths. Match anchored
+		// (^…$, like the legacy completer) and try the LONGEST pattern first, so the most specific leaf scope
+		// wins over a shallower ancestor — e.g. `(.*):await:form:elements:` beats `(.*):await:`.
 		if(completions === undefined && suggestionMap['*'] && typeof suggestionMap['*'] === 'object') {
-			for(const pat in suggestionMap['*']) {
-				try { if(new RegExp(pat).test(scopeKey)) { completions = suggestionMap['*'][pat]; break; } } catch(_) {}
+			const pats = Object.keys(suggestionMap['*']).sort((a, b) => b.length - a.length);
+			for(const pat of pats) {
+				try { if(new RegExp('^' + pat + '$').test(scopeKey)) { completions = suggestionMap['*'][pat]; break; } } catch(_) {}
 			}
 		}
 
