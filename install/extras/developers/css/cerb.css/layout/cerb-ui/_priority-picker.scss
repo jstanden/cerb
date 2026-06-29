@@ -152,6 +152,22 @@
 		color: var(--cerb-color-background-contrast-130);
 	}
 
+	// A filled color disc with a white glyph (avatar-style), used when an item has both icon + color
+	&--badge {
+		flex: 0 0 auto;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 22px;
+		height: 22px;
+		border-radius: 50%;
+
+		.cerb-ui-priority-picker--icon {
+			font-size: 0.85em;
+			color: #fff;
+		}
+	}
+
 	&--label {
 		flex: 1 1 auto;
 		min-width: 0;
@@ -166,6 +182,13 @@
 		align-items: center;
 		gap: 0.5em;
 		flex: 0 0 auto;
+	}
+
+	// ── Add slot (panelFooter) — custom content below the list, e.g. an inline chooser ────────
+	&--add {
+		margin-top: 0.8em;
+		padding-top: 0.8em;
+		border-top: 1px solid var(--cerb-color-background-contrast-230);
 	}
 
 	// ── Footer (Apply / Cancel) — shown only when dirty ───────────────────────

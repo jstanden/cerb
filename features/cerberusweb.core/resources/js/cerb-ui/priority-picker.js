@@ -44,6 +44,10 @@ CerbUI.PriorityPicker = class {
 			onRenderSummary: null,        // (item) -> node; customize a collapsed summary entry
 			itemActions:     null,        // (item) -> node; per-row --right slot (edit/delete)
 			headerActions:   null,        // node | html for the popover header --right slot (e.g. "New project")
+			panelFooter:     null,        // node | html | (picker)->node rendered below the list (e.g. an inline
+			                              // "add item" chooser); a node may carry a .cerbCleanup() called on close
+			outsideIgnore:   '',          // selector: a click matching it isn't "outside" (e.g. a panelFooter
+			                              // chooser whose dropdown attaches to <body>)
 			headerLabel:     'Items',
 			headerSubtitle:  '',
 			emptyText:       'None selected',
@@ -124,6 +128,15 @@ CerbUI.PriorityPicker = class {
 			const ic = document.createElement('span');
 			ic.className = 'cerb-icons cerb-icon-' + item.icon + ' cerb-ui-priority-picker--icon';
 			ic.setAttribute('aria-hidden', 'true');
+			// With a color, render the glyph in white on a filled disc of that color (avatar-style badge).
+			if(item.color) {
+				const badge = document.createElement('span');
+				badge.className = 'cerb-ui-priority-picker--badge';
+				badge.style.backgroundColor = this._resolveColor(item.color);
+				ic.style.color = '#fff';
+				badge.appendChild(ic);
+				return badge;
+			}
 			return ic;
 		}
 		const pip = document.createElement('span');
@@ -229,6 +242,8 @@ CerbUI.PriorityPicker = class {
 		if(!this.isOpen()) return;
 		document.removeEventListener('pointerdown', this._onDocPointerDown, { capture: true });
 		document.removeEventListener('keydown', this._onDocKey);
+		if(this._panelFooterNode && typeof this._panelFooterNode.cerbCleanup === 'function') this._panelFooterNode.cerbCleanup();
+		this._panelFooterNode = null;
 		if(this.sortable) { this.sortable.destroy(); this.sortable = null; }
 		for(const t of this.toggles) t.destroy();
 		this.toggles = [];
@@ -282,6 +297,16 @@ CerbUI.PriorityPicker = class {
 		this.list.className = 'cerb-ui-priority-picker--list';
 		this.list.style.maxHeight = this.opts.maxHeight + 'px';
 		this.panel.appendChild(this.list);
+
+		// Optional content below the list (e.g. an inline "add item" chooser). A factory receives the picker.
+		if(this.opts.panelFooter) {
+			const addSlot = document.createElement('div');
+			addSlot.className = 'cerb-ui-priority-picker--add';
+			const content = (typeof this.opts.panelFooter === 'function') ? this.opts.panelFooter(this) : this.opts.panelFooter;
+			this._fillSlot(addSlot, content);
+			this.panel.appendChild(addSlot);
+			this._panelFooterNode = content; // for cleanup on close (if it carries .cerbCleanup())
+		}
 
 		// Footer (Apply / Cancel) — hidden until dirty.
 		this.footer = document.createElement('div');
@@ -428,6 +453,8 @@ CerbUI.PriorityPicker = class {
 	_onDocPointerDown(e) {
 		if(this.panel && this.panel.contains(e.target)) return;
 		if(this.trigger.contains(e.target)) return; // let the trigger's own click toggle
+		// A panelFooter control may open a dropdown attached to <body>; a click there isn't "outside".
+		if(this.opts.outsideIgnore && e.target.closest && e.target.closest(this.opts.outsideIgnore)) return;
 		this.close(); // click-outside = cancel
 	}
 
