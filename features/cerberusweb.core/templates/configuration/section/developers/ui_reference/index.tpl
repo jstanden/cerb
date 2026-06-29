@@ -127,6 +127,7 @@
 						<li data-target="record-chooser" data-icon="search">RecordChooser</li>
 						<li data-target="context-chooser" data-icon="search">ContextChooser</li>
 						<li data-target="text-chooser" data-icon="search">TextChooser</li>
+						<li data-target="value-picker" data-icon="checked">ValuePicker</li>
 						<li data-target="file-upload" data-icon="upload">FileUpload</li>
 						<li data-target="searchquery" data-icon="search">SearchQuery</li>
 						<li data-target="kataeditor" data-icon="placeholders">KataEditor</li>
@@ -210,6 +211,7 @@
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/record-chooser.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/context-chooser.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/text-chooser.tpl"}
+			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/value-picker.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/file-upload.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/searchquery.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/kataeditor.tpl"}

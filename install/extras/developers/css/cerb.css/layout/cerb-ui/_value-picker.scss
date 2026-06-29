@@ -1,0 +1,45 @@
+// ValuePicker: a local tag picker. It reuses the chooser field (.cerb-ui-record-chooser*) and the
+// chooser dropdown (.cerb-ui-chooser--panel/--list/--item) for visual parity, so only the picker-
+// specific bits live here: the leading option icon and the dropdown "picked = dim + check" decoration
+// (the toggle-and-dim idea borrowed from customize_view).
+
+// Leading glyph for an option with data-icon (no avatar); tinted by its data-color via a custom prop
+// so the active/hover row can override it to the row text color.
+.cerb-ui-value-picker--icon {
+	flex: 0 0 auto;
+	margin-right: 0.5em;
+	color: var(--cerb-value-picker-icon-color, currentColor);
+}
+
+// Value tiles are label-led (no leading avatar like a RecordChooser record token), so the label sits
+// tight against the tile's left edge — give the selected values a touch more left padding.
+.cerb-ui-value-picker .cerb-ui-record-chooser--tile {
+	padding-left: 0.5em;
+
+	// The tile's own flex gap (0.35em) already spaces the icon from the label; drop the icon's row-only
+	// margin-right so the icon→label gap isn't doubled.
+	.cerb-ui-value-picker--icon { margin-right: 0; }
+}
+
+.cerb-ui-value-picker--panel {
+	// The shared .cerb-ui-chooser--item sets display:flex, which (as an author rule) beats the UA
+	// [hidden]{display:none} — so the type-to-filter row hiding needs an explicit display:none.
+	.cerb-ui-value-picker--option[hidden] { display: none; }
+
+	// Trailing check, shown only when the row is picked
+	.cerb-ui-value-picker--check {
+		visibility: hidden;
+		flex-shrink: 0;
+		margin-left: 0.5em;
+		color: var(--cerb-color-tag-green);
+	}
+
+	.cerb-ui-value-picker--picked { opacity: 0.5; }
+	.cerb-ui-value-picker--picked .cerb-ui-value-picker--check { visibility: visible; }
+
+	// On the hovered/active row, keep it full-strength and let the check + icon inherit the row color so
+	// they stay legible against the accent fill.
+	.cerb-ui-chooser--item-active.cerb-ui-value-picker--picked { opacity: 1; }
+	.cerb-ui-chooser--item-active .cerb-ui-value-picker--check,
+	.cerb-ui-chooser--item-active .cerb-ui-value-picker--icon { color: inherit; }
+}
