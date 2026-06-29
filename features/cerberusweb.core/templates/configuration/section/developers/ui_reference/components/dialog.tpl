@@ -24,10 +24,12 @@
 	spinner:    'spark',      // fromAjax loading spinner: 'spark' (default) | 'arc' | 'dots' | null (ring)
 	draggable:  true,         // default true
 	resizable:  true,         // default true
+	autoHeight: false,        // true = an n/s resize refits height to content on release, keeping the new width
 	closable:   true,         // show the × button (default true)
 	minimizable: true,        // show the minimize caret (default: true only for 'bar')
 	modal:      false,        // dim the page behind a backdrop (default false)
-	width:      480,          // px (default 400); minWidth 200, minHeight 80
+	width:      480,          // px (fixed) | '80%' (relative — reflows on viewport resize) | omit → 75% capped 1100 (mobile 95%)
+	// widthCap: 1400,        // optional px cap on a relative width
 	// position: { x: 100, y: 80 },  // explicit; else centered (or positionGroup-inherited)
 	namespace:  'ticket',     // singleton: re-opening this namespace focuses the live dialog (default: per-instance)
 	// replace: true,         // …or let a same-namespace open take over (close the existing one) instead of focusing

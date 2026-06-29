@@ -148,6 +148,34 @@ CerbUI.Dialog = class {
 		}
 	}
 
+	// Attach the window-resize listener once (lazily, on the first open). It debounces so the reflow runs after
+	// the viewport stops resizing — not on every intermediate frame.
+	static _ensureViewportResize() {
+		if(CerbUI.Dialog._viewportResizeBound) return;
+		CerbUI.Dialog._viewportResizeBound = true;
+		window.addEventListener('resize', () => {
+			clearTimeout(CerbUI.Dialog._resizeTimer);
+			CerbUI.Dialog._resizeTimer = setTimeout(CerbUI.Dialog._onViewportResize, 150);
+		});
+	}
+
+	// Reflow open dialogs after the viewport settles: re-resolve relative/default widths (leaving any the user
+	// manually resized), then re-center untouched dialogs / clamp dragged ones back on-screen.
+	static _onViewportResize() {
+		for(const dlg of CerbUI.Dialog._openDialogs) {
+			if(!dlg._open || dlg.minimized) continue;
+			if(!dlg._userSizedW) {
+				dlg.w = dlg._computeWidth();
+				dlg.el.style.width = dlg.w + 'px';
+			}
+			// Re-center only dialogs still at the default placement; clamp ones the user dragged or that opened
+			// at an explicit position (anchored / reuse popups) so we don't yank them to center.
+			if(dlg._userMoved || dlg.opts.position) dlg._clampIntoView();
+			else                                    dlg._positionDefault();
+		}
+		CerbUI.Dialog._syncPageHeight();
+	}
+
 	// Keep the top-right tray button in sync with the minimized set: hidden at 0, else a window icon + count.
 	static _syncTray() {
 		const n = CerbUI.Dialog._minimized.size;
@@ -369,8 +397,10 @@ CerbUI.Dialog = class {
 			modal:      false,
 			closeWarnOnUnsavedChanges: false, // warn before closing once a tracked form control is actually changed
 			scrollBody: false, // true = cap to the viewport and scroll the body; default grows + page scrolls
+			autoHeight: false, // true = an n/s resize snaps height back to content on release (keeps the new width)
 			spinner:    'spark', // CerbUI.Spinner variant for fromAjax's loading state: 'spark' (default) | 'arc' | 'dots' | null (plain ring)
-			width:      null,  // null = 75% of the viewport capped at _MAX_WIDTH (mobile: always 95%)
+			width:      null,  // null = 75% (capped at _MAX_WIDTH); a number = fixed px; an '<n>%' string = relative + reflows
+			widthCap:   null,  // optional px cap on a relative width (the null default uses _MAX_WIDTH unless overridden)
 			minWidth:   200,
 			minHeight:  80,
 			position:   null,
@@ -391,14 +421,24 @@ CerbUI.Dialog = class {
 		if(this.opts.minimizable == null) this.opts.minimizable = (this.opts.header !== 'none'); // 'bar' + 'floating'
 		if(this.opts.modal) this.opts.minimizable = false; // modal + minimize are mutually exclusive
 
-		// Width: mobile is always 95% (ignores any width directive); otherwise an explicit width is honored
-		// as-is, else default to 75% of the viewport capped at the cerb-ui-page max-width.
-		const vw = window.innerWidth;
-		this.w = (vw <= CerbUI.Dialog._MOBILE_MAX)
-			? Math.round(vw * 0.95)
-			: (this.opts.width != null
-				? this.opts.width
-				: Math.min(Math.round(vw * 0.75), CerbUI.Dialog._MAX_WIDTH));
+		// Width spec → mobile (<= _MOBILE_MAX) is always 95%; otherwise an '<n>%' string is relative (reflows with
+		// the viewport via _computeWidth), null defaults to 75% capped at _MAX_WIDTH (also relative), and a number
+		// is fixed px. _userSizedW/_userMoved gate the viewport reflow so it never fights a manual resize/drag.
+		this._widthPct  = null; // non-null => relative width that reflows with the viewport
+		this._widthCap  = null; // optional px cap on the relative width (the default's _MAX_WIDTH)
+		this._widthPx   = null; // explicit fixed px width, if one was given
+		this._userSizedW = false; // set once the user e/w-resizes — reflow then leaves the width alone
+		this._userMoved  = false; // set once the user drags — reflow then clamps instead of re-centering
+		if(typeof this.opts.width === 'string' && this.opts.width.trim().endsWith('%')) {
+			this._widthPct = parseFloat(this.opts.width);
+			this._widthCap = this.opts.widthCap; // null => uncapped
+		} else if(this.opts.width == null) {
+			this._widthPct = 75;
+			this._widthCap = (this.opts.widthCap != null) ? this.opts.widthCap : CerbUI.Dialog._MAX_WIDTH;
+		} else {
+			this._widthPx = this.opts.width;
+		}
+		this.w = this._computeWidth();
 		this.h = null; // null = auto height until the first n/s resize
 		this.x = 0;
 		this.y = 0;
@@ -575,6 +615,8 @@ CerbUI.Dialog = class {
 		CerbUI.Dialog._namespaces.set(this.opts.namespace, this);
 
 		this._open = true;
+		CerbUI.Dialog._openDialogs.add(this);
+		CerbUI.Dialog._ensureViewportResize();
 
 		if(this.opts.modal) this._addBackdrop();
 
@@ -672,6 +714,7 @@ CerbUI.Dialog = class {
 		}
 
 		if(this._resizeObs) this._resizeObs.disconnect();
+		CerbUI.Dialog._openDialogs.delete(this);
 		if(CerbUI.Dialog._pageDialogs.delete(this)) CerbUI.Dialog._syncPageHeight();
 
 		this.innerContent.dispatchEvent(new CustomEvent('cerb-ui-dialog:close', { bubbles: true }));
@@ -711,6 +754,7 @@ CerbUI.Dialog = class {
 			CerbUI.Dialog._positionGroups.delete(this.opts.positionGroup);
 		}
 		if(this._resizeObs) this._resizeObs.disconnect();
+		CerbUI.Dialog._openDialogs.delete(this);
 		if(CerbUI.Dialog._minimized.delete(this)) CerbUI.Dialog._syncTray();
 		CerbUI.Dialog._syncUnloadGuard();
 		if(CerbUI.Dialog._pageDialogs.delete(this)) CerbUI.Dialog._syncPageHeight();
@@ -767,6 +811,28 @@ CerbUI.Dialog = class {
 
 	_removeBackdrop() {
 		if(this.backdrop) { this.backdrop.remove(); this.backdrop = null; }
+	}
+
+	// Resolve the current pixel width from the spec: mobile forces 95%; a relative %/default scales with the
+	// viewport (optionally capped, never wider than the viewport); a fixed px width is returned as-is.
+	_computeWidth() {
+		const vw = window.innerWidth;
+		if(vw <= CerbUI.Dialog._MOBILE_MAX) return Math.round(vw * 0.95);
+		if(this._widthPct == null) return this._widthPx;
+		let w = Math.round(vw * this._widthPct / 100);
+		if(this._widthCap != null) w = Math.min(w, this._widthCap);
+		return Math.min(w, vw - 20);
+	}
+
+	// Keep a dragged dialog horizontally within the viewport after a resize (we don't re-center moved dialogs).
+	_clampIntoView() {
+		const vw   = window.innerWidth;
+		const w    = this.el.offsetWidth;
+		const ox   = this.opts.fixed ? 0 : window.scrollX;
+		const minX = ox + 10;
+		const maxX = Math.max(minX, ox + vw - w - 10);
+		this.x = Math.min(Math.max(this.x, minX), maxX);
+		this.el.style.left = this.x + 'px';
 	}
 
 	// The default open / restore position: centered horizontally, near the top (one-titlebar gap), at the
@@ -854,6 +920,7 @@ CerbUI.Dialog = class {
 		const offsetY = (startEvent.clientY + sy) - this.y;
 
 		const onMove = (e) => {
+			this._userMoved = true; // a moved dialog is clamped (not re-centered) on viewport resize
 			const mx = this.opts.fixed ? 0 : window.scrollX;
 			const my = this.opts.fixed ? 0 : window.scrollY;
 			this.x = (e.clientX + mx) - offsetX;
@@ -881,6 +948,8 @@ CerbUI.Dialog = class {
 		const startTop  = this.y;
 
 		const affectsH = dir.includes('n') || dir.includes('s');
+		const affectsW = dir.includes('e') || dir.includes('w');
+		if(affectsW) this._userSizedW = true; // a hand-sized width is left alone by the viewport reflow
 		if(affectsH && this.h === null) this.h = this.el.offsetHeight;
 		const startH = this.h ?? 0;
 
@@ -921,6 +990,9 @@ CerbUI.Dialog = class {
 		const onUp = () => {
 			document.removeEventListener('pointermove', onMove);
 			document.removeEventListener('pointerup', onUp);
+			// autoHeight: drop the dragged height so the body refits to content (the new width persists) — the
+			// jQuery-UI resizeStop behavior. Tall content still grows + page-scrolls via _syncPageHeight().
+			if(this.opts.autoHeight && affectsH) { this.h = null; this.el.style.height = ''; }
 			CerbUI.Dialog._syncPageHeight(); // a dialog resized taller may need more page height to reach
 			if(this.opts.onResized) this.opts.onResized(this.w, this.h);
 		};
