@@ -117,6 +117,19 @@ CerbUI.Dialog = class {
 		return d;
 	}
 
+	// After a dialog closes/minimizes, raise + focus the next-highest open dialog so keyboard focus (and the
+	// Escape-to-close target) move to it — letting Escape cascade down a whole stack (ESC/ESC/ESC). No-op when
+	// none remain. `except` skips a dialog mid-teardown (its _open may not be cleared yet).
+	static _focusTopmost(except) {
+		let top = null;
+		for(const d of CerbUI.Dialog._openDialogs) {
+			if(d === except || !d._open || d.minimized) continue;
+			if(!top || parseInt(d.el.style.zIndex || '0', 10) > parseInt(top.el.style.zIndex || '0', 10))
+				top = d;
+		}
+		if(top) { top.bringToFront(); top._focus(); }
+	}
+
 	// Keep a beforeunload listener attached only while such a popup exists. A permanently-registered
 	// beforeunload disables the back-forward cache, so detach it the moment nothing qualifies.
 	static _syncUnloadGuard() {
@@ -662,6 +675,9 @@ CerbUI.Dialog = class {
 		if(CerbUI.Dialog._pageDialogs.delete(this)) CerbUI.Dialog._syncPageHeight();
 
 		this.innerContent.dispatchEvent(new CustomEvent('cerb-ui-dialog:close', { bubbles: true }));
+
+		// Hand focus to the next dialog down the stack so Escape can cascade through the whole stack.
+		CerbUI.Dialog._focusTopmost(this);
 		return true;
 	}
 
@@ -775,6 +791,7 @@ CerbUI.Dialog = class {
 		CerbUI.Dialog._syncTray();
 		CerbUI.Dialog._syncUnloadGuard(); // a dirty dialog docked in the tray now guards page unload
 		CerbUI.Dialog._syncPageHeight(); // hidden → drops out of the page-height calc
+		CerbUI.Dialog._focusTopmost(this); // hand focus/Escape to the next dialog down the stack
 		if(this.opts.onMinimize) this.opts.onMinimize(true);
 	}
 
