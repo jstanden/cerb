@@ -130,6 +130,7 @@
 						<li data-target="value-picker" data-icon="checked">ValuePicker</li>
 						<li data-target="tag-input" data-icon="tag">TagInput</li>
 						<li data-target="file-upload" data-icon="upload">FileUpload</li>
+						<li data-target="image-editor" data-icon="picture">ImageEditor</li>
 						<li data-target="searchquery" data-icon="search">SearchQuery</li>
 						<li data-target="kataeditor" data-icon="placeholders">KataEditor</li>
 						<li data-target="markdowneditor" data-icon="quote">MarkdownEditor</li>
@@ -216,6 +217,7 @@
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/value-picker.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/tag-input.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/file-upload.tpl"}
+			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/image-editor.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/searchquery.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/kataeditor.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/markdowneditor.tpl"}

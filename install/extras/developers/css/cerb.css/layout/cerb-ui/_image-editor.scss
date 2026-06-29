@@ -1,0 +1,140 @@
+// ImageEditor (CerbUI.ImageEditor): an editable image well (a CerbUI.Avatar) + a CerbUI.Dialog canvas editor
+// (pan/zoom under a fixed-aspect crop, bg fill, erase, server toolbar for image sources). Structural only;
+// colors are tokens, so dark mode is automatic.
+
+// ── The editable well: a wrapper around a .cerb-ui-avatar ────────────────────
+// The well wraps the avatar (Avatar wipes its own children on image load, so the overlay can't be an avatar
+// child). The whole well is the click target; the pencil overlay sits on top and reveals on hover/focus.
+.cerb-ui-image-editor {
+	position: relative;
+	display: inline-flex; // shrink-wrap the avatar
+	cursor: pointer;
+	outline: none;
+
+	// Reveal the pencil overlay on hover / keyboard focus
+	&:hover .cerb-ui-image-editor--edit,
+	&:focus-visible .cerb-ui-image-editor--edit {
+		opacity: 1;
+	}
+}
+
+// Pencil overlay covering the avatar; purely visual — the well handles clicks
+.cerb-ui-image-editor--edit {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%; // match the circular avatar
+	background: rgba(0, 0, 0, 0.45);
+	color: #fff;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.12s ease;
+
+	.cerb-icons { font-size: 1.3em; }
+}
+
+// ── Dialog panel ────────────────────────────────────────────────────────────
+.cerb-ui-image-editor--panel {
+	display: flex;
+	flex-direction: column;
+	gap: 0.8em;
+	padding: 0.3em;
+	box-sizing: border-box;
+
+	&.cerb-ui-image-editor--busy { cursor: progress; }
+}
+
+.cerb-ui-image-editor--stage {
+	display: flex;
+	justify-content: center;
+}
+
+.cerb-ui-image-editor--canvas {
+	width: 360px;
+	max-width: 100%;
+	height: auto;
+	border-radius: 8px;
+	background:
+		// transparency checkerboard so transparent images/icons read clearly
+		linear-gradient(45deg, var(--cerb-color-background-contrast-230) 25%, transparent 25%),
+		linear-gradient(-45deg, var(--cerb-color-background-contrast-230) 25%, transparent 25%),
+		linear-gradient(45deg, transparent 75%, var(--cerb-color-background-contrast-230) 75%),
+		linear-gradient(-45deg, transparent 75%, var(--cerb-color-background-contrast-230) 75%);
+	background-size: 16px 16px;
+	background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+	touch-action: none; // we own pan/zoom gestures
+	cursor: move;
+}
+
+// ── Tools ───────────────────────────────────────────────────────────────────
+.cerb-ui-image-editor--tools {
+	display: flex;
+	flex-direction: column;
+	gap: 0.6em;
+}
+
+.cerb-ui-image-editor--toolstrip {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.35em;
+}
+
+.cerb-ui-image-editor--tool {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2em;
+	height: 1.8em;
+	padding: 0;
+	border: 1px solid var(--cerb-color-background-contrast-220);
+	border-radius: 5px;
+	background: var(--cerb-color-background-contrast-235);
+	color: var(--cerb-color-text);
+	cursor: pointer;
+
+	&:hover { background: var(--cerb-color-background-contrast-240); border-color: var(--cerb-color-action-primary); }
+	&:active { background: var(--cerb-color-background-contrast-245); }
+}
+
+// The bg + fg color wells, right-aligned in the toolstrip (margin-left:auto pushes them to the right)
+.cerb-ui-image-editor--colors {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.6em;
+	margin-left: auto;
+}
+
+// A color well: an icon + a ColorPicker swatch (showInput:false, so no inline hex — it shows in the popup).
+.cerb-ui-image-editor--color {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3em;
+}
+
+.cerb-ui-image-editor--color-icon {
+	flex: 0 0 auto;
+	font-size: 1.3em;
+	color: var(--cerb-color-background-contrast-150);
+}
+
+.cerb-ui-image-editor--sources {
+	&:empty { display: none; }
+}
+
+// ── Footer / error ──────────────────────────────────────────────────────────
+.cerb-ui-image-editor--footer {
+	display: flex;
+	gap: 0.5em;
+	justify-content: flex-end;
+	padding-top: 0.4em;
+	border-top: 1px solid var(--cerb-color-background-contrast-230);
+}
+
+.cerb-ui-image-editor--error {
+	display: none;
+	color: var(--cerb-color-tag-red, #cf2c1d);
+	font-size: 0.9em;
+}
