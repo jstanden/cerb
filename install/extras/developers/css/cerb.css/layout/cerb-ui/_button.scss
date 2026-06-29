@@ -13,8 +13,6 @@
 	border-radius: 0.5em;
 
 	&:hover {
-		background: linear-gradient(to bottom, var(--cerb-color-button-gradient), var(--cerb-color-button-gradient-to--hover));
-		color: var(--cerb-color-button-icon--hover);
 	}
 
 	// Keyboard focus ring (matches the other cerb-ui components). CerbUI.Confirm focuses Cancel with
@@ -53,6 +51,26 @@
 		&:hover {
 			background: var(--cerb-color-background-contrast-240);
 			color: var(--cerb-color-text);
+		}
+	}
+
+	// Outline variant: transparent fill + accent-colored border & label. Reads as a secondary/affirmative
+	// action with more emphasis than --subtle. Border/label use the action-primary accent.
+	&--outline {
+		font-weight: normal;
+		background: transparent;
+		color: var(--cerb-color-action-primary);
+		border: 1px solid var(--cerb-color-action-primary);
+
+		&:hover {
+			background: var(--cerb-color-background-contrast-240);
+			color: var(--cerb-color-action-primary);
+		}
+
+		// Beat the global `button:has(> span.cerb-icons):hover` (≈0,2,2), which hijacks color→blue and
+		// resets the background. Interaction buttons carry a leading cerb-icons glyph, so re-assert color.
+		&:has(> span.cerb-icons):hover {
+			color: var(--cerb-color-action-primary);
 		}
 	}
 

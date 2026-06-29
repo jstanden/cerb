@@ -335,7 +335,7 @@ BUTTON {
 	color: var(--cerb-color-button-icon);
 
 	&:hover DIV.badge-count {
-		background-color: var(--cerb-color-button-icon--hover);
+		background-color: var(--cerb-color-background-inverse);
 		color: var(--cerb-color-text-inverse);
 	}
 

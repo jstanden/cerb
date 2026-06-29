@@ -168,7 +168,6 @@ BUTTON {
 	border-radius: 0.5em;
 
 	&:hover {
-		background: linear-gradient(to bottom, var(--cerb-color-button-gradient), var(--cerb-color-button-gradient-to--hover));
 		color: var(--cerb-color-button-icon--hover);
 		cursor:pointer;
 	}

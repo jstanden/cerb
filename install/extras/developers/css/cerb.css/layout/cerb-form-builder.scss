@@ -37,35 +37,6 @@
 		font-size: 1.15em;
 	}
 
-	.cerb-button {
-		background: var(--cerb-color-action-primary) none;
-		color: var(--cerb-color-action-primary-text);
-		height: unset;
-		font-size: 1.1em;
-		border-radius: 50px;
-		padding: 10px;
-		margin: 0 5px;
-		
-		&:hover {
-			background-color: var(--cerb-color-action-primary-hover);
-		}
-	}
-
-	.cerb-button-style-secondary {
-		background-color: var(--cerb-color-action-secondary);
-		color: var(--cerb-color-action-secondary-text);
-		
-		&:hover {
-			background-color: var(--cerb-color-action-secondary-hover);
-		}
-	}
-	
-	.cerb-button-style-outline {
-		background: none;
-		color: var(--cerb-color-action-primary);
-		border: 2px solid var(--cerb-color-action-primary);
-	}
-	
 	.cerb-form-builder-continue {
 	}
 	
