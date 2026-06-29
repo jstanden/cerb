@@ -5,6 +5,13 @@
 	user-select: none;
 }
 
+// While a drag is in flight the helper sweeps over arbitrary page content; block text selection everywhere
+// so the cursor doesn't paint a selection. Class is toggled on <html> for the drag's lifetime (commit/cancel).
+html.cerb-ui-sortable-dragging,
+html.cerb-ui-sortable-dragging * {
+	user-select: none !important;
+}
+
 // Cursor applied to items (no handle) or to handle elements
 .cerb-ui-sortable--item,
 .cerb-ui-sortable--handle {
