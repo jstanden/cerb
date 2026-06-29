@@ -15,7 +15,8 @@
  *   (no menu). With two or more, clicking the tray opens a menu of the minimized dialogs' titles
  *   (`opts.title`, falling back to "Untitled" for headerless dialogs that don't set one); choosing one
  *   restores it (`restore()`) to the default top-center position. That menu also offers a "Restore all"
- *   item (chevron-down icon) that restores every minimized dialog and a "Close all" item (trash icon) that
+ *   item (chevron-down icon) that restores every minimized dialog (cascaded so they fan out instead of
+ *   stacking exactly) and a "Close all" item (trash icon) that
  *   closes every minimized dialog via `close()` (so each onClose veto hook still runs). `onMinimize(bool)`
  *   fires true on minimize /
  *   false on restore. Modal dialogs are never minimizable (modal + minimize are mutually exclusive).
@@ -88,10 +89,14 @@ CerbUI.Dialog = class {
 	static _positionGroups = new Map(); // shared shell/position: siblings hand off position + close each other
 	static _pageDialogs = new Set();   // open dialogs that grow + page-scroll (not fixed, not scrollBody)
 	static _origBodyMinHeight = null;  // body.style.minHeight before we touched it; restored when the set empties
+	static _openDialogs = new Set();   // every open dialog — drives the viewport-resize reflow
 	static _loading = null;            // the singleton loading overlay (CerbUI.Dialog.Loading)
+	static _resizeTimer = null;        // debounce timer for the window-resize reflow (fires after resize ends)
+	static _viewportResizeBound = false; // the window 'resize' listener is attached once, lazily
 	static _MAX_WIDTH = 1100;          // default-width cap; mirrors .cerb-ui-page--max-width
 	static _MOBILE_MAX = 768;          // mobile breakpoint (cerb-responsive.scss) — dialogs go 95% wide below it
 	static _minimized = new Set();     // dialogs docked in the top-right tray
+	static _CASCADE_STEP = 28;         // px offset per dialog when "Restore all" fans them out
 	static _tray = null;               // the shared tray button (lazily built)
 	static _trayMenu = null;           // the open tray menu, if any (so a re-click toggles it shut)
 	static _unloadHandler = null;      // beforeunload guard, attached only while a dirty tray popup exists
@@ -202,8 +207,9 @@ CerbUI.Dialog = class {
 			},
 			onSelect: function(rendered, source) {
 				if(source.dataset.action === 'restore-all') {
-					// Snapshot first — restore() mutates _minimized mid-iteration.
-					for(const d of [...CerbUI.Dialog._minimized]) d.restore();
+					// Snapshot first — restore() mutates _minimized mid-iteration. Cascade (i) so they fan
+					// out instead of stacking exactly on each other.
+					[...CerbUI.Dialog._minimized].forEach((d, i) => d.restore(i));
 					return;
 				}
 				if(source.dataset.action === 'close-all') {
@@ -772,8 +778,9 @@ CerbUI.Dialog = class {
 		if(this.opts.onMinimize) this.opts.onMinimize(true);
 	}
 
-	// Restore from the tray back to the default top-center position, on top.
-	restore() {
+	// Restore from the tray back to the default top-center position, on top. `cascade` offsets the placement
+	// by N steps so "Restore all" fans dialogs out instead of stacking them exactly.
+	restore(cascade = 0) {
 		if(!this.minimized) return;
 		this.minimized = false;
 		this.el.classList.remove('cerb-ui-dialog--minimized');
@@ -781,6 +788,13 @@ CerbUI.Dialog = class {
 		CerbUI.Dialog._syncTray();
 		CerbUI.Dialog._syncUnloadGuard(); // no longer in the tray → may drop the unload guard
 		this._positionDefault();
+		if(cascade > 0) {
+			const offset = cascade * CerbUI.Dialog._CASCADE_STEP;
+			this.x += offset;
+			this.y += offset;
+			this.el.style.left = this.x + 'px';
+			this.el.style.top  = this.y + 'px';
+		}
 		this.bringToFront();
 		CerbUI.Dialog._syncPageHeight();
 		if(this.opts.onMinimize) this.opts.onMinimize(false);
