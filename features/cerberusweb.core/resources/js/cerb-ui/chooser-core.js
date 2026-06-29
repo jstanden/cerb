@@ -280,6 +280,8 @@ CerbUI.chooserCore = (function() {
 				if(activeIndex >= 0 && items[activeIndex]) choose(items[activeIndex]);
 			}
 			else if(e.key === 'Escape')    { e.preventDefault(); close(); }
+			// Tabbing out of the field closes the menu (don't preventDefault — let focus move on)
+			else if(e.key === 'Tab')       { close(); }
 		}
 		search.addEventListener('keydown', onKey);
 
