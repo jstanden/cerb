@@ -21,7 +21,21 @@
 	background: var(--cerb-color-alert-background);
 	font-weight: bold;
 	color: black;
-	
+
+	// Slide/fade reveal (replaces the jQuery-UI .effect('slide')); .cerb-alert--in is the shown state.
+	opacity: 0;
+	transform: translateY(-100%);
+	transition: opacity 0.25s ease, transform 0.25s ease;
+
+	&.cerb-alert--in {
+		opacity: 1;
+		transform: none;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		transition: none;
+	}
+
 	A {
 		color: black;
 	}
@@ -129,13 +143,6 @@ A.no-underline {
 	&:hover {
 		text-decoration: underline;
 	}
-}
-
-// Effects
-
-.effects-transfer {
-	border: 2px dotted var(--cerb-color-background-contrast-170);
-	background-color: var(--cerb-color-background-contrast-230);
 }
 
 // Text input icons

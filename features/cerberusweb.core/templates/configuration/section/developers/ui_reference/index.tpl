@@ -90,6 +90,7 @@
 					<ul>
 						<li data-target="icon" data-icon="picture">Icon</li>
 						<li data-target="utilities" data-icon="wrench">Utilities</li>
+						<li data-target="effects" data-icon="sparkles">Effects</li>
 					</ul>
 				</div>
 				<div class="cerb-ui-sidebar--section">
@@ -187,6 +188,7 @@
 			<h2 class="cerb-uiref-grouplabel" id="group-foundations">Foundations</h2>
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/icon.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/utilities.tpl"}
+			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/effects.tpl"}
 
 			<h2 class="cerb-uiref-grouplabel" id="group-layout">Layout</h2>
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/page.tpl"}

@@ -1,0 +1,23 @@
+// Effects (CerbUI.effects) — styling for the one-shot animation helpers that replace the cosmetic
+// jQuery-UI effects API. The flash keyframe backs CerbUI.effects.flash (validation cue / anchor jump);
+// .cerb-ui-transfer is the fly-between ghost box used by CerbUI.effects.transfer (ported from the old
+// .effects-transfer). The pulse helper reuses the cerb-u-anim-pulse utility keyframe, so it needs no
+// rule here. All are guarded under prefers-reduced-motion (belt-and-suspenders with the JS guard).
+
+@keyframes cerb-ui-flash {
+	from { background-color: var(--cerb-color-alert-background); }
+	to   { background-color: transparent; }
+}
+
+.cerb-ui-flash {
+	animation: cerb-ui-flash 1s ease;
+}
+
+.cerb-ui-transfer {
+	border: 2px dotted var(--cerb-color-background-contrast-170);
+	background-color: var(--cerb-color-background-contrast-230);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.cerb-ui-flash { animation: none; }
+}
