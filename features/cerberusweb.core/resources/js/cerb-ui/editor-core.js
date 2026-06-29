@@ -808,3 +808,130 @@ CerbUI.editorCore.kataScript = {
 	},
 
 };
+
+/*
+ * CerbUI.editorCore.searchQuery — the shared "brain" for Cerb search-query syntax: a small sticky-regex
+ * tokenizer (drives highlighting) and the nested-filter scope-path walker at the caret (drives autocomplete).
+ * Extracted from CerbUI.SearchQuery so CerbUI.DataQuery can reuse the exact grammar — data queries embed
+ * `query:(…)` clauses in the same syntax. SearchQuery delegates its `_tokenize`/`_scopePathAt` here; the token
+ * classes keep their `cerb-ui-searchquery--tok-*` names so colors are unchanged and DataQuery reuses them.
+ */
+CerbUI.editorCore.searchQuery = {
+	// Token type -> CSS class for the highlight mirror (text/ws/comma have no class).
+	TOK_CLASS: {
+		field:     'cerb-ui-searchquery--tok-field',
+		quoted:    'cerb-ui-searchquery--tok-string',
+		bool:      'cerb-ui-searchquery--tok-bool',
+		number:    'cerb-ui-searchquery--tok-number',
+		lparen:    'cerb-ui-searchquery--tok-paren',
+		lparenNeg: 'cerb-ui-searchquery--tok-paren',
+		rparen:    'cerb-ui-searchquery--tok-paren',
+		lbrack:    'cerb-ui-searchquery--tok-paren',
+		rbrack:    'cerb-ui-searchquery--tok-paren',
+	},
+
+	// Ordered, sticky tokenizer rules (first match at the cursor wins).
+	_RX: [
+		{ type: 'ws',        re: /\s+/y },
+		{ type: 'field',     re: /[A-Za-z0-9_.]+:/y },               // a filter name: status:, sender.org.name:
+		{ type: 'quoted',    re: /"(?:\\.|[^"\\])*"?/y },            // "double" (trailing quote optional = unterminated)
+		{ type: 'quoted',    re: /'(?:\\.|[^'\\])*'?/y },            // 'single'
+		{ type: 'lparenNeg', re: /!\(/y },                           // negated group
+		{ type: 'lparen',    re: /\(/y },
+		{ type: 'rparen',    re: /\)/y },
+		{ type: 'lbrack',    re: /\[/y },
+		{ type: 'rbrack',    re: /\]/y },
+		{ type: 'comma',     re: /,/y },
+		{ type: 'bool',      re: /(?:AND|OR)(?![A-Za-z0-9_])/y },     // uppercase booleans only
+		{ type: 'number',    re: /[+\-]?\.?\d[\d.eE+\-]*/y },
+		{ type: 'text',      re: /[^\s()[\],"']+/y },
+	],
+
+	// Cerb's grammar is small, so a sticky-regex scan is enough. Order matters: the first pattern that matches at
+	// the cursor wins. Returns [{type, value, start, end, inner?, terminated?}, ...] covering the whole string
+	// (every char belongs to exactly one token).
+	tokenize: function(text) {
+		const toks = [];
+		let i = 0;
+		const n = text.length;
+		const RX = this._RX;
+
+		while(i < n) {
+			let matched = null;
+			for(const rule of RX) {
+				rule.re.lastIndex = i;
+				const m = rule.re.exec(text);
+				if(m && m.index === i) { matched = { type: rule.type, value: m[0] }; break; }
+			}
+			if(!matched) { // safety net: consume one char as text so we never loop forever
+				matched = { type: 'text', value: text[i] };
+			}
+			matched.start = i;
+			matched.end = i + matched.value.length;
+			if(matched.type === 'quoted') {
+				const q = matched.value[0];
+				matched.terminated = matched.value.length > 1 && matched.value[matched.value.length - 1] === q;
+				matched.inner = matched.value.slice(1, matched.terminated ? -1 : undefined);
+			}
+			toks.push(matched);
+			i = matched.end;
+		}
+		return toks;
+	},
+
+	// Push the query tokens for `str` into an existing `toks` array — the `plain(toks, str, baseType)` shape that
+	// kataScript.tokenize expects, so DataQuery can thread the query tokenizer UNDER kataScript per line. The
+	// `baseType` arg is accepted (signature compatibility) but ignored — every char already maps to a concrete
+	// query token type. Pushed start/end are relative to `str`; the highlight renderer ignores them.
+	tokenizeInto: function(toks, str /*, baseType */) {
+		if(!str) return;
+		for(const t of this.tokenize(str)) toks.push(t);
+	},
+
+	// ── Scope path at the caret ─────────────────────────────────────────
+	// Walk the tokens of the text BEFORE the caret, tracking the chain of filter fields that enclose it:
+	//   - `field:` sets the current (innermost) field context
+	//   - `(` / `!(` pushes the field that owns the group; `)` pops it
+	//   - whitespace / AND / OR / `]` resets the innermost field (we've moved past a value)
+	// In group-key position (the caret sits inside an open `field:(…)` ready for a sub-key, not after a value),
+	// the final segment is tagged with a trailing `()` — e.g. `closed:(` → ['closed:()'] vs `closed:` →
+	// ['closed:']. A source can offer that group's parameterized sub-keys under the `closed:()` key, falling
+	// back to the plain `closed:` key for record contexts / value forms.
+	// Returns { path:['sender:','org:','name:'], prefix:'partial', prefixRaw:'chars to replace', caret }.
+	scopePathAt: function(text, caret) {
+		const toks = this.tokenize(text.slice(0, caret));
+		const stack = [];     // field that owns each currently-open paren group (null for a bare grouping paren)
+		let pending = null;   // innermost field context the caret sits under
+		let prefix = '';      // partial value/word being typed (for filtering)
+		let prefixRaw = '';   // the literal characters to replace on accept (includes an open quote)
+
+		for(const t of toks) {
+			switch(t.type) {
+				case 'ws':       pending = null; prefix = ''; prefixRaw = ''; break;
+				case 'field':    pending = t.value; prefix = ''; prefixRaw = ''; break;
+				case 'lparen':
+				case 'lparenNeg': stack.push(pending); pending = null; prefix = ''; prefixRaw = ''; break;
+				case 'rparen':   stack.pop(); pending = null; prefix = ''; prefixRaw = ''; break;
+				case 'lbrack':   prefix = ''; prefixRaw = ''; break; // array values still belong to `pending`
+				case 'rbrack':   pending = null; prefix = ''; prefixRaw = ''; break;
+				case 'comma':    prefix = ''; prefixRaw = ''; break;
+				case 'bool':     pending = null; prefix = ''; prefixRaw = ''; break;
+				case 'quoted':
+					prefix = t.terminated ? '' : t.inner;
+					prefixRaw = t.terminated ? '' : t.value;
+					break;
+				case 'number':
+				case 'text':     prefix = t.value; prefixRaw = t.value; break;
+			}
+		}
+
+		const path = stack.filter(Boolean);
+		if(pending) {
+			path.push(pending);
+		} else if(path.length > 0) {
+			// Group-key position: tag the innermost (final) group owner so a source can offer its sub-keys.
+			path[path.length - 1] += '()';
+		}
+		return { path, prefix, prefixRaw, caret };
+	},
+};
