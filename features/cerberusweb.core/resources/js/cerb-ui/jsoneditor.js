@@ -150,6 +150,11 @@ CerbUI.JsonEditor = class {
 		this._folds = [];                 // a fresh document drops all folds
 		this._markers.clear();            // …and all row-keyed gutter markers
 		this._rebuildProjection();
+		// A freshly loaded document starts at the TOP. Assigning textarea.value parks the caret at the end, so
+		// _rebuildProjection's scroll-caret-into-view would otherwise leave a tall result scrolled to the bottom.
+		this.textarea.selectionStart = this.textarea.selectionEnd = 0;
+		this.textarea.scrollTop = 0;
+		this._syncScroll();
 		this._fireChange();
 		return this;
 	}
@@ -315,6 +320,7 @@ CerbUI.JsonEditor = class {
 	getLine(row) { const l = this._modelLines(); return (row >= 0 && row < l.length) ? l[row] : ''; }
 
 	destroy() {
+		if(this._editorToolbar && typeof this._editorToolbar.destroy === 'function') this._editorToolbar.destroy();
 		if(this._find) this._find.destroy();
 		if(this._validateTimer !== null) { clearTimeout(this._validateTimer); this._validateTimer = null; }
 		CerbUI.JsonEditor._instances.delete(this.el);
@@ -324,6 +330,7 @@ CerbUI.JsonEditor = class {
 			this.textarea.removeEventListener('scroll', this._onScroll);
 		}
 		if(this.gutter && this._onGutterClick) this.gutter.removeEventListener('click', this._onGutterClick);
+		if(this._revealDisposer) { this._revealDisposer(); this._revealDisposer = null; }
 	}
 
 	// ── Keyboard shortcuts (abstract, enumerable registry) ──────────────
@@ -450,6 +457,12 @@ CerbUI.JsonEditor = class {
 		let so = old.length, sn = value.length;
 		while(so > p && sn > p && old[so - 1] === value[sn - 1]) { so--; sn--; }
 		const insert = value.slice(p, sn);
+
+		// execCommand('insertText') is pathologically slow on large spans (a Replace-All across a huge doc
+		// hangs). Above this threshold, write directly — fast, at the cost of native undo for this one bulk op.
+		// The caller sets the caret + calls _refresh(), so no input event / render is needed here.
+		const BIG_EDIT = 10000;
+		if(Math.max(so - p, insert.length) > BIG_EDIT) { ta.value = value; return; }
 
 		let ok = false;
 		this._suppressInput = true;   // execCommand re-emits `input` synchronously; the caller drives the refresh
@@ -745,6 +758,11 @@ CerbUI.JsonEditor = class {
 
 	_autosize() {
 		const ta = this.textarea;
+		if(!ta.getClientRects().length) { // hidden (e.g. a display:none preview panel) — defer the measure
+			if(!this._revealDisposer)      // until revealed, else scrollHeight 0 would clamp us to minLines
+				this._revealDisposer = CerbUI.editorCore.onFirstReveal(this.el, () => { this._revealDisposer = null; this._autosize(); });
+			return;
+		}
 		const cs = window.getComputedStyle(ta);
 		const lh = parseFloat(cs.lineHeight) || (parseFloat(cs.fontSize) * 1.5);
 		const padY = (parseFloat(cs.paddingTop) || 0) + (parseFloat(cs.paddingBottom) || 0);
