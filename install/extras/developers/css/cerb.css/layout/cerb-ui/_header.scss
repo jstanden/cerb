@@ -9,7 +9,7 @@
 	&--title {
 		font-size: 1.9em;
 		font-weight: 700;
-		color: var(--cerb-color-widget-header);
+		color: var(--cerb-color-text);
 		line-height: 1.1;
 	}
 
@@ -30,7 +30,7 @@
 	&--title-sm {
 		font-size: 1.25em;
 		font-weight: 600;
-		color: var(--cerb-color-widget-header);
+		color: var(--cerb-color-text);
 		line-height: 1.2;
 		display: flex;
 		align-items: center;

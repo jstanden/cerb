@@ -1,6 +1,7 @@
 .cerb-workspace-widget {
 	min-width:345px;
-	overflow-x:hidden;
+	overflow-x:clip; // clip (not hidden) so overflow-y stays visible — hidden forces overflow-y:auto, which
+	                 // pops a phantom vertical scrollbar (flex sub-pixel rounding), e.g. on c3 chart widgets
 
 	> DIV {
 		padding: 0 5px 10px 5px;
@@ -12,8 +13,6 @@
 }
 
 .cerb-workspace-widget--header {
-	border-bottom: 1px solid var(--cerb-color-background-contrast-240);
-	margin: 0 0 10px 0;
 	position: relative;
 
 	b {
@@ -23,15 +22,21 @@
 		.cerb-icon-menu-hamburger {
 			vertical-align:middle;
 			cursor:move;
-			color: var(--cerb-color-background-contrast-180);
 			font-size:0.8em;
 		}
 
 		.cerb-icon-chevron-down {
-			font-size:0.5em;
+			font-size:0.9em;
 			vertical-align:middle;
 			margin-left:5px;
 		}
+	}
+
+	a {
+		color: inherit;
+	}
+
+	&:hover {
 	}
 }
 
