@@ -546,6 +546,25 @@ CerbUI.Dialog = class {
 		// Single capture-phase listener routes drag, resize, and z-index focus.
 		dlg.addEventListener('pointerdown', this.onPointerDown, true);
 
+		// Contain keyboard events at the dialog boundary so keystrokes typed inside never reach page-level
+		// (bubble-phase document) shortcut handlers — e.g. typing in a dialog field shouldn't fire a worklist
+		// hotkey behind it. Capture-phase document listeners (CerbUI.Menu with captureKeys, the editor
+		// autocompletes / find) run BEFORE the event reaches us, so they're unaffected; a bubble-phase
+		// component inside a dialog should use capture (as CerbUI.SelectMenu does) to keep working. Escape is
+		// closed here too (so it works with focus inside the dialog) and then contained; the document-level
+		// docKeydown still handles Escape when focus is OUTSIDE the dialog.
+		this._containKeys = (e) => {
+			if(e.type === 'keydown' && e.key === 'Escape' && this.opts.closeOnEscape
+				&& this.el.style.zIndex === String(CerbUI.Dialog._zTop)) {
+				e.preventDefault();
+				this.close();
+			}
+			e.stopPropagation();
+		};
+		dlg.addEventListener('keydown',  this._containKeys);
+		dlg.addEventListener('keypress', this._containKeys);
+		dlg.addEventListener('keyup',    this._containKeys);
+
 		document.body.appendChild(dlg);
 		CerbUI.Dialog._instances.set(contentEl, this);
 		CerbUI.Dialog._byRoot.set(dlg, this);
@@ -669,6 +688,16 @@ CerbUI.Dialog = class {
 
 		if(this.opts.onOpen) this.opts.onOpen();
 		this.innerContent.dispatchEvent(new CustomEvent('cerb-ui-dialog:open', { bubbles: true }));
+
+		// Move keyboard focus into the dialog so Escape works immediately (no manual click first). Prefer an
+		// explicit [autofocus] control; otherwise focus the dialog root. Async content (e.g. fromAjax, still a
+		// spinner here) focuses itself once loaded — that runs later, so it wins over this baseline.
+		const autofocusEl = this.innerContent.querySelector('[autofocus]');
+		if(autofocusEl && typeof autofocusEl.focus === 'function') {
+			try { autofocusEl.focus({ preventScroll: true }); } catch(e) { autofocusEl.focus(); }
+		} else {
+			this._focus();
+		}
 		return true;
 	}
 
@@ -770,6 +799,9 @@ CerbUI.Dialog = class {
 		this._removeBackdrop();
 
 		this.el.removeEventListener('pointerdown', this.onPointerDown, true);
+		this.el.removeEventListener('keydown',  this._containKeys);
+		this.el.removeEventListener('keypress', this._containKeys);
+		this.el.removeEventListener('keyup',    this._containKeys);
 		this.innerContent.removeEventListener('input',  this._onDirty, true);
 		this.innerContent.removeEventListener('change', this._onDirty, true);
 
@@ -797,6 +829,13 @@ CerbUI.Dialog = class {
 		CerbUI.Dialog._zTop++;
 		this.el.style.zIndex = String(CerbUI.Dialog._zTop);
 		if(this.backdrop) this.backdrop.style.zIndex = String(CerbUI.Dialog._zTop - 1);
+	}
+
+	// Put keyboard focus on the dialog root (tabindex -1) so Escape routes through this.el's keydown handler —
+	// without selecting/scrolling to an inner field. Used when focus hands off to a newly-topmost dialog.
+	_focus() {
+		this.el.setAttribute('tabindex', '-1');
+		try { this.el.focus({ preventScroll: true }); } catch(e) { this.el.focus(); }
 	}
 
 	_addBackdrop() {
