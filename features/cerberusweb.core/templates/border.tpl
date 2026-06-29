@@ -113,8 +113,8 @@ $(function() {
 			e.stopPropagation();
 			signedInMenu.isOpen() ? signedInMenu.close() : signedInMenu.open($trigger[0]);
 		})
-		.disableSelection()
 	;
+	if(window.CerbUI && CerbUI.utils) CerbUI.utils.disableSelection($trigger[0]);
 	
 	var $theme = $('#cerb-theme');
 	
