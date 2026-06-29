@@ -1,0 +1,173 @@
+// ScriptingEditor: a multi-line editor for Twig/KataScript template documents (one big value, no folding).
+// Same overlay technique as the rest of the family — transparent textarea text over a colored mirror
+// --highlight div — plus an optional left line-number --gutter. Does NOT wrap (white-space: pre): long lines
+// scroll horizontally. The two text layers MUST keep identical box metrics or the colors drift from the caret.
+// Script-tag token colors come from the SHARED cerb-ui-editor--tok-kscript* classes (see _editor.scss); plain
+// text is the default color, so this file only owns the shell.
+.cerb-ui-scriptingeditor {
+    --cerb-ui-scriptingeditor-pad-y: 0.4em;
+    --cerb-ui-scriptingeditor-pad-x: 0.6em;
+
+    display: flex;
+    align-items: stretch;
+    border: 1px solid var(--cerb-color-background-contrast-200);
+    border-radius: 4px;
+    background: var(--cerb-editor-background);
+    font-family: var(--cerb-font-stack-fixed);
+    font-size: var(--cerb-font-size);
+    line-height: 1.5;
+    overflow: hidden;
+
+    &--gutter {
+        flex-shrink: 0;
+        box-sizing: border-box;
+        padding: var(--cerb-ui-scriptingeditor-pad-y) 0.5em;
+        background: var(--cerb-editor-gutter-background);
+        border-right: 1px solid var(--cerb-editor-gutter-border, var(--cerb-color-background-contrast-200));
+        overflow: hidden;
+        line-height: 1.5;
+        text-align: right;
+        color: var(--cerb-color-background-contrast-150);
+        white-space: pre;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+
+    &--gutter-line-active {
+        color: var(--cerb-color-text);
+        font-weight: 600;
+    }
+
+    // Each gutter row: marker (left) | number (flex, right-aligned).
+    &--gutter-line {
+        display: flex;
+        align-items: center;
+        gap: 0.25em;
+    }
+    &--gutter-num {
+        flex: 1;
+        text-align: right;
+    }
+
+    // Marker slot, LEFT of the numbers (errors/warnings/info — future template lint). Color set inline.
+    &--gutter-marker {
+        flex-shrink: 0;
+        width: 1em;
+        height: 1em;
+        font-size: 1em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &.cerb-icons { cursor: pointer; }
+    }
+    &--gutter-marker-pip {
+        cursor: pointer;
+
+        &::before {
+            content: "";
+            width: 0.6em;
+            height: 0.6em;
+            border-radius: 50%;
+            background: currentColor;
+        }
+    }
+
+    &--field {
+        position: relative;
+        flex: 1;
+        min-width: 0;
+    }
+
+    // Shared text box for BOTH layers — keep in lockstep.
+    &--highlight,
+    &--input {
+        box-sizing: border-box;
+        width: 100%;
+        margin: 0;
+        padding: var(--cerb-ui-scriptingeditor-pad-y) var(--cerb-ui-scriptingeditor-pad-x);
+        border: 0;
+        font-family: var(--cerb-font-stack-fixed);
+        font-size: var(--cerb-font-size);
+        line-height: 1.5;
+        letter-spacing: normal;
+        tab-size: 2;
+        white-space: pre;
+        word-wrap: normal;
+        overflow-wrap: normal;
+    }
+
+    &--highlight {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        overflow: hidden;
+        color: var(--cerb-color-text);
+        pointer-events: none;
+        user-select: none;
+    }
+
+    &--input {
+        position: relative;
+        z-index: 1;
+        display: block;
+        background: transparent;
+        color: transparent;
+        caret-color: var(--cerb-color-text);
+        resize: none;
+        overflow-x: auto;
+        overflow-y: hidden;
+
+        appearance: none;
+        -webkit-appearance: none;
+        border: none;
+        outline: none;
+
+        &:focus,
+        &:focus-visible {
+            border: none;
+            outline: none;
+            box-shadow: none;
+        }
+
+        &::placeholder {
+            color: var(--cerb-color-background-contrast-150);
+            opacity: 1;
+        }
+    }
+
+    &--caret-anchor {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 0;
+        height: 1.5em;
+        pointer-events: none;
+    }
+
+    // Optional indentation guide (off by default for templates). COLOR/box-shadow only — no width change.
+    &--indent-guide { box-shadow: inset 1px 0 0 var(--cerb-color-background-contrast-225); padding: 0.35em 0; }
+}
+
+// Read-only viewer: a muted caret (folding/selection N/A; the field just can't be edited).
+.cerb-ui-scriptingeditor--readonly .cerb-ui-scriptingeditor--input {
+    caret-color: transparent;
+}
+
+// Single-line (wrap) variant — the VALUE is one logical line, but a long template wraps visually instead of
+// scrolling horizontally. Used by ScriptingEditor.enhance() on a bare <input> (Enter is suppressed in JS, so the
+// value never gains a newline). Both text layers switch to pre-wrap in lockstep so the colors stay under the caret;
+// the caret-measurement mirror (editorCore.caretCoords) is already pre-wrap + break-word, so it stays aligned.
+.cerb-ui-scriptingeditor--singleline {
+    .cerb-ui-scriptingeditor--highlight,
+    .cerb-ui-scriptingeditor--input {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+    .cerb-ui-scriptingeditor--input { overflow-x: hidden; }
+}
+
+// The original named control kept (hidden) as the value carrier when enhance() wraps a bare <input>; the visible
+// shadow textarea mirrors its value back here on every change so the form POST is unchanged.
+.cerb-ui-scriptingeditor--value { display: none; }
