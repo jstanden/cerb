@@ -132,6 +132,7 @@
 						<li data-target="file-upload" data-icon="upload">FileUpload</li>
 						<li data-target="searchquery" data-icon="search">SearchQuery</li>
 						<li data-target="kataeditor" data-icon="placeholders">KataEditor</li>
+						<li data-target="markdowneditor" data-icon="quote">MarkdownEditor</li>
 						<li data-target="jsoneditor" data-icon="console">JsonEditor</li>
 						<li data-target="scriptingeditor" data-icon="function">ScriptingEditor</li>
 						<li data-target="dataquery" data-icon="database">DataQuery</li>
@@ -217,6 +218,7 @@
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/file-upload.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/searchquery.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/kataeditor.tpl"}
+			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/markdowneditor.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/jsoneditor.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/scriptingeditor.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/dataquery.tpl"}

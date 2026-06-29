@@ -1,0 +1,102 @@
+// MarkdownEditor: a textarea-based markdown composer (replaces the legacy jQuery cerbTextEditor stack on the
+// mail reply / comment editors). Live syntax highlighting uses the same "overlay" technique as SearchQuery:
+// the textarea text is transparent (caret visible) over a mirror --highlight div carrying colored token
+// spans. The two layers MUST share identical box metrics (font, padding, line-height, wrapping) or the
+// colors drift from the caret. Unlike SearchQuery this is PROSE — it inherits the page font (not the fixed
+// font) and has no leading icon (its toolbar is a separate cerb-ui-toolbar strip above it).
+// CerbUI.MarkdownEditor wires behavior.
+.cerb-ui-markdowneditor {
+    --cerb-ui-markdowneditor-pad-y: 0.45em;
+    --cerb-ui-markdowneditor-pad-x: 0.6em;
+
+    border: 1px solid var(--cerb-color-background-contrast-200);
+    border-radius: 4px;
+    background: var(--cerb-editor-background);
+    font-size: var(--cerb-font-size);
+    line-height: 1.5;
+
+    // The positioning context for the overlay + the caret anchor.
+    &--field {
+        position: relative;
+    }
+
+    // Shared text box for BOTH layers — keep these declarations in lockstep.
+    &--highlight,
+    &--input {
+        box-sizing: border-box;
+        width: 100%;
+        margin: 0;
+        padding: var(--cerb-ui-markdowneditor-pad-y) var(--cerb-ui-markdowneditor-pad-x);
+        border: 0;
+        font-family: inherit; // prose: identical on both layers (siblings inherit the same ancestor font)
+        font-size: var(--cerb-font-size);
+        line-height: 1.5;
+        letter-spacing: normal;
+        tab-size: 4;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    // The colored mirror, behind the textarea. Inert — clicks/selection go to the textarea above it.
+    &--highlight {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        overflow: hidden;
+        color: var(--cerb-color-text);
+        pointer-events: none;
+        user-select: none;
+    }
+
+    // Transparent text, visible caret — the highlight layer shows the colors.
+    &--input {
+        position: relative;
+        z-index: 1;
+        display: block;
+        min-height: calc(1.5em + (var(--cerb-ui-markdowneditor-pad-y) * 2));
+        background: transparent;
+        color: transparent;
+        caret-color: var(--cerb-color-text);
+        resize: none;
+        overflow-y: hidden;
+
+        // The wrapper supplies the only visible border. Strip native textarea chrome + the global
+        // `TEXTAREA:focus { border … }` (re-asserted at class+:focus specificity, like SearchQuery).
+        appearance: none;
+        -webkit-appearance: none;
+        border: none;
+        outline: none;
+
+        &:focus,
+        &:focus-visible {
+            border: none;
+            outline: none;
+            box-shadow: none;
+        }
+
+        &::placeholder {
+            color: var(--cerb-color-background-contrast-150);
+            opacity: 1;
+        }
+    }
+
+    // Zero-width marker the JS parks at the caret pixel; the suggestion menu opens just below it.
+    &--caret-anchor {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 0;
+        height: 1.5em;
+        pointer-events: none;
+    }
+
+    // ── Token colors — SUBTLE: only dim the markdown punctuation; leave prose at the normal text color ──
+    // METRIC-SAFE ONLY — color / background-color / text-decoration. NEVER font-weight/style/family/size/
+    // letter-spacing/padding: the mirror's glyph advances must match the textarea's exactly or the caret
+    // drifts. The tokenizer emits `syntax` for the markers (**, _, `, #, >, list/quote/fence/hr) and leaves
+    // the content as plain text, so e.g. **bold** = dim `**` + normal "bold".
+    &--tok-syntax  { color: var(--cerb-color-background-contrast-150); }   // dimmed markdown punctuation
+    &--tok-url     { color: var(--cerb-color-background-contrast-130); text-decoration: underline; }
+    &--tok-mention { color: var(--cerb-editor-syntax-tag); }               // gentle accent for valid @mentions
+}
