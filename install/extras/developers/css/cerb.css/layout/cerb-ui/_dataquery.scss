@@ -1,0 +1,132 @@
+// DataQuery: a multi-line editor for Cerb's data-query language (type:/of:/by:/format:/series.*:/query:(…)).
+// CerbUI.DataQuery subclasses CerbUI.ScriptingEditor, so the shell is the same overlay technique (transparent
+// textarea over a colored --highlight mirror) plus an optional left line-number --gutter; it adds the
+// searchquery-style --icon / --right chrome. This file owns ONLY the shell: the rendered gutter rows
+// (.cerb-ui-scriptingeditor--gutter-*) and the token colors (.cerb-ui-searchquery--tok-* for query syntax,
+// .cerb-ui-editor--tok-kscript* for embedded {{ }} tags) are global single-class selectors styled elsewhere, so
+// they apply here for free — no new token CSS. The two text layers MUST keep identical box metrics or the colors
+// drift from the caret.
+.cerb-ui-dataquery {
+    --cerb-ui-dataquery-pad-y: 0.4em;
+    --cerb-ui-dataquery-pad-x: 0.6em;
+
+    display: flex;
+    align-items: stretch;
+    border: 1px solid var(--cerb-color-background-contrast-200);
+    border-radius: 4px;
+    background: var(--cerb-editor-background);
+    font-family: var(--cerb-font-stack-fixed);
+    font-size: var(--cerb-font-size);
+    line-height: 1.5;
+    overflow: hidden;
+
+    // Left glyph, centered on the first text line (same math as searchquery's --icon).
+    &--icon {
+        flex-shrink: 0;
+        width: 1.15em;
+        height: 1.15em;
+        margin: calc(var(--cerb-ui-dataquery-pad-y) + 0.175em) 0.4em 0 0.5em;
+        color: var(--cerb-color-background-contrast-150);
+    }
+
+    &--gutter {
+        flex-shrink: 0;
+        box-sizing: border-box;
+        padding: var(--cerb-ui-dataquery-pad-y) 0.5em;
+        background: var(--cerb-editor-gutter-background);
+        border-right: 1px solid var(--cerb-editor-gutter-border, var(--cerb-color-background-contrast-200));
+        overflow: hidden;
+        line-height: 1.5;
+        text-align: right;
+        color: var(--cerb-color-background-contrast-150);
+        white-space: pre;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+
+    &--field {
+        position: relative;
+        flex: 1;
+        min-width: 0;
+    }
+
+    // Shared text box for BOTH layers — keep in lockstep.
+    &--highlight,
+    &--input {
+        box-sizing: border-box;
+        width: 100%;
+        margin: 0;
+        padding: var(--cerb-ui-dataquery-pad-y) var(--cerb-ui-dataquery-pad-x);
+        border: 0;
+        font-family: var(--cerb-font-stack-fixed);
+        font-size: var(--cerb-font-size);
+        line-height: 1.5;
+        letter-spacing: normal;
+        tab-size: 2;
+        white-space: pre;
+        word-wrap: normal;
+        overflow-wrap: normal;
+    }
+
+    &--highlight {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        overflow: hidden;
+        color: var(--cerb-color-text);
+        pointer-events: none;
+        user-select: none;
+    }
+
+    &--input {
+        position: relative;
+        z-index: 1;
+        display: block;
+        background: transparent;
+        color: transparent;
+        caret-color: var(--cerb-color-text);
+        resize: none;
+        overflow-x: auto;
+        overflow-y: hidden;
+
+        appearance: none;
+        -webkit-appearance: none;
+        border: none;
+        outline: none;
+
+        &:focus,
+        &:focus-visible {
+            border: none;
+            outline: none;
+            box-shadow: none;
+        }
+
+        &::placeholder {
+            color: var(--cerb-color-background-contrast-150);
+            opacity: 1;
+        }
+    }
+
+    &--caret-anchor {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 0;
+        height: 1.5em;
+        pointer-events: none;
+    }
+
+    // Arbitrary author-supplied icon controls (suggestions / help …), mirrors cerb-ui-searchquery--right.
+    &--right {
+        flex-shrink: 0;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.4em;
+        padding: calc(var(--cerb-ui-dataquery-pad-y) - 0.1em) 0.5em 0 0;
+    }
+}
+
+// Read-only viewer: a muted caret (the field just can't be edited).
+.cerb-ui-dataquery--readonly .cerb-ui-dataquery--input {
+    caret-color: transparent;
+}

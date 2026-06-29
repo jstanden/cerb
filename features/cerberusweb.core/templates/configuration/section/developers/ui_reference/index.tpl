@@ -128,6 +128,7 @@
 						<li data-target="searchquery" data-icon="search">SearchQuery</li>
 						<li data-target="kataeditor" data-icon="placeholders">KataEditor</li>
 						<li data-target="jsoneditor" data-icon="console">JsonEditor</li>
+						<li data-target="dataquery" data-icon="database">DataQuery</li>
 						<li data-target="node-editor" data-icon="branch">NodeEditor</li>
 					</ul>
 				</div>
@@ -205,6 +206,7 @@
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/searchquery.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/kataeditor.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/jsoneditor.tpl"}
+			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/dataquery.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/node-editor.tpl"}
 
 			<h2 class="cerb-uiref-grouplabel" id="group-navigation">Navigation</h2>
