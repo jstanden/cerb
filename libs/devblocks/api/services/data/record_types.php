@@ -4,6 +4,7 @@ class _DevblocksDataProviderRecordTypes extends _DevblocksDataProvider {
 		return [
 			'' => [
 				'exclude_custom:yes',
+				'only_custom:yes',
 				'filter:',
 				'limit:',
 				'options:',
@@ -22,6 +23,7 @@ class _DevblocksDataProviderRecordTypes extends _DevblocksDataProvider {
 			'filter' => null,
 			'limit' => null,
 			'exclude_custom' => false,
+			'only_custom' => false,
 			'options' => [],
 			'page' => 0,
 			'format' => 'dictionaries',
@@ -55,7 +57,11 @@ class _DevblocksDataProviderRecordTypes extends _DevblocksDataProvider {
 			} else if($field->key == 'exclude_custom') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
 				$chart_model['exclude_custom'] = DevblocksPlatform::services()->string()->toBool($value);
-				
+
+			} else if($field->key == 'only_custom') {
+				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
+				$chart_model['only_custom'] = DevblocksPlatform::services()->string()->toBool($value);
+
 			} else if($field->key == 'format') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
 				$chart_model['format'] = $value;
@@ -89,6 +95,9 @@ class _DevblocksDataProviderRecordTypes extends _DevblocksDataProvider {
 			$is_custom = !empty(DevblocksPlatform::strStartsWith($record_type_ext->id, 'contexts.custom_record.'));
 			
 			if($chart_model['exclude_custom'] && $is_custom)
+				continue;
+
+			if($chart_model['only_custom'] && !$is_custom)
 				continue;
 			
 			$aliases = Extension_DevblocksContext::getAliasesForContext($record_type_ext->manifest);
