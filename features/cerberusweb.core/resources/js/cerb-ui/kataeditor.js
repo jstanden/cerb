@@ -243,7 +243,13 @@ CerbUI.KataEditor = class {
 	insertSnippet(text) {
 		const ta = this.textarea;
 		const s = ta.selectionStart, e = ta.selectionEnd;
-		let insert = String(text == null ? '' : text);
+		// Accept Ace-format snippets: flatten numbered tab-stops (`${1:default}`/`${1}`/`$1`) to their default
+		// text and mark the first as our `$0` caret. Idempotent for callers that already pass `$0`.
+		let insert = CerbUI.editorCore.aceSnippetToCerb(String(text == null ? '' : text));
+		// Multi-line snippets nest under the caret's current line: shift continuation lines by its indent.
+		const lineStart = ta.value.lastIndexOf('\n', s - 1) + 1;
+		const indent = (ta.value.slice(lineStart, s).match(/^[ \t]*/) || [''])[0];
+		insert = CerbUI.editorCore.indentSnippet(insert, indent);
 		let off = insert.length;
 		const m = insert.indexOf('$0');
 		if(m !== -1) { off = m; insert = insert.slice(0, m) + insert.slice(m + 2); }
