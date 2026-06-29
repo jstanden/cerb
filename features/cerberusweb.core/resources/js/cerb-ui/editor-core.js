@@ -67,6 +67,12 @@ CerbUI.editorCore = {
 		});
 	},
 
+	// Shift every line after the first by `indent`, so a multi-line snippet keeps its internal
+	// indentation but nests under the caret's current line. No-op for single-line text / empty indent.
+	indentSnippet: function(text, indent) {
+		return (!indent || text.indexOf('\n') === -1) ? text : text.replace(/\n/g, '\n' + indent);
+	},
+
 	escapeHtml: function(s) {
 		return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 	},
@@ -515,6 +521,11 @@ CerbUI.editorCore.Autocomplete = class {
 		const caret = ta.selectionStart;
 		const sp = this.opts.onScope(ta.value, caret);
 		const start = caret - sp.prefixRaw.length;
+
+		// Multi-line snippets nest under the caret's current line: shift continuation lines by its indent.
+		const lineStart = ta.value.lastIndexOf('\n', start - 1) + 1;
+		const indent = (ta.value.slice(lineStart, start).match(/^[ \t]*/) || [''])[0];
+		insert = CerbUI.editorCore.indentSnippet(insert, indent);
 
 		let caretOffset = insert.length;
 		const marker = insert.indexOf('$0');
