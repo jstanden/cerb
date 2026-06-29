@@ -71,6 +71,8 @@ CerbUI.SelectMenu = class {
 
 		// Hand the list to CerbUI.Menu
 		this.menu = new CerbUI.Menu(this.ul, {
+			// filter:true auto-enables captureKeys in CerbUI.Menu, so type-to-filter keys are consumed here
+			// and never leak to bubble-phase page shortcuts (e.g. a worklist 'r' hotkey behind the dropdown).
 			filter:       this.opts.filter,
 			onSelect:     (renderedLi, sourceLi) => this._onSelect(sourceLi),
 			onRenderItem: (renderedLi, sourceLi) => this._onRenderItem(renderedLi, sourceLi),
@@ -88,12 +90,22 @@ CerbUI.SelectMenu = class {
 		};
 		this.trigger.addEventListener('click', this._onTriggerClick);
 
-		// Open on keyboard when the trigger is focused and the menu is closed (Menu drives it once open).
+		// Keyboard on the focused, closed trigger (Menu drives it once open). Space/Enter/Arrows just open it;
+		// a printable character opens it AND seeds type-to-filter with that char — so typing on a focused
+		// (still-closed) select searches immediately instead of leaking the keystroke to page shortcuts.
 		this._onTriggerKey = (e) => {
 			if(this.menu.isOpen()) return;
+			if(this.select.disabled) return;
 			if(e.key === ' ' || e.key === 'Enter' || e.key === 'ArrowDown' || e.key === 'ArrowUp') {
 				e.preventDefault();
-				if(!this.select.disabled) this._open();
+				this._open();
+				return;
+			}
+			if(this.opts.filter && e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+				e.preventDefault();
+				e.stopPropagation(); // this select owns the keystroke (it seeds the filter) — don't leak it
+				this._open();
+				this.menu.startFilter(e.key);
 			}
 		};
 		this.trigger.addEventListener('keydown', this._onTriggerKey);
