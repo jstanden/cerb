@@ -4882,7 +4882,19 @@
 				<param key="icon" value="list" />
 			</params>
 		</extension>
-		
+
+		<extension point="cerb.toolbar">
+			<id>cerb.toolbar.records.worklist.search</id>
+			<name>records.worklist.search</name>
+			<class>
+				<file>api/toolbars/records.worklist.search.php</file>
+				<name>Toolbar_RecordsWorklistSearch</name>
+			</class>
+			<params>
+				<param key="icon" value="search" />
+			</params>
+		</extension>
+
 		<!-- Card Widgets -->
 		
 		<extension point="cerb.card.widget">

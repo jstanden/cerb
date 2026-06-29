@@ -124,10 +124,40 @@ abstract class C4_AbstractView {
 			$toolbar_dict->set('worker__type', 'worker');
 			$toolbar_dict->set('worker_id', 0);
 		}
-		
+
 		return $toolbar->getKata($toolbar_dict);
 	}
-	
+
+	/** @noinspection PhpUnused */
+	function getSearchToolbar() : array {
+		$context = $this->getContext();
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if(!($toolbar = DAO_Toolbar::getByName('records.worklist.search')))
+			return [];
+
+		// Unlike getToolbar(), set `caller_name` so parse-time caller policy matches the runtime caller.
+		$toolbar_dict = DevblocksDictionaryDelegate::instance([
+			'caller_name' => 'cerb.toolbar.records.worklist.search',
+			'worklist_id' => $this->id,
+			'worklist_record_type' => $context,
+			'worklist_query' => $this->getParamsQuery(),
+			'worklist_query_required' => $this->getParamsRequiredQuery(),
+			'worklist_page' => $this->renderPage,
+			'worklist_limit' => $this->renderLimit,
+		]);
+
+		if($active_worker) {
+			$toolbar_dict->mergeKeys('worker_', DevblocksDictionaryDelegate::getDictionaryFromModel($active_worker, CerberusContexts::CONTEXT_WORKER));
+		} else {
+			$toolbar_dict->set('worker__context', CerberusContexts::CONTEXT_WORKER);
+			$toolbar_dict->set('worker__type', 'worker');
+			$toolbar_dict->set('worker_id', 0);
+		}
+
+		return $toolbar->getKata($toolbar_dict);
+	}
+
 	/**
 	 * @param integer $size
 	 * @return array

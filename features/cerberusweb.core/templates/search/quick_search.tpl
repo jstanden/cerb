@@ -16,7 +16,9 @@
 			<span class="cerb-ui-searchquery--caret-anchor"></span>
 		</div>
 		<div class="cerb-ui-searchquery--right">
-			<a class="cerb-quick-search-menu-trigger" style="cursor:pointer;color:var(--cerb-color-background-contrast-150);" title="Suggestions (Ctrl/⌘+Space)"><span class="cerb-icons cerb-icon-sparkles"></span></a>
+			{$search_toolbar = $view->getSearchToolbar()}
+			{if $search_toolbar}{DevblocksPlatform::services()->ui()->toolbar()->render($search_toolbar, ['class'=>'cerb-ui-toolbar--bare-tiny','attr'=>'data-cerb-search-toolbar'])}{/if}
+			<a class="cerb-quick-search-menu-trigger" style="cursor:pointer;color:var(--cerb-color-background-contrast-150);" title="Suggestions (Ctrl/⌘+Space)"><span class="cerb-icons cerb-icon-autocomplete"></span></a>
 		</div>
 	</div>
 </form>
@@ -36,6 +38,44 @@ $(function() {
 	{if $focus}
 	sq.focus();
 	{/if}
+
+	// The admin-configurable `records.worklist.search` toolbar (bare-tiny) in the --right slot.
+	// (getElementById + scoped query — a uniqid() can start with a digit, an invalid `#id` CSS selector.)
+	const sqEl = document.getElementById('{$uniqid}_sq');
+	const tbEl = sqEl ? sqEl.querySelector('[data-cerb-search-toolbar]') : null;
+	if(tbEl && window.CerbUI && CerbUI.Toolbar) {
+		new CerbUI.Toolbar(tbEl, {
+			bare: 'tiny',
+			caller: {
+				name: 'cerb.toolbar.records.worklist.search',
+				params: {
+					worklist_id: '{$view->id}',
+					worklist_record_type: '{$view->getRecordType()}'
+				}
+			},
+			done: function(e) {
+				if(!e.eventData)
+					return;
+
+				Devblocks.interactionWorkerPostActions(e.eventData);
+
+				// An interaction may return a `query` to drop into the search field and run.
+				if(e.eventData.return && e.eventData.return.query) {
+					sq.setValue(e.eventData.return.query).focus();
+					$frm.submit();
+					return;
+				}
+
+				// Otherwise honor `after: refresh_worklist` (default yes) when the worklist is on the page.
+				let $target = e.trigger;
+				let done_params = new URLSearchParams(($target && $target.attr) ? ($target.attr('data-interaction-done') || '') : '');
+
+				if($('#view{$view->id}').length && (!done_params.has('refresh_worklist') || '1' === done_params.get('refresh_worklist'))) {
+					genericAjaxGet('view{$view->id}', 'c=internal&a=invoke&module=worklists&action=refresh&id={$view->id}');
+				}
+			}
+		});
+	}
 
 	$frm.find('a.cerb-quick-search-menu-trigger').on('click', function() {
 		sq.focus();
