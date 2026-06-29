@@ -7,9 +7,9 @@
 	flex-direction: column;
 	background: var(--cerb-color-background);
 	color: var(--cerb-color-text);
-	border: 1px solid var(--cerb-color-background-contrast-220);
+	border: 1px solid var(--cerb-color-dialog-border);
 	border-radius: 10px;
-	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+	box-shadow: 0 0 48px var(--cerb-color-dialog-shadow);
 	min-width: 200px;
 	box-sizing: border-box;
 }
@@ -39,8 +39,8 @@
 	align-items: center;
 	gap: 8px;
 	padding: 6px 8px 6px 14px;
-	background: var(--cerb-color-action-primary);
-	color: var(--cerb-color-action-primary-text);
+	background: var(--cerb-color-dialog-title-background);
+	color: var(--cerb-color-dialog-title-text);
 	border-radius: 10px 10px 0 0;
 	user-select: none;
 	flex-shrink: 0;
@@ -157,7 +157,8 @@
 
 // ── Minimized-windows tray ────────────────────────────────────────────────
 // A single shared button at the top-right that counts docked windows; click opens a menu of their titles.
-// Same blue as the titlebar. Sits above dialogs (z 9000+), below menus/tooltips (10000+).
+// Matches the dialog titlebar (background + text) so the tray reads as window chrome. Sits above dialogs
+// (z 9000+), below menus/tooltips (10000+).
 .cerb-ui-dialog-tray {
 	position: fixed;
 	top: 8px;
@@ -170,13 +171,27 @@
 	border: 0;
 	border-radius: 8px;
 	cursor: pointer;
-	background: var(--cerb-color-action-primary);
-	color: var(--cerb-color-action-primary-text);
+	background: var(--cerb-color-dialog-title-background);
+	color: var(--cerb-color-dialog-title-text);
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 
 	.cerb-icons { font-size: 1.2em; }
 
-	&:hover { filter: brightness(0.95); }
+	// Theme-aware highlight: layer the title text color (white) over the bar rather than
+	// `filter: brightness()`, which darkens — muddying the purple in dark mode. Re-assert the
+	// background-color too: the legacy global `BUTTON:hover` (background shorthand, 0,1,1) out-specifies
+	// our base rule and would otherwise reset the fill to transparent (white-on-white in light mode).
+	&:hover {
+		background-color: var(--cerb-color-dialog-title-background);
+		background-image: linear-gradient(
+			color-mix(in srgb, var(--cerb-color-dialog-title-text) 14%, transparent),
+			color-mix(in srgb, var(--cerb-color-dialog-title-text) 14%, transparent)
+		);
+	}
+
+	// Hold the icon/text at the title color on hover — opt out of the global
+	// `button:has(> span.cerb-icons):hover` blue (which out-specifies a plain &:hover).
+	&:hover:has(> span.cerb-icons) { color: var(--cerb-color-dialog-title-text); }
 
 	&:focus-visible {
 		outline: 2px solid var(--cerb-color-action-primary);
