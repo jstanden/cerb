@@ -29,6 +29,8 @@
  *                data-label is only a fallback for an icon-only <li> with no text. In `bare` mode the label
  *                rides as the tooltip so the strip stays icon-only.
  *   data-icon    bare name → `cerb-icons cerb-icon-<name>`; leading '.' → raw class list
+ *   data-icon-at `end` renders the icon after the label (default: icon-first)
+ *   data-class   extra CSS class(es) copied onto the rendered button (e.g. `action-always-show`)
  *   title        tooltip; data-keyboard  shortcut hint shown in menus
  *   data-badge   a count bubble (floating pill) on the strip button; data-badge-color tints it (else accent)
  *   data-value   arbitrary value surfaced to onSelect (non-interaction items, e.g. presets)
@@ -45,7 +47,12 @@
  *   new CerbUI.Toolbar(document.getElementById('tb'), {
  *     bare: false,                                  // false = strip chrome; true = icons + menus only;
  *                                                   //   'tiny' (or tiny:true) = small muted icons (searchquery --right look)
+ *     overflow: 'wrap',                             // too-wide: 'wrap' rows (default) | 'menu' collapse trailing
+ *                                                   //   items into a '…' more-vertical menu (one row) | 'none' clip
  *     onSelect: (item, sourceLi, e) => { ... },     // item = {key,value,label,interactionUri,interactionParams,toggle,pressed}
+ *                                                   //   sourceLi = the original <li> (read arbitrary data-attrs or
+ *                                                   //   classes, e.g. .cerb-bot-trigger) — item.value is its data-value
+ *     sections: [otherUl, '#more'],                 // MERGE extra source <ul>s into one strip (divider between) — hybrid
  *     caller: { name: 'cerb.toolbar.demo', params: {} },  // passed through to cerbBotTrigger
  *     target: null, width: '50%',                   // target=jQuery el → inline interaction; null → popup
  *     start, done, error, reset                     // cerbBotTrigger lifecycle callbacks
@@ -68,15 +75,27 @@ CerbUI.Toolbar = class {
 		target: null,       // a jQuery element → render the interaction inline into it (else a popup)
 		width: '50%',       // await-popup width
 		hover: false,       // open every menu on hover (per-item data-hover overrides for one item)
+		overflow: 'wrap',   // too-wide handling: 'wrap' = flow to multiple rows; 'menu' = collapse trailing items
+		                    //   into a trailing '…' more-vertical menu (single row, ResizeObserver); 'none' = clip
+		badgeStyle: 'pill', // data-badge rendering: 'pill' = floating corner alert; 'count' = calm leading inline tally
 		start: null,        // (formData) cerbBotTrigger hook — append caller params just-in-time
 		done: null,         // (event) interaction finished
 		error: null,        // (event) interaction errored
 		reset: null,        // (event) interaction reset
+		selectableParents: false, // menu items with a submenu are ALSO selectable (click = onSelect; hover = expand)
+		sections: null,     // additional source <ul>s (elements or selectors) to MERGE into this one strip, each
+		                    //   preceded by a divider — build a hybrid toolbar from several authored/record-rendered
+		                    //   <ul class="cerb-ui-toolbar">s. Their <li>s move into this list (consumed once at construct).
 	};
 
 	constructor(el, opts = {}) {
 		el = (typeof el === 'string') ? document.querySelector(el) : el;
 		if(!el) return;
+
+		// Idempotent: re-enhancing a source <ul> that already has an instance (e.g. a re-rendered widget
+		// toolbar constructed again on the same list) tears down the prior strip first so we don't stack two.
+		const prior = CerbUI.Toolbar._instances.get(el);
+		if(prior && prior !== this && typeof prior.destroy === 'function') prior.destroy();
 
 		this.el = el;
 		this.opts = Object.assign({}, CerbUI.Toolbar._DEFAULTS, opts);
@@ -87,10 +106,44 @@ CerbUI.Toolbar = class {
 		this._toggles = new Map(); // toggle item key -> item descriptor (carries its rendered .btn)
 		this.strip = null;        // the rendered visible strip
 		this._hoverGroup = 'cerb-ui-toolbar-' + (CerbUI.Toolbar._seq = (CerbUI.Toolbar._seq || 0) + 1);
+		// overflow:'menu' state
+		this._ro = null;           // ResizeObserver on the strip's container
+		this._overflowBtn = null;  // the trailing '…' button
+		this._overflowUl = null;   // the '…' menu's source <ul> (overflowed source <li>s move in/out)
+		this._overflowMenu = null; // the rebuilt-per-reflow CerbUI.Menu
+		this._reflowEntries = [];  // [{ el, overflowable, item }] in strip order (buttons + dividers)
+		this._sourceOrder = null;  // the authored <li>s in original order (to restore after moving)
+		this._reflowing = false;   // re-entrancy guard for the ResizeObserver callback
 
 		CerbUI.Toolbar._instances.set(el, this);
 
+		// Hybrid: fold any extra source <ul>s into this one (a divider between sections) BEFORE the first render,
+		// so refresh()/overflow keep operating on the single merged source list.
+		if(Array.isArray(this.opts.sections) && this.opts.sections.length)
+			this._mergeSections(this.opts.sections);
+
 		this._render();
+	}
+
+	// Move the <li>s of each additional source <ul> into this list, each section led by a divider. Lets a host
+	// compose a hybrid strip from several authored/record-rendered cerb-ui-toolbar <ul>s (e.g. an editor's built-in
+	// formatting + a worker-configured toolbar section). Each section <ul> is consumed (emptied + hidden) once.
+	_mergeSections(sections) {
+		sections.forEach(src => {
+			const ul = (typeof src === 'string') ? document.querySelector(src) : src;
+			if(!ul || ul === this.el || !ul.children) return;
+			const lis = Array.from(ul.children).filter(n => n instanceof HTMLLIElement);
+			if(!lis.length) return;
+			if(this.el.children.length && !this._isDividerLi(this.el.lastElementChild))
+				this.el.appendChild(document.createElement('li')); // divider between sections
+			lis.forEach(li => this.el.appendChild(li));             // move (not clone) — keeps interaction bindings/attrs
+			if(ul.parentNode) ul.hidden = true;
+		});
+	}
+
+	_isDividerLi(li) {
+		return li instanceof HTMLLIElement && li.children.length === 0 && li.textContent.trim() === ''
+			&& !li.dataset.icon && !li.dataset.label;
 	}
 
 	// ── Public API ──────────────────────────────────────────────────────
@@ -135,22 +188,48 @@ CerbUI.Toolbar = class {
 		return this;
 	}
 
+	// Fire the item bound to a keyboard shortcut (e.g. from a host keydown handler). The shortcut hook
+	// (data-interaction-keyboard) lives on the source <li>; clicking it fires the interaction via
+	// cerbBotTrigger. Returns true if a matching item was found.
+	triggerShortcut(keys) {
+		if(keys == null) return false;
+		const li = this.el.querySelector('[data-interaction-keyboard="' + keys + '"]');
+		if(!li) return false;
+		if(window.jQuery) jQuery(li).trigger('click'); else li.click();
+		return true;
+	}
+
 	// ── Build ───────────────────────────────────────────────────────────
 
 	_render() {
 		// Hide the authored <ul> — it stays in the DOM as the data + menu source.
 		this.el.hidden = true;
 
+		const items = this._readItems(this.el);
+
+		// Nothing to show (an empty toolbar, or every item hidden/divider) — don't render an empty strip
+		// frame. A later refresh() re-reads and renders once real items exist.
+		if(!items.some(it => !it.hidden && !it.divider)) {
+			this.strip = null;
+			return;
+		}
+
+		// Snapshot the authored <li> order so _restoreOverflow can put moved-out items back exactly.
+		this._sourceOrder = Array.from(this.el.children);
+
 		const strip = document.createElement('div');
 		strip.className = 'cerb-ui-toolbar--strip'
 			+ (this.bare ? ' cerb-ui-toolbar--bare' : '')
-			+ (this.tiny ? ' cerb-ui-toolbar--bare-tiny' : '');
+			+ (this.tiny ? ' cerb-ui-toolbar--bare-tiny' : '')
+			+ (this.opts.overflow === 'menu' ? ' cerb-ui-toolbar--strip-overflow-menu' : '')
+			+ (this.opts.overflow === 'none' ? ' cerb-ui-toolbar--strip-nowrap' : '')
+			+ (this.opts.badgeStyle === 'count' ? ' cerb-ui-toolbar--badge-count' : '');
 		this.strip = strip;
 
 		// Bind firing once per interaction <li> anywhere in the tree (strip + nested menus).
 		this._bindInteractions(this.el);
 
-		const items = this._readItems(this.el);
+		this._reflowEntries = [];
 
 		items.forEach(item => {
 			if(item.hidden) return;
@@ -159,13 +238,132 @@ CerbUI.Toolbar = class {
 				const sep = document.createElement('span');
 				sep.className = 'cerb-ui-toolbar--divider';
 				strip.appendChild(sep);
+				this._reflowEntries.push({ el: sep, overflowable: true, item: null });
 				return;
 			}
 
-			strip.appendChild(this._mkButton(item));
+			const btn = this._mkButton(item);
+			strip.appendChild(btn);
+			// Toggles are pinned (their pressed state lives on the strip button — they never collapse).
+			this._reflowEntries.push({ el: btn, overflowable: !item.toggle, item: item });
 		});
 
+		// Backstop: drop a strip orphaned right after this source list by a prior render whose instance
+		// was lost (the source <ul> was re-inserted but its old rendered strip lingered) — avoids a double.
+		let staleSib = this.el.nextElementSibling;
+		if(staleSib && staleSib.classList && staleSib.classList.contains('cerb-ui-toolbar--strip'))
+			staleSib.remove();
+
 		this.el.insertAdjacentElement('afterend', strip);
+
+		if(this.opts.overflow === 'menu')
+			this._setupOverflow();
+	}
+
+	// ── Overflow ('menu') ───────────────────────────────────────────────
+
+	// Append the trailing '…' button + its (hidden) menu source <ul>, watch the container, and lay out once.
+	_setupOverflow() {
+		this._overflowBtn = this._mkOverflowButton();
+		this._overflowBtn.style.display = 'none';
+		this.strip.appendChild(this._overflowBtn);
+
+		this._overflowUl = document.createElement('ul');
+		this._overflowUl.hidden = true;
+		this.strip.insertAdjacentElement('afterend', this._overflowUl);
+
+		if(window.ResizeObserver && this.strip.parentElement) {
+			this._ro = new ResizeObserver(() => this._reflow());
+			this._ro.observe(this.strip.parentElement);
+		}
+
+		this._reflow();
+	}
+
+	_mkOverflowButton() {
+		const btn = document.createElement('button');
+		btn.type = 'button';
+		btn.className = 'cerb-ui-toolbar--item cerb-ui-toolbar--item-overflow';
+		btn.title = 'More';
+		const ico = this._mkIcon('more-vertical');
+		if(ico) btn.appendChild(ico);
+		btn.addEventListener('click', (e) => {
+			e.stopPropagation();
+			if(!this._overflowMenu) return;
+			this._overflowMenu.isOpen() ? this._overflowMenu.close() : this._overflowMenu.open(btn);
+		});
+		return btn;
+	}
+
+	// Measure the container; collapse the trailing items that don't fit into the '…' menu. The overflowed
+	// SOURCE <li>s are moved into the menu's <ul> (cerbBotTrigger + submenus stay intact, sourceLi stays
+	// real). CerbUI.Menu snapshots its source, so the menu is rebuilt each pass. Runs on render + on resize.
+	_reflow() {
+		if(this.opts.overflow !== 'menu' || !this.strip || !this._overflowBtn || this._reflowing) return;
+		this._reflowing = true;
+
+		try {
+			// Reset to all-visible (move any overflowed <li>s back, drop the old menu, show every button).
+			this._restoreOverflow();
+			this._reflowEntries.forEach(en => { en.el.style.display = ''; });
+			this._overflowBtn.style.display = 'none';
+
+			const parent = this.strip.parentElement;
+			const budget = parent ? parent.clientWidth : 0;
+			if(budget <= 0) return; // not laid out yet — a later resize fires this again
+
+			const gap = 2;
+			let total = 0;
+			this._reflowEntries.forEach(en => { total += en.el.offsetWidth + gap; });
+			if(total <= budget) return; // everything fits — no '…' needed
+
+			// Reserve room for the '…' button, then collapse the trailing overflowable items.
+			this._overflowBtn.style.display = '';
+			const reserve = this._overflowBtn.offsetWidth + gap;
+
+			let used = 0;
+			let cut = false;
+			const overflowItems = [];
+			for(const en of this._reflowEntries) {
+				const w = en.el.offsetWidth + gap;
+				if(!cut && used + w > budget - reserve) cut = true;
+
+				if(cut && en.overflowable) {
+					en.el.style.display = 'none';
+					if(en.item) overflowItems.push(en.item); // dividers just hide (no menu row)
+				} else {
+					used += w; // visible: still fits, or a pinned (toggle) item
+				}
+			}
+
+			if(!overflowItems.length) {
+				this._overflowBtn.style.display = 'none';
+				return;
+			}
+
+			overflowItems.forEach(it => this._overflowUl.appendChild(it.sourceLi));
+
+			if(window.CerbUI && CerbUI.Menu) {
+				this._overflowMenu = new CerbUI.Menu(this._overflowUl, {
+					onRenderItem: (li, src) => {
+						const ico = this._mkIcon(src.dataset.icon);
+						if(!ico) return;
+						ico.style.marginRight = '0.5em';
+						li.insertBefore(ico, li.firstChild);
+					},
+					onSelect: (renderedLi, sourceLi, e) => this._activate(sourceLi, this._itemForLi(sourceLi), e),
+				});
+			}
+		} finally {
+			this._reflowing = false;
+		}
+	}
+
+	// Tear down the '…' menu and return every authored <li> to the source <ul> in its original order.
+	_restoreOverflow() {
+		if(this._overflowMenu) { this._overflowMenu.destroy(); this._overflowMenu = null; }
+		if(this._sourceOrder)
+			this._sourceOrder.forEach(li => this.el.appendChild(li));
 	}
 
 	// Read only the TOP-LEVEL <li> of a source <ul> into a flat model.
@@ -179,9 +377,10 @@ CerbUI.Toolbar = class {
 			const childUl = li.querySelector(':scope > ul');
 			const hasOwnText = this._directText(li) !== '';
 
-			// An empty top-level li (no text, no submenu) is a strip divider.
+			// An empty top-level li (no text, no submenu) is a strip divider. Honor `hidden` so a divider can
+			// hide/show with the group it separates (e.g. a format-button group toggled off in plaintext mode).
 			if(!hasOwnText && !childUl && !li.dataset.icon && !li.dataset.label) {
-				out.push({ divider: true });
+				out.push({ divider: true, hidden: li.hidden || li.classList.contains('cerb-ui-toolbar--hidden') });
 				continue;
 			}
 
@@ -190,6 +389,8 @@ CerbUI.Toolbar = class {
 				sourceLi: li,
 				childUl: childUl || null,
 				icon: li.dataset.icon || null,
+				iconAt: li.dataset.iconAt || null,
+				cssClass: li.dataset.class || null,
 				// Label = the li's own text (matches CerbUI.Menu); data-label is only a fallback for icon-only items.
 				label: this._directText(li) || li.dataset.label || null,
 				tooltip: li.getAttribute('title') || null,
@@ -214,9 +415,16 @@ CerbUI.Toolbar = class {
 		btn.type = 'button';
 		btn.className = 'cerb-ui-toolbar--item';
 
+		// Per-item custom classes (e.g. `action-always-show`) ride onto the rendered button so
+		// any custom/admin CSS keyed off them keeps matching — same as the legacy <button> did.
+		if(item.cssClass)
+			btn.classList.add(...item.cssClass.split(/\s+/).filter(Boolean));
+
 		const tooltip = item.tooltip || (this.bare ? item.label : null);
 		if(tooltip) btn.title = tooltip + (item.keyboard ? ' (' + item.keyboard + ')' : '');
-		if(item.keyboard) btn.dataset.interactionKeyboard = item.keyboard;
+		// The `data-interaction-keyboard` shortcut hook stays on the SOURCE <li> (server-rendered, present
+		// immediately) — host keydown dispatchers find it there and click it (firing cerbBotTrigger), so it
+		// doesn't depend on this button having been built yet. We don't duplicate it onto the button.
 
 		if(item.badge != null) {
 			const badge = document.createElement('span');
@@ -227,11 +435,17 @@ CerbUI.Toolbar = class {
 		}
 
 		const ico = this._mkIcon(item.icon);
-		if(ico) btn.appendChild(ico);
-
 		// In the bare variant the label rides as a tooltip, so the strip stays icon-only.
-		if(item.label && !this.bare)
-			btn.appendChild(document.createTextNode(item.label));
+		const labelNode = (item.label && !this.bare) ? document.createTextNode(item.label) : null;
+
+		// `icon_at: end` renders the icon after the label (else icon-first, the default).
+		if(ico && item.iconAt === 'end') {
+			if(labelNode) btn.appendChild(labelNode);
+			btn.appendChild(ico);
+		} else {
+			if(ico) btn.appendChild(ico);
+			if(labelNode) btn.appendChild(labelNode);
+		}
 
 		if(item.childUl) {
 			btn.classList.add('cerb-ui-toolbar--item-has-menu');
@@ -289,9 +503,12 @@ CerbUI.Toolbar = class {
 		const menu = new CerbUI.Menu(item.childUl, {
 			onRenderItem: (li, src) => {
 				const ico = this._mkIcon(src.dataset.icon);
-				if(ico) { ico.style.marginRight = '0.5em'; li.insertBefore(ico, li.firstChild); }
+				if(!ico) return;
+				if(src.dataset.iconAt === 'end') { ico.style.marginLeft = '0.5em'; li.appendChild(ico); }
+				else { ico.style.marginRight = '0.5em'; li.insertBefore(ico, li.firstChild); }
 			},
 			onSelect: (renderedLi, sourceLi, e) => this._activate(sourceLi, this._itemForLi(sourceLi), e),
+			selectableParents: this.opts.selectableParents,
 			hoverTrigger: item.hover ? btn : null,
 			hoverGroup: item.hover ? this._hoverGroup : null,
 		});
@@ -325,7 +542,7 @@ CerbUI.Toolbar = class {
 			reset: this.opts.reset || undefined,
 		};
 
-		ul.querySelectorAll('li[data-interaction-uri]').forEach(li => {
+		ul.querySelectorAll('li[data-interaction-uri], li[data-behavior-id]').forEach(li => {
 			if(li._cerbToolbarBound) return;
 			li._cerbToolbarBound = true;
 			jQuery(li).cerbBotTrigger(passthrough);
@@ -337,7 +554,7 @@ CerbUI.Toolbar = class {
 		if(typeof this.opts.onSelect === 'function')
 			this.opts.onSelect(item || this._itemForLi(sourceLi), sourceLi, e);
 
-		if(sourceLi && sourceLi.getAttribute('data-interaction-uri') && window.jQuery && jQuery.fn.cerbBotTrigger)
+		if(sourceLi && (sourceLi.getAttribute('data-interaction-uri') || sourceLi.getAttribute('data-behavior-id')) && window.jQuery && jQuery.fn.cerbBotTrigger)
 			jQuery(sourceLi).trigger('click');
 	}
 
@@ -366,6 +583,12 @@ CerbUI.Toolbar = class {
 	}
 
 	_teardown() {
+		if(this._ro) { this._ro.disconnect(); this._ro = null; }
+		this._restoreOverflow();                       // put moved-out <li>s back so a re-read sees them all
+		if(this._overflowUl) { this._overflowUl.remove(); this._overflowUl = null; }
+		this._overflowBtn = null;
+		this._reflowEntries = [];
+		this._sourceOrder = null;
 		this.menus.forEach(menu => menu.destroy());
 		this.menus.clear();
 		this._toggles.clear();

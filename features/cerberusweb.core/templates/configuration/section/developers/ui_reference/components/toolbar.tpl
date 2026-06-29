@@ -165,7 +165,7 @@ new CerbUI.Toolbar(document.getElementById('sq-tb'), {
 
 		{* Example 3: the bare-tiny variant — small muted icons like SearchQuery's own --right actions *}
 		<div class="cerb-ui-header">
-			<div class="cerb-ui-header--label">The <code>--bare-tiny</code> variant (a.k.a. <code>bare: 'tiny'</code>) &mdash; smaller, muted icons that match <code>CerbUI.SearchQuery</code>'s own built-in <code>--right</code> actions (the <span class="cerb-icons cerb-icon-sparkles"></span>/<span class="cerb-icons cerb-icon-bookmark"></span> look). Use it when the toolbar should read as quiet inline affordances rather than buttons</div>
+			<div class="cerb-ui-header--label">The <code>--bare-tiny</code> variant (a.k.a. <code>bare: 'tiny'</code>) &mdash; smaller, muted icons that match <code>CerbUI.SearchQuery</code>'s own built-in <code>--right</code> actions (the <span class="cerb-icons cerb-icon-autocomplete"></span>/<span class="cerb-icons cerb-icon-bookmark"></span> look). Use it when the toolbar should read as quiet inline affordances rather than buttons</div>
 		</div>
 		<div class="cerb-uiref-example">
 			<div class="cerb-uiref-demo">
@@ -282,6 +282,135 @@ tb.setPressed('tester', true);       // drive a toggle from code (silent — no 
 tb.setPressed('tester', false, { fireCallback: true }); // …or fire onSelect too{/literal}</pre>
 			</div>
 		</div>
+
+		{* Example 6: badge styles — the calm leading `count` tally vs the default corner pill *}
+		<div class="cerb-ui-header">
+			<div class="cerb-ui-header--label"><code>data-badge</code> renders a count. By default it's a floating corner <b>pill</b> that reads as an alert (Example 1). Pass <code>badgeStyle: 'count'</code> for a calmer <b>leading inline tally</b> to the left of the label (the old <code>DIV.badge-count</code> look) &mdash; for totals/tallies that shouldn't shout, like a record's search-count buttons</div>
+		</div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<ul class="cerb-ui-toolbar" id="uiref-toolbar-counts">
+					<li data-value="status:o" data-badge="12">Open</li>
+					<li data-value="status:w" data-badge="3">Waiting</li>
+					<li data-value="status:c" data-badge="0">Closed</li>
+				</ul>
+				<div class="cerb-uiref-result">Picked: <b id="uiref-toolbar-counts-out">&mdash;</b></div>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>&lt;!-- Labels with leading counts; data-badge is the tally (0 shows too). --&gt;
+&lt;ul class="cerb-ui-toolbar" id="tb"&gt;
+	&lt;li data-value="status:o" data-badge="12"&gt;Open&lt;/li&gt;
+	&lt;li data-value="status:w" data-badge="3"&gt;Waiting&lt;/li&gt;
+	&lt;li data-value="status:c" data-badge="0"&gt;Closed&lt;/li&gt;
+&lt;/ul&gt;</pre>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>{literal}// badgeStyle: 'count' renders each data-badge as a calm leading tally (left of the label) instead of the
+// default floating corner pill — for counts that shouldn't read as alerts (e.g. search-tally buttons).
+new CerbUI.Toolbar(document.getElementById('tb'), {
+	badgeStyle: 'count',                 // 'pill' (default) = floating corner alert; 'count' = leading tally
+	onSelect: (item) => { /* e.g. run item.value as a search query */ },
+});{/literal}</pre>
+			</div>
+		</div>
+
+		{* Example 7: overflow — wrap (default) vs collapse trailing items into a `…` menu, in a resizable box *}
+		<div class="cerb-ui-header">
+			<div class="cerb-ui-header--label">Overflow handling for tight containers (e.g. a sidebar). <code>overflow:'wrap'</code> (default) flows to multiple rows; <code>overflow:'menu'</code> keeps one row and collapses the trailing items into a <code>…</code> (more-vertical) <code>CerbUI.Menu</code> as space shrinks (via a <code>ResizeObserver</code>). <b>Drag the box's right edge</b> to resize and watch items move in/out of the <code>…</code></div>
+		</div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<div style="width:240px;resize:horizontal;overflow:auto;border:1px dashed var(--cerb-color-background-contrast-200);padding:6px;min-width:90px;max-width:100%;">
+					<ul class="cerb-ui-toolbar" id="uiref-toolbar-overflow">
+						<li data-icon="bold" data-value="bold" title="Bold"></li>
+						<li data-icon="italic" data-value="italic" title="Italic"></li>
+						<li data-icon="link" data-value="link" title="Link"></li>
+						<li data-icon="picture" data-value="image" title="Image"></li>
+						<li data-icon="paperclip" data-value="attach" title="Attach"></li>
+						<li data-icon="quote" data-value="quote" title="Quote"></li>
+						<li data-icon="list" data-value="list" title="List"></li>
+						<li data-icon="magic">Generate
+							<ul>
+								<li data-icon="sparkles" data-value="gen.summary">Summarize</li>
+								<li data-icon="translate" data-value="gen.translate">Translate…</li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+				<div class="cerb-uiref-result">Picked: <b id="uiref-toolbar-overflow-out">&mdash;</b></div>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>&lt;!-- The component watches this strip's container; trailing items collapse into a `…` menu. --&gt;
+&lt;div style="resize:horizontal;overflow:auto;"&gt;          &lt;!-- any width-constrained container (e.g. a sidebar) --&gt;
+	&lt;ul class="cerb-ui-toolbar" id="tb"&gt;
+		&lt;li data-icon="bold" data-value="bold" title="Bold"&gt;&lt;/li&gt;
+		&lt;li data-icon="italic" data-value="italic" title="Italic"&gt;&lt;/li&gt;
+		&lt;!-- … more items; a trailing menu item works too (it cascades inside the `…`) … --&gt;
+		&lt;li data-icon="magic"&gt;Generate&lt;ul&gt;&lt;li data-value="gen.summary"&gt;Summarize&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;
+	&lt;/ul&gt;
+&lt;/div&gt;</pre>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>{literal}// overflow: 'menu' keeps a single row; trailing items collapse into a '…' more-vertical menu as the
+// container shrinks (ResizeObserver). Defaults to 'wrap' (flow to multiple rows); 'none' clips.
+new CerbUI.Toolbar(document.getElementById('tb'), {
+	overflow: 'menu',
+	onSelect: (item) => { /* item.value — interactions still fire via the moved source li */ },
+});{/literal}</pre>
+			</div>
+		</div>
+
+		{* Example 8: hybrid — merge several cerb-ui-toolbar <ul>s into one strip via `sections` *}
+		<div class="cerb-ui-header">
+			<div class="cerb-ui-header--label"><code>sections</code> &mdash; compose ONE strip from several authored or record-rendered (<code>ui/toolbar/render.tpl</code>) <code>cerb-ui-toolbar</code> <code>&lt;ul&gt;</code>s, a divider between each. Each section's <code>&lt;li&gt;</code>s move into the primary list (interaction bindings intact). <code>onSelect(item, sourceLi)</code> hands you the clicked item AND its original <code>&lt;li&gt;</code> &mdash; read arbitrary <code>data-*</code> or classes (e.g. <code>.cerb-bot-trigger</code>) off it. This is how the editor family builds a <b>built-in formatting + host-configured</b> hybrid toolbar</div>
+		</div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<ul class="cerb-ui-toolbar" id="uiref-toolbar-hybrid">
+					<li data-value="bold" data-icon="bold" title="Bold"></li>
+					<li data-value="italic" data-icon="italic" title="Italics"></li>
+				</ul>
+				<ul class="cerb-ui-toolbar" id="uiref-toolbar-hybrid-more" hidden>
+					<li data-value="preview" data-icon="eye-open" title="Preview"></li>
+					<li class="cerb-bot-trigger" data-value="generate" data-icon="magic" title="Generate (from a record)"></li>
+				</ul>
+				<div class="cerb-uiref-result">Clicked: <b id="uiref-toolbar-hybrid-out">&mdash;</b></div>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>&lt;ul class="cerb-ui-toolbar" id="main"&gt;
+	&lt;li data-value="bold" data-icon="bold" title="Bold"&gt;&lt;/li&gt;
+	&lt;li data-value="italic" data-icon="italic" title="Italics"&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;!-- a second section (e.g. a worker-configured toolbar record) --&gt;
+&lt;ul class="cerb-ui-toolbar" id="more" hidden&gt;
+	&lt;li data-value="preview" data-icon="eye-open" title="Preview"&gt;&lt;/li&gt;
+	&lt;li class="cerb-bot-trigger" data-value="generate" data-icon="magic" title="Generate"&gt;&lt;/li&gt;
+&lt;/ul&gt;</pre>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>{literal}// `sections` folds the extra &lt;ul&gt;(s) into one strip (a divider between each).
+new CerbUI.Toolbar(document.getElementById('main'), {
+	sections: [document.getElementById('more')],
+	onSelect: (item, sourceLi) => {
+		// item.value is the clicked &lt;li&gt;'s data-value; sourceLi is that original &lt;li&gt;.
+		const fromBot = sourceLi.classList.contains('cerb-bot-trigger');
+		console.log(item.value, fromBot);
+	},
+});{/literal}</pre>
+			</div>
+		</div>
 	</div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}">
@@ -366,6 +495,46 @@ tb.setPressed('tester', false, { fireCallback: true }); // …or fire onSelect t
 				onSelect: function(item) { if(item.toggle) readout(); },
 			});
 			readout(); // placeholders starts pressed via data-pressed
+		}
+	})();
+
+	// Toolbar #6 — badge styles: a calm leading 'count' tally vs the default corner pill
+	(function() {
+		const el = document.getElementById('uiref-toolbar-counts');
+		const out = document.getElementById('uiref-toolbar-counts-out');
+		if(el && window.CerbUI && CerbUI.Toolbar) {
+			new CerbUI.Toolbar(el, {
+				badgeStyle: 'count',
+				onSelect: function(item) { if(out) out.textContent = item.value || item.label || '—'; },
+			});
+		}
+	})();
+
+	// Toolbar #7 — overflow:'menu' in a resizable box (drag narrower → items collapse into '…')
+	(function() {
+		const el = document.getElementById('uiref-toolbar-overflow');
+		const out = document.getElementById('uiref-toolbar-overflow-out');
+		if(el && window.CerbUI && CerbUI.Toolbar) {
+			new CerbUI.Toolbar(el, {
+				overflow: 'menu',
+				onSelect: function(item) { if(out) out.textContent = item.value || item.label || '—'; },
+			});
+		}
+	})();
+
+	// Toolbar #8 — hybrid: merge a second <ul> via `sections`; read the source <li> in onSelect
+	(function() {
+		const el = document.getElementById('uiref-toolbar-hybrid');
+		const more = document.getElementById('uiref-toolbar-hybrid-more');
+		const out = document.getElementById('uiref-toolbar-hybrid-out');
+		if(el && more && window.CerbUI && CerbUI.Toolbar) {
+			new CerbUI.Toolbar(el, {
+				sections: [more],
+				onSelect: function(item, sourceLi) {
+					const tag = (sourceLi && sourceLi.classList.contains('cerb-bot-trigger')) ? ' (cerb-bot-trigger)' : '';
+					if(out) out.textContent = (item.value || item.label || '—') + tag;
+				},
+			});
 		}
 	})();
 })();

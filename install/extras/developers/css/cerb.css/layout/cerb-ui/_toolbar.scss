@@ -137,15 +137,15 @@
 	&--badge {
 		position: absolute;
 		z-index: 1; // above sibling buttons' (z-auto) hover backgrounds; scoped by the strip's isolation
-		top: -5px;
-		right: -6px;
+		top: -7px;
+		right: -7px;
 		box-sizing: border-box;
 		min-width: 1.6em;
 		padding: 0.05em 0.4em;
 		border-radius: 999px;
 		background: var(--cerb-ui-accent);
 		color: #fff;
-		font-size: 0.8em;
+		font-size: 0.9em;
 		font-weight: 600;
 		line-height: 1.4;
 		text-align: center;
@@ -263,8 +263,30 @@
 	right: auto;
 	min-width: 0;
 	box-shadow: none;
+	// Slightly larger than the floating pill (0.8em) — a leading count reads as content, not an alert,
+	// so it needs to be as legible as the label it precedes.
+	font-size: 0.95em;
 	font-weight: 500;
 	background: var(--cerb-color-button-icon);
+	color: var(--cerb-color-text-inverse);
+}
+
+// On button hover, the count badge tracks the icon/text hover color (the dark-mode blue) so the leading
+// tally lights up with the rest of the button instead of staying static — mirrors the rest-state, where the
+// badge fill already matches the resting icon color. (An inline per-item data-badge-color still wins by
+// design, since that's an intentional fixed tint.)
+.cerb-ui-toolbar--badge-count .cerb-ui-toolbar--item:hover .cerb-ui-toolbar--badge {
+	background: var(--cerb-color-button-icon--hover);
+}
+
+// Informational-count toolbars (record-fields search buttons + record-links buttonbar): the corner badge is
+// a calm informational tally, not an alert, so render it neutral gray rather than the attention-drawing
+// accent (which reads like a notification). contrast-75 is adaptive (dark gray in light mode, light gray in
+// dark) — pair it with text-inverse so the count stays legible in both. The component inserts the visible
+// `--strip` as the authored source <ul>'s next sibling, so scope off that authored list.
+[data-cerb-search-buttons] + .cerb-ui-toolbar--strip .cerb-ui-toolbar--badge,
+[data-cerb-links-buttonbar] + .cerb-ui-toolbar--strip .cerb-ui-toolbar--badge {
+	background: var(--cerb-color-background-contrast-75);
 	color: var(--cerb-color-text-inverse);
 }
 
