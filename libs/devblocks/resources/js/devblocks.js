@@ -1468,49 +1468,18 @@ function confirmPopup(title, content, callbackOk, callbackCancel) {
 		}).text(content)
 	;
 }
-
-var loadingPanel;
-function showLoadingPanel() {
-	if(null != loadingPanel) {
-		hideLoadingPanel();
-	}
-	
-	var options = {
-		autoOpen : false,
-		closeOnEscape : false,
-		draggable : false,
-		resizable : false,
-		modal : true,
-		width : '300px',
-		title : 'Please wait...'
-	};
-
-	if(0 == $("#loadingPanel").length) {
-		$("body").append("<div id='loadingPanel' style='display:none;text-align:center;padding-top:20px;'></div>");
-	}
-
-	// Set the content
-	$("#loadingPanel")
-		.empty()
-		.append(Devblocks.getSpinner())
-		.append($('<h3>Loading, please wait...</h3>'))
-	;
-	
-	// Render
-	loadingPanel = $("#loadingPanel").dialog(options);
-	
-	loadingPanel.siblings('.ui-dialog-titlebar').hide();
-	
-	loadingPanel.dialog('open');
+// The modal "Loading, please wait…" overlay — now backed by the singleton CerbUI.Dialog.Loading factory (the
+// jQuery-UI panel is retired). Both names + their no-arg call sites are preserved; show() takes an optional message.
+function showLoadingPanel(message) {
+	if(window.CerbUI && CerbUI.Dialog && CerbUI.Dialog.Loading)
+		CerbUI.Dialog.Loading.show(message);
 }
 
 function hideLoadingPanel() {
-	if(loadingPanel) {
-		loadingPanel.unbind();
-		loadingPanel.dialog('destroy');
-		loadingPanel = null;
-	}
+	if(window.CerbUI && CerbUI.Dialog && CerbUI.Dialog.Loading)
+		CerbUI.Dialog.Loading.hide();
 }
+
 
 function genericAjaxPopupFind($sel) {
 	var $devblocksPopups = $('#devblocksPopups');

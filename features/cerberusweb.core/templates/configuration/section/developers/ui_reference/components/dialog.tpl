@@ -47,7 +47,8 @@ dlg.open();   // also: dlg.close(); dlg.isOpen(); dlg.setTitle('…'); dlg.isDir
 // also fires DOM events on the content element:
 el.addEventListener('cerb-ui-dialog:open',  () =&gt; {});
 el.addEventListener('cerb-ui-dialog:close', () =&gt; {});
-// look an instance up later: CerbUI.Dialog.from(el)</pre>
+// look an instance up later: CerbUI.Dialog.from(el)
+// singleton "Loading…" overlay: CerbUI.Dialog.Loading.show('Saving…'); … CerbUI.Dialog.Loading.hide();</pre>
 			</div>
 		</div>
 
@@ -188,6 +189,27 @@ CerbUI.Dialog.fromAjax('c=profiles&amp;a=invoke&amp;module=snippet&amp;action=he
 
 // loaded content finds its own dialog from any element inside it (replaces genericAjaxPopupFind):
 // CerbUI.Dialog.from(thisFormEl).close();{/literal}</pre>
+			</div>
+		</div>
+
+		{* Example: Loading — singleton blocking spinner (showLoadingPanel/hideLoadingPanel replacement) *}
+		<div class="cerb-ui-header">
+			<div class="cerb-ui-header--label">Loading overlay (<code>CerbUI.Dialog.Loading</code>) &mdash; a singleton, chrome-less <b>modal</b> spinner for blocking async work (the <code>showLoadingPanel</code>/<code>hideLoadingPanel</code> replacement). <code>show()</code> takes an optional message; a second <code>show()</code> just updates it; <code>hide()</code> dismisses it</div>
+		</div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<button type="button" class="cerb-ui-button" id="uiref-dialog-loading-btn">Show loading (2s)</button>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>{literal}// singleton modal spinner: show it, do async work, then hide it
+CerbUI.Dialog.Loading.show();               // default message: 'Loading, please wait...'
+// CerbUI.Dialog.Loading.show('Saving...'); // custom message (a 2nd show() just updates it)
+
+genericAjaxPost(form, '', null, function() {
+	CerbUI.Dialog.Loading.hide();
+});{/literal}</pre>
 			</div>
 		</div>
 
@@ -339,6 +361,13 @@ CerbUI.Dialog.fromAjax('c=profiles&amp;a=invoke&amp;module=snippet&amp;action=he
 		const ajaxScrollBtn = document.getElementById('uiref-dialog-ajax-scroll-btn');
 		if(ajaxScrollBtn) ajaxScrollBtn.addEventListener('click', function() {
 			CerbUI.Dialog.fromAjax('c=profiles&a=invoke&module=snippet&action=helpPopup', { title: 'Snippet help', scrollBody: true }); // default width
+		});
+
+		// Loading: show the singleton blocking spinner, then auto-hide after a beat
+		const loadingBtn = document.getElementById('uiref-dialog-loading-btn');
+		if(loadingBtn) loadingBtn.addEventListener('click', function() {
+			CerbUI.Dialog.Loading.show();
+			setTimeout(function() { CerbUI.Dialog.Loading.hide(); }, 2000);
 		});
 	})();
 })();

@@ -88,6 +88,7 @@ CerbUI.Dialog = class {
 	static _positionGroups = new Map(); // shared shell/position: siblings hand off position + close each other
 	static _pageDialogs = new Set();   // open dialogs that grow + page-scroll (not fixed, not scrollBody)
 	static _origBodyMinHeight = null;  // body.style.minHeight before we touched it; restored when the set empties
+	static _loading = null;            // the singleton loading overlay (CerbUI.Dialog.Loading)
 	static _MAX_WIDTH = 1100;          // default-width cap; mirrors .cerb-ui-page--max-width
 	static _MOBILE_MAX = 768;          // mobile breakpoint (cerb-responsive.scss) — dialogs go 95% wide below it
 	static _minimized = new Set();     // dialogs docked in the top-right tray
@@ -291,6 +292,51 @@ CerbUI.Dialog = class {
 
 		return dlg;
 	}
+
+	// Singleton "Loading, please wait…" overlay — the showLoadingPanel/hideLoadingPanel replacement. A modal,
+	// chrome-less dialog (no titlebar / close / drag / resize, Esc-locked) holding a spinner + message; one at a
+	// time (a second show() refreshes the message on the existing one).
+	static Loading = {
+		show(message) {
+			const text = (message != null) ? message : 'Loading, please wait...';
+
+			if(CerbUI.Dialog._loading) {
+				const m = CerbUI.Dialog._loading.innerContent.querySelector('[data-cerb-loading-msg]');
+				if(m) m.textContent = text;
+				return CerbUI.Dialog._loading;
+			}
+
+			const content = document.createElement('div');
+			content.style.padding = '1.5em 2em';
+			content.style.textAlign = 'center';
+
+			const spin = document.createElement('div');
+			if(window.CerbUI && CerbUI.Spinner) spin.appendChild(CerbUI.Spinner.create('spark'));
+			content.appendChild(spin);
+
+			const msg = document.createElement('div');
+			msg.setAttribute('data-cerb-loading-msg', '');
+			msg.style.marginTop = '0.75em';
+			msg.style.fontWeight = 'bold';
+			msg.textContent = text;
+			content.appendChild(msg);
+
+			const dlg = new CerbUI.Dialog(content, {
+				header: 'none', modal: true, closable: false, draggable: false,
+				resizable: false, closeOnEscape: false, width: 300,
+			});
+			dlg.open();
+			CerbUI.Dialog._loading = dlg;
+			return dlg;
+		},
+
+		hide() {
+			if(CerbUI.Dialog._loading) {
+				CerbUI.Dialog._loading.destroy();
+				CerbUI.Dialog._loading = null;
+			}
+		},
+	};
 
 	constructor(contentEl, opts = {}) {
 		this.uid = ++CerbUI.Dialog._uid;
