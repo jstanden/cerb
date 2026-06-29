@@ -53,6 +53,12 @@ CerbUI.Menu = class {
 		hoverGroup: null,     // links sibling hover menus (only one open per group)
 		hoverCloseDelay: 150, // ms before a hover menu closes after the mouse leaves
 		fixed: false,         // position:fixed instead of absolute for floating panels
+		captureKeys: null,    // listen for keys in the CAPTURE phase + stopPropagation the ones the menu consumes,
+		                      // so type-to-filter / nav don't leak to page-level shortcut handlers (e.g. a worklist
+		                      // 'r' hotkey behind a popup menu). DEFAULT (null) = auto: ON whenever `filter` is on
+		                      // (a focused filter box owns the keystrokes, so nothing else should see them). The
+		                      // editor autocompletes are filter:false (driven by the host editor's own typing, which
+		                      // must see keydown first) so they stay OFF. Pass true/false to force it.
 		filter: false,        // type-to-filter: a search input above the root panel (filters the flat list)
 		filterAlways: false,  // keep the filter input visible + focused from open (command-bar style) rather
 		                      // than hidden-until-typed; the input never tucks away and Esc-on-empty bubbles out
@@ -72,6 +78,9 @@ CerbUI.Menu = class {
 
 	constructor(ul, opts = {}) {
 		this.opts = Object.assign({}, CerbUI.Menu._DEFAULTS, opts);
+		// captureKeys auto-derives from filter unless the caller forced it: a filterable menu always owns the
+		// keystrokes typed into its focused filter box, so it should never leak them to page-level shortcuts.
+		if(this.opts.captureKeys == null) this.opts.captureKeys = !!this.opts.filter;
 		this.root = CerbUI.Menu._parseUl(ul);
 		this.sourceUl = ul;
 		this.pnls = [];
@@ -185,7 +194,9 @@ CerbUI.Menu = class {
 		// it only drives the keyboard while focus is actually inside it.
 		if(!this.opts.inline) {
 			this.docKey = (e) => this._onKey(e);
-			document.addEventListener('keydown', this.docKey);
+			// Capture phase (opt-in) so the menu sees keys BEFORE bubble-phase page shortcuts; _onKey
+			// stopPropagation()s the keys it consumes so they never reach those handlers.
+			document.addEventListener('keydown', this.docKey, !!this.opts.captureKeys);
 			// Keyboard nav suppresses the hover highlight until the pointer ACTUALLY moves again — otherwise a
 			// resting/jittering mouse over the panel keeps re-firing mouseover and fights the arrow keys.
 			this._suppressHover = false; this._ptrX = null; this._ptrY = null;
@@ -234,7 +245,7 @@ CerbUI.Menu = class {
 		this.pnls = [];
 		this.filterPinned = false;
 		if(this.docDown) document.removeEventListener('pointerdown', this.docDown, { capture: true });
-		if(this.docKey) document.removeEventListener('keydown', this.docKey);
+		if(this.docKey) document.removeEventListener('keydown', this.docKey, !!this.opts.captureKeys);
 		if(this.docMove) document.removeEventListener('mousemove', this.docMove);
 		this.docDown = null;
 		this.docKey = null;
@@ -248,6 +259,14 @@ CerbUI.Menu = class {
 
 	isOpen() {
 		return this.pnls.length > 0;
+	}
+
+	// Programmatically begin type-to-filter on the root panel, seeded with an initial character. Lets a host
+	// (e.g. CerbUI.SelectMenu) forward a keystroke typed while its trigger was focused into the just-opened
+	// menu, so typing on a closed control searches immediately instead of leaking the key to page shortcuts.
+	startFilter(ch) {
+		const root = this.pnls[0];
+		if(this.opts.filter && root && root.filterInput) this._showFilter(root, ch);
 	}
 
 	destroy() {
@@ -748,6 +767,7 @@ CerbUI.Menu = class {
 		if(this.opts.filter && root && root.filterInput && !root.filterActive
 			&& e.key.length === 1 && e.key !== ' ' && !e.ctrlKey && !e.metaKey && !e.altKey) {
 			e.preventDefault();
+			e.stopPropagation(); // the menu owns this keystroke (seeds the filter) — don't leak it to page shortcuts
 			this._showFilter(root, e.key);
 			return;
 		}
@@ -765,6 +785,7 @@ CerbUI.Menu = class {
 					return;
 				}
 				e.preventDefault();
+				e.stopPropagation();
 				if(this.opts.filter && depth === 0 && pnl.filterActive) {
 					this._hideFilter(pnl);
 				} else if(depth > 0) {
@@ -779,6 +800,7 @@ CerbUI.Menu = class {
 			case 'ArrowLeft':
 				if(depth > 0) {
 					e.preventDefault();
+					e.stopPropagation();
 					const popped = this.pnls.pop();
 					if(popped) popped.el.remove();
 				}
@@ -787,6 +809,7 @@ CerbUI.Menu = class {
 			case 'ArrowRight':
 			case 'Enter': {
 				e.preventDefault();
+				e.stopPropagation();
 				const active = pnl.el.querySelector('.cerb-ui-menu--item-active');
 				if(!active) return;
 				const item = pnl.items[+(active.dataset['i'] ?? -1)];
@@ -812,9 +835,10 @@ CerbUI.Menu = class {
 				return;
 			}
 
-			case 'ArrowDown': e.preventDefault(); this._navigate(pnl, +1); return;
+			case 'ArrowDown': e.preventDefault(); e.stopPropagation(); this._navigate(pnl, +1); return;
 			case 'ArrowUp':
 				e.preventDefault();
+				e.stopPropagation();
 				// Always-on filter (command bar): Up off the top row returns to the filter (no active row, no
 				// wrap) — focus already lives in the search box, so just drop the highlight.
 				if(this.opts.filterAlways && depth === 0) {
@@ -829,8 +853,8 @@ CerbUI.Menu = class {
 				}
 				this._navigate(pnl, -1);
 				return;
-			case 'Home':      e.preventDefault(); this._navigate(pnl, 0, true); return;
-			case 'End':       e.preventDefault(); this._navigate(pnl, 0, false, true); return;
+			case 'Home':      e.preventDefault(); e.stopPropagation(); this._navigate(pnl, 0, true); return;
+			case 'End':       e.preventDefault(); e.stopPropagation(); this._navigate(pnl, 0, false, true); return;
 		}
 	}
 
