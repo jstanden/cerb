@@ -4746,7 +4746,9 @@
 				<file>api/toolbars/automation.editor.php</file>
 				<name>Toolbar_AutomationEditor</name>
 			</class>
-			<params/>
+			<params>
+				<param key="icon" value="bot" />
+			</params>
 		</extension>
 
 		<extension point="cerb.toolbar">
@@ -4756,7 +4758,9 @@
 				<file>api/toolbars/comment.editor.php</file>
 				<name>Toolbar_CommentEditor</name>
 			</class>
-			<params/>
+			<params>
+				<param key="icon" value="conversation" />
+			</params>
 		</extension>
 		
 		<extension point="cerb.toolbar">
@@ -4766,7 +4770,9 @@
 				<file>api/toolbars/draft.read.php</file>
 				<name>Toolbar_DraftRead</name>
 			</class>
-			<params/>
+			<params>
+				<param key="icon" value="file-document" />
+			</params>
 		</extension>
 		
 		<extension point="cerb.toolbar">
@@ -4776,7 +4782,9 @@
 				<file>api/toolbars/global.menu.php</file>
 				<name>Toolbar_GlobalMenu</name>
 			</class>
-			<params/>
+			<params>
+				<param key="icon" value="menu-hamburger" />
+			</params>
 		</extension>
 		
 		<extension point="cerb.toolbar">
@@ -4786,7 +4794,9 @@
 				<file>api/toolbars/global.search.php</file>
 				<name>Toolbar_GlobalSearch</name>
 			</class>
-			<params/>
+			<params>
+				<param key="icon" value="search" />
+			</params>
 		</extension>
 		
 		<extension point="cerb.toolbar">
@@ -4796,7 +4806,9 @@
 				<file>api/toolbars/mail.compose.php</file>
 				<name>Toolbar_MailCompose</name>
 			</class>
-			<params/>
+			<params>
+				<param key="icon" value="edit" />
+			</params>
 		</extension>
 		
 		<extension point="cerb.toolbar">
@@ -4806,7 +4818,9 @@
 				<file>api/toolbars/mail.read.php</file>
 				<name>Toolbar_MailRead</name>
 			</class>
-			<params/>
+			<params>
+				<param key="icon" value="mail" />
+			</params>
 		</extension>
 		
 		<extension point="cerb.toolbar">
@@ -4816,7 +4830,9 @@
 				<file>api/toolbars/mail.reply.php</file>
 				<name>Toolbar_MailReply</name>
 			</class>
-			<params/>
+			<params>
+				<param key="icon" value="send" />
+			</params>
 		</extension>
 		
 		<extension point="cerb.toolbar">
@@ -4826,7 +4842,9 @@
 				<file>api/toolbars/record.card.php</file>
 				<name>Toolbar_RecordCard</name>
 			</class>
-			<params/>
+			<params>
+				<param key="icon" value="id-card" />
+			</params>
 		</extension>
 		
 		<extension point="cerb.toolbar">
@@ -4836,7 +4854,9 @@
 				<file>api/toolbars/record.profile.php</file>
 				<name>Toolbar_RecordProfile</name>
 			</class>
-			<params/>
+			<params>
+				<param key="icon" value="user" />
+			</params>
 		</extension>
 		
 		<extension point="cerb.toolbar">
@@ -4846,7 +4866,9 @@
 				<file>api/toolbars/record.profile.image.editor.php</file>
 				<name>Toolbar_RecordProfileImageEditor</name>
 			</class>
-			<params/>
+			<params>
+				<param key="icon" value="camera" />
+			</params>
 		</extension>
 
 		<extension point="cerb.toolbar">
@@ -4856,7 +4878,9 @@
 				<file>api/toolbars/records.worklist.php</file>
 				<name>Toolbar_RecordsWorklist</name>
 			</class>
-			<params/>
+			<params>
+				<param key="icon" value="list" />
+			</params>
 		</extension>
 		
 		<!-- Card Widgets -->
@@ -5842,6 +5866,19 @@
 				<params>
 					<param key="page_id" value="core.page.configuration" />
 					<param key="uri" value="records" />
+				</params>
+			</extension>
+
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.setup.developers.toolbars</id>
+				<name>Toolbars Section</name>
+				<class>
+					<file>api/uri/config/toolbars.php</file>
+					<name>PageSection_SetupDevelopersToolbars</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.configuration" />
+					<param key="uri" value="toolbars" />
 				</params>
 			</extension>
 
