@@ -110,6 +110,9 @@ CerbUI.SearchQuery = class {
 
 		this._renderHighlight();
 		this._autosize();
+
+		// Core editor-family hook: a caller can add extensible toolbar `sections` to any editor (opt-in via opts.toolbar).
+		CerbUI.editorCore.attachToolbar(this, this.opts);
 	}
 
 	// ── Public API ──────────────────────────────────────────────────────
@@ -137,7 +140,56 @@ CerbUI.SearchQuery = class {
 	// Force the suggestion menu open (meta/ctrl+space, or an author-supplied --right button).
 	openAutocomplete() { this._ac.trigger(); return this; }
 
+	// Re-root the autocomplete context at runtime (e.g. a record-type dropdown changing what we search). Updates
+	// the ctx.context handed to onAutocomplete, and re-roots a context-scoped source (queryFieldSource) so its
+	// per-scope cache is dropped. Closes any open suggestions.
+	setContext(context) {
+		context = context || '';
+		this.opts.context = context;
+		if(this._ac) this._ac.opts.context = context;
+		if(this.opts.onAutocomplete && typeof this.opts.onAutocomplete.setContext === 'function')
+			this.opts.onAutocomplete.setContext(context);
+		if(this._ac) this._ac.close();
+		return this;
+	}
+
+	getSelectedText() { return this.textarea ? this.textarea.value.slice(this.textarea.selectionStart, this.textarea.selectionEnd) : ''; }
+
+	// row/column of the caret — parity with the ScriptingEditor family (used by shared toolbar callers).
+	getCursorPosition() {
+		if(!this.textarea) return { row: 0, column: 0 };
+		const caret = this.textarea.selectionStart;
+		const before = this.textarea.value.slice(0, caret);
+		return { row: (before.match(/\n/g) || []).length, column: caret - (before.lastIndexOf('\n') + 1) };
+	}
+
+	// Insert at the caret, replacing any selection. A single `$0` marks the final caret position.
+	insertSnippet(text) {
+		if(!this.textarea) return this;
+		const ta = this.textarea;
+		const s = ta.selectionStart, e = ta.selectionEnd;
+		let insert = String(text == null ? '' : text);
+		let off = insert.length;
+		const m = insert.indexOf('$0');
+		if(m !== -1) { off = m; insert = insert.slice(0, m) + insert.slice(m + 2); }
+		ta.value = ta.value.slice(0, s) + insert + ta.value.slice(e);
+		ta.selectionStart = ta.selectionEnd = s + off;
+		this._renderHighlight();
+		this._autosize();
+		ta.focus();
+		if(typeof this.opts.onAutocomplete === 'function') this._ac.schedule();
+		return this;
+	}
+
+	// Literal insert at the caret (the `cerb.insertAtCursor` replacement); `opts.replace` clears the field first.
+	insertAtCursor(content, opts) {
+		opts = opts || {};
+		if(opts.replace) this.setValue('');
+		return this.insertSnippet(content);
+	}
+
 	destroy() {
+		if(this._editorToolbar && typeof this._editorToolbar.destroy === 'function') this._editorToolbar.destroy();
 		this._ac.destroy();
 		CerbUI.SearchQuery._instances.delete(this.el);
 		if(this.textarea) {
@@ -271,118 +323,22 @@ CerbUI.SearchQuery = class {
 		this.highlight.style.height = ta.style.height;
 	}
 
-	// ── Tokenizer (shared by highlighting + scope-path) ─────────────────
-	// Cerb's grammar is small, so a sticky-regex scan is enough. Order matters: the first pattern that
-	// matches at the cursor wins. Returns [{type, value, start, end, inner?, terminated?}, ...] covering
-	// the whole string (every char belongs to exactly one token).
+	// ── Tokenizer + scope-path (shared grammar) ─────────────────────────
+	// The query grammar (tokenizer, token classes, the nested-filter scope walk) lives in the shared
+	// CerbUI.editorCore.searchQuery module so CerbUI.DataQuery can reuse the exact same grammar. These are thin
+	// delegates — see editor-core.js for the implementation + the group-key `()` convention.
 
 	_tokenize(text) {
-		const toks = [];
-		let i = 0;
-		const n = text.length;
-		const RX = CerbUI.SearchQuery._RX;
-
-		while(i < n) {
-			let matched = null;
-			for(const rule of RX) {
-				rule.re.lastIndex = i;
-				const m = rule.re.exec(text);
-				if(m && m.index === i) { matched = { type: rule.type, value: m[0] }; break; }
-			}
-			if(!matched) { // safety net: consume one char as text so we never loop forever
-				matched = { type: 'text', value: text[i] };
-			}
-			matched.start = i;
-			matched.end = i + matched.value.length;
-			if(matched.type === 'quoted') {
-				const q = matched.value[0];
-				matched.terminated = matched.value.length > 1 && matched.value[matched.value.length - 1] === q;
-				matched.inner = matched.value.slice(1, matched.terminated ? -1 : undefined);
-			}
-			toks.push(matched);
-			i = matched.end;
-		}
-		return toks;
+		return CerbUI.editorCore.searchQuery.tokenize(text);
 	}
-
-	// ── Scope path at the caret ─────────────────────────────────────────
-	// Walk the tokens of the text BEFORE the caret, tracking the chain of filter fields that enclose it:
-	//   - `field:` sets the current (innermost) field context
-	//   - `(` / `!(` pushes the field that owns the group; `)` pops it
-	//   - whitespace / AND / OR / `]` resets the innermost field (we've moved past a value)
-	// In group-key position (the caret sits inside an open `field:(…)` ready for a sub-key, not after a value),
-	// the final segment is tagged with a trailing `()` — e.g. `closed:(` → ['closed:()'] vs `closed:` →
-	// ['closed:']. A source can offer that group's parameterized sub-keys under the `closed:()` key, falling
-	// back to the plain `closed:` key for record contexts / value forms.
-	// Returns { path:['sender:','org:','name:'], prefix:'partial', prefixRaw:'chars to replace', caret }.
 
 	_scopePathAt(text, caret) {
-		const toks = this._tokenize(text.slice(0, caret));
-		const stack = [];     // field that owns each currently-open paren group (null for a bare grouping paren)
-		let pending = null;   // innermost field context the caret sits under
-		let prefix = '';      // partial value/word being typed (for filtering)
-		let prefixRaw = '';   // the literal characters to replace on accept (includes an open quote)
-
-		for(const t of toks) {
-			switch(t.type) {
-				case 'ws':       pending = null; prefix = ''; prefixRaw = ''; break;
-				case 'field':    pending = t.value; prefix = ''; prefixRaw = ''; break;
-				case 'lparen':
-				case 'lparenNeg': stack.push(pending); pending = null; prefix = ''; prefixRaw = ''; break;
-				case 'rparen':   stack.pop(); pending = null; prefix = ''; prefixRaw = ''; break;
-				case 'lbrack':   prefix = ''; prefixRaw = ''; break; // array values still belong to `pending`
-				case 'rbrack':   pending = null; prefix = ''; prefixRaw = ''; break;
-				case 'comma':    prefix = ''; prefixRaw = ''; break;
-				case 'bool':     pending = null; prefix = ''; prefixRaw = ''; break;
-				case 'quoted':
-					prefix = t.terminated ? '' : t.inner;
-					prefixRaw = t.terminated ? '' : t.value;
-					break;
-				case 'number':
-				case 'text':     prefix = t.value; prefixRaw = t.value; break;
-			}
-		}
-
-		const path = stack.filter(Boolean);
-		if(pending) {
-			path.push(pending);
-		} else if(path.length > 0) {
-			// Group-key position: tag the innermost (final) group owner so a source can offer its sub-keys.
-			path[path.length - 1] += '()';
-		}
-		return { path, prefix, prefixRaw, caret };
+		return CerbUI.editorCore.searchQuery.scopePathAt(text, caret);
 	}
 };
 
-// Token type -> CSS class for the highlight mirror (text/ws/comma have no class).
-CerbUI.SearchQuery._TOK_CLASS = {
-	field:     'cerb-ui-searchquery--tok-field',
-	quoted:    'cerb-ui-searchquery--tok-string',
-	bool:      'cerb-ui-searchquery--tok-bool',
-	number:    'cerb-ui-searchquery--tok-number',
-	lparen:    'cerb-ui-searchquery--tok-paren',
-	lparenNeg: 'cerb-ui-searchquery--tok-paren',
-	rparen:    'cerb-ui-searchquery--tok-paren',
-	lbrack:    'cerb-ui-searchquery--tok-paren',
-	rbrack:    'cerb-ui-searchquery--tok-paren',
-};
-
-// Ordered, sticky tokenizer rules (first match at the cursor wins).
-CerbUI.SearchQuery._RX = [
-	{ type: 'ws',        re: /\s+/y },
-	{ type: 'field',     re: /[A-Za-z0-9_.]+:/y },               // a filter name: status:, sender.org.name:
-	{ type: 'quoted',    re: /"(?:\\.|[^"\\])*"?/y },            // "double" (trailing quote optional = unterminated)
-	{ type: 'quoted',    re: /'(?:\\.|[^'\\])*'?/y },            // 'single'
-	{ type: 'lparenNeg', re: /!\(/y },                           // negated group
-	{ type: 'lparen',    re: /\(/y },
-	{ type: 'rparen',    re: /\)/y },
-	{ type: 'lbrack',    re: /\[/y },
-	{ type: 'rbrack',    re: /\]/y },
-	{ type: 'comma',     re: /,/y },
-	{ type: 'bool',      re: /(?:AND|OR)(?![A-Za-z0-9_])/y },     // uppercase booleans only
-	{ type: 'number',    re: /[+\-]?\.?\d[\d.eE+\-]*/y },
-	{ type: 'text',      re: /[^\s()[\],"']+/y },
-];
+// Token type -> CSS class for the highlight mirror (shared with DataQuery via editorCore.searchQuery).
+CerbUI.SearchQuery._TOK_CLASS = CerbUI.editorCore.searchQuery.TOK_CLASS;
 
 // Back-compat aliases — the fuzzy match/filter utilities now live on CerbUI.editorCore (shared with KataEditor).
 CerbUI.SearchQuery.MATCH_MODES = CerbUI.editorCore.MATCH_MODES;
@@ -394,7 +350,7 @@ CerbUI.SearchQuery.filterItems = CerbUI.editorCore.filterItems;
  * queryFieldSource(context, opts) — a ready-made onAutocomplete wired to Cerb's existing endpoints, so the
  * component is a drop-in for real worklists. `opts.filterMode` ('subsequence' (default)|'substring'|'prefix')
  * controls how cached field lists are filtered client-side; results keep the backend's hand-ranked `score`
- * order. It replicates the Ace completer's lazy-load (cerberus.js cerbCodeEditorAutocompleteSearchQueries):
+ * order. It uses the same lazy-load contract the (now-retired) Ace search-query completer did:
  *   - unknown nested scope  -> GET c=ui&a=querySuggestions&context=…&expand=…   (api/uri/ui.php)
  *   - dynamic value lists   -> GET c=ui&a=dataQuery&q=…   (substituting {{term}} with the typed prefix)
  * Suggestions are cached per scope key (the colon-joined path), and a `_contexts` map lets nested paths
@@ -469,7 +425,7 @@ CerbUI.SearchQuery.queryFieldSource = function(rootContext, opts) {
 		});
 	}
 
-	return function(ctx) {
+	const source = function(ctx) {
 		const path = ctx.path.slice();
 		let scopeKey = path.join('');
 		const prefix = ctx.prefix || '';
@@ -542,4 +498,13 @@ CerbUI.SearchQuery.queryFieldSource = function(rootContext, opts) {
 			return [];
 		});
 	};
+
+	// Re-root the source to a new record context, dropping every cached field list + nested-context map so the
+	// next suggestion lazy-loads against the new root. Lets a host swap contexts live (CerbUI.SearchQuery.setContext).
+	source.setContext = function(newRoot) {
+		for(const k in cache) { if(k !== '_contexts') delete cache[k]; }
+		cache._contexts = { '': newRoot || '' };
+	};
+
+	return source;
 };

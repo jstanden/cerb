@@ -60,7 +60,14 @@ const sq = new CerbUI.SearchQuery(el, {
 
 // Optional: a --right toolbar button to force the menu open.
 el.querySelector('[data-action=autocomplete]').addEventListener('click', () => sq.openAutocomplete());
-// CerbUI.SearchQuery.from(el) -> the instance; sq.getValue() / setValue(str) / focus(){/literal}</pre>
+
+// setContext(context) re-roots autocomplete live (e.g. a record-type dropdown changing what you search) — it
+// updates the context handed to onAutocomplete AND drops a queryFieldSource's per-scope cache, then closes any menu.
+sq.setContext('cerberusweb.contexts.org');
+
+// CerbUI.SearchQuery.from(el) -> the instance; sq.getValue() / setValue(str) / focus()
+// Editor-family parity (used by shared editor toolbars): getCursorPosition() -> {row,column}, getSelectedText(),
+// insertSnippet('a:($0)') ($0 = caret), insertAtCursor(text, {replace}){/literal}</pre>
 			</div>
 		</div>
 
