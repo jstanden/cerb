@@ -324,11 +324,14 @@ CerbUI.RecordChooser = class {
 		this._syncState();
 	}
 
-	clear() {
+	// focus=true (default) lands the caret back in the field — right for the user clicking × to re-pick. Pass
+	// false for programmatic clears (e.g. a coupled "Type" select re-scoping several choosers at once) so they
+	// don't each grab focus and pop their autocomplete open.
+	clear(focus = true) {
 		this.values = [];
 		this.input.value = '';
 		this._syncState();
-		requestAnimationFrame(() => this.input.focus());
+		if(focus) requestAnimationFrame(() => this.input.focus());
 	}
 
 	openSearchPopup() { this.openSearch(); }

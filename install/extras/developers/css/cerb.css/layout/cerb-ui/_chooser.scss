@@ -126,6 +126,12 @@
 	&.cerb-ui-record-chooser--open {
 		border-color: var(--cerb-color-action-primary);
 	}
+
+	// Keyboard/active focus: the focusable element is the inner --input (reset to no chrome), so ring the
+	// whole field. Matches the form inputs + SelectMenu.
+	&:focus-within {
+		@include cerb-ui-focus-ring;
+	}
 }
 
 // Wrapping field region: leading icon + tiles + input (the input trails at the end, so the autocomplete
@@ -181,6 +187,12 @@
 	padding: 0.1em 0.25em 0.1em 0.15em;
 	background: var(--cerb-color-background-contrast-235);
 	border-radius: 5px;
+}
+
+// Keyboard focus: ring the whole chip when its label (peek link) or × is focused. Unified focus look.
+// Shared by TagInput / ValuePicker / ContextChooser, which reuse this tile.
+.cerb-ui-record-chooser--tile:focus-within {
+	@include cerb-ui-focus-ring;
 }
 
 // The empty-state gray avatar uses .cerb-ui-chooser--avatar (display:inline-flex), so it needs an

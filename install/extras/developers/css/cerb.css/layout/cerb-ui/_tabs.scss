@@ -55,7 +55,15 @@
 // Panels live next to the <ul>, so they're top-level (not nested under .cerb-ui-tabs)
 .cerb-ui-tabs--panel {
 	display: none;
-	padding: 8px;
+	padding: 0 4px;
+
+	// Focusable by script (tabindex=-1) for a11y, but it's a CONTAINER — never show a focus ring on it.
+	// Focus lands here e.g. when a popup closes or in-panel content is replaced (the old activeElement is
+	// removed), which would otherwise paint a stray outline around the whole tab body.
+	&:focus,
+	&:focus-visible {
+		outline: none;
+	}
 
 	&.cerb-ui-tabs--panel-active {
 		display: block;

@@ -1,6 +1,7 @@
 // cerb-ui — design-system component styles. Split into per-component partials under cerb-ui/, mirroring the
 // JS split in features/cerberusweb.core/resources/js/cerb-ui/. Order is preserved from the original single
 // file (a few in-component cascade tricks rely on it) — keep it stable.
+@import "cerb-ui/focus"; // mixin-only (cerb-ui-focus-ring); define before consumers (form/chooser/selectmenu)
 @import "cerb-ui/page";
 @import "cerb-ui/header";
 @import "cerb-ui/panel";

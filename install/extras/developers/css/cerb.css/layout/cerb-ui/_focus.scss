@@ -1,0 +1,10 @@
+// Shared focus indicator for text-like form controls (form inputs, choosers, SelectMenu). Mixin-only — emits
+// no CSS until @included, so importing it first doesn't affect cascade/output order.
+
+// Canonical keyboard/active focus look: the saturated action-primary blue border + a 2px ring, so focus reads
+// the same across the design system.
+@mixin cerb-ui-focus-ring {
+	border-color: var(--cerb-color-action-primary);
+	outline: 2px solid var(--cerb-color-action-primary);
+	outline-offset: 1px;
+}

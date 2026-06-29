@@ -37,6 +37,13 @@
 		}
 	}
 
+	// Keyboard focus ring: the real <input> is 0×0 and invisible, so paint the indicator on the slider when
+	// the input is focus-visible (focus stays on the input through spacebar toggles).
+	input:focus-visible + .cerb-ui-toggle--slider {
+		outline: 2px solid var(--cerb-color-action-primary);
+		outline-offset: 2px;
+	}
+
 	input:checked + .cerb-ui-toggle--slider {
 		background-color: var(--cerb-color-tag-green);
 		box-shadow: none;

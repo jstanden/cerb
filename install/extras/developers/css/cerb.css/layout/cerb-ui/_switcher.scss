@@ -26,6 +26,17 @@
 		padding: 0.5em 0.95em;
 		cursor: pointer;
 		font: inherit;
+		// Segments size to content and grow together (align-items:stretch) — use min-height, not the global
+		// BUTTON { height: 2.4em }, so an icon + a label that wraps to two lines isn't clipped. The inner
+		// flex centers the icon beside (or above, when wrapped) the label.
+		height: auto;
+		min-height: 2.4em;
+		display: inline-flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: center;
+		gap: 0.15em 0.4em;
+		line-height: 1.2;
 
 		& + button {
 			border-left: 1px solid var(--cerb-color-background-contrast-220);
@@ -34,6 +45,32 @@
 		&.cerb-ui-switcher--active {
 			background: var(--cerb-color-link);
 			color: var(--cerb-color-text-inverse);
+		}
+
+		// Intentional, theme-aware hover. Left to inherit, an icon segment picks up the global
+		// `button:has(> span.cerb-icons):hover` blue and a plain segment the menu/button defaults — both
+		// read as white-on-white in dark mode. Non-active: a subtle surface wash, text color held. Active:
+		// hold the selected look. The `:has(> span.cerb-icons)` variant out-specifies the global icon-hover
+		// (0,2,2) so an icon segment doesn't recolor.
+		&:not(.cerb-ui-switcher--active):hover,
+		&:not(.cerb-ui-switcher--active):hover:has(> span.cerb-icons) {
+			background: var(--cerb-color-background-contrast-240);
+			color: var(--cerb-color-text);
+		}
+
+		&.cerb-ui-switcher--active:hover,
+		&.cerb-ui-switcher--active:hover:has(> span.cerb-icons) {
+			background: var(--cerb-color-link);
+			color: var(--cerb-color-text-inverse);
+		}
+
+		// Keyboard focus ring: the container clips with overflow:hidden, so an outward outline would be cut
+		// off. Inset it (negative offset) and lift it above the adjacent segment borders so it's fully visible.
+		&:focus-visible {
+			outline: 2px solid var(--cerb-color-action-primary);
+			outline-offset: -2px;
+			position: relative;
+			z-index: 1;
 		}
 	}
 }

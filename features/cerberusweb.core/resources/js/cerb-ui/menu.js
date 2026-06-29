@@ -240,6 +240,10 @@ CerbUI.Menu = class {
 		this.docKey = null;
 		this.docMove = null;
 		if(wasOpen && typeof this.opts.onClose === 'function') this.opts.onClose();
+		// Return focus to the trigger after a selection / Esc so keyboard TAB order continues from it (a no-op
+		// when the anchor isn't focusable, e.g. an autocomplete's caret span).
+		if(this._returnFocus && this.anchor && typeof this.anchor.focus === 'function') this.anchor.focus();
+		this._returnFocus = false;
 	}
 
 	isOpen() {
@@ -721,6 +725,7 @@ CerbUI.Menu = class {
 					if(popped) popped.el.remove();
 				}
 			} else if(this.opts.closeOnSelect) {
+				this._returnFocus = true;
 				this.close();
 			}
 			// else (floating, closeOnSelect:false): leave the panels open where they are
@@ -766,6 +771,7 @@ CerbUI.Menu = class {
 					const popped = this.pnls.pop();
 					if(popped) (popped.outer || popped.el).remove();
 				} else if(!this.opts.inline) {
+					this._returnFocus = true;
 					this.close();
 				}
 				return;
@@ -799,6 +805,7 @@ CerbUI.Menu = class {
 							if(popped) popped.el.remove();
 						}
 					} else if(this.opts.closeOnSelect) {
+						this._returnFocus = true;
 						this.close();
 					}
 				}

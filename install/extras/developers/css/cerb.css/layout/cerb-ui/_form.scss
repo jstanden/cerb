@@ -30,9 +30,7 @@
 		transition: border-color 0.12s, outline-color 0.12s;
 
 		&:focus {
-			border-color: var(--cerb-color-form-element-focus);
-			outline: 2px solid var(--cerb-color-form-element-focus);
-			outline-offset: 1px;
+			@include cerb-ui-focus-ring;
 		}
 
 		&::placeholder {
