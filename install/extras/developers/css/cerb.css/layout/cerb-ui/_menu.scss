@@ -51,8 +51,8 @@
 	// Active (hovered / keyboard-focused) row. The arrow is a cerb-icons glyph (currentColor), so it follows
 	// this color automatically — no separate arrow override.
 	&--item-active {
-		background: var(--cerb-color-action-primary);
-		color: var(--cerb-color-action-primary-text);
+		background: var(--cerb-color-menu-active-background);
+		color: var(--cerb-color-menu-active-text);
 		outline: none;
 	}
 
@@ -73,6 +73,10 @@
 		color: var(--cerb-color-background-contrast-150);
 		font-size: 0.85em;
 	}
+
+	// On the active/hover row the muted gray is illegible against the accent fill — inherit the row's
+	// text color (kept slightly dimmer so it still reads as secondary).
+	&--item-active &--path { color: inherit; opacity: 0.75; }
 
 	// In a filtered (pathed) row the leaf label sizes to content so the muted path can sit beside it
 	&--item-pathed > &--label { flex: 0 1 auto; }

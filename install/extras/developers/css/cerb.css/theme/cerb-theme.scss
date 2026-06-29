@@ -89,6 +89,9 @@ $timestamp: 2026062301;
   --cerb-color-dialog-title-background: var(--cerb-color-action-primary);
   --cerb-color-dialog-title-text: var(--cerb-color-action-primary-text);
 
+  --cerb-color-menu-active-background: var(--cerb-color-action-primary);
+  --cerb-color-menu-active-text: var(--cerb-color-action-primary-text);
+
   --cerb-color-bubble-background: rgb(255,255,255);
   --cerb-color-bubble-background-gradient: rgb(232,242,254);
   --cerb-color-bubble-border: rgb(197,219,236);
@@ -267,6 +270,9 @@ $timestamp: 2026062301;
   --cerb-color-dialog-shadow: rgba(0, 0, 0, 1);
   --cerb-color-dialog-title-background: linear-gradient(127deg, rgb(119, 0, 255), orange); /* rgb(79, 72, 173) */ /* 60,40,215 */ /* 125,60,240 */ /* rgb(29, 97, 218) */ /* linear-gradient(127deg, rgb(119, 0, 255), orange) */
   --cerb-color-dialog-title-text: rgb(255,255,255);
+
+  --cerb-color-menu-active-background: rgb(86 131 251);
+  --cerb-color-menu-active-text: rgb(255,255,255);
 
   --cerb-color-bubble-background: rgb(0,0,0);
   --cerb-color-bubble-background-gradient: rgb(50,50,50);
