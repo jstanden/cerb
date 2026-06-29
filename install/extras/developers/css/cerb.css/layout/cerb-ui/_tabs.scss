@@ -1,53 +1,128 @@
 // Tabs (CerbUI.Tabs) — enhances a <ul> of <li><a> into a tab strip. Panels are SIBLINGS of the <ul>
-// (standalone .cerb-ui-tabs--panel). Structural only; colors are tokens (dark mode automatic via html.dark).
+// (standalone .cerb-ui-tabs--panel). Colors are tokens (dark mode automatic via html.dark).
+//
+// A structural skeleton (.cerb-ui-tabs) plus three interchangeable visual SKINS, each a modifier class on
+// the <ul>: --folder (default), --underline, --segmented. CerbUI.Tabs applies one from its `variant` option
+// (default 'folder'); you can also just author the class. Different skins can be mixed on the page — handy
+// for nested tab sets (e.g. an outer --folder set with inner --underline sets). Active is distinguished by
+// color/marker, never font-weight, so activating a tab never shifts the row's geometry.
+
+// Structural skeleton (skin-agnostic): the flex row. Skins own padding, borders, gaps and the active look.
 .cerb-ui-tabs {
 	display: flex;
 	flex-wrap: wrap;
-	row-gap: 2px; // long tab sets (custom workspaces/dashboards) wrap to multiple rows — keep rows legible
-	margin: 0;
-	padding: 0 4px 0;
+	margin: 0 0 1em;
+	padding: 0; // reset the browser's default <ul> padding-left; skins set their own padding
 	list-style: none;
+}
 
-	&--tab > a {
-		display: block;
-		padding: 6px 14px;
-		color: var(--cerb-color-text);
-		opacity: 0.65; // inactive label (no dedicated muted token)
-		text-decoration: none;
-		background: var(--cerb-color-background-contrast-240);
-		border: 1px solid transparent;
-		border-radius: 5px 5px 0 0;
-		margin: 0 1px 1px 0;
-		user-select: none;
-		white-space: nowrap;
-		cursor: pointer;
+// Shared per-tab anchor resets every skin wants — keeps each skin block to just its distinctive bits.
+%cerb-ui-tabs-link {
+	display: block;
+	text-decoration: none;
+	user-select: none;
+	white-space: nowrap;
+	cursor: pointer;
 
-		// Ghost label reserves the bold width so activating a tab never shifts the row.
-		&::after {
-			content: attr(data-label);
-			display: block;
-			font-weight: 600;
-			height: 0;
-			overflow: hidden;
-			visibility: hidden;
-			pointer-events: none;
-		}
+	&:focus-visible {
+		outline: 2px solid var(--cerb-color-action-primary);
+		outline-offset: -2px;
+	}
+}
+
+// (default) Folder skin: flat folder tabs (no bevel/gradient) on a continuous bottom bar owned by the <ul>
+// (so wrapped rows stay one clean line); the active tab "opens" into the panel below (its bottom border
+// matches the content background, erasing the bar beneath it).
+.cerb-ui-tabs--folder {
+	align-items: flex-end;
+	gap: 3px;
+	padding: 0 4px;
+	border-bottom: 1px solid var(--cerb-color-background-contrast-220); // continuous bar (survives wrapping)
+
+	.cerb-ui-tabs--tab > a {
+		@extend %cerb-ui-tabs-link;
+		// 4px top: breathing room + a little separation between wrapped rows; -1px bottom: sit ON the bar
+		padding: 7px 14px;
+		margin: 4px 0 -1px 0;
+		background: var(--cerb-color-background-contrast-245);
+		border: 1px solid var(--cerb-color-background-contrast-220);
+		border-radius: 8px 8px 0 0;
+		color: var(--cerb-color-background-contrast-125); // inactive label
 
 		&:hover {
-			background: var(--cerb-color-background-contrast-230);
-		}
-
-		&:focus-visible {
-			outline: 2px solid var(--cerb-color-action-primary);
-			outline-offset: -2px;
+			background: var(--cerb-color-background-contrast-235);
+			color: var(--cerb-color-text);
 		}
 	}
 
-	&--tab.cerb-ui-tabs--tab-active > a {
+	.cerb-ui-tabs--tab.cerb-ui-tabs--tab-active > a {
+		background: var(--cerb-color-background);
+		border-color: var(--cerb-color-background-contrast-220);
+		border-bottom-color: var(--cerb-color-background); // "open" into the panel — erase the bar beneath
 		color: var(--cerb-color-text);
-		opacity: 1;
-		font-weight: 600;
-		border-bottom: 1px solid var(--cerb-color-action-primary);
+		cursor: default;
+	}
+}
+
+// Underline skin: flat labels, no boxes; the active tab is marked by a foreground-color underline. Geometry
+// stays fixed on select (transparent → solid bottom border, no weight change).
+.cerb-ui-tabs--underline {
+	align-items: stretch;
+	gap: 4px;
+	border-bottom: 1px solid var(--cerb-color-background-contrast-220);
+
+	.cerb-ui-tabs--tab > a {
+		@extend %cerb-ui-tabs-link;
+		padding: 8px 14px;
+		margin: 0 0 -1px 0;
+		background: none;
+		border: 0;
+		border-bottom: 2px solid transparent;
+		border-radius: 6px 6px 0 0;
+		color: var(--cerb-color-background-contrast-125);
+
+		&:hover {
+			background: var(--cerb-color-background-contrast-245);
+			color: var(--cerb-color-text);
+		}
+	}
+
+	.cerb-ui-tabs--tab.cerb-ui-tabs--tab-active > a {
+		border-bottom-color: var(--cerb-color-text);
+		color: var(--cerb-color-text);
+		cursor: default;
+	}
+}
+
+// Segmented skin: a light rounded frame holding the tabs as buttons; the active tab is a filled foreground
+// pill with inverse text. Echoes the CerbUI toolbar strip used elsewhere on the page.
+.cerb-ui-tabs--segmented {
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+	padding: 3px;
+	background: var(--cerb-color-background-contrast-240);
+	border: 1px solid var(--cerb-color-background-contrast-220);
+	border-radius: 8px;
+
+	.cerb-ui-tabs--tab > a {
+		@extend %cerb-ui-tabs-link;
+		padding: 5px 12px;
+		margin: 0;
+		background: none;
+		border: 0;
+		border-radius: 5px;
+		color: var(--cerb-color-background-contrast-125);
+
+		&:hover {
+			background: var(--cerb-color-background-contrast-230);
+			color: var(--cerb-color-text);
+		}
+	}
+
+	.cerb-ui-tabs--tab.cerb-ui-tabs--tab-active > a {
+		background: var(--cerb-color-text);
+		color: var(--cerb-color-text-inverse);
 		cursor: default;
 	}
 }
@@ -68,6 +143,23 @@
 	&.cerb-ui-tabs--panel-active {
 		display: block;
 	}
+}
+
+// Opt-in panel slide-in (the classic Cerb wizard "vibe"; ported from the old jQuery-UI show/hide slide).
+// Put .cerb-ui-tabs-slide on the tabset WRAPPER (the element containing both the <ul> and the panels) — each
+// panel fades + slides down as it becomes active, so stepping through a wizard animates. Entrance only (the
+// outgoing panel just hides), which reproduces the feel without blocking the switch.
+@keyframes cerb-ui-tabs-slide-in {
+	from { opacity: 0; transform: translateY(-0.75em); }
+	to   { opacity: 1; transform: none; }
+}
+
+.cerb-ui-tabs-slide .cerb-ui-tabs--panel-active {
+	animation: cerb-ui-tabs-slide-in 250ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.cerb-ui-tabs-slide .cerb-ui-tabs--panel-active { animation: none; }
 }
 
 .cerb-ui-tabs--panel-loading {

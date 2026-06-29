@@ -32,6 +32,7 @@
 				<pre data-cerb-uiref-source>{literal}// every option + method (defaults shown)
 const tabs = new CerbUI.Tabs(ul, {
 	active:          0,            // initial 0-based index (overrides `remember`)
+	variant:         'folder',     // visual skin: 'folder' (default) | 'underline' | 'segmented'
 	remember:        'myTabs',     // persist active tab; localStorage key = `${storagePrefix}[remember]`
 	storagePrefix:   'cerb-tabs',  // default 'cerb-tabs'
 	onTabSelected:   function(i, tab) {},  // after a tab is shown
@@ -41,10 +42,61 @@ const tabs = new CerbUI.Tabs(ul, {
 });
 tabs.select(1);   // activate by index
 tabs.refresh();   // re-fetch the active dynamic tab (refresh(i) for a specific one)
+tabs.setVariant('underline'); // switch skin at runtime: 'folder' | 'underline' | 'segmented'
 tabs.sync();      // re-parse the <ul> after adding/removing <li>
 tabs.active; tabs.activeTab; tabs.allTabs; tabs.el;  // getters
 tabs.destroy();
 CerbUI.Tabs.from(ul);   // -> the instance for a source UL{/literal}</pre>
+			</div>
+		</div>
+
+		{* Variants — three interchangeable skins; mix them for nested tab sets *}
+		<div class="cerb-ui-header"><div class="cerb-ui-header--label">Variants &mdash; three interchangeable skins via the <code>variant</code> option (or just author <code>class="cerb-ui-tabs--&lt;skin&gt;"</code>): <code>folder</code> (default), <code>underline</code>, <code>segmented</code>. Mix skins for nested tab sets.</div></div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<div style="display:flex;flex-direction:column;gap:1.5em;">
+					<div>
+						<ul id="uiref-tabs-v-folder">
+							<li><a href="#uiref-tabs-vf1">Overview</a></li>
+							<li><a href="#uiref-tabs-vf2">Log</a></li>
+							<li><a href="#uiref-tabs-vf3">&nbsp;<span class="cerb-icons cerb-icon-gear"></span>&nbsp;</a></li>
+						</ul>
+						<div id="uiref-tabs-vf1"><code>folder</code> (default) &mdash; Overview panel.</div>
+						<div id="uiref-tabs-vf2"><code>folder</code> &mdash; Log panel.</div>
+						<div id="uiref-tabs-vf3"><code>folder</code> &mdash; Settings panel.</div>
+					</div>
+					<div>
+						<ul id="uiref-tabs-v-underline">
+							<li><a href="#uiref-tabs-vu1">Overview</a></li>
+							<li><a href="#uiref-tabs-vu2">Log</a></li>
+							<li><a href="#uiref-tabs-vu3">&nbsp;<span class="cerb-icons cerb-icon-gear"></span>&nbsp;</a></li>
+						</ul>
+						<div id="uiref-tabs-vu1"><code>underline</code> &mdash; Overview panel.</div>
+						<div id="uiref-tabs-vu2"><code>underline</code> &mdash; Log panel.</div>
+						<div id="uiref-tabs-vu3"><code>underline</code> &mdash; Settings panel.</div>
+					</div>
+					<div>
+						<ul id="uiref-tabs-v-segmented">
+							<li><a href="#uiref-tabs-vs1">Overview</a></li>
+							<li><a href="#uiref-tabs-vs2">Log</a></li>
+							<li><a href="#uiref-tabs-vs3">&nbsp;<span class="cerb-icons cerb-icon-gear"></span>&nbsp;</a></li>
+						</ul>
+						<div id="uiref-tabs-vs1"><code>segmented</code> &mdash; Overview panel.</div>
+						<div id="uiref-tabs-vs2"><code>segmented</code> &mdash; Log panel.</div>
+						<div id="uiref-tabs-vs3"><code>segmented</code> &mdash; Settings panel.</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>{literal}// Pick a skin with the `variant` option (default 'folder')…
+new CerbUI.Tabs(folderUl);                          // folder (default)
+new CerbUI.Tabs(underlineUl, { variant: 'underline' });
+new CerbUI.Tabs(segmentedUl, { variant: 'segmented' });
+
+// …or author it on the &lt;ul&gt; (the component honors an existing skin class):
+//   &lt;ul class="cerb-ui-tabs--underline"&gt;…&lt;/ul&gt;{/literal}</pre>
 			</div>
 		</div>
 
@@ -124,6 +176,16 @@ new CerbUI.Tabs(ul, {
 				remember: 'uirefStatic',
 				onTabSelected: function(i, tab) { if(out) out.textContent = i + ' — ' + (tab.li.textContent || '').trim(); },
 			});
+		}
+	})();
+
+	// Tabs: the three visual variants (folder / underline / segmented)
+	(function() {
+		const variants = { 'uiref-tabs-v-folder': 'folder', 'uiref-tabs-v-underline': 'underline', 'uiref-tabs-v-segmented': 'segmented' };
+		if(!(window.CerbUI && CerbUI.Tabs)) return;
+		for(const id in variants) {
+			const ul = document.getElementById(id);
+			if(ul) new CerbUI.Tabs(ul, { variant: variants[id] });
 		}
 	})();
 

@@ -18,9 +18,12 @@
 CerbUI.Tabs = class {
 	static _uid = 0;
 	static _instances = new WeakMap();
+	static _panelOwners = new WeakMap(); // panel element → owning Tabs instance (for fromPanel lookups)
+	static _SKINS = ['folder', 'underline', 'segmented']; // visual variants (cerb-ui-tabs--<skin>)
 
 	static _DEFAULTS = {
 		active: undefined,       // initial 0-based index (overrides `remember`); undefined = use remember/0
+		variant: 'folder',       // visual skin: 'folder' (default) | 'underline' | 'segmented'; or author the class
 		storagePrefix: 'cerb-tabs', // localStorage key prefix; key = `${storagePrefix}[${remember}]`
 		spinner: 'spark',        // CerbUI.Spinner variant for a dynamic tab's loading state: 'spark' (default) | 'arc' | 'dots' | null (plain ring)
 		onTabSelected: null,     // (index, tab) after a tab is shown
@@ -33,6 +36,14 @@ CerbUI.Tabs = class {
 		return CerbUI.Tabs._instances.get(el);
 	}
 
+	// Resolve the Tabs instance owning the panel that CONTAINS el. Panels are siblings of the <ul> (not
+	// ancestors), so content inside a panel can't reach the tablist with closest('.cerb-ui-tabs'); this is
+	// the supported way to "reload the tab I'm inside" — e.g. CerbUI.Tabs.fromPanel(this)?.refresh().
+	static fromPanel(el) {
+		const panel = (el && el.closest) ? el.closest('.cerb-ui-tabs--panel') : null;
+		return panel ? CerbUI.Tabs._panelOwners.get(panel) : undefined;
+	}
+
 	constructor(ul, opts = {}) {
 		this.ul = ul;
 		this.opts = Object.assign({}, CerbUI.Tabs._DEFAULTS, opts);
@@ -40,6 +51,8 @@ CerbUI.Tabs = class {
 		this.activeIndex = -1;
 		this.storageKey = null;
 		this.uid = ++CerbUI.Tabs._uid;
+		this._variantClass = null;
+		this._variantExplicit = (opts.variant !== undefined); // caller passed one → it wins over an authored class
 
 		if(opts.remember) this.storageKey = this.opts.storagePrefix + '[' + opts.remember + ']';
 
@@ -77,13 +90,18 @@ CerbUI.Tabs = class {
 		this._activateTab(index);
 	}
 
-	// Re-fetch a dynamic tab's content (ignores cache). Reloads immediately if active, else on next select.
-	// Omit index to refresh the active tab. Does not fire onTabSelected.
+	// Reload the active tab's content. Dynamic tab → re-fetch (ignores cache). Static tab whose panel is
+	// populated by onTabSelected (e.g. the automation visualize redraw button) → re-fire onTabSelected.
+	// Omit index to target the active tab.
 	refresh(index = this.activeIndex) {
 		const tab = this.tabs[index];
-		if(!tab || !tab.isDynamic) return;
-		tab.loaded = false;
-		if(this.activeIndex === index) this._loadPanel(tab);
+		if(!tab) return;
+		if(tab.isDynamic) {
+			tab.loaded = false;
+			if(this.activeIndex === index) this._loadPanel(tab);
+		} else if(this.activeIndex === index && typeof this.opts.onTabSelected === 'function') {
+			this.opts.onTabSelected(index, this._makeInfo(index, tab));
+		}
 	}
 
 	// Re-parse the <ul> to pick up <li> items added or removed since construction.
@@ -118,12 +136,22 @@ CerbUI.Tabs = class {
 		if(this.tabs.length > 0) this._activateTab(next, false);
 	}
 
+	// Switch the visual skin at runtime (one of CerbUI.Tabs._SKINS), e.g. to match a nested context.
+	// A falsy/unknown name clears the skin (structural-only); returns `this` for chaining.
+	setVariant(name) {
+		for(const skin of CerbUI.Tabs._SKINS) this.ul.classList.remove('cerb-ui-tabs--' + skin);
+		this._variantClass = CerbUI.Tabs._SKINS.includes(name) ? 'cerb-ui-tabs--' + name : null;
+		if(this._variantClass) this.ul.classList.add(this._variantClass);
+		return this;
+	}
+
 	destroy() {
 		CerbUI.Tabs._instances.delete(this.ul);
 		this.ul.removeEventListener('click', this._onUlClick);
 		this.ul.removeEventListener('keydown', this._onUlKeydown);
 		this.ul.removeAttribute('role');
 		this.ul.classList.remove('cerb-ui-tabs');
+		if(this._variantClass) this.ul.classList.remove(this._variantClass);
 
 		for(const tab of this.tabs) {
 			tab.li.classList.remove('cerb-ui-tabs--tab', 'cerb-ui-tabs--tab-active');
@@ -138,6 +166,7 @@ CerbUI.Tabs = class {
 			tab.panel.removeAttribute('aria-labelledby');
 			tab.panel.removeAttribute('tabindex');
 			tab.panel.classList.remove('cerb-ui-tabs--panel', 'cerb-ui-tabs--panel-active');
+			CerbUI.Tabs._panelOwners.delete(tab.panel);
 			if(tab.isDynamic) tab.panel.remove();
 		}
 	}
@@ -147,6 +176,15 @@ CerbUI.Tabs = class {
 	_init(explicitActive) {
 		this.ul.setAttribute('role', 'tablist');
 		this.ul.classList.add('cerb-ui-tabs');
+
+		// Visual skin: an explicit `variant` option wins; otherwise honor a skin class already on the <ul>;
+		// otherwise fall back to the default ('folder').
+		let variant = this.opts.variant;
+		if(!this._variantExplicit) {
+			const authored = CerbUI.Tabs._SKINS.find(skin => this.ul.classList.contains('cerb-ui-tabs--' + skin));
+			if(authored) variant = authored;
+		}
+		this.setVariant(variant);
 
 		const lis = Array.from(this.ul.querySelectorAll(':scope > li'));
 		for(let i = 0; i < lis.length; i++) {
@@ -227,6 +265,8 @@ CerbUI.Tabs = class {
 			panel.setAttribute('tabindex', '-1');
 			panel.classList.add('cerb-ui-tabs--panel');
 			panel.classList.remove('cerb-ui-tabs--panel-active');
+
+			CerbUI.Tabs._panelOwners.set(panel, this); // for CerbUI.Tabs.fromPanel()
 		}
 	}
 
@@ -249,15 +289,14 @@ CerbUI.Tabs = class {
 			prev.a.setAttribute('aria-selected', 'false');
 			prev.a.setAttribute('tabindex', '-1');
 			prev.panel.classList.remove('cerb-ui-tabs--panel-active');
-			prev.panel.setAttribute('tabindex', '-1');
 		}
 
-		// Activate the new tab.
+		// Activate the new tab. The panel keeps tabindex="-1" from setup (focusable by script, but never in
+		// the sequential tab order) so a form doesn't stop on the whole panel before its first field.
 		tab.li.classList.add('cerb-ui-tabs--tab-active');
 		tab.a.setAttribute('aria-selected', 'true');
 		tab.a.setAttribute('tabindex', '0');
 		tab.panel.classList.add('cerb-ui-tabs--panel-active');
-		tab.panel.setAttribute('tabindex', '0');
 		this.activeIndex = index;
 		if(this.storageKey) {
 			try { localStorage.setItem(this.storageKey, String(index)); } catch(e) { /* quota / private browsing */ }
