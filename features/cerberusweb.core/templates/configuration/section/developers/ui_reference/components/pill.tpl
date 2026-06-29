@@ -27,4 +27,22 @@
 				<pre data-cerb-uiref-source>&lt;span class="cerb-ui-pill cerb-u-bg-none cerb-u-border-0" style="color:var(--cerb-color-link);"&gt;&lt;span class="cerb-icons cerb-icon-branch"&gt;&lt;/span&gt; 2 parallel&lt;/span&gt;</pre>
 			</div>
 		</div>
+
+		{* Example: circle — an icon-only pill rendered as a perfect circle (a status badge) *}
+		<div class="cerb-ui-header">
+			<div class="cerb-ui-header--label">Circle &mdash; add <code>cerb-ui-pill--circle</code> for an icon-only perfect circle. Pair with <a href="#avatar">cerb-avatar-badged</a> to pin a type indicator (sent / received / draft / comment) to an avatar's corner</div>
+		</div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<span class="cerb-ui-pill cerb-ui-pill--circle cerb-ui-pill--red" title="Received"><span class="cerb-icons cerb-icon-download"></span></span>
+				<span class="cerb-ui-pill cerb-ui-pill--circle cerb-ui-pill--green" title="Sent"><span class="cerb-icons cerb-icon-upload"></span></span>
+				<span class="cerb-ui-pill cerb-ui-pill--circle cerb-ui-pill--gray" title="Draft"><span class="cerb-icons cerb-icon-edit"></span></span>
+				<span class="cerb-ui-pill cerb-ui-pill--circle cerb-ui-pill--blue" title="Comment"><span class="cerb-icons cerb-icon-comments"></span></span>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>&lt;span class="cerb-ui-pill cerb-ui-pill--circle cerb-ui-pill--green" title="Sent"&gt;&lt;span class="cerb-icons cerb-icon-upload"&gt;&lt;/span&gt;&lt;/span&gt;</pre>
+			</div>
+		</div>
 	</div>

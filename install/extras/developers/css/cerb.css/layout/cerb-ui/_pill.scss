@@ -12,7 +12,44 @@
 	line-height: 1.5;
 	white-space: nowrap;
 
+	// The pill itself may be an <a> (e.g. a clickable record pill) — never underline it
+	text-decoration: none;
+
+	&:hover {
+		text-decoration: none;
+	}
+
 	> span.cerb-icons {
 		font-size: 1.15em;
+	}
+
+	// Pills are compact value labels — links inside read as plain text (no hover underline)
+	a {
+		text-decoration: none;
+
+		&:hover {
+			text-decoration: none;
+		}
+	}
+
+	// Solid color variants — a filled status pill in a tag color (matches SPAN.tag.tag-* semantics).
+	// Text/icon is always white: the tag backgrounds are saturated in both themes, so white reads
+	// cleanly (text-inverse would go near-black in dark mode and disappear). Use for statuses like
+	// sent/received/draft/comment.
+	&--red    { background: var(--cerb-color-tag-red);    border-color: var(--cerb-color-tag-red);    color: rgb(255,255,255); }
+	&--green  { background: var(--cerb-color-tag-green);  border-color: var(--cerb-color-tag-green);  color: rgb(255,255,255); }
+	&--blue   { background: var(--cerb-color-tag-blue);   border-color: var(--cerb-color-tag-blue);   color: rgb(255,255,255); }
+	&--gray   { background: var(--cerb-color-tag-gray);   border-color: var(--cerb-color-tag-gray);   color: rgb(255,255,255); }
+	&--orange { background: var(--cerb-color-tag-orange); border-color: var(--cerb-color-tag-orange); color: rgb(255,255,255); }
+	&--purple { background: var(--cerb-color-tag-purple); border-color: var(--cerb-color-tag-purple); color: rgb(255,255,255); }
+
+	// Circle: an icon-only pill rendered as a perfect circle. Pair with .cerb-avatar-badged to pin a
+	// message's type indicator (sent/received/draft/comment) to the corner of an avatar.
+	&--circle {
+		justify-content: center;
+		width: 1.7em;
+		height: 1.7em;
+		padding: 0;
+		border-radius: 50%;
 	}
 }
