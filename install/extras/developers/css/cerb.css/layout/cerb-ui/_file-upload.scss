@@ -1,0 +1,173 @@
+// FileUpload (CerbUI.FileUpload): inline file uploads (drag/drop + click-to-browse), no popup. The bytes
+// are exchanged for an attachment file_id and posted via hidden inputs; selections render as chips inside
+// a "well" (the whole well is the drop zone), each opening the attachment's card peek. Mirrors the chooser
+// field. Structural only; colors are tokens, so dark mode is automatic.
+
+.cerb-ui-file-upload {
+	display: inline-flex;
+	// Top-align so the upload button sits on the first row of chips (a multi field wraps onto several rows).
+	align-items: flex-start;
+	gap: 0.5em;
+	max-width: 100%;
+	min-width: 240px;
+	box-sizing: border-box;
+	padding: 0.35em 0.7em;
+	border: 1px dashed var(--cerb-color-background-contrast-210);
+	border-radius: 6px;
+	background: var(--cerb-color-form-input-background);
+	color: inherit;
+	cursor: pointer;
+	transition: border-color 0.15s ease, background-color 0.15s ease;
+
+	&:hover { border-color: var(--cerb-color-action-primary); }
+
+	&.is-dragover {
+		border-color: var(--cerb-color-action-primary);
+		background: var(--cerb-color-background-contrast-245);
+	}
+
+	// Single-filled: nothing more to add (remove the chip to replace), so it shouldn't read as clickable
+	&.cerb-ui-file-upload--has-tiles:not(.cerb-ui-file-upload--multiple) {
+		cursor: default;
+		&:hover { border-color: var(--cerb-color-background-contrast-210); }
+	}
+}
+
+// Wrapping field region: leading icon + chips + prompt. The upload button stays outside it (pinned right)
+// so it doesn't drift as chips wrap.
+.cerb-ui-file-upload--field {
+	display: inline-flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.35em;
+	flex: 1 1 auto;
+	min-width: 0;
+	min-height: 22px; // floor to a chip's height so the empty state matches a filled one
+}
+
+// Chips flow with the prompt (display:contents so they participate in the field's wrap)
+.cerb-ui-file-upload--tiles { display: contents; }
+
+// Empty-state leading glyph
+.cerb-ui-file-upload--empty-icon {
+	flex: 0 0 auto;
+	color: var(--cerb-color-background-contrast-150);
+	font-size: 1.15em;
+
+	&[hidden] { display: none; }
+}
+
+.cerb-ui-file-upload--prompt {
+	flex: 1 1 auto;
+	min-width: 0;
+	color: var(--cerb-color-background-contrast-150);
+
+	&[hidden] { display: none; }
+}
+
+// A selected file chip (single chip and multi chips share this)
+.cerb-ui-file-upload--tile {
+	position: relative; // anchors the absolute progress bar
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35em;
+	min-width: 0;
+	max-width: 100%;
+	padding: 0.1em 0.3em 0.1em 0.3em;
+	background: var(--cerb-color-background-contrast-235);
+	border-radius: 5px;
+	overflow: hidden;
+}
+
+// Keyboard focus: ring the whole chip when its label (peek link) or × is focused. The chip's own
+// overflow:hidden clips its children, not its own outline, so the ring shows fully. Unified focus look.
+.cerb-ui-file-upload--tile:focus-within {
+	@include cerb-ui-focus-ring;
+}
+
+.cerb-ui-file-upload--tile-icon {
+	flex: 0 0 auto;
+	color: var(--cerb-color-background-contrast-140);
+}
+
+.cerb-ui-file-upload--label {
+	flex: 0 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.cerb-ui-file-upload--size {
+	flex: 0 0 auto;
+	font-size: 0.85em;
+	color: var(--cerb-color-background-contrast-150);
+}
+
+// Remove (×) stays flat
+.cerb-ui-file-upload--clear {
+	flex: 0 0 auto;
+	appearance: none;
+	border: 0;
+	background: none;
+	padding: 0;
+	margin: 0;
+	cursor: pointer;
+	color: var(--cerb-color-background-contrast-150);
+	font-size: 0.95em;
+	line-height: 1;
+
+	&:hover { color: var(--cerb-color-text); }
+}
+
+// Upload progress: a thin bar pinned to the bottom edge of a pending chip
+.cerb-ui-file-upload--progress {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: 2px;
+	background: var(--cerb-color-background-contrast-220);
+}
+
+.cerb-ui-file-upload--progress-bar {
+	display: block;
+	width: 0;
+	height: 100%;
+	background: var(--cerb-color-action-primary);
+	transition: width 0.2s ease;
+}
+
+// Upload button — looks like an actual button (mirrors the chooser's search button)
+.cerb-ui-file-upload--upload-btn {
+	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.9em;
+	height: 1.6em;
+	padding: 0;
+	margin: 0;
+	border: 1px solid var(--cerb-color-background-contrast-220);
+	border-radius: 5px;
+	background: var(--cerb-color-background-contrast-235);
+	color: var(--cerb-color-text);
+	cursor: pointer;
+	line-height: 1;
+
+	&:hover { background: var(--cerb-color-background-contrast-240); border-color: var(--cerb-color-action-primary); }
+	&:active { background: var(--cerb-color-background-contrast-245); }
+	&[hidden] { display: none; } // explicit display: otherwise beats the UA [hidden] rule
+}
+
+// The real <input type=file> is visually hidden; the well + button proxy clicks to it
+.cerb-ui-file-upload--input {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	border: 0;
+}
