@@ -5,6 +5,8 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget implements ICe
 	function renderConfig(Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('widget', $widget);
+		$tpl->assign('datasets_autocomplete_json', json_encode(CerberusApplication::kataAutocompletions()->dataset()));
+		$tpl->assign('chart_autocomplete_json', json_encode(CerberusApplication::kataAutocompletions()->chart()));
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/chart/kata/config.tpl');
 	}
 	
@@ -77,122 +79,54 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget implements ICe
 	 * @throws Exception_DevblocksValidationError
 	 */
 	private function _getChartJsonFromWidget(Model_WorkspaceWidget $widget) : array {
-		$chart = DevblocksPlatform::services()->chart();
-		$dataset = DevblocksPlatform::services()->dataset();
-		$kata = DevblocksPlatform::services()->kata();
 		$active_worker = CerberusApplication::getActiveWorker();
-		
+
 		$chart_kata = DevblocksPlatform::importGPC($widget->params['chart_kata'] ?? '', 'string');
 		$datasets_kata = DevblocksPlatform::importGPC($widget->params['datasets_kata'] ?? '', 'string');
-		$error = null;
-		
-		$initial_state = [
+
+		$chart_dict = DevblocksDictionaryDelegate::instance([
 			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
 			'current_worker_id' => $active_worker->id,
 			'widget__context' => CerberusContexts::CONTEXT_WORKSPACE_WIDGET,
 			'widget_id' => $widget->id,
-		];
-		
-		$chart_dict = DevblocksDictionaryDelegate::instance($initial_state);
-		
+		]);
+
 		// Dashboard prefs
 		$widget->_loadDashboardPrefsForWorker($active_worker, $chart_dict);
-		
-		if(!($chart_kata = $kata->parse($chart_kata, $error)))
-			throw new Exception_DevblocksValidationError($error);
-		
-		if(!($chart_kata = $kata->formatTree($chart_kata, $chart_dict, $error)))
-			throw new Exception_DevblocksValidationError($error);
-		
-		if(!($datasets_kata = $dataset->parse($datasets_kata, $chart_dict, $error)))
-			throw new Exception_DevblocksValidationError($error);
-		
-		$chart_options = [
-			'dark_mode' => DAO_WorkerPref::get($active_worker->id,'dark_mode',0),
-		];
-		
-		if(!$chart_json = $chart->parse($chart_kata, $datasets_kata, $chart_options, $error))
-			throw new Exception_DevblocksValidationError($error);
-		
-		return $chart_json;
+
+		$dark_mode = DAO_WorkerPref::get($active_worker->id, 'dark_mode', 0);
+
+		return \Cerb\Charts\ChartKataWidgetTester::buildChartJson($chart_kata, $datasets_kata, $chart_dict, $dark_mode);
 	}
-	
+
 	private function _widgetConfig_previewDataset(Model_WorkspaceWidget $model) {
-		$kata = DevblocksPlatform::services()->kata();
-		$dataset = DevblocksPlatform::services()->dataset();
-		$active_worker = CerberusApplication::getActiveWorker();
-		
 		$params = DevblocksPlatform::importGPC($_POST['params'] ?? [], 'array', []);
-		
+
 		$datasets_kata = $params['datasets_kata'] ?? '';
 		$placeholders_kata = $params['placeholder_simulator_kata'] ?? '';
-		
-		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
-		
-		$initial_state = [
+
+		\Cerb\Charts\ChartKataWidgetTester::previewDataset($datasets_kata, $placeholders_kata, $this->_getTesterInitialState($model));
+	}
+
+	private function _widgetConfig_previewChart(Model_WorkspaceWidget $model) {
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? [], 'array', []);
+
+		$datasets_kata = $params['datasets_kata'] ?? '';
+		$chart_kata = $params['chart_kata'] ?? '';
+		$placeholders_kata = $params['placeholder_simulator_kata'] ?? '';
+
+		\Cerb\Charts\ChartKataWidgetTester::previewChart($chart_kata, $datasets_kata, $placeholders_kata, $this->_getTesterInitialState($model));
+	}
+
+	private function _getTesterInitialState(Model_WorkspaceWidget $model) : array {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		return [
 			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
 			'current_worker_id' => $active_worker->id,
 			'widget__context' => CerberusContexts::CONTEXT_WORKSPACE_WIDGET,
 			'widget_id' => $model->id,
 		];
-		
-		if(false === ($placeholders = $kata->parse($placeholders_kata, $error)))
-			return;
-		
-		if(false === ($placeholders = $kata->formatTree($placeholders, DevblocksDictionaryDelegate::instance([]), $error)))
-			return;
-		
-		$initial_state = array_merge($initial_state, $placeholders);
-		
-		$chart_dict = DevblocksDictionaryDelegate::instance($initial_state);
-		
-		$error = null;
-		
-		if(!($datasets = $dataset->parse($datasets_kata, $chart_dict, $error))) {
-			echo DevblocksPlatform::strFormatJson([
-				'error' => 'ERROR: ' . $error,
-			]);
-			
-		} else {
-			// We don't need to show click series meta in the results
-			foreach($datasets as $dataset_key => $dataset_series) {
-				$datasets[$dataset_key] = array_filter($dataset_series, function ($k) {
-					return !DevblocksPlatform::strEndsWith($k, '__click');
-				}, ARRAY_FILTER_USE_KEY);
-			}
-			
-			echo DevblocksPlatform::strFormatJson($datasets);
-		}
-	}
-	
-	private function _widgetConfig_previewChart(Model_WorkspaceWidget $model) {
-		$kata = DevblocksPlatform::services()->kata();
-		
-		$params = DevblocksPlatform::importGPC($_POST['params'] ?? [], 'array', []);
-		$datasets_kata = $params['datasets_kata'] ?? '';
-		$placeholders_kata = $params['placeholder_simulator_kata'] ?? '';
-		$chart_kata = $params['chart_kata'] ?? '';
-		
-		if($placeholders_kata) {
-			if(false === ($placeholders = $kata->parse($placeholders_kata, $error)))
-				return;
-			
-			if(false === ($placeholders = $kata->formatTree($placeholders, DevblocksDictionaryDelegate::instance([]), $error)))
-				return;
-			
-			if(false === ($datasets = $kata->parse($datasets_kata, $error)))
-				return;
-			
-			if(false === ($datasets = $kata->formatTree($datasets, DevblocksDictionaryDelegate::instance($placeholders), $error)))
-				return;
-			
-			$datasets_kata = $kata->emit($datasets);
-		}
-		
-		$model->params['datasets_kata'] = $datasets_kata;
-		$model->params['chart_kata'] = $chart_kata;
-		
-		$this->render($model);
 	}
 	
 	// Export
