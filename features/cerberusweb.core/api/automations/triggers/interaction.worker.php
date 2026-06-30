@@ -557,11 +557,19 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					],
 					'syntax:',
 					'default:',
+					[
+						'caption' => 'record_type:',
+						'snippet' => "record_type: \${1::}",
+						'description' => "The record type whose fields autocomplete in a `cerb_query_search` editor",
+					],
 					'hidden@bool: no',
 					'validation@raw:',
 					'readonly@bool: yes',
 					'line_numbers@bool: no',
 					'toolbar:',
+				],
+				'(.*):await:form:elements:editor:record_type:' => [
+					'type' => 'record-type',
 				],
 				'(.*):await:form:elements:editor:line_numbers:' => [
 					'yes',

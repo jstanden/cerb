@@ -31,6 +31,7 @@ class EditorAwait extends AbstractAwait {
 		$default = $this->_data['default'] ?? null;
 		$options = $this->_data['options'] ?? [];
 		$syntax = $this->_data['syntax'] ?? null;
+		$record_type = $this->_data['record_type'] ?? null;
 		$editor_readonly = boolval($this->_data['readonly'] ?? null);
 		
 		if(!is_array($options))
@@ -42,36 +43,27 @@ class EditorAwait extends AbstractAwait {
 			$editor_show_line_numbers = true;
 		}
 		
-		$editor_mode = '';
+		// The template picks the CerbUI editor straight off $syntax; only the autocomplete kind + markdown options
+		// need deriving here. ('cerb_query*' → DataQuery/SearchQuery via $editor_autocompletion; 'kata' → KataEditor;
+		// 'json' → JsonEditor; 'markdown' → MarkdownEditor; everything else → ScriptingEditor.)
 		$editor_autocompletion = '';
 		$editor_options = [];
-		
+
 		switch($syntax) {
 			case 'cerb_query_data':
-				$editor_mode = 'ace/mode/cerb_query';
 				$editor_autocompletion = 'data_query';
 				break;
-			
+
 			case 'cerb_query':
 			case 'cerb_query_search':
-				$editor_mode = 'ace/mode/cerb_query';
 				$editor_autocompletion = 'search_query';
 				break;
-			
-			case 'html':
-			case 'json':
-			case 'text':
-			case 'yaml':
-				$editor_mode = 'ace/mode/' . $syntax;
-				break;
-				
+
 			case 'markdown':
-				$editor_mode = 'ace/mode/markdown';
 				$editor_options = $options['markdown'] ?? [];
 				break;
-				
+
 			case 'kata':
-				$editor_mode = 'ace/mode/cerb_kata';
 				$schema = $this->_data['schema'] ?? [];
 				$editor_autocompletion = \CerberusApplication::kataAutocompletions()->fromSchema(['schema' => $schema]);
 				break;
@@ -101,8 +93,9 @@ class EditorAwait extends AbstractAwait {
 		$tpl->assign('var', $this->_key);
 		$tpl->assign('label', $label);
 		$tpl->assign('default', $default);
-		$tpl->assign('editor_mode', $editor_mode);
+		$tpl->assign('syntax', $syntax);
 		$tpl->assign('editor_autocompletion', $editor_autocompletion);
+		$tpl->assign('record_type', $record_type);
 		$tpl->assign('editor_options', $editor_options);
 		$tpl->assign('editor_readonly', $editor_readonly);
 		$tpl->assign('editor_show_line_numbers', $editor_show_line_numbers);
