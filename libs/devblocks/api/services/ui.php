@@ -711,8 +711,14 @@ class DevblocksUiMenu {
 			$label_chain = '';
 			
 			foreach($label_parts as $label_part) {
+				// Skip empty segments (e.g. a double/trailing separator in the source label) — they'd create a
+				// label-less node that CerbUI.Menu renders as a phantom separator in the submenu (the token's
+				// key then attaches to the last real segment instead of a blank child).
+				if('' === trim((string)$label_part))
+					continue;
+
 				$label_chain .= ($label_chain ? $label_separator : '') . $label_part;
-				
+
 				if(!array_key_exists($label_part, $ptr->children)) {
 					$item = new DevblocksMenuItemPlaceholder();
 					$item->label = $label_chain;
