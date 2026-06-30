@@ -440,9 +440,10 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 	
 	private function _profileAction_autocompleteCountry() {
 		$starts_with = DevblocksPlatform::importGPC($_REQUEST['term'] ?? null, 'string','');
-		$callback = DevblocksPlatform::importGPC($_REQUEST['callback'] ?? null, 'string','');
 		
 		$db = DevblocksPlatform::services()->database();
+		
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		
 		$sql = sprintf("SELECT DISTINCT country AS country ".
 			"FROM contact_org ".
@@ -467,11 +468,7 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		
 		mysqli_free_result($rs);
 		
-		echo sprintf("%s%s%s",
-			!empty($callback) ? ($callback.'(') : '',
-			json_encode($list),
-			!empty($callback) ? (')') : ''
-		);
+		echo json_encode($list);
 		
 		DevblocksPlatform::exit();
 	}

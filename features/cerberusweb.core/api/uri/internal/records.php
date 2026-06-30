@@ -283,7 +283,6 @@ class PageSection_InternalRecords extends Extension_PageSection {
 	}
 	
 	private function _internalAction_autocomplete() {
-		$callback = DevblocksPlatform::importGPC($_REQUEST['callback'] ?? null, 'string','');
 		$context = DevblocksPlatform::importGPC($_REQUEST['context'] ?? null,'string','');
 		$query = DevblocksPlatform::importGPC($_REQUEST['query'] ?? null, 'string','');
 		$term = DevblocksPlatform::importGPC($_REQUEST['term'] ?? null, 'string','');
@@ -292,19 +291,13 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		
 		$list = [];
 		
-		// [TODO] Abstractly handle '(no record)' blank functionality?
-		
 		if(($context_ext = Extension_DevblocksContext::getByAlias($context, true))) {
 			if($context_ext instanceof IDevblocksContextAutocomplete)
 				$list = $context_ext->autocomplete($term, $query);
 		}
 		
-		echo sprintf("%s%s%s",
-			!empty($callback) ? ($callback.'(') : '',
-			json_encode($list),
-			!empty($callback) ? (')') : ''
-		);
-		
+		echo json_encode($list);
+
 		DevblocksPlatform::exit();
 	}
 
