@@ -141,7 +141,24 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		
 		return $objects;
 	}
-	
+
+	// Persist a full snapshot of the behavior (metadata + decision tree) as a record_changeset. Called from every
+	// mutation path; DAO_RecordChangeset::create() de-dupes by sha1, so redundant calls are cheap no-ops. Never let
+	// a versioning failure break the underlying save.
+	private function _snapshotBehaviorChangeset(int $behavior_id) : void {
+		try {
+			if($behavior_id <= 0 || !($behavior = DAO_TriggerEvent::get($behavior_id)))
+				return;
+
+			$active_worker = CerberusApplication::getActiveWorker();
+
+			DAO_RecordChangeset::create('behavior', $behavior_id, ['behavior' => $behavior->exportToJson()], $active_worker->id ?? 0);
+
+		} catch (Throwable $e) {
+			DevblocksPlatform::logError('Error saving behavior changeset: ' . $e->getMessage());
+		}
+	}
+
 	private function _profileAction_savePeekJson() {
 		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
 		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'string', '');
@@ -235,10 +252,12 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 							throw new Exception_DevblocksAjaxValidationError("There was an issue creating the record.");
 						
 						$new_behavior = reset($records_created[Context_TriggerEvent::ID]);
-						
+
 						if($view_id)
 							C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_BEHAVIOR, $new_behavior['id']);
-						
+
+						$this->_snapshotBehaviorChangeset((int) $new_behavior['id']);
+
 						echo json_encode([
 							'status' => true,
 							'id' => $new_behavior['id'],
@@ -378,7 +397,9 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 						
 						if(!empty($view_id) && !empty($behavior_id))
 							C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_BEHAVIOR, $behavior_id);
-						
+
+						$this->_snapshotBehaviorChangeset((int) $behavior_id);
+
 						echo json_encode(array(
 							'status' => true,
 							'id' => $id,
@@ -530,7 +551,9 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 							$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 							if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_BEHAVIOR, $id, $field_ids, $error))
 								throw new Exception_DevblocksAjaxValidationError($error);
-							
+
+							$this->_snapshotBehaviorChangeset((int) $id);
+
 							echo json_encode(array(
 								'status' => true,
 								'id' => $id,
@@ -745,7 +768,9 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 			]);
 			return;
 		}
-		
+
+		$this->_snapshotBehaviorChangeset((int) $trigger->id);
+
 		echo json_encode(array(
 			'status' => true,
 		));
@@ -1232,9 +1257,12 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 				}
 				break;
 		}
-		
+
+		// build mode tracks the behavior as $trigger_id; library mode as $behavior_id
+		$snapshot_behavior_id = $trigger_id ?? ($behavior_id ?? 0);
+		$this->_snapshotBehaviorChangeset((int) $snapshot_behavior_id);
 	}
-	
+
 	private function _profileAction_reparentNode() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -1281,7 +1309,9 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 				DAO_DecisionNode::POS => $pos++,
 			]);
 		}
-		
+
+		$this->_snapshotBehaviorChangeset((int) $trigger->id);
+
 		DevblocksPlatform::exit();
 	}
 	
@@ -1617,11 +1647,13 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 				
 				if($child->trigger_id != $trigger->id)
 					continue;
-				
+
 				DAO_DecisionNode::update($child_id, array(
 					DAO_DecisionNode::POS => $pos,
 				));
 			}
+
+		$this->_snapshotBehaviorChangeset((int) $trigger->id);
 	}
 	
 	private function _profileAction_saveDecisionDeletePopup() {
@@ -1668,7 +1700,9 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 			}
 			
 			DAO_DecisionNode::delete($ids_to_delete);
-			
+
+			$this->_snapshotBehaviorChangeset((int) $trigger->id);
+
 		} elseif(array_key_exists('trigger_id', $_POST)) {
 			$trigger_id = DevblocksPlatform::importGPC($_POST['trigger_id'] ?? null, 'integer', 0);
 			
@@ -1774,8 +1808,10 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		};
 		
 		$recursive_duplicate($id, $node->parent_id);
-		
+
 		DAO_DecisionNode::clearCache();
+
+		$this->_snapshotBehaviorChangeset((int) $trigger->id);
 	}
 	
 	private function _profileAction_renderImportPopup() {
