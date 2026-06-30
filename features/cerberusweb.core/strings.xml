@@ -1505,6 +1505,21 @@
 				<seg>male</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.gender.pronouns.female">
+			<tuv xml:lang="en_US">
+				<seg>she/her</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.gender.pronouns.male">
+			<tuv xml:lang="en_US">
+				<seg>he/him</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.gender.pronouns.neutral">
+			<tuv xml:lang="en_US">
+				<seg>they/them</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.global">
 			<tuv xml:lang="en_US">
 				<seg>global</seg>
@@ -1571,6 +1586,11 @@
 		<tu tuid="common.id">
 			<tuv xml:lang="en_US">
 				<seg>ID</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.icon">
+			<tuv xml:lang="en_US">
+				<seg>icon</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.image">
