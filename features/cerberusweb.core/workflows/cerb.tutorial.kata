@@ -1,6 +1,6 @@
 workflow:
   name: cerb.tutorial
-  version: 2026-06-11T00:00:00Z
+  version: 2026-06-24T00:00:00Z
   description: A workspace with detailed descriptions and examples of Cerb functionality
   requirements:
     cerb_version: >=11.2 <11.3
@@ -327,6 +327,7 @@ records:
   workspace_widget/widget_welcome_what_is_cerb:
     fields:
       label: What is Cerb?
+      icon: bot
       tab_id: {{records.tab_welcome.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 1
@@ -345,13 +346,22 @@ records:
             headings@bool: no
             paging@bool: no
             filtering@bool: no
-
+            colors:
+              splash@csv: #ffffff, #4493ff
+              splash_dark@csv: #ffffff, #7c3aed
           columns:
+            icon/splash:
+              params:
+                image: bot
+                text_size@raw: 500%
+                color: splash:1
+                text_color: splash:0
+                text_align: center
             markdown/text:
               params:
                 text_size@raw: 120%
                 value@text:
-                  **Cerb** automates helpdesk inboxes and workflows. The project has continuously evolved for over 24 years based on the feedback of thousands of teams around the world. It is used by everyone from solo founders to 1,000+ person teams managing millions of customer requests.
+                  **Cerb** automates helpdesk inboxes and workflows. The project has continuously evolved for over two decades based on the feedback of thousands of teams around the world. It is used by everyone from solo founders to 1,000+ person teams managing millions of customer requests.
 
                   Cerb integrates with any API-based service. It can automate nearly any repetitive digital workflow with its specialized KATA language and browser-based coding tools.
 
@@ -370,6 +380,7 @@ records:
   workspace_widget/widget_welcome_ui:
     fields:
       label: User Interface Tour
+      icon: signpost
       tab_id: {{records.tab_welcome.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 2
@@ -413,7 +424,7 @@ records:
                     inputs:
                       outputs:
                         callout:
-                          selector: body > ul.navmenu.cerb-no-print.ui-sortable > li.add
+                          selector: ul.navmenu.cerb-no-print > li.add
                           message: The navigation bar is located at the top of your browser window. It displays a list of shortcuts to workspace pages. You can add and remove shortcuts here, and drag them to rearrange their order.
                   interaction/calloutWorkerMenu:
                     icon: crosshairs
@@ -480,12 +491,13 @@ records:
                     inputs:
                       outputs:
                         callout:
-                          selector: div[id^=pageTabs]
+                          selector: ul[id^=pageTabs]
                           message: Workspace pages are organized into tabs.
         toolbar_kata@text:
   workspace_widget/widget_contribute:
     fields:
       label: Promote
+      icon: megaphone
       tab_id: {{records.tab_welcome.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 2
@@ -528,6 +540,7 @@ records:
   workspace_widget/widget_records:
     fields:
       label: Records
+      icon: collection
       tab_id: {{records.tab_records.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 1
@@ -546,12 +559,7 @@ records:
             headings@bool: no
             paging@bool: no
             filtering@bool: no
-
           columns:
-            icon/splash:
-              params:
-                svg:
-                  data: <svg xmlns="http://www.w3.org/2000/svg" width="800" viewBox="0 0 1299 706"><g id="Layer_1-2" data-name="Layer_1"><path d="M0 0h1299v706H0z" style="fill:#d0d2d3"/><circle cx="573.93" cy="131.33" r="54.37" style="fill:#9ad2f2;opacity:.35"/><path d="m371.62 129.64-5.95 32.18 29.74 7.71 3.57 42.46 36.88 3.86-9.52-60.48-54.72-25.73zM524.87 351.27c.17-2.67.29-5.36.29-8.09 0-68.91-57.73-124.77-128.94-124.77s-128.96 55.87-128.96 124.77c0 2.42.08 4.82.22 7.18a93.494 93.494 0 0 0-1.65 17.38v79.13c0 38.68 23.06 70.02 51.51 70.02h157.52c28.45 0 51.51-31.34 51.51-70.02v-79.13c0-5.69-.55-11.17-1.49-16.47ZM362.63 129.64l-62.86-6.33c-11.06-20.77-32.3-34.84-56.71-34.84-35.81 0-64.85 30.24-64.85 67.56 0 5.87.8 11.52 2.15 16.96 2.58-17.3 16.74-30.57 33.85-30.57 18.96 0 34.31 16.22 34.31 36.24s-15.36 36.22-34.31 36.22c-1.06 0-2.11-.07-3.15-.15 9.45 5.58 20.35 8.83 32 8.83 35.35 0 64.03-29.47 64.78-66.12l51.21 1.8 3.58-29.6ZM594.38 131.71c0 10.31-8.67 18.66-19.37 18.66s-19.37-8.34-19.37-18.66 8.68-18.66 19.37-18.66 19.37 8.36 19.37 18.66Z" style="fill:#333"/><path d="m558.85 144.99-91.61 86.21 22.6 18 73.77-100.33" style="fill:#333"/><path d="M277.46 353.12h237.62v40.27H277.46z" style="fill:#2aa7df"/><path d="M490.73 290.66c-3.6 7.35-26 2.15-50.04-11.64-24.04-13.76-40.63-30.88-37.03-38.22 3.6-7.34 26.01-2.11 50.05 11.65 24.05 13.77 40.63 30.87 37.03 38.21Z" style="fill:#525252"/><path d="M387.84 574.07c0 17.78-10.58 32.18-23.6 32.18h-67.76c-13.03 0-23.59-14.4-23.59-32.18 0-17.75 10.56-32.16 23.59-32.16l79.39-5.78c13.03 0 11.96 20.19 11.96 37.94ZM411.24 574.07c0 17.78 10.56 32.18 23.59 32.18h67.76c13.04 0 23.6-14.4 23.6-32.18 0-17.75-10.56-32.16-23.6-32.16l-79.7-5.78c-13.03 0-11.65 20.19-11.65 37.94Z" style="fill:#333"/><path d="M443.92 352.93h50.85v40.85h-50.85z" style="fill:#f7b118"/><circle cx="479.99" cy="366.09" r="11.04" style="fill:#fffad5"/><path d="m265.23 332.25-54.66 4.9c-11.15-20.43-32.18-34.24-56.36-34.24-35.8 0-64.83 30.25-64.83 67.56 0 5.87.8 11.54 2.16 16.98 2.58-17.32 16.73-30.58 33.84-30.58 18.94 0 34.31 16.23 34.31 36.24s-15.37 36.23-34.31 36.23c-1.06 0-2.11-.07-3.14-.15 9.44 5.58 20.34 8.83 31.98 8.83 35.56 0 64.39-29.81 64.81-66.73l43.83-3.02 2.39-36.01ZM637.92 306.97c-23.49 0-43.99 13.07-55.37 32.54l-55.23.35 7.14 32.16 38.67 1.62c0 .29-.05.59-.05.89 0 37.29 29.04 67.55 64.85 67.55 11.65 0 22.54-3.25 32-8.85-1.04.1-2.09.18-3.15.18-18.95 0-34.32-16.22-34.32-36.23s15.37-36.23 34.32-36.23c17.11 0 31.26 13.25 33.85 30.56 1.34-5.44 2.13-11.1 2.13-16.97 0-37.31-29.03-67.56-64.83-67.56Z" style="fill:#333"/><path d="m182.18 117.68 50.56 71.94 53.09 68.83-76.25 45.68-50.91-72.43-46.59-57.78 70.1-56.24z" style="fill:#008752"/><path d="m184.18 137.36 38.8 54.39 40.83 52.09-60.51 34.33-39.06-54.78-35.84-43.72 55.78-42.31zM245.96 269.73c0 3.57-2.94 6.45-6.58 6.45s-6.6-2.89-6.6-6.45 2.94-6.42 6.6-6.42 6.58 2.88 6.58 6.42Z" style="fill:#54b648"/><path d="m190.5 129.54-8.58-11.86L113 174.19l13.36 6.36" style="fill:#008752"/><path d="m244.05 431.94-87.78 11.82c-.39.05-.76-.14-.9-.51-2.69-7.14-28.6-76.06-32.9-87.49-.25-.66-1.14-.73-1.52-.12l-54.97 89.18c-.24.39-.13.9.25 1.16l116.76 77.96 1.77 1.18c.4.26.93.15 1.19-.25l58.92-91.64a.857.857 0 0 0-.83-1.31Z" style="fill:#127692"/><path d="m155.55 443.56-89.31 2.42 118.53 79.15-29.22-81.57z" style="fill:#115e70"/><path d="m244.87 431.3-121.79-76.85c-.71-.45-1.58.29-1.24 1.06l31.09 93.3c.14.32.7.11 1.05.09l90.46-16.03c.83-.04 1.12-1.13.42-1.57Z" style="fill:#54a1d8"/><path d="M694.18 221.05h30.51V438.6h-30.51z" style="fill:#404041" transform="rotate(37.36 709.454 329.846)"/><path d="m793.413 193.061 25.92 19.788-34.043 44.59-25.92-19.788z" style="fill:#f1f1f2"/><path d="m827.83 254.73 7.81 20.68 21.47 5.29-17.25 13.82 1.6 22.04-18.48-12.13-20.47 8.34 5.84-21.33-14.26-16.89 22.08-1.04 11.66-18.78zM750.13 130.31l8.5 23.75 23.6 5.97-19.06 15.98 1.66 25.35-20.28-13.87-22.57 9.69 6.53-24.55-15.61-19.36 24.31-1.3 12.92-21.66zM778.79 297.45l6.07 13.31 16.14 3.61-12.78 8.65 1.44 14.11-13.96-7.96-15.25 5.11 4.14-13.57-10.86-10.95 16.53-.43 8.53-11.88z" style="fill:#ffde46"/><rect width="261.59" height="143.4" x="858.15" y="466.31" style="fill:#f1f1f2" rx="12" ry="12" transform="rotate(-9.24 989.271 538.122)"/><rect width="128.24" height="20.63" x="963.06" y="494.08" style="fill:#929497" rx="4.91" ry="4.91" transform="rotate(-9.24 1027.546 504.533)"/><rect width="128.24" height="20.63" x="967.79" y="523.09" style="fill:#a6a8ab" rx="4.91" ry="4.91" transform="rotate(-9.24 1032.238 533.56)"/><rect width="108.09" height="20.63" x="972.64" y="553.72" style="fill:#a6a8ab" rx="4.91" ry="4.91" transform="rotate(-9.24 1027.02 564.215)"/><path d="M845.93 444.89h262.52v41.24H845.93z" style="fill:#009345" transform="rotate(-9.24 977.506 465.614)"/><rect width="94.2" height="20.63" x="863.89" y="467.98" rx="4.91" ry="4.91" style="fill:#8bc53f" transform="rotate(-9.24 911.264 478.446)"/><path d="m880.01 523.114 68.282-11.109 11.108 68.283-68.282 11.108z" style="fill:#a6a8ab"/><path d="m911.85 528.89-.08 3.42 3.2.3 1.08 4.32 3.87-.23-2-6.07-6.07-1.74zM933.14 549.61c-.03-.28-.06-.57-.11-.85-1.17-7.22-7.9-12.13-15.02-10.98-7.12 1.16-11.94 7.95-10.77 15.17.04.25.09.5.14.75-.01.6.03 1.22.13 1.85l1.35 8.29c.66 4.05 3.5 6.96 6.34 6.5l15.75-2.56c2.84-.46 4.62-4.12 3.96-8.17l-1.35-8.29c-.1-.6-.25-1.16-.43-1.7ZM907.16 555.13l-5.18 1.33c-1.39-1.79-3.63-2.79-5.95-2.41-3.44.56-5.76 3.92-5.18 7.51.09.56.26 1.1.47 1.6-.02-1.71 1.92-4.04 3.57-4.3 1.82-.3 3.35 1.11 3.66 3.03.31 1.92-1.5 4.47-3.32 4.77-.1.02-.2.03-.3.03.99.39 2.09.53 3.21.35 3.42-.56 5.72-3.87 5.19-7.43l4.17-.98-.33-3.5ZM944.18 541.98c-2.47.4-4.4 2.1-5.26 4.3l-5.79.98 1.29 3.2 4.09-.49v.09c.63 3.85 4.18 6.48 7.94 5.87 1.22-.2 2.31-.72 3.21-1.46-.11.03-.22.05-.33.07-1.99.32-3.87-1.09-4.21-3.15-.34-2.07 1-4 2.99-4.33 1.8-.29 3.5.83 4.07 2.58.05-.58.04-1.18-.06-1.79-.63-3.85-4.18-6.48-7.94-5.87ZM910.92 529.04l-6.59.4c-1.49-1.96-3.92-3.05-6.43-2.64-3.69.6-6.18 4.21-5.55 8.06.1.61.28 1.17.51 1.71-.02-1.83 1.21-3.43 2.98-3.72 1.96-.32 3.81 1.1 4.15 3.16s-.98 3.99-2.93 4.31c-.11.02-.22.03-.33.04 1.07.42 2.25.57 3.45.37 3.65-.59 6.11-4.11 5.57-7.91l5.31-.67-.13-3.11ZM936.8 524.6c.21 1.29-.56 2.48-1.73 2.67s-2.28-.7-2.49-1.98.57-2.48 1.73-2.67 2.28.7 2.49 1.99Z" style="fill:#333"/><path d="m932.99 527.32-8.32 10.84 2.74 1.54 6.16-12.05" style="fill:#333"/><path d="m952.9 550.82-6.57 2.47-4.49-5.93-2.3 7.63 10.81 3.72 2.55-7.89z" style="fill:#656565"/><path d="m952.97 550.6-10.95-3.43 4.13 6.25 6.82-2.82z" style="fill:#bbbdbf"/><path d="M908.64 552.29h24.07v3.63h-24.07z" style="fill:#b3b3b3" transform="rotate(-9.24 920.955 554.274)"/><path d="M926.23 550.97h5.07v3.63h-5.07z" style="fill:#808184" transform="rotate(-9.24 929.096 552.939)"/><path d="M928.73 544.04c-.23.85-2.56.65-5.21-.44s-4.6-2.67-4.37-3.52c.23-.85 2.56-.65 5.21.44s4.6 2.67 4.37 3.52Z" style="fill:#525252"/><path d="m894.75 558.37 5.95 6.09 6.15 5.75-6.58 5.55-5.99-6.13-5.35-4.8 5.82-6.46z" style="fill:#5d5d5d"/><path d="m895.14 560.31 4.56 4.59 4.71 4.34-5.25 4.23-4.58-4.63-4.11-3.62 4.67-4.91zM903.28 571.9c.06.34-.18.66-.53.72s-.68-.17-.73-.51.18-.66.53-.72.67.17.73.51Z" style="fill:#aeaeae"/><path d="M929.39 550.82h1.46v1.73h-1.46z" style="fill:#fff" transform="rotate(-9.24 930.429 551.863)"/><path d="m886.14 540.13 2.69 7.95 13.46-6.24-4.54-7.76-6.46 3.3-5.15 2.75z" style="fill:#bbbdbf"/><path d="m885.98 539.83-.89-2.05 5.62-2.36 2.44 1-7.17 3.41z" style="fill:#929497"/><path d="M923 575.64c.29 1.76-.72 3.38-2.25 3.63l-7.94 1.29c-1.53.25-3-.97-3.28-2.73-.29-1.75.72-3.38 2.25-3.62l9.14-2.63c1.53-.25 1.8 2.31 2.08 4.06ZM925.83 575.18c.29 1.76 1.66 2.99 3.08 2.76l7.36-1.2c1.42-.23 2.33-1.84 2.05-3.59-.29-1.75-1.66-2.99-3.08-2.76l-8.82.3c-1.42.23-.87 2.74-.58 4.49Z" style="fill:#333"/><rect width="261.59" height="143.4" x="888.33" y="299.44" style="fill:#f1f1f2" rx="12" ry="12" transform="rotate(9.91 1018.669 370.891)"/><rect width="128.24" height="20.63" x="1002.16" y="341.62" style="fill:#929497" rx="4.91" ry="4.91" transform="rotate(9.91 1065.756 351.701)"/><rect width="128.24" height="20.63" x="997.1" y="370.58" style="fill:#a6a8ab" rx="4.91" ry="4.91" transform="rotate(9.91 1060.713 380.668)"/><rect width="108.09" height="20.63" x="992.2" y="397.8" style="fill:#a6a8ab" rx="4.91" ry="4.91" transform="rotate(9.91 1045.757 407.88)"/><path d="M900.55 278.18h262.52v41.24H900.55z" style="fill:#7f3f97" transform="rotate(9.91 1031.287 298.618)"/><rect width="94.2" height="20.63" x="917.97" y="278.85" rx="4.91" ry="4.91" style="fill:#ddbbd9" transform="rotate(9.91 964.62 289)"/><path d="m906.17 389.606 12.492-71.497 71.497 12.49-12.491 71.498z" style="fill:#bbbdbf"/><path d="m918.5 391.85 18.02-54.74 22.05-9.22 10.08 16.5-4.05 55.56-46.1-8.1z" style="fill:#58595b"/><path d="m919.88 391.94 1.41-3.48 24.61-6.09-1.02 5.75-20.35 4.63 6.53 1.14 13.06-2.99-.91 5.11 3.03.53 12.27-68.86-21.98 9.42-19.31 54.37 2.66.46Zm17.61-53.7 18.81-7.1-1.02 5.75-19.72 6.94 1.92-5.59Zm-2.56 8.4 19.66-6.95-1.02 5.75-20.61 6.78 1.97-5.58Zm-2.61 8.38 20.56-6.79-1.02 5.75-21.56 6.62 2.02-5.57Zm-4.02 8.79 21.5-6.63.33 5.33-22.55 6.45.72-5.15Zm-1.38 7.95 22.49-6.46-1.02 5.75-23.59 6.27 2.12-5.56Zm-2.79 8.36 23.52-6.28-1.02 5.75-24.68 6.07 2.18-5.55Z" style="fill:#929497"/><path d="m948.21 397.09.87-4.35 5.19 5.41 4.37.76-9.31-9.48 1.05-5.3 13 14.18-.1 1.42 1.32.23 4.05-55.56-10.09-16.5-12.26 68.86 1.91.33Zm15.39-2.47-12.94-13.81 1.05-5.3 12.28 14.05-.39 5.06Zm.62-8.73-12.23-13.68 1.04-5.3 11.6 13.93-.41 5.05Zm.66-8.73-11.56-13.56 1.04-5.3 10.95 13.82-.44 5.05Zm1.45-17.43-10.3-13.35 1.03-5.31 9.75 13.61-.48 5.04Zm-7.92-27.25 9.19 13.51-.49 5.04-9.72-13.24 1.02-5.31Zm7.18 35.96-10.91-13.45 1.03-5.3 10.34 13.71-.46 5.04Z" style="fill:#7a7c7f"/><rect width="261.59" height="143.4" x="867.12" y="108.73" style="fill:#f1f1f2" rx="12" ry="12" transform="rotate(2.84 997.264 180.337)"/><rect width="128.24" height="20.63" x="978.22" y="145.25" style="fill:#929497" rx="4.91" ry="4.91" transform="rotate(2.84 1041.654 155.42)"/><rect width="128.24" height="20.63" x="976.77" y="174.61" style="fill:#a6a8ab" rx="4.91" ry="4.91" transform="rotate(2.84 1040.16 184.723)"/><rect width="108.09" height="20.63" x="975.32" y="203.47" style="fill:#a6a8ab" rx="4.91" ry="4.91" transform="rotate(2.84 1028.566 213.67)"/><path d="M870.33 86.46h262.52v41.24H870.33z" style="fill:#456bb2" transform="rotate(2.84 1000.895 106.983)"/><path d="m885.175 216.874 3.71-74.808 71.473 3.546-3.711 74.808z" style="fill:#bbbdbf"/><path d="m939.34 216.22-37.53-1.86s12.27-13.83 12.4-16.62c.14-2.79-2.83-10.94-2.83-10.94l23.4 1.16s-3.63 8.32-3.77 11.07c-.15 2.83 8.31 17.19 8.31 17.19Z" style="fill:#8a8c8f"/><path d="M940.13 178.94c-.47 9.55-5.95 18.6-12.92 20.26-1.1.26-2.48 1.48-3.64 1.42-1.61-.08-2.89-1.59-4.32-2.26-6.11-2.86-10.3-11.99-9.86-20.95.55-11.06 10.66-20.26 19.15-19.84 8.49.42 12.14 10.3 11.59 21.36Z" style="fill:#929497"/><path d="m909.86 205.17 9.85 5.44 3.01 4.38 3.11-4.08 11.4-4.1s11.76 2.24 14.24 5.89c.96 1.41 2.18 8.1 2.18 8.1l-66.35-3.86s1.65-4.38 2.63-5.29c4.21-3.95 19.92-6.48 19.92-6.48Z" style="fill:#5e5e5e"/><path d="M905.98 194.92s.14 1.35.29 1.78c1.16 3.4-.03 11.57-3.16 13.35-1.07.6-3.79-.46-4.74-1.22-1.43-1.15-3.35-6.53-3.35-6.53s.58 5.66 1.48 7.28c.79 1.42 3.16 4.03 4.72 4.47 1.89.54 6.03-.58 7.71-1.6 1.48-.9 3.92-3.56 4.64-5.14 1.12-2.48 1.83-8.16 1.24-10.82-.44-1.98-2.8-5.75-2.44-7.75.35-1.95 3.58-4.73 4.83-6.26 2.14-2.6 6.52-7.72 8.84-10.16 1.24-1.3 3.89-3.74 5.19-4.97 1.29-1.22 3.42-3.85 5.14-3.45 1.02.23 1.55 2.51 1.55 2.51l1.15 8.11s.43 5 .24 6.65c-.23 1.97-1.19 5.89-2.08 7.67-.74 1.5-4.08 5.31-4.08 5.31s-2.48 3.02-2.9 4.24c-.89 2.62-.5 8.45.44 11.05.63 1.74 2.9 4.96 4.51 5.88 1.54.88 5.24 1.16 7.01 1.05 1-.06 3.11-.43 3.87-1.08.66-.57 1.43-3.18 1.43-3.18s-1.46 1.48-2.04 1.31c-1.9-.53-4.4-5.36-3.46-7.1l.31-3.38.93-11.61-.92-22.74-1.62-10.11-3.81-5.84-7.47-3.34-5.88-1.14-8.13 1.58-5.76 4.94-4.65 11.08-.44 8.88.46 7.8.63 10.07.3 2.42Z" style="fill:#2f2a2e"/><rect width="94.2" height="20.63" x="887.08" y="95.41" rx="4.91" ry="4.91" style="fill:#74bee9" transform="rotate(2.84 933.45 105.627)"/></g></svg>
             markdown/text:
               params:
                 text_size@raw: 120%
@@ -567,6 +575,7 @@ records:
   workspace_widget/widget_record_types:
     fields:
       label: List of Built-in Record Types
+      icon: file-document
       tab_id: {{records.tab_records.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 2
@@ -592,6 +601,8 @@ records:
               params:
                 label_key: label_singular
                 context_key: uri
+                icon:
+                  image_key: icon
                 text_size@raw: 120%
                 bold@bool: yes
                 underline@bool: no
@@ -599,6 +610,7 @@ records:
   workspace_widget/widget_custom_record_types:
     fields:
       label: Custom Record Types
+      icon: magic
       tab_id: {{records.tab_records.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 3
@@ -638,24 +650,41 @@ records:
   workspace_widget/widget_list_of_custom_record_types:
     fields:
       label: List of Custom Record Types
+      icon: list
       tab_id: {{records.tab_records.id}}
-      extension_id: core.workspace.widget.worklist
+      extension_id: core.workspace.widget.sheet
       pos@int: 4
       width_units@int: 2
       zone: content
       params:
-        context: cerberusweb.contexts.custom_record
-        query_required@text:
-        query: sort:name
-        render_limit: 10
-        header_color: #6a87db
-        columns@list:
-          c_name
-          c_uri
-          c_updated_at
+        data_query@text:
+          type:record.types
+          only_custom:yes
+          format:dictionaries
+        cache_secs@text:
+        placeholder_simulator_kata@text:
+        sheet_kata@text:
+          layout:
+            style: grid
+            headings@bool: no
+            paging@bool: yes
+            filtering@bool: no
+
+          columns:
+            search/label_singular:
+              params:
+                label_key: label_singular
+                context_key: uri
+                icon:
+                  image_key: icon
+                text_size@raw: 120%
+                bold@bool: yes
+                underline@bool: no
+        toolbar_kata@text:
   workspace_widget/widget_custom_fields:
     fields:
       label: Custom Fields
+      icon: magic
       tab_id: {{records.tab_records.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 5
@@ -691,6 +720,7 @@ records:
   workspace_widget/widget_custom_field_types:
     fields:
       label: Custom Field Types
+      icon: todo
       tab_id: {{records.tab_records.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 6
@@ -702,86 +732,103 @@ records:
           records:(
             checkbox:(
               name:"Checkbox"
+              icon:"checked"
               description:"A yes/no value"
               example:"yes"
             )
             currency:(
               name:"Currency"
+              icon:"hash"
               description:"An amount of a specific currency"
               example:"$1234.56 USD"
             )
             date:(
               name:"Date"
+              icon:"calendar"
               description:"A specific date and time in UTC with seconds precision"
               example:"2002-01-09 04:27:01 UTC"
             )
             decimal:(
               name:"Decimal"
+              icon:"hash"
               description:"A floating point number"
               example:"3.1415"
             )
             file:(
               name:"File"
+              icon:"file"
               description:"A link to a single file record"
               example:"logo.png"
             )
             files:(
               name:"Files"
+              icon:"file"
               description:"Links to multiple file records"
               example:"invoice.pdf, contract.pdf"
             )
             latlong:(
               name:"Latitude/Longitude"
+              icon:"location"
               description:"Geospatial coordinates for a point on Earth"
               example:"52.504043, 13.393236"
             )
             list:(
               name:"List"
+              icon:"list"
               description:"A freeform list of text-based options"
               example:"trim-leather, color-silver"
             )
             checkboxes:(
               name:"Multiple Checkboxes"
+              icon:"checked"
               description:"Multiple selections from a pre-defined list of options (e.g. phone, email, sms)"
               example:"email, sms"
             )
             number:(
               name:"Number"
+              icon:"hash"
               description:"A whole number"
               example:"8080"
             )
             picklist:(
               name:"Picklist"
+              icon:"list"
               description:"A selection from a pre-defined list of options (e.g. red, green, blue)"
               example:"red"
             )
             link:(
               name:"Record Link"
+              icon:"link"
               description:"A link to record ID of a specific type. This creates a reciprocal [search filter](https://cerb.ai/docs/search/) on the target record."
               example:"task:123"
             )
             links:(
               name:"Record Links"
+              icon:"link"
               description:"Multiple links to record IDs of a specific type. This creates a reciprocal [search filters](https://cerb.ai/docs/search/) on the target records."
               example:"task:123, task:456"
             )
             multitext:(
               name:"Text: Multiple Lines"
+              icon:"text"
               description:"Multiple lines of freeform text entry. Supports the full UTF-8 character set, including emoji."
               example:"Client agrees to the project changes discussed on 11/Aug conference call"
             )
             _text:(
               name:"Text: Single Line"
+              icon:"text"
               description:"A single line of freeform text entry"
               example:"bank transfer"
             )
             url:(
               name:"URL"
+              icon:"link"
               description:"A hyperlink URL to a web-based resource"
               example:"https://cerb.ai/"
             )
             worker:(
               name:"Worker"
+              icon:"user"
               description:"A single worker record. This creates a reciprocal [search filter](https://cerb.ai/docs/search/) on worker records."
               example:"Kina Halpue"
             )
@@ -801,6 +848,8 @@ records:
             text/name:
               params:
                 bold@bool: yes
+                icon:
+                  image_key: icon
                 text_size@raw: 125%
             markdown/description:
             markdown/example:
@@ -820,7 +869,7 @@ records:
         query_required@text:
         query: sort:name subtotal:context
         render_limit: 15
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           c_name
           c_context
@@ -831,6 +880,7 @@ records:
   workspace_widget/widget_custom_fieldsets:
     fields:
       label: Custom Fieldsets
+      icon: collection
       tab_id: {{records.tab_records.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 8
@@ -881,7 +931,7 @@ records:
         query_required@text:
         query: sort:name
         render_limit: 10
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           c_name
           c_context
@@ -889,6 +939,7 @@ records:
   workspace_widget/widget_card_popups:
     fields:
       label: Card Popups
+      icon: new-window
       tab_id: {{records.tab_records.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 10
@@ -936,6 +987,7 @@ records:
   workspace_widget/widget_profile_pages:
     fields:
       label: Profile Pages
+      icon: file-document
       tab_id: {{records.tab_records.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 11
@@ -971,6 +1023,7 @@ records:
   workspace_widget/widget_watchers:
     fields:
       label: Watchers
+      icon: eye-open
       tab_id: {{records.tab_records.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 12
@@ -1011,6 +1064,7 @@ records:
   workspace_widget/widget_notifications:
     fields:
       label: Notifications
+      icon: bell
       tab_id: {{records.tab_records.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 13
@@ -1050,6 +1104,7 @@ records:
   workspace_widget/widget_worklists:
     fields:
       label: Worklists
+      icon: list
       tab_id: {{records.tab_worklists.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 1
@@ -1085,6 +1140,7 @@ records:
   workspace_widget/widget_worklist_actions:
     fields:
       label: Worklist Actions
+      icon: zap
       tab_id: {{records.tab_worklists.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 2
@@ -1150,12 +1206,47 @@ records:
                   image_key: icon
             text/description:
         toolbar_kata@text:
+  workspace_widget/widget_worklist_columns:
+    fields:
+      label: Column Visualizations
+      tab_id: {{records.tab_worklists.id}}
+      extension_id: core.workspace.widget.sheet
+      pos@int: 3
+      width_units@int: 2
+      zone: content
+      params:
+        data_query@text:
+          type:sample.records
+          records:(help:())
+          format:dictionaries
+        cache_secs@text:
+        placeholder_simulator_kata@text:
+        sheet_kata@text:
+          layout:
+            style: fieldsets
+            headings@bool: no
+            paging@bool: no
+            filtering@bool: no
+
+          columns:
+            markdown/text:
+              params:
+                text_size@raw: 120%
+                value@text:
+                  Beyond plain field values, worklist columns can render compact inline visualizations:
+
+                  * A **sparkline** column draws a small trend chart (counts or averages over time) for each row, with selectable date ranges.
+
+                  * A **distribution bar** (distbar) column shows a mini stacked bar that summarizes a breakdown for each row.
+
+                  Worklists also support parameterized **metric quick-filters** -- such as `usage:`, `activity:`, and `records:` -- so you can filter rows by recent metric activity directly from the search box.
+        toolbar_kata@text:
   workspace_widget/widget_example_worklist:
     fields:
       label: Example Worklist
       tab_id: {{records.tab_worklists.id}}
       extension_id: core.workspace.widget.worklist
-      pos@int: 3
+      pos@int: 4
       width_units@int: 4
       zone: content
       params:
@@ -1163,7 +1254,7 @@ records:
         query_required@text:
         query: status:[o,w]
         render_limit: 10
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           t_importance
           t_last_wrote_address_id
@@ -1174,6 +1265,7 @@ records:
   workspace_widget/widget_search:
     fields:
       label: Search
+      icon: search
       tab_id: {{records.tab_search.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 1
@@ -1221,6 +1313,7 @@ records:
   workspace_widget/widget_search_filter_types:
     fields:
       label: Search Filter Types
+      icon: funnel
       tab_id: {{records.tab_search.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 2
@@ -1266,6 +1359,7 @@ records:
   workspace_widget/widget_search_query_examples:
     fields:
       label: Search Query Examples
+      icon: list
       tab_id: {{records.tab_search.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 3
@@ -1419,6 +1513,7 @@ records:
   workspace_widget/widget_workers:
     fields:
       label: Workers
+      icon: users
       tab_id: {{records.tab_workers.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 1
@@ -1456,6 +1551,7 @@ records:
   workspace_widget/widget_seats:
     fields:
       label: Seats
+      icon: id-card
       tab_id: {{records.tab_workers.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 2
@@ -1501,7 +1597,7 @@ records:
         query_required@text:
         query: isDisabled:no sort:[firstName,LastName]
         render_limit: 10
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           w_title
           a_address_email
@@ -1513,6 +1609,7 @@ records:
   workspace_widget/widget_multi_factor_authentication:
     fields:
       label: Multi-Factor Authentication
+      icon: lock
       tab_id: {{records.tab_workers.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 4
@@ -1550,6 +1647,7 @@ records:
   workspace_widget/widget_single_sign_on_sso:
     fields:
       label: Single Sign-On (SSO)
+      icon: key
       tab_id: {{records.tab_workers.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 5
@@ -1586,6 +1684,7 @@ records:
   workspace_widget/widget_groups:
     fields:
       label: Groups
+      icon: hierarchy
       tab_id: {{records.tab_workers.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 6
@@ -1618,14 +1717,6 @@ records:
 
                   You don't need to figure out which specific person is both responsible for a task and currently available to handle it. Instead, you can quickly route a task to the most appropriate group and move on to your next item. That group can organize their own work so each task gets in front of the right person.
         toolbar_kata@text:
-          # interaction/sending:
-          #   uri: cerb:automation:ai.cerb.tour
-          #   icon: circle-question-mark
-          #   label: Sending email
-          # interaction/receiving:
-          #   uri: cerb:automation:ai.cerb.tour
-          #   icon: circle-question-mark
-          #   label: Receiving email
   workspace_widget/widget_list_of_groups:
     fields:
       label: List of Groups
@@ -1639,7 +1730,7 @@ records:
         query_required@text:
         query: sort:name
         render_limit: 10
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           g_name
           g_reply_address_id
@@ -1648,6 +1739,7 @@ records:
   workspace_widget/widget_roles:
     fields:
       label: Roles
+      icon: shield
       tab_id: {{records.tab_workers.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 8
@@ -1703,7 +1795,7 @@ records:
         query_required@text:
         query: sort:name
         render_limit: 10
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           w_name
           w_privs_mode
@@ -1712,6 +1804,7 @@ records:
   workspace_widget/widget_clients_emails:
     fields:
       label: Email Addresses
+      icon: mail
       tab_id: {{records.tab_clients.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 1
@@ -1757,13 +1850,14 @@ records:
         query_required@text:
         query: sort:email
         render_limit: 5
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           a_contact_id
           o_name
   workspace_widget/widget_clients_orgs:
     fields:
       label: Organizations
+      icon: building-office
       tab_id: {{records.tab_clients.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 3
@@ -1807,7 +1901,7 @@ records:
         query_required@text:
         query: sort:name
         render_limit: 5
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           c_email_id
           c_updated
@@ -1817,6 +1911,7 @@ records:
   workspace_widget/widget_clients_contacts:
     fields:
       label: Contacts
+      icon: id-card
       tab_id: {{records.tab_clients.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 5
@@ -1860,7 +1955,7 @@ records:
         query_required@text:
         query: sort:[firstName,lastName]
         render_limit: 5
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           c_primary_email_id
           c_title
@@ -1869,6 +1964,7 @@ records:
   workspace_widget/widget_tickets:
     fields:
       label: Tickets
+      icon: ticket
       tab_id: {{records.tab_tickets.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 1
@@ -1904,6 +2000,7 @@ records:
   workspace_widget/widget_status:
     fields:
       label: Status
+      icon: flag
       tab_id: {{records.tab_tickets.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 2
@@ -1958,7 +2055,7 @@ records:
         query_required: status:o
         query: sort:created subtotal:group.id
         render_limit: 10
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           t_importance
           t_last_wrote_address_id
@@ -1969,6 +2066,7 @@ records:
   workspace_widget/widget_ticket_buckets:
     fields:
       label: Buckets
+      icon: bucket
       tab_id: {{records.tab_tickets.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 4
@@ -2024,7 +2122,7 @@ records:
         query_required@text:
         query: sort:name
         render_limit: 10
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           b_name
           b_group_id
@@ -2032,6 +2130,7 @@ records:
   workspace_widget/widget_masks:
     fields:
       label: Masks
+      icon: mask
       tab_id: {{records.tab_tickets.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 6
@@ -2069,6 +2168,7 @@ records:
   workspace_widget/widget_importance:
     fields:
       label: Importance
+      icon: slider
       tab_id: {{records.tab_tickets.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 7
@@ -2112,6 +2212,7 @@ records:
   workspace_widget/widget_response_times:
     fields:
       label: Response Times
+      icon: stopwatch
       tab_id: {{records.tab_tickets.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 8
@@ -2148,6 +2249,7 @@ records:
   workspace_widget/widget_anti_spam:
     fields:
       label: Anti-Spam
+      icon: ban
       tab_id: {{records.tab_tickets.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 9
@@ -2185,6 +2287,7 @@ records:
   workspace_widget/widget_drafts:
     fields:
       label: Drafts
+      icon: edit
       tab_id: {{records.tab_tickets.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 10
@@ -2218,6 +2321,7 @@ records:
   workspace_widget/widget_merge_split:
     fields:
       label: Merge/Split
+      icon: merge
       tab_id: {{records.tab_tickets.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 11
@@ -2249,6 +2353,7 @@ records:
   workspace_widget/widget_incoming_email:
     fields:
       label: Incoming Email
+      icon: mailbox
       tab_id: {{records.tab_email.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 1
@@ -2300,7 +2405,7 @@ records:
         query_required@text:
         query: sort:name
         render_limit: 5
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           p_name
           p_protocol
@@ -2310,6 +2415,7 @@ records:
   workspace_widget/widget_email_routing:
     fields:
       label: Email Routing
+      icon: signpost
       tab_id: {{records.tab_email.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 3
@@ -2361,7 +2467,7 @@ records:
         query_required@text:
         query: sort:priority
         render_limit: 5
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           m_name
           m_priority
@@ -2369,6 +2475,7 @@ records:
   workspace_widget/widget_outgoing_email:
     fields:
       label: Outgoing Email
+      icon: send
       tab_id: {{records.tab_email.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 5
@@ -2420,7 +2527,7 @@ records:
         query_required@text:
         query: sort:name
         render_limit: 5
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           m_name
           m_extension_id
@@ -2428,6 +2535,7 @@ records:
   workspace_widget/widget_sender_addresses:
     fields:
       label: Sender Addresses
+      icon: mention
       tab_id: {{records.tab_email.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 7
@@ -2471,12 +2579,13 @@ records:
         query_required: mailTransport.id:!0
         query@text:
         render_limit: 5
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           a_mail_transport_id
   workspace_widget/widget_email_signatures:
     fields:
       label: Email Signatures
+      icon: signature
       tab_id: {{records.tab_email.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 9
@@ -2526,7 +2635,7 @@ records:
         query_required@text:
         query@text:
         render_limit: 5
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           e_name
           *_owner
@@ -2534,6 +2643,7 @@ records:
   workspace_widget/widget_html_formatting:
     fields:
       label: HTML Formatting
+      icon: template
       tab_id: {{records.tab_email.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 11
@@ -2600,13 +2710,14 @@ records:
         query_required@text:
         query: sort:name
         render_limit: 5
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           m_name
           m_updated_at
   workspace_widget/widget_tasks:
     fields:
       label: Tasks
+      icon: todo
       tab_id: {{records.tab_tasks.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 1
@@ -2637,12 +2748,46 @@ records:
 
                   If a ticket requires simultaneous action items from multiple workers, a task can be created for each action and linked to the same ticket.
         toolbar_kata@text:
+  workspace_widget/widget_task_projects:
+    fields:
+      label: Task Projects
+      icon: collection
+      tab_id: {{records.tab_tasks.id}}
+      extension_id: core.workspace.widget.sheet
+      pos@int: 2
+      width_units@int: 2
+      zone: content
+      params:
+        data_query@text:
+          type:sample.records
+          records:(help:())
+          format:dictionaries
+        cache_secs@text:
+        placeholder_simulator_kata@text:
+        sheet_kata@text:
+          layout:
+            style: fieldsets
+            headings@bool: no
+            paging@bool: no
+            filtering@bool: no
+
+          columns:
+            markdown/text:
+              params:
+                text_size@raw: 120%
+                value@text:
+                  A [**task project**](https://cerb.ai/docs/tasks/) groups related [tasks](https://cerb.ai/docs/tasks/) under a shared name and owner (a worker, group, or role).
+
+                  Each task can belong to one project, and can be flagged as **active** to bring it into focus for the current day.
+
+                  A **Daily Task Board** workspace tab gives a project a kanban view whose columns are derived automatically from each task's **status** (open, waiting, closed) -- there are no separate board columns to maintain. Drag a card to change its status, and choose per-column colors right on the board tab.
+        toolbar_kata@text:
   workspace_widget/widget_list_of_tasks:
     fields:
       label: List of Tasks
       tab_id: {{records.tab_tasks.id}}
       extension_id: core.workspace.widget.worklist
-      pos@int: 2
+      pos@int: 3
       width_units@int: 4
       zone: content
       params:
@@ -2650,7 +2795,7 @@ records:
         query_required@text:
         query: sort:-updated
         render_limit: 15
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           t_title
           t_due_date
@@ -2661,6 +2806,7 @@ records:
   workspace_widget/widget_reminders:
     fields:
       label: Reminders
+      icon: clock
       tab_id: {{records.tab_reminders.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 1
@@ -2704,7 +2850,7 @@ records:
         query_required@text:
         query: sort:remindAt
         render_limit: 10
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           r_name
           r_remind_at
@@ -2713,6 +2859,7 @@ records:
   workspace_widget/widget_calendars:
     fields:
       label: Calendars
+      icon: calendar
       tab_id: {{records.tab_calendars.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 1
@@ -2752,7 +2899,7 @@ records:
         query_required@text:
         query: sort:name
         render_limit: 5
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           c_name
           c_timezone
@@ -2772,6 +2919,7 @@ records:
   workspace_widget/widget_data_queries:
     fields:
       label: Data Queries
+      icon: database
       tab_id: {{records.tab_data_queries.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 1
@@ -2819,6 +2967,7 @@ records:
   workspace_widget/widget_data_query_tickets_created_per_group_by_month_12mo:
     fields:
       label: Data Query: Tickets created per group by day (past 2wk)
+      icon: console
       tab_id: {{records.tab_data_queries.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 1
@@ -2865,6 +3014,7 @@ records:
   workspace_widget/widget_list_of_data_query_types:
     fields:
       label: List of Data Query Types
+      icon: list
       tab_id: {{records.tab_data_queries.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 2
@@ -2900,6 +3050,7 @@ records:
   workspace_widget/widget_workspaces:
     fields:
       label: Workspaces
+      icon: dashboard
       tab_id: {{records.tab_workspaces.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 1
@@ -2920,10 +3071,6 @@ records:
             filtering@bool: no
 
           columns:
-            icon/dashboards:
-              params:
-                svg:
-                  data: <svg xmlns="http://www.w3.org/2000/svg" width="500" viewBox="0 0 240 135"><g id="Layer_1-2" data-name="Layer_1"><path d="M0 0h240v135H0z" style="fill:#ccc"/><path d="M20.29 27H64.8c2.3 0 4.16 1.87 4.16 4.16v11.29H15.52V31.76c0-2.63 2.14-4.77 4.77-4.77Z" style="fill:#f2f2f2"/><path d="M75.31 27h34.96c2.3 0 4.16 1.87 4.16 4.16v11.29H70.54V31.76c0-2.63 2.14-4.77 4.77-4.77ZM120.44 27h38.05c2.3 0 4.16 1.87 4.16 4.16v11.29h-46.98V31.76c0-2.63 2.14-4.77 4.77-4.77ZM168.66 27h36.81c2.3 0 4.16 1.87 4.16 4.16v11.29h-45.75V31.76c0-2.63 2.14-4.77 4.77-4.77Z" style="fill:#b3b3b3"/><path d="M15.52 41.84H222v64.29H15.52z" style="fill:#f2f2f2"/><rect width="55.64" height="45.75" x="19.23" y="48.02" style="fill:#fff" rx="4.47" ry="4.47"/><rect width="55.64" height="45.75" x="160.18" y="48.02" style="fill:#fff" rx="4.47" ry="4.47"/><rect width="79.13" height="45.75" x="77.34" y="48.02" style="fill:#fff" rx="4.47" ry="4.47"/><path d="M33.38 79.16c-4.34-7.35-1.9-16.83 5.46-21.17L46.7 71.3l-13.32 7.86Z" style="fill:#b9b9b9"/><path d="M60.01 63.44c-4.34-7.35-13.82-9.8-21.17-5.46l7.86 13.31 7.86 13.32c7.35-4.34 9.8-13.82 5.46-21.17Z" style="fill:#5e5e5e"/><path d="M33.38 79.16c4.34 7.35 13.82 9.8 21.17 5.46L46.69 71.3l-13.32 7.86Z" style="fill:#929292"/><path d="m47.12 71.58-.42-.28-7.86-13.31a15.398 15.398 0 0 0-6.7 8.13l14.98 5.47Z" style="fill:#505050"/><path d="M88.93 51.73h56.48c2.98 0 5.41 2.42 5.41 5.41v1.28h-67.3v-1.28c0-2.98 2.42-5.41 5.41-5.41Z" style="fill:#666"/><path d="M83.52 62.87h67.3v5.35h-67.3z" style="fill:#f2f2f2"/><path d="M83.52 68.22h67.3v5.35h-67.3z" style="fill:#ebebeb"/><path d="M83.52 73.57h67.3v5.35h-67.3zM83.52 84.26h67.3v5.79h-67.3z" style="fill:#f2f2f2"/><path d="M83.52 78.91h67.3v5.35h-67.3z" style="fill:#ebebeb"/><path d="M83.52 58.41h67.3v4.46h-67.3z" style="fill:#b3b3b3"/><rect width="38.56" height="1.78" x="85.52" y="63.76" style="fill:#b3b3b3" rx=".72" ry=".72"/><rect width="20.73" height="1.34" x="85.52" y="65.99" style="fill:#e6e6e6" rx=".54" ry=".54"/><rect width="14.94" height="1.34" x="112.7" y="65.99" style="fill:#e6e6e6" rx=".54" ry=".54"/><rect width="9.59" height="1.34" x="136.33" y="65.99" style="fill:#e6e6e6" rx=".54" ry=".54"/><rect width="33.66" height="1.78" x="85.52" y="69.11" style="fill:#b3b3b3" rx=".72" ry=".72"/><rect width="20.73" height="1.34" x="85.52" y="71.34" style="fill:#ccc" rx=".54" ry=".54"/><rect width="14.94" height="1.34" x="112.7" y="71.34" style="fill:#ccc" rx=".54" ry=".54"/><rect width="9.59" height="1.34" x="136.33" y="71.34" style="fill:#ccc" rx=".54" ry=".54"/><rect width="46.58" height="1.78" x="85.52" y="74.46" style="fill:#b3b3b3" rx=".72" ry=".72"/><rect width="20.73" height="1.34" x="85.52" y="76.69" style="fill:#e6e6e6" rx=".54" ry=".54"/><rect width="14.94" height="1.34" x="112.7" y="76.69" style="fill:#e6e6e6" rx=".54" ry=".54"/><rect width="9.59" height="1.34" x="136.33" y="76.69" style="fill:#e6e6e6" rx=".54" ry=".54"/><rect width="29.2" height="1.78" x="85.52" y="79.81" style="fill:#b3b3b3" rx=".72" ry=".72"/><rect width="20.73" height="1.34" x="85.52" y="82.03" style="fill:#ccc" rx=".54" ry=".54"/><rect width="14.94" height="1.34" x="112.7" y="82.03" style="fill:#ccc" rx=".54" ry=".54"/><rect width="9.59" height="1.34" x="136.33" y="82.03" style="fill:#ccc" rx=".54" ry=".54"/><rect width="34.55" height="1.78" x="85.52" y="85.15" style="fill:#b3b3b3" rx=".72" ry=".72"/><rect width="20.73" height="1.34" x="85.52" y="87.38" style="fill:#e6e6e6" rx=".54" ry=".54"/><rect width="14.94" height="1.34" x="112.7" y="87.38" style="fill:#e6e6e6" rx=".54" ry=".54"/><rect width="9.59" height="1.34" x="136.33" y="87.38" style="fill:#e6e6e6" rx=".54" ry=".54"/><text style="fill:#666;font-family:Arial-Black,&quot;Arial Black&quot;;font-size:15.93px;font-weight:800" transform="matrix(1.05 0 0 1 37.19 40.97)"><tspan x="0" y="0">+</tspan></text><circle cx="46.43" cy="71.51" r="9.89" style="fill:#f2f2f2"/><path d="m167.1 85.72 4.2-13.38 1.92 4.59 2.67-10.33 2.68 8.03 4.2-11.08 2.68 9.55 6.12-21.02 2.29 16.44 4.6-9.59 1.91 6.5 3.43-9.15 4.97 13.76.38 20.65h-41.67l-.38-4.97z" style="stroke:#757575;stroke-width:.93px;fill:#e6e6e6"/><path d="m207.933 92.592.14-36.51 2.4.01-.14 36.51z" style="fill:#fff"/><path d="M148.31 72.96h36.51v2h-36.51z" style="fill:#fff;stroke:#fff" transform="rotate(-89.78 166.567 73.958)"/><path d="M165.24 89.58h45.49v4.18h-45.49z" style="fill:#fff"/></g></svg>
             markdown/text:
               params:
                 text_size@raw: 120%
@@ -2949,7 +3096,7 @@ records:
         query_required@text:
         query: sort:name
         render_limit: 10
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           w_name
           *_owner
@@ -2957,6 +3104,7 @@ records:
   workspace_widget/widget_dashboards:
     fields:
       label: Dashboards
+      icon: chart-bar
       tab_id: {{records.tab_workspaces.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 3
@@ -3010,6 +3158,7 @@ records:
   workspace_widget/widget_dashboard_widget_types:
     fields:
       label: Dashboard Widget Types
+      icon: widget
       tab_id: {{records.tab_workspaces.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 4
@@ -3128,6 +3277,7 @@ records:
   workspace_widget/widget_counter_open_tickets:
     fields:
       label: Counter: # Open Tickets
+      icon: hash
       tab_id: {{records.tab_workspaces.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 7
@@ -3161,6 +3311,7 @@ records:
   workspace_widget/widget_metric_avg_response_time_past_30_days:
     fields:
       label: Metric: Avg. Response Time (Past 30 days)
+      icon: stopwatch
       tab_id: {{records.tab_workspaces.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 8
@@ -3283,6 +3434,7 @@ records:
   workspace_widget/widget_sheet_active_workers:
     fields:
       label: Sheet: Active Workers
+      icon: table
       tab_id: {{records.tab_workspaces.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 12
@@ -3334,7 +3486,7 @@ records:
         query_required: status:o
         query@text:
         render_limit: 10
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           t_last_wrote_address_id
           t_group_id
@@ -3385,6 +3537,7 @@ records:
   workspace_widget/widget_sheets:
     fields:
       label: Sheets
+      icon: table
       tab_id: {{records.tab_sheets.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 1
@@ -3409,19 +3562,20 @@ records:
               params:
                 text_size@raw: 120%
                 value@text:
-                  **Sheets** are a modern, automation-friendly data visualization that avoids the schematic rigidity of [**worklists**](https://cerb.ai/docs/worklists/). A sheet is still a collection of rows and columns, but its column are defined in a fully customizable [KATA](https://cerb.ai/docs/kata/)-based text schema. This text-based schema can live within a bot behavior or widget without having to be previously defined or saved.
+                  **Sheets** are a modern, automation-friendly data visualization that avoids the schematic rigidity of [**worklists**](https://cerb.ai/docs/worklists/). A sheet is still a collection of rows and columns, but its column are defined in a fully customizable [KATA](https://cerb.ai/docs/kata/)-based text schema. This text-based schema can live within an automation or widget without having to be previously defined or saved.
 
                   Each column in a sheet has a type (e.g. card, date, text) with configurable options.
 
                   A _cell_ (the intersection of a specific row and column) doesn't have to relate to a schema field at all -- it can be a synthetic or computed value, translation, interactive element, deep-linked field, arbitrary output, etc.
 
-                  Sheets use placeholder dictionaries to to render cells, and they receive their input from any data query that can generate dictionaries -- including [worklist.subtotals](https://cerb.ai/docs/data-queries/worklist/subtotals/) and a new [worklist.records](https://cerb.ai/docs/data-queries/worklist/records/) data query type that significantly simplifies fetching record data. This means that sheets can also easily format and display data from third-party APIs. The data query itself, being text, supports placeholders and bot scripting logic -- so you can determine which columns are available, or what a cell displays, based not only on aspects of the record, but also based on on who is looking at it, their permissions, etc.
+                  Sheets use placeholder dictionaries to to render cells, and they receive their input from any data query that can generate dictionaries -- including [worklist.subtotals](https://cerb.ai/docs/data-queries/worklist/subtotals/) and a new [worklist.records](https://cerb.ai/docs/data-queries/worklist/records/) data query type that significantly simplifies fetching record data. This means that sheets can also easily format and display data from third-party APIs. The data query itself, being text, supports placeholders and automation scripting -- so you can determine which columns are available, or what a cell displays, based not only on aspects of the record, but also based on on who is looking at it, their permissions, etc.
 
                   State on sheets is maintained client-side, and paging/sorting/filtering is customized for the use case (e.g. bot interaction vs portal vs dashboard widget) -- essentially just passing simple information to the input data query.
         toolbar_kata@text:
   workspace_widget/widget_column_types:
     fields:
       label: Column Types
+      icon: table
       tab_id: {{records.tab_sheets.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 2
@@ -3565,6 +3719,7 @@ records:
   workspace_widget/widget_table_layout_with_records_from_a_data_query:
     fields:
       label: Table Layout with Records from a Data Query
+      icon: table
       tab_id: {{records.tab_sheets.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 3
@@ -3626,6 +3781,7 @@ records:
   workspace_widget/widget_dynamic_sheet_colors:
     fields:
       label: Dynamic Sheet Colors
+      icon: color-palette
       tab_id: {{records.tab_sheets.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 4
@@ -3667,6 +3823,7 @@ records:
   workspace_widget/widget_fieldsets_layout_with_text_sizing:
     fields:
       label: Fieldsets Layout with Text Sizing
+      icon: text-size
       tab_id: {{records.tab_sheets.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 5
@@ -3716,6 +3873,7 @@ records:
   workspace_widget/widget_grid_layout_with_images_and_text_sizing:
     fields:
       label: Grid Layout with Images and Text Sizing
+      icon: picture
       tab_id: {{records.tab_sheets.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 6
@@ -3763,6 +3921,7 @@ records:
   workspace_widget/widget_single_or_multiple_row_selection_with_dynamic_exclusion:
     fields:
       label: Single or Multiple Row Selection with Dynamic Exclusion
+      icon: checked
       tab_id: {{records.tab_sheets.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 7
@@ -3801,6 +3960,7 @@ records:
   workspace_widget/widget_charts:
     fields:
       label: Charts
+      icon: chart-line
       tab_id: {{records.tab_charts.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 1
@@ -3844,6 +4004,7 @@ records:
   workspace_widget/widget_datasets:
     fields:
       label: Datasets
+      icon: table
       tab_id: {{records.tab_charts.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 2
@@ -4149,12 +4310,46 @@ records:
         yaxis_label: Importance
         yaxis_format: number
         height@text:
+  workspace_widget/widget_maps:
+    fields:
+      label: Maps
+      icon: location
+      tab_id: {{records.tab_maps.id}}
+      extension_id: core.workspace.widget.sheet
+      pos@int: 1
+      width_units@int: 4
+      zone: content
+      params:
+        data_query@text:
+          type:sample.records
+          records:(help:())
+          format:dictionaries
+        cache_secs@text:
+        placeholder_simulator_kata@text:
+        sheet_kata@text:
+          layout:
+            style: fieldsets
+            headings@bool: no
+            paging@bool: no
+            filtering@bool: no
+
+          columns:
+            markdown/text:
+              params:
+                text_size@raw: 120%
+                value@text:
+                  **Maps** plot geographic data on interactive world, regional, and country maps.
+
+                  Map widgets can place points from latitude/longitude coordinates, or shade regions (countries, states, and counties) as a choropleth driven by a [data query](https://cerb.ai/docs/data-queries/).
+
+                  The examples below show capital cities, highlighted regions, and population choropleths at world, continental, national, and county scales.
+        toolbar_kata@text:
   workspace_widget/widget_world_countries_with_capital_cities:
     fields:
       label: World Countries with Capital Cities
       tab_id: {{records.tab_maps.id}}
       extension_id: cerb.workspace.widget.map.geopoints
-      pos@int: 1
+      pos@int: 2
       width_units@int: 4
       zone: content
       params:
@@ -4178,7 +4373,7 @@ records:
       label: World Countries with Region Colorization
       tab_id: {{records.tab_maps.id}}
       extension_id: cerb.workspace.widget.map.geopoints
-      pos@int: 2
+      pos@int: 3
       width_units@int: 4
       zone: content
       params:
@@ -4232,7 +4427,7 @@ records:
       label: North American Countries with Capital Cities
       tab_id: {{records.tab_maps.id}}
       extension_id: cerb.workspace.widget.map.geopoints
-      pos@int: 3
+      pos@int: 4
       width_units@int: 4
       zone: content
       params:
@@ -4269,7 +4464,7 @@ records:
       label: U.S. States with Capital Cities and highlights
       tab_id: {{records.tab_maps.id}}
       extension_id: cerb.workspace.widget.map.geopoints
-      pos@int: 4
+      pos@int: 5
       width_units@int: 4
       zone: content
       params:
@@ -4299,7 +4494,7 @@ records:
       label: U.S. Counties with Washington D.C. and the state of Wyoming highlighted
       tab_id: {{records.tab_maps.id}}
       extension_id: cerb.workspace.widget.map.geopoints
-      pos@int: 5
+      pos@int: 6
       width_units@int: 4
       zone: content
       params:
@@ -4333,7 +4528,7 @@ records:
       label: U.S. State of California counties with L.A. highlighted
       tab_id: {{records.tab_maps.id}}
       extension_id: cerb.workspace.widget.map.geopoints
-      pos@int: 6
+      pos@int: 7
       width_units@int: 2
       zone: content
       params:
@@ -4363,7 +4558,7 @@ records:
       label: U.S. State of Texas counties with Dallas highlighted
       tab_id: {{records.tab_maps.id}}
       extension_id: cerb.workspace.widget.map.geopoints
-      pos@int: 7
+      pos@int: 8
       width_units@int: 2
       zone: content
       params:
@@ -4395,7 +4590,7 @@ records:
       label: European Countries with Capital Cities and Germany highlighted
       tab_id: {{records.tab_maps.id}}
       extension_id: cerb.workspace.widget.map.geopoints
-      pos@int: 8
+      pos@int: 9
       width_units@int: 4
       zone: content
       params:
@@ -4433,7 +4628,7 @@ records:
       label: Asian Countries with Capital Cities and China highlighted
       tab_id: {{records.tab_maps.id}}
       extension_id: cerb.workspace.widget.map.geopoints
-      pos@int: 9
+      pos@int: 10
       width_units@int: 4
       zone: content
       params:
@@ -4470,7 +4665,7 @@ records:
       label: South American Countries with Population Choropleth
       tab_id: {{records.tab_maps.id}}
       extension_id: cerb.workspace.widget.map.geopoints
-      pos@int: 10
+      pos@int: 11
       width_units@int: 4
       zone: content
       params:
@@ -4511,7 +4706,7 @@ records:
       label: Africa with Population choropleth
       tab_id: {{records.tab_maps.id}}
       extension_id: cerb.workspace.widget.map.geopoints
-      pos@int: 11
+      pos@int: 12
       width_units@int: 4
       zone: content
       params:
@@ -4552,7 +4747,7 @@ records:
       label: Oceanian Countries with Capital Cities
       tab_id: {{records.tab_maps.id}}
       extension_id: cerb.workspace.widget.map.geopoints
-      pos@int: 12
+      pos@int: 13
       width_units@int: 4
       zone: content
       params:
@@ -4583,6 +4778,7 @@ records:
   workspace_widget/widget_automations:
     fields:
       label: Automations
+      icon: zap
       tab_id: {{records.tab_automations.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 1
@@ -4635,6 +4831,7 @@ records:
   workspace_widget/widget_list_of_automation_events:
     fields:
       label: List of Automation Events
+      icon: list
       tab_id: {{records.tab_automations.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 2
@@ -4665,6 +4862,7 @@ records:
   workspace_widget/widget_dictionaries:
     fields:
       label: Dictionaries
+      icon: book
       tab_id: {{records.tab_automations.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 3
@@ -4708,6 +4906,7 @@ records:
   workspace_widget/widget_dialects:
     fields:
       label: Dialects
+      icon: translate
       tab_id: {{records.tab_automations.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 4
@@ -4741,6 +4940,7 @@ records:
   workspace_widget/widget_scripting:
     fields:
       label: Scripting
+      icon: console
       tab_id: {{records.tab_automations.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 5
@@ -4795,12 +4995,49 @@ records:
 
                   Refer to the [**scripting**](https://cerb.ai/docs/scripting/) documentation for a full list of capabilities.
         toolbar_kata@text:
-  workspace_widget/widget_annotations:
+  workspace_widget/widget_ai_agents:
     fields:
-      label: Annotations
+      label: AI Agents
+      icon: brain
       tab_id: {{records.tab_automations.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 6
+      width_units@int: 2
+      zone: content
+      params:
+        data_query@text:
+          type:sample.records
+          records:(help:())
+          format:dictionaries
+        cache_secs@text:
+        placeholder_simulator_kata@text:
+        sheet_kata@text:
+          layout:
+            style: fieldsets
+            headings@bool: no
+            paging@bool: no
+            filtering@bool: no
+
+          columns:
+            markdown/text:
+              params:
+                text_size@raw: 120%
+                value@text:
+                  Cerb can call [**large language models (LLMs)**](https://cerb.ai/docs/automations/) directly from [automations](https://cerb.ai/docs/automations/).
+
+                  The `llm.chat` command sends a single prompt and returns a completion -- ideal for one-shot tasks like classifying a message or drafting a suggested reply.
+
+                  The `llm.agent` command runs a multi-turn **agent** that can use **tools**, keep **memory**, and work toward a goal across several steps. Automations published with the `llm.tool` trigger become tools the agent can call. Full transcripts are saved and can be reviewed under **Setup > Developers**.
+
+                  Providers (OpenAI, Anthropic, Gemini, Groq, Ollama, and more) are configured as [connected services](https://cerb.ai/docs/connected-services/), installable from the [package library](https://cerb.ai/docs/packages/).
+        toolbar_kata@text:
+  workspace_widget/widget_annotations:
+    fields:
+      label: Annotations
+      icon: tag
+      tab_id: {{records.tab_automations.id}}
+      extension_id: core.workspace.widget.sheet
+      pos@int: 7
       width_units@int: 2
       zone: content
       params:
@@ -4890,7 +5127,7 @@ records:
       label: List of Automations
       tab_id: {{records.tab_automations.id}}
       extension_id: core.workspace.widget.worklist
-      pos@int: 7
+      pos@int: 8
       width_units@int: 4
       zone: content
       params:
@@ -4898,7 +5135,7 @@ records:
         query_required@text:
         query: sort:name subtotal:trigger
         render_limit: 15
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           a_name
           a_description
@@ -4907,6 +5144,7 @@ records:
   workspace_widget/widget_interactions:
     fields:
       label: Interactions
+      icon: pointer
       tab_id: {{records.tab_interactions.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 1
@@ -4983,6 +5221,7 @@ records:
   workspace_widget/widget_await_form_elements:
     fields:
       label: Await: Form Elements
+      icon: form
       tab_id: {{records.tab_interactions.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 1
@@ -5062,6 +5301,7 @@ records:
   workspace_widget/widget_return:
     fields:
       label: Return:
+      icon: return
       tab_id: {{records.tab_interactions.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 2
@@ -5120,6 +5360,7 @@ records:
   workspace_widget/widget_await:
     fields:
       label: Await:
+      icon: hourglass
       tab_id: {{records.tab_interactions.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 2
@@ -5167,6 +5408,7 @@ records:
   workspace_widget/widget_toolbars:
     fields:
       label: Toolbars
+      icon: toolbox
       tab_id: {{records.tab_toolbars.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 1
@@ -5219,6 +5461,7 @@ records:
   workspace_widget/widget_list_of_toolbars:
     fields:
       label: List of Built-in Toolbars
+      icon: list
       tab_id: {{records.tab_toolbars.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 1
@@ -5307,7 +5550,7 @@ records:
         query_required@text:
         query: sort:name
         render_limit: 10
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           g_name
           g_fingerprint
@@ -5316,6 +5559,7 @@ records:
   workspace_widget/widget_pgp_encryption:
     fields:
       label: PGP Encryption
+      icon: lock
       tab_id: {{records.tab_pgp_encryption.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 1
@@ -5356,7 +5600,7 @@ records:
         query_required@text:
         query: sort:name
         render_limit: 10
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           g_name
           g_fingerprint
@@ -5386,6 +5630,7 @@ records:
   workspace_widget/widget_connected_services:
     fields:
       label: Connected Services
+      icon: cloud
       tab_id: {{records.tab_connected_services.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 1
@@ -5412,15 +5657,18 @@ records:
                 value@text:
                   [**Connected services**](https://cerb.ai/docs/connected-services/) provide authentication, secure storage, and reuse of user credentials for arbitrary third-party services.
 
-                  Services may provide [single sign-on](https://cerb.ai/guides/) (SSO) functionality for authenticating worker logins from a corporate directory.
+                  Services may provide [single sign-on](https://cerb.ai/guides/sso/) (SSO) functionality for authenticating worker logins from a corporate directory.
 
                   Services may also support the creation of multiple [connected accounts](https://cerb.ai/docs/connected-accounts/) for use in [automations](https://cerb.ai/docs/automations/).
+
+                  Many AI providers -- including OpenAI, Anthropic, Gemini, Groq, and Ollama -- connect this way, supplying the credentials used by AI agents and `llm.*` automation commands.
 
                   Plugins can [implement new service provider types](https://cerb.ai/docs/plugins/extensions/points/cerb.connected_service.provider/).
         toolbar_kata@text:
   workspace_widget/widget_connected_account_auth_methods:
     fields:
       label: Authentication Methods
+      icon: key
       tab_id: {{records.tab_connected_services.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 2
@@ -5493,7 +5741,7 @@ records:
         query_required@text:
         query: sort:name
         render_limit: 10
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           c_name
           c_uri
@@ -5512,7 +5760,7 @@ records:
         query_required@text:
         query: sort:name
         render_limit: 10
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           c_name
           c_service_id
@@ -5522,6 +5770,7 @@ records:
   workspace_widget/widget_metrics:
     fields:
       label: Metrics
+      icon: gauge
       tab_id: {{records.tab_metrics.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 1
@@ -5570,7 +5819,7 @@ records:
         query_required@text:
         query: sort:name
         render_limit: 10
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           m_name
           m_description
@@ -5579,6 +5828,7 @@ records:
   workspace_widget/widget_metric_types:
     fields:
       label: Metric Types
+      icon: list
       tab_id: {{records.tab_metrics.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 3
@@ -5617,6 +5867,7 @@ records:
   workspace_widget/widget_dimensions:
     fields:
       label: Dimensions
+      icon: adjust
       tab_id: {{records.tab_metrics.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 4
@@ -5711,7 +5962,7 @@ records:
         query_required@text:
         query: sort:name
         render_limit: 15
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           ct_name
           ct_extension_id
@@ -5720,6 +5971,7 @@ records:
   workspace_widget/widget_portals:
     fields:
       label: Portals
+      icon: globe
       tab_id: {{records.tab_portals.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 1
@@ -5753,6 +6005,7 @@ records:
   workspace_widget/widget_project_boards:
     fields:
       label: Project Boards
+      icon: kanban
       tab_id: {{records.tab_project_boards.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 1
@@ -5808,13 +6061,14 @@ records:
         query_required@text:
         query: sort:name
         render_limit: 10
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           p_name
           p_updated_at
   workspace_widget/widget_snippets:
     fields:
       label: Snippets
+      icon: quote
       tab_id: {{records.tab_snippets.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 1
@@ -5889,6 +6143,7 @@ records:
   workspace_widget/widget_snippets_prompts:
     fields:
       label: Prompts
+      icon: sparkles
       tab_id: {{records.tab_snippets.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 2
@@ -5964,7 +6219,7 @@ records:
         query_required@text:
         query: sort:title
         render_limit: 10
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           s_title
           s_context
@@ -5975,6 +6230,7 @@ records:
   workspace_widget/widget_workflows:
     fields:
       label: Workflows
+      icon: nodes
       tab_id: {{records.tab_workflows.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 1
@@ -6050,6 +6306,7 @@ records:
   workspace_widget/widget_placeholders:
     fields:
       label: Placeholders
+      icon: placeholders
       tab_id: {{records.tab_workflows.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 2
@@ -6101,7 +6358,7 @@ records:
         query_required@text:
         query@text:
         render_limit: 25
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           a_name
           a_description
@@ -6110,6 +6367,7 @@ records:
   workspace_widget/widget_packages:
     fields:
       label: Packages
+      icon: archive
       tab_id: {{records.tab_packages.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 1
@@ -6184,6 +6442,7 @@ records:
   workspace_widget/widget_packages_library:
     fields:
       label: Library
+      icon: book
       tab_id: {{records.tab_packages.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 2
@@ -6254,7 +6513,7 @@ records:
         query_required@text:
         query: sort:name
         render_limit: 10
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           p_name
           p_description
@@ -6263,6 +6522,7 @@ records:
   workspace_widget/widget_webhooks:
     fields:
       label: Webhooks
+      icon: webhook
       tab_id: {{records.tab_webhooks.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 1
@@ -6383,7 +6643,7 @@ records:
         query_required@text:
         query: sort:name
         render_limit: 10
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           w_name
           w_guid
@@ -6391,6 +6651,7 @@ records:
   workspace_widget/widget_api:
     fields:
       label: API
+      icon: embed
       tab_id: {{records.tab_api.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 1
@@ -6456,6 +6717,7 @@ records:
   workspace_widget/widget_oauth_apps:
     fields:
       label: OAuth Apps
+      icon: key
       tab_id: {{records.tab_api.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 2
@@ -6508,7 +6770,7 @@ records:
         query_required@text:
         query: sort:name
         render_limit: 5
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           o_name
           o_client_id
@@ -6517,6 +6779,7 @@ records:
   workspace_widget/widget_service_tokens:
     fields:
       label: Service Tokens
+      icon: token
       tab_id: {{records.tab_api.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 4
@@ -6569,7 +6832,7 @@ records:
         query_required@text:
         query: sort:name
         render_limit: 25
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           s_name
           s_scopes
@@ -6578,6 +6841,7 @@ records:
   workspace_widget/widget_queues:
     fields:
       label: Queues
+      icon: enqueue
       tab_id: {{records.tab_queues.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 1
@@ -6639,6 +6903,7 @@ records:
   workspace_widget/widget_queue_consumers:
     fields:
       label: Consumer Extensions
+      icon: plug
       tab_id: {{records.tab_queues.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 2
@@ -6681,6 +6946,7 @@ records:
   workspace_widget/widget_queue_jobs:
     fields:
       label: Queue Jobs
+      icon: hourglass
       tab_id: {{records.tab_queues.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 3
@@ -6714,6 +6980,7 @@ records:
   workspace_widget/widget_queue_consumer_event:
     fields:
       label: Automation-Backed Queues
+      icon: zap
       tab_id: {{records.tab_queues.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 4
@@ -6774,6 +7041,7 @@ records:
   workspace_widget/widget_background_queue_scheduler:
     fields:
       label: Background Queue Scheduler
+      icon: restart
       tab_id: {{records.tab_queues.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 5
@@ -6825,7 +7093,7 @@ records:
         query_required@text:
         query: sort:name
         render_limit: 25
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           q_name
           q_extension_id
@@ -6833,6 +7101,7 @@ records:
   workspace_widget/widget_search_indexes:
     fields:
       label: Search Indexes
+      icon: index-folders
       tab_id: {{records.tab_search_indexes.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 1
@@ -6866,6 +7135,7 @@ records:
   workspace_widget/widget_search_index_fields:
     fields:
       label: Search Index Fields
+      icon: list
       tab_id: {{records.tab_search_indexes.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 2
@@ -6924,6 +7194,7 @@ records:
   workspace_widget/widget_search_index_query_features:
     fields:
       label: Search Index Query Features
+      icon: search
       tab_id: {{records.tab_search_indexes.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 3
@@ -6981,6 +7252,7 @@ records:
   workspace_widget/widget_search_index_extensions:
     fields:
       label: Search Index Extensions
+      icon: plug
       tab_id: {{records.tab_search_indexes.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 4
@@ -7016,6 +7288,7 @@ records:
   workspace_widget/widget_search_index_reindex:
     fields:
       label: Reindexing
+      icon: refresh
       tab_id: {{records.tab_search_indexes.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 5
@@ -7059,7 +7332,7 @@ records:
         query_required@text:
         query: sort:priority,record_type,name
         render_limit: 25
-        header_color: #6a87db
+        header_color: #5e5e5e
         columns@list:
           r_name
           r_record_type
@@ -7983,9 +8256,6 @@ records:
                                   worker_id@int: {{worker_id}}
                             return:
                               timer: {{new_time_entry.id}}
-      policy_kata@raw:
-        commands:
-          # [TODO] Specify a command policy here (use Ctrl+Space for autocompletion)
   automation/tutorial_dataqueries:
     fields:
       name: cerb.tutorial.dataQueries
@@ -8433,9 +8703,6 @@ records:
                       style: secondary
           return:
             alert: You finished the interactions demo!
-      policy_kata@raw:
-        commands:
-          # [TODO] Specify a command policy here (use Ctrl+Space for autocompletion)
   toolbar_section/toolbar_global_menu_tutorial:
     fields:
       name: Tutorial
