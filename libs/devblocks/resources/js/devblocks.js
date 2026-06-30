@@ -1303,37 +1303,6 @@ function selectValue(e) {
 	return e.options[e.selectedIndex].value;
 }
 
-function interceptInputCRLF(e,cb) {
-	var code = (window.Event) ? e.which : event.keyCode;
-	
-	if(null != cb && code == 13) {
-		try { cb(); } catch(e) { }
-	}
-	
-	return code != 13;
-}
-
-/* From:
- * http://www.webmasterworld.com/forum91/4527.htm
- */
-function setElementSelRange(e, selStart, selEnd) { 
-	if (e.setSelectionRange) { 
-		e.focus(); 
-		e.setSelectionRange(selStart, selEnd); 
-	} else if (e.createTextRange) { 
-		var range = e.createTextRange(); 
-		range.collapse(true); 
-		range.moveEnd('character', selEnd); 
-		range.moveStart('character', selStart); 
-		range.select(); 
-	} 
-}
-
-function scrollElementToBottom(e) {
-	if(null == e) return;
-	e.scrollTop = e.scrollHeight - e.clientHeight;
-}
-
 function toggleDiv(divName,state) {
 	var div = document.getElementById(divName);
 	if(null == div) return;
