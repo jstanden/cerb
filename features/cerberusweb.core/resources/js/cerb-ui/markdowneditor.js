@@ -461,10 +461,12 @@ CerbUI.MarkdownEditor = class {
 
 		if(!menuOpen) return;
 
-		// Plain ↑/↓ move into the menu; Menu's own document keydown highlights/scrolls.
+		// Plain ↑/↓ move into the menu — driven directly (a popup's key containment blocks the Menu's own
+		// document keydown listener, so don't rely on the event bubbling to it).
 		if((e.key === 'ArrowDown' || e.key === 'ArrowUp') && !(e.metaKey || e.ctrlKey || e.altKey)) {
 			e.preventDefault();
-			this._ac.navigated = true;
+			e.stopPropagation();
+			this._ac.moveSelection(e.key === 'ArrowDown' ? +1 : -1);
 			return;
 		}
 		// Any other arrow = caret navigation: dismiss the menu, let the textarea move natively.
@@ -477,7 +479,9 @@ CerbUI.MarkdownEditor = class {
 			// Select when the user arrowed INTO the list, OR when the mouse is hovering the menu (the row is
 			// highlighted under the pointer) — otherwise Enter is a plain newline, ignoring a stale highlight.
 			if(this._ac.navigated || this._ac.pointerInMenu()) {
-				e.preventDefault(); // Menu's listener selects the active item
+				e.preventDefault();
+				e.stopPropagation();
+				this._ac.acceptSelection(e); // select the active (arrowed or hovered) item
 				return;
 			}
 			e.stopPropagation();

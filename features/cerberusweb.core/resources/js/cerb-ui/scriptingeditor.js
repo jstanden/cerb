@@ -418,13 +418,13 @@ CerbUI.ScriptingEditor = class {
 
 		if(menuOpen) {
 			const plain = !(e.metaKey || e.ctrlKey || e.altKey);
-			if(plain && e.key === 'ArrowDown') { e.preventDefault(); this._ac.navigated = true; return; }
-			if(plain && e.key === 'ArrowUp' && this._ac.navigated) { e.preventDefault(); return; }
+			if(plain && e.key === 'ArrowDown') { e.preventDefault(); e.stopPropagation(); this._ac.moveSelection(+1); return; }
+			if(plain && e.key === 'ArrowUp' && this._ac.navigated) { e.preventDefault(); e.stopPropagation(); this._ac.moveSelection(-1); return; }
 			if(e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
 				e.stopPropagation(); this._ac.close(); return;
 			}
 			if(e.key === 'Enter') {
-				if(this._ac.navigated) { e.preventDefault(); return; }
+				if(this._ac.navigated) { e.preventDefault(); e.stopPropagation(); this._ac.acceptSelection(e); return; }
 				e.preventDefault(); e.stopPropagation(); this._ac.close();
 				if(!this.opts.readOnly) this._insertNewline();
 				return;

@@ -239,8 +239,9 @@ CerbUI.SearchQuery = class {
 			// (handles virtualization); we just flag the opt-in and stop the textarea caret from drifting.
 			if((e.key === 'ArrowDown' || e.key === 'ArrowUp') && !(e.metaKey || e.ctrlKey || e.altKey)) {
 				e.preventDefault();
-				this._ac.navigated = true;
-				return; // propagate to Menu
+				e.stopPropagation();
+				this._ac.moveSelection(e.key === 'ArrowDown' ? +1 : -1);
+				return;
 			}
 			// Any other arrow is TEXT navigation, not menu navigation: a modified ↑/↓/←/→ (⌘/⌥/ctrl line/word/
 			// doc skip) or a plain ←/→. Let the textarea move the caret natively and dismiss the suggestions —
@@ -252,9 +253,12 @@ CerbUI.SearchQuery = class {
 			}
 			if(e.key === 'Enter') {
 				if(this._ac.navigated) {
-					// Selection happens in Menu's listener; just stop the textarea from also inserting a newline.
+					// Drive the selection directly (don't rely on the Menu's document listener — a popup's key
+					// containment blocks it) and stop the textarea from also inserting a newline.
 					e.preventDefault();
-					return; // propagate to Menu -> selects active item -> onSelect -> _apply
+					e.stopPropagation();
+					this._ac.acceptSelection(e);
+					return; // -> selects active item -> onSelect -> _apply
 				}
 				// Not navigated: Enter submits. Stop Menu from selecting a hover-highlighted item.
 				e.preventDefault();

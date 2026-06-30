@@ -899,6 +899,30 @@ CerbUI.Menu = class {
 		}
 	}
 
+	// ── Programmatic navigation (host-driven) ───────────────────────────
+	// Public equivalents of the ArrowUp/Down + Enter handling in _onKey, for a host that drives the menu
+	// from its OWN keydown handler instead of relying on this menu's document keydown listener — e.g. the
+	// editor autocompletes, whose bubble-phase document listener a CerbUI.Dialog's key containment
+	// (_containKeys → stopPropagation) blocks, so arrows/Enter never reach it inside a popup.
+
+	moveActive(dir) {
+		if(this.pnls.length) this._navigate(this.pnls[this.pnls.length - 1], dir > 0 ? +1 : -1);
+		return this;
+	}
+
+	selectActive(e) {
+		const depth = this.pnls.length - 1;
+		if(depth < 0) return false;
+		const pnl = this.pnls[depth];
+		const active = pnl.el.querySelector('.cerb-ui-menu--item-active');
+		if(!active) return false;
+		const item = pnl.items[+(active.dataset['i'] ?? -1)];
+		if(!item) return false;
+		this._select(active, item.el, e || null);
+		if(this.opts.closeOnSelect) { this._returnFocus = true; this.close(); }
+		return true;
+	}
+
 	// ── Positioning ─────────────────────────────────────────────────────
 	// Panels are position:absolute and append to <body>. Flip logic runs in viewport space
 	// (getBoundingClientRect); scroll offsets are added when writing the final coords (unless `fixed`).

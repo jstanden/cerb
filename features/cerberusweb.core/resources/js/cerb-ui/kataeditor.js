@@ -567,12 +567,15 @@ CerbUI.KataEditor = class {
 			// that dismisses the suggestions (handled by the text-navigation branch below).
 			if(plain && e.key === 'ArrowDown') {
 				e.preventDefault();
-				this._ac.navigated = true;
+				e.stopPropagation();
+				this._ac.moveSelection(+1);
 				return;
 			}
 			if(plain && e.key === 'ArrowUp' && this._ac.navigated) {
 				e.preventDefault();
-				return; // propagate to Menu -> step up
+				e.stopPropagation();
+				this._ac.moveSelection(-1);
+				return;
 			}
 			// Any other arrow (modified ↑/↓, plain ←/→, or an un-engaged plain ↑) is text navigation — dismiss +
 			// native caret move.
@@ -582,7 +585,7 @@ CerbUI.KataEditor = class {
 				return;
 			}
 			if(e.key === 'Enter') {
-				if(this._ac.navigated) { e.preventDefault(); return; } // propagate to Menu -> select
+				if(this._ac.navigated) { e.preventDefault(); e.stopPropagation(); this._ac.acceptSelection(e); return; }
 				// Not navigated: Enter inserts a newline. Stop the Menu from selecting a hover-highlighted item.
 				e.preventDefault();
 				e.stopPropagation();

@@ -289,6 +289,13 @@ CerbUI.editorCore.Autocomplete = class {
 	// row even when the user never arrowed into the list (the menu popped up under a resting mouse).
 	pointerInMenu() { return this._pointerInMenu; }
 
+	// Drive the menu DIRECTLY from the host editor's keydown handler instead of relying on the Menu's own
+	// document-bubble keydown listener — a CerbUI.Dialog's bubble-phase key containment blocks that listener,
+	// so arrows/Enter never reached the menu when an editor was inside a popup. The host stopPropagation()s
+	// these keys, so the (still-registered) Menu listener can't also act on them outside a dialog.
+	moveSelection(dir) { if(this.isOpen()) { this.navigated = true; this._menu.moveActive(dir); } return this; }
+	acceptSelection(e) { return this.isOpen() ? this._menu.selectActive(e) : false; }
+
 	schedule() {
 		this.clearTimer();
 		this._timer = window.setTimeout(() => this.trigger(), this.delay);
