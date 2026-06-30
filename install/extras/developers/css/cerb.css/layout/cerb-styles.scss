@@ -2038,35 +2038,6 @@ div.cerb-uploads {
 	}
 }
 
-// jQuery overrides
-
-.ui-dialog .ui-dialog-titlebar-minmax {
-	position: absolute;
-	right: 2.0em;
-	top: 50%;
-	width: 20px;
-	margin: -10px 0 0 0;
-	padding: 1px;
-	height: 20px;
-}
-
-UL.ui-menu {
-	li.ui-menu-item {
-		break-inside: avoid-column;
-		page-break-inside: avoid;
-	}
-	
-	li.ui-menu-item.ui-state-focus {
-		color: var(--cerb-color-background);
-	}
-
-	li.ui-state-focus {
-		border: 0;
-		margin: 0;
-		background: var(--cerb-color-menu-item-text);
-	}
-}
-
 /* Grey out the art of a disabled plugin row */
 TBODY.cerb-plugin-disabled td[data-column="icon"] IMG {
 	opacity: 0.6;
