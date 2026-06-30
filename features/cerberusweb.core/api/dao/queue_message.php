@@ -180,7 +180,7 @@ class DAO_QueueMessage {
 		if(!$message_uuids)
 			return;
 
-		$uuid_literals = array_map(fn($uuid) => '0x' . $db->escape($uuid), $message_uuids);
+		$uuid_literals = array_map(fn($uuid) => '0x' . str_replace('-', '', $db->escape($uuid)), $message_uuids);
 		
 		implode(',', $uuid_literals)
 			|> (fn($uuids) => sprintf("UPDATE queue_message SET status_id=%d, claim_id=NULL, claimed_at=0, processed_at=0, available_at=%d, retry_count=%d WHERE uuid IN (%s)", QueueMessageStatus::AVAILABLE->value, $available_at, $retry_count, $uuids))
@@ -195,7 +195,7 @@ class DAO_QueueMessage {
 			return;
 		
 		$insert_values = array_map(
-			fn($uuid) => '0x' . $db->escape($uuid),
+			fn($uuid) => '0x' . str_replace('-', '', $db->escape($uuid)),
 			$message_uuids
 		);
 		
@@ -216,7 +216,7 @@ class DAO_QueueMessage {
 		$db = DevblocksPlatform::services()->database();
 
 		$results = $db->GetArrayMaster(sprintf(
-			"SELECT BIN_TO_UUID(m.uuid) AS uuid, m.queue_id, m.job_id, m.retry_count ".
+			"SELECT m.uuid AS uuid, m.queue_id, m.job_id, m.retry_count ".
 			"FROM queue_message m INNER JOIN queue q ON (q.id=m.queue_id) ".
 			"WHERE m.status_id=%d AND q.claim_window_secs > 0 AND m.claimed_at < %d - q.claim_window_secs",
 			QueueMessageStatus::IN_FLIGHT->value,
@@ -227,7 +227,7 @@ class DAO_QueueMessage {
 
 		foreach($results ?: [] as $result) {
 			$message = new Model_QueueMessage();
-			$message->uuid = $result['uuid'];
+			$message->uuid = Uuid::fromBytes($result['uuid'])->getHex()->toString();
 			$message->queue_id = intval($result['queue_id']);
 			$message->job_id = intval($result['job_id']);
 			$message->retry_count = intval($result['retry_count']);
