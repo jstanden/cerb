@@ -4954,6 +4954,17 @@
 		</extension>
 
 		<extension point="cerb.card.widget">
+			<id>cerb.card.widget.metrics.explorer</id>
+			<name>Chart: Metrics Explorer</name>
+			<class>
+				<file>api/cards/widgets/metrics_explorer.php</file>
+				<name>CardWidget_MetricsExplorer</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<extension point="cerb.card.widget">
 			<id>cerb.card.widget.conversation</id>
 			<name>Conversation</name>
 			<class>

@@ -6827,7 +6827,55 @@ class _CerbApplication_KataSchemas {
               attributes:
     EOD;
 	}
-	
+
+	function metricsExplorerSeries() : string {
+		return <<< EOD
+    schema:
+      attributes:
+        series:
+          multiple@bool: yes
+          types:
+            object:
+              attributes:
+                metric:
+                  required@bool: yes
+                  types:
+                    string:
+                function:
+                  types:
+                    string:
+                label:
+                  types:
+                    string:
+                color:
+                  types:
+                    string:
+                type:
+                  types:
+                    string:
+                axis:
+                  types:
+                    string:
+                stack:
+                  types:
+                    string:
+                    number:
+                hidden:
+                  types:
+                    bool:
+                    string:
+                filters:
+                  types:
+                    object:
+                      attributePatterns:
+                        pattern/dimension:
+                          match: *
+                          attributes:
+                            types:
+                              string:
+    EOD;
+	}
+
 	function sheet() : string {
 		return <<< EOD
     &columnLabel:
