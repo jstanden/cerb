@@ -33,9 +33,5 @@
 <br>
 
 {if $active_worker && $global_interactions_show}{include file="devblocks:cerberusweb.core::automations/interactions/button.tpl"}{/if}
-
-<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/ace/ace.js{/devblocks_url}"></script>
-<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/ace/ext-language_tools.js{/devblocks_url}"></script>
-<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/ace/ext-linking.js{/devblocks_url}"></script>
 </body>
 </html>
