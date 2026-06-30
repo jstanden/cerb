@@ -32,8 +32,6 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 	function handleActionForPage(string $action, ?string $scope=null) {
 		if('profileAction' == $scope) {
 			switch ($action) {
-				case 'autocomplete':
-					return $this->_profileAction_autocomplete();
 				case 'autocompleteCountry':
 					return $this->_profileAction_autocompleteCountry();
 				case 'getTopContactsByOrgJson':
@@ -437,36 +435,6 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		}
 		
 		echo json_encode($list);
-		DevblocksPlatform::exit();
-	}
-	
-	private function _profileAction_autocomplete() {
-		$starts_with = DevblocksPlatform::importGPC($_REQUEST['term'] ?? null, 'string','');
-		$callback = DevblocksPlatform::importGPC($_REQUEST['callback'] ?? null, 'string','');
-		
-		list($orgs,) = DAO_ContactOrg::search(
-			[],
-			[
-				new DevblocksSearchCriteria(SearchFields_ContactOrg::NAME,DevblocksSearchCriteria::OPER_LIKE, $starts_with. '*'),
-			],
-			25,
-			0,
-			SearchFields_ContactOrg::NAME,
-			true,
-			false
-		);
-		
-		$list = [];
-		
-		foreach($orgs AS $val){
-			$list[] = $val[SearchFields_ContactOrg::NAME];
-		}
-		
-		echo sprintf("%s%s%s",
-			!empty($callback) ? ($callback.'(') : '',
-			json_encode($list),
-			!empty($callback) ? (')') : ''
-		);
 		DevblocksPlatform::exit();
 	}
 	
