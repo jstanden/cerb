@@ -161,8 +161,16 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 				DevblocksPlatform::markContextChanged($context, $batch_ids);
 			}
 		}
+
+		// A worklist widget caches its rendered config in worker_view_model; drop those
+		// rows when params change so updates (incl. workflow imports) take effect
+		if(array_key_exists(self::PARAMS_JSON, $fields) && $ids) {
+			DAO_WorkerViewModel::deleteByViewIds(
+				array_map(fn($id) => sprintf('widget_%d_worklist', $id), $ids)
+			);
+		}
 	}
-	
+
 	static function updateWhere($fields, $where) {
 		parent::_updateWhere('workspace_widget', $fields, $where);
 	}

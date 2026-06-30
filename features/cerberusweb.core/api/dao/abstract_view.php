@@ -5707,6 +5707,17 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 		));
 	}
 	
+	static public function deleteByViewIds(array $view_ids) {
+		if(!$view_ids)
+			return;
+
+		$db = DevblocksPlatform::services()->database();
+
+		return $db->ExecuteMaster(sprintf("DELETE FROM worker_view_model WHERE view_id IN (%s)",
+			implode(',', array_map(fn($v) => $db->qstr($v), $view_ids))
+		));
+	}
+
 	static public function deleteByViewIdPrefix($view_id) {
 		$db = DevblocksPlatform::services()->database();
 		
