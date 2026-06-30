@@ -1,174 +1,245 @@
-{$uniqid = uniqid('editor')}
+{$uniqid = uniqid('diff')}
 
-<div style="display:flex;">
-    <div style="flex:1 1 200px;margin-right:2px;">
-        <div class="cerb-code-editor-toolbar">
-            <button type="button" data-cerb-toolbar-button-refresh title="{'common.refresh'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-refresh"></span></button>
-        </div>
-        <div style="max-height:35em;overflow-y:auto;">
-            <table class="worklistBody" style="width:100%;" cellpadding="0" cellspacing="0">
-                {include file="devblocks:cerberusweb.core::internal/record_changesets/changesets.tpl" changesets=$changesets}
-            </table>
+{* The same revisions list (newest first) feeds both column menus. "Current" = the live working value the host
+   editor seeds via cerb-diff-viewer-ready; each other entry is a saved changeset, loaded on demand. *}
+{capture name=diff_rev_options}
+    {foreach from=$changesets item=changeset}
+        {$cs_worker = $changeset->getWorker()}
+        <option value="{$changeset->id}"{if $cs_worker} data-avatar-url="{devblocks_url}c=avatars&context=worker&context_id={$cs_worker->id}{/devblocks_url}?v={$cs_worker->updated}"{/if}>{$changeset->created_at|devblocks_date}{if $cs_worker} - {$cs_worker->getName()}{/if}</option>
+    {/foreach}
+{/capture}
+
+{if !$changesets}
+<div class="cerb-ui-panel cerb-ui-panel--note" id="{$uniqid}">
+    <div class="cerb-ui-header cerb-ui-header--center">
+        <div class="cerb-ui-callout">
+            <span class="cerb-icons cerb-icon-circle-info cerb-ui-callout--icon"></span>
+            <div>
+                <div class="cerb-ui-header--title-sm">No change history yet</div>
+                <div class="cerb-ui-header--subtitle">This record has no saved revisions to compare.</div>
+            </div>
         </div>
     </div>
-    <div style="flex:2 2 100%;">
+</div>
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
+(function() {
+    const $popup = genericAjaxPopupFind($('#{$uniqid}'));
+    $popup.dialog('option', 'title', '{'common.change_history'|devblocks_translate|capitalize}');
+})();
+</script>
+{else}
+<div style="display:flex;align-items:center;width:100%;margin-bottom:0.5em;">
+    <div style="flex:1 1 0;min-width:0;display:flex;align-items:center;gap:0.5em;">
+        <select class="cerb-diff-menu cerb-diff-menu-left">
+            {if $show_current}<option value="current">Current</option>{/if}
+            {$smarty.capture.diff_rev_options nofilter}
+        </select>
         <div class="cerb-code-editor-toolbar">
-            <div style="height:26px;width:1px;display:inline-block;"></div>
-            <button type="button" data-cerb-toolbar-button-next-change title="Next change" style="float:right;"><span class="cerb-icons cerb-icon-step-forward"></span></button>
-            <button type="button" data-cerb-toolbar-button-prev-change title="Previous change" style="float:right;"><span class="cerb-icons cerb-icon-step-backward"></span></button>
+            <button type="button" data-cerb-toolbar-button-restore title="Restore this version"><span class="cerb-icons cerb-icon-history"></span> Restore this version</button>
         </div>
-        <div style="position:relative;width:100%;height:35em;">
-            <div id="{$uniqid}"></div>
+    </div>
+    <div style="flex:0 0 50px;"></div>
+    <div style="flex:1 1 0;min-width:0;display:flex;align-items:center;gap:0.5em;">
+        <select class="cerb-diff-menu cerb-diff-menu-right">
+            {if $show_current}<option value="current">Current</option>{/if}
+            {$smarty.capture.diff_rev_options nofilter}
+        </select>
+        <div class="cerb-code-editor-toolbar" style="margin-left:auto;">
+            <button type="button" data-cerb-toolbar-button-prev-change title="Previous change"><span class="cerb-icons cerb-icon-step-backward"></span></button>
+            <button type="button" data-cerb-toolbar-button-next-change title="Next change"><span class="cerb-icons cerb-icon-step-forward"></span></button>
         </div>
     </div>
 </div>
 
+<div style="width:100%;">
+    <div id="{$uniqid}"></div>
+</div>
+
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
-Devblocks.loadResources({
-    'js': [
-        '/resource/cerberusweb.core/js/ace-diff/ace-diff.js'
-    ]
-}, function () {
+(function() {
     const $div = $('#{$uniqid}');
     const $popup = genericAjaxPopupFind($div);
 
     $popup.dialog('option', 'title', '{'common.change_history'|devblocks_translate|capitalize}');
 
-    const $table = $popup.find('.worklistBody').disableSelection();
+    const record_key = '{$record_key}';
 
-    const $spinner = Devblocks.getSpinner()
-        .css('max-width', '16px')
-        .css('position', 'absolute')
-        .css('right', '0')
-        .css('top', '0')
-        .css('z-index', '100000')
-    ;
+    const leftSel = $popup.find('select.cerb-diff-menu-left')[0];
+    const rightSel = $popup.find('select.cerb-diff-menu-right')[0];
 
-    let diff_options = {
-        element: '#{$uniqid}',
-        theme: 'ace/theme/cerb-2022011201',
-        mode: "ace/mode/cerb_kata",
-        left: {
-            content: {$left_content|json_encode nofilter},
-            editable: false,
-            copyLinkEnabled: false
-        },
-        right: {
-            content: '',
-            editable: true,
-            copyLinkEnabled: false
-        },
+    // Editor mode (default): the right pane is the live "Current" value, seeded by the host via cerb-diff-viewer-ready;
+    // the left pane defaults to the newest snapshot. No-current mode (e.g. bot behaviors, which persist on every edit
+    // so "Current" is just the latest snapshot) drops "Current" and defaults to comparing the two latest snapshots.
+    const showCurrent = {if $show_current}true{else}false{/if};
+    const newestContent = {$left_content|json_encode nofilter};
+
+    const viewer = new CerbUI.DiffViewer($div[0], {
+        left: '',
+        right: '',
+        lines: 23,
+    });
+
+    // Cache of document text by menu value ('current' or a changeset id). Saves a round-trip when re-picking a
+    // revision, and (in editor mode) holds the live "current" value so it can be shown on EITHER side.
+    const contentCache = {};
+
+    // Snapshot option values (everything except 'current'), newest first.
+    const snapshotKeys = Array.prototype.map.call(leftSel.options, function(o) { return o.value; })
+        .filter(function(v) { return v !== 'current'; });
+    const newestKey = snapshotKeys.length ? snapshotKeys[0] : null;
+    const secondKey = snapshotKeys.length > 1 ? snapshotKeys[1] : null;
+
+    if(newestKey)
+        contentCache[newestKey] = newestContent;
+
+    // Renderer for a column's menu: prepends the worker avatar (on both the dropdown items and the selected
+    // trigger), and — on dropdown items only — flags the one revision the OPPOSING column is currently showing
+    // with the corresponding panel icon, so it's obvious what you're comparing against. Every row reserves the
+    // same trailing slot (only the matching row paints an icon) so labels stay aligned. Menus rebuild on each
+    // open, so the marker always reflects the live opposing selection.
+    const makeRenderer = function(opposingSel, panelIcon) {
+        return function(el, option) {
+            const url = option.dataset.avatarUrl;
+            if(url) {
+                const img = document.createElement('img');
+                img.className = 'cerb-avatar';
+                img.src = url;
+                el.insertBefore(img, el.firstChild);
+            }
+
+            if(el.classList.contains('cerb-ui-menu--item')) {
+                const mark = document.createElement('span');
+                mark.style.flexShrink = '0';
+                mark.style.width = '1em';
+                mark.style.marginLeft = '0.75em';
+                if(option.value == opposingSel.value) {
+                    mark.className = 'cerb-icons cerb-icon-' + panelIcon;
+                    mark.title = 'Shown in the other panel';
+                    mark.style.opacity = '0.8';
+                }
+                el.appendChild(mark);
+            }
+        };
     };
 
-    let differ = new AceDiff(diff_options);
-
-    differ.editors.left.ace.setOption('highlightActiveLine', false);
-    differ.editors.right.ace.setOption('highlightActiveLine', false);
-
-    differ.editors.left.ace.session.setNewLineMode('unix');
-    differ.editors.right.ace.session.setNewLineMode('unix');
-
-    let onRefresh = function () {
-        let formData = new FormData();
-        formData.set('c', 'internal');
-        formData.set('a', 'invoke');
-        formData.set('module', 'records');
-        formData.set('action', 'refreshChangesets');
-        formData.set('record_type', '{$record_type}');
-        formData.set('record_id', '{$record_id}');
-        formData.set('record_key', '{$record_key}');
-
-        $table.html(Devblocks.getSpinner());
-
-        genericAjaxPost(formData, null, null, function (json) {
-            if ('object' != typeof json)
-                return;
-
-            if (json.hasOwnProperty('html')) {
-                $table.hide().html(json.html).fadeIn();
-            }
-
-            if (json.hasOwnProperty('{$record_key}')) {
-                differ.editors.left.ace.setValue(json.{$record_key});
-                differ.editors.left.ace.clearSelection();
-            }
-        });
-    }
-
-    $table.on('click', function (e) {
-        e.stopPropagation();
-
-        const $target = $(e.target);
-        const $tr = $target.parentsUntil('tbody', 'tr');
-
-        if (!$tr.is('[data-cerb-changeset-id]'))
+    // Fetch (and cache) a revision's content, then hand it to `cb`. 'current' is held in the cache; changesets
+    // are loaded on demand via getChangesetJson.
+    const loadContent = function(key, cb) {
+        if(contentCache.hasOwnProperty(key)) {
+            cb(contentCache[key]);
             return;
-
-        const changeset_id = $tr.attr('data-cerb-changeset-id');
-
-        $table.find('tr.selected').removeClass('selected');
-
-        $tr.addClass('selected');
+        }
 
         let formData = new FormData();
         formData.set('c', 'internal');
         formData.set('a', 'invoke');
         formData.set('module', 'records');
         formData.set('action', 'getChangesetJson');
-        formData.set('changeset_id', changeset_id);
+        formData.set('changeset_id', key);
 
-        $spinner.appendTo($tr.find('td'));
-        $div.fadeTo('fast', 0.2, function () {
-            genericAjaxPost(formData, null, null, function (json) {
-                if ('object' == typeof json && json.hasOwnProperty('{$record_key}')) {
-                    differ.editors.left.ace.setValue(json.{$record_key});
-                    differ.editors.left.ace.clearSelection();
-                }
-
-                $spinner.detach();
+        $div.fadeTo('fast', 0.2, function() {
+            genericAjaxPost(formData, null, null, function(json) {
+                // getChangesetJson returns the changeset content dict { <record_key>:content }.
+                const content = ('object' == typeof json && json.hasOwnProperty(record_key)) ? json[record_key] : '';
+                contentCache[key] = content;
                 $div.fadeTo('slow', 1.0);
+                cb(content);
             });
         });
-    });
+    };
 
     let diff_step = 0;
 
-    // https://github.com/ace-diff/ace-diff/issues/48
-    let onStepToDiff = function () {
-        let $button = $(this);
+    const setPane = function(side, key) {
+        loadContent(key, function(content) {
+            if('left' == side)
+                viewer.setLeft(content);
+            else
+                viewer.setCurrent(content);
+            diff_step = 0;
+        });
+    };
 
-        let delta = $button.is('[data-cerb-toolbar-button-prev-change]') ? -1 : 1;
+    // "Restore this version" writes the LEFT (historical) document back. Only shown when the host registered an
+    // onRestore handler (read-only hosts don't) and the left pane isn't "current" (restoring current is a no-op).
+    const $restore = $popup.find('[data-cerb-toolbar-button-restore]');
+    const updateRestoreState = function() {
+        $restore.toggle(viewer.hasRestore() && 'current' != leftSel.value);
+    };
+
+    // The opposing-selection marker shows the panel the OTHER column occupies: the left menu flags the right
+    // panel's revision, and vice versa.
+    const leftMenu = new CerbUI.SelectMenu(leftSel, {
+        filter: false,
+        onRender: makeRenderer(rightSel, 'window-right'),
+        onSelect: function(value) { setPane('left', value); updateRestoreState(); },
+    });
+
+    const rightMenu = new CerbUI.SelectMenu(rightSel, {
+        filter: false,
+        onRender: makeRenderer(leftSel, 'window-left'),
+        onSelect: function(value) { setPane('right', value); },
+    });
+
+    if(showCurrent) {
+        // Editor mode: left = newest snapshot, right stays on "Current" (seeded by the host below).
+        if(newestKey) {
+            viewer.setLeft(newestContent);
+            leftMenu.setValue(newestKey);
+        }
+    } else {
+        // No-current mode: right = newest snapshot, left = the one before it, so the latest change shows by default.
+        if(newestKey) {
+            viewer.setCurrent(newestContent);
+            rightMenu.setValue(newestKey);
+        }
+        if(secondKey) {
+            leftMenu.setValue(secondKey);
+            setPane('left', secondKey);
+        } else if(newestKey) {
+            // Only one snapshot — show it on both sides (nothing earlier to diff against).
+            viewer.setLeft(newestContent);
+            leftMenu.setValue(newestKey);
+        }
+    }
+    updateRestoreState();
+
+    const onStepToDiff = function() {
+        const delta = $(this).is('[data-cerb-toolbar-button-prev-change]') ? -1 : 1;
+        const count = viewer.getDiffs().length;
+
+        if(!count)
+            return;
 
         diff_step += delta;
 
-        if (diff_step < 0) {
-            diff_step = differ.diffs.length - 1;
-        } else if (diff_step > differ.diffs.length - 1) {
+        if(diff_step < 0) {
+            diff_step = count - 1;
+        } else if(diff_step > count - 1) {
             diff_step = 0;
         }
 
-        if (!differ.diffs[diff_step])
-            return;
-
-        let left_row = differ.diffs[diff_step].leftStartLine;
-        let right_row = differ.diffs[diff_step].rightStartLine;
-
-        if (left_row > 5) {
-            left_row -= 5;
-        }
-
-        if (right_row > 5) {
-            right_row -= 5;
-        }
-
-        differ.getEditors().left.scrollToLine(left_row);
-        differ.getEditors().right.scrollToLine(right_row);
+        viewer.scrollToDiff(diff_step);
     };
 
-    $popup.find('[data-cerb-toolbar-button-refresh]').on('click', onRefresh);
     $popup.find('[data-cerb-toolbar-button-prev-change]').on('click', onStepToDiff);
     $popup.find('[data-cerb-toolbar-button-next-change]').on('click', onStepToDiff);
 
-    $popup.triggerHandler($.Event('cerb-diff-editor-ready', { differ: differ }));
-});
+    $restore.on('click', function(e) {
+        e.stopPropagation();
+        viewer.restore();
+        $popup.dialog('close');
+    });
+
+    $popup.triggerHandler($.Event('cerb-diff-viewer-ready', { viewer: viewer }));
+
+    // Editor mode: the host's ready handler ran synchronously and seeded the right pane via setCurrent() — capture it
+    // so "Current" can also be shown in the left column. (No-current mode has no live "Current" to capture.)
+    if(showCurrent)
+        contentCache['current'] = viewer.getCurrent();
+
+    // Now that the host has (or hasn't) registered onRestore, finalize the Restore button's visibility.
+    updateRestoreState();
+})();
 </script>
+{/if}

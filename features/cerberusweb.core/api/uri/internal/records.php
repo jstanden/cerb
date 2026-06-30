@@ -50,8 +50,6 @@ class PageSection_InternalRecords extends Extension_PageSection {
 					return $this->_internalAction_getLinkCountsJson();
 				case 'linksOpen':
 					return $this->_internalAction_linksOpen();
-				case 'refreshChangesets':
-					return $this->_internalAction_refreshChangesets();
 				case 'renderMergePopup':
 					return $this->_internalAction_renderMergePopup();
 				case 'renderMergeMappingPopup':
@@ -639,16 +637,20 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		$record_type = DevblocksPlatform::importGPC($_POST['record_type'] ?? null, 'string','');
 		$record_id = DevblocksPlatform::importGPC($_POST['record_id'] ?? null, 'integer',0);
 		$record_key = DevblocksPlatform::importGPC($_POST['record_key'] ?? null, 'string','');
-		
+
+		// Hosts with no live "Current" value distinct from the latest snapshot (e.g. bot behaviors) pass
+		// include_current=0 to drop the "Current" column and default to comparing the two latest snapshots.
+		$include_current = DevblocksPlatform::importGPC($_POST['include_current'] ?? null, 'integer', 1);
+
 		$record_type = DevblocksPlatform::strAlphaNum($record_type, '_');
 		$record_key = DevblocksPlatform::strAlphaNum($record_key, '_');
-		
+
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
-		
-		if(!$active_worker->is_superuser)
+
+		if(!$this->_canAccessChangesets($record_type, $record_id, $active_worker))
 			DevblocksPlatform::dieWithHttpError(null, 403);
-		
+
 		$changesets = DAO_RecordChangeset::getChangesets($record_type, $record_id, $record_key, 50);
 		$tpl->assign('changesets', $changesets);
 		
@@ -663,36 +665,8 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		$tpl->assign('record_type', $record_type);
 		$tpl->assign('record_id', $record_id);
 		$tpl->assign('record_key', $record_key);
+		$tpl->assign('show_current', $include_current ? true : false);
 		$tpl->display('devblocks:cerberusweb.core::internal/record_changesets/diff_popup.tpl');
-	}
-	
-	private function _internalAction_refreshChangesets() {
-		$tpl = DevblocksPlatform::services()->template();
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
-		
-		$record_type = DevblocksPlatform::importGPC($_POST['record_type'] ?? null, 'string','');
-		$record_id = DevblocksPlatform::importGPC($_POST['record_id'] ?? null, 'integer',0);
-		$record_key = DevblocksPlatform::importGPC($_POST['record_key'] ?? null, 'string','');
-		
-		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
-		
-		if(!$active_worker->is_superuser)
-			DevblocksPlatform::dieWithHttpError(null, 403);
-		
-		$changesets = DAO_RecordChangeset::getChangesets($record_type, $record_id, $record_key, 50);
-		$tpl->assign('changesets', $changesets);
-		
-		$from_data = json_decode(Storage_RecordChangeset::get(array_key_first($changesets)), true);
-		
-		$html = $tpl->fetch('devblocks:cerberusweb.core::internal/record_changesets/changesets.tpl');
-		
-		echo json_encode([
-			'html' => $html,
-			'data' => $from_data ?? [],
-		]);
 	}
 	
 	private function _internalAction_getChangesetJson() {
@@ -704,17 +678,18 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 403);
-		
-		if(!$active_worker->is_superuser) {
-			echo '{}';
-			return;
-		}
-		
+
 		if(!$changeset_id || !($changeset = DAO_RecordChangeset::get($changeset_id))) {
 			echo '{}';
 			return;
 		}
-		
+
+		// getChangesetJson only receives a changeset id, so gate on the changeset's own record type/id.
+		if(!$this->_canAccessChangesets($changeset->record_type, $changeset->record_id, $active_worker)) {
+			echo '{}';
+			return;
+		}
+
 		echo json_encode($changeset->getContent());
 	}	
 	
