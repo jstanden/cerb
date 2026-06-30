@@ -12,11 +12,11 @@
 
 		<div data-cerb-toolbar-container style="margin:5px 0 10px 5px;">
 			{if $search_buttons}
-				<div class="cerb-search-buttons" style="display:inline;">
+				<ul class="cerb-ui-toolbar" data-cerb-search-buttons>
 					{foreach from=$search_buttons item=search_button}
-					<button type="button" class="cerb-search-trigger" data-context="{$search_button.context}" data-query="{$search_button.query}"><div class="badge-count">{$search_button.count|default:0}</div> {$search_button.label|capitalize}</button>
+					<li class="cerb-search-trigger" data-context="{$search_button.context}" data-icon="{$search_button.icon|default:'collection'}" data-query="{$search_button.query}" data-badge="{$search_button.count|default:0}">{$search_button.label|capitalize}</li>
 					{/foreach}
-				</div>
+				</ul>
 			{/if}
 
 			{if $toolbar_fields}
@@ -44,7 +44,22 @@ $(function() {
 	var $toolbar_container = $widget.find('[data-cerb-toolbar-container]');
 	var $toolbar = $toolbar_container.find('[data-cerb-toolbar]');
 
-	$toolbar.cerbToolbar({
+	// Search buttons: a CerbUI.Toolbar. Counts render as a floating corner badge (default 'pill') rather
+	// than a leading inline tally, so the icon + count don't crowd the left of each label. cerbSearchTrigger
+	// (bound above on the source .cerb-search-trigger <li>s) still opens the search — onSelect clicks the row.
+	let search_buttons_ul = $toolbar_container.find('[data-cerb-search-buttons]')[0];
+	if(search_buttons_ul && window.CerbUI && CerbUI.Toolbar)
+		new CerbUI.Toolbar(search_buttons_ul, {
+			badgeStyle: 'pill',
+			onSelect: function(item, sourceLi) {
+				if(sourceLi)
+					$(sourceLi).trigger('click');
+			}
+		});
+
+	let toolbar_ul = $toolbar.find('ul.cerb-ui-toolbar')[0];
+	if(toolbar_ul && window.CerbUI && CerbUI.Toolbar)
+	new CerbUI.Toolbar(toolbar_ul, {
 		caller: {
 			name: 'cerb.toolbar.cardWidget.recordFields',
 			params: {

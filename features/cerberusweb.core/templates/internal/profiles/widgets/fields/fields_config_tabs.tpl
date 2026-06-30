@@ -5,60 +5,49 @@
 		<li><a href="#widget{$widget->id}TabToolbar">{'common.toolbar'|devblocks_translate|capitalize}</a>
 		<li><a href="#widget{$widget->id}TabSearchButtons">{'common.search'|devblocks_translate|capitalize} (Deprecated)</a>
 	</ul>
-	
+
 	<div id="widget{$widget->id}TabFields">
-		<fieldset class="peek black">
-			<legend style="cursor:pointer;" data-cerb-link="legend_click">{$context_ext->manifest->name}</legend>
-			
-			<div style="display:flex;flex-flow:row wrap;color:var(--cerb-color-background-contrast-100);">
-				{foreach from=$properties item=property key=property_key}
-				<div class="cerb-sort-item" style="flex:0 0 200px;">
-					<label><input type="checkbox" name="params[properties][0][]" value="{$property_key}" {if $widget && is_array($widget->extension_params.properties.0) && in_array($property_key, $widget->extension_params.properties.0)}checked="checked"{/if}> {$property.label}</label>
-				</div>
-				{/foreach}
-			</div>
-		</fieldset>
-		
-		{foreach from=$properties_custom_fieldsets item=custom_fieldset key=custom_fieldset_id}
-		<fieldset class="peek black">
-			<legend style="cursor:pointer;" data-cerb-link="legend_click">{$custom_fieldset.model->name}</legend>
-			
-			<div style="display:flex;flex-flow:row wrap;color:var(--cerb-color-background-contrast-100);">
-				{foreach from=$custom_fieldset.properties item=property key=property_key}
-				<div style="flex:0 0 200px;">
-					<label><input type="checkbox" name="params[properties][{$custom_fieldset_id}][]" value="{$property_key}" {if $widget && is_array($widget->extension_params.properties.$custom_fieldset_id) && in_array($property_key, $widget->extension_params.properties.$custom_fieldset_id)}checked="checked"{/if}> {$property.label}</label>
-				</div>
-				{/foreach}
-			</div>
-		</fieldset>
-		{/foreach}
+		{capture assign=fp_scope}#widget{$widget->id}TabFields{/capture}
+		{include file="devblocks:cerberusweb.core::internal/workspaces/widgets/record_fields/fields_picker.tpl" uid=$widget->id css_scope=$fp_scope base_label=$context_ext->manifest->name}
 	</div>
-	
+
 	<div id="widget{$widget->id}TabOptions">
-		<div>
-			<label>
-				<input type="checkbox" name="params[links][show]" value="1" {if $widget && $widget->extension_params.links.show}checked="checked"{/if}> Show record links
-			</label>
-		</div>
-		<div>
-			<label>
-				<input type="checkbox" name="params[options][show_empty_properties]" value="1" {if $widget && $widget->extension_params.options.show_empty_properties}checked="checked"{/if}> Show empty fields
-			</label>
+		{$rf_uid = uniqid()}
+		<div class="cerb-ui-form cerb-u-mt-3">
+			<div class="cerb-ui-form--field">
+				<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-2">
+					<label class="cerb-ui-toggle">
+						<input type="checkbox" name="params[links][show]" id="rfLinks{$rf_uid}" value="1" {if $widget && $widget->extension_params.links.show}checked="checked"{/if}>
+						<span class="cerb-ui-toggle--slider"></span>
+					</label>
+					<label for="rfLinks{$rf_uid}">Show record links</label>
+				</div>
+			</div>
+			<div class="cerb-ui-form--field">
+				<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-2">
+					<label class="cerb-ui-toggle">
+						<input type="checkbox" name="params[options][show_empty_properties]" id="rfEmpty{$rf_uid}" value="1" {if $widget && $widget->extension_params.options.show_empty_properties}checked="checked"{/if}>
+						<span class="cerb-ui-toggle--slider"></span>
+					</label>
+					<label for="rfEmpty{$rf_uid}">Show empty fields</label>
+				</div>
+			</div>
 		</div>
 	</div>
 
 	<div id="widget{$widget->id}TabToolbar">
-		<fieldset>
-			<legend>Toolbar: (KATA)</legend>
-			<div class="cerb-code-editor-toolbar">
-				{$toolbar_dict = DevblocksDictionaryDelegate::instance([
-				'caller_name' => 'cerb.toolbar.editor',
+		<div class="cerb-ui-panel cerb-ui-panel--spaced cerb-u-mt-3">
+			<div class="cerb-ui-header cerb-ui-header--tight">
+				<div class="cerb-ui-header--title-sm">Toolbar: <span class="cerb-ui-form--hint">KATA</span></div>
+			</div>
+			{$toolbar_dict = DevblocksDictionaryDelegate::instance([
+			'caller_name' => 'cerb.toolbar.editor',
 
-				'worker__context' => CerberusContexts::CONTEXT_WORKER,
-				'worker_id' => $active_worker->id
-				])}
+			'worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'worker_id' => $active_worker->id
+			])}
 
-				{$toolbar_kata =
+			{$toolbar_kata =
 "menu/insert:
   icon: circle-plus
   items:
@@ -70,23 +59,15 @@
       uri: ai.cerb.toolbarBuilder.menu
 "}
 
-				{$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
+			{$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
 
-				{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
+			{* The editor toolbar is the KataEditor's integrated strip below; this hidden <ul> is its host section. *}
+			<div data-cerb-toolbar-builder hidden>{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}</div>
 
-				<div class="cerb-code-editor-toolbar-divider"></div>
+			<textarea name="params[toolbar_kata]" data-editor-lines="15" spellcheck="false">{if $widget}{$widget->extension_params.toolbar_kata}{/if}</textarea>
+		</div>
+	</div>
 
-				{*
-				<button type="button" data-cerb-button="interactions-preview" class="cerb-code-editor-toolbar-button"><span class="cerb-icons cerb-icon-play"></span></button>
-				*}
-
-				<button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="#" target="_blank"><span class="cerb-icons cerb-icon-circle-question-mark"></span></a></button>
-			</div>
-
-			<textarea name="params[toolbar_kata]" data-editor-mode="ace/mode/cerb_kata">{if $widget}{$widget->extension_params.toolbar_kata}{/if}</textarea>
-		</fieldset>
-	</div>	
-	
 	<div id="widget{$widget->id}TabSearchButtons">
 		<table cellpadding="3" cellspacing="0" width="100%">
 			<thead>
@@ -96,7 +77,7 @@
 					<td><b>Search query to count:</b></td>
 				</tr>
 			</thead>
-			
+
 			{foreach from=$search_buttons item=search_button}
 			<tbody>
 				<tr>
@@ -120,7 +101,7 @@
 				</tr>
 			</tbody>
 			{/foreach}
-			
+
 			<tbody class="cerb-placeholder" style="display:none;">
 				<tr>
 					<td width="1%" nowrap="nowrap" valign="top">
@@ -143,36 +124,18 @@
 				</tr>
 			</tbody>
 		</table>
-		
+
 		<button type="button" class="cerb-placeholder-add"><span class="cerb-icons cerb-icon-circle-plus"></span></button>
 	</div>
 </div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	// Fields
-	
-	var $tab_fields = $('#widget{$widget->id}TabFields');
-
-	$tab_fields.find('fieldset:first > div:first').sortable({
-		tolerance: 'pointer',
-		placeholder: 'ui-state-highlight',
-		forceHelperSize: true,
-		forcePlaceholderSize: true,
-		items: 'div.cerb-sort-item',
-		helper: 'clone',
-		opacity: 0.7
-	});
-
-	$tab_fields.find('[data-cerb-link=legend_click]').on('click', function(e) {
-		e.stopPropagation();
-		$(this).closest('fieldset').find('input:checkbox').trigger('click');
-	});
 
 	// Search
-	
+
 	var $tab_search = $('#widget{$widget->id}TabSearchButtons');
-	
+
 	var $tab_search_template = $tab_search.find('tbody.cerb-placeholder').detach();
 	var $tab_search_table = $tab_search.find('> table:first');
 
@@ -193,69 +156,44 @@ $(function() {
 		e.stopPropagation();
 
 		let $clone = $tab_search_template.clone();
-		
+
 		$clone
 			.show()
 			.removeClass('cerb-placeholder')
 			.appendTo($tab_search_table)
 			;
-		
-		$clone.find('.cerb-template-trigger')
-			.cerbTemplateTrigger()
-			;
 	});
-	
-	$tab_search.find('> table').sortable({
-		tolerance: 'pointer',
-		placeholder: 'ui-state-highlight',
-		forceHelperSize: true,
-		forcePlaceholderSize: true,
-		items: 'tbody',
-		helper: 'clone',
-		opacity: 0.7
-	});
-	
+
+	if(window.CerbUI && CerbUI.Sortable)
+		new CerbUI.Sortable($tab_search.find('> table').get(0), {
+			items: 'tbody',
+			helper: 'clone'
+		});
+
 	// Toolbar
-	
+
 	var $tab_toolbar = $('#widget{$widget->id}TabToolbar');
 
-	var $editor = $tab_toolbar.find('[name="params[toolbar_kata]"]')
-		.cerbCodeEditor()
-		.cerbCodeEditorAutocompleteKata({
-			autocomplete_suggestions: cerbAutocompleteSuggestions.kataToolbar
-		})
-		.next('pre.ace_editor')
-	;
-
-	var editor = ace.edit($editor.attr('id'));
-
-	$tab_toolbar.find('.cerb-code-editor-toolbar').cerbToolbar({
-		caller: {
-			name: 'cerb.toolbar.editor',
-			params: {
-				toolbar: 'cerb.toolbar.profileWidget.recordFields',
-				selected_text: ''
+	// KataEditor with the toolbar-builder insert menu merged in as a host section.
+	var editor = new CerbUI.KataEditor($tab_toolbar.find('textarea[name="params[toolbar_kata]"]')[0], {
+		onAutocomplete: CerbUI.KataEditor.kataFieldSource(CerbUI.editorCore.autocompleteSchemas.kataToolbar),
+		toolbar: {
+			sections: [
+				$tab_toolbar.find('[data-cerb-toolbar-builder] ul.cerb-ui-toolbar')[0]
+			],
+			toolbarOpts: {
+				caller: { name: 'cerb.toolbar.editor', params: { toolbar: 'cerb.toolbar.profileWidget.recordFields', selected_text: '' } },
+				start: function(formData) {
+					formData.set('caller[params][selected_text]', editor.getSelectedText());
+				},
+				done: function(e) {
+					e.stopPropagation();
+					if(!e.trigger.is('.cerb-bot-trigger'))
+						return;
+					if(e.eventData.exit === 'return')
+						Devblocks.interactionWorkerPostActions(e.eventData, editor);
+				}
 			}
-		},
-		start: function(formData) {
-			formData.set('caller[params][selected_text]', editor.getSelectedText());
-		},
-		done: function(e) {
-			e.stopPropagation();
-
-			var $target = e.trigger;
-
-			if(!$target.is('.cerb-bot-trigger'))
-				return;
-
-			if (e.eventData.exit === 'error') {
-
-			} else if(e.eventData.exit === 'return') {
-				Devblocks.interactionWorkerPostActions(e.eventData, editor);
-			}
-		},
-		reset: function(e) {
-			e.stopPropagation();
 		}
 	});
 });

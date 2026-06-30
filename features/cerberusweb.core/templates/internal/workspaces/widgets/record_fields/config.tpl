@@ -1,25 +1,29 @@
-<div id="widget{$widget->id}Config" style="margin-top:10px;">
-	<fieldset id="widget{$widget->id}Worklist" class="peek">
-		<legend>Display this record:</legend>
-		
-		<b>Type:</b>
-		
-		<div style="margin-left:10px;">
-			<select name="params[context]">
-				<option value=""></option>
-				{foreach from=$context_mfts item=context_mft}
-				<option value="{$context_mft->id}" {if CerberusContexts::isSameContext($widget->params.context, $context_mft->id)}selected="selected"{/if}>{$context_mft->name}</option>
-				{/foreach}
-			</select>
+<div id="widget{$widget->id}Config" class="cerb-u-my-3">
+	<div class="cerb-ui-panel cerb-ui-panel--spaced">
+		<div class="cerb-ui-header cerb-ui-header--tight">
+			<div class="cerb-ui-header--title-sm">Display this record:</div>
 		</div>
-		
-		<b><a class="cerb-chooser" data-context="{$widget->params.context}" data-single="true">ID</a>:</b>
-		
-		<div style="margin-left:10px;">
-			<input type="text" name="params[context_id]" value="{$widget->params.context_id}" class="placeholders" style="width:95%;padding:5px;border-radius:5px;" autocomplete="off" spellcheck="false">
+
+		<div class="cerb-ui-form">
+			<div class="cerb-ui-form--row">
+				<div class="cerb-ui-form--field">
+					<label class="cerb-ui-form--label">{'common.type'|devblocks_translate|capitalize}</label>
+					<select name="params[context]">
+						<option value=""></option>
+						{foreach from=$context_mfts item=context_mft}
+						<option value="{$context_mft->id}" {if CerberusContexts::isSameContext($widget->params.context, $context_mft->id)}selected="selected"{/if}>{$context_mft->name}</option>
+						{/foreach}
+					</select>
+				</div>
+
+				<div class="cerb-ui-form--field">
+					<label class="cerb-ui-form--label"><a class="cerb-chooser cerb-u-cursor-pointer" data-context="{$widget->params.context}" data-single="true">ID</a></label>
+					<input type="text" name="params[context_id]" value="{$widget->params.context_id}" class="placeholders" autocomplete="off" spellcheck="false">
+				</div>
+			</div>
 		</div>
-	</fieldset>
-	
+	</div>
+
 	<div class="cerb-context-tabs">
 		{include file="devblocks:cerberusweb.core::internal/workspaces/widgets/record_fields/fields_config_tabs.tpl"}
 	</div>
@@ -34,7 +38,7 @@ $(function() {
 	var $tab_fields = $config.find('#widget{$widget->id}TabFields');
 	var $context_tabs = $config.find('div.cerb-context-tabs');
 	
-	$context_tabs.find('div.cerb-tabs').tabs();
+	$context_tabs.find('div.cerb-tabs > ul').each(function() { if(window.CerbUI && CerbUI.Tabs) new CerbUI.Tabs(this); });
 	
 	$select.on('change', function(e) {
 		var context = $(this).val();
@@ -50,18 +54,11 @@ $(function() {
 		genericAjaxGet($context_tabs, 'c=profiles&a=invoke&module=workspace_widget&action=getFieldsTabsByContext&context=' + encodeURIComponent(context), function() {
 			var $tabs = $context_tabs.find('div.cerb-tabs');
 			
-			try {
-				$tabs.tabs('destroy');
-			} catch(e) {}
-			
-			$tabs.tabs().show();
+			$tabs.find('> ul').each(function() { if(window.CerbUI && CerbUI.Tabs) new CerbUI.Tabs(this); });
+			$tabs.show();
 		});
 	});
 	
-	$config.find('.cerb-chooser').cerbChooserTrigger()
-		.on('cerb-chooser-selected', function(e) {
-			{literal}$input_context_id.val(e.values[0] + '{# ' + e.labels[0] + ' #}');{/literal}
-		})
-		;
+	if(window.CerbUI && CerbUI.RecordChooser) CerbUI.RecordChooser.pickerLink($config.find('.cerb-chooser')[0], { input: $input_context_id });
 });
 </script>

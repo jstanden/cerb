@@ -203,36 +203,15 @@ class WorkspaceWidget_RecordFields extends Extension_WorkspaceWidget {
 			$tpl->assign('context_ext', $context_ext);
 			
 			// =================================================================
-			// Properties
-			
+			// Properties — WYSIWYG preview of every available field (toggle to include)
+
 			if($context_ext instanceof IDevblocksContextProfile) {
-				$properties = $context_ext->profileGetFields();
-				
-				$tpl->assign('custom_field_values', []);
-				
-				$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context);
-				
-				if (!empty($properties_cfields))
-					$properties = array_merge($properties, $properties_cfields);
-				
-				// Sort properties by the configured order
-				
-				$properties_enabled = array_fill_keys($widget->params['properties'][0] ?? [], true);
-				
-				uksort($properties, function ($a, $b) use ($properties_enabled, $properties) {
-					$a_pos = array_key_exists($a, $properties_enabled) ? $properties_enabled[$a] : 1000;
-					$b_pos = array_key_exists($b, $properties_enabled) ? $properties_enabled[$b] : 1000;
-					
-					if ($a_pos == $b_pos)
-						return $properties[$a]['label'] > $properties[$b]['label'] ? 1 : -1;
-					
-					return $a_pos < $b_pos ? -1 : 1;
-				});
-				
-				$tpl->assign('properties', $properties);
-				
-				$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, null, [], true);
-				$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
+				$preview = \Cerb\Records\RecordFieldsPreview::build($context_ext, $widget->params['properties'] ?? null);
+				$tpl->assign('preview_properties', $preview['properties']);
+				$tpl->assign('preview_custom_fieldsets', $preview['custom_fieldsets']);
+				$tpl->assign('preview_selected', $preview['selected']);
+				$tpl->assign('custom_field_values', $preview['custom_field_values']);
+				$tpl->assign('dict', $preview['dict']);
 			}
 			
 			// =================================================================
@@ -313,6 +292,7 @@ class WorkspaceWidget_RecordFields extends Extension_WorkspaceWidget {
 					'context' => $search_button_context->id,
 					'count' => $total,
 					'query' => $search_button_query,
+					'icon' => $search_button_context->manifest->params['icon'] ?? 'collection',
 				];
 			}
 			

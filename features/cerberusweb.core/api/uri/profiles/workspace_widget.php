@@ -464,24 +464,17 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		$tpl->assign('context_ext', $context_ext);
-		
+
 		// =================================================================
-		// Properties
-		
-		$properties = $context_ext->profileGetFields();
-		
-		$tpl->assign('custom_field_values', []);
-		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, null);
-		
-		if(!empty($properties_cfields))
-			$properties = array_merge($properties, $properties_cfields);
-		
-		$tpl->assign('properties', $properties);
-		
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, null, [], true);
-		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
-		
+		// Properties — WYSIWYG preview of every available field (nothing pre-selected here)
+
+		$preview = \Cerb\Records\RecordFieldsPreview::build($context_ext, null);
+		$tpl->assign('preview_properties', $preview['properties']);
+		$tpl->assign('preview_custom_fieldsets', $preview['custom_fieldsets']);
+		$tpl->assign('preview_selected', $preview['selected']);
+		$tpl->assign('custom_field_values', $preview['custom_field_values']);
+		$tpl->assign('dict', $preview['dict']);
+
 		// =================================================================
 		// Search buttons
 		
