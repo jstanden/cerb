@@ -190,25 +190,87 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 			return;
 		
 		// Columns
-		
-		$columns = [];
+
 		$columns_available = $view->getColumnsAvailable();
-		
-		// Start with the currently selected columns
+
+		// Build CerbUI column metadata (label, group, icon, color) keyed by token, in Cerb's
+		// natural column order (the picker keeps this order; it doesn't sort selected-first)
+
+		$custom_fields = DAO_CustomField::getAll();
+		$custom_fieldsets = DAO_CustomFieldset::getAll();
+
+		$columns_meta = [];
+
+		foreach($columns_available as $token => $col) {
+			if(!$token || !$col->db_label)
+				continue;
+
+			$group = 'Standard fields';
+			$eyebrow = ''; // tile eyebrow: only shown for real fieldsets
+			$label = ucwords($col->db_label);
+			$type = $col->type;
+
+			// Custom fields: group by fieldset, use the bare field name as the label
+			if(DevblocksPlatform::strStartsWith($token, 'cf_')) {
+				$field_id = intval(substr($token, 3));
+
+				if(isset($custom_fields[$field_id])) {
+					$field = $custom_fields[$field_id];
+					$label = $field->name;
+					$type = $field->type;
+
+					if($field->custom_fieldset_id && isset($custom_fieldsets[$field->custom_fieldset_id])) {
+						$group = $custom_fieldsets[$field->custom_fieldset_id]->name;
+						$eyebrow = $group;
+					} else {
+						$group = 'Custom fields';
+					}
+				}
+			}
+
+			[$icon, $color] = $this->_getColumnDisplayMeta($type);
+
+			$columns_meta[$token] = [
+				'token' => $token,
+				'label' => $label,
+				'group' => $group,
+				'eyebrow' => $eyebrow,
+				'icon' => $icon,
+				'color' => $color,
+			];
+		}
+
+		// Currently selected columns, in order (filtered to what's available)
+		$selected_tokens = [];
 		if(is_array($view->view_columns))
 			foreach($view->view_columns as $token) {
-				if(isset($columns_available[$token]) && !isset($columns[$token]))
-					$columns[$token] = $columns_available[$token];
+				if(isset($columns_meta[$token]))
+					$selected_tokens[] = $token;
 			}
-		
-		// Finally, append the remaining columns
-		foreach($columns_available as $token => $col) {
-			if(!isset($columns[$token]))
-				if($token && $col->db_label)
-					$columns[$token] = $col;
+
+		// Default columns for "reset" come from a fresh instance of the view class
+		$default_columns = $selected_tokens;
+		try {
+			$view_class = get_class($view);
+			$default_view = new $view_class();
+
+			if(is_array($default_view->view_columns)) {
+				$default_columns = [];
+				foreach($default_view->view_columns as $token) {
+					if(isset($columns_meta[$token]))
+						$default_columns[] = $token;
+				}
+			}
+		} catch(Throwable) {
+			// Fall back to the current selection
 		}
-		
-		$tpl->assign('columns', $columns);
+
+		// Pre-encode as JSON here (custom field names are user-controlled) so it's safe to
+		// emit raw into an inline <script> — HEX flags prevent a "</script>" breakout
+		$json_flags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT;
+		$tpl->assign('columns_meta_json', json_encode($columns_meta, $json_flags));
+		$tpl->assign('selected_tokens_json', json_encode($selected_tokens, $json_flags));
+		$tpl->assign('default_columns_json', json_encode($default_columns, $json_flags));
 		
 		// Custom worklists
 		
@@ -242,7 +304,13 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		$tpl->assign('view', $view);
 		$tpl->display('devblocks:cerberusweb.core::internal/views/customize_view.tpl');
 	}
-	
+
+	// Map a column's field type to a cerb-icon glyph + tag color for its tile. The mapping is shared with
+	// the query-autocomplete field list, so it lives on C4_AbstractView.
+	private function _getColumnDisplayMeta($type) : array {
+		return C4_AbstractView::getColumnDisplayMeta($type);
+	}
+
 	private function _internalAction_broadcastTest() {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
