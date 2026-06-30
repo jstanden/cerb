@@ -1,0 +1,37 @@
+// Tile-grid — a flex-wrap grid of selectable tiles (the column / field chooser pattern shared by the
+// worklist-widget configs and the record-fields picker). Promoted from per-page `.cerb-columns-*` /
+// `.cerb-fieldpicker-*` duplicates.
+.cerb-ui-tile-grid {
+	display: flex;
+	flex-flow: row wrap;
+	gap: 6px;
+}
+
+// A draggable, selectable cell (a cerb-ui-tile). Unselected cells dim; drag affordance via grab cursor.
+// (The record-fields picker keeps its own cell rules — its cells aren't uniformly draggable.)
+.cerb-ui-tile-grid--cell {
+	box-sizing: border-box;
+	flex: 0 0 200px;
+	max-width: 200px;
+	gap: 0.5em;
+	cursor: grab;
+
+	&:active { cursor: grabbing; }
+	&:not(.is-selected) { opacity: 0.4; }
+}
+
+// "Select all / clear all" icon button shown above a tile-grid — flat (no native chrome), dim until hover.
+.cerb-ui-selectall {
+	appearance: none;
+	border: 0;
+	background: none;
+	box-shadow: none;
+	padding: 0;
+	min-height: 0;
+	height: auto;
+	cursor: pointer;
+	opacity: 0.6;
+	color: inherit;
+
+	&:hover { opacity: 1; background: none; box-shadow: none; }
+}
