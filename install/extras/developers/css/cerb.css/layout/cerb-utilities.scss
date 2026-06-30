@@ -24,6 +24,9 @@
 // Link affordance: no underline at rest, underline on hover (replaces ad-hoc A.no-underline + :hover rules)
 .cerb-u-underline-hover { text-decoration: none; }
 .cerb-u-underline-hover:hover { text-decoration: underline; }
+// Single-line ellipsis truncation — the standard composite idiom (like Bootstrap's .text-truncate). The
+// min-width:0 lets it shrink inside a flex row (a flex item won't shrink below its content width otherwise).
+.cerb-u-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
 
 // Font weight scale — numeric steps map straight to the CSS value (Bootstrap-style `fw-*` prefix);
 // e.g. cerb-u-fw-700 = bold, cerb-u-fw-400 = normal. 800 is headroom (not yet used in components).
@@ -114,8 +117,8 @@ $cerb-u-grays: (
 }
 
 // Border radius (rounded corners). Scale matches the design system's component radii:
-// 2 = inputs/buttons (6px), 3 = chips/menus (8px), 4 = panels (10px); -full pills it.
-$cerb-u-radii: (0: 0, 1: 4px, 2: 6px, 3: 8px, 4: 10px);
+// 2 = inputs/buttons (6px), 3 = chips/menus (8px), 4 = panels (10px), 5 = section cards (16px); -full pills it.
+$cerb-u-radii: (0: 0, 1: 4px, 2: 6px, 3: 8px, 4: 10px, 5: 16px);
 @each $step, $r in $cerb-u-radii {
 	.cerb-u-rounded-#{$step} { border-radius: #{$r}; }
 }
