@@ -6925,6 +6925,18 @@
 		</extension>
 		
 		<extension point="cerb.profile.tab.widget">
+			<id>cerb.profile.tab.widget.chart.kata</id>
+			<name>Chart: KATA</name>
+			<class>
+				<file>api/profiles/widgets/chart_kata.php</file>
+				<name>ProfileWidget_ChartKata</name>
+			</class>
+			<params>
+				<param key="icon" value="chart-kata" />
+			</params>
+		</extension>
+
+		<extension point="cerb.profile.tab.widget">
 			<id>cerb.profile.tab.widget.chart.pie</id>
 			<name>Chart: Pie</name>
 			<class>
