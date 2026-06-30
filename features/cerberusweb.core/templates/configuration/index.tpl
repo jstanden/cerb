@@ -128,7 +128,6 @@
 				<ul hidden>
 					<li><a href="{devblocks_url}c=config&a=storage_content{/devblocks_url}">Overview</a></li>
 					{if !$smarty.const.DEVBLOCKS_STORAGE_ENGINE_PREVENT_CHANGE}<li><a href="{devblocks_url}c=config&a=storage_profiles{/devblocks_url}">{'common.profiles'|devblocks_translate|capitalize}</a></li>{/if}
-					<li><a href="{devblocks_url}c=config&a=storage_attachments{/devblocks_url}">{'common.objects'|devblocks_translate|capitalize}</a></li>
 
 					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.storage')}
 					{if !empty($exts)}<li><hr></li>{/if}
