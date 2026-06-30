@@ -7183,7 +7183,19 @@
 				<param key="label" value="Worklists" />
 			</params>
 		</extension>
-		
+
+		<extension point="cerberusweb.ui.workspace.tab">
+			<id>cerb.workspace.tab.daily_task_board</id>
+			<name>Daily Task Board</name>
+			<class>
+				<file>api/workspaces/tabs/daily_task_board.php</file>
+				<name>WorkspaceTab_DailyTaskBoard</name>
+			</class>
+			<params>
+				<param key="label" value="Daily Task Board" />
+			</params>
+		</extension>
+
 		<!-- Workspace Widgets -->
 		
 		<extension point="cerberusweb.ui.workspace.widget">

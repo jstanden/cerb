@@ -1,0 +1,4 @@
+{* Card assignee chip — sits in the card body's left column (where the done check used to), so the title
+   doesn't wrap under it. The owner's avatar, or a one-click "assign to me" claim button when the task is
+   unassigned AND the worker can write it. (The separate .dtb-card--meta strip below holds rarer items.) *}
+{if $owner_id > 0}<img class="dtb-card--owner" src="{$worker_meta[$owner_id].avatar|default:''}" title="{$worker_meta[$owner_id].name|default:''}" alt="">{elseif $writeable_project_ids[$project_id]|default:false}<button type="button" class="dtb-card--claim" data-cerb-dtb="claim" title="Assign to me"><span class="cerb-icons cerb-icon-user"></span></button>{/if}
