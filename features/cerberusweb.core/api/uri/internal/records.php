@@ -40,8 +40,8 @@ class PageSection_InternalRecords extends Extension_PageSection {
 					return $this->_internalAction_contextAddLinksJson();
 				case 'contextDeleteLinksJson':
 					return $this->_internalAction_contextDeleteLinksJson();
-				case 'editorOpenTemplate':
-					return $this->_internalAction_editorOpenTemplate();
+				case 'templatePlaceholders':
+					return $this->_internalAction_templatePlaceholders();
 				case 'getChangesetJson':
 					return $this->_internalAction_getChangesetJson();
 				case 'getCustomFieldSet':
@@ -307,45 +307,43 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		
 		DevblocksPlatform::exit();
 	}
-	
-	private function _internalAction_editorOpenTemplate() {
-		$context = DevblocksPlatform::importGPC($_REQUEST['context'] ?? null, 'string');
-		$label_prefix = DevblocksPlatform::importGPC($_REQUEST['label_prefix'] ?? null, 'string', '');
+
+	// Lazy-loaded placeholder-insert menu for an inline template field (template_field.tpl). Builds the
+	// {{token}} tree for one or more comma-separated record-type contexts (composite), merged under the
+	// given key_prefix, and renders the shared _template_placeholder_menu.tpl <ul>.
+	private function _internalAction_templatePlaceholders() {
+		$contexts = DevblocksPlatform::importGPC($_REQUEST['context'] ?? null, 'string', '');
 		$key_prefix = DevblocksPlatform::importGPC($_REQUEST['key_prefix'] ?? null, 'string', '');
-		$template = DevblocksPlatform::importGPC($_REQUEST['template'] ?? null, 'string');
-		$placeholders = DevblocksPlatform::importGPC($_REQUEST['placeholders'] ?? null, 'array',[]);
-		
+		$placeholders = DevblocksPlatform::importGPC($_REQUEST['placeholders'] ?? null, 'array', []);
+
 		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('template', $template);
-		
-		$tpl->assign('key_prefix', $key_prefix);
-		
+
+		// Seed with any extra (non-context) tokens the caller declared, e.g. ['code'=>'Confirmation code'].
 		$labels = $placeholders;
-		$values = $merge_labels = $merge_values = [];
-		
-		if($context && ($context_ext = Extension_DevblocksContext::getByAlias($context, true))) {
-			$tpl->assign('context_ext', $context_ext);
-			
-			if(empty($label_prefix))
-				$label_prefix =  $context_ext->manifest->name . ' ';
-			
-			// Load the context dictionary for scope
+		$values = [];
+
+		foreach(DevblocksPlatform::parseCsvString($contexts) as $context) {
+			if(!($context_ext = Extension_DevblocksContext::getByAlias($context, true)))
+				continue;
+
+			$merge_labels = $merge_values = [];
+
 			CerberusContexts::getContext($context_ext->id, null, $merge_labels, $merge_values, '', true, false);
-			
+
 			CerberusContexts::merge(
 				$key_prefix,
-				$label_prefix,
+				$context_ext->manifest->name . ' ',
 				$merge_labels,
 				$merge_values,
 				$labels,
 				$values
 			);
 		}
-		
+
 		$placeholders = Extension_DevblocksContext::getPlaceholderTree($labels);
 		$tpl->assign('placeholders', $placeholders);
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/editors/__template.tpl');
+
+		$tpl->display('devblocks:cerberusweb.core::internal/editors/_template_placeholder_menu.tpl');
 	}
 	
 	private function _internalAction_chooserOpenFile() {
