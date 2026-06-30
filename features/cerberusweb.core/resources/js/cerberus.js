@@ -3566,48 +3566,6 @@ var ajax = new cAjaxCalls();
 		});
 	}
 
-	// Abstract query builder
-	
-	$.fn.cerbQueryTrigger = function(options) {
-		return this.each(function() {
-			let $trigger = $(this);
-			
-			if(!($trigger.is('input[type=text]')) && !($trigger.is('textarea')))
-				return;
-			
-			$trigger
-				.css('color', 'var(--cerb-color-background-contrast-100)')
-				.css('cursor', 'text')
-				.attr('readonly', 'readonly')
-			;
-			
-			if(null == $trigger.attr('placeholder'))
-				$trigger.attr('placeholder', '(click to edit)');
-			
-			// Context
-			
-			$trigger.on('click keypress', function(e) {
-				e.stopPropagation();
-				
-				let width = $(window).width()-100;
-				let q = $trigger.val();
-				let context = $trigger.attr('data-context');
-				
-				if(!(typeof context == "string") || 0 === context.length)
-					return;
-				
-				let $chooser = genericAjaxPopup("chooser" + Devblocks.uniqueId(),'c=internal&a=invoke&module=records&action=chooserOpenParams&context=' + encodeURIComponent(context) + '&q=' + encodeURIComponent(q),null,true,width);
-				
-				$chooser.on('chooser_save',function(event) {
-					$trigger.val(event.worklist_quicksearch);
-					
-					event.type = 'cerb-query-saved';
-					$trigger.trigger(event);
-				});
-			});
-		});
-	}
-	
 	// Abstract template builder
 	
 	$.fn.cerbTemplateTrigger = function(options) {
