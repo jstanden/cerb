@@ -723,7 +723,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 				
 				if($form_validation_errors) {
 					$tpl->assign('errors', $form_validation_errors);
-					$tpl->display('devblocks:cerberusweb.core::automations/interactions/worker/responses/respond_errors.tpl');
+					$tpl->display('devblocks:cerb.behaviors.legacy::interactions/worker/responses/respond_errors.tpl');
 					
 					// If we had validation errors, repeat the form state
 					$actions = $interaction->session_data['form_state'];
@@ -769,7 +769,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			switch(@$params['_action']) {
 				case 'interaction.end':
 					//$this->_resetFormState($interaction);
-					$tpl->display('devblocks:cerberusweb.core::automations/interactions/worker/responses/respond_end.tpl');
+					$tpl->display('devblocks:cerb.behaviors.legacy::interactions/worker/responses/respond_end.tpl');
 					break;
 				
 				case 'prompt.captcha':
@@ -787,7 +787,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					$tpl->assign('label', $label);
 					$tpl->assign('var', $var);
 					$tpl->assign('dict', $behavior_dict);
-					$tpl->display('devblocks:cerberusweb.core::automations/interactions/worker/prompts/prompt_captcha.tpl');
+					$tpl->display('devblocks:cerb.behaviors.legacy::interactions/worker/prompts/prompt_captcha.tpl');
 					break;
 				
 				case 'prompt.checkboxes':
@@ -801,7 +801,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					$tpl->assign('default', $default);
 					$tpl->assign('var', $var);
 					$tpl->assign('dict', $behavior_dict);
-					$tpl->display('devblocks:cerberusweb.core::automations/interactions/worker/prompts/prompt_checkboxes.tpl');
+					$tpl->display('devblocks:cerb.behaviors.legacy::interactions/worker/prompts/prompt_checkboxes.tpl');
 					break;
 				
 				case 'prompt.chooser':
@@ -848,7 +848,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					$tpl->assign('params', $params);
 					$tpl->assign('records', $records);
 					$tpl->assign('dict', $behavior_dict);
-					$tpl->display('devblocks:cerberusweb.core::automations/interactions/worker/prompts/prompt_chooser.tpl');
+					$tpl->display('devblocks:cerb.behaviors.legacy::interactions/worker/prompts/prompt_chooser.tpl');
 					break;
 				
 				case 'prompt.compose':
@@ -859,7 +859,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					$tpl->assign('var', $var);
 					$tpl->assign('params', $params);
 					$tpl->assign('dict', $behavior_dict);
-					$tpl->display('devblocks:cerberusweb.core::automations/interactions/worker/prompts/prompt_compose.tpl');
+					$tpl->display('devblocks:cerb.behaviors.legacy::interactions/worker/prompts/prompt_compose.tpl');
 					break;
 				
 				case 'prompt.files':
@@ -880,7 +880,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					$tpl->assign('params', $params);
 					$tpl->assign('records', $records);
 					$tpl->assign('dict', $behavior_dict);
-					$tpl->display('devblocks:cerberusweb.core::automations/interactions/worker/prompts/prompt_files.tpl');
+					$tpl->display('devblocks:cerb.behaviors.legacy::interactions/worker/prompts/prompt_files.tpl');
 					break;
 				
 				case 'prompt.radios':
@@ -899,11 +899,11 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					$tpl->assign('dict', $behavior_dict);
 					
 					if($style == 'buttons') {
-						$tpl->display('devblocks:cerberusweb.core::automations/interactions/worker/prompts/prompt_buttons.tpl');
+						$tpl->display('devblocks:cerb.behaviors.legacy::interactions/worker/prompts/prompt_buttons.tpl');
 					} else if($style == 'picklist') {
-						$tpl->display('devblocks:cerberusweb.core::automations/interactions/worker/prompts/prompt_picklist.tpl');
+						$tpl->display('devblocks:cerb.behaviors.legacy::interactions/worker/prompts/prompt_picklist.tpl');
 					} else {
-						$tpl->display('devblocks:cerberusweb.core::automations/interactions/worker/prompts/prompt_radios.tpl');
+						$tpl->display('devblocks:cerb.behaviors.legacy::interactions/worker/prompts/prompt_radios.tpl');
 					}
 					break;
 				
@@ -915,7 +915,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					$tpl->assign('var', $var);
 					$tpl->assign('params', $params);
 					$tpl->assign('dict', $behavior_dict);
-					$tpl->display('devblocks:cerberusweb.core::automations/interactions/worker/prompts/prompt_reply.tpl');
+					$tpl->display('devblocks:cerb.behaviors.legacy::interactions/worker/prompts/prompt_reply.tpl');
 					break;
 				
 				case 'prompt.sheet':
@@ -958,7 +958,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					
 					$tpl->assign('label', $label);
 					$tpl->assign('var', $var);
-					$tpl->display('devblocks:cerberusweb.core::automations/interactions/worker/prompts/prompt_sheet.tpl');
+					$tpl->display('devblocks:cerb.behaviors.legacy::interactions/worker/prompts/prompt_sheet.tpl');
 					break;
 				
 				case 'prompt.text':
@@ -976,7 +976,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					$tpl->assign('var', $var);
 					$tpl->assign('max_length', $max_length);
 					$tpl->assign('dict', $behavior_dict);
-					$tpl->display('devblocks:cerberusweb.core::automations/interactions/worker/prompts/prompt_text.tpl');
+					$tpl->display('devblocks:cerb.behaviors.legacy::interactions/worker/prompts/prompt_text.tpl');
 					break;
 				
 				case 'respond.text':
@@ -986,7 +986,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					$tpl->assign('message', $msg);
 					$tpl->assign('format', $params['format'] ?? '');
 					$tpl->assign('style', $params['style'] ?? '');
-					$tpl->display('devblocks:cerberusweb.core::automations/interactions/worker/responses/respond_text.tpl');
+					$tpl->display('devblocks:cerb.behaviors.legacy::interactions/worker/responses/respond_text.tpl');
 					break;
 				
 				case 'respond.sheet':
@@ -1028,9 +1028,9 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 						$tpl->assign('paging', $results['_']['paging']);
 					
 					if($layout['style'] == 'fieldsets') {
-						$tpl->display('devblocks:cerberusweb.core::automations/interactions/worker/responses/respond_sheet_fieldsets.tpl');
+						$tpl->display('devblocks:cerb.behaviors.legacy::interactions/worker/responses/respond_sheet_fieldsets.tpl');
 					} else {
-						$tpl->display('devblocks:cerberusweb.core::automations/interactions/worker/responses/respond_sheet.tpl');
+						$tpl->display('devblocks:cerb.behaviors.legacy::interactions/worker/responses/respond_sheet.tpl');
 					}
 					break;
 				
