@@ -221,6 +221,7 @@
 				<name>ProfileWidget_ProjectBoard</name>
 			</class>
 			<params>
+				<param key="icon" value="kanban" />
 			</params>
 		</extension>
 		
@@ -234,6 +235,7 @@
 				<name>WorkspaceWidget_ProjectBoard</name>
 			</class>
 			<params>
+				<param key="icon" value="kanban" />
 			</params>
 		</extension>
 		

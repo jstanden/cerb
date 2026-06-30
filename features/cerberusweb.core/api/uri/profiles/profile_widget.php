@@ -174,6 +174,7 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 						
 						$fields = [
 							DAO_ProfileWidget::NAME => $name,
+							DAO_ProfileWidget::ICON => @$widget_json['widget']['icon'] ?: '',
 							DAO_ProfileWidget::EXTENSION_ID => $extension_id,
 							DAO_ProfileWidget::EXTENSION_PARAMS_JSON => json_encode($widget_json['widget']['extension_params']),
 							DAO_ProfileWidget::PROFILE_TAB_ID => $profile_tab_id,
@@ -205,6 +206,7 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 					case 'build':
 						$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
 						$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? null, 'string', '');
+						$icon = DevblocksPlatform::importGPC($_POST['icon'] ?? null, 'string', '');
 						$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 						$width_units = DevblocksPlatform::importGPC($_POST['width_units'] ?? null, 'integer', 1);
 						$options_kata = DevblocksPlatform::importGPC($_POST['options_kata'] ?? null, 'string', '');
@@ -217,6 +219,7 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 							$fields = array(
 								DAO_ProfileWidget::EXTENSION_ID => $extension_id,
 								DAO_ProfileWidget::EXTENSION_PARAMS_JSON => json_encode($params),
+								DAO_ProfileWidget::ICON => $icon,
 								DAO_ProfileWidget::NAME => $name,
 								DAO_ProfileWidget::PROFILE_TAB_ID => $profile_tab_id,
 								DAO_ProfileWidget::UPDATED_AT => time(),
@@ -245,6 +248,7 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 						} else { // Edit
 							$fields = array(
 								DAO_ProfileWidget::EXTENSION_PARAMS_JSON => json_encode($params),
+								DAO_ProfileWidget::ICON => $icon,
 								DAO_ProfileWidget::NAME => $name,
 								DAO_ProfileWidget::UPDATED_AT => time(),
 								DAO_ProfileWidget::WIDTH_UNITS => $width_units,
@@ -368,8 +372,17 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 		}
 		
 		$widget_manifests = Extension_ProfileWidget::getByContext($profile_tab->context, false);
-		
-		echo json_encode(array_column(DevblocksPlatform::objectsToArrays($widget_manifests), 'name', 'id'));
+
+		$results = [];
+
+		foreach($widget_manifests as $manifest) {
+			$results[$manifest->id] = [
+				'name' => $manifest->name,
+				'icon' => $manifest->params['icon'] ?? 'dashboard',
+			];
+		}
+
+		echo json_encode($results);
 	}
 	
 	private function _profileAction_invokeConfig() {
@@ -538,6 +551,7 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 				'profile_widget/' . uniqid() => [
 					'fields' => [
 						'name' => $widget->name ?? '',
+						'icon' => $widget->icon ?? '',
 						'profile_tab_id' => $widget->profile_tab_id ?? 0,
 						'extension_id' => $widget->extension_id ?? '',
 						'pos' => $widget->pos ?? '100',

@@ -555,6 +555,7 @@
                 <name>CardWidget_BehaviorTree</name>
             </class>
             <params>
+                <param key="icon" value="hierarchy" />
             </params>
         </extension>
 
@@ -568,6 +569,7 @@
                 <name>ProfileWidget_BehaviorTree</name>
             </class>
             <params>
+                <param key="icon" value="hierarchy" />
             </params>
         </extension>
 
@@ -579,6 +581,7 @@
                 <name>ProfileWidget_BotBehavior</name>
             </class>
             <params>
+                <param key="icon" value="bot" />
             </params>
         </extension>
 
@@ -592,6 +595,7 @@
 				<name>WorkspaceWidget_BehaviorTree</name>
 			</class>
 			<params>
+				<param key="icon" value="hierarchy" />
 			</params>
 		</extension>
 
@@ -603,6 +607,7 @@
                 <name>WorkspaceWidget_BotBehavior</name>
             </class>
             <params>
+                <param key="icon" value="bot" />
             </params>
         </extension>
 

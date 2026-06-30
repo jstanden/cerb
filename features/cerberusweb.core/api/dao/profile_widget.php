@@ -2,6 +2,7 @@
 class DAO_ProfileWidget extends Cerb_ORMHelper {
 	const EXTENSION_ID = 'extension_id';
 	const EXTENSION_PARAMS_JSON = 'extension_params_json';
+	const ICON = 'icon';
 	const ID = 'id';
 	const NAME = 'name';
 	const OPTIONS_KATA = 'options_kata';
@@ -37,6 +38,11 @@ class DAO_ProfileWidget extends Cerb_ORMHelper {
 			->addField(self::EXTENSION_PARAMS_JSON)
 			->string()
 			->setMaxLength(16777216)
+			;
+		$validation
+			->addField(self::ICON, DevblocksPlatform::translateCapitalized('common.icon'))
+			->string()
+			->setMaxLength(64)
 			;
 		$validation
 			->addField(self::OPTIONS_KATA)
@@ -195,7 +201,7 @@ class DAO_ProfileWidget extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, profile_tab_id, extension_id, extension_params_json, options_kata, pos, width_units, updated_at, zone ".
+		$sql = "SELECT id, name, icon, profile_tab_id, extension_id, extension_params_json, options_kata, pos, width_units, updated_at, zone ".
 			"FROM profile_widget ".
 			$where_sql.
 			$sort_sql.
@@ -330,6 +336,7 @@ class DAO_ProfileWidget extends Cerb_ORMHelper {
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_ProfileWidget();
 			$object->extension_id = $row['extension_id'];
+			$object->icon = $row['icon'] ?? '';
 			$object->id = $row['id'];
 			$object->name = $row['name'];
 			$object->options_kata = $row['options_kata'];
@@ -593,6 +600,7 @@ class SearchFields_ProfileWidget extends DevblocksSearchFields {
 class Model_ProfileWidget extends DevblocksRecordModel {
 	public $extension_id = 0;
 	public $extension_params = [];
+	public $icon = '';
 	public $id = 0;
 	public $name = null;
 	public $options_kata = '';
@@ -636,6 +644,15 @@ class Model_ProfileWidget extends DevblocksRecordModel {
 	
 	function getExtension() : ?Extension_ProfileWidget {
 		return Extension_ProfileWidget::get($this->extension_id);
+	}
+
+	// The instance icon overrides the widget type's manifest icon; falls back to `dashboard`.
+	function getIcon() : string {
+		if($this->icon !== '')
+			return $this->icon;
+		if($ext = $this->getExtension())
+			return $ext->getIcon();
+		return 'dashboard';
 	}
 };
 
@@ -1096,6 +1113,7 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 		$token_labels = array(
 			'_label' => $prefix,
 			'extension_id' => $prefix.$translate->_('common.extension'),
+			'icon' => $prefix.$translate->_('common.icon'),
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
 			'pos' => $prefix.$translate->_('common.order'),
@@ -1109,6 +1127,7 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 		$token_types = array(
 			'_label' => 'context_url',
 			'extension_id' => 'extension',
+			'icon' => Model_CustomField::TYPE_SINGLE_LINE,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'pos' => Model_CustomField::TYPE_NUMBER,
@@ -1138,6 +1157,7 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $profile_widget->name;
 			$token_values['extension_id'] = $profile_widget->extension_id;
+			$token_values['icon'] = $profile_widget->icon;
 			$token_values['id'] = $profile_widget->id;
 			$token_values['name'] = $profile_widget->name;
 			$token_values['pos'] = $profile_widget->pos;
@@ -1174,6 +1194,7 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 		return [
 			'id' => DAO_ProfileWidget::ID,
 			'extension_id' => DAO_ProfileWidget::EXTENSION_ID,
+			'icon' => DAO_ProfileWidget::ICON,
 			'links' => '_links',
 			'name' => DAO_ProfileWidget::NAME,
 			'options_kata' => DAO_ProfileWidget::OPTIONS_KATA,

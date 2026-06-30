@@ -246,6 +246,7 @@
 				<name>CardWidget_ClassifierTrainer</name>
 			</class>
 			<params>
+				<param key="icon" value="brain" />
 			</params>
 		</extension>
 

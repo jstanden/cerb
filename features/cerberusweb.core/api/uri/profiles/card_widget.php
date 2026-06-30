@@ -177,6 +177,7 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 						
 						$fields = [
 							DAO_CardWidget::NAME => $name,
+							DAO_CardWidget::ICON => @$widget_json['widget']['icon'] ?: '',
 							DAO_CardWidget::RECORD_TYPE => $record_type,
 							DAO_CardWidget::EXTENSION_ID => $extension_id,
 							DAO_CardWidget::EXTENSION_PARAMS_JSON => json_encode($widget_json['widget']['extension_params']),
@@ -209,6 +210,7 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 						$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
 						$record_type = DevblocksPlatform::importGPC($_POST['record_type'] ?? null, 'string', '');
 						$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? null, 'string', '');
+						$icon = DevblocksPlatform::importGPC($_POST['icon'] ?? null, 'string', '');
 						$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 						$width_units = DevblocksPlatform::importGPC($_POST['width_units'] ?? null, 'integer', 1);
 						$options_kata = DevblocksPlatform::importGPC($_POST['options_kata'] ?? null, 'string', '');
@@ -219,6 +221,7 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 							$fields = array(
 								DAO_CardWidget::EXTENSION_ID => $extension_id,
 								DAO_CardWidget::EXTENSION_PARAMS_JSON => json_encode($params),
+								DAO_CardWidget::ICON => $icon,
 								DAO_CardWidget::NAME => $name,
 								DAO_CardWidget::RECORD_TYPE => $record_type,
 								DAO_CardWidget::UPDATED_AT => time(),
@@ -247,6 +250,7 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 						} else { // Edit
 							$fields = array(
 								DAO_CardWidget::EXTENSION_PARAMS_JSON => json_encode($params),
+								DAO_CardWidget::ICON => $icon,
 								DAO_CardWidget::NAME => $name,
 								DAO_CardWidget::UPDATED_AT => time(),
 								DAO_CardWidget::WIDTH_UNITS => $width_units,
@@ -337,6 +341,7 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 				'card_widget/' . uniqid() => [
 					'fields' => [
 						'name' => $widget->name ?? '',
+						'icon' => $widget->icon ?? '',
 						'record_type' => $widget->record_type ?? '',
 						'extension_id' => $widget->extension_id ?? '',
 						'pos' => $widget->pos ?? '100',

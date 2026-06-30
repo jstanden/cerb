@@ -17,6 +17,7 @@
 
 class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 	const EXTENSION_ID = 'extension_id';
+	const ICON = 'icon';
 	const ID = 'id';
 	const LABEL = 'label';
 	const OPTIONS_KATA = 'options_kata';
@@ -38,6 +39,12 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 			->string()
 			->setRequired(true)
 			->setMaxLength(255)
+			;
+		// varchar(64)
+		$validation
+			->addField(self::ICON, DevblocksPlatform::translateCapitalized('common.icon'))
+			->string()
+			->setMaxLength(64)
 			;
 		// int(10) unsigned
 		$validation
@@ -223,7 +230,7 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, extension_id, workspace_tab_id, label, updated_at, options_kata, params_json, pos, width_units, zone ".
+		$sql = "SELECT id, extension_id, workspace_tab_id, label, icon, updated_at, options_kata, params_json, pos, width_units, zone ".
 			"FROM workspace_widget ".
 			$where_sql.
 			$sort_sql.
@@ -304,6 +311,7 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_WorkspaceWidget();
 			$object->extension_id = $row['extension_id'];
+			$object->icon = $row['icon'] ?? '';
 			$object->id = intval($row['id']);
 			$object->label = $row['label'];
 			$object->options_kata = $row['options_kata'];
@@ -578,6 +586,7 @@ class SearchFields_WorkspaceWidget extends DevblocksSearchFields {
 
 class Model_WorkspaceWidget extends DevblocksRecordModel {
 	public $extension_id = '';
+	public $icon = '';
 	public $id = 0;
 	public $label = '';
 	public $options_kata = '';
@@ -594,6 +603,15 @@ class Model_WorkspaceWidget extends DevblocksRecordModel {
 	 */
 	function getExtension() {
 		return Extension_WorkspaceWidget::get($this->extension_id);
+	}
+
+	// The instance icon overrides the widget type's manifest icon; falls back to `dashboard`.
+	function getIcon() : string {
+		if($this->icon !== '')
+			return $this->icon;
+		if($ext = $this->getExtension())
+			return $ext->getIcon();
+		return 'dashboard';
 	}
 	
 	function getWorkspaceTab() {
@@ -1111,6 +1129,7 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 		$token_labels = array(
 			'_label' => $prefix,
 			'extension_id' => $prefix.$translate->_('common.type'),
+			'icon' => $prefix.$translate->_('common.icon'),
 			'id' => $prefix.$translate->_('common.id'),
 			'label' => $prefix.$translate->_('common.label'),
 			'params' => $prefix.$translate->_('common.params'),
@@ -1124,6 +1143,7 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 		$token_types = array(
 			'_label' => 'context_url',
 			'extension_id' => Model_CustomField::TYPE_SINGLE_LINE,
+			'icon' => Model_CustomField::TYPE_SINGLE_LINE,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'label' => Model_CustomField::TYPE_SINGLE_LINE,
 			'params' => null,
@@ -1151,6 +1171,7 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 			$token_values['_label'] = $widget->label;
 			$token_values['id'] = $widget->id;
 			$token_values['extension_id'] = $widget->extension_id;
+			$token_values['icon'] = $widget->icon;
 			$token_values['label'] = $widget->label;
 			$token_values['params'] = $widget->params;
 			$token_values['pos'] = $widget->pos;
@@ -1189,6 +1210,7 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 		return [
 			'id' => DAO_WorkspaceWidget::ID,
 			'extension_id' => DAO_WorkspaceWidget::EXTENSION_ID,
+			'icon' => DAO_WorkspaceWidget::ICON,
 			'label' => DAO_WorkspaceWidget::LABEL,
 			'links' => '_links',
 			'options_kata' => DAO_WorkspaceWidget::OPTIONS_KATA,

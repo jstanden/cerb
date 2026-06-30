@@ -143,6 +143,7 @@ class WorkspaceTab_Dashboards extends Extension_WorkspaceTab {
 				'uid' => 'workspace_widget_' . $widget->id,
 				'_context' => CerberusContexts::CONTEXT_WORKSPACE_WIDGET,
 				'label' => $widget->label,
+				'icon' => $widget->icon,
 				'extension_id' => $widget->extension_id,
 				'pos' => $widget->pos,
 				'width_units' => $widget->width_units,
@@ -170,6 +171,7 @@ class WorkspaceTab_Dashboards extends Extension_WorkspaceTab {
 		foreach($json['widgets'] as $widget) {
 			DAO_WorkspaceWidget::create([
 				DAO_WorkspaceWidget::LABEL => $widget['label'],
+				DAO_WorkspaceWidget::ICON => @$widget['icon'] ?: '',
 				DAO_WorkspaceWidget::EXTENSION_ID => $widget['extension_id'],
 				DAO_WorkspaceWidget::POS => $widget['pos'],
 				DAO_WorkspaceWidget::PARAMS_JSON => json_encode($widget['params']),

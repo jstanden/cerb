@@ -219,6 +219,7 @@
 				<name>WorkspaceWidget_KnowledgebaseBrowser</name>
 			</class>
 			<params>
+				<param key="icon" value="book-open" />
 			</params>
 		</extension>
 		
@@ -320,6 +321,7 @@
 				<name>ProfileWidget_KbArticle</name>
 			</class>
 			<params>
+				<param key="icon" value="book-open" />
 			</params>
 		</extension>
 		

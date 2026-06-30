@@ -424,6 +424,11 @@ abstract class Extension_ProfileWidget extends DevblocksExtension {
 	abstract function renderConfig(Model_ProfileWidget $model);
 	abstract function invokeConfig($config_action, Model_ProfileWidget $model);
 	function saveConfig(array $fields, $id, &$error=null) { return true; }
+
+	// The `cerb-icons` glyph name for this widget type (from the `icon` manifest param); `dashboard` when unset.
+	function getIcon() : string {
+		return $this->manifest->params['icon'] ?? 'dashboard';
+	}
 	
 	/**
 	 * @internal
@@ -434,6 +439,7 @@ abstract class Extension_ProfileWidget extends DevblocksExtension {
 				'uid' => 'profile_widget_' . $widget->id,
 				'_context' => CerberusContexts::CONTEXT_PROFILE_WIDGET,
 				'name' => $widget->name,
+				'icon' => $widget->icon,
 				'extension_id' => $widget->extension_id,
 				'pos' => $widget->pos,
 				'width_units' => $widget->width_units,
@@ -561,6 +567,11 @@ abstract class Extension_CardWidget extends DevblocksExtension {
 	abstract function renderConfig(Model_CardWidget $model);
 	abstract function invokeConfig($action, Model_CardWidget $model);
 	function saveConfig(array $fields, $id, &$error=null) { return true; }
+
+	// The `cerb-icons` glyph name for this widget type (from the `icon` manifest param); `dashboard` when unset.
+	function getIcon() : string {
+		return $this->manifest->params['icon'] ?? 'dashboard';
+	}
 	
 	/**
 	 * @internal
@@ -571,6 +582,7 @@ abstract class Extension_CardWidget extends DevblocksExtension {
 				'uid' => 'card_widget_' . $widget->id,
 				'_context' => CerberusContexts::CONTEXT_CARD_WIDGET,
 				'name' => $widget->name,
+				'icon' => $widget->icon,
 				'record_type' => $widget->record_type,
 				'extension_id' => $widget->extension_id,
 				'pos' => $widget->pos,
@@ -3089,6 +3101,11 @@ abstract class Extension_WorkspaceWidget extends DevblocksExtension {
 	abstract function renderConfig(Model_WorkspaceWidget $widget);
 	abstract function invokeConfig($config_action, Model_WorkspaceWidget $model);
 	abstract function saveConfig(Model_WorkspaceWidget $widget, ?string &$error=null) : bool;
+
+	// The `cerb-icons` glyph name for this widget type (from the `icon` manifest param); `dashboard` when unset.
+	function getIcon() : string {
+		return $this->manifest->params['icon'] ?? 'dashboard';
+	}
 	
 	/**
 	 * @internal
@@ -3099,6 +3116,7 @@ abstract class Extension_WorkspaceWidget extends DevblocksExtension {
 				'uid' => 'workspace_widget_' . $widget->id,
 				'_context' => CerberusContexts::CONTEXT_WORKSPACE_WIDGET,
 				'label' => $widget->label,
+				'icon' => $widget->icon,
 				'extension_id' => $widget->extension_id,
 				'pos' => $widget->pos,
 				'width_units' => $widget->width_units,

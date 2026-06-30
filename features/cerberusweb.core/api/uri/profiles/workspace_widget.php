@@ -196,6 +196,7 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 						
 						$fields = [
 							DAO_WorkspaceWidget::LABEL => $name,
+							DAO_WorkspaceWidget::ICON => @$widget_json['widget']['icon'] ?: '',
 							DAO_WorkspaceWidget::EXTENSION_ID => $extension_id,
 							DAO_WorkspaceWidget::WORKSPACE_TAB_ID => $workspace_tab_id,
 							DAO_WorkspaceWidget::POS => @$widget_json['widget']['pos'] ?: 0,
@@ -230,6 +231,7 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 					case 'build':
 						$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
 						$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? null, 'string', '');
+						$icon = DevblocksPlatform::importGPC($_POST['icon'] ?? null, 'string', '');
 						$width_units = DevblocksPlatform::importGPC($_POST['width_units'] ?? null, 'integer', 1);
 						$options_kata = DevblocksPlatform::importGPC($_POST['options_kata'] ?? null, 'string', '');
 						
@@ -239,13 +241,14 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 						if(empty($id)) { // New
 							$fields = array(
 								DAO_WorkspaceWidget::EXTENSION_ID => $extension_id,
+								DAO_WorkspaceWidget::ICON => $icon,
 								DAO_WorkspaceWidget::LABEL => $name,
 								DAO_WorkspaceWidget::UPDATED_AT => time(),
 								DAO_WorkspaceWidget::WIDTH_UNITS => $width_units,
 								DAO_WorkspaceWidget::WORKSPACE_TAB_ID => $workspace_tab_id,
 								DAO_WorkspaceWidget::OPTIONS_KATA => $options_kata,
 							);
-							
+
 							if(!DAO_WorkspaceWidget::validate($fields, $error))
 								throw new Exception_DevblocksAjaxValidationError($error);
 								
@@ -260,13 +263,14 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 							
 						} else { // Edit
 							$fields = array(
+								DAO_WorkspaceWidget::ICON => $icon,
 								DAO_WorkspaceWidget::LABEL => $name,
 								DAO_WorkspaceWidget::UPDATED_AT => time(),
 								DAO_WorkspaceWidget::WIDTH_UNITS => $width_units,
 								DAO_WorkspaceWidget::WORKSPACE_TAB_ID => $workspace_tab_id,
 								DAO_WorkspaceWidget::OPTIONS_KATA => $options_kata,
 							);
-							
+
 							if(!DAO_WorkspaceWidget::validate($fields, $error, $id))
 								throw new Exception_DevblocksAjaxValidationError($error);
 								
@@ -593,6 +597,7 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 				'workspace_widget/' . uniqid() => [
 					'fields' => [
 						'label' => $widget->label ?? '',
+						'icon' => $widget->icon ?? '',
 						'extension_id' => $widget->extension_id ?? '',
 						'pos' => $widget->pos ?? '100',
 						'width_units' => $widget->width_units ?? '4',

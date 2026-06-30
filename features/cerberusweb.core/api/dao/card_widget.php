@@ -4,6 +4,7 @@ class DAO_CardWidget extends Cerb_ORMHelper {
 	const ID = 'id';
 	const EXTENSION_ID = 'extension_id';
 	const EXTENSION_PARAMS_JSON = 'extension_params_json';
+	const ICON = 'icon';
 	const NAME = 'name';
 	const OPTIONS_KATA = 'options_kata';
 	const POS = 'pos';
@@ -30,6 +31,11 @@ class DAO_CardWidget extends Cerb_ORMHelper {
 			->addField(self::EXTENSION_PARAMS_JSON)
 			->string()
 			->setMaxLength(16777216)
+		;
+		$validation
+			->addField(self::ICON, DevblocksPlatform::translateCapitalized('common.icon'))
+			->string()
+			->setMaxLength(64)
 		;
 		$validation
 			->addField(self::ID)
@@ -194,7 +200,7 @@ class DAO_CardWidget extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, record_type, extension_id, extension_params_json, options_kata, created_at, updated_at, pos, width_units, zone ".
+		$sql = "SELECT id, name, icon, record_type, extension_id, extension_params_json, options_kata, created_at, updated_at, pos, width_units, zone ".
 			"FROM card_widget ".
 			$where_sql.
 			$sort_sql.
@@ -296,6 +302,7 @@ class DAO_CardWidget extends Cerb_ORMHelper {
 			$object = new Model_CardWidget();
 			$object->id = $row['id'];
 			$object->name = $row['name'];
+			$object->icon = $row['icon'] ?? '';
 			$object->record_type = $row['record_type'];
 			$object->extension_id = $row['extension_id'];
 			$object->created_at = $row['created_at'];
@@ -535,6 +542,7 @@ class SearchFields_CardWidget extends DevblocksSearchFields {
 class Model_CardWidget extends DevblocksRecordModel {
 	public $id;
 	public $name;
+	public $icon = '';
 	public $options_kata = '';
 	public $record_type;
 	public $extension_id;
@@ -550,6 +558,15 @@ class Model_CardWidget extends DevblocksRecordModel {
 	 */
 	function getExtension() {
 		return Extension_CardWidget::get($this->extension_id);
+	}
+
+	// The instance icon overrides the widget type's manifest icon; falls back to `dashboard`.
+	function getIcon() : string {
+		if($this->icon !== '')
+			return $this->icon;
+		if($ext = $this->getExtension())
+			return $ext->getIcon();
+		return 'dashboard';
 	}
 	
 	/**
@@ -1047,15 +1064,17 @@ class Context_CardWidget extends Extension_DevblocksContext implements IDevblock
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
+			'icon' => $prefix.$translate->_('common.icon'),
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
-		
+
 		// Token types
 		$token_types = array(
 			'_label' => 'context_url',
+			'icon' => Model_CustomField::TYPE_SINGLE_LINE,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
@@ -1081,6 +1100,7 @@ class Context_CardWidget extends Extension_DevblocksContext implements IDevblock
 		if($card_widget) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $card_widget->name;
+			$token_values['icon'] = $card_widget->icon;
 			$token_values['id'] = $card_widget->id;
 			$token_values['name'] = $card_widget->name;
 			$token_values['updated_at'] = $card_widget->updated_at;
@@ -1099,6 +1119,7 @@ class Context_CardWidget extends Extension_DevblocksContext implements IDevblock
 	function getKeyToDaoFieldMap() {
 		return [
 			'extension_id' => DAO_CardWidget::EXTENSION_ID,
+			'icon' => DAO_CardWidget::ICON,
 			'id' => DAO_CardWidget::ID,
 			'links' => '_links',
 			'name' => DAO_CardWidget::NAME,

@@ -4850,6 +4850,7 @@
 				<name>CardWidget_AttachmentViewer</name>
 			</class>
 			<params>
+				<param key="icon" value="paperclip" />
 			</params>
 		</extension>
 
@@ -4861,6 +4862,7 @@
 				<name>CardWidget_Automation</name>
 			</class>
 			<params>
+				<param key="icon" value="zap" />
 			</params>
 		</extension>
 
@@ -4872,6 +4874,7 @@
 				<name>CardWidget_ChartTimeBlocks</name>
 			</class>
 			<params>
+				<param key="icon" value="chart-timeblocks" />
 			</params>
 		</extension>
 
@@ -4895,6 +4898,7 @@
 				<name>CardWidget_ChartTimeSeries</name>
 			</class>
 			<params>
+				<param key="icon" value="chart-line" />
 			</params>
 		</extension>
 
@@ -4906,6 +4910,7 @@
 				<name>CardWidget_MetricsExplorer</name>
 			</class>
 			<params>
+				<param key="icon" value="telescope" />
 			</params>
 		</extension>
 
@@ -4917,6 +4922,7 @@
 				<name>CardWidget_Conversation</name>
 			</class>
 			<params>
+				<param key="icon" value="conversation" />
 			</params>
 		</extension>
 
@@ -4928,6 +4934,7 @@
 				<name>CardWidget_FormInteraction</name>
 			</class>
 			<params>
+				<param key="icon" value="toolbox" />
 			</params>
 		</extension>
 
@@ -4939,6 +4946,7 @@
 				<name>CardWidget_KbArticle</name>
 			</class>
 			<params>
+				<param key="icon" value="book-open" />
 			</params>
 		</extension>
 
@@ -4950,6 +4958,7 @@
 				<name>CardWidget_Fields</name>
 			</class>
 			<params>
+				<param key="icon" value="id-card" />
 			</params>
 		</extension>
 
@@ -4961,6 +4970,7 @@
 				<name>CardWidget_QueueJobMonitor</name>
 			</class>
 			<params>
+				<param key="icon" value="gauge" />
 				<param key="contexts">
 					<value>
 						<data key="cerb.contexts.queue.job" />
@@ -4977,6 +4987,7 @@
 				<name>CardWidget_SearchIndex</name>
 			</class>
 			<params>
+				<param key="icon" value="search" />
 			</params>
 		</extension>
 
@@ -4988,6 +4999,7 @@
 				<name>CardWidget_Sheet</name>
 			</class>
 			<params>
+				<param key="icon" value="table" />
 			</params>
 		</extension>
 		
@@ -6859,6 +6871,7 @@
 				<name>ProfileWidget_Automation</name>
 			</class>
 			<params>
+				<param key="icon" value="zap" />
 			</params>
 		</extension>
 
@@ -6870,6 +6883,7 @@
 				<name>ProfileWidget_Calendar</name>
 			</class>
 			<params>
+				<param key="icon" value="calendar" />
 			</params>
 		</extension>
 		
@@ -6881,6 +6895,7 @@
 				<name>ProfileWidget_CalendarAvailability</name>
 			</class>
 			<params>
+				<param key="icon" value="clock" />
 			</params>
 		</extension>
 		
@@ -6892,6 +6907,7 @@
 				<name>ProfileWidget_ChartCategories</name>
 			</class>
 			<params>
+				<param key="icon" value="chart-bar" />
 			</params>
 		</extension>
 		
@@ -6903,6 +6919,7 @@
 				<name>ProfileWidget_ChartPie</name>
 			</class>
 			<params>
+				<param key="icon" value="chart-pie" />
 			</params>
 		</extension>
 		
@@ -6914,6 +6931,7 @@
 				<name>ProfileWidget_ChartScatterplot</name>
 			</class>
 			<params>
+				<param key="icon" value="chart-scatterplot" />
 			</params>
 		</extension>
 		
@@ -6925,6 +6943,7 @@
 				<name>ProfileWidget_ChartTable</name>
 			</class>
 			<params>
+				<param key="icon" value="table" />
 			</params>
 		</extension>
 
@@ -6936,6 +6955,7 @@
 				<name>ProfileWidget_ChartTimeBlocks</name>
 			</class>
 			<params>
+				<param key="icon" value="chart-timeblocks" />
 			</params>
 		</extension>
 
@@ -6947,6 +6967,7 @@
 				<name>ProfileWidget_ChartTimeSeries</name>
 			</class>
 			<params>
+				<param key="icon" value="chart-line" />
 			</params>
 		</extension>
 		
@@ -6958,6 +6979,7 @@
 				<name>ProfileWidget_Comments</name>
 			</class>
 			<params>
+				<param key="icon" value="comments" />
 			</params>
 		</extension>
 
@@ -6969,6 +6991,7 @@
 				<name>ProfileWidget_FormInteraction</name>
 			</class>
 			<params>
+				<param key="icon" value="toolbox" />
 			</params>
 		</extension>
 		
@@ -6980,6 +7003,7 @@
 				<name>ProfileWidget_CustomHtml</name>
 			</class>
 			<params>
+				<param key="icon" value="embed" />
 			</params>
 		</extension>
 		
@@ -6991,6 +7015,7 @@
 				<name>ProfileWidget_MapGeoPoints</name>
 			</class>
 			<params>
+				<param key="icon" value="map" />
 			</params>
 		</extension>
 		
@@ -7002,6 +7027,7 @@
 				<name>ProfileWidget_Fields</name>
 			</class>
 			<params>
+				<param key="icon" value="id-card" />
 			</params>
 		</extension>
 		
@@ -7013,6 +7039,7 @@
 				<name>ProfileWidget_QueueJobMonitor</name>
 			</class>
 			<params>
+				<param key="icon" value="gauge" />
 				<param key="contexts">
 					<value>
 						<data key="cerb.contexts.queue.job" />
@@ -7029,6 +7056,7 @@
 				<name>ProfileWidget_Responsibilities</name>
 			</class>
 			<params>
+				<param key="icon" value="target" />
 				<param key="contexts">
 					<value>
 						<data key="cerberusweb.contexts.group" />
@@ -7046,6 +7074,7 @@
 				<name>ProfileWidget_Sheet</name>
 			</class>
 			<params>
+				<param key="icon" value="table" />
 			</params>
 		</extension>
 		
@@ -7057,6 +7086,7 @@
 				<name>ProfileWidget_TicketConvo</name>
 			</class>
 			<params>
+				<param key="icon" value="conversation" />
 			</params>
 		</extension>
 		
@@ -7068,6 +7098,7 @@
 				<name>ProfileWidget_TicketSpamAnalysis</name>
 			</class>
 			<params>
+				<param key="icon" value="shield" />
 				<param key="contexts">
 					<value>
 						<data key="cerberusweb.contexts.ticket" />
@@ -7084,6 +7115,7 @@
 				<name>ProfileWidget_Visualization</name>
 			</class>
 			<params>
+				<param key="icon" value="chart-area" />
 			</params>
 		</extension>
 		
@@ -7095,6 +7127,7 @@
 				<name>ProfileWidget_Worklist</name>
 			</class>
 			<params>
+				<param key="icon" value="list" />
 			</params>
 		</extension>
 		
@@ -7148,6 +7181,7 @@
 				<name>WorkspaceWidget_Automation</name>
 			</class>
 			<params>
+				<param key="icon" value="zap" />
 			</params>
 		</extension>
 
@@ -7159,6 +7193,7 @@
 				<name>WorkspaceWidget_Gauge</name>
 			</class>
 			<params>
+				<param key="icon" value="gauge" />
 			</params>
 		</extension>
 	
@@ -7170,6 +7205,7 @@
 				<name>WorkspaceWidget_Calendar</name>
 			</class>
 			<params>
+				<param key="icon" value="calendar" />
 			</params>
 		</extension>
 		
@@ -7181,6 +7217,7 @@
 				<name>WorkspaceWidget_ChartCategories</name>
 			</class>
 			<params>
+				<param key="icon" value="chart-bar" />
 			</params>
 		</extension>
 		
@@ -7192,6 +7229,7 @@
 				<name>WorkspaceWidget_MapGeoPoints</name>
 			</class>
 			<params>
+				<param key="icon" value="map" />
 			</params>
 		</extension>
 
@@ -7203,6 +7241,7 @@
 				<name>WorkspaceWidget_ChartKata</name>
 			</class>
 			<params>
+				<param key="icon" value="chart-kata" />
 			</params>
 		</extension>
 		
@@ -7214,6 +7253,7 @@
 				<name>WorkspaceWidget_ChartPie</name>
 			</class>
 			<params>
+				<param key="icon" value="chart-pie" />
 			</params>
 		</extension>
 		
@@ -7225,6 +7265,7 @@
 				<name>WorkspaceWidget_ChartScatterplot</name>
 			</class>
 			<params>
+				<param key="icon" value="chart-scatterplot" />
 			</params>
 		</extension>
 		
@@ -7236,6 +7277,7 @@
 				<name>WorkspaceWidget_ChartTable</name>
 			</class>
 			<params>
+				<param key="icon" value="table" />
 			</params>
 		</extension>
 		
@@ -7247,6 +7289,7 @@
 				<name>WorkspaceWidget_ChartTimeBlocks</name>
 			</class>
 			<params>
+				<param key="icon" value="chart-timeblocks" />
 			</params>
 		</extension>
 		
@@ -7258,6 +7301,7 @@
 				<name>WorkspaceWidget_ChartTimeSeries</name>
 			</class>
 			<params>
+				<param key="icon" value="chart-line" />
 			</params>
 		</extension>
 		
@@ -7269,6 +7313,7 @@
 				<name>WorkspaceWidget_ChartLegacy</name>
 			</class>
 			<params>
+				<param key="icon" value="chart-bar" />
 			</params>
 		</extension>
 		
@@ -7280,6 +7325,7 @@
 				<name>WorkspaceWidget_Clock</name>
 			</class>
 			<params>
+				<param key="icon" value="clock" />
 			</params>
 		</extension>
 		
@@ -7291,6 +7337,7 @@
 				<name>WorkspaceWidget_Countdown</name>
 			</class>
 			<params>
+				<param key="icon" value="stopwatch" />
 			</params>
 		</extension>
 		
@@ -7302,6 +7349,7 @@
 				<name>WorkspaceWidget_Counter</name>
 			</class>
 			<params>
+				<param key="icon" value="hash" />
 			</params>
 		</extension>
 	
@@ -7313,6 +7361,7 @@
 				<name>WorkspaceWidget_CustomHtml</name>
 			</class>
 			<params>
+				<param key="icon" value="embed" />
 			</params>
 		</extension>
 		
@@ -7324,6 +7373,7 @@
 				<name>WorkspaceWidget_PieChart</name>
 			</class>
 			<params>
+				<param key="icon" value="chart-pie" />
 			</params>
 		</extension>
 		
@@ -7335,6 +7385,7 @@
 				<name>WorkspaceWidget_FormInteraction</name>
 			</class>
 			<params>
+				<param key="icon" value="toolbox" />
 			</params>
 		</extension>
 		
@@ -7346,6 +7397,7 @@
 				<name>WorkspaceWidget_RecordFields</name>
 			</class>
 			<params>
+				<param key="icon" value="id-card" />
 			</params>
 		</extension>
 	
@@ -7357,6 +7409,7 @@
 				<name>WorkspaceWidget_Scatterplot</name>
 			</class>
 			<params>
+				<param key="icon" value="chart-scatterplot" />
 			</params>
 		</extension>
 		
@@ -7368,6 +7421,7 @@
 				<name>WorkspaceWidget_Sheet</name>
 			</class>
 			<params>
+				<param key="icon" value="table" />
 			</params>
 		</extension>
 		
@@ -7379,6 +7433,7 @@
 				<name>WorkspaceWidget_Subtotals</name>
 			</class>
 			<params>
+				<param key="icon" value="signal" />
 			</params>
 		</extension>
 
@@ -7390,6 +7445,7 @@
 				<name>WorkspaceWidget_Worklist</name>
 			</class>
 			<params>
+				<param key="icon" value="list" />
 			</params>
 		</extension>
 	
