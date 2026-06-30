@@ -5,10 +5,10 @@
 	<input type="file" name="file_data[]" {if !$single}multiple="multiple"{/if} autofocus="autofocus">
 </fieldset>
 
-{if !$single}
+{if !$single && $file_bundles_enabled}
 <fieldset class="peek">
 	<legend>Include files from these bundles</legend>
-	<button type="button" class="chooser-file-bundle"><span class="cerb-icons cerb-icon-search"></span></button>
+	<div class="cerb-ui-record-chooser cerb-file-bundle-chooser" data-context="cerberusweb.contexts.file_bundle"></div>
 </fieldset>
 {/if}
 
@@ -32,11 +32,13 @@ $(function() {
 	$popup.find('UL.buffer').sortable({ placeholder: 'ui-state-highlight' });
 	
 	// Bundle chooser
-	
-	$popup.find('button.chooser-file-bundle').each(function() {
-		ajax.chooser(this,'{CerberusContexts::CONTEXT_FILE_BUNDLE}','bundle_ids', { autocomplete:true });
+	{if $file_bundles_enabled}
+	$popup.find('.cerb-file-bundle-chooser').each(function() {
+		if(window.CerbUI && CerbUI.RecordChooser)
+			new CerbUI.RecordChooser(this, { context: 'cerberusweb.contexts.file_bundle', name: 'bundle_ids', multiple: true, emptyIcon: 'paperclip' });
 	});
-	
+	{/if}
+
 	var uploadFunc = function(f, labels, values, callback) {
 		var xhr = new XMLHttpRequest();
 		var file = f;
@@ -83,22 +85,24 @@ $(function() {
 		}
 	};
 	
+	{if $file_bundles_enabled}
 	var loadBundleFunc = function(bundle_id, labels, values, callback) {
 		genericAjaxGet('', 'c=internal&a=invoke&module=records&action=chooserOpenFileLoadBundle&bundle_id=' + encodeURIComponent(bundle_id), function(json) {
 			if(!Array.isArray(json)) {
 				callback();
 				return;
 			}
-			
+
 			for(var i = 0; i < json.length; i++) {
 				labels.push(json[i].name + ' (' + json[i].size_label + ')');
 				values.push(json[i].id);
 			}
-			
+
 			callback(null, json);
 		});
 	};
-	
+	{/if}
+
 	// Form
 	
 	$submit.on('click', function(event) {
@@ -109,19 +113,19 @@ $(function() {
 		var jobs = [];
 
 		// Loop through bundles
-		
-		var $bundles_button = $frm.find('button.chooser-file-bundle');
-		var $bundles = $bundles_button.next('ul.chooser-container').find('input:hidden[name="bundle_ids[]"]');
-		
+		{if $file_bundles_enabled}
+		var $bundles = $frm.find('input:hidden[name="bundle_ids[]"]');
+
 		$bundles.each(function(e) {
 			var $bundle = $(this);
 			var bundle_id = $bundle.val();
-			
+
 			jobs.push(
 				async.apply(loadBundleFunc, bundle_id, labels, values)
 			);
 		});
-		
+		{/if}
+
 		// Upload individual files
 		
 		var files = $file_input[0].files;

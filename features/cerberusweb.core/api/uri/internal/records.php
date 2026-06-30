@@ -357,7 +357,9 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		
 		// Single chooser mode?
 		$tpl->assign('single', $single);
-		
+
+		$tpl->assign('file_bundles_enabled', DevblocksPlatform::isPluginEnabled('cerb.file_bundles'));
+
 		$tpl->display('devblocks:cerberusweb.core::context_links/choosers/__file.tpl');
 	}
 	
@@ -468,11 +470,16 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		$url_writer = DevblocksPlatform::services()->url();
 		
 		$bundle_id = DevblocksPlatform::importGPC($_REQUEST['bundle_id'] ?? null, 'integer', 0);
-		
+
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
-		
+
 		$results = [];
-		
+
+		if(!DevblocksPlatform::isPluginEnabled('cerb.file_bundles')) {
+			echo json_encode($results);
+			return;
+		}
+
 		if(false == ($bundle = DAO_FileBundle::get($bundle_id))) {
 			echo json_encode($results);
 			return;

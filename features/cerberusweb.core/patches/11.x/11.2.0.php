@@ -2835,6 +2835,20 @@ if('utf8mb4_unicode_ci' != $columns['title']['collation']) {
 }
 
 // ===========================================================================
+// The file_bundle table now belongs to the optional cerb.file_bundles plugin.
+// If there are existing records, enable the plugin to adopt them; otherwise drop
+// the empty table (the plugin recreates it if/when an admin enables it).
+
+if($revision < 1514 && array_key_exists('file_bundle', $tables)) {
+	if($db->GetOneMaster("SELECT COUNT(*) FROM file_bundle")) {
+		if(false != ($plugin_file_bundles = DevblocksPlatform::getPlugin('cerb.file_bundles')))
+			$plugin_file_bundles->setEnabled(true);
+	} else {
+		$db->ExecuteMaster("DROP TABLE file_bundle");
+	}
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

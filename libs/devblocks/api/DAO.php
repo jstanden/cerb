@@ -960,13 +960,15 @@ abstract class DevblocksORMHelper {
 			implode(',', $from_ids)
 		));
 		
-		// Merge file_bundle owner
-		$db->ExecuteMaster(sprintf("UPDATE file_bundle SET owner_context_id = %d WHERE owner_context = %s AND owner_context_id IN (%s)",
-			$to_id,
-			$db->qstr($context),
-			implode(',', $from_ids)
-		));
-		
+		// Merge file_bundle owner (table belongs to the optional cerb.file_bundles plugin)
+		if(array_key_exists('file_bundle', $db->metaTables())) {
+			$db->ExecuteMaster(sprintf("UPDATE file_bundle SET owner_context_id = %d WHERE owner_context = %s AND owner_context_id IN (%s)",
+				$to_id,
+				$db->qstr($context),
+				implode(',', $from_ids)
+			));
+		}
+
 		// Merge mail_html_template owner
 		$db->ExecuteMaster(sprintf("UPDATE mail_html_template SET owner_context_id = %d WHERE owner_context = %s AND owner_context_id IN (%s)",
 			$to_id,

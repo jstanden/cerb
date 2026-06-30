@@ -1,4 +1,4 @@
-{$peek_context = CerberusContexts::CONTEXT_FILE_BUNDLE}
+{$peek_context = 'cerberusweb.contexts.file_bundle'}
 {$peek_context_id = $model->id}
 {$frm_id = "form{uniqid()}"}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$frm_id}">

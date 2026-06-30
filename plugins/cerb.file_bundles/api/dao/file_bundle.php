@@ -826,7 +826,7 @@ class View_FileBundle extends C4_AbstractView implements IAbstractView_Subtotals
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_FILE_BUNDLE);
 		$tpl->assign('custom_fields', $custom_fields);
 
-		$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/file_bundle/view.tpl');
+		$tpl->assign('view_template', 'devblocks:cerb.file_bundles::file_bundle/view.tpl');
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
 
@@ -1258,7 +1258,7 @@ class Context_FileBundle extends Extension_DevblocksContext implements IDevblock
 			$comments = array_reverse($comments, true);
 			$tpl->assign('comments', $comments);
 			
-			$tpl->display('devblocks:cerberusweb.core::internal/file_bundle/peek_edit.tpl');
+			$tpl->display('devblocks:cerb.file_bundles::file_bundle/peek_edit.tpl');
 			
 		} else {
 			Page_Profiles::renderCard($context, $context_id, $model);

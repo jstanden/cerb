@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tmx>
+<tmx version="1.4">
+	<header datatype="winres" segtype="sentence" adminlang="en-us"
+		srclang="en-us" o-tmf="abc" />
+	<body>
+
+		<!-- File Bundles -->
+		<!-- The shared common.file_bundle / common.file_bundles strings remain in cerberusweb.core (referenced by the gated attachment "bundle:" filter). -->
+
+	</body>
+</tmx>

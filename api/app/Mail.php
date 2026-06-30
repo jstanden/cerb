@@ -929,7 +929,10 @@ class CerberusMail {
 						
 						if(empty($bundle_tag))
 							break;
-						
+
+						if(!DevblocksPlatform::isPluginEnabled('cerb.file_bundles'))
+							break;
+
 						if(!($bundle = DAO_FileBundle::getByTag($bundle_tag)))
 							break;
 						
@@ -1068,7 +1071,10 @@ class CerberusMail {
 						
 						if(empty($bundle_tag))
 							break;
-						
+
+						if(!DevblocksPlatform::isPluginEnabled('cerb.file_bundles'))
+							break;
+
 						if(false == ($bundle = DAO_FileBundle::getByTag($bundle_tag)))
 							break;
 						

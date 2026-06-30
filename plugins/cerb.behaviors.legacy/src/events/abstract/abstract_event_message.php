@@ -1133,7 +1133,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				
 				// File bundles
 
-				if(array_key_exists('bundle_ids', $params) && is_array($params['bundle_ids'])) {
+				if(array_key_exists('bundle_ids', $params) && is_array($params['bundle_ids']) && class_exists('DAO_FileBundle')) {
 					$bundles = DAO_FileBundle::getIds($params['bundle_ids']);
 					foreach($bundles as $bundle) {
 						$attachments = $bundle->getAttachments();

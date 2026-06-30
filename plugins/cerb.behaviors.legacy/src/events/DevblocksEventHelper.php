@@ -4632,7 +4632,7 @@ class DevblocksEventHelper {
 		
 		// Attachment bundles
 		
-		if(isset($params['bundle_ids']) && is_array($params['bundle_ids'])) {
+		if(isset($params['bundle_ids']) && is_array($params['bundle_ids']) && class_exists('DAO_FileBundle')) {
 			$out = rtrim($out,"\n") . "\n\n>>> Attaching files from bundles:\n";
 			
 			$bundles = DAO_FileBundle::getIds($params['bundle_ids']);
@@ -4726,7 +4726,7 @@ class DevblocksEventHelper {
 		
 		// File bundles
 		
-		if(isset($params['bundle_ids']) && is_array($params['bundle_ids'])) {
+		if(isset($params['bundle_ids']) && is_array($params['bundle_ids']) && class_exists('DAO_FileBundle')) {
 			$bundles = DAO_FileBundle::getIds($params['bundle_ids']);
 			foreach($bundles as $bundle) {
 				$attachments = $bundle->getAttachments();
@@ -4797,7 +4797,7 @@ class DevblocksEventHelper {
 		
 		// Attachment bundles
 
-		if(isset($params['bundle_ids']) && is_array($params['bundle_ids'])) {
+		if(isset($params['bundle_ids']) && is_array($params['bundle_ids']) && class_exists('DAO_FileBundle')) {
 			$out = rtrim($out,"\n") . "\n\n>>> Attaching files:\n";
 			
 			$bundles = DAO_FileBundle::getIds($params['bundle_ids']);

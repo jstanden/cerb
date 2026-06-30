@@ -122,18 +122,19 @@
 </div>
 {/if}
 
+{if DevblocksPlatform::isPluginEnabled('cerb.file_bundles')}
 <b>Attach these file bundles:</b>
 <div style="margin-left:10px;margin-bottom:0.5em;">
-	<button type="button" class="chooser-file-bundle"><span class="cerb-icons cerb-icon-paperclip"></span></button>
-	<ul class="bubbles chooser-container">
+	<div class="cerb-ui-record-chooser cerb-file-bundle-chooser">
 	{foreach from=$params.bundle_ids item=bundle_id}
 		{$bundle = DAO_FileBundle::get($bundle_id)}
 		{if !empty($bundle)}
-		<li><input type="hidden" name="{$namePrefix}[bundle_ids][]" value="{$bundle_id}">{$bundle->name} <a data-cerb-link="remove_parent"><span class="cerb-icons cerb-icon-circle-remove"></span></a></li>
-		{/if} 
+		<li data-context="cerberusweb.contexts.file_bundle" data-context-id="{$bundle_id}" data-label="{$bundle->name}"></li>
+		{/if}
 	{/foreach}
-	</ul>
+	</div>
 </div>
+{/if}
 
 <b>Also send email in simulator mode:</b>
 <div style="margin-left:10px;margin-bottom:10px;">

@@ -688,7 +688,7 @@ EOD;
 						$label = $label_map[$k];
 					break;
 				
-				case Context_FileBundle::ID:
+				case 'cerberusweb.contexts.file_bundle':
 				case Context_Snippet::ID:
 					$label_map = [
 						'usableBy.worker' => "Usable by [Worker](/docs/records/types/worker/)",

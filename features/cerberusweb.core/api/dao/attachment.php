@@ -1233,14 +1233,6 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 		$search_fields = SearchFields_Attachment::getFields();
 	
 		$fields = array(
-			'bundle' =>
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => SearchFields_Attachment::VIRTUAL_BUNDLE_SEARCH),
-					'examples' => [
-						['type' => 'search', 'context' => CerberusContexts::CONTEXT_FILE_BUNDLE, 'q' => ''],
-					]
-				),
 			'fieldset' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
@@ -1305,7 +1297,19 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 		// Add searchable custom fields
 		
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_ATTACHMENT, $fields, null);
-		
+
+		// File bundles (optional plugin)
+
+		if(DevblocksPlatform::isPluginEnabled('cerb.file_bundles')) {
+			$fields['bundle'] = [
+				'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+				'options' => ['param_key' => SearchFields_Attachment::VIRTUAL_BUNDLE_SEARCH],
+				'examples' => [
+					['type' => 'search', 'context' => CerberusContexts::CONTEXT_FILE_BUNDLE, 'q' => ''],
+				],
+			];
+		}
+
 		// Add is_sortable
 		
 		$fields = self::_setSortableQuickSearchFields($fields, $search_fields);
