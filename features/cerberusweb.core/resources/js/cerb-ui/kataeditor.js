@@ -36,6 +36,10 @@
 CerbUI.KataEditor = class {
 	static _instances = new WeakMap();
 	static from(el) { return CerbUI.KataEditor._instances.get(el); }
+	static _NS = 'kataeditor';   // element-class namespace -> `.cerb-ui-kataeditor--input`, etc.
+
+	// Wrap a BARE <textarea> in the editor shell and construct, so a template only authors the textarea.
+	static enhance(field, opts = {}) { return CerbUI.editorCore.enhanceEditor(this, field, opts); }
 
 	static _DEFAULTS = {
 		onAutocomplete: null,     // (ctx) -> Array<item> | Promise<...>; ctx={path,prefix,context,query,caret,editor}
@@ -60,6 +64,8 @@ CerbUI.KataEditor = class {
 
 	constructor(el, opts = {}) {
 		el = (typeof el === 'string') ? document.querySelector(el) : el;
+		// Polymorphic: a bare <textarea> self-builds the editor shell so callers can skip the boilerplate.
+		el = CerbUI.editorCore.resolveEditorEl(el, CerbUI.KataEditor._NS, opts);
 		if(!el) return;
 
 		this.el = el;

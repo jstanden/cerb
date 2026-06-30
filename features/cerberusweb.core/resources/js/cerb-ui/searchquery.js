@@ -50,6 +50,24 @@
 CerbUI.SearchQuery = class {
 	static _instances = new WeakMap();
 	static from(el) { return CerbUI.SearchQuery._instances.get(el); }
+	static _NS = 'searchquery';   // element-class namespace -> `.cerb-ui-searchquery--input`, etc. (single-line)
+
+	// The default --right action a self-built shell gets: a "suggestions" button. Marked with
+	// data-cerb-editor-action so the constructor self-wires ONLY shells it built (legacy author markup that wires
+	// its own [data-action] button stays untouched).
+	static _defaultRightHTML() {
+		return '<a data-cerb-editor-action="autocomplete" style="cursor:pointer;" title="Suggestions (Ctrl/⌘+Space)"><span class="cerb-icons cerb-icon-autocomplete"></span></a>';
+	}
+
+	// Wrap a BARE <textarea>/<input> in the search shell (left icon + suggestions button) and construct, so a
+	// template only authors the field.
+	static enhance(field, opts = {}) {
+		return CerbUI.editorCore.enhanceEditor(this, field, opts, {
+			singleLine: true, gutter: false,
+			leftIcon: (opts.icon != null) ? opts.icon : 'search',
+			rightHTML: (opts.rightHTML != null) ? opts.rightHTML : CerbUI.SearchQuery._defaultRightHTML(),
+		});
+	}
 
 	static _DEFAULTS = {
 		onSearch: null,           // (query) on Enter
@@ -63,6 +81,12 @@ CerbUI.SearchQuery = class {
 
 	constructor(el, opts = {}) {
 		el = (typeof el === 'string') ? document.querySelector(el) : el;
+		// Polymorphic: a bare <textarea>/<input> self-builds the search shell so callers can skip the boilerplate.
+		el = CerbUI.editorCore.resolveEditorEl(el, CerbUI.SearchQuery._NS, {
+			singleLine: true, gutter: false,
+			leftIcon: (opts.icon != null) ? opts.icon : 'search',
+			rightHTML: (opts.rightHTML != null) ? opts.rightHTML : CerbUI.SearchQuery._defaultRightHTML(),
+		});
 		if(!el) return;
 
 		this.el = el;
@@ -107,6 +131,12 @@ CerbUI.SearchQuery = class {
 		this.textarea.addEventListener('keydown', this._onKeydown);
 		this.textarea.addEventListener('scroll', this._onScroll, { passive: true });
 		this.textarea.addEventListener('blur', this._onBlur);
+
+		// Self-wire the suggestions button that a self-built shell injected (legacy [data-action] markup is left
+		// to its own author wiring, so this never double-binds).
+		el.querySelectorAll('[data-cerb-editor-action=autocomplete]').forEach((btn) => {
+			btn.addEventListener('click', (e) => { e.preventDefault(); this.openAutocomplete(); });
+		});
 
 		this._renderHighlight();
 		this._autosize();

@@ -34,6 +34,10 @@
 CerbUI.JsonEditor = class {
 	static _instances = new WeakMap();
 	static from(el) { return CerbUI.JsonEditor._instances.get(el); }
+	static _NS = 'jsoneditor';   // element-class namespace -> `.cerb-ui-jsoneditor--input`, etc.
+
+	// Wrap a BARE <textarea> in the editor shell and construct, so a template only authors the textarea.
+	static enhance(field, opts = {}) { return CerbUI.editorCore.enhanceEditor(this, field, opts); }
 
 	static _DEFAULTS = {
 		minLines: 2,              // editor never shrinks below this many rows
@@ -50,6 +54,8 @@ CerbUI.JsonEditor = class {
 
 	constructor(el, opts = {}) {
 		el = (typeof el === 'string') ? document.querySelector(el) : el;
+		// Polymorphic: a bare <textarea> self-builds the editor shell so callers can skip the boilerplate.
+		el = CerbUI.editorCore.resolveEditorEl(el, CerbUI.JsonEditor._NS, opts);
 		if(!el) return;
 
 		this.el = el;

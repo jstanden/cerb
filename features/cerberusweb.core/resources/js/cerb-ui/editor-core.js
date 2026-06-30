@@ -250,6 +250,119 @@ CerbUI.editorCore.onFirstReveal = function(el, cb) {
 };
 
 /*
+ * CerbUI.editorCore.buildEditorShell — generate the standard editor DOM around a BARE <textarea>/<input> so a
+ * template only has to author the field. Mirrors the per-editor markup under the `.cerb-ui-<NS>--*` prefix
+ * (--gutter? / --icon? / --field[--highlight + --input + --caret-anchor] / --right?). Idempotent: a field that
+ * already lives inside a `.cerb-ui-<NS>` wrapper returns that wrapper untouched (so a constructor can call this
+ * unconditionally on either bare or pre-built markup). An <input> keeps the ORIGINAL named control as a hidden
+ * `--value` carrier and gets a shadow <textarea> as the editing surface, so the form POST is unchanged.
+ * opts: { gutter, singleLine, leftIcon, rightHTML }. Returns { wrap, textarea, isInput, reused }.
+ */
+CerbUI.editorCore.buildEditorShell = function(field, NS, opts = {}) {
+	field = (typeof field === 'string') ? document.querySelector(field) : field;
+	if(!field || !field.parentNode) return null;
+
+	const cls = (suffix) => 'cerb-ui-' + NS + (suffix ? '--' + suffix : '');
+
+	const existing = field.closest('.' + cls());
+	if(existing)
+		return { wrap: existing, textarea: existing.querySelector('.' + cls('input')) || field, isInput: false, reused: true };
+
+	const isInput = (field.tagName === 'INPUT');
+	const singleLine = (opts.singleLine != null) ? opts.singleLine : isInput;
+	const gutter = singleLine ? false : (opts.gutter !== false);
+
+	const wrap = document.createElement('div');
+	wrap.className = cls();
+
+	let gutterEl = null;
+	if(gutter) {
+		gutterEl = document.createElement('div');
+		gutterEl.className = cls('gutter');
+		gutterEl.setAttribute('aria-hidden', 'true');
+	}
+
+	let iconEl = null;
+	if(opts.leftIcon) {
+		iconEl = document.createElement('span');
+		iconEl.className = cls('icon') + ' cerb-icons cerb-icon-' + opts.leftIcon;
+	}
+
+	const fieldDiv = document.createElement('div');
+	fieldDiv.className = cls('field');
+	const highlight = document.createElement('div');
+	highlight.className = cls('highlight');
+	highlight.setAttribute('aria-hidden', 'true');
+	const caretAnchor = document.createElement('span');
+	caretAnchor.className = cls('caret-anchor');
+
+	let textarea;
+	if(isInput) {
+		textarea = document.createElement('textarea');
+		textarea.className = cls('input');
+		textarea.value = field.value;
+		if(field.placeholder) textarea.placeholder = field.placeholder;
+		const lines = field.getAttribute('data-editor-lines');
+		if(lines) textarea.setAttribute('data-editor-lines', lines);
+		if(field.disabled || field.readOnly) textarea.setAttribute('data-editor-readonly', '');
+		field.classList.add(cls('value'));          // hide + keep submittable (NOT disabled)
+		field.setAttribute('tabindex', '-1');
+		field.setAttribute('aria-hidden', 'true');
+	} else {
+		textarea = field;
+		textarea.classList.add(cls('input'));
+	}
+
+	let rightEl = null;
+	if(opts.rightHTML) {
+		rightEl = document.createElement('div');
+		rightEl.className = cls('right');
+		rightEl.innerHTML = opts.rightHTML;
+	}
+
+	field.parentNode.insertBefore(wrap, field);
+	if(gutterEl) wrap.appendChild(gutterEl);
+	if(iconEl) wrap.appendChild(iconEl);
+	wrap.appendChild(fieldDiv);
+	fieldDiv.appendChild(highlight);
+	fieldDiv.appendChild(textarea);
+	fieldDiv.appendChild(caretAnchor);
+	if(rightEl) wrap.appendChild(rightEl);
+	if(isInput) wrap.appendChild(field);            // the value carrier rides inside the shell
+
+	return { wrap, textarea, isInput, reused: false };
+};
+
+// Polymorphic-constructor helper: a bare <textarea>/<input> is wrapped in the shell on the fly (so callers can do
+// `new CerbUI.X(textareaEl, opts)`); a real `.cerb-ui-<NS>` wrapper (or anything else) passes through unchanged.
+CerbUI.editorCore.resolveEditorEl = function(el, NS, shellOpts = {}) {
+	if(!el || (el.tagName !== 'TEXTAREA' && el.tagName !== 'INPUT')) return el;
+	const built = CerbUI.editorCore.buildEditorShell(el, NS, shellOpts);
+	return built ? built.wrap : el;
+};
+
+// Named-factory helper backing each editor's `static enhance(field, opts)`. Builds the shell, constructs the
+// editor on it, and (for an <input> value-carrier) mirrors the editor value back to the original named control.
+CerbUI.editorCore.enhanceEditor = function(EditorClass, field, opts = {}, shellOpts = null) {
+	shellOpts = shellOpts || { gutter: opts.gutter, singleLine: opts.singleLine };
+	const built = CerbUI.editorCore.buildEditorShell(field, EditorClass._NS, shellOpts);
+	if(!built) return null;
+	if(built.reused && EditorClass.from(built.wrap)) return EditorClass.from(built.wrap);   // already enhanced
+
+	const editor = new EditorClass(built.wrap, opts);
+	if(!editor || !editor.textarea) return null;
+
+	if(built.isInput && typeof editor.onChange === 'function') {
+		const carrier = built.wrap.querySelector('.cerb-ui-' + EditorClass._NS + '--value');
+		if(carrier) {
+			editor.onChange((val) => { carrier.value = val; });
+			carrier.value = editor.getValue();      // initial sync
+		}
+	}
+	return editor;
+};
+
+/*
  * CerbUI.editorCore.Autocomplete — the caret-anchored suggestion-menu controller shared by both editors.
  *
  * It owns the debounce timer, a monotonic request token (so a slow source can't clobber a newer request), the

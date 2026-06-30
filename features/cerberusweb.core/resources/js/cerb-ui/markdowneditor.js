@@ -37,6 +37,10 @@
 CerbUI.MarkdownEditor = class {
 	static _instances = new WeakMap();
 	static from(el) { return CerbUI.MarkdownEditor._instances.get(el); }
+	static _NS = 'markdowneditor';   // element-class namespace -> `.cerb-ui-markdowneditor--input`, etc. (no gutter)
+
+	// Wrap a BARE <textarea> in the editor shell and construct, so a template only authors the textarea.
+	static enhance(field, opts = {}) { return CerbUI.editorCore.enhanceEditor(this, field, opts, { gutter: false }); }
 
 	static _DEFAULTS = {
 		mode: 'markdown',          // 'markdown' enables syntax coloring; 'plaintext' renders plain
@@ -61,6 +65,8 @@ CerbUI.MarkdownEditor = class {
 
 	constructor(el, opts = {}) {
 		el = (typeof el === 'string') ? document.querySelector(el) : el;
+		// Polymorphic: a bare <textarea> self-builds the editor shell (no gutter) so callers can skip the boilerplate.
+		el = CerbUI.editorCore.resolveEditorEl(el, CerbUI.MarkdownEditor._NS, { gutter: false });
 		if(!el) return;
 
 		this.el = el;

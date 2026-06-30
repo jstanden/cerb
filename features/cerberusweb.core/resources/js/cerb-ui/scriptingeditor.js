@@ -37,70 +37,7 @@ CerbUI.ScriptingEditor = class {
 	// mirroring the editor value back on every change — so the form POST is unchanged and the value stays one line
 	// (singleLine prevents newlines; the input's native newline-stripping is a backstop). Idempotent.
 	static enhance(field, opts = {}) {
-		field = (typeof field === 'string') ? document.querySelector(field) : field;
-		if(!field || !field.parentNode) return null;
-
-		const NS = this._NS;
-		const cls = (suffix) => 'cerb-ui-' + NS + (suffix ? '--' + suffix : '');
-
-		const wrapped = field.closest('.' + cls());
-		if(wrapped && this.from(wrapped)) return this.from(wrapped);   // already enhanced
-
-		const isInput = field.tagName === 'INPUT';
-		const singleLine = (opts.singleLine != null) ? opts.singleLine : isInput;
-		const gutter = singleLine ? false : (opts.gutter !== false);
-
-		const wrap = document.createElement('div');
-		wrap.className = cls();
-
-		let gutterEl = null;
-		if(gutter) {
-			gutterEl = document.createElement('div');
-			gutterEl.className = cls('gutter');
-			gutterEl.setAttribute('aria-hidden', 'true');
-		}
-
-		const fieldDiv = document.createElement('div');
-		fieldDiv.className = cls('field');
-		const highlight = document.createElement('div');
-		highlight.className = cls('highlight');
-		highlight.setAttribute('aria-hidden', 'true');
-		const caretAnchor = document.createElement('span');
-		caretAnchor.className = cls('caret-anchor');
-
-		let textarea;
-		if(isInput) {
-			textarea = document.createElement('textarea');
-			textarea.className = cls('input');
-			textarea.value = field.value;
-			if(field.placeholder) textarea.placeholder = field.placeholder;
-			const lines = field.getAttribute('data-editor-lines');
-			if(lines) textarea.setAttribute('data-editor-lines', lines);
-			if(field.disabled || field.readOnly) textarea.setAttribute('data-editor-readonly', '');
-			field.classList.add(cls('value'));          // hide + keep submittable (NOT disabled)
-			field.setAttribute('tabindex', '-1');
-			field.setAttribute('aria-hidden', 'true');
-		} else {
-			textarea = field;
-			textarea.classList.add(cls('input'));
-		}
-
-		field.parentNode.insertBefore(wrap, field);
-		if(gutterEl) wrap.appendChild(gutterEl);
-		wrap.appendChild(fieldDiv);
-		fieldDiv.appendChild(highlight);
-		fieldDiv.appendChild(textarea);
-		fieldDiv.appendChild(caretAnchor);
-		if(isInput) wrap.appendChild(field);            // the value carrier rides inside the shell
-
-		const editor = new this(wrap, Object.assign({}, opts, { gutter, singleLine }));
-		if(!editor || !editor.textarea) return null;
-
-		if(isInput) {
-			editor.onChange((val) => { field.value = val; });
-			field.value = editor.getValue();            // initial sync
-		}
-		return editor;
+		return CerbUI.editorCore.enhanceEditor(this, field, opts, { gutter: opts.gutter, singleLine: opts.singleLine });
 	}
 
 	// Element-class namespace (`.cerb-ui-<_NS>--input`, …). A subclass (e.g. CerbUI.DataQuery) overrides this +
@@ -124,6 +61,8 @@ CerbUI.ScriptingEditor = class {
 
 	constructor(el, opts = {}) {
 		el = (typeof el === 'string') ? document.querySelector(el) : el;
+		// Polymorphic: a bare <textarea>/<input> self-builds the editor shell so callers can skip the boilerplate.
+		el = CerbUI.editorCore.resolveEditorEl(el, this.constructor._NS, { gutter: opts.gutter, singleLine: opts.singleLine });
 		if(!el) return;
 
 		this.el = el;
