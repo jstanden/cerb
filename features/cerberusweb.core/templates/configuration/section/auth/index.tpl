@@ -88,15 +88,13 @@ $(function() {
 		$frm.find('.cerb-ui-toggle').each(function() { new CerbUI.Toggle(this); });
 	}
 
-	$frm.find('.cerb-sortable')
-		.sortable({
+	if(window.CerbUI && CerbUI.Sortable)
+		new CerbUI.Sortable($frm.find('.cerb-sortable').get(0), {
 			tolerance: 'pointer',
 			helper: 'clone',
 			handle: '.cerb-icon-menu-hamburger',
-			items: '.cerb-sort-item',
-			opacity: 0.7
-		})
-	;
+			items: '.cerb-sort-item'
+		});
 
 	$frm.find('#btnSaveAuth')
 		.click(function(e) {

@@ -39,7 +39,21 @@ class PageSection_SetupMailOutgoing extends Extension_PageSection {
 		
 		$default_templates = json_decode(CerberusSettingsDefaults::MAIL_AUTOMATED_TEMPLATES, true);
 		$tpl->assign('default_templates', $default_templates);
-		
+
+		// Resolve statics for the template (no Foo::CONST in templates)
+		$tpl->assign('context_address', CerberusContexts::CONTEXT_ADDRESS);
+		$tpl->assign('context_worker', CerberusContexts::CONTEXT_WORKER);
+		$tpl->assign('default_sender', DAO_Address::getDefaultLocalAddress());
+
+		// Resolve each automated template's effective send-from address out of the template
+		$template_senders = [];
+		foreach(['worker_invite','worker_recover'] as $k) {
+			$sid = (is_array($templates) && isset($templates[$k]['send_from_id']))
+				? $templates[$k]['send_from_id'] : ($default_templates[$k]['send_from_id'] ?? 0);
+			$template_senders[$k] = $sid ? DAO_Address::get($sid) : null;
+		}
+		$tpl->assign('template_senders', $template_senders);
+
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_outgoing/index.tpl');
 	}
 	

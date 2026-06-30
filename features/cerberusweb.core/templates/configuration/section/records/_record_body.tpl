@@ -1,12 +1,13 @@
 <div class="cerb-ui-header cerb-ui-header--tight cerb-ui-header--center">
 	<div>
-		<div class="cerb-ui-header--title-sm">{$rt.name}</div>
+		<div class="cerb-ui-header--title-sm cerb-u-flex cerb-u-items-center cerb-u-gap-2"><span class="cerb-icons cerb-icon-{$rt.icon}"></span>{$rt.name}</div>
 	</div>
 	<div class="cerb-ui-header--right">
 		<div class="cerb-ui-chip">
 			{if $rt.uri}<div><div class="cerb-ui-chip--label">uri</div><div class="cerb-ui-chip--value">{$rt.uri}</div></div>{/if}
 			<div><div class="cerb-ui-chip--label">extension_id</div><div class="cerb-ui-chip--value">{$rt.id}</div></div>
 		</div>
+		{if $rt.is_custom}<button type="button" class="cerb-records-add cerb-peek-trigger cerb-records-edit-type" title="Edit record type" data-context="{$context_custom_record}" data-context-id="{$rt.record_id}" data-edit="true"><span class="cerb-icons cerb-icon-edit"></span></button>{/if}
 	</div>
 </div>
 

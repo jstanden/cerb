@@ -7,11 +7,7 @@
 		</div>
 		<div class="cerb-uiref-example">
 			<div class="cerb-uiref-demo">
-				<div class="cerb-ui-scriptingeditor" id="uiref-scriptingeditor-edit">
-					<div class="cerb-ui-scriptingeditor--gutter" aria-hidden="true"></div>
-					<div class="cerb-ui-scriptingeditor--field">
-						<div class="cerb-ui-scriptingeditor--highlight" aria-hidden="true"></div>
-						<textarea class="cerb-ui-scriptingeditor--input" data-editor-lines="14" spellcheck="false">{literal}Hi {{worker_first_name|default('there')}},
+				<textarea id="uiref-scriptingeditor-edit" data-editor-lines="14" spellcheck="false">{literal}Hi {{worker_first_name|default('there')}},
 
 {% if ticket_status == 'open' %}
 Your ticket #{{ticket_mask}} is still open.
@@ -19,21 +15,12 @@ Your ticket #{{ticket_mask}} is still open.
 
 Thanks,
 {{worker_signature}}{/literal}</textarea>
-						<span class="cerb-ui-scriptingeditor--caret-anchor"></span>
-					</div>
-				</div>
 			</div>
 
 			<div class="cerb-uiref-code">
 				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
-				<pre data-cerb-uiref-source>&lt;div class="cerb-ui-scriptingeditor" id="ed"&gt;
-	&lt;div class="cerb-ui-scriptingeditor--gutter" aria-hidden="true"&gt;&lt;/div&gt;
-	&lt;div class="cerb-ui-scriptingeditor--field"&gt;
-		&lt;div class="cerb-ui-scriptingeditor--highlight" aria-hidden="true"&gt;&lt;/div&gt;
-		&lt;textarea class="cerb-ui-scriptingeditor--input" name="body" data-editor-lines="14" spellcheck="false"&gt;&lt;/textarea&gt;
-		&lt;span class="cerb-ui-scriptingeditor--caret-anchor"&gt;&lt;/span&gt;
-	&lt;/div&gt;
-&lt;/div&gt;</pre>
+				<pre data-cerb-uiref-source>&lt;!-- Author just the textarea — the editor builds its shell around it. --&gt;
+&lt;textarea id="ed" name="body" data-editor-lines="14" spellcheck="false"&gt;&lt;/textarea&gt;</pre>
 			</div>
 
 			<div class="cerb-uiref-code">
@@ -56,17 +43,10 @@ ed.onChange((value) => { /* … */ });{/literal}</pre>
 		</div>
 		<div class="cerb-uiref-example">
 			<div class="cerb-uiref-demo">
-				<div class="cerb-ui-scriptingeditor" id="uiref-scriptingeditor-readonly">
-					<div class="cerb-ui-scriptingeditor--gutter" aria-hidden="true"></div>
-					<div class="cerb-ui-scriptingeditor--field">
-						<div class="cerb-ui-scriptingeditor--highlight" aria-hidden="true"></div>
-						<textarea class="cerb-ui-scriptingeditor--input" data-editor-lines="8" data-editor-readonly spellcheck="false">{literal}{% for line in lines %}
+				<textarea id="uiref-scriptingeditor-readonly" data-editor-lines="8" data-editor-readonly spellcheck="false">{literal}{% for line in lines %}
   {{line.product}} x{{line.qty}} = {{line.total|currency}}
 {% endfor %}
 Total: {{order_total|currency}}{/literal}</textarea>
-						<span class="cerb-ui-scriptingeditor--caret-anchor"></span>
-					</div>
-				</div>
 			</div>
 
 			<div class="cerb-uiref-code">

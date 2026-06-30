@@ -88,13 +88,10 @@ $(function() {
 		$frm.find('select[name=extension_id]').on('change', function(e) {
 			e.stopPropagation();
 			genericAjaxGet('divStorageEngineSettings','c=config&a=invoke&module=storage_profiles&action=showStorageProfileConfig&ext_id='+encodeURIComponent(selectValue(this))+'&id='+encodeURIComponent(this.form.id.value), function() {
-				$popup.find('.chooser-abstract').cerbChooserTrigger();
 				$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
 			});
 		});
 
-		// Storage engine configs (e.g. S3) may include record choosers
-		$popup.find('.chooser-abstract').cerbChooserTrigger();
 		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
 
 		$frm.find('BUTTON.submit').on('click', function(e) {
@@ -106,14 +103,14 @@ $(function() {
 		$frm.find('BUTTON.delete').on('click', function(e) {
 			e.stopPropagation();
 
-			confirmPopup(
-				'Delete',
-				'Are you sure you want to permanently delete this storage profile?',
-				function () {
+			CerbUI.Confirm.open({
+				title: 'Delete',
+				body: 'Are you sure you want to permanently delete this storage profile?',
+				onConfirm: function () {
 					$frm.find('input[name=do_delete]').val('1');
 					genericAjaxPopupPostCloseReloadView(null,'formStorageProfilePeek', '{$view_id}');
 				}
-			);
+			});
 		});
 
 		$frm.find('BUTTON.tester')

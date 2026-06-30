@@ -12,32 +12,18 @@
 				<ul class="cerb-ui-toolbar" id="uiref-dataquery-tools" hidden>
 					<li data-value="run" data-icon="play-button" title="Run query"></li>
 				</ul>
-				<div class="cerb-ui-dataquery" id="uiref-dataquery-edit">
-					<div class="cerb-ui-dataquery--gutter" aria-hidden="true"></div>
-					<div class="cerb-ui-dataquery--field">
-						<div class="cerb-ui-dataquery--highlight" aria-hidden="true"></div>
-						<textarea class="cerb-ui-dataquery--input" data-editor-lines="10" spellcheck="false">{literal}type:worklist.subtotals
+				<textarea id="uiref-dataquery-edit" data-editor-lines="10" spellcheck="false">{literal}type:worklist.subtotals
 of:ticket
 by:[status]
 format:table
 query:(status:[open,waiting,closed]){/literal}</textarea>
-						<span class="cerb-ui-dataquery--caret-anchor"></span>
-					</div>
-				</div>
 				<div class="cerb-uiref-result">Result: <b id="uiref-dataquery-edit-out">&mdash;</b></div>
 			</div>
 
 			<div class="cerb-uiref-code">
 				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
-				<pre data-cerb-uiref-source>&lt;!-- Gutter + field. The editor builds its own toolbar above this; your buttons go in a host section. --&gt;
-&lt;div class="cerb-ui-dataquery" id="dq"&gt;
-	&lt;div class="cerb-ui-dataquery--gutter" aria-hidden="true"&gt;&lt;/div&gt;
-	&lt;div class="cerb-ui-dataquery--field"&gt;
-		&lt;div class="cerb-ui-dataquery--highlight" aria-hidden="true"&gt;&lt;/div&gt;
-		&lt;textarea class="cerb-ui-dataquery--input" name="data_query" data-editor-lines="10" spellcheck="false"&gt;&lt;/textarea&gt;
-		&lt;span class="cerb-ui-dataquery--caret-anchor"&gt;&lt;/span&gt;
-	&lt;/div&gt;
-&lt;/div&gt;
+				<pre data-cerb-uiref-source>&lt;!-- Author just the textarea — the editor builds its shell + its own toolbar above it. --&gt;
+&lt;textarea id="dq" name="data_query" data-editor-lines="10" spellcheck="false"&gt;&lt;/textarea&gt;
 &lt;!-- A host toolbar section (merged after the built-in Suggestions button) --&gt;
 &lt;ul class="cerb-ui-toolbar" id="dq-tools" hidden&gt;
 	&lt;li data-value="run" data-icon="play-button" title="Run query"&gt;&lt;/li&gt;
@@ -80,11 +66,7 @@ dq.onChange((value) => { /* … */ }); // CerbUI.DataQuery.from(el) returns the 
 		</div>
 		<div class="cerb-uiref-example">
 			<div class="cerb-uiref-demo">
-				<div class="cerb-ui-dataquery" id="uiref-dataquery-readonly">
-					<div class="cerb-ui-dataquery--gutter" aria-hidden="true"></div>
-					<div class="cerb-ui-dataquery--field">
-						<div class="cerb-ui-dataquery--highlight" aria-hidden="true"></div>
-						<textarea class="cerb-ui-dataquery--input" data-editor-lines="8" data-editor-readonly spellcheck="false">{literal}type:worklist.subtotals
+				<textarea id="uiref-dataquery-readonly" data-editor-lines="8" data-editor-readonly spellcheck="false">{literal}type:worklist.subtotals
 of:ticket
 by:[group_id]
 format:table
@@ -92,9 +74,6 @@ query:(
   created:after:{{ date.diff('now', '-30 days') }}
   status:[open,waiting]
 ){/literal}</textarea>
-						<span class="cerb-ui-dataquery--caret-anchor"></span>
-					</div>
-				</div>
 			</div>
 
 			<div class="cerb-uiref-code">

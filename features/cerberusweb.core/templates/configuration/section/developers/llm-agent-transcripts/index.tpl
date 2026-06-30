@@ -192,10 +192,10 @@ $(function() {
         let button_action = $button.attr('data-cerb-button');
 
         if('delete' === button_action) {
-            confirmPopup(
-                'Delete Transcript',
-                'Are you sure you want to permanently delete this transcript?',
-                function() {
+            CerbUI.Confirm.open({
+                title: 'Delete Transcript',
+                body: 'Are you sure you want to permanently delete this transcript?',
+                onConfirm: function() {
                     let formData = new FormData();
                     formData.set('c', 'config');
                     formData.set('a', 'invoke');
@@ -230,7 +230,7 @@ $(function() {
                         }
                     });
                 }
-            );
+            });
 
         } else if ('mark-read' === button_action) {
             let formData = new FormData();

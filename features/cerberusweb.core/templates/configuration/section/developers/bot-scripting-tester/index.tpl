@@ -17,8 +17,8 @@
 		Run this script:
 		{include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/docs/scripting/"}
 	</legend>
-	
-	<textarea name="bot_script" data-editor-mode="ace/mode/twig" rows="5" cols="45" class="placeholders"></textarea>
+
+	<textarea id="botScriptEditor" name="bot_script" data-editor-lines="12" spellcheck="false"></textarea>
 	<br>
 	
 	<button type="button" class="submit"><span class="cerb-icons cerb-icon-play"></span> {'common.run'|devblocks_translate|capitalize}</button>
@@ -36,10 +36,8 @@ $(function() {
 
 	Devblocks.formDisableSubmit($frm);
 	
-	$frm.find('textarea')
-		.cerbCodeEditor()
-		;
-	
+	new CerbUI.ScriptingEditor($frm.find('#botScriptEditor')[0], { minLines: 5 });
+
 	$button
 		.click(function(e) {
 			Devblocks.clearAlerts();

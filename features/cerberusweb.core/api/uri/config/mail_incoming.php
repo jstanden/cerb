@@ -26,13 +26,24 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$visit->set(ChConfigurationPage::ID, 'mail_incoming');
-		
+
 		$stack = $response->path;
 		@array_shift($stack); // config
 		@array_shift($stack); // mail_incoming
 		@$tab = array_shift($stack);
 		$tpl->assign('tab', $tab);
-		
+
+		// Resolve statics for the Settings tab (no Foo::CONST in templates)
+		$settings = DevblocksPlatform::services()->pluginSettings();
+		$tpl->assign('context_group', CerberusContexts::CONTEXT_GROUP);
+		$tpl->assign('default_group', DAO_Group::getDefaultGroup());
+		$tpl->assign('parser_autoreq', $settings->get('cerberusweb.core', CerberusSettings::PARSER_AUTO_REQ, 0));
+		$tpl->assign('parser_autoreq_exclude', $settings->get('cerberusweb.core', CerberusSettings::PARSER_AUTO_REQ_EXCLUDE, ''));
+		$tpl->assign('attachments_enabled', $settings->get('cerberusweb.core', CerberusSettings::ATTACHMENTS_ENABLED, CerberusSettingsDefaults::ATTACHMENTS_ENABLED));
+		$tpl->assign('attachments_max_size', $settings->get('cerberusweb.core', CerberusSettings::ATTACHMENTS_MAX_SIZE, CerberusSettingsDefaults::ATTACHMENTS_MAX_SIZE));
+		$tpl->assign('ticket_mask_format', $settings->get('cerberusweb.core', CerberusSettings::TICKET_MASK_FORMAT, CerberusSettingsDefaults::TICKET_MASK_FORMAT));
+		$tpl->assign('html_no_strip_microsoft', $settings->get('cerberusweb.core', CerberusSettings::HTML_NO_STRIP_MICROSOFT, CerberusSettingsDefaults::HTML_NO_STRIP_MICROSOFT));
+
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_incoming/index.tpl');
 	}
 	
@@ -215,6 +226,8 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
+
+		$tpl->assign('context_automation_event', CerberusContexts::CONTEXT_AUTOMATION_EVENT);
 
 		// Custom Field Sources
 		$tpl->assign('context_manifests', Extension_DevblocksContext::getAll());
@@ -546,7 +559,9 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		
 		if(!$active_worker || !$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
-		
+
+		$tpl->assign('context_automation_event', CerberusContexts::CONTEXT_AUTOMATION_EVENT);
+
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_incoming/tabs/mail_filtering.tpl');
 	}
 	
@@ -1029,6 +1044,12 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		
 		$replyto_default = DAO_Address::getDefaultLocalAddress();
 		$tpl->assign('replyto_default', $replyto_default);
+
+		// Resolve statics for the template (no Foo::CONST in templates)
+		$settings = DevblocksPlatform::services()->pluginSettings();
+		$tpl->assign('relay_disable', $settings->get('cerberusweb.core', CerberusSettings::RELAY_DISABLE, CerberusSettingsDefaults::RELAY_DISABLE));
+		$tpl->assign('relay_disable_auth', $settings->get('cerberusweb.core', CerberusSettings::RELAY_DISABLE_AUTH, CerberusSettingsDefaults::RELAY_DISABLE_AUTH));
+		$tpl->assign('relay_spoof_from', $settings->get('cerberusweb.core', CerberusSettings::RELAY_SPOOF_FROM, CerberusSettingsDefaults::RELAY_SPOOF_FROM));
 
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_incoming/tabs/mail_relay.tpl');
 	}

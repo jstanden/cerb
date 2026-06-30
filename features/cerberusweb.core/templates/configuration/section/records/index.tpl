@@ -1,11 +1,6 @@
 <style nonce="{DevblocksPlatform::getRequestNonce()}">
-#recordsNav { --cerb-ui-sidebar-width: 240px; }
-.cerb-records-content { padding-left: 1.75em; }
-
 .cerb-records-add { display:inline-flex; align-items:center; justify-content:center; padding:0.1em 0.35em; border:0; border-radius:5px; background:transparent; color:var(--cerb-color-background-contrast-150); cursor:pointer; }
 .cerb-records-add:hover { background:var(--cerb-color-background-contrast-220); color:var(--cerb-color-link); }
-
-.cerb-records-section { border-radius:1em; margin-bottom: 2em; padding: 1.25em 1.5em 1.5em; }
 
 .cerb-records-group { margin-top:1.1em; }
 .cerb-records-group--label { text-transform:uppercase; letter-spacing:0.04em; border-bottom:1px solid var(--cerb-color-background-contrast-220); padding-bottom:0.3em; margin-bottom:0.5em; }
@@ -48,7 +43,7 @@
 	</div>
 
 	<div class="cerb-ui-sidebar-layout cerb-u-mt-3 cerb-u-items-start">
-		<aside class="cerb-ui-sidebar" id="recordsNav">
+		<aside class="cerb-ui-sidebar" id="recordsNav" style="--cerb-ui-sidebar-width:240px;">
 			<div class="cerb-ui-sidebar--body">
 				<div class="cerb-ui-sidebar--section">
 					<div class="cerb-ui-sidebar--label cerb-u-flex cerb-u-items-center cerb-u-justify-between cerb-u-gap-2">

@@ -7,23 +7,16 @@
 		</div>
 		<div class="cerb-uiref-example">
 			<div class="cerb-uiref-demo">
-				<div class="cerb-ui-searchquery" id="uiref-searchquery-adapter">
-					<span class="cerb-ui-searchquery--icon cerb-icons cerb-icon-search"></span>
-					<div class="cerb-ui-searchquery--field">
-						<div class="cerb-ui-searchquery--highlight" aria-hidden="true"></div>
-						<textarea class="cerb-ui-searchquery--input" rows="1" placeholder="Search tickets…"></textarea>
-						<span class="cerb-ui-searchquery--caret-anchor"></span>
-					</div>
-					<div class="cerb-ui-searchquery--right">
-						<a data-action="autocomplete" style="cursor:pointer;color:var(--cerb-color-background-contrast-150);" title="Suggestions (Ctrl/⌘+Space)"><span class="cerb-icons cerb-icon-autocomplete"></span></a>
-					</div>
-				</div>
+				<textarea id="uiref-searchquery-adapter" rows="1" placeholder="Search tickets…"></textarea>
 				<div class="cerb-uiref-result">Search: <b id="uiref-searchquery-adapter-out">&mdash;</b></div>
 			</div>
 
 			<div class="cerb-uiref-code">
 				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
-				<pre data-cerb-uiref-source>&lt;!-- A search icon on the left, the field in the middle, an arbitrary --right toolbar of icon actions. --&gt;
+				<pre data-cerb-uiref-source>&lt;!-- Simple: author just the textarea — the editor adds the search icon + a Suggestions button. --&gt;
+&lt;textarea id="q" rows="1" placeholder="Search…"&gt;&lt;/textarea&gt;
+
+&lt;!-- Custom right-side actions? Author the full shell and put your own markup in --right (see examples below):
 &lt;div class="cerb-ui-searchquery" id="q"&gt;
 	&lt;span class="cerb-ui-searchquery--icon cerb-icons cerb-icon-search"&gt;&lt;/span&gt;
 	&lt;div class="cerb-ui-searchquery--field"&gt;
@@ -31,10 +24,8 @@
 		&lt;textarea class="cerb-ui-searchquery--input" rows="1" placeholder="Search…"&gt;&lt;/textarea&gt;
 		&lt;span class="cerb-ui-searchquery--caret-anchor"&gt;&lt;/span&gt;
 	&lt;/div&gt;
-	&lt;div class="cerb-ui-searchquery--right"&gt;
-		&lt;a data-action="autocomplete" title="Suggestions"&gt;&lt;span class="cerb-icons cerb-icon-sparkles"&gt;&lt;/span&gt;&lt;/a&gt;
-	&lt;/div&gt;
-&lt;/div&gt;</pre>
+	&lt;div class="cerb-ui-searchquery--right"&gt;&lt;a data-action="autocomplete"&gt;&lt;span class="cerb-icons cerb-icon-sparkles"&gt;&lt;/span&gt;&lt;/a&gt;&lt;/div&gt;
+&lt;/div&gt; --&gt;</pre>
 			</div>
 
 			<div class="cerb-uiref-code">

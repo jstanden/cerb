@@ -67,7 +67,7 @@
 		<div class="cerb-ui-header--title-sm">Custom Stylesheet</div>
 	</div>
 
-	<textarea name="user_stylesheet" class="cerb-editor" data-editor-mode="ace/mode/css">{$settings->get('cerberusweb.core','ui_user_stylesheet')}</textarea>
+	<textarea name="user_stylesheet" data-editor-lines="15" spellcheck="false">{$settings->get('cerberusweb.core','ui_user_stylesheet')}</textarea>
 </div>
 
 <div>
@@ -108,8 +108,9 @@ $(function() {
 		})
 	;
 
-	$frm.find('textarea.cerb-editor')
-		.cerbCodeEditor()
-	;
+	// Custom stylesheet — a plain ScriptingEditor (no autocomplete; CSS braces are not Twig).
+	var cssEl = $frm.find('textarea[name=user_stylesheet]')[0];
+	if(cssEl && window.CerbUI && CerbUI.ScriptingEditor)
+		new CerbUI.ScriptingEditor(cssEl);
 });
 </script>

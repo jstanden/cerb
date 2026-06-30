@@ -181,11 +181,11 @@ $(function() {
 				});
 			};
 
-			confirmPopup(
-				'Are you sure?',
-				'This will start a migration of {$src_stats.count} storage objects.',
-				funcStartMigration,
-			);
+			CerbUI.Confirm.open({
+				title: 'Are you sure?',
+				body: 'This will start a migration of {$src_stats.count} storage objects.',
+				onConfirm: funcStartMigration,
+			});
 		});
 	});
 });

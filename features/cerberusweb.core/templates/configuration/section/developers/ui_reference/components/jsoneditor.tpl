@@ -7,11 +7,7 @@
 		</div>
 		<div class="cerb-uiref-example">
 			<div class="cerb-uiref-demo">
-				<div class="cerb-ui-jsoneditor" id="uiref-jsoneditor-edit">
-					<div class="cerb-ui-jsoneditor--gutter" aria-hidden="true"></div>
-					<div class="cerb-ui-jsoneditor--field">
-						<div class="cerb-ui-jsoneditor--highlight" aria-hidden="true"></div>
-						<textarea class="cerb-ui-jsoneditor--input" data-editor-lines="16" spellcheck="false">{literal}{
+				<textarea id="uiref-jsoneditor-edit" data-editor-lines="16" spellcheck="false">{literal}{
   "name": "Cerb",
   "version": 11.2,
   "enabled": true,
@@ -22,23 +18,13 @@
   },
   "limit": null
 }{/literal}</textarea>
-						<span class="cerb-ui-jsoneditor--caret-anchor"></span>
-					</div>
-				</div>
 				<div class="cerb-uiref-result">State &middot; cursor row: <b id="uiref-jsoneditor-edit-row">&mdash;</b></div>
 			</div>
 
 			<div class="cerb-uiref-code">
 				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
-				<pre data-cerb-uiref-source>&lt;!-- A left line-number gutter, then the field: a colored --highlight mirror under the transparent --input. --&gt;
-&lt;div class="cerb-ui-jsoneditor" id="ed"&gt;
-	&lt;div class="cerb-ui-jsoneditor--gutter" aria-hidden="true"&gt;&lt;/div&gt;
-	&lt;div class="cerb-ui-jsoneditor--field"&gt;
-		&lt;div class="cerb-ui-jsoneditor--highlight" aria-hidden="true"&gt;&lt;/div&gt;
-		&lt;textarea class="cerb-ui-jsoneditor--input" name="json" data-editor-lines="16" spellcheck="false"&gt;&lt;/textarea&gt;
-		&lt;span class="cerb-ui-jsoneditor--caret-anchor"&gt;&lt;/span&gt;
-	&lt;/div&gt;
-&lt;/div&gt;</pre>
+				<pre data-cerb-uiref-source>&lt;!-- Author just the textarea — the editor builds its shell (gutter + highlight mirror + caret anchor). --&gt;
+&lt;textarea id="ed" name="json" data-editor-lines="16" spellcheck="false"&gt;&lt;/textarea&gt;</pre>
 			</div>
 
 			<div class="cerb-uiref-code">
@@ -63,11 +49,7 @@ ed.setMarker(2, { type:'info', title:'A gutter marker' });{/literal}</pre>
 		</div>
 		<div class="cerb-uiref-example">
 			<div class="cerb-uiref-demo">
-				<div class="cerb-ui-jsoneditor" id="uiref-jsoneditor-readonly">
-					<div class="cerb-ui-jsoneditor--gutter" aria-hidden="true"></div>
-					<div class="cerb-ui-jsoneditor--field">
-						<div class="cerb-ui-jsoneditor--highlight" aria-hidden="true"></div>
-						<textarea class="cerb-ui-jsoneditor--input" data-editor-lines="14" data-editor-readonly spellcheck="false">{literal}{
+				<textarea id="uiref-jsoneditor-readonly" data-editor-lines="14" data-editor-readonly spellcheck="false">{literal}{
   "results": [
     { "id": 1, "subject": "Order shipped", "open": false },
     { "id": 2, "subject": "Refund request", "open": true }
@@ -75,9 +57,6 @@ ed.setMarker(2, { type:'info', title:'A gutter marker' });{/literal}</pre>
   "count": 2,
   "took_ms": 18.4
 }{/literal}</textarea>
-						<span class="cerb-ui-jsoneditor--caret-anchor"></span>
-					</div>
-				</div>
 			</div>
 
 			<div class="cerb-uiref-code">
@@ -92,18 +71,11 @@ ed.setMarker(2, { type:'info', title:'A gutter marker' });{/literal}</pre>
 		</div>
 		<div class="cerb-uiref-example">
 			<div class="cerb-uiref-demo">
-				<div class="cerb-ui-jsoneditor" id="uiref-jsoneditor-validate">
-					<div class="cerb-ui-jsoneditor--gutter" aria-hidden="true"></div>
-					<div class="cerb-ui-jsoneditor--field">
-						<div class="cerb-ui-jsoneditor--highlight" aria-hidden="true"></div>
-						<textarea class="cerb-ui-jsoneditor--input" data-editor-lines="12" spellcheck="false">{literal}{
+				<textarea id="uiref-jsoneditor-validate" data-editor-lines="12" spellcheck="false">{literal}{
   "name": "Cerb",
   "roles": ["admin", "agent",],
   "active": true
 }{/literal}</textarea>
-						<span class="cerb-ui-jsoneditor--caret-anchor"></span>
-					</div>
-				</div>
 				<div class="cerb-uiref-result">Status &middot; <b id="uiref-jsoneditor-validate-status">&mdash;</b></div>
 			</div>
 
@@ -202,7 +174,7 @@ ed.clearMarkers();                              // remove every marker{/literal}
 			});
 			// A seeded marker so the gutter column shows an icon example.
 			ed.setMarker(2, { type:'info', title:'Example marker' });
-			const ta = el.querySelector('.cerb-ui-jsoneditor--input');
+			const ta = ed.textarea;
 			const showRow = function() {
 				if(out) out.textContent = ed.getCursorPosition().row;
 			};

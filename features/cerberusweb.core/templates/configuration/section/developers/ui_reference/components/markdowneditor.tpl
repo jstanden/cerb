@@ -13,10 +13,7 @@
 					<li data-value="mention" data-icon="mention" title="Mention (@)"></li>
 					<li data-value="preview" data-icon="eye-open" title="Preview"></li>
 				</ul>
-				<div class="cerb-ui-markdowneditor" id="uiref-markdowneditor">
-					<div class="cerb-ui-markdowneditor--field">
-						<div class="cerb-ui-markdowneditor--highlight" aria-hidden="true"></div>
-						<textarea class="cerb-ui-markdowneditor--input" spellcheck="true"># Heading
+				<textarea id="uiref-markdowneditor" spellcheck="true"># Heading
 
 Some **bold** and _italic_ text with a [link](https://cerb.ai) and `inline code`.
 
@@ -26,22 +23,13 @@ Some **bold** and _italic_ text with a [link](https://cerb.ai) and `inline code`
 * second item
 
 Type @ to try mention autocomplete.</textarea>
-						<span class="cerb-ui-markdowneditor--caret-anchor"></span>
-					</div>
-				</div>
 				<div class="cerb-uiref-result">Mode &middot; <b id="uiref-markdowneditor-mode">markdown</b></div>
 			</div>
 
 			<div class="cerb-uiref-code">
 				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
-				<pre data-cerb-uiref-source>&lt;!-- A colored --highlight mirror under the transparent --input. --&gt;
-&lt;div class="cerb-ui-markdowneditor" id="ed"&gt;
-	&lt;div class="cerb-ui-markdowneditor--field"&gt;
-		&lt;div class="cerb-ui-markdowneditor--highlight" aria-hidden="true"&gt;&lt;/div&gt;
-		&lt;textarea class="cerb-ui-markdowneditor--input" name="comment"&gt;&lt;/textarea&gt;
-		&lt;span class="cerb-ui-markdowneditor--caret-anchor"&gt;&lt;/span&gt;
-	&lt;/div&gt;
-&lt;/div&gt;</pre>
+				<pre data-cerb-uiref-source>&lt;!-- Author just the textarea — the editor builds its shell (no gutter) around it. --&gt;
+&lt;textarea id="ed" name="comment"&gt;&lt;/textarea&gt;</pre>
 			</div>
 
 			<div class="cerb-uiref-code">
@@ -128,17 +116,11 @@ CerbUI.MarkdownEditor.from(el);{/literal}</pre>
 		</div>
 		<div class="cerb-uiref-example">
 			<div class="cerb-uiref-demo">
-				<div class="cerb-ui-markdowneditor" id="uiref-markdowneditor-scripting">
-					<div class="cerb-ui-markdowneditor--field">
-						<div class="cerb-ui-markdowneditor--highlight" aria-hidden="true"></div>
-						<textarea class="cerb-ui-markdowneditor--input" spellcheck="false">{literal}# Hi {{worker_first_name}}
+				<textarea id="uiref-markdowneditor-scripting" spellcheck="false">{literal}# Hi {{worker_first_name}}
 
 {% if ticket_status == 'open' %}
 Your ticket **#{{ticket_mask}}** is still _open_.
 {% endif %}{/literal}</textarea>
-						<span class="cerb-ui-markdowneditor--caret-anchor"></span>
-					</div>
-				</div>
 			</div>
 
 			<div class="cerb-uiref-code">

@@ -1,6 +1,4 @@
 <style nonce="{DevblocksPlatform::getRequestNonce()}">
-#flowsNav { --cerb-ui-sidebar-width: 260px; }
-
 .cerb-flow-section--name { color:var(--cerb-color-text); }
 
 /* Graph host: a framed canvas the read-only CerbUI.NodeGraph fills */
@@ -18,7 +16,7 @@
 	</div>
 
 	<div class="cerb-ui-sidebar-layout cerb-u-mt-3 cerb-u-items-start">
-		<aside class="cerb-ui-sidebar" id="flowsNav">
+		<aside class="cerb-ui-sidebar" id="flowsNav" style="--cerb-ui-sidebar-width:260px;">
 			<div class="cerb-ui-sidebar--body">
 				<div class="cerb-ui-sidebar--section">
 					<div class="cerb-ui-sidebar--label">Flows</div>
@@ -31,9 +29,9 @@
 			</div>
 		</aside>
 
-		<div class="cerb-ui-sidebar-layout--content cerb-flows-content cerb-u-pl-4">
+		<div class="cerb-ui-sidebar-layout--content cerb-flows-content">
 			{foreach from=$flows item=flow}
-				<div class="cerb-flow-section cerb-u-bgg-3 cerb-u-rounded-5 cerb-u-mb-4 cerb-u-p-4" id="{$flow.slug}">
+				<div class="cerb-flow-section cerb-ui-section-card cerb-u-bgg-3" id="{$flow.slug}">
 					<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-2 cerb-u-flex-wrap">
 						<span class="cerb-icons cerb-icon-{$flow.icon} cerb-u-fs-2x"></span>
 						<span class="cerb-flow-section--name cerb-u-fs-2x">{$flow.label}</span>

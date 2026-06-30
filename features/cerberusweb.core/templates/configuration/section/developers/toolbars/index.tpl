@@ -1,10 +1,4 @@
 <style nonce="{DevblocksPlatform::getRequestNonce()}">
-#toolbarsNav { --cerb-ui-sidebar-width: 260px; }
-/* Collapsed strip = icons only; hide the 'Toolbars' label (id beats the base collapsed rule) */
-#toolbarsNav.cerb-ui-sidebar--collapsed .cerb-ui-sidebar--label { display:none; }
-.cerb-toolbars-content { padding-left: 1.75em; }
-
-.cerb-toolbars-section { border-radius:1em; margin-bottom: 2em; padding: 1.25em 1.5em 1.5em; }
 .cerb-toolbars-section--name { color:var(--cerb-color-text); }
 .cerb-toolbars-section--desc { color:var(--cerb-color-background-contrast-150); margin-top:0.35em; }
 
@@ -47,7 +41,7 @@
 	</div>
 
 	<div class="cerb-ui-sidebar-layout cerb-u-mt-3 cerb-u-items-start">
-		<aside class="cerb-ui-sidebar" id="toolbarsNav">
+		<aside class="cerb-ui-sidebar" id="toolbarsNav" style="--cerb-ui-sidebar-width:260px;">
 			<div class="cerb-ui-sidebar--body">
 				<div class="cerb-ui-sidebar--section">
 					<div class="cerb-ui-sidebar--label">Toolbars</div>
@@ -62,7 +56,7 @@
 
 		<div class="cerb-ui-sidebar-layout--content cerb-toolbars-content">
 			{foreach from=$toolbars item=toolbar}
-				<div class="cerb-toolbars-section cerb-u-bgg-3" id="{$toolbar.slug}">
+				<div class="cerb-toolbars-section cerb-ui-section-card cerb-u-bgg-3" id="{$toolbar.slug}">
 					<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-2 cerb-u-flex-wrap">
 						<span class="cerb-icons cerb-icon-{$toolbar.icon} cerb-u-fs-2x"></span>
 						<span class="cerb-toolbars-section--name cerb-u-fs-2x">{$toolbar.name}</span>

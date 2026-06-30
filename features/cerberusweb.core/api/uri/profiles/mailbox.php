@@ -52,7 +52,7 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 		$ids = DevblocksPlatform::importGPC($_REQUEST['ids'] ?? [], 'array', []);
 		$ids = array_filter(array_map('intval', $ids));
 
-		$window = DevblocksPlatform::importGPC($_REQUEST['window'] ?? '24h', 'string', '24h');
+		$window = DevblocksPlatform::importGPC($_REQUEST['window'] ?? '1d', 'string', '1d');
 
 		$row_series = [];
 

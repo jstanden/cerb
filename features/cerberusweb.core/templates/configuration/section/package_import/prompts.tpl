@@ -15,8 +15,7 @@
 		</select>
 		{/if}
 	{elseif $prompt.type == 'chooser'}
-	<button type="button" class="cerb-chooser-trigger" data-field-name="prompts[{$prompt.key}]{if !$prompt.params.single}[]{/if}" data-context="{$prompt.params.context}" {if $prompt.params.single}data-single="true"{/if} data-query="{$prompt.params.query}"><span class="cerb-icons cerb-icon-search"></span></button>
-	<ul class="bubbles chooser-container"></ul>
+	<div class="cerb-ui-record-chooser cerb-package-prompt-chooser" data-context="{$prompt.params.context|escape:'html'}" data-name="prompts[{$prompt.key|escape:'html'}]"{if $prompt.params.single} data-single="1"{/if}{if $prompt.params.query} data-query="{$prompt.params.query|escape:'html'}"{/if}></div>
 	{/if}
 	</div>
 	{/if}
@@ -32,10 +31,19 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $fieldset = $('#{$fieldset_id}');
-	$fieldset.find('.cerb-chooser-trigger')
-		.cerbChooserTrigger()
-		;
+	const $fieldset = $('#{$fieldset_id}');
+
+	if(window.CerbUI && CerbUI.RecordChooser) {
+		$fieldset.find('.cerb-package-prompt-chooser').each(function() {
+			const single = this.getAttribute('data-single') === '1';
+			new CerbUI.RecordChooser(this, {
+				context: this.getAttribute('data-context'),
+				name: this.getAttribute('data-name'),
+				multiple: !single,
+				query: this.getAttribute('data-query') || ''
+			});
+		});
+	}
 });
 </script>
 {/if}

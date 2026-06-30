@@ -12,13 +12,13 @@
 		{include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/docs/data-queries/"}
 	</legend>
 	
-	<textarea name="data_query" data-editor-mode="ace/mode/cerb_query" rows="5" cols="45"></textarea>
+	<textarea id="dataQueryEditor" name="data_query" data-editor-lines="14" spellcheck="false"></textarea>
 	<br>
 	
 	<button type="button" class="submit"><span class="cerb-icons cerb-icon-play"></span> {'common.run'|devblocks_translate|capitalize}</button>
 	
 	<div class="status" style="margin-top:10px;display:none;">
-		<textarea class="cerb-data-query-results" data-editor-mode="ace/mode/json" rows="5" cols="45"></textarea>
+		<textarea id="dataQueryResultsEditor" spellcheck="false"></textarea>
 	</div>
 </fieldset>
 </form>
@@ -32,36 +32,28 @@ $(function() {
 
 	Devblocks.formDisableSubmit($frm);
 	
-	var $editor_results = 
-		$frm.find('.cerb-data-query-results')
-		.cerbCodeEditor()
-		.nextAll('pre.ace_editor')
-		;
-	
-	var $editor = $frm.find('textarea[name=data_query]')
-		.cerbCodeEditor()
-		.cerbCodeEditorAutocompleteDataQueries()
-		.nextAll('pre.ace_editor')
-		;
-	
-	var editor = ace.edit($editor.attr('id'));
-	
+	const resultsEditor = new CerbUI.JsonEditor($frm.find('#dataQueryResultsEditor')[0], { readOnly: true, minLines: 5 });
+
+	const dq = new CerbUI.DataQuery($frm.find('#dataQueryEditor')[0], {
+		onAutocomplete: CerbUI.DataQuery.dataQueryFieldSource(),
+		toolbar: true, // built-in Suggestions button (top strip)
+	});
+
 	$button
 		.click(function(e) {
 			e.stopPropagation();
-			var editor_results = ace.edit($editor_results.attr('id'));
-			
+
 			Devblocks.clearAlerts();
-			
+
 			$button.hide();
 			$status.hide();
 			$spinner.insertBefore($status);
-			editor_results.setValue('');
+			resultsEditor.setValue('');
 			
 			var formData = new FormData();
 			formData.set('c', 'ui');
 			formData.set('a', 'dataQuery');
-			formData.set('q', editor.getValue());
+			formData.set('q', dq.getValue());
 
 			genericAjaxPost(formData, null, null, function(json) {
 				$button.fadeIn();
@@ -71,10 +63,10 @@ $(function() {
 					Devblocks.createAlertError(json.error);
 					
 				} else {
-					editor_results.setReadOnly(true);
-					editor_results.setValue(JSON.stringify(json, null, 2));
-					editor_results.clearSelection();
+					// Reveal the results panel BEFORE setValue so the editor autosizes against a laid-out
+					// element — a display:none textarea reports scrollHeight 0 and would clamp to minLines.
 					$status.show();
+					resultsEditor.setValue(JSON.stringify(json, null, 2));
 				}
 			});
 		})

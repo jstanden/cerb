@@ -50,9 +50,7 @@
 
 /* Persistent left nav (CerbUI.Sidebar) — replaces the old wrapped-chip jump TOC. Sized to clear the footer in JS. */
 .cerb-uiref-layout { align-items: flex-start; margin-top: 1em; }
-#uiref-nav { --cerb-ui-sidebar-width: 230px; }
 #uiref-nav .cerb-ui-sidebar--head strong { font-size: 0.78em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--cerb-color-background-contrast-150); }
-.cerb-uiref-content { padding-left: 1.75em; }
 
 /* Content group divider — mirrors the sidebar's functional sections */
 .cerb-uiref-grouplabel { font-size:1.4em; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--cerb-color-background-contrast-150); margin:2.5em 0 0; padding-bottom:0.3em; border-bottom:2px solid var(--cerb-color-background-contrast-230); }
@@ -82,7 +80,7 @@
 	</div>
 
 	<div class="cerb-ui-sidebar-layout cerb-uiref-layout">
-		<aside class="cerb-ui-sidebar" id="uiref-nav">
+		<aside class="cerb-ui-sidebar" id="uiref-nav" style="--cerb-ui-sidebar-width:230px;">
 			<div class="cerb-ui-sidebar--head"><strong>Components</strong></div>
 			<div class="cerb-ui-sidebar--body">
 				<div class="cerb-ui-sidebar--section">
@@ -333,9 +331,39 @@
 		}, { rootMargin: '0px 0px -75% 0px' });
 		byId.forEach(function(li, id) { const el = sectionFor(id); if(el) io.observe(el); });
 
-		// Deep link: scroll to + select the hash target on load.
+		// Deep link: scroll to + select the hash target. The editor components (Kata/Markdown/Json/
+		// Scripting) init from collapsed textareas and grow tall AFTER this script runs, so a single
+		// early (smooth) scroll commits to a stale offset and lands short — in an earlier section. Pin
+		// the target on load, then re-pin while the content keeps resizing; bail on user input.
 		const hash = (location.hash || '').replace(/^#/, '');
-		if(hash && byId.has(hash)) { goTo(hash, false); markActive(hash); }
+		if(hash && byId.has(hash)) {
+			markActive(hash);
+			const pin = function() {
+				const el = sectionFor(hash);
+				if(el) el.scrollIntoView({ block: 'start' });
+			};
+			const start = function() {
+				pin();
+				if(!window.ResizeObserver) return;
+				let done = false;
+				const stop = function() {
+					if(done) return;
+					done = true;
+					ro.disconnect();
+					window.removeEventListener('wheel', stop);
+					window.removeEventListener('touchmove', stop);
+					window.removeEventListener('keydown', stop);
+				};
+				const ro = new ResizeObserver(function() { if(!done) pin(); });
+				ro.observe(content);
+				window.addEventListener('wheel', stop, { passive: true });
+				window.addEventListener('touchmove', stop, { passive: true });
+				window.addEventListener('keydown', stop);
+				setTimeout(stop, 1500);
+			};
+			if(document.readyState === 'complete') start();
+			else window.addEventListener('load', start);
+		}
 	})();
 })();
 </script>

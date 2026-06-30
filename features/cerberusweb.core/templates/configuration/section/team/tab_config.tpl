@@ -13,17 +13,13 @@
         <div class="cerb-ui-form--field">
             <label class="cerb-ui-form--label">Add these pages to their default menu</label>
             <div>
-                <button type="button" class="cerb-abstract-chooser" data-context="{$workspace_page_context}" data-field-name="default_pages[]"><span class="cerb-icons cerb-icon-search"></span></button>
-                <ul class="bubbles chooser-container" style="display:inline-block;">
+                <div class="cerb-ui-record-chooser cerb-pages-chooser">
                     {if $default_workspaces}
                         {foreach from=$default_workspaces item=workspace}
-                        <li>
-                            {$workspace->name}
-                            <input type="hidden" name="default_pages[]" value="{$workspace->id}">
-                        </li>
+                        <li data-context="{$workspace_page_context}" data-context-id="{$workspace->id}" data-label="{$workspace->name}"></li>
                         {/foreach}
                     {/if}
-                </ul>
+                </div>
             </div>
         </div>
     </div>
@@ -38,7 +34,11 @@ $(function() {
     const $frm = $('#frmSetupTeamConfig');
 
     Devblocks.formDisableSubmit($frm);
-    $frm.find('.cerb-abstract-chooser').cerbChooserTrigger();
+
+    if(window.CerbUI && CerbUI.RecordChooser)
+        $frm.find('.cerb-pages-chooser').each(function() {
+            new CerbUI.RecordChooser(this, { context: '{$workspace_page_context}', name: 'default_pages', multiple: true });
+        });
 
     $frm.find('#btnSaveTeamConfig').on('click', function(e) {
         e.stopPropagation();

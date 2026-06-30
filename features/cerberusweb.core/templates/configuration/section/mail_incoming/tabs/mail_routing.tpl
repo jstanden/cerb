@@ -1,21 +1,28 @@
 {$form_id = "frmSetupMailRoutingKata{uniqid()}"}
 {$form_legacy_id = "frmSetupMailRoutingLegacy{uniqid()}"}
 
-<fieldset id="frmSetupMailRouting" class="peek" style="margin-bottom:20px;">
-	<legend>{'common.automations'|devblocks_translate|capitalize}:</legend>
-	
-	<button type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_AUTOMATION_EVENT}" data-context-id="mail.route" data-edit="true">
-		<span class="cerb-icons cerb-icon-gear"></span> {'common.configure'|devblocks_translate|capitalize}
-	</button>
-</fieldset>
+<div id="frmSetupMailRouting" class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">{'common.automations'|devblocks_translate|capitalize}</div>
+	</div>
 
-<fieldset id="{$form_id}" data-cerb-mail-routing-rules class="peek" style="margin-bottom:20px;">
+	<div>
+		<button type="button" class="cerb-ui-button cerb-peek-trigger" data-context="{$context_automation_event}" data-context-id="mail.route" data-edit="true">
+			<span class="cerb-icons cerb-icon-gear"></span> {'common.configure'|devblocks_translate|capitalize}
+		</button>
+	</div>
+</div>
+
+{* Keep this a <fieldset>: the included rules.tpl finds its container via closest('fieldset') and re-renders its own <legend> on refresh *}
+<fieldset id="{$form_id}" data-cerb-mail-routing-rules class="cerb-ui-panel cerb-ui-panel--spaced">
 	{include file="devblocks:cerberusweb.core::records/types/mail_routing_rule/rules.tpl"}
 </fieldset>
 
 {if !empty($rules)}
-<fieldset class="peek">
-	<legend>Legacy Rules: (Deprecated)</legend>
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">Legacy Rules <span class="cerb-ui-form--hint">(Deprecated)</span></div>
+	</div>
 
 	<form id="{$form_legacy_id}" action="{devblocks_url}{/devblocks_url}" method="post">
 	<input type="hidden" name="c" value="config">
@@ -25,7 +32,7 @@
 	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 	<div style="margin-bottom:10px;">
-		<button type="button" data-cerb-button-legacy-add><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.add'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cerb-ui-button" data-cerb-button-legacy-add><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.add'|devblocks_translate|capitalize}</button>
 	</div>
 
 	<table cellspacing="2" cellpadding="2" style="margin-bottom:10px;">
@@ -48,7 +55,7 @@
 				<td style="{if $rule->is_sticky}border:1px solid rgb(255,215,0);{else}{/if}padding:5px;">
 					<a data-cerb-rule-id="{$rule_id}"><b>{$rule->name}</b></a>
 					<br>
-					
+
 					{foreach from=$rule->criteria item=crit key=crit_key}
 						{if $crit_key=='tocc'}
 							To/Cc = <b>{$crit.value}</b><br>
@@ -61,7 +68,7 @@
 						{elseif $crit_key=='body'}
 							Body = <b>{$crit.value}</b><br>
 						{elseif $crit_key=='dayofweek'}
-							Day of Week is 
+							Day of Week is
 								{foreach from=$crit item=day name=timeofday}
 								<b>{$day}</b>{if !$smarty.foreach.timeofday.last} or {/if}
 								{/foreach}
@@ -69,23 +76,23 @@
 						{elseif $crit_key=='timeofday'}
 							{$from_time = explode(':',$crit.from)}
 							{$to_time = explode(':',$crit.to)}
-							Time of Day 
-								<i>between</i> 
-								<b>{$from_time[0]|string_format:"%d"}:{$from_time[1]|string_format:"%02d"}</b> 
-								<i>and</i> 
-								<b>{$to_time[0]|string_format:"%d"}:{$to_time[1]|string_format:"%02d"}</b> 
+							Time of Day
+								<i>between</i>
+								<b>{$from_time[0]|string_format:"%d"}:{$from_time[1]|string_format:"%02d"}</b>
+								<i>and</i>
+								<b>{$to_time[0]|string_format:"%d"}:{$to_time[1]|string_format:"%02d"}</b>
 								<br>
 						{elseif 0==strcasecmp('cf_',substr($crit_key,0,3))}
 							{include file="devblocks:cerberusweb.core::internal/custom_fields/filters/render_criteria_list.tpl"}
 						{/if}
 					{/foreach}
-					
+
 					<blockquote style="margin:2px;margin-left:20px;font-size:95%;color:var(--cerb-color-background-contrast-100);">
 						{foreach from=$rule->actions item=action key=action_key}
 							{if $action_key=="move"}
 								{assign var=g_id value=$action.group_id}
 								{if isset($groups.$g_id)}
-									Move to 
+									Move to
 									<b>{$groups.$g_id->name}</b>
 								{/if}
 								<br>
@@ -104,9 +111,9 @@
 		{/foreach}
 	</table>
 
-	<button type="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	<button type="submit" class="cerb-ui-button"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 	</form>
-</fieldset>
+</div>
 {/if}
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">

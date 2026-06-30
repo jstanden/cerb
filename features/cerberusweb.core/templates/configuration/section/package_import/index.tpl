@@ -21,7 +21,7 @@
 	<legend>Package</legend>
 	
 	<b>JSON:</b><br>
-	<textarea name="json" data-editor-mode="ace/mode/json" rows="5" cols="45"></textarea>
+	<textarea id="setup-import-package-json" name="json" data-editor-lines="20" spellcheck="false"></textarea>
 	<br>
 	
 	<div class="prompts" style="margin-bottom:10px;"></div>
@@ -36,10 +36,8 @@ $(function() {
 
 	Devblocks.formDisableSubmit($frm);
 	
-	$frm.find('textarea')
-		.cerbCodeEditor()
-	;
-	
+	new CerbUI.JsonEditor($frm.find('#setup-import-package-json')[0], { validate: true, minLines: 5 });
+
 	$frm.find('BUTTON.submit')
 		.click(function(e) {
 			Devblocks.clearAlerts();

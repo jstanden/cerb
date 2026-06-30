@@ -3,14 +3,10 @@ This engine stores content in an S3-compatible storage service.<br>
 
 <b>AWS credentials:</b><br>
 
-<div>
-	<button type="button" class="chooser-abstract" data-field-name="connected_account_id" data-context="{$connected_account_context}" data-single="true" data-query="service:(type:aws)"><span class="cerb-icons cerb-icon-search"></span></button>
-
-	<ul class="bubbles chooser-container">
-		{if $connected_account}
-			<li><input type="hidden" name="connected_account_id" value="{$connected_account->id}"><a class="cerb-peek-trigger no-underline" data-context="{$connected_account_context}" data-context-id="{$connected_account->id}">{$connected_account->name}</a></li>
-		{/if}
-	</ul>
+<div class="cerb-ui-record-chooser" id="s3AccountChooser">
+	{if $connected_account}
+		<li data-context-id="{$connected_account->id}" data-label="{$connected_account->name}"></li>
+	{/if}
 </div>
 <br>
 
@@ -29,3 +25,10 @@ This engine stores content in an S3-compatible storage service.<br>
 <b>Region:</b> (optional; default <code>us-east-1</code>)<br>
 <input type="text" name="region" size="32" value="{$profile->params.region}" placeholder="us-east-1"><br>
 <br>
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
+(function() {literal}{{/literal}
+	if(!(window.CerbUI && CerbUI.RecordChooser)) return;
+	var el = document.getElementById('s3AccountChooser');
+	if(el) new CerbUI.RecordChooser(el, { context: '{$connected_account_context}', name: 'connected_account_id', emptyIcon: 'key', query: 'service:(type:aws)' });
+})();
+</script>

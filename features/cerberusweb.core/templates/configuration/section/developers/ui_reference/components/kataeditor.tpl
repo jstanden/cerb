@@ -7,33 +7,20 @@
 		</div>
 		<div class="cerb-uiref-example">
 			<div class="cerb-uiref-demo">
-				<div class="cerb-ui-kataeditor" id="uiref-kataeditor-schema">
-					<div class="cerb-ui-kataeditor--gutter" aria-hidden="true"></div>
-					<div class="cerb-ui-kataeditor--field">
-						<div class="cerb-ui-kataeditor--highlight" aria-hidden="true"></div>
-						<textarea class="cerb-ui-kataeditor--input" data-editor-lines="16" spellcheck="false"># Metrics Explorer series — Ctrl/⌘+Space to suggest
+				<textarea id="uiref-kataeditor-schema" data-editor-lines="16" spellcheck="false"># Metrics Explorer series — Ctrl/⌘+Space to suggest
 series/opened:
   metric:
   function: count
   label: Opened tickets
 </textarea>
-						<span class="cerb-ui-kataeditor--caret-anchor"></span>
-					</div>
-				</div>
 				<div class="cerb-uiref-result">State &middot; path at caret: <b id="uiref-kataeditor-schema-path">&mdash;</b></div>
 			</div>
 
 			<div class="cerb-uiref-code">
 				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
-				<pre data-cerb-uiref-source>&lt;!-- A left line-number gutter, then the field: a colored --highlight mirror under the transparent --input. --&gt;
-&lt;div class="cerb-ui-kataeditor" id="ed"&gt;
-	&lt;div class="cerb-ui-kataeditor--gutter" aria-hidden="true"&gt;&lt;/div&gt;
-	&lt;div class="cerb-ui-kataeditor--field"&gt;
-		&lt;div class="cerb-ui-kataeditor--highlight" aria-hidden="true"&gt;&lt;/div&gt;
-		&lt;textarea class="cerb-ui-kataeditor--input" name="kata" data-editor-lines="16" spellcheck="false"&gt;&lt;/textarea&gt;
-		&lt;span class="cerb-ui-kataeditor--caret-anchor"&gt;&lt;/span&gt;
-	&lt;/div&gt;
-&lt;/div&gt;</pre>
+				<pre data-cerb-uiref-source>&lt;!-- Author just the textarea — the editor builds its shell (gutter + highlight mirror + caret anchor)
+     around it. (The full markup still works if you need to hand-author it.) --&gt;
+&lt;textarea id="ed" name="kata" data-editor-lines="16" spellcheck="false"&gt;&lt;/textarea&gt;</pre>
 			</div>
 
 			<div class="cerb-uiref-code">
@@ -127,18 +114,11 @@ ed.clearHighlight();                            // remove it{/literal}</pre>
 		</div>
 		<div class="cerb-uiref-example">
 			<div class="cerb-uiref-demo">
-				<div class="cerb-ui-kataeditor" id="uiref-kataeditor-custom">
-					<div class="cerb-ui-kataeditor--gutter" aria-hidden="true"></div>
-					<div class="cerb-ui-kataeditor--field">
-						<div class="cerb-ui-kataeditor--highlight" aria-hidden="true"></div>
-						<textarea class="cerb-ui-kataeditor--input" data-editor-lines="10" spellcheck="false">name: Status
+				<textarea id="uiref-kataeditor-custom" data-editor-lines="10" spellcheck="false">name: Status
 color@text: green
 options:
   multiple@bool: no
 </textarea>
-						<span class="cerb-ui-kataeditor--caret-anchor"></span>
-					</div>
-				</div>
 			</div>
 
 			<div class="cerb-uiref-code">
@@ -171,20 +151,13 @@ new CerbUI.KataEditor(el, { onAutocomplete: localSource, minLines: 4, maxLines: 
 					<li></li>
 					<li data-value="snippet" data-icon="clipboard" title="Insert label snippet"></li>
 				</ul>
-				<div class="cerb-ui-kataeditor" id="uiref-kataeditor-sections">
-					<div class="cerb-ui-kataeditor--gutter" aria-hidden="true"></div>
-					<div class="cerb-ui-kataeditor--field">
-						<div class="cerb-ui-kataeditor--highlight" aria-hidden="true"></div>
-						<textarea class="cerb-ui-kataeditor--input" data-editor-lines="10" spellcheck="false">series/opened:
+				<textarea id="uiref-kataeditor-sections" data-editor-lines="10" spellcheck="false">series/opened:
   metric: ticket.created
   function: count
 series/closed:
   metric: ticket.closed
   function: count
 </textarea>
-						<span class="cerb-ui-kataeditor--caret-anchor"></span>
-					</div>
-				</div>
 				<div class="cerb-uiref-result">Last action &middot; <b id="uiref-kataeditor-sections-out">&mdash;</b></div>
 			</div>
 
@@ -242,7 +215,7 @@ new CerbUI.KataEditor(el, {
 			ed.highlightLine(4, { color:'green' });
 			// Show the editor state at the caret as you move around: inside a script tag, the KataScript
 			// context (open delimiter / sub-context / partial word, or the enclosing call for args); else the path.
-			const ta = el.querySelector('.cerb-ui-kataeditor--input');
+			const ta = ed.textarea;
 			const showPath = function() {
 				if(!out) return;
 				const t = CerbUI.editorCore.kataScript.contextAt(ta.value, ta.selectionStart);

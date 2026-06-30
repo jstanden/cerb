@@ -9,7 +9,7 @@
 .cerb-sched-job { gap:1.2em; }
 .cerb-sched-job.cerb-sched-off { opacity:0.55; }
 .cerb-sched-job--info { gap:0.7em; flex:0 0 240px; min-width:0; }
-.cerb-sched-job--name { font-size:1.1em; font-weight:600; color:var(--cerb-color-widget-header); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.cerb-sched-job--name { font-size:1.1em; font-weight:600; color:var(--cerb-color-text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .cerb-sched-job--meta { gap:0.5em; font-size:0.82em; color:var(--cerb-color-background-contrast-150); margin-top:0.2em; }
 .cerb-sched-job--chart { flex:1 1 auto; min-width:120px; }
 /* Fixed-width stats column so the flex:1 sparkchart is the exact same width on every row,

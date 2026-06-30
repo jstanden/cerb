@@ -125,7 +125,7 @@
 
 // Returns the chooserCore instance (core.open()/close()/isOpen()). The link click toggles it.
 // If `input` is a CerbUI.ScriptingEditor (legacy-bot .placeholders fields), the default onPick drives the
-// editor so the pick shows immediately. Replaces the legacy <a class="cerb-chooser">.cerbChooserTrigger().{/literal}</pre>
+// editor so the pick shows immediately.{/literal}</pre>
 			</div>
 		</div>
 	</div>

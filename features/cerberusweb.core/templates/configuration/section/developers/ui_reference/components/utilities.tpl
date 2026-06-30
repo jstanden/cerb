@@ -100,6 +100,9 @@
 			<code class="cerb-uiref-utils--name" data-cerb-uiref-copy data-cerb-uiref-source title="Copy to clipboard">cerb-u-nowrap</code>
 			<div class="cerb-u-nowrap" style="max-width:14em;overflow:hidden;">this long line stays on one row and never wraps</div>
 
+			<code class="cerb-uiref-utils--name" data-cerb-uiref-copy data-cerb-uiref-source title="Copy to clipboard">cerb-u-truncate</code>
+			<div class="cerb-u-truncate" style="max-width:14em;">this single line is clipped with an ellipsis when it overflows its box</div>
+
 			<code class="cerb-uiref-utils--name" data-cerb-uiref-copy data-cerb-uiref-source title="Copy to clipboard">cerb-u-fs</code>
 			<div class="cerb-u-flex cerb-u-gap-3 cerb-u-items-center cerb-u-flex-wrap"><span class="cerb-u-fs-n5">fs-n5</span><span class="cerb-u-fs">fs</span><span class="cerb-u-fs-5">fs-5</span><span class="cerb-u-fs-2x">fs-2x</span></div>
 
@@ -112,10 +115,10 @@
 
 			<div class="cerb-uiref-utils--note cerb-uiref-utils--full">Per-side widths too: <code>cerb-u-border-t-</code> / <code>r-</code> / <code>b-</code> / <code>l-</code> <code>0</code>&ndash;<code>5</code> (e.g. <code>border-b-0</code> collapses just the bottom edge, <code>border-l-3</code> sets a 3px left rule). No x/y pairs yet — compose two per-side classes for t+b or l+r.</div>
 
-			<code class="cerb-uiref-utils--name" data-cerb-uiref-copy data-cerb-uiref-source title="Copy to clipboard">cerb-u-rounded-[0-4]</code>
-			<div class="cerb-u-flex cerb-u-gap-2 cerb-u-items-center cerb-u-flex-wrap"><span class="cerb-uiref-utils--box cerb-u-p-3 cerb-u-rounded-2"><span>2 · 6px</span></span><span class="cerb-uiref-utils--box cerb-u-p-3 cerb-u-rounded-4"><span>4 · 10px</span></span><span class="cerb-uiref-utils--box cerb-u-px-3 cerb-u-rounded-full"><span>full · pill</span></span></div>
+			<code class="cerb-uiref-utils--name" data-cerb-uiref-copy data-cerb-uiref-source title="Copy to clipboard">cerb-u-rounded-[0-5]</code>
+			<div class="cerb-u-flex cerb-u-gap-2 cerb-u-items-center cerb-u-flex-wrap"><span class="cerb-uiref-utils--box cerb-u-p-3 cerb-u-rounded-2"><span>2 · 6px</span></span><span class="cerb-uiref-utils--box cerb-u-p-3 cerb-u-rounded-4"><span>4 · 10px</span></span><span class="cerb-uiref-utils--box cerb-u-p-3 cerb-u-rounded-5"><span>5 · 16px</span></span><span class="cerb-uiref-utils--box cerb-u-px-3 cerb-u-rounded-full"><span>full · pill</span></span></div>
 
-			<div class="cerb-uiref-utils--note cerb-uiref-utils--full">Radius steps <code>cerb-u-rounded-0</code> &hellip; <code>cerb-u-rounded-4</code> (0 / 4 / 6 / 8 / 10px — inputs, chips, panels) plus <code>cerb-u-rounded-full</code> (999px pill).</div>
+			<div class="cerb-uiref-utils--note cerb-uiref-utils--full">Radius steps <code>cerb-u-rounded-0</code> &hellip; <code>cerb-u-rounded-5</code> (0 / 4 / 6 / 8 / 10 / 16px — inputs, chips, panels, section cards) plus <code>cerb-u-rounded-full</code> (999px pill).</div>
 
 			<div class="cerb-uiref-utils--full cerb-ui-header--label cerb-u-mt-3">Effects</div>
 

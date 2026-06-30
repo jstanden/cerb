@@ -98,6 +98,49 @@ CerbUI.Sidebar.from(el);   // -> the instance for a rail element{/literal}</pre>
 			</div>
 		</div>
 
+		{* Example: --hide-collapsed — drop arbitrary content from the collapsed strip (no per-page CSS) *}
+		<div class="cerb-ui-header"><div class="cerb-ui-header--label">Hide-on-collapse (<code>cerb-ui-sidebar--hide-collapsed</code>) &mdash; the standard parts (<code>--label</code>/<code>--filter</code>/<code>--badge</code>/<code>--right</code>/<code>--foot</code>) drop from the icon strip automatically; tag <strong>any other</strong> element with <code>cerb-ui-sidebar--hide-collapsed</code> to vanish it too, so callers never hand-write a <code>#fooNav.cerb-ui-sidebar--collapsed &hellip;</code> rule. It's <code>display:none !important</code> under <code>--collapsed</code>, so it also beats a page <code>#id</code> rule</div></div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<div class="cerb-ui-sidebar-layout" style="height:340px;border:1px solid var(--cerb-color-background-contrast-220);border-radius:8px;overflow:hidden;">
+					<aside class="cerb-ui-sidebar" id="uiref-sidebar-hidecollapsed">
+						<div class="cerb-ui-sidebar--body">
+							<div class="cerb-ui-sidebar--section">
+								<div class="cerb-ui-sidebar--label">Workspace</div>
+								<ul>
+									<li data-id="dashboard" data-icon="dashboard">Dashboard</li>
+									<li data-id="tickets" data-icon="ticket" data-badge="142">Tickets</li>
+									<li data-id="reports" data-icon="chart-bar">Reports</li>
+								</ul>
+								{* Arbitrary content (not a standard part) — tagged to disappear on the collapsed strip *}
+								<div class="cerb-ui-sidebar--hide-collapsed cerb-ui-panel cerb-u-fs-n2" style="margin:0.5em 0.6em;">
+									<strong>Pro tip</strong> &mdash; you're on the Free plan. <a href="javascript:;">Upgrade</a> for unlimited views.
+								</div>
+							</div>
+						</div>
+					</aside>
+					<div class="cerb-ui-sidebar-layout--content" style="padding:1em;">
+						<p style="color:var(--cerb-color-background-contrast-150);">Collapse the rail with the <span class="cerb-icons cerb-icon-chevron-left"></span>: the items become icons, but the &ldquo;Pro tip&rdquo; card (tagged <code>cerb-ui-sidebar--hide-collapsed</code>) disappears entirely.</p>
+					</div>
+				</div>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>&lt;!-- Standard parts (--label / --filter / --badge / --right / --foot) auto-hide when collapsed. --&gt;
+&lt;!-- For ANY other content, add --hide-collapsed so it drops from the icon strip (no per-page CSS). --&gt;
+&lt;aside class="cerb-ui-sidebar" id="nav"&gt;
+	&lt;div class="cerb-ui-sidebar--body"&gt;
+		&lt;div class="cerb-ui-sidebar--section"&gt;
+			&lt;div class="cerb-ui-sidebar--label"&gt;Workspace&lt;/div&gt;
+			&lt;ul&gt;&lt;li data-icon="ticket"&gt;Tickets&lt;/li&gt;&lt;/ul&gt;
+			&lt;div class="cerb-ui-sidebar--hide-collapsed cerb-ui-panel"&gt;Pro tip — upgrade for more&lt;/div&gt;
+		&lt;/div&gt;
+	&lt;/div&gt;
+&lt;/aside&gt;</pre>
+			</div>
+		</div>
+
 		{* Example: right-anchored + type-to-filter *}
 		<div class="cerb-ui-header"><div class="cerb-ui-header--label">Right-anchored (<code>side:'right'</code>) + type-to-filter (<code>filter:true</code>) &mdash; the search box winnows items by label and hides sections that empty out; collapsed state persists via <code>storageKey</code></div></div>
 		<div class="cerb-uiref-example">
@@ -298,6 +341,14 @@ new CerbUI.Droppable(document.getElementById('canvas'), {
 				onSelect: function(li) { if(out) out.textContent = li.dataset.id; return true; }
 			});
 			sb.setActive('dashboard');
+		}
+	})();
+
+	// Sidebar: --hide-collapsed — arbitrary content (the "Pro tip" card) vanishes on the collapsed strip
+	(function() {
+		const el = document.getElementById('uiref-sidebar-hidecollapsed');
+		if(el && window.CerbUI && CerbUI.Sidebar) {
+			new CerbUI.Sidebar(el, { storageKey: 'uirefSidebarHideCollapsed' });
 		}
 	})();
 

@@ -24,15 +24,7 @@
 				<b>OAuth App:</b>
 			</td>
 			<td width="99%" valign="top">
-				<button type="button" class="chooser-abstract" data-field-name="oauth_app_id" data-context="{CerberusContexts::CONTEXT_OAUTH_APP}" data-single="true" data-query=""><span class="cerb-icons cerb-icon-search"></span></button>
-				
-				{$oauth_app = null}
-				
-				<ul class="bubbles chooser-container">
-					{if $oauth_app}
-						<li><input type="hidden" name="oauth_app_id" value="{$oauth_app->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_OAUTH_APP}" data-context-id="{$oauth_app->id}">{$oauth_app->name}</a></li>
-					{/if}
-				</ul>
+				<div class="cerb-ui-record-chooser" id="oauthAppChooser"></div>
 			</td>
 		</tr>
 		
@@ -41,15 +33,7 @@
 				<b>{'common.worker'|devblocks_translate|capitalize}:</b>
 			</td>
 			<td width="99%" valign="top">
-				<button type="button" class="chooser-abstract" data-field-name="worker_id" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="cerb-icons cerb-icon-search"></span></button>
-				
-				{$worker = null}
-				
-				<ul class="bubbles chooser-container">
-					{if $worker}
-						<li><input type="hidden" name="worker_id" value="{$worker->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker->id}">{$worker->getName()}</a></li>
-					{/if}
-				</ul>
+				<div class="cerb-ui-record-chooser" id="workerChooser"></div>
 			</td>
 		</tr>
 		
@@ -92,9 +76,10 @@ $(function() {
 	var $spinner = Devblocks.getSpinner();
 
 	Devblocks.formDisableSubmit($frm);
-	
-	$frm.find('.chooser-abstract')
-		.cerbChooserTrigger()
+	if(window.CerbUI && CerbUI.RecordChooser) {
+		new CerbUI.RecordChooser($frm.find('#oauthAppChooser')[0], { context: '{CerberusContexts::CONTEXT_OAUTH_APP}', name: 'oauth_app_id', emptyIcon: 'key', searchPlaceholder: 'OAuth App' });
+		new CerbUI.RecordChooser($frm.find('#workerChooser')[0], { context: '{CerberusContexts::CONTEXT_WORKER}', name: 'worker_id', emptyIcon: 'user', searchPlaceholder: "{'common.worker'|devblocks_translate|capitalize|escape:'javascript' nofilter}" });
+	}
 		;
 	
 	$button

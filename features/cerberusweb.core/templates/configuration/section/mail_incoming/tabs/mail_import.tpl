@@ -1,27 +1,31 @@
-<form id="frmSetupMailImport" action="#" method="POST" enctype="multipart/form-data">
+<form id="frmSetupMailImport" action="#" method="POST" enctype="multipart/form-data" class="cerb-ui-form">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="mail_incoming">
 <input type="hidden" name="action" value="parseMessageJson">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<b>Paste a MIME formatted email message source:</b>
-<div class="cerb-code-editor-toolbar">
-	<button type="button" data-cerb-button="import-examples"><span class="cerb-icons cerb-icon-clipboard"></span> {{'common.examples'|devblocks_translate|capitalize}}</button>
-	<ul class="cerb-float" style="display:none;">
-		<li data-example="text"><div><b>Plaintext</b></div></li>
-		<li data-example="html"><div><b>HTML</b></div></li>
-		<li data-example="text/html"><div><b>Plaintext + HTML</b></div></li>
-		<li data-example="quoted-printable"><div><b>Quoted-printable with emoji</b></div></li>
-		<li data-example="attachment-text"><div><b>Attachment (.txt)</b></div></li>
-		<li data-example="attachment-image"><div><b>Attachment (.png)</b></div></li>
-	</ul>
-</div>
-<div>
-	<textarea name="message_source" style="width:99%;height:250px;">{$message_source}</textarea>
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-form--field">
+		<label class="cerb-ui-form--label">Paste a MIME formatted email message source</label>
+		<div class="cerb-code-editor-toolbar">
+			<button type="button" class="cerb-ui-button" data-cerb-button="import-examples"><span class="cerb-icons cerb-icon-clipboard"></span> {{'common.examples'|devblocks_translate|capitalize}}</button>
+			<ul class="cerb-float" style="display:none;">
+				<li data-example="text"><div><b>Plaintext</b></div></li>
+				<li data-example="html"><div><b>HTML</b></div></li>
+				<li data-example="text/html"><div><b>Plaintext + HTML</b></div></li>
+				<li data-example="quoted-printable"><div><b>Quoted-printable with emoji</b></div></li>
+				<li data-example="attachment-text"><div><b>Attachment (.txt)</b></div></li>
+				<li data-example="attachment-image"><div><b>Attachment (.png)</b></div></li>
+			</ul>
+		</div>
+		<textarea name="message_source" style="height:250px;">{$message_source}</textarea>
+	</div>
 </div>
 
-<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.import'|devblocks_translate|capitalize}</button>
+<div>
+	<button type="button" id="btnImportMail" class="cerb-ui-button cerb-u-anim-group"><span class="cerb-icons cerb-icon-circle-ok cerb-u-anim-pulse-hover"></span> {'common.import'|devblocks_translate|capitalize}</button>
+</div>
 
 </form>
 
@@ -33,12 +37,11 @@ $(function() {
 
 	Devblocks.formDisableSubmit($frm);
 
-	let $menu_examples = $button_examples.next('ul').menu({
-		"select": function (e, $ui) {
-			e.stopPropagation();
-			$menu_examples.hide();
-
-			let example_type = $ui.item.attr('data-example');
+	let menuExamplesEl = $button_examples.next('ul')[0];
+	let menu_examples = (menuExamplesEl && window.CerbUI && CerbUI.Menu) ? new CerbUI.Menu(menuExamplesEl, {
+		clickTrigger: $button_examples[0],
+		onSelect: function (li, src) {
+			let example_type = src.getAttribute('data-example');
 
 			if (null == example_type)
 				return;
@@ -65,9 +68,9 @@ $(function() {
 				$textarea.insertAtCursor(snippet);
 			}
 		}
-	});
+	}) : null;
 
-	$frm.find('button.submit').click(function() {
+	$frm.find('#btnImportMail').click(function() {
 		var $frm = $('#frmSetupMailImport');
 		Devblocks.clearAlerts();
 		
@@ -99,10 +102,6 @@ $(function() {
 				Devblocks.createAlertError(message);
 			}
 		});
-	});
-
-	$button_examples.on('click', function() {
-		$menu_examples.toggle();
 	});
 });
 </script>
