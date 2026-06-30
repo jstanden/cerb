@@ -245,6 +245,12 @@
 		.cerb-ui-sidebar--filter,
 		.cerb-ui-sidebar--foot { display: none; }
 
+		// Escape hatch: tag ANY element with --hide-collapsed to drop it from the collapsed strip, so
+		// callers never hand-write a `#fooNav.cerb-ui-sidebar--collapsed .x { display:none }` rule. The
+		// standard parts above already auto-hide; this is for arbitrary page content. !important so it
+		// also beats a page id-scoped rule (the gotcha that made callers reach for #id in the first place).
+		.cerb-ui-sidebar--hide-collapsed { display: none !important; }
+
 		// Drop the brand/logo content; keep only the toggle (centered in the strip).
 		.cerb-ui-sidebar--headbar > *:not(.cerb-ui-sidebar--toggle) { display: none; }
 		.cerb-ui-sidebar--toggle { margin: 0 auto; }
@@ -283,6 +289,7 @@
 	&--content {
 		flex: 1 1 auto;
 		min-width: 0;
+		padding-left: 1.5rem; // gutter between the rail and the page content (the landing pages share this)
 	}
 }
 
