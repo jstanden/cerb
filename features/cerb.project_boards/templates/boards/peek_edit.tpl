@@ -15,91 +15,82 @@
 <div class="cerb-tabs">
 	{if !$model->id && $packages}
 	<ul>
-		<li><a href="#board-library">{'common.library'|devblocks_translate|capitalize}</a></li>
-		<li><a href="#board-builder">{'common.build'|devblocks_translate|capitalize}</a></li>
+		<li><a href="#board-library_{$form_id}">{'common.library'|devblocks_translate|capitalize}</a></li>
+		<li><a href="#board-builder_{$form_id}">{'common.build'|devblocks_translate|capitalize}</a></li>
 	</ul>
 	{/if}
 	
 	{if !$model->id && $packages}
-	<div id="board-library" class="package-library">
+	<div id="board-library_{$form_id}" class="package-library">
 		{include file="devblocks:cerberusweb.core::internal/package_library/editor_chooser.tpl"}
 	</div>
 	{/if}
 	
-	<div id="board-builder">
-		<table cellspacing="0" cellpadding="2" border="0" width="98%" style="margin-bottom:10px;">
-			<tbody>
-				<tr>
-					<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate}:</b></td>
-					<td width="99%">
-						<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
-					</td>
-				</tr>
+	<div id="board-builder_{$form_id}">
+		<div class="cerb-ui-panel cerb-ui-panel--spaced">
+			<div class="cerb-ui-form">
+				<div class="cerb-ui-form--field">
+					<label class="cerb-ui-form--label">{'common.name'|devblocks_translate|capitalize}</label>
+					<input type="text" name="name" value="{$model->name}" autofocus="autofocus">
+				</div>
+			</div>
+		</div>
 
-				{if !empty($custom_fields)}
-				{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
-				{/if}
-			</tbody>
-		</table>
-
+		{if !empty($custom_fields)}
+		<div class="cerb-ui-panel cerb-ui-panel--spaced">
+			<div class="cerb-ui-form">
+				{include file="devblocks:cerberusweb.core::internal/custom_fields/form.tpl" custom_fields=$custom_fields}
+			</div>
+		</div>
+		{/if}
 
 		{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
-		<fieldset class="peek" data-cerb-editor-cards>
-			<legend>Event: Render card (KATA)</legend>
+		<div class="cerb-ui-panel cerb-ui-panel--spaced" data-cerb-editor-cards>
+			<div class="cerb-ui-header cerb-ui-header--tight">
+				<div class="cerb-ui-header--title-sm">Event: Render card <small class="cerb-u-text-muted cerb-u-fw-400">(KATA)</small></div>
+			</div>
 
-			<div class="cerb-code-editor-toolbar">
-				{$toolbar_dict = DevblocksDictionaryDelegate::instance([
-				'caller_name' => 'cerb.toolbar.eventHandlers.editor',
-				
-				'board__context' => $peek_context,
-				'board_id' => $peek_context_id,
-				
-				'worker__context' => CerberusContexts::CONTEXT_WORKER,
-				'worker_id' => $active_worker->id
-				])}
+			{$toolbar_dict = DevblocksDictionaryDelegate::instance([
+			'caller_name' => 'cerb.toolbar.eventHandlers.editor',
 
-				{$toolbar_kata =
+			'board__context' => $peek_context,
+			'board_id' => $peek_context_id,
+
+			'worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'worker_id' => $active_worker->id
+			])}
+
+			{$toolbar_kata =
 "interaction/automation:
   uri: ai.cerb.eventHandler.automation
   icon: circle-plus
   tooltip: Automation
 "}
 
-				{$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
+			{$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
 
-				{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
+			{* The editor toolbar is the KataEditor's integrated strip below; these hidden <ul>s are its host sections. *}
+			<div data-cerb-interaction-toolbar hidden>{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}</div>
+			{include file="devblocks:cerberusweb.core::automations/triggers/editor_event_handler_toolbar.tpl"}
 
-				<div class="cerb-code-editor-toolbar-divider"></div>
-				{include file="devblocks:cerberusweb.core::automations/triggers/editor_event_handler_buttons.tpl"}
-			</div>
-			
-			<textarea name="cards_kata" data-editor-mode="ace/mode/cerb_kata">{$model->cards_kata}</textarea>
+			<textarea name="cards_kata" data-editor-lines="15" spellcheck="false">{$model->cards_kata}</textarea>
 			
 			{if $trigger_ext}
 				{include file="devblocks:cerberusweb.core::automations/triggers/editor_event_handler.tpl" trigger_inputs=$trigger_ext->getEventPlaceholders()}
 			{/if}
-		</fieldset>
+		</div>
 
 		{if !empty($model->id)}
-		<fieldset style="display:none;" class="delete">
-			<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
-			
-			<div>
-				Are you sure you want to permanently delete this project board?
-			</div>
-			
-			<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
-			<button type="button" class="delete-cancel">{'common.no'|devblocks_translate|capitalize}</button>
-		</fieldset>
+			{include file="devblocks:cerberusweb.core::internal/peek/delete_confirm.tpl" noun="project board"}
 		{/if}
-		
+
 		<div class="buttons" style="margin-top:10px;">
 			{if $model->id}
-				<button type="button" class="save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-				{if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+				<button type="button" class="cerb-ui-button save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+				{if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="cerb-ui-button cerb-ui-button--subtle delete-prompt"><span class="cerb-icons cerb-icon-trash"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 			{else}
-				<button type="button" class="save"><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.create'|devblocks_translate|capitalize}</button>
+				<button type="button" class="cerb-ui-button save"><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.create'|devblocks_translate|capitalize}</button>
 			{/if}
 		</div>
 	</div>
@@ -117,69 +108,60 @@ $(function() {
 	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"{'projects.common.board'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 
-		var $fieldset_cards = $popup.find('fieldset[data-cerb-editor-cards]');
+		let $fieldset_cards = $popup.find('[data-cerb-editor-cards]');
 
 		// Buttons
-		
+
 		$popup.find('button.save').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-		$popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
-		$popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
+		if(window.CerbUI && CerbUI.Form) CerbUI.Form.ConfirmDelete($popup[0]);
 
-		// Editors
-
-		var $cards_editor = $fieldset_cards.find('textarea[name=cards_kata]')
-			.cerbCodeEditor()
-			.nextAll('pre.ace_editor')
-		;
-
-		var cards_editor = ace.edit($cards_editor.attr('id'));
-
-		// Toolbar
-
-		var $cards_toolbar = $fieldset_cards.find('.cerb-code-editor-toolbar').cerbToolbar({
-			caller: {
-				name: 'cerb.toolbar.eventHandlers.editor',
-				params: {
-					selected_text: ''
-				}
-			},
-			width: '75%',
-			start: function(formData) {
-				var pos = cards_editor.getCursorPosition();
-				var token_path = Devblocks.cerbCodeEditor.getKataTokenPath(pos, cards_editor).join('');
-
-				formData.set('caller[params][selected_text]', cards_editor.getSelectedText());
-				formData.set('caller[params][token_path]', token_path);
-				formData.set('caller[params][cursor_row]', pos.row);
-				formData.set('caller[params][cursor_column]', pos.column);
-				formData.set('caller[params][trigger]', 'cerb.trigger.projectBoard.renderCard');
-				formData.set('caller[params][value]', cards_editor.getValue());
-			},
-			done: function(e) {
-				e.stopPropagation();
-
-				var $target = e.trigger;
-
-				if (!$target.is('.cerb-bot-trigger'))
-					return;
-
-				if (e.eventData.exit === 'error') {
-
-				} else if(e.eventData.exit === 'return') {
-					Devblocks.interactionWorkerPostActions(e.eventData, cards_editor);
+		// Editor — KataEditor with its integrated toolbar (Automation interaction + Placeholders/Test toggles as
+		// host `sections`); interactions fire via `toolbarOpts`, the toggles route through `onAction`.
+		let cards_editor = new CerbUI.KataEditor($fieldset_cards.find('textarea[name=cards_kata]')[0], {
+			onAutocomplete: CerbUI.KataEditor.kataFieldSource(CerbUI.editorCore.autocompleteSchemas.kataAutomationEvent),
+			toolbar: {
+				sections: [
+					$fieldset_cards.find('[data-cerb-interaction-toolbar] ul.cerb-ui-toolbar')[0],
+					$fieldset_cards.find('[data-cerb-event-toolbar]')[0]
+				],
+				toolbarOpts: {
+					caller: { name: 'cerb.toolbar.eventHandlers.editor', params: { selected_text: '' } },
+					width: '75%',
+					start: function(formData) {
+						let pos = cards_editor.getCursorPosition();
+						formData.set('caller[params][selected_text]', cards_editor.getSelectedText());
+						formData.set('caller[params][token_path]', cards_editor.getTokenPath().join(''));
+						formData.set('caller[params][cursor_row]', pos.row);
+						formData.set('caller[params][cursor_column]', pos.column);
+						formData.set('caller[params][trigger]', 'cerb.trigger.projectBoard.renderCard');
+						formData.set('caller[params][value]', cards_editor.getValue());
+					},
+					done: function(e) {
+						e.stopPropagation();
+						if(!e.trigger.is('.cerb-bot-trigger'))
+							return;
+						if(e.eventData.exit === 'return')
+							Devblocks.interactionWorkerPostActions(e.eventData, cards_editor);
+					}
+				},
+				onAction: function(value, ed, item) {
+					if(value === 'placeholders') { $fieldset_cards.find('[data-cerb-event-placeholders]').toggle(!!(item && item.pressed)); return true; }
+					if(value === 'tester')       { $fieldset_cards.find('[data-cerb-event-tester]').toggle(!!(item && item.pressed)); return true; }
+					return false;
 				}
 			}
 		});
-		
-		$cards_toolbar.cerbCodeEditorToolbarEventHandler({
-			editor: cards_editor
-		});
+
+		CerbUI.editorCore.attachEventHandlerTester($fieldset_cards, cards_editor);
 
 		// Package Library
 		
 		{if !$model->id && $packages}
-			var $library_container = $popup.find('.cerb-tabs').tabs();
+			let $library_container = $popup.find('.cerb-tabs');
+			$library_container.find('> ul').each(function() {
+				if(window.CerbUI && CerbUI.Tabs) new CerbUI.Tabs(this);
+			});
 			{include file="devblocks:cerberusweb.core::internal/package_library/editor_chooser.js.tpl"}
 			
 			$library_container.on('cerb-package-library-form-submit', function() {

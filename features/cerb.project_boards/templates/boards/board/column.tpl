@@ -39,12 +39,14 @@
 {$script_uid = uniqid('script')}
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" id="{$script_uid}">
 $(function() {
-	var $script = $('#{$script_uid}');
+	let $script = $('#{$script_uid}');
 	
-	var $column = $script.closest('.cerb-board-column');
-	var $toolbar = $column.find('[data-cerb-toolbar]');
+	let $column = $script.closest('.cerb-board-column');
+	let $toolbar = $column.find('[data-cerb-toolbar]');
 
-	$toolbar.cerbToolbar({
+	let column_toolbar_ul = $toolbar.find('ul.cerb-ui-toolbar')[0];
+	if(column_toolbar_ul && window.CerbUI && CerbUI.Toolbar)
+	new CerbUI.Toolbar(column_toolbar_ul, {
 		caller: {
 			name: 'cerb.toolbar.projectBoardColumn',
 			params: {
@@ -57,7 +59,7 @@ $(function() {
 		done: function(e) {
 			e.stopPropagation();
 
-			var $target = e.trigger;
+			let $target = e.trigger;
 
 			if (e.eventData.exit === 'error') {
 
@@ -65,22 +67,22 @@ $(function() {
 				Devblocks.interactionWorkerPostActions(e.eventData);
 			}
 
-			var $column = $target.closest('.cerb-board-column');
+			let $column = $target.closest('.cerb-board-column');
 
 			$column.trigger('cerb-refresh');
 		}
 	});
 	
-	var $more = $script.siblings('form').find('[data-cerb-column-cards-more]');
+	let $more = $script.siblings('form').find('[data-cerb-column-cards-more]');
 	
 	$more.on('click', function(e) {
 		e.stopPropagation();
 		
-		var $last_card = $column.find('.cerb-board-card').last();
-		var last_card_id = $last_card.find('[name="cards[]"]').val();
-		var limit = {$column->getLimit()|round};
+		let $last_card = $column.find('.cerb-board-card').last();
+		let last_card_id = $last_card.find('[name="cards[]"]').val();
+		let limit = {$column->getLimit()|round};
 
-		var formData = new FormData();
+		let formData = new FormData();
 		formData.set('c', 'profiles');
 		formData.set('a', 'invoke');
 		formData.set('module', 'project_board_column');
@@ -89,7 +91,7 @@ $(function() {
 		formData.set('since', last_card_id);
 		
 		genericAjaxPost(formData, null, null, function(html) {
-			var $new_cards = $(html);
+			let $new_cards = $(html);
 			
 			if($new_cards.filter('.cerb-board-card').length < limit)
 				$more.hide();

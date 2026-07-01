@@ -12,14 +12,10 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $config = $('#widget{$widget->id}Config');
-	var $input = $config.find('input[name="params[context_id]"]');
+	let $config = $('#widget{$widget->id}Config');
+	let $input = $config.find('input[name="params[context_id]"]');
 	
-	$config.find('.cerb-chooser').cerbChooserTrigger()
-		.on('cerb-chooser-selected', function(e) {
-			{literal}$input.val(e.values[0] + '{# ' + e.labels[0] + ' #}');{/literal}
-		})
-		;
+	if(window.CerbUI && CerbUI.RecordChooser) CerbUI.RecordChooser.pickerLink($config.find('.cerb-chooser')[0], { input: $input });
 
 });
 </script>
