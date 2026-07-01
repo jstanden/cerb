@@ -509,7 +509,7 @@ class SearchFields_CalendarRecurringProfile extends DevblocksSearchFields {
 			self::ID => new DevblocksSearchField(self::ID, 'calendar_recurring_profile', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
 			self::EVENT_NAME => new DevblocksSearchField(self::EVENT_NAME, 'calendar_recurring_profile', 'event_name', $translate->_('dao.calendar_recurring_profile.event_name'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::IS_AVAILABLE => new DevblocksSearchField(self::IS_AVAILABLE, 'calendar_recurring_profile', 'is_available', $translate->_('dao.calendar_recurring_profile.is_available'), Model_CustomField::TYPE_CHECKBOX, true),
-			self::CALENDAR_ID => new DevblocksSearchField(self::CALENDAR_ID, 'calendar_recurring_profile', 'calendar_id', $translate->_('common.calendar'), null, true),
+			self::CALENDAR_ID => new DevblocksSearchField(self::CALENDAR_ID, 'calendar_recurring_profile', 'calendar_id', $translate->_('common.calendar'), Model_CustomField::TYPE_NUMBER, true),
 			self::TZ => new DevblocksSearchField(self::TZ, 'calendar_recurring_profile', 'tz', $translate->_('dao.calendar_recurring_profile.tz'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::EVENT_START => new DevblocksSearchField(self::EVENT_START, 'calendar_recurring_profile', 'event_start', $translate->_('dao.calendar_recurring_profile.event_start'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::EVENT_END => new DevblocksSearchField(self::EVENT_END, 'calendar_recurring_profile', 'event_end', $translate->_('dao.calendar_recurring_profile.event_end'), Model_CustomField::TYPE_SINGLE_LINE, true),

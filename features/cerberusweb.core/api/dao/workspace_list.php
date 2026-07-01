@@ -547,18 +547,18 @@ class SearchFields_WorkspaceList extends DevblocksSearchFields {
 		
 		$columns = [
 			self::COLUMNS_HIDDEN_JSON => new DevblocksSearchField(self::COLUMNS_HIDDEN_JSON, 'workspace_list', 'columns_hidden_json', $translate->_(''), null, true),
-			self::CONTEXT => new DevblocksSearchField(self::CONTEXT, 'workspace_list', 'context', $translate->_('common.type'), null, true),
-			self::ID => new DevblocksSearchField(self::ID, 'workspace_list', 'id', $translate->_('common.id'), null, true),
+			self::CONTEXT => new DevblocksSearchField(self::CONTEXT, 'workspace_list', 'context', $translate->_('common.type'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::ID => new DevblocksSearchField(self::ID, 'workspace_list', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'workspace_list', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::OPTIONS_JSON => new DevblocksSearchField(self::OPTIONS_JSON, 'workspace_list', 'options_json', $translate->_(''), null, true),
 			self::PARAMS_EDITABLE_JSON => new DevblocksSearchField(self::PARAMS_EDITABLE_JSON, 'workspace_list', 'params_editable_json', $translate->_(''), null, true),
 			self::PARAMS_REQUIRED_JSON => new DevblocksSearchField(self::PARAMS_REQUIRED_JSON, 'workspace_list', 'params_required_json', $translate->_(''), null, true),
-			self::PARAMS_REQUIRED_QUERY => new DevblocksSearchField(self::PARAMS_REQUIRED_QUERY, 'workspace_list', 'params_required_query', $translate->_(''), null, true),
+			self::PARAMS_REQUIRED_QUERY => new DevblocksSearchField(self::PARAMS_REQUIRED_QUERY, 'workspace_list', 'params_required_query', $translate->_(''), Model_CustomField::TYPE_MULTI_LINE, true),
 			self::RENDER_LIMIT => new DevblocksSearchField(self::RENDER_LIMIT, 'workspace_list', 'render_limit', $translate->_(''), Model_CustomField::TYPE_NUMBER, true),
 			self::RENDER_SORT_JSON => new DevblocksSearchField(self::RENDER_SORT_JSON, 'workspace_list', 'render_sort_json', $translate->_(''), null, true),
 			self::RENDER_SUBTOTALS => new DevblocksSearchField(self::RENDER_SUBTOTALS, 'workspace_list', 'render_subtotals', $translate->_(''), Model_CustomField::TYPE_NUMBER, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'workspace_list', 'updated_at', $translate->_('common.updated'), null, true),
-			self::WORKSPACE_TAB_ID => new DevblocksSearchField(self::WORKSPACE_TAB_ID, 'workspace_list', 'workspace_tab_id', $translate->_('common.workspace.tab'), null, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'workspace_list', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
+			self::WORKSPACE_TAB_ID => new DevblocksSearchField(self::WORKSPACE_TAB_ID, 'workspace_list', 'workspace_tab_id', $translate->_('common.workspace.tab'), Model_CustomField::TYPE_NUMBER, true),
 			self::WORKSPACE_TAB_POS => new DevblocksSearchField(self::WORKSPACE_TAB_POS, 'workspace_list', 'workspace_tab_pos', $translate->_('common.order'), Model_CustomField::TYPE_NUMBER, true),
 
 			self::VIRTUAL_TAB_SEARCH => new DevblocksSearchField(self::VIRTUAL_TAB_SEARCH, '*', 'tab_search', null, null, false),

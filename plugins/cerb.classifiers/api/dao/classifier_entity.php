@@ -436,12 +436,12 @@ class SearchFields_ClassifierEntity extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::ID => new DevblocksSearchField(self::ID, 'classifier_entity', 'id', $translate->_('common.id'), null, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'classifier_entity', 'name', $translate->_('common.name'), null, true),
-			self::TYPE => new DevblocksSearchField(self::TYPE, 'classifier_entity', 'type', $translate->_('common.type'), null, true),
-			self::DESCRIPTION => new DevblocksSearchField(self::DESCRIPTION, 'classifier_entity', 'description', $translate->_('common.description'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'classifier_entity', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'classifier_entity', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::TYPE => new DevblocksSearchField(self::TYPE, 'classifier_entity', 'type', $translate->_('common.type'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::DESCRIPTION => new DevblocksSearchField(self::DESCRIPTION, 'classifier_entity', 'description', $translate->_('common.description'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'classifier_entity', 'params_json', null, null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'classifier_entity', 'updated_at', $translate->_('common.updated'), null, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'classifier_entity', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 		];
 		
 		// Virtual fields

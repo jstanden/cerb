@@ -563,14 +563,14 @@ class SearchFields_WorkspaceWidget extends DevblocksSearchFields {
 		
 		$columns = [
 			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'workspace_widget', 'extension_id', $translate->_('common.type'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::ID => new DevblocksSearchField(self::ID, 'workspace_widget', 'id', $translate->_('common.id'), null, true),
-			self::LABEL => new DevblocksSearchField(self::LABEL, 'workspace_widget', 'label', $translate->_('common.label'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'workspace_widget', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::LABEL => new DevblocksSearchField(self::LABEL, 'workspace_widget', 'label', $translate->_('common.label'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'workspace_widget', 'params_json', null, null, false),
-			self::POS => new DevblocksSearchField(self::POS, 'workspace_widget', 'pos', $translate->_('common.order'), null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'workspace_widget', 'updated_at', $translate->_('common.updated'), null, true),
-			self::WIDTH_UNITS => new DevblocksSearchField(self::WIDTH_UNITS, 'workspace_widget', 'width_units', $translate->_('common.width'), null, true),
+			self::POS => new DevblocksSearchField(self::POS, 'workspace_widget', 'pos', $translate->_('common.order'), Model_CustomField::TYPE_NUMBER, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'workspace_widget', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
+			self::WIDTH_UNITS => new DevblocksSearchField(self::WIDTH_UNITS, 'workspace_widget', 'width_units', $translate->_('common.width'), Model_CustomField::TYPE_NUMBER, true),
 			self::WORKSPACE_TAB_ID => new DevblocksSearchField(self::WORKSPACE_TAB_ID, 'workspace_widget', 'workspace_tab_id', $translate->_('common.workspace.tab'), Model_CustomField::TYPE_NUMBER, true),
-			self::ZONE => new DevblocksSearchField(self::ZONE, 'workspace_widget', 'zone', $translate->_('common.zone'), null, true),
+			self::ZONE => new DevblocksSearchField(self::ZONE, 'workspace_widget', 'zone', $translate->_('common.zone'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			
 			self::VIRTUAL_TAB_SEARCH => new DevblocksSearchField(self::VIRTUAL_TAB_SEARCH, '*', 'tab_search', null, null, false),
 		];

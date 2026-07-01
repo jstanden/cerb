@@ -958,13 +958,13 @@ class SearchFields_Message extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			SearchFields_Message::ID => new DevblocksSearchField(SearchFields_Message::ID, 'message', 'id', $translate->_('common.id'), null, true),
+			SearchFields_Message::ID => new DevblocksSearchField(SearchFields_Message::ID, 'message', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
 			SearchFields_Message::ADDRESS_ID => new DevblocksSearchField(SearchFields_Message::ADDRESS_ID, 'message', 'address_id', $translate->_('common.sender'), Model_CustomField::TYPE_NUMBER, true),
 			SearchFields_Message::CREATED_DATE => new DevblocksSearchField(SearchFields_Message::CREATED_DATE, 'message', 'created_date', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
 			SearchFields_Message::IS_OUTGOING => new DevblocksSearchField(SearchFields_Message::IS_OUTGOING, 'message', 'is_outgoing', $translate->_('message.is_outgoing'), Model_CustomField::TYPE_CHECKBOX, true),
-			SearchFields_Message::TICKET_ID => new DevblocksSearchField(SearchFields_Message::TICKET_ID, 'message', 'ticket_id', 'Ticket ID', null, true),
+			SearchFields_Message::TICKET_ID => new DevblocksSearchField(SearchFields_Message::TICKET_ID, 'message', 'ticket_id', 'Ticket ID', Model_CustomField::TYPE_NUMBER, true),
 			SearchFields_Message::WORKER_ID => new DevblocksSearchField(SearchFields_Message::WORKER_ID, 'message', 'worker_id', $translate->_('common.worker'), Model_CustomField::TYPE_WORKER, true),
-			SearchFields_Message::HTML_ATTACHMENT_ID => new DevblocksSearchField(SearchFields_Message::HTML_ATTACHMENT_ID, 'message', 'html_attachment_id', null, null, true),
+			SearchFields_Message::HTML_ATTACHMENT_ID => new DevblocksSearchField(SearchFields_Message::HTML_ATTACHMENT_ID, 'message', 'html_attachment_id', null, Model_CustomField::TYPE_NUMBER, true),
 			SearchFields_Message::RESPONSE_TIME => new DevblocksSearchField(SearchFields_Message::RESPONSE_TIME, 'message', 'response_time', $translate->_('message.response_time'), Model_CustomField::TYPE_NUMBER, true),
 			SearchFields_Message::IS_BROADCAST => new DevblocksSearchField(SearchFields_Message::IS_BROADCAST, 'message', 'is_broadcast', $translate->_('message.is_broadcast'), Model_CustomField::TYPE_CHECKBOX, true),
 			SearchFields_Message::IS_NOT_SENT => new DevblocksSearchField(SearchFields_Message::IS_NOT_SENT, 'message', 'is_not_sent', $translate->_('message.is_not_sent'), Model_CustomField::TYPE_CHECKBOX, true),
@@ -973,15 +973,15 @@ class SearchFields_Message extends DevblocksSearchFields {
 			SearchFields_Message::TOKEN => new DevblocksSearchField(SearchFields_Message::TOKEN, 'message', 'token', $translate->_('common.token'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			SearchFields_Message::WAS_ENCRYPTED => new DevblocksSearchField(SearchFields_Message::WAS_ENCRYPTED, 'message', 'was_encrypted', $translate->_('message.is_encrypted'), Model_CustomField::TYPE_CHECKBOX, true),
 			
-			SearchFields_Message::STORAGE_EXTENSION => new DevblocksSearchField(SearchFields_Message::STORAGE_EXTENSION, 'message', 'storage_extension', null, true),
-			SearchFields_Message::STORAGE_KEY => new DevblocksSearchField(SearchFields_Message::STORAGE_KEY, 'message', 'storage_key', null, true),
-			SearchFields_Message::STORAGE_PROFILE_ID => new DevblocksSearchField(SearchFields_Message::STORAGE_PROFILE_ID, 'message', 'storage_profile_id', null, true),
-			SearchFields_Message::STORAGE_SIZE => new DevblocksSearchField(SearchFields_Message::STORAGE_SIZE, 'message', 'storage_size', $translate->_('common.size'), true),
+			SearchFields_Message::STORAGE_EXTENSION => new DevblocksSearchField(SearchFields_Message::STORAGE_EXTENSION, 'message', 'storage_extension', null, Model_CustomField::TYPE_SINGLE_LINE, true),
+			SearchFields_Message::STORAGE_KEY => new DevblocksSearchField(SearchFields_Message::STORAGE_KEY, 'message', 'storage_key', null, Model_CustomField::TYPE_SINGLE_LINE, true),
+			SearchFields_Message::STORAGE_PROFILE_ID => new DevblocksSearchField(SearchFields_Message::STORAGE_PROFILE_ID, 'message', 'storage_profile_id', null, Model_CustomField::TYPE_NUMBER, true),
+			SearchFields_Message::STORAGE_SIZE => new DevblocksSearchField(SearchFields_Message::STORAGE_SIZE, 'message', 'storage_size', $translate->_('common.size'), Model_CustomField::TYPE_NUMBER, true),
 			
 			SearchFields_Message::ADDRESS_EMAIL => new DevblocksSearchField(SearchFields_Message::ADDRESS_EMAIL, 'a', 'email', $translate->_('common.email'), Model_CustomField::TYPE_SINGLE_LINE, false),
 			
-			SearchFields_Message::TICKET_BUCKET_ID => new DevblocksSearchField(SearchFields_Message::TICKET_BUCKET_ID, 'ticket', 'bucket_id', $translate->_('common.bucket'), null, false),
-			SearchFields_Message::TICKET_GROUP_ID => new DevblocksSearchField(SearchFields_Message::TICKET_GROUP_ID, 'ticket', 'group_id', $translate->_('common.group'), null, false),
+			SearchFields_Message::TICKET_BUCKET_ID => new DevblocksSearchField(SearchFields_Message::TICKET_BUCKET_ID, 'ticket', 'bucket_id', $translate->_('common.bucket'), Model_CustomField::TYPE_NUMBER, false),
+			SearchFields_Message::TICKET_GROUP_ID => new DevblocksSearchField(SearchFields_Message::TICKET_GROUP_ID, 'ticket', 'group_id', $translate->_('common.group'), Model_CustomField::TYPE_NUMBER, false),
 			SearchFields_Message::TICKET_STATUS_ID => new DevblocksSearchField(SearchFields_Message::TICKET_STATUS_ID, 'ticket', 'status_id', $translate->_('common.status'), Model_CustomField::TYPE_NUMBER, false),
 			SearchFields_Message::TICKET_MASK => new DevblocksSearchField(SearchFields_Message::TICKET_MASK, 'ticket', 'mask', $translate->_('ticket.mask'), Model_CustomField::TYPE_SINGLE_LINE, false),
 			SearchFields_Message::TICKET_SUBJECT => new DevblocksSearchField(SearchFields_Message::TICKET_SUBJECT, 'ticket', 'subject', $translate->_('ticket.subject'), Model_CustomField::TYPE_SINGLE_LINE, false),

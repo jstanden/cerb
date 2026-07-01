@@ -547,12 +547,12 @@ class SearchFields_FileBundle extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 
 		$columns = [
-			self::ID => new DevblocksSearchField(self::ID, 'file_bundle', 'id', $translate->_('common.id'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'file_bundle', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'file_bundle', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::TAG => new DevblocksSearchField(self::TAG, 'file_bundle', 'tag', $translate->_('common.tag'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'file_bundle', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
-			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'file_bundle', 'owner_context', $translate->_('common.owner_context'), null, true),
-			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'file_bundle', 'owner_context_id', $translate->_('common.owner_context_id'), null, true),
+			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'file_bundle', 'owner_context', $translate->_('common.owner_context'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'file_bundle', 'owner_context_id', $translate->_('common.owner_context_id'), Model_CustomField::TYPE_NUMBER, true),
 
 			self::VIRTUAL_USABLE_BY => new DevblocksSearchField(self::VIRTUAL_USABLE_BY, '*', 'usable_by', null, null, false),
 		];

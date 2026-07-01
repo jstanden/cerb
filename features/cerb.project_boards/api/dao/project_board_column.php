@@ -476,7 +476,7 @@ class SearchFields_ProjectBoardColumn extends DevblocksSearchFields {
 		$columns = [
 			self::ID => new DevblocksSearchField(self::ID, 'project_board_column', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'project_board_column', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::BOARD_ID => new DevblocksSearchField(self::BOARD_ID, 'project_board_column', 'board_id', $translate->_('projects.common.board'), null, true),
+			self::BOARD_ID => new DevblocksSearchField(self::BOARD_ID, 'project_board_column', 'board_id', $translate->_('projects.common.board'), Model_CustomField::TYPE_NUMBER, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'project_board_column', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 
 			self::VIRTUAL_BOARD_SEARCH => new DevblocksSearchField(self::VIRTUAL_BOARD_SEARCH, '*', 'board_search', null, null, false),

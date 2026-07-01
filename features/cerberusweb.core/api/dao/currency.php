@@ -451,14 +451,14 @@ class SearchFields_Currency extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::ID => new DevblocksSearchField(self::ID, 'currency', 'id', $translate->_('common.id'), null, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'currency', 'name', $translate->_('common.name'), null, true),
-			self::NAME_PLURAL => new DevblocksSearchField(self::NAME_PLURAL, 'currency', 'name_plural', $translate->_('common.plural'), null, true),
-			self::CODE => new DevblocksSearchField(self::CODE, 'currency', 'code', $translate->_('dao.currency.code'), null, true),
-			self::SYMBOL => new DevblocksSearchField(self::SYMBOL, 'currency', 'symbol', $translate->_('dao.currency.symbol'), null, true),
-			self::DECIMAL_AT => new DevblocksSearchField(self::DECIMAL_AT, 'currency', 'decimal_at', $translate->_('dao.currency.decimal_at'), null, true),
-			self::IS_DEFAULT => new DevblocksSearchField(self::IS_DEFAULT, 'currency', 'is_default', $translate->_('common.default'), null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'currency', 'updated_at', $translate->_('common.updated'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'currency', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'currency', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::NAME_PLURAL => new DevblocksSearchField(self::NAME_PLURAL, 'currency', 'name_plural', $translate->_('common.plural'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::CODE => new DevblocksSearchField(self::CODE, 'currency', 'code', $translate->_('dao.currency.code'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::SYMBOL => new DevblocksSearchField(self::SYMBOL, 'currency', 'symbol', $translate->_('dao.currency.symbol'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::DECIMAL_AT => new DevblocksSearchField(self::DECIMAL_AT, 'currency', 'decimal_at', $translate->_('dao.currency.decimal_at'), Model_CustomField::TYPE_NUMBER, true),
+			self::IS_DEFAULT => new DevblocksSearchField(self::IS_DEFAULT, 'currency', 'is_default', $translate->_('common.default'), Model_CustomField::TYPE_CHECKBOX, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'currency', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 		];
 		
 		// Virtual fields

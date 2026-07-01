@@ -2758,9 +2758,9 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 			SearchFields_Ticket::TICKET_MASK => new DevblocksSearchField(SearchFields_Ticket::TICKET_MASK, 'ticket', 'mask', $translate->_('ticket.mask'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			SearchFields_Ticket::TICKET_SUBJECT => new DevblocksSearchField(SearchFields_Ticket::TICKET_SUBJECT, 'ticket', 'subject', $translate->_('ticket.subject'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			
-			SearchFields_Ticket::TICKET_FIRST_MESSAGE_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_FIRST_MESSAGE_ID, 'ticket', 'first_message_id', null, null, true),
-			SearchFields_Ticket::TICKET_FIRST_OUTGOING_MESSAGE_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_FIRST_OUTGOING_MESSAGE_ID, 'ticket', 'first_outgoing_message_id', null, null, true),
-			SearchFields_Ticket::TICKET_LAST_MESSAGE_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_LAST_MESSAGE_ID, 'ticket', 'last_message_id', null, null, true),
+			SearchFields_Ticket::TICKET_FIRST_MESSAGE_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_FIRST_MESSAGE_ID, 'ticket', 'first_message_id', null, Model_CustomField::TYPE_NUMBER, true),
+			SearchFields_Ticket::TICKET_FIRST_OUTGOING_MESSAGE_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_FIRST_OUTGOING_MESSAGE_ID, 'ticket', 'first_outgoing_message_id', null, Model_CustomField::TYPE_NUMBER, true),
+			SearchFields_Ticket::TICKET_LAST_MESSAGE_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_LAST_MESSAGE_ID, 'ticket', 'last_message_id', null, Model_CustomField::TYPE_NUMBER, true),
 			SearchFields_Ticket::TICKET_LAST_OPENED_AT => new DevblocksSearchField(SearchFields_Ticket::TICKET_LAST_OPENED_AT, 'ticket', 'last_opened_at', $translate->_('ticket.last_opened_at'), Model_CustomField::TYPE_DATE, true),
 			
 			SearchFields_Ticket::TICKET_FIRST_WROTE_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_FIRST_WROTE_ID, 'ticket', 'first_wrote_address_id', $translate->_('ticket.first_wrote'), Model_CustomField::TYPE_NUMBER, true),
@@ -2768,11 +2768,11 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 			
 			SearchFields_Ticket::REQUESTER_ADDRESS => new DevblocksSearchField(SearchFields_Ticket::REQUESTER_ADDRESS, 'ra', 'email',$translate->_('common.participant'), Model_CustomField::TYPE_SINGLE_LINE, false),
 			
-			SearchFields_Ticket::TICKET_ORG_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_ORG_ID, 'ticket','org_id',$translate->_('common.organization'), null, true),
+			SearchFields_Ticket::TICKET_ORG_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_ORG_ID, 'ticket','org_id',$translate->_('common.organization'), Model_CustomField::TYPE_NUMBER, true),
 			SearchFields_Ticket::TICKET_OWNER_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_OWNER_ID,'ticket','owner_id',$translate->_('common.owner'), Model_CustomField::TYPE_WORKER, true),
 			SearchFields_Ticket::TICKET_IMPORTANCE => new DevblocksSearchField(SearchFields_Ticket::TICKET_IMPORTANCE,'ticket','importance',$translate->_('common.importance'), Model_CustomField::TYPE_NUMBER, true),
-			SearchFields_Ticket::TICKET_GROUP_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_GROUP_ID,'ticket','group_id',$translate->_('common.group'), null, true),
-			SearchFields_Ticket::TICKET_BUCKET_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_BUCKET_ID, 'ticket', 'bucket_id',$translate->_('common.bucket'), null, true),
+			SearchFields_Ticket::TICKET_GROUP_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_GROUP_ID,'ticket','group_id',$translate->_('common.group'), Model_CustomField::TYPE_NUMBER, true),
+			SearchFields_Ticket::TICKET_BUCKET_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_BUCKET_ID, 'ticket', 'bucket_id',$translate->_('common.bucket'), Model_CustomField::TYPE_NUMBER, true),
 			SearchFields_Ticket::TICKET_CREATED_DATE => new DevblocksSearchField(SearchFields_Ticket::TICKET_CREATED_DATE, 'ticket', 'created_date',$translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
 			SearchFields_Ticket::TICKET_UPDATED_DATE => new DevblocksSearchField(SearchFields_Ticket::TICKET_UPDATED_DATE, 'ticket', 'updated_date',$translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			SearchFields_Ticket::TICKET_CLOSED_AT => new DevblocksSearchField(SearchFields_Ticket::TICKET_CLOSED_AT, 'ticket', 'closed_at',$translate->_('ticket.closed_at'), Model_CustomField::TYPE_DATE, true),
@@ -2784,16 +2784,16 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 			SearchFields_Ticket::TICKET_ELAPSED_RESPONSE_FIRST => new DevblocksSearchField(SearchFields_Ticket::TICKET_ELAPSED_RESPONSE_FIRST, 'ticket', 'elapsed_response_first',$translate->_('ticket.elapsed_response_first'), Model_CustomField::TYPE_NUMBER, true),
 			SearchFields_Ticket::TICKET_ELAPSED_RESOLUTION_FIRST => new DevblocksSearchField(SearchFields_Ticket::TICKET_ELAPSED_RESOLUTION_FIRST, 'ticket', 'elapsed_resolution_first',$translate->_('ticket.elapsed_resolution_first'), Model_CustomField::TYPE_NUMBER, true),
 			SearchFields_Ticket::TICKET_ELAPSED_STATUS_OPEN => new DevblocksSearchField(SearchFields_Ticket::TICKET_ELAPSED_STATUS_OPEN, 'ticket', 'elapsed_status_open',$translate->_('ticket.elapsed_status_open'), Model_CustomField::TYPE_NUMBER, true),
-			SearchFields_Ticket::TICKET_SPAM_TRAINING => new DevblocksSearchField(SearchFields_Ticket::TICKET_SPAM_TRAINING, 'ticket', 'spam_training',$translate->_('ticket.spam_training'), null, true),
+			SearchFields_Ticket::TICKET_SPAM_TRAINING => new DevblocksSearchField(SearchFields_Ticket::TICKET_SPAM_TRAINING, 'ticket', 'spam_training',$translate->_('ticket.spam_training'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			SearchFields_Ticket::TICKET_SPAM_SCORE => new DevblocksSearchField(SearchFields_Ticket::TICKET_SPAM_SCORE, 'ticket', 'spam_score',$translate->_('ticket.spam_score'), Model_CustomField::TYPE_NUMBER, true),
-			SearchFields_Ticket::TICKET_INTERESTING_WORDS => new DevblocksSearchField(SearchFields_Ticket::TICKET_INTERESTING_WORDS, 'ticket', 'interesting_words',$translate->_('ticket.interesting_words'), null, true),
+			SearchFields_Ticket::TICKET_INTERESTING_WORDS => new DevblocksSearchField(SearchFields_Ticket::TICKET_INTERESTING_WORDS, 'ticket', 'interesting_words',$translate->_('ticket.interesting_words'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			SearchFields_Ticket::TICKET_REOPEN_AT => new DevblocksSearchField(SearchFields_Ticket::TICKET_REOPEN_AT, 'ticket', 'reopen_at',$translate->_('common.reopen_at'), Model_CustomField::TYPE_DATE, true),
 			
 			SearchFields_Ticket::BUCKET_RESPONSIBILITY => new DevblocksSearchField(SearchFields_Ticket::BUCKET_RESPONSIBILITY, 'wtb', 'responsibility_level', mb_convert_case($translate->_('common.responsibility'), MB_CASE_TITLE), null, true),
 			
-			SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchField(SearchFields_Ticket::REQUESTER_ID, 'r', 'address_id', $translate->_('common.participant'), null, false),
+			SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchField(SearchFields_Ticket::REQUESTER_ID, 'r', 'address_id', $translate->_('common.participant'), Model_CustomField::TYPE_NUMBER, false),
 			
-			SearchFields_Ticket::SENDER_ADDRESS => new DevblocksSearchField(SearchFields_Ticket::SENDER_ADDRESS, 'a1', 'email', null, null, true),
+			SearchFields_Ticket::SENDER_ADDRESS => new DevblocksSearchField(SearchFields_Ticket::SENDER_ADDRESS, 'a1', 'email', null, Model_CustomField::TYPE_SINGLE_LINE, true),
 
 			SearchFields_Ticket::VIRTUAL_BUCKET_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_BUCKET_SEARCH, '*', 'bucket_search', null, null, false),
 			SearchFields_Ticket::VIRTUAL_COMMENTS_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_COMMENTS_SEARCH, '*', 'comments_search', null, null, false),

@@ -640,7 +640,7 @@ class SearchFields_CrmOpportunity extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::ID => new DevblocksSearchField(self::ID, 'crm_opportunity', 'id', $translate->_('common.id'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'crm_opportunity', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
 			
 			self::NAME => new DevblocksSearchField(self::NAME, 'crm_opportunity', 'name', $translate->_('common.title'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::CURRENCY_AMOUNT => new DevblocksSearchField(self::CURRENCY_AMOUNT, 'crm_opportunity', 'currency_amount', $translate->_('crm.opportunity.amount'), Model_CustomField::TYPE_NUMBER, true),

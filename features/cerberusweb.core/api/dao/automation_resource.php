@@ -460,15 +460,15 @@ class SearchFields_AutomationResource extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::ID => new DevblocksSearchField(self::ID, 'automation_resource', 'id', $translate->_('common.id'), null, true),
-			self::MIME_TYPE => new DevblocksSearchField(self::MIME_TYPE, 'automation_resource', 'mime_type', $translate->_('attachment.mime_type'), null, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'automation_resource', 'name', $translate->_('common.name'), null, true),
-			self::STORAGE_EXTENSION => new DevblocksSearchField(self::STORAGE_EXTENSION, 'automation_resource', 'storage_extension', $translate->_('common.storage_extension'), null, true),
-			self::STORAGE_KEY => new DevblocksSearchField(self::STORAGE_KEY, 'automation_resource', 'storage_key', $translate->_('common.storage_key'), null, true),
-			self::STORAGE_PROFILE_ID => new DevblocksSearchField(self::STORAGE_PROFILE_ID, 'automation_resource', 'storage_profile_id', $translate->_('common.storage_profile_id'), null, true),
-			self::STORAGE_SIZE => new DevblocksSearchField(self::STORAGE_SIZE, 'automation_resource', 'storage_size', $translate->_('common.size'), null, true),
-			self::TOKEN => new DevblocksSearchField(self::TOKEN, 'automation_resource', 'token', $translate->_('common.token'), null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'automation_resource', 'updated_at', $translate->_('common.updated'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'automation_resource', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::MIME_TYPE => new DevblocksSearchField(self::MIME_TYPE, 'automation_resource', 'mime_type', $translate->_('attachment.mime_type'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'automation_resource', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::STORAGE_EXTENSION => new DevblocksSearchField(self::STORAGE_EXTENSION, 'automation_resource', 'storage_extension', $translate->_('common.storage_extension'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::STORAGE_KEY => new DevblocksSearchField(self::STORAGE_KEY, 'automation_resource', 'storage_key', $translate->_('common.storage_key'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::STORAGE_PROFILE_ID => new DevblocksSearchField(self::STORAGE_PROFILE_ID, 'automation_resource', 'storage_profile_id', $translate->_('common.storage_profile_id'), Model_CustomField::TYPE_NUMBER, true),
+			self::STORAGE_SIZE => new DevblocksSearchField(self::STORAGE_SIZE, 'automation_resource', 'storage_size', $translate->_('common.size'), Model_CustomField::TYPE_NUMBER, true),
+			self::TOKEN => new DevblocksSearchField(self::TOKEN, 'automation_resource', 'token', $translate->_('common.token'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'automation_resource', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 		];
 		
 		// Virtual fields

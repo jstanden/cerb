@@ -462,12 +462,12 @@ class SearchFields_EmailSignature extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::ID => new DevblocksSearchField(self::ID, 'email_signature', 'id', $translate->_('common.id'), null, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'email_signature', 'name', $translate->_('common.name'), null, true),
-			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'email_signature', 'owner_context', $translate->_('common.owner_context'), null, true),
-			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'email_signature', 'owner_context_id', $translate->_('common.owner_context_id'), null, true),
-			self::SIGNATURE => new DevblocksSearchField(self::SIGNATURE, 'email_signature', 'signature', $translate->_('common.signature'), null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'email_signature', 'updated_at', $translate->_('common.updated'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'email_signature', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'email_signature', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'email_signature', 'owner_context', $translate->_('common.owner_context'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'email_signature', 'owner_context_id', $translate->_('common.owner_context_id'), Model_CustomField::TYPE_NUMBER, true),
+			self::SIGNATURE => new DevblocksSearchField(self::SIGNATURE, 'email_signature', 'signature', $translate->_('common.signature'), Model_CustomField::TYPE_MULTI_LINE, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'email_signature', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 		];
 		
 		// Virtual fields

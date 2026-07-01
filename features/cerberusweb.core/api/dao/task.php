@@ -712,18 +712,18 @@ class SearchFields_Task extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::ID => new DevblocksSearchField(self::ID, 'task', 'id', $translate->_('common.id'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'task', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
 			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'task', 'created_at', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
 			self::UPDATED_DATE => new DevblocksSearchField(self::UPDATED_DATE, 'task', 'updated_date', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			self::TITLE => new DevblocksSearchField(self::TITLE, 'task', 'title', $translate->_('common.title'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::STATUS_ID => new DevblocksSearchField(self::STATUS_ID, 'task', 'status_id', $translate->_('common.status'), null, true),
+			self::STATUS_ID => new DevblocksSearchField(self::STATUS_ID, 'task', 'status_id', $translate->_('common.status'), Model_CustomField::TYPE_NUMBER, true),
 			self::OWNER_ID => new DevblocksSearchField(self::OWNER_ID, 'task', 'owner_id', $translate->_('common.owner'), Model_CustomField::TYPE_WORKER, true),
 			self::IMPORTANCE => new DevblocksSearchField(self::IMPORTANCE, 'task', 'importance', $translate->_('common.importance'), Model_CustomField::TYPE_NUMBER, true),
 			self::DUE_DATE => new DevblocksSearchField(self::DUE_DATE, 'task', 'due_date', $translate->_('task.due_date'), Model_CustomField::TYPE_DATE, true),
 			self::REOPEN_AT => new DevblocksSearchField(self::REOPEN_AT, 'task', 'reopen_at', $translate->_('common.reopen_at'), Model_CustomField::TYPE_DATE, true),
 			self::COMPLETED_DATE => new DevblocksSearchField(self::COMPLETED_DATE, 'task', 'completed_date', $translate->_('task.completed_date'), Model_CustomField::TYPE_DATE, true),
 			self::IS_ACTIVE => new DevblocksSearchField(self::IS_ACTIVE, 'task', 'is_active', $translate->_('task.is_active'), Model_CustomField::TYPE_CHECKBOX, true),
-			self::PROJECT_ID => new DevblocksSearchField(self::PROJECT_ID, 'task', 'project_id', $translate->_('common.project'), null, true),
+			self::PROJECT_ID => new DevblocksSearchField(self::PROJECT_ID, 'task', 'project_id', $translate->_('common.project'), Model_CustomField::TYPE_NUMBER, true),
 
 			self::VIRTUAL_OWNER_SEARCH => new DevblocksSearchField(self::VIRTUAL_OWNER_SEARCH, '*', 'owner_search', null, null, false),
 			self::VIRTUAL_PROJECT_SEARCH => new DevblocksSearchField(self::VIRTUAL_PROJECT_SEARCH, '*', 'project_search', null, null, false),

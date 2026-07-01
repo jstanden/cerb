@@ -477,14 +477,14 @@ class SearchFields_Workflow extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::CONFIG_KATA => new DevblocksSearchField(self::CONFIG_KATA, 'workflow', 'config_kata', $translate->_('common.configuration'), null, true),
-			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'workflow', 'created_at', $translate->_('common.created'), null, true),
-			self::DESCRIPTION => new DevblocksSearchField(self::DESCRIPTION, 'workflow', 'description', $translate->_('common.description'), null, true),
-			self::ID => new DevblocksSearchField(self::ID, 'workflow', 'id', $translate->_('common.id'), null, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'workflow', 'name', $translate->_('common.name'), null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'workflow', 'updated_at', $translate->_('common.updated'), null, true),
-			self::VERSION => new DevblocksSearchField(self::VERSION, 'workflow', 'version', $translate->_('common.version'), null, true),
-			self::WORKFLOW_KATA => new DevblocksSearchField(self::WORKFLOW_KATA, 'workflow', 'workflow_kata', $translate->_('common.template'), null, true),
+			self::CONFIG_KATA => new DevblocksSearchField(self::CONFIG_KATA, 'workflow', 'config_kata', $translate->_('common.configuration'), Model_CustomField::TYPE_MULTI_LINE, true),
+			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'workflow', 'created_at', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
+			self::DESCRIPTION => new DevblocksSearchField(self::DESCRIPTION, 'workflow', 'description', $translate->_('common.description'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::ID => new DevblocksSearchField(self::ID, 'workflow', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'workflow', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'workflow', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
+			self::VERSION => new DevblocksSearchField(self::VERSION, 'workflow', 'version', $translate->_('common.version'), Model_CustomField::TYPE_DATE, true),
+			self::WORKFLOW_KATA => new DevblocksSearchField(self::WORKFLOW_KATA, 'workflow', 'workflow_kata', $translate->_('common.template'), Model_CustomField::TYPE_MULTI_LINE, true),
 			
 			self::VIRTUAL_ATTACHMENTS_SEARCH => new DevblocksSearchField(self::VIRTUAL_ATTACHMENTS_SEARCH, '*', 'attachments_search', null, null, false),
 		];

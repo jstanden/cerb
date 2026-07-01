@@ -623,17 +623,17 @@ class SearchFields_Resource extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::CACHE_UNTIL => new DevblocksSearchField(self::CACHE_UNTIL, 'resource', 'cache_until', $translate->_('common.cache'), null, true),
-			self::DESCRIPTION => new DevblocksSearchField(self::DESCRIPTION, 'resource', 'description', $translate->_('common.description'), null, true),
-			self::ID => new DevblocksSearchField(self::ID, 'resource', 'id', $translate->_('common.id'), null, true),
-			self::IS_DYNAMIC => new DevblocksSearchField(self::IS_DYNAMIC, 'resource', 'is_dynamic', $translate->_('dao.resource.is_dynamic'), null, true),
-			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'resource', 'extension_id', $translate->_('common.type'), null, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'resource', 'name', $translate->_('common.name'), null, true),
-			self::STORAGE_EXTENSION => new DevblocksSearchField(self::STORAGE_EXTENSION, 'resource', 'storage_extension', $translate->_('common.storage_extension'), null, true),
-			self::STORAGE_KEY => new DevblocksSearchField(self::STORAGE_KEY, 'resource', 'storage_key', $translate->_('common.storage_key'), null, true),
-			self::STORAGE_PROFILE_ID => new DevblocksSearchField(self::STORAGE_PROFILE_ID, 'resource', 'storage_profile_id', $translate->_('common.storage_profile_id'), null, true),
-			self::STORAGE_SIZE => new DevblocksSearchField(self::STORAGE_SIZE, 'resource', 'storage_size', $translate->_('common.size'), null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'resource', 'updated_at', $translate->_('common.updated'), null, true),
+			self::CACHE_UNTIL => new DevblocksSearchField(self::CACHE_UNTIL, 'resource', 'cache_until', $translate->_('common.cache'), Model_CustomField::TYPE_DATE, true),
+			self::DESCRIPTION => new DevblocksSearchField(self::DESCRIPTION, 'resource', 'description', $translate->_('common.description'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::ID => new DevblocksSearchField(self::ID, 'resource', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::IS_DYNAMIC => new DevblocksSearchField(self::IS_DYNAMIC, 'resource', 'is_dynamic', $translate->_('dao.resource.is_dynamic'), Model_CustomField::TYPE_CHECKBOX, true),
+			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'resource', 'extension_id', $translate->_('common.type'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'resource', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::STORAGE_EXTENSION => new DevblocksSearchField(self::STORAGE_EXTENSION, 'resource', 'storage_extension', $translate->_('common.storage_extension'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::STORAGE_KEY => new DevblocksSearchField(self::STORAGE_KEY, 'resource', 'storage_key', $translate->_('common.storage_key'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::STORAGE_PROFILE_ID => new DevblocksSearchField(self::STORAGE_PROFILE_ID, 'resource', 'storage_profile_id', $translate->_('common.storage_profile_id'), Model_CustomField::TYPE_NUMBER, true),
+			self::STORAGE_SIZE => new DevblocksSearchField(self::STORAGE_SIZE, 'resource', 'storage_size', $translate->_('common.size'), Model_CustomField::TYPE_NUMBER, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'resource', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 		];
 		
 		// Virtual fields

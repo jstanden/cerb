@@ -442,16 +442,16 @@ class SearchFields_AutomationTimer extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'automation_timer', 'created_at', $translate->_('common.created'), null, true),
-			self::ID => new DevblocksSearchField(self::ID, 'automation_timer', 'id', $translate->_('common.id'), null, true),
-			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'automation_timer', 'is_disabled', $translate->_('common.disabled'), null, true),
-			self::IS_RECURRING => new DevblocksSearchField(self::IS_RECURRING, 'automation_timer', 'is_recurring', $translate->_('dao.automation_timer.is_recurring'), null, true),
-			self::RECURRING_PATTERNS => new DevblocksSearchField(self::RECURRING_PATTERNS, 'automation_timer', 'recurring_patterns', $translate->_('dao.automation_timer.recurring_patterns'), null, true),
-			self::RECURRING_TIMEZONE => new DevblocksSearchField(self::RECURRING_TIMEZONE, 'automation_timer', 'recurring_timezone', $translate->_('common.timezone'), null, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'automation_timer', 'name', $translate->_('common.name'), null, true),
-			self::LAST_RAN_AT => new DevblocksSearchField(self::LAST_RAN_AT, 'automation_timer', 'last_ran_at', $translate->_('dao.automation_timer.last_ran_at'), null, true),
-			self::NEXT_RUN_AT => new DevblocksSearchField(self::NEXT_RUN_AT, 'automation_timer', 'next_run_at', $translate->_('dao.automation_timer.next_run_at'), null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'automation_timer', 'updated_at', $translate->_('common.updated'), null, true),
+			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'automation_timer', 'created_at', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
+			self::ID => new DevblocksSearchField(self::ID, 'automation_timer', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'automation_timer', 'is_disabled', $translate->_('common.disabled'), Model_CustomField::TYPE_CHECKBOX, true),
+			self::IS_RECURRING => new DevblocksSearchField(self::IS_RECURRING, 'automation_timer', 'is_recurring', $translate->_('dao.automation_timer.is_recurring'), Model_CustomField::TYPE_CHECKBOX, true),
+			self::RECURRING_PATTERNS => new DevblocksSearchField(self::RECURRING_PATTERNS, 'automation_timer', 'recurring_patterns', $translate->_('dao.automation_timer.recurring_patterns'), Model_CustomField::TYPE_MULTI_LINE, true),
+			self::RECURRING_TIMEZONE => new DevblocksSearchField(self::RECURRING_TIMEZONE, 'automation_timer', 'recurring_timezone', $translate->_('common.timezone'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'automation_timer', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::LAST_RAN_AT => new DevblocksSearchField(self::LAST_RAN_AT, 'automation_timer', 'last_ran_at', $translate->_('dao.automation_timer.last_ran_at'), Model_CustomField::TYPE_DATE, true),
+			self::NEXT_RUN_AT => new DevblocksSearchField(self::NEXT_RUN_AT, 'automation_timer', 'next_run_at', $translate->_('dao.automation_timer.next_run_at'), Model_CustomField::TYPE_DATE, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'automation_timer', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 		];
 		
 		// Virtual fields

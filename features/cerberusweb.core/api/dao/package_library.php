@@ -512,12 +512,12 @@ class SearchFields_PackageLibrary extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::ID => new DevblocksSearchField(self::ID, 'package_library', 'id', $translate->_('common.id'), null, true),
-			self::URI => new DevblocksSearchField(self::URI, 'package_library', 'uri', $translate->_('common.uri'), null, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'package_library', 'name', $translate->_('common.name'), null, true),
-			self::DESCRIPTION => new DevblocksSearchField(self::DESCRIPTION, 'package_library', 'description', $translate->_('common.description'), null, true),
-			self::POINT => new DevblocksSearchField(self::POINT, 'package_library', 'point', $translate->_('common.extension.point'), null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'package_library', 'updated_at', $translate->_('common.updated'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'package_library', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::URI => new DevblocksSearchField(self::URI, 'package_library', 'uri', $translate->_('common.uri'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'package_library', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::DESCRIPTION => new DevblocksSearchField(self::DESCRIPTION, 'package_library', 'description', $translate->_('common.description'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::POINT => new DevblocksSearchField(self::POINT, 'package_library', 'point', $translate->_('common.extension.point'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'package_library', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 		];
 		
 		// Virtual fields

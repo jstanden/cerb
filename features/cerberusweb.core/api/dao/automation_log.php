@@ -353,12 +353,12 @@ class SearchFields_AutomationLog extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::AUTOMATION_NAME => new DevblocksSearchField(self::AUTOMATION_NAME, 'automation_log', 'automation_name', DevblocksPlatform::translateCapitalized('common.automation'), null, true),
-			self::AUTOMATION_NODE => new DevblocksSearchField(self::AUTOMATION_NODE, 'automation_log', 'automation_node', DevblocksPlatform::translateCapitalized('dao.automation_log.automation_node'), null, true),
-			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'automation_log', 'created_at', DevblocksPlatform::translateCapitalized('common.created'), null, true),
-			self::ID => new DevblocksSearchField(self::ID, 'automation_log', 'id', $translate->_('common.id'), null, true),
-			self::LOG_LEVEL => new DevblocksSearchField(self::LOG_LEVEL, 'automation_log', 'log_level', $translate->_('dao.automation_log.log_level'), null, true),
-			self::LOG_MESSAGE => new DevblocksSearchField(self::LOG_MESSAGE, 'automation_log', 'log_message', DevblocksPlatform::translate('dao.automation_log.log_message'), null, true),
+			self::AUTOMATION_NAME => new DevblocksSearchField(self::AUTOMATION_NAME, 'automation_log', 'automation_name', DevblocksPlatform::translateCapitalized('common.automation'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::AUTOMATION_NODE => new DevblocksSearchField(self::AUTOMATION_NODE, 'automation_log', 'automation_node', DevblocksPlatform::translateCapitalized('dao.automation_log.automation_node'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'automation_log', 'created_at', DevblocksPlatform::translateCapitalized('common.created'), Model_CustomField::TYPE_DATE, true),
+			self::ID => new DevblocksSearchField(self::ID, 'automation_log', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::LOG_LEVEL => new DevblocksSearchField(self::LOG_LEVEL, 'automation_log', 'log_level', $translate->_('dao.automation_log.log_level'), Model_CustomField::TYPE_NUMBER, true),
+			self::LOG_MESSAGE => new DevblocksSearchField(self::LOG_MESSAGE, 'automation_log', 'log_message', DevblocksPlatform::translate('dao.automation_log.log_message'), Model_CustomField::TYPE_SINGLE_LINE, true),
 		];
 		
 		// Custom Fields

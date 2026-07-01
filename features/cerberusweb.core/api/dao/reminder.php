@@ -426,12 +426,12 @@ class SearchFields_Reminder extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::ID => new DevblocksSearchField(self::ID, 'reminder', 'id', $translate->_('common.id'), null, true),
-			self::IS_CLOSED => new DevblocksSearchField(self::IS_CLOSED, 'reminder', 'is_closed', $translate->_('common.is_closed'), null, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'reminder', 'name', $translate->_('common.name'), null, true),
-			self::REMIND_AT => new DevblocksSearchField(self::REMIND_AT, 'reminder', 'remind_at', $translate->_('common.remind_at'), null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'reminder', 'updated_at', $translate->_('common.updated'), null, true),
-			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'reminder', 'worker_id', $translate->_('common.worker'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'reminder', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::IS_CLOSED => new DevblocksSearchField(self::IS_CLOSED, 'reminder', 'is_closed', $translate->_('common.is_closed'), Model_CustomField::TYPE_CHECKBOX, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'reminder', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::REMIND_AT => new DevblocksSearchField(self::REMIND_AT, 'reminder', 'remind_at', $translate->_('common.remind_at'), Model_CustomField::TYPE_DATE, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'reminder', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
+			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'reminder', 'worker_id', $translate->_('common.worker'), Model_CustomField::TYPE_WORKER, true),
 
 			self::VIRTUAL_WORKER_SEARCH => new DevblocksSearchField(self::VIRTUAL_WORKER_SEARCH, '*', 'worker_search', null, null, false),
 		];

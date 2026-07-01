@@ -690,13 +690,13 @@ class SearchFields_WorkerRole extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::ID => new DevblocksSearchField(self::ID, 'worker_role', 'id', $translate->_('common.id'), null, true),
-			self::MEMBER_QUERY_WORKER => new DevblocksSearchField(self::MEMBER_QUERY_WORKER, 'worker_role', 'member_query_worker', $translate->_('dao.worker_role.member_query_workers'), null, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'worker_role', 'name', $translate->_('common.name'), null, true),
-			self::EDITOR_QUERY_WORKER => new DevblocksSearchField(self::EDITOR_QUERY_WORKER, 'worker_role', 'editor_query_worker', $translate->_('dao.worker_role.editor_query_workers'), null, true),
-			self::PRIVS_MODE => new DevblocksSearchField(self::PRIVS_MODE, 'worker_role', 'privs_mode', $translate->_('dao.worker_role.privs_mode'), null, true),
-			self::READER_QUERY_WORKER => new DevblocksSearchField(self::READER_QUERY_WORKER, 'worker_role', 'reader_query_worker', $translate->_('dao.worker_role.reader_query_workers'), null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'worker_role', 'updated_at', $translate->_('common.updated'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'worker_role', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::MEMBER_QUERY_WORKER => new DevblocksSearchField(self::MEMBER_QUERY_WORKER, 'worker_role', 'member_query_worker', $translate->_('dao.worker_role.member_query_workers'), Model_CustomField::TYPE_MULTI_LINE, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'worker_role', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::EDITOR_QUERY_WORKER => new DevblocksSearchField(self::EDITOR_QUERY_WORKER, 'worker_role', 'editor_query_worker', $translate->_('dao.worker_role.editor_query_workers'), Model_CustomField::TYPE_MULTI_LINE, true),
+			self::PRIVS_MODE => new DevblocksSearchField(self::PRIVS_MODE, 'worker_role', 'privs_mode', $translate->_('dao.worker_role.privs_mode'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::READER_QUERY_WORKER => new DevblocksSearchField(self::READER_QUERY_WORKER, 'worker_role', 'reader_query_worker', $translate->_('dao.worker_role.reader_query_workers'), Model_CustomField::TYPE_MULTI_LINE, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'worker_role', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 
 			self::VIRTUAL_MEMBER_SEARCH => new DevblocksSearchField(self::VIRTUAL_MEMBER_SEARCH, '*', 'member_search', null, null),
 			self::VIRTUAL_EDITOR_SEARCH => new DevblocksSearchField(self::VIRTUAL_EDITOR_SEARCH, '*', 'editor_search', null, null),

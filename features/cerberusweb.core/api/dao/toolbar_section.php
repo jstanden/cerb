@@ -440,13 +440,13 @@ class SearchFields_ToolbarSection extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'toolbar_section', 'created_at', $translate->_('common.created'), null, true),
-			self::ID => new DevblocksSearchField(self::ID, 'toolbar_section', 'id', $translate->_('common.id'), null, true),
-			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'toolbar_section', 'is_disabled', $translate->_('common.disabled'), null, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'toolbar_section', 'name', $translate->_('common.name'), null, true),
-			self::PRIORITY => new DevblocksSearchField(self::PRIORITY, 'toolbar_section', 'priority', $translate->_('common.priority'), null, true),
-			self::TOOLBAR_NAME => new DevblocksSearchField(self::TOOLBAR_NAME, 'toolbar_section', 'toolbar_name', $translate->_('common.toolbar'), null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'toolbar_section', 'updated_at', $translate->_('common.updated'), null, true),
+			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'toolbar_section', 'created_at', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
+			self::ID => new DevblocksSearchField(self::ID, 'toolbar_section', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'toolbar_section', 'is_disabled', $translate->_('common.disabled'), Model_CustomField::TYPE_CHECKBOX, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'toolbar_section', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::PRIORITY => new DevblocksSearchField(self::PRIORITY, 'toolbar_section', 'priority', $translate->_('common.priority'), Model_CustomField::TYPE_NUMBER, true),
+			self::TOOLBAR_NAME => new DevblocksSearchField(self::TOOLBAR_NAME, 'toolbar_section', 'toolbar_name', $translate->_('common.toolbar'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'toolbar_section', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 		];
 		
 		// Virtual fields

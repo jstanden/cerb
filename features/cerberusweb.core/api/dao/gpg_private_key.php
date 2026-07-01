@@ -431,11 +431,11 @@ class SearchFields_GpgPrivateKey extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::ID => new DevblocksSearchField(self::ID, 'gpg_private_key', 'id', $translate->_('common.id'), null, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'gpg_private_key', 'name', $translate->_('common.name'), null, true),
-			self::FINGERPRINT => new DevblocksSearchField(self::FINGERPRINT, 'gpg_private_key', 'fingerprint', $translate->_('common.fingerprint'), null, true),
-			self::EXPIRES_AT => new DevblocksSearchField(self::EXPIRES_AT, 'gpg_private_key', 'expires_at', $translate->_('common.expires'), null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'gpg_private_key', 'updated_at', $translate->_('common.updated'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'gpg_private_key', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'gpg_private_key', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::FINGERPRINT => new DevblocksSearchField(self::FINGERPRINT, 'gpg_private_key', 'fingerprint', $translate->_('common.fingerprint'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::EXPIRES_AT => new DevblocksSearchField(self::EXPIRES_AT, 'gpg_private_key', 'expires_at', $translate->_('common.expires'), Model_CustomField::TYPE_DATE, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'gpg_private_key', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 		];
 		
 		// Virtual fields

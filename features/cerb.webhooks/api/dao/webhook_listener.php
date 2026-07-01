@@ -439,10 +439,10 @@ class SearchFields_WebhookListener extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::ID => new DevblocksSearchField(self::ID, 'webhook_listener', 'id', $translate->_('common.id'), null, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'webhook_listener', 'name', $translate->_('common.name'), null, true),
-			self::GUID => new DevblocksSearchField(self::GUID, 'webhook_listener', 'guid', $translate->_('common.url'), null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'webhook_listener', 'updated_at', $translate->_('common.updated'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'webhook_listener', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'webhook_listener', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::GUID => new DevblocksSearchField(self::GUID, 'webhook_listener', 'guid', $translate->_('common.url'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'webhook_listener', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 
 			// Virtual, display-only inline sparkline (runs, loaded async); not sortable
 			self::VIRTUAL_SPARKLINE => new DevblocksSearchField(self::VIRTUAL_SPARKLINE, '*', '', 'Usage', DevblocksSearchCriteria::TYPE_VIRTUAL_SPARKLINES, false),

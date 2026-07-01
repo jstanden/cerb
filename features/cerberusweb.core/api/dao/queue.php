@@ -533,14 +533,14 @@ class SearchFields_Queue extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::CLAIM_WINDOW_SECS => new DevblocksSearchField(self::CLAIM_WINDOW_SECS, 'queue', 'claim_window_secs', 'Claim window', null, true),
-			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'queue', 'created_at', $translate->_('common.created'), null, true),
-			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'queue', 'extension_id', $translate->_('common.extension'), null, true),
-			self::ID => new DevblocksSearchField(self::ID, 'queue', 'id', $translate->_('common.id'), null, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'queue', 'name', $translate->_('common.name'), null, true),
-			self::RETRY_MAX => new DevblocksSearchField(self::RETRY_MAX, 'queue', 'retry_max', 'Retry max', null, true),
-			self::RETRY_WINDOW_SECS => new DevblocksSearchField(self::RETRY_WINDOW_SECS, 'queue', 'retry_window_secs', 'Retry window', null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'queue', 'updated_at', $translate->_('common.updated'), null, true),
+			self::CLAIM_WINDOW_SECS => new DevblocksSearchField(self::CLAIM_WINDOW_SECS, 'queue', 'claim_window_secs', 'Claim window', Model_CustomField::TYPE_NUMBER, true),
+			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'queue', 'created_at', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
+			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'queue', 'extension_id', $translate->_('common.extension'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::ID => new DevblocksSearchField(self::ID, 'queue', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'queue', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::RETRY_MAX => new DevblocksSearchField(self::RETRY_MAX, 'queue', 'retry_max', 'Retry max', Model_CustomField::TYPE_NUMBER, true),
+			self::RETRY_WINDOW_SECS => new DevblocksSearchField(self::RETRY_WINDOW_SECS, 'queue', 'retry_window_secs', 'Retry window', Model_CustomField::TYPE_NUMBER, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'queue', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 
 			// Virtual, display-only inline sparkline (done/failed bars + open line, loaded async); not sortable
 			self::VIRTUAL_SPARKLINE => new DevblocksSearchField(self::VIRTUAL_SPARKLINE, '*', '', 'Activity', DevblocksSearchCriteria::TYPE_VIRTUAL_SPARKLINES, false),

@@ -400,13 +400,13 @@ class SearchFields_AutomationContinuation extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::EXPIRES_AT => new DevblocksSearchField(self::EXPIRES_AT, 'automation_continuation', 'expires_at', $translate->_('common.expires'), null, true),
-			self::PARENT_TOKEN => new DevblocksSearchField(self::PARENT_TOKEN, 'automation_continuation', 'parent_token', null, null, true),
-			self::ROOT_TOKEN => new DevblocksSearchField(self::ROOT_TOKEN, 'automation_continuation', 'root_token', null, null, true),
-			self::STATE => new DevblocksSearchField(self::STATE, 'automation_continuation', 'state', DevblocksPlatform::translateCapitalized('common.state'), null, true),
-			self::TOKEN => new DevblocksSearchField(self::TOKEN, 'automation_continuation', 'token', null, null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'automation_continuation', 'updated_at', $translate->_('common.updated'), null, true),
-			self::URI => new DevblocksSearchField(self::STATE, 'automation_continuation', 'uri', DevblocksPlatform::translate('common.uri'), null, true),
+			self::EXPIRES_AT => new DevblocksSearchField(self::EXPIRES_AT, 'automation_continuation', 'expires_at', $translate->_('common.expires'), Model_CustomField::TYPE_DATE, true),
+			self::PARENT_TOKEN => new DevblocksSearchField(self::PARENT_TOKEN, 'automation_continuation', 'parent_token', null, Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::ROOT_TOKEN => new DevblocksSearchField(self::ROOT_TOKEN, 'automation_continuation', 'root_token', null, Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::STATE => new DevblocksSearchField(self::STATE, 'automation_continuation', 'state', DevblocksPlatform::translateCapitalized('common.state'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::TOKEN => new DevblocksSearchField(self::TOKEN, 'automation_continuation', 'token', null, Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'automation_continuation', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
+			self::URI => new DevblocksSearchField(self::STATE, 'automation_continuation', 'uri', DevblocksPlatform::translate('common.uri'), Model_CustomField::TYPE_SINGLE_LINE, true),
 		];
 		
 		// Custom Fields

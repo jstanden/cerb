@@ -528,13 +528,13 @@ class SearchFields_ContextAvatar extends DevblocksSearchFields {
 		
 		$columns = [
 			self::ID => new DevblocksSearchField(self::ID, 'context_avatar', 'id', $translate->_('dao.context_avatar.id'), Model_CustomField::TYPE_NUMBER, true),
-			self::CONTEXT => new DevblocksSearchField(self::CONTEXT, 'context_avatar', 'context', $translate->_('dao.context_avatar.context'), null, true),
-			self::CONTEXT_ID => new DevblocksSearchField(self::CONTEXT_ID, 'context_avatar', 'context_id', $translate->_('dao.context_avatar.context_id'), null, true),
-			self::CONTENT_TYPE => new DevblocksSearchField(self::CONTENT_TYPE, 'context_avatar', 'content_type', $translate->_('dao.context_avatar.content_type'), null, true),
-			self::IS_APPROVED => new DevblocksSearchField(self::IS_APPROVED, 'context_avatar', 'is_approved', $translate->_('dao.context_avatar.is_approved'), null, true),
+			self::CONTEXT => new DevblocksSearchField(self::CONTEXT, 'context_avatar', 'context', $translate->_('dao.context_avatar.context'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::CONTEXT_ID => new DevblocksSearchField(self::CONTEXT_ID, 'context_avatar', 'context_id', $translate->_('dao.context_avatar.context_id'), Model_CustomField::TYPE_NUMBER, true),
+			self::CONTENT_TYPE => new DevblocksSearchField(self::CONTENT_TYPE, 'context_avatar', 'content_type', $translate->_('dao.context_avatar.content_type'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::IS_APPROVED => new DevblocksSearchField(self::IS_APPROVED, 'context_avatar', 'is_approved', $translate->_('dao.context_avatar.is_approved'), Model_CustomField::TYPE_CHECKBOX, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'context_avatar', 'updated_at', $translate->_('dao.context_avatar.updated_at'), Model_CustomField::TYPE_DATE, true),
-			self::STORAGE_EXTENSION => new DevblocksSearchField(self::STORAGE_EXTENSION, 'context_avatar', 'storage_extension', $translate->_('common.storage_extension'), null, true),
-			self::STORAGE_KEY => new DevblocksSearchField(self::STORAGE_KEY, 'context_avatar', 'storage_key', $translate->_('common.storage_key'), null, true),
+			self::STORAGE_EXTENSION => new DevblocksSearchField(self::STORAGE_EXTENSION, 'context_avatar', 'storage_extension', $translate->_('common.storage_extension'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::STORAGE_KEY => new DevblocksSearchField(self::STORAGE_KEY, 'context_avatar', 'storage_key', $translate->_('common.storage_key'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::STORAGE_SIZE => new DevblocksSearchField(self::STORAGE_SIZE, 'context_avatar', 'storage_size', $translate->_('common.size'), Model_CustomField::TYPE_NUMBER, true),
 			self::STORAGE_PROFILE_ID => new DevblocksSearchField(self::STORAGE_PROFILE_ID, 'context_avatar', 'storage_profile_id', $translate->_('common.storage_profile_id'), Model_CustomField::TYPE_NUMBER, true),
 		];

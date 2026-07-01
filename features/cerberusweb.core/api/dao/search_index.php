@@ -614,15 +614,17 @@ class SearchFields_SearchIndex extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'search_index', 'created_at', $translate->_('common.created'), null, true),
-			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'search_index', 'extension_id', $translate->_('common.type'), null, true),
-			self::ID => new DevblocksSearchField(self::ID, 'search_index', 'id', $translate->_('common.id'), null, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'search_index', 'name', $translate->_('common.name'), null, true),
-			self::PRIORITY => new DevblocksSearchField(self::PRIORITY, 'search_index', 'priority', $translate->_('common.priority'), null, true),
-			self::RECORD_FILTER => new DevblocksSearchField(self::RECORD_FILTER, 'search_index', 'record_filter', $translate->_('common.filter'), null, true),
-			self::RECORD_TYPE => new DevblocksSearchField(self::RECORD_TYPE, 'search_index', 'record_type', $translate->_('common.record.type'), null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'search_index', 'updated_at', $translate->_('common.updated'), null, true),
-			self::URI => new DevblocksSearchField(self::URI, 'search_index', 'uri', $translate->_('common.uri'), null, true),
+			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'search_index', 'created_at', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
+			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'search_index', 'extension_id', $translate->_('common.type'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::ID => new DevblocksSearchField(self::ID, 'search_index', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'search_index', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::PRIORITY => new DevblocksSearchField(self::PRIORITY, 'search_index', 'priority', $translate->_('common.priority'), Model_CustomField::TYPE_NUMBER, true),
+			self::RECORD_FILTER => new DevblocksSearchField(self::RECORD_FILTER, 'search_index', 'record_filter', $translate->_('common.filter'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::RECORD_TYPE => new DevblocksSearchField(self::RECORD_TYPE, 'search_index', 'record_type', $translate->_('common.record.type'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'search_index', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
+			self::URI => new DevblocksSearchField(self::URI, 'search_index', 'uri', $translate->_('common.uri'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::VIRTUAL_SPARKLINE => new DevblocksSearchField(self::VIRTUAL_SPARKLINE, '*', '', 'Records', DevblocksSearchCriteria::TYPE_VIRTUAL_SPARKLINES, false),
+			self::VIRTUAL_RECORDS => new DevblocksSearchField(self::VIRTUAL_RECORDS, '*', '', 'Records', null, false),
 		];
 		
 		// Virtual fields

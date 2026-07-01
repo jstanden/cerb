@@ -318,7 +318,7 @@ class SearchFields_Feed extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::ID => new DevblocksSearchField(self::ID, 'feed', 'id', $translate->_('common.id'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'feed', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'feed', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::URL => new DevblocksSearchField(self::URL, 'feed', 'url', $translate->_('common.url'), Model_CustomField::TYPE_SINGLE_LINE, true),
 		];

@@ -510,16 +510,16 @@ class SearchFields_CardWidget extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::ID => new DevblocksSearchField(self::ID, 'card_widget', 'id', $translate->_('common.id'), null, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'card_widget', 'name', $translate->_('common.name'), null, true),
-			self::RECORD_TYPE => new DevblocksSearchField(self::RECORD_TYPE, 'card_widget', 'record_type', $translate->_('common.record.type'), null, true),
-			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'card_widget', 'extension_id', $translate->_('common.type'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'card_widget', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'card_widget', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::RECORD_TYPE => new DevblocksSearchField(self::RECORD_TYPE, 'card_widget', 'record_type', $translate->_('common.record.type'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'card_widget', 'extension_id', $translate->_('common.type'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::EXTENSION_PARAMS_JSON => new DevblocksSearchField(self::EXTENSION_PARAMS_JSON, 'card_widget', 'extension_params_json', null, null, true),
-			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'card_widget', 'created_at', $translate->_('common.created'), null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'card_widget', 'updated_at', $translate->_('common.updated'), null, true),
-			self::POS => new DevblocksSearchField(self::POS, 'card_widget', 'pos', $translate->_('common.order'), null, true),
-			self::WIDTH_UNITS => new DevblocksSearchField(self::WIDTH_UNITS, 'card_widget', 'width_units', $translate->_('common.width'), null, true),
-			self::ZONE => new DevblocksSearchField(self::ZONE, 'card_widget', 'zone', $translate->_('common.zone'), null, true),
+			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'card_widget', 'created_at', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'card_widget', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
+			self::POS => new DevblocksSearchField(self::POS, 'card_widget', 'pos', $translate->_('common.order'), Model_CustomField::TYPE_NUMBER, true),
+			self::WIDTH_UNITS => new DevblocksSearchField(self::WIDTH_UNITS, 'card_widget', 'width_units', $translate->_('common.width'), Model_CustomField::TYPE_NUMBER, true),
+			self::ZONE => new DevblocksSearchField(self::ZONE, 'card_widget', 'zone', $translate->_('common.zone'), Model_CustomField::TYPE_SINGLE_LINE, true),
 		];
 		
 		// Virtual fields

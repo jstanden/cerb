@@ -8,6 +8,25 @@
 $plugin_id = 'example.plugin';
 $plugin_namespace = 'example';
 
+// Return the 5th DevblocksSearchField arg: a Model_CustomField::TYPE_* constant (or the literal
+// 'null' for JSON blob columns), derived from the field name + SQL type. Drives the worklist
+// "Customize columns" type-hint icon. Tune any non-standard fields by hand after generating.
+function devblocks_sdk_searchfield_type($field_name, $sql_type) {
+	$sql_base = strtolower(explode('(', $sql_type)[0]);
+
+	if(str_ends_with($field_name, '_json'))
+		return 'null'; // not searchable; usually hidden
+	if(str_starts_with($field_name, 'is_') || str_starts_with($field_name, 'has_') || str_starts_with(strtolower($sql_type), 'tinyint(1)') || 'bit' == $sql_base)
+		return 'Model_CustomField::TYPE_CHECKBOX';
+	if(str_ends_with($field_name, '_at') || str_ends_with($field_name, '_date'))
+		return 'Model_CustomField::TYPE_DATE';
+	if('id' == $field_name || str_ends_with($field_name, '_id') || in_array($sql_base, ['int','bigint','tinyint','smallint','mediumint','decimal','float','double']))
+		return 'Model_CustomField::TYPE_NUMBER';
+	if(in_array($sql_base, ['text','mediumtext','longtext','blob']))
+		return 'Model_CustomField::TYPE_MULTI_LINE';
+	return 'Model_CustomField::TYPE_SINGLE_LINE';
+}
+
 $tables = [];
 
 $tables['Example_Object'] = "
@@ -438,8 +457,8 @@ class SearchFields_<?php echo $class_name; ?> extends DevblocksSearchFields {
 		
 		$columns = [
 <?php
-	foreach ( array_keys($fields) as $field_name ) {
-		printf ( "\t\t\tself::%s => new DevblocksSearchField(self::%s, '%s', '%s', \$translate->_('dao.%s.%s'), null, true),\n", strtoupper ( $field_name ), strtoupper ( $field_name ), $table_name, $field_name, $table_name, $field_name );
+	foreach ( $fields as $field_name => $field_type ) {
+		printf ( "\t\t\tself::%s => new DevblocksSearchField(self::%s, '%s', '%s', \$translate->_('dao.%s.%s'), %s, true),\n", strtoupper ( $field_name ), strtoupper ( $field_name ), $table_name, $field_name, $table_name, $field_name, devblocks_sdk_searchfield_type ( $field_name, $field_type ) );
 	}
 	?>
 		];

@@ -475,15 +475,15 @@ class SearchFields_OAuthApp extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::ACCESS_TOKEN_TTL => new DevblocksSearchField(self::ACCESS_TOKEN_TTL, 'oauth_app', 'access_token_ttl', $translate->_('dao.oauth_app.access_token_ttl'), null, true),
-			self::CALLBACK_URL => new DevblocksSearchField(self::CALLBACK_URL, 'oauth_app', 'callback_url', $translate->_('dao.oauth_app.callback_url'), null, true),
-			self::CLIENT_ID => new DevblocksSearchField(self::CLIENT_ID, 'oauth_app', 'client_id', $translate->_('dao.oauth_app.client_id'), null, true),
-			self::ID => new DevblocksSearchField(self::ID, 'oauth_app', 'id', $translate->_('common.id'), null, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'oauth_app', 'name', $translate->_('common.name'), null, true),
-			self::REFRESH_TOKEN_TTL => new DevblocksSearchField(self::REFRESH_TOKEN_TTL, 'oauth_app', 'refresh_token_ttl', $translate->_('dao.oauth_app.refresh_token_ttl'), null, true),
-			self::SCOPES => new DevblocksSearchField(self::SCOPES, 'oauth_app', 'scopes', $translate->_('api.scopes'), null, false),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'oauth_app', 'updated_at', $translate->_('common.updated'), null, true),
-			self::URL => new DevblocksSearchField(self::URL, 'oauth_app', 'url', $translate->_('common.url'), null, true),
+			self::ACCESS_TOKEN_TTL => new DevblocksSearchField(self::ACCESS_TOKEN_TTL, 'oauth_app', 'access_token_ttl', $translate->_('dao.oauth_app.access_token_ttl'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::CALLBACK_URL => new DevblocksSearchField(self::CALLBACK_URL, 'oauth_app', 'callback_url', $translate->_('dao.oauth_app.callback_url'), Model_CustomField::TYPE_URL, true),
+			self::CLIENT_ID => new DevblocksSearchField(self::CLIENT_ID, 'oauth_app', 'client_id', $translate->_('dao.oauth_app.client_id'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::ID => new DevblocksSearchField(self::ID, 'oauth_app', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'oauth_app', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::REFRESH_TOKEN_TTL => new DevblocksSearchField(self::REFRESH_TOKEN_TTL, 'oauth_app', 'refresh_token_ttl', $translate->_('dao.oauth_app.refresh_token_ttl'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::SCOPES => new DevblocksSearchField(self::SCOPES, 'oauth_app', 'scopes', $translate->_('api.scopes'), Model_CustomField::TYPE_MULTI_LINE, false),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'oauth_app', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
+			self::URL => new DevblocksSearchField(self::URL, 'oauth_app', 'url', $translate->_('common.url'), Model_CustomField::TYPE_URL, true),
 		];
 		
 		// Virtual fields

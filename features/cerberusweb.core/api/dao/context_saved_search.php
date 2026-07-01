@@ -524,14 +524,14 @@ class SearchFields_ContextSavedSearch extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::ID => new DevblocksSearchField(self::ID, 'context_saved_search', 'id', $translate->_('common.id'), null, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'context_saved_search', 'name', $translate->_('common.name'), null, true),
-			self::TAG => new DevblocksSearchField(self::TAG, 'context_saved_search', 'tag', $translate->_('common.tag'), null, true),
-			self::QUERY => new DevblocksSearchField(self::QUERY, 'context_saved_search', 'query', $translate->_('common.query'), null, true),
-			self::CONTEXT => new DevblocksSearchField(self::CONTEXT, 'context_saved_search', 'context', $translate->_('common.record.type'), null, true),
-			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'context_saved_search', 'owner_context', null, null, true),
-			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'context_saved_search', 'owner_context_id', null, null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'context_saved_search', 'updated_at', $translate->_('common.updated'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'context_saved_search', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'context_saved_search', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::TAG => new DevblocksSearchField(self::TAG, 'context_saved_search', 'tag', $translate->_('common.tag'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::QUERY => new DevblocksSearchField(self::QUERY, 'context_saved_search', 'query', $translate->_('common.query'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::CONTEXT => new DevblocksSearchField(self::CONTEXT, 'context_saved_search', 'context', $translate->_('common.record.type'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'context_saved_search', 'owner_context', null, Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'context_saved_search', 'owner_context_id', null, Model_CustomField::TYPE_NUMBER, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'context_saved_search', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 		];
 		
 		// Virtual fields

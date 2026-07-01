@@ -902,7 +902,7 @@ class SearchFields_Server extends DevblocksSearchFields {
 		
 		$columns = [
 			self::CREATED => new DevblocksSearchField(self::CREATED, 'server', 'created', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
-			self::ID => new DevblocksSearchField(self::ID, 'server', 'id', $translate->_('common.id'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'server', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'server', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'server', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 		];

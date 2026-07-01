@@ -708,11 +708,11 @@ class SearchFields_Comment extends DevblocksSearchFields {
 		
 		$columns = [
 			self::ID => new DevblocksSearchField(self::ID, 'comment', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
-			self::CONTEXT => new DevblocksSearchField(self::CONTEXT, 'comment', 'context', null, null, true),
-			self::CONTEXT_ID => new DevblocksSearchField(self::CONTEXT_ID, 'comment', 'context_id', null, null, true),
+			self::CONTEXT => new DevblocksSearchField(self::CONTEXT, 'comment', 'context', null, Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::CONTEXT_ID => new DevblocksSearchField(self::CONTEXT_ID, 'comment', 'context_id', null, Model_CustomField::TYPE_NUMBER, true),
 			self::CREATED => new DevblocksSearchField(self::CREATED, 'comment', 'created', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
-			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'comment', 'owner_context', null, null, true),
-			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'comment', 'owner_context_id', null, null, true),
+			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'comment', 'owner_context', null, Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'comment', 'owner_context_id', null, Model_CustomField::TYPE_NUMBER, true),
 			self::IS_MARKDOWN => new DevblocksSearchField(self::IS_MARKDOWN, 'comment', 'is_markdown', $translate->_('common.format.markdown'), Model_CustomField::TYPE_CHECKBOX, true),
 			self::IS_PINNED => new DevblocksSearchField(self::IS_PINNED, 'comment', 'is_pinned', $translate->_('dao.comment.is_pinned'), Model_CustomField::TYPE_CHECKBOX, true),
 			self::COMMENT => new DevblocksSearchField(self::COMMENT, 'comment', 'comment', $translate->_('common.comment'), Model_CustomField::TYPE_MULTI_LINE, true),

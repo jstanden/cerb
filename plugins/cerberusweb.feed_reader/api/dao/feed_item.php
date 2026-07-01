@@ -449,9 +449,9 @@ class SearchFields_FeedItem extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::ID => new DevblocksSearchField(self::ID, 'feed_item', 'id', $translate->_('common.id'), null, true),
-			self::FEED_ID => new DevblocksSearchField(self::FEED_ID, 'feed_item', 'feed_id', $translate->_('dao.feed_item.feed_id'), null, true),
-			self::GUID => new DevblocksSearchField(self::GUID, 'feed_item', 'guid', $translate->_('dao.feed_item.guid'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'feed_item', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::FEED_ID => new DevblocksSearchField(self::FEED_ID, 'feed_item', 'feed_id', $translate->_('dao.feed_item.feed_id'), Model_CustomField::TYPE_NUMBER, true),
+			self::GUID => new DevblocksSearchField(self::GUID, 'feed_item', 'guid', $translate->_('dao.feed_item.guid'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::TITLE => new DevblocksSearchField(self::TITLE, 'feed_item', 'title', $translate->_('common.title'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::URL => new DevblocksSearchField(self::URL, 'feed_item', 'url', $translate->_('common.url'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::CREATED_DATE => new DevblocksSearchField(self::CREATED_DATE, 'feed_item', 'created_date', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),

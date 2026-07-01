@@ -459,13 +459,13 @@ class SearchFields_DecisionNode extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::ID => new DevblocksSearchField(self::ID, 'decision_node', 'id', $translate->_('common.id'), null, true),
-			self::PARENT_ID => new DevblocksSearchField(self::PARENT_ID, 'decision_node', 'parent_id', $translate->_('common.parent'), null, true),
-			self::TRIGGER_ID => new DevblocksSearchField(self::TRIGGER_ID, 'decision_node', 'trigger_id', $translate->_('dao.decision_node.trigger_id'), null, true),
-			self::NODE_TYPE => new DevblocksSearchField(self::NODE_TYPE, 'decision_node', 'node_type', $translate->_('dao.decision_node.node_type'), null, true),
-			self::TITLE => new DevblocksSearchField(self::TITLE, 'decision_node', 'title', $translate->_('common.title'), null, true),
-			self::STATUS_ID => new DevblocksSearchField(self::STATUS_ID, 'decision_node', 'status_id', $translate->_('common.status'), null, true),
-			self::POS => new DevblocksSearchField(self::POS, 'decision_node', 'pos', $translate->_('common.order'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'decision_node', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::PARENT_ID => new DevblocksSearchField(self::PARENT_ID, 'decision_node', 'parent_id', $translate->_('common.parent'), Model_CustomField::TYPE_NUMBER, true),
+			self::TRIGGER_ID => new DevblocksSearchField(self::TRIGGER_ID, 'decision_node', 'trigger_id', $translate->_('dao.decision_node.trigger_id'), Model_CustomField::TYPE_NUMBER, true),
+			self::NODE_TYPE => new DevblocksSearchField(self::NODE_TYPE, 'decision_node', 'node_type', $translate->_('dao.decision_node.node_type'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::TITLE => new DevblocksSearchField(self::TITLE, 'decision_node', 'title', $translate->_('common.title'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::STATUS_ID => new DevblocksSearchField(self::STATUS_ID, 'decision_node', 'status_id', $translate->_('common.status'), Model_CustomField::TYPE_NUMBER, true),
+			self::POS => new DevblocksSearchField(self::POS, 'decision_node', 'pos', $translate->_('common.order'), Model_CustomField::TYPE_NUMBER, true),
 			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'decision_node', 'params_json', $translate->_('common.params'), null, false),
 		];
 		

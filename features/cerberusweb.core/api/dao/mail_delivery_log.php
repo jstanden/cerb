@@ -524,16 +524,16 @@ class SearchFields_MailDeliveryLog extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'mail_delivery_log', 'created_at', $translate->_('common.created'), null, true),
-			self::FROM_ID => new DevblocksSearchField(self::FROM_ID, 'mail_delivery_log', 'from_id', $translate->_('message.header.from'), null, true),
-			self::HEADER_MESSAGE_ID => new DevblocksSearchField(self::HEADER_MESSAGE_ID, 'mail_delivery_log', 'header_message_id', $translate->_('dao.mail_log.header_message_id'), null, true),
-			self::ID => new DevblocksSearchField(self::ID, 'mail_delivery_log', 'id', $translate->_('common.id'), null, true),
-			self::MAIL_TRANSPORT_ID => new DevblocksSearchField(self::MAIL_TRANSPORT_ID, 'mail_delivery_log', 'mail_transport_id', $translate->_('common.email_transport'), null, true),
-			self::STATUS_ID => new DevblocksSearchField(self::STATUS_ID, 'mail_delivery_log', 'status_id', $translate->_('common.status'), null, true),
-			self::STATUS_MESSAGE => new DevblocksSearchField(self::STATUS_MESSAGE, 'mail_delivery_log', 'status_message', $translate->_('dao.mail_log.status_message'), null, true),
-			self::SUBJECT => new DevblocksSearchField(self::SUBJECT, 'mail_delivery_log', 'subject', $translate->_('message.header.subject'), null, true),
-			self::TO => new DevblocksSearchField(self::TO, 'mail_delivery_log', 'to', $translate->_('message.header.to'), null, true),
-			self::TYPE => new DevblocksSearchField(self::TYPE, 'mail_delivery_log', 'type', $translate->_('common.type'), null, true),
+			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'mail_delivery_log', 'created_at', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
+			self::FROM_ID => new DevblocksSearchField(self::FROM_ID, 'mail_delivery_log', 'from_id', $translate->_('message.header.from'), Model_CustomField::TYPE_NUMBER, true),
+			self::HEADER_MESSAGE_ID => new DevblocksSearchField(self::HEADER_MESSAGE_ID, 'mail_delivery_log', 'header_message_id', $translate->_('dao.mail_log.header_message_id'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::ID => new DevblocksSearchField(self::ID, 'mail_delivery_log', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::MAIL_TRANSPORT_ID => new DevblocksSearchField(self::MAIL_TRANSPORT_ID, 'mail_delivery_log', 'mail_transport_id', $translate->_('common.email_transport'), Model_CustomField::TYPE_NUMBER, true),
+			self::STATUS_ID => new DevblocksSearchField(self::STATUS_ID, 'mail_delivery_log', 'status_id', $translate->_('common.status'), Model_CustomField::TYPE_NUMBER, true),
+			self::STATUS_MESSAGE => new DevblocksSearchField(self::STATUS_MESSAGE, 'mail_delivery_log', 'status_message', $translate->_('dao.mail_log.status_message'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::SUBJECT => new DevblocksSearchField(self::SUBJECT, 'mail_delivery_log', 'subject', $translate->_('message.header.subject'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::TO => new DevblocksSearchField(self::TO, 'mail_delivery_log', 'to', $translate->_('message.header.to'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::TYPE => new DevblocksSearchField(self::TYPE, 'mail_delivery_log', 'type', $translate->_('common.type'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			
 			self::VIRTUAL_SENDER_SEARCH => new DevblocksSearchField(self::VIRTUAL_SENDER_SEARCH, '*', 'sender_search', null, null, false),
 			self::VIRTUAL_TRANSPORT_SEARCH => new DevblocksSearchField(self::VIRTUAL_TRANSPORT_SEARCH, '*', 'transport_search', null, null, false),

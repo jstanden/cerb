@@ -665,12 +665,12 @@ class SearchFields_Automation extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'automation', 'created_at', $translate->_('common.created'), null, true),
-			self::DESCRIPTION => new DevblocksSearchField(self::DESCRIPTION, 'automation', 'description', $translate->_('common.description'), null, true),
-			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'automation', 'extension_id', $translate->_('common.extension'), null, true),
-			self::ID => new DevblocksSearchField(self::ID, 'automation', 'id', $translate->_('common.id'), null, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'automation', 'name', $translate->_('common.name'), null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'automation', 'updated_at', $translate->_('common.updated'), null, true),
+			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'automation', 'created_at', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
+			self::DESCRIPTION => new DevblocksSearchField(self::DESCRIPTION, 'automation', 'description', $translate->_('common.description'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'automation', 'extension_id', $translate->_('common.extension'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::ID => new DevblocksSearchField(self::ID, 'automation', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'automation', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'automation', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 
 			// Virtual, display-only inline sparkline (runs + duration, loaded async); not sortable
 			self::VIRTUAL_SPARKLINE => new DevblocksSearchField(self::VIRTUAL_SPARKLINE, '*', '', 'Usage', DevblocksSearchCriteria::TYPE_VIRTUAL_SPARKLINES, false),

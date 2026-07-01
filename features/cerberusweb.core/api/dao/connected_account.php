@@ -630,14 +630,14 @@ class SearchFields_ConnectedAccount extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'connected_account', 'created_at', $translate->_('common.created'), null, true),
-			self::ID => new DevblocksSearchField(self::ID, 'connected_account', 'id', $translate->_('common.id'), null, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'connected_account', 'name', $translate->_('common.name'), null, true),
-			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'connected_account', 'owner_context', null, null, true),
-			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'connected_account', 'owner_context_id', null, null, true),
-			self::SERVICE_ID => new DevblocksSearchField(self::SERVICE_ID, 'connected_account', 'service_id', $translate->_('common.service.provider'), null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'connected_account', 'updated_at', $translate->_('common.updated'), null, true),
-			self::URI => new DevblocksSearchField(self::URI, 'connected_account', 'uri', $translate->_('common.uri'), null, true),
+			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'connected_account', 'created_at', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
+			self::ID => new DevblocksSearchField(self::ID, 'connected_account', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'connected_account', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'connected_account', 'owner_context', null, Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'connected_account', 'owner_context_id', null, Model_CustomField::TYPE_NUMBER, true),
+			self::SERVICE_ID => new DevblocksSearchField(self::SERVICE_ID, 'connected_account', 'service_id', $translate->_('common.service.provider'), Model_CustomField::TYPE_NUMBER, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'connected_account', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
+			self::URI => new DevblocksSearchField(self::URI, 'connected_account', 'uri', $translate->_('common.uri'), Model_CustomField::TYPE_SINGLE_LINE, true),
 
 			self::VIRTUAL_SERVICE_SEARCH => new DevblocksSearchField(self::VIRTUAL_SERVICE_SEARCH, '*', 'service_search', null, null, false),
 		];

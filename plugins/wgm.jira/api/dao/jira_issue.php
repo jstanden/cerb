@@ -572,14 +572,14 @@ class SearchFields_JiraIssue extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::ID => new DevblocksSearchField(self::ID, 'jira_issue', 'id', $translate->_('common.id'), null, true),
-			self::PROJECT_ID => new DevblocksSearchField(self::PROJECT_ID, 'jira_issue', 'project_id', $translate->_('dao.jira_issue.project_id'), null, true),
-			self::JIRA_ID => new DevblocksSearchField(self::JIRA_ID, 'jira_issue', 'jira_id', $translate->_('dao.jira_issue.jira_id'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'jira_issue', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::PROJECT_ID => new DevblocksSearchField(self::PROJECT_ID, 'jira_issue', 'project_id', $translate->_('dao.jira_issue.project_id'), Model_CustomField::TYPE_NUMBER, true),
+			self::JIRA_ID => new DevblocksSearchField(self::JIRA_ID, 'jira_issue', 'jira_id', $translate->_('dao.jira_issue.jira_id'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::JIRA_KEY => new DevblocksSearchField(self::JIRA_KEY, 'jira_issue', 'jira_key', $translate->_('dao.jira_issue.jira_key'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::JIRA_PROJECT_ID => new DevblocksSearchField(self::JIRA_PROJECT_ID, 'jira_issue', 'jira_project_id', null, null, true),
+			self::JIRA_PROJECT_ID => new DevblocksSearchField(self::JIRA_PROJECT_ID, 'jira_issue', 'jira_project_id', null, Model_CustomField::TYPE_NUMBER, true),
 			self::JIRA_VERSIONS => new DevblocksSearchField(self::JIRA_VERSIONS, 'jira_issue', 'jira_versions', $translate->_('dao.jira_issue.jira_versions'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::TYPE => new DevblocksSearchField(self::TYPE, 'jira_issue', 'type', $translate->_('common.type'), null, true),
-			self::STATUS => new DevblocksSearchField(self::STATUS, 'jira_issue', 'status', $translate->_('common.status'), null, true),
+			self::TYPE => new DevblocksSearchField(self::TYPE, 'jira_issue', 'type', $translate->_('common.type'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::STATUS => new DevblocksSearchField(self::STATUS, 'jira_issue', 'status', $translate->_('common.status'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::SUMMARY => new DevblocksSearchField(self::SUMMARY, 'jira_issue', 'summary', $translate->_('dao.jira_issue.summary'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::CREATED => new DevblocksSearchField(self::CREATED, 'jira_issue', 'created', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
 			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'jira_issue', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),

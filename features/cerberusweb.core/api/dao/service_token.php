@@ -434,14 +434,14 @@ class SearchFields_ServiceToken extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 
 		$columns = [
-			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'service_token', 'created_at', $translate->_('common.created'), null, true),
-			self::EXPIRES_AT => new DevblocksSearchField(self::EXPIRES_AT, 'service_token', 'expires_at', $translate->_('common.expires'), null, true),
-			self::ID => new DevblocksSearchField(self::ID, 'service_token', 'id', $translate->_('common.id'), null, true),
-			self::LAST_ACCESSED_AT => new DevblocksSearchField(self::LAST_ACCESSED_AT, 'service_token', 'last_accessed_at', $translate->_('dao.service_token.last_accessed_at'), null, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'service_token', 'name', $translate->_('common.name'), null, true),
-			self::SCOPES => new DevblocksSearchField(self::SCOPES, 'service_token', 'scopes', $translate->_('common.scopes'), null, true),
-			self::TOKEN_HINT => new DevblocksSearchField(self::TOKEN_HINT, 'service_token', 'token_hint', $translate->_('common.token'), null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'service_token', 'updated_at', $translate->_('common.updated'), null, true),
+			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'service_token', 'created_at', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
+			self::EXPIRES_AT => new DevblocksSearchField(self::EXPIRES_AT, 'service_token', 'expires_at', $translate->_('common.expires'), Model_CustomField::TYPE_DATE, true),
+			self::ID => new DevblocksSearchField(self::ID, 'service_token', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::LAST_ACCESSED_AT => new DevblocksSearchField(self::LAST_ACCESSED_AT, 'service_token', 'last_accessed_at', $translate->_('dao.service_token.last_accessed_at'), Model_CustomField::TYPE_DATE, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'service_token', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::SCOPES => new DevblocksSearchField(self::SCOPES, 'service_token', 'scopes', $translate->_('common.scopes'), Model_CustomField::TYPE_MULTI_LINE, true),
+			self::TOKEN_HINT => new DevblocksSearchField(self::TOKEN_HINT, 'service_token', 'token_hint', $translate->_('common.token'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'service_token', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 
 			// Virtual, display-only inline sparkline (uses, loaded async); not sortable
 			self::VIRTUAL_SPARKLINE => new DevblocksSearchField(self::VIRTUAL_SPARKLINE, '*', '', 'Usage', DevblocksSearchCriteria::TYPE_VIRTUAL_SPARKLINES, false),

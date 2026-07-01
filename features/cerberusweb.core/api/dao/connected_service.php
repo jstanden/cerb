@@ -488,11 +488,11 @@ class SearchFields_ConnectedService extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::ID => new DevblocksSearchField(self::ID, 'connected_service', 'id', $translate->_('common.id'), null, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'connected_service', 'name', $translate->_('common.name'), null, true),
-			self::URI => new DevblocksSearchField(self::URI, 'connected_service', 'uri', $translate->_('common.uri'), null, true),
-			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'connected_service', 'extension_id', $translate->_('common.type'), null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'connected_service', 'updated_at', $translate->_('common.updated'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'connected_service', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'connected_service', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::URI => new DevblocksSearchField(self::URI, 'connected_service', 'uri', $translate->_('common.uri'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'connected_service', 'extension_id', $translate->_('common.type'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'connected_service', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 		];
 		
 		// Virtual fields

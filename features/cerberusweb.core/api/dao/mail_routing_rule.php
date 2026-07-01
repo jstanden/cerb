@@ -501,12 +501,12 @@ class SearchFields_MailRoutingRule extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'mail_routing_rule', 'created_at', $translate->_('common.created'), null, true),
-			self::ID => new DevblocksSearchField(self::ID, 'mail_routing_rule', 'id', $translate->_('common.id'), null, true),
-			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'mail_routing_rule', 'is_disabled', $translate->_('common.disabled'), null, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'mail_routing_rule', 'name', $translate->_('common.name'), null, true),
-			self::PRIORITY => new DevblocksSearchField(self::PRIORITY, 'mail_routing_rule', 'priority', $translate->_('common.priority'), null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'mail_routing_rule', 'updated_at', $translate->_('common.updated'), null, true),
+			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'mail_routing_rule', 'created_at', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
+			self::ID => new DevblocksSearchField(self::ID, 'mail_routing_rule', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'mail_routing_rule', 'is_disabled', $translate->_('common.disabled'), Model_CustomField::TYPE_CHECKBOX, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'mail_routing_rule', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::PRIORITY => new DevblocksSearchField(self::PRIORITY, 'mail_routing_rule', 'priority', $translate->_('common.priority'), Model_CustomField::TYPE_NUMBER, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'mail_routing_rule', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 
 			// Virtual, display-only inline sparkline (matches, loaded async); not sortable
 			self::VIRTUAL_SPARKLINE => new DevblocksSearchField(self::VIRTUAL_SPARKLINE, '*', '', 'Usage', DevblocksSearchCriteria::TYPE_VIRTUAL_SPARKLINES, false),

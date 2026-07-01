@@ -567,15 +567,15 @@ class SearchFields_ProfileWidget extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'profile_widget', 'extension_id', $translate->_('common.type'), null, true),
+			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'profile_widget', 'extension_id', $translate->_('common.type'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::EXTENSION_PARAMS_JSON => new DevblocksSearchField(self::EXTENSION_PARAMS_JSON, 'profile_widget', 'extension_params_json', null, null, true),
-			self::ID => new DevblocksSearchField(self::ID, 'profile_widget', 'id', $translate->_('common.id'), null, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'profile_widget', 'name', $translate->_('common.name'), null, true),
-			self::POS => new DevblocksSearchField(self::POS, 'profile_widget', 'pos', $translate->_('common.order'), null, true),
-			self::PROFILE_TAB_ID => new DevblocksSearchField(self::PROFILE_TAB_ID, 'profile_widget', 'profile_tab_id', $translate->_('common.tab'), null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'profile_widget', 'updated_at', $translate->_('common.updated'), null, true),
-			self::WIDTH_UNITS => new DevblocksSearchField(self::WIDTH_UNITS, 'profile_widget', 'width_units', $translate->_('Width Units'), null, true),
-			self::ZONE => new DevblocksSearchField(self::ZONE, 'profile_widget', 'zone', $translate->_('common.zone'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'profile_widget', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'profile_widget', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::POS => new DevblocksSearchField(self::POS, 'profile_widget', 'pos', $translate->_('common.order'), Model_CustomField::TYPE_NUMBER, true),
+			self::PROFILE_TAB_ID => new DevblocksSearchField(self::PROFILE_TAB_ID, 'profile_widget', 'profile_tab_id', $translate->_('common.tab'), Model_CustomField::TYPE_NUMBER, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'profile_widget', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
+			self::WIDTH_UNITS => new DevblocksSearchField(self::WIDTH_UNITS, 'profile_widget', 'width_units', $translate->_('Width Units'), Model_CustomField::TYPE_NUMBER, true),
+			self::ZONE => new DevblocksSearchField(self::ZONE, 'profile_widget', 'zone', $translate->_('common.zone'), Model_CustomField::TYPE_SINGLE_LINE, true),
 
 			self::VIRTUAL_TAB_SEARCH => new DevblocksSearchField(self::VIRTUAL_TAB_SEARCH, '*', 'tab_search', null, null, false),
 		];

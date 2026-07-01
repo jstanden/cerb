@@ -510,20 +510,20 @@ class SearchFields_Metric extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'metric', 'created_at', $translate->_('common.created'), null, true),
-			self::DESCRIPTION => new DevblocksSearchField(self::DESCRIPTION, 'metric', 'description', $translate->_('common.description'), null, true),
-			self::DIMENSIONS_KATA => new DevblocksSearchField(self::DIMENSIONS_KATA, 'metric', 'dimensions_kata', $translate->_('dao.metric.dimensions'), null, true),
-			self::ID => new DevblocksSearchField(self::ID, 'metric', 'id', $translate->_('common.id'), null, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'metric', 'name', $translate->_('common.name'), null, true),
-			self::RETENTION_DAYS => new DevblocksSearchField(self::RETENTION_DAYS, 'metric', 'retention_days', $translate->_('common.retention'), null, true),
-			self::TYPE => new DevblocksSearchField(self::TYPE, 'metric', 'type', $translate->_('common.type'), null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'metric', 'updated_at', $translate->_('common.updated'), null, true),
+			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'metric', 'created_at', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
+			self::DESCRIPTION => new DevblocksSearchField(self::DESCRIPTION, 'metric', 'description', $translate->_('common.description'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::DIMENSIONS_KATA => new DevblocksSearchField(self::DIMENSIONS_KATA, 'metric', 'dimensions_kata', $translate->_('dao.metric.dimensions'), Model_CustomField::TYPE_MULTI_LINE, true),
+			self::ID => new DevblocksSearchField(self::ID, 'metric', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'metric', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::RETENTION_DAYS => new DevblocksSearchField(self::RETENTION_DAYS, 'metric', 'retention_days', $translate->_('common.retention'), Model_CustomField::TYPE_NUMBER, true),
+			self::TYPE => new DevblocksSearchField(self::TYPE, 'metric', 'type', $translate->_('common.type'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'metric', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 
 			// Virtual, display-only column rendered as an inline sparkline (loaded async); not sortable.
 			// Window (24h/7d/30d) is chosen from a switcher in the column header.
 			self::VIRTUAL_SPARKLINE => new DevblocksSearchField(self::VIRTUAL_SPARKLINE, '*', '', 'Dataset', DevblocksSearchCriteria::TYPE_VIRTUAL_SPARKLINES, false),
 		];
-		
+
 		// Virtual fields
 		if(($virtual_columns = DevblocksSearchField::getVirtualFields()))
 			$columns = array_merge($columns, $virtual_columns);

@@ -454,12 +454,12 @@ class SearchFields_Toolbar extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::ID => new DevblocksSearchField(self::ID, 'toolbar', 'id', $translate->_('common.id'), null, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'toolbar', 'name', $translate->_('common.name'), null, true),
-			self::DESCRIPTION => new DevblocksSearchField(self::DESCRIPTION, 'toolbar', 'description', $translate->_('common.description'), null, true),
-			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'toolbar', 'extension_id', $translate->_('common.extension'), null, true),
-			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'toolbar', 'created_at', $translate->_('common.created'), null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'toolbar', 'updated_at', $translate->_('common.updated'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'toolbar', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'toolbar', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::DESCRIPTION => new DevblocksSearchField(self::DESCRIPTION, 'toolbar', 'description', $translate->_('common.description'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'toolbar', 'extension_id', $translate->_('common.extension'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'toolbar', 'created_at', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'toolbar', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 		];
 		
 		// Virtual fields

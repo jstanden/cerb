@@ -535,12 +535,12 @@ class SearchFields_CommunityTool extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::ID => new DevblocksSearchField(self::ID, 'community_tool', 'id', $translate->_('common.id'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'community_tool', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'community_tool', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::CODE => new DevblocksSearchField(self::CODE, 'community_tool', 'code', $translate->_('community_portal.code'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'community_tool', 'extension_id', $translate->_('common.extension'), null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'community_tool', 'updated_at', $translate->_('common.updated'), null, true),
-			self::URI => new DevblocksSearchField(self::URI, 'community_tool', 'uri', $translate->_('common.path'), null, true),
+			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'community_tool', 'extension_id', $translate->_('common.extension'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'community_tool', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
+			self::URI => new DevblocksSearchField(self::URI, 'community_tool', 'uri', $translate->_('common.path'), Model_CustomField::TYPE_SINGLE_LINE, true),
 		];
 		
 		// Virtual fields

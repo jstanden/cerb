@@ -458,12 +458,12 @@ class SearchFields_ClassifierClass extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::ID => new DevblocksSearchField(self::ID, 'classifier_class', 'id', $translate->_('common.id'), null, true),
-			self::CLASSIFIER_ID => new DevblocksSearchField(self::CLASSIFIER_ID, 'classifier_class', 'classifier_id', $translate->_('common.classifier'), null, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'classifier_class', 'name', $translate->_('common.name'), null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'classifier_class', 'updated_at', $translate->_('common.updated'), null, true),
-			self::DICTIONARY_SIZE => new DevblocksSearchField(self::DICTIONARY_SIZE, 'classifier_class', 'dictionary_size', $translate->_('dao.classifier.dictionary_size'), null, true),
-			self::TRAINING_COUNT => new DevblocksSearchField(self::TRAINING_COUNT, 'classifier_class', 'training_count', $translate->_('common.examples'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'classifier_class', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::CLASSIFIER_ID => new DevblocksSearchField(self::CLASSIFIER_ID, 'classifier_class', 'classifier_id', $translate->_('common.classifier'), Model_CustomField::TYPE_NUMBER, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'classifier_class', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'classifier_class', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
+			self::DICTIONARY_SIZE => new DevblocksSearchField(self::DICTIONARY_SIZE, 'classifier_class', 'dictionary_size', $translate->_('dao.classifier.dictionary_size'), Model_CustomField::TYPE_NUMBER, true),
+			self::TRAINING_COUNT => new DevblocksSearchField(self::TRAINING_COUNT, 'classifier_class', 'training_count', $translate->_('common.examples'), Model_CustomField::TYPE_NUMBER, true),
 
 			self::VIRTUAL_CLASSIFIER_SEARCH => new DevblocksSearchField(self::VIRTUAL_CLASSIFIER_SEARCH, '*', 'classifier_search', null, null, false),
 		];

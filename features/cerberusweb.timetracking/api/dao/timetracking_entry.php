@@ -645,12 +645,12 @@ class SearchFields_TimeTrackingEntry extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::ID => new DevblocksSearchField(self::ID, 'timetracking_entry', 'id', $translate->_('common.id'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'timetracking_entry', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
 			self::TIME_ACTUAL_MINS => new DevblocksSearchField(self::TIME_ACTUAL_MINS, 'timetracking_entry', 'time_actual_mins', $translate->_('timetracking.ui.entry_panel.time_spent'), Model_CustomField::TYPE_NUMBER, true),
 			self::TIME_ACTUAL_SECS => new DevblocksSearchField(self::TIME_ACTUAL_SECS, 'timetracking_entry', 'time_actual_secs', $translate->_('timetracking.ui.entry_panel.time_spent'), Model_CustomField::TYPE_NUMBER, true),
 			self::LOG_DATE => new DevblocksSearchField(self::LOG_DATE, 'timetracking_entry', 'log_date', $translate->_('timetracking_entry.log_date'), Model_CustomField::TYPE_DATE, true),
 			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'timetracking_entry', 'worker_id', $translate->_('timetracking_entry.worker_id'), Model_CustomField::TYPE_WORKER, true),
-			self::ACTIVITY_ID => new DevblocksSearchField(self::ACTIVITY_ID, 'timetracking_entry', 'activity_id', $translate->_('timetracking_entry.activity_id'), null, true),
+			self::ACTIVITY_ID => new DevblocksSearchField(self::ACTIVITY_ID, 'timetracking_entry', 'activity_id', $translate->_('timetracking_entry.activity_id'), Model_CustomField::TYPE_NUMBER, true),
 			self::IS_CLOSED => new DevblocksSearchField(self::IS_CLOSED, 'timetracking_entry', 'is_closed', $translate->_('common.is_closed'), Model_CustomField::TYPE_CHECKBOX, true),
 
 			self::VIRTUAL_WORKER_SEARCH => new DevblocksSearchField(self::VIRTUAL_WORKER_SEARCH, '*', 'worker_search', null, null, false),

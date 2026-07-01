@@ -1046,7 +1046,7 @@ class SearchFields_Address extends DevblocksSearchFields {
 			self::ID => new DevblocksSearchField(self::ID, 'address', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
 			self::EMAIL => new DevblocksSearchField(self::EMAIL, 'address', 'email', $translate->_('common.email'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::HOST => new DevblocksSearchField(self::HOST, 'address', 'host', $translate->_('common.host'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::CONTACT_ID => new DevblocksSearchField(self::CONTACT_ID, 'address', 'contact_id', $translate->_('common.contact'), null, true),
+			self::CONTACT_ID => new DevblocksSearchField(self::CONTACT_ID, 'address', 'contact_id', $translate->_('common.contact'), Model_CustomField::TYPE_NUMBER, true),
 			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'address', 'created_at', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
 			self::MAIL_TRANSPORT_ID => new DevblocksSearchField(self::MAIL_TRANSPORT_ID, 'address', 'mail_transport_id', $translate->_('common.email_transport'), Model_CustomField::TYPE_NUMBER, true),
 			self::NUM_SPAM => new DevblocksSearchField(self::NUM_SPAM, 'address', 'num_spam', $translate->_('address.num_spam'), Model_CustomField::TYPE_NUMBER, true),

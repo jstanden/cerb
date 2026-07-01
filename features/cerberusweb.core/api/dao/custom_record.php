@@ -501,12 +501,12 @@ class SearchFields_CustomRecord extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::ID => new DevblocksSearchField(self::ID, 'custom_record', 'id', $translate->_('common.id'), null, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'custom_record', 'name', $translate->_('common.name'), null, true),
-			self::NAME_PLURAL => new DevblocksSearchField(self::NAME_PLURAL, 'custom_record', 'name_plural', $translate->_('common.plural'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'custom_record', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'custom_record', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::NAME_PLURAL => new DevblocksSearchField(self::NAME_PLURAL, 'custom_record', 'name_plural', $translate->_('common.plural'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'custom_record', 'params_json', null, null, false),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'custom_record', 'updated_at', $translate->_('common.updated'), null, true),
-			self::URI => new DevblocksSearchField(self::URI, 'custom_record', 'uri', $translate->_('common.uri'), null, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'custom_record', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
+			self::URI => new DevblocksSearchField(self::URI, 'custom_record', 'uri', $translate->_('common.uri'), Model_CustomField::TYPE_SINGLE_LINE, true),
 		];
 		
 		// Virtual fields

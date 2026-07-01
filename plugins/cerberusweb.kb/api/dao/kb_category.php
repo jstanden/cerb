@@ -651,10 +651,10 @@ class SearchFields_KbCategory extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::ID => new DevblocksSearchField(self::ID, 'kb_category', 'id', $translate->_('common.id'), null, true),
-			self::PARENT_ID => new DevblocksSearchField(self::PARENT_ID, 'kb_category', 'parent_id', $translate->_('common.parent'), null, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'kb_category', 'name', $translate->_('common.name'), null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'kb_category', 'updated_at', $translate->_('common.updated'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'kb_category', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::PARENT_ID => new DevblocksSearchField(self::PARENT_ID, 'kb_category', 'parent_id', $translate->_('common.parent'), Model_CustomField::TYPE_NUMBER, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'kb_category', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'kb_category', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			
 			self::ARTICLE_ID => new DevblocksSearchField(self::ARTICLE_ID, 'katc', 'kb_article_id', DevblocksPlatform::translateCapitalized('kb.common.knowledgebase_article'), Model_CustomField::TYPE_NUMBER, true),
 		];

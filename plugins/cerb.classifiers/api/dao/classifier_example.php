@@ -473,11 +473,11 @@ class SearchFields_ClassifierExample extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::ID => new DevblocksSearchField(self::ID, 'classifier_example', 'id', $translate->_('common.id'), null, true),
-			self::CLASSIFIER_ID => new DevblocksSearchField(self::CLASSIFIER_ID, 'classifier_example', 'classifier_id', $translate->_('common.classifier'), null, true),
-			self::CLASS_ID => new DevblocksSearchField(self::CLASS_ID, 'classifier_example', 'class_id', $translate->_('common.classifier.classification'), null, true),
-			self::EXPRESSION => new DevblocksSearchField(self::EXPRESSION, 'classifier_example', 'expression', $translate->_('dao.classifier_example.expression'), null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'classifier_example', 'updated_at', $translate->_('common.updated'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'classifier_example', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::CLASSIFIER_ID => new DevblocksSearchField(self::CLASSIFIER_ID, 'classifier_example', 'classifier_id', $translate->_('common.classifier'), Model_CustomField::TYPE_NUMBER, true),
+			self::CLASS_ID => new DevblocksSearchField(self::CLASS_ID, 'classifier_example', 'class_id', $translate->_('common.classifier.classification'), Model_CustomField::TYPE_NUMBER, true),
+			self::EXPRESSION => new DevblocksSearchField(self::EXPRESSION, 'classifier_example', 'expression', $translate->_('dao.classifier_example.expression'), Model_CustomField::TYPE_MULTI_LINE, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'classifier_example', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 				
 			self::VIRTUAL_CLASSIFIER_SEARCH => new DevblocksSearchField(self::VIRTUAL_CLASSIFIER_SEARCH, '*', 'classifier_search', null, null, false),
 			self::VIRTUAL_CLASSIFIER_CLASS_SEARCH => new DevblocksSearchField(self::VIRTUAL_CLASSIFIER_CLASS_SEARCH, '*', 'classifier_class_search', null, null, false),

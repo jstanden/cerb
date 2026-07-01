@@ -657,15 +657,15 @@ class SearchFields_KbArticle extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
-			self::ID => new DevblocksSearchField(self::ID, 'kb_article', 'id', $translate->_('kb_article.id'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'kb_article', 'id', $translate->_('kb_article.id'), Model_CustomField::TYPE_NUMBER, true),
 			self::TITLE => new DevblocksSearchField(self::TITLE, 'kb_article', 'title', $translate->_('kb_article.title'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'kb_article', 'updated', $translate->_('kb_article.updated'), Model_CustomField::TYPE_DATE, true),
 			self::VIEWS => new DevblocksSearchField(self::VIEWS, 'kb_article', 'views', $translate->_('kb_article.views'), Model_CustomField::TYPE_NUMBER, true),
-			self::FORMAT => new DevblocksSearchField(self::FORMAT, 'kb_article', 'format', $translate->_('kb_article.format'), null, true),
-			self::CONTENT => new DevblocksSearchField(self::CONTENT, 'kb_article', 'content', $translate->_('kb_article.content'), null, true),
+			self::FORMAT => new DevblocksSearchField(self::FORMAT, 'kb_article', 'format', $translate->_('kb_article.format'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::CONTENT => new DevblocksSearchField(self::CONTENT, 'kb_article', 'content', $translate->_('kb_article.content'), Model_CustomField::TYPE_MULTI_LINE, true),
 			
 			self::CATEGORY_ID => new DevblocksSearchField(self::CATEGORY_ID, 'katc', 'kb_category_id', DevblocksPlatform::translateCapitalized('common.category'), Model_CustomField::TYPE_NUMBER, true),
-			self::TOP_CATEGORY_ID => new DevblocksSearchField(self::TOP_CATEGORY_ID, 'katc', 'kb_top_category_id', $translate->_('kb_article.topic'), null, true),
+			self::TOP_CATEGORY_ID => new DevblocksSearchField(self::TOP_CATEGORY_ID, 'katc', 'kb_top_category_id', $translate->_('kb_article.topic'), Model_CustomField::TYPE_NUMBER, true),
 		];
 
 		// Virtual fields

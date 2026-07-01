@@ -680,18 +680,18 @@ class SearchFields_QueueJob extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 
 		$columns = [
-			self::COUNT_TOTAL => new DevblocksSearchField(self::COUNT_TOTAL, 'queue_job', 'count_total', $translate->_('dao.queue_job.count_total'), null, true),
-			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'queue_job', 'created_at', $translate->_('common.created'), null, true),
-			self::ID => new DevblocksSearchField(self::ID, 'queue_job', 'id', $translate->_('common.id'), null, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'queue_job', 'name', $translate->_('common.name'), null, true),
-			self::QUEUE_ID => new DevblocksSearchField(self::QUEUE_ID, 'queue_job', 'queue_id', $translate->_('dao.queue_job.queue_id'), null, true),
-			self::SINGLETON_KEY => new DevblocksSearchField(self::SINGLETON_KEY, 'queue_job', 'singleton_key', $translate->_('dao.queue_job.singleton_key'), null, true),
-			self::STATUS_ID => new DevblocksSearchField(self::STATUS_ID, 'queue_job', 'status_id', $translate->_('common.status'), null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'queue_job', 'updated_at', $translate->_('common.updated'), null, true),
+			self::COUNT_TOTAL => new DevblocksSearchField(self::COUNT_TOTAL, 'queue_job', 'count_total', $translate->_('dao.queue_job.count_total'), Model_CustomField::TYPE_NUMBER, true),
+			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'queue_job', 'created_at', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
+			self::ID => new DevblocksSearchField(self::ID, 'queue_job', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'queue_job', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::QUEUE_ID => new DevblocksSearchField(self::QUEUE_ID, 'queue_job', 'queue_id', $translate->_('dao.queue_job.queue_id'), Model_CustomField::TYPE_NUMBER, true),
+			self::SINGLETON_KEY => new DevblocksSearchField(self::SINGLETON_KEY, 'queue_job', 'singleton_key', $translate->_('dao.queue_job.singleton_key'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::STATUS_ID => new DevblocksSearchField(self::STATUS_ID, 'queue_job', 'status_id', $translate->_('common.status'), Model_CustomField::TYPE_NUMBER, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'queue_job', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			self::VIRTUAL_QUEUE_SEARCH => new DevblocksSearchField(self::VIRTUAL_QUEUE_SEARCH, '*', 'queue_search', null, null, false),
 			self::VIRTUAL_STATUS => new DevblocksSearchField(self::VIRTUAL_STATUS, '*', 'status', $translate->_('common.status'), null, false),
 			self::VIRTUAL_WORKER_SEARCH => new DevblocksSearchField(self::VIRTUAL_WORKER_SEARCH, '*', 'worker_search', null, null, false),
-			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'queue_job', 'worker_id', $translate->_('common.worker'), null, true),
+			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'queue_job', 'worker_id', $translate->_('common.worker'), Model_CustomField::TYPE_WORKER, true),
 		];
 
 		if(($virtual_columns = DevblocksSearchField::getVirtualFields()))
