@@ -11,71 +11,63 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<table cellspacing="0" cellpadding="2" border="0" width="98%" style="margin-bottom:10px;">
-	<tr>
-		<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate}:</b></td>
-		<td width="99%">
-			<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
-		</td>
-	</tr>
-	
-	{if !empty($custom_fields)}
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
-	{/if}
-</table>
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'common.name'|devblocks_translate|capitalize}</label>
+			<input type="text" name="name" value="{$model->name}" autofocus="autofocus">
+		</div>
+	</div>
+</div>
+
+{if !empty($custom_fields)}
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-form">
+		{include file="devblocks:cerberusweb.core::internal/custom_fields/form.tpl" custom_fields=$custom_fields}
+	</div>
+</div>
+{/if}
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
-<fieldset>
-	<legend>Event: Respond to webhook (KATA)</legend>
-	<div class="cerb-code-editor-toolbar">
-		{$toolbar_dict = DevblocksDictionaryDelegate::instance([
-		'caller_name' => 'cerb.toolbar.eventHandlers.editor',
-		
-		'webhook__context' => $peek_context,
-		'webhook_id' => $peek_context_id
-		])}
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">Event: Respond to webhook (KATA)</div>
+	</div>
+	{$toolbar_dict = DevblocksDictionaryDelegate::instance([
+	'caller_name' => 'cerb.toolbar.eventHandlers.editor',
 
-		{$toolbar_kata =
+	'webhook__context' => $peek_context,
+	'webhook_id' => $peek_context_id
+	])}
+
+	{$toolbar_kata =
 "interaction/automation:
   uri: ai.cerb.eventHandler.automation
   tooltip: Automation
   icon: circle-plus
 "}
 
-		{$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
+	{$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
 
-		{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
+	{* The editor toolbar is the KataEditor's integrated strip below; these hidden <ul>s are its host sections. *}
+	<div data-cerb-interaction-toolbar hidden>{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}</div>
+	{include file="devblocks:cerberusweb.core::automations/triggers/editor_event_handler_toolbar.tpl"}
 
-		<div class="cerb-code-editor-toolbar-divider"></div>
-		{include file="devblocks:cerberusweb.core::automations/triggers/editor_event_handler_buttons.tpl"}
-	</div>
-	
-	<textarea name="automations_kata" data-editor-mode="ace/mode/cerb_kata">{$model->automations_kata}</textarea>
+	<textarea name="automations_kata" data-editor-lines="15" spellcheck="false">{$model->automations_kata}</textarea>
 
 	{if $trigger_ext}
 		{include file="devblocks:cerberusweb.core::automations/triggers/editor_event_handler.tpl" trigger_inputs=$trigger_ext->getEventPlaceholders()}
 	{/if}
-</fieldset>
+</div>
 
 {if !empty($model->id)}
-<fieldset style="display:none;" class="delete">
-	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
-	
-	<div>
-		Are you sure you want to permanently delete this webhook listener?
-	</div>
-	
-	<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
-	<button type="button" class="delete-cancel">{'common.no'|devblocks_translate|capitalize}</button>
-</fieldset>
+	{include file="devblocks:cerberusweb.core::internal/peek/delete_confirm.tpl" noun="webhook listener"}
 {/if}
 
-<div class="status"></div>
-
-<div class="buttons">
-	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+<div class="buttons" style="margin-top:10px;">
+	<button type="button" class="cerb-ui-button save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="cerb-ui-button cerb-ui-button--subtle delete-prompt"><span class="cerb-icons cerb-icon-trash"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>
@@ -92,71 +84,53 @@ $(function() {
 		$popup.css('overflow', 'inherit');
 
 		// Buttons
-		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
+		$popup.find('button.save').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-		$popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
-		$popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
 
-		// Editors
-		var $automation_editor = $popup.find('textarea[name=automations_kata]')
-			.cerbCodeEditor()
-			.cerbCodeEditorAutocompleteKata({
-				autocomplete_suggestions: cerbAutocompleteSuggestions.kataAutomationEvent
-			})
-			.nextAll('pre.ace_editor')
-		;
+		// Inline delete confirm (cerb-ui-panel--alert); the actual delete stays on button.delete above.
+		if(window.CerbUI && CerbUI.Form)
+			CerbUI.Form.ConfirmDelete($popup[0]);
 
-		var automation_editor = ace.edit($automation_editor.attr('id'));
-
-		// Toolbars
-		var $toolbar = $popup.find('.cerb-code-editor-toolbar').cerbToolbar({
-			caller: {
-				name: 'cerb.toolbar.eventHandlers.editor',
-				params: {
-					selected_text: ''
-				}
-			},
-			width: '75%',
-			start: function(formData) {
-				var pos = automation_editor.getCursorPosition();
-				var token_path = Devblocks.cerbCodeEditor.getKataTokenPath(pos, automation_editor).join('');
-
-				formData.set('caller[params][selected_text]', automation_editor.getSelectedText());
-				formData.set('caller[params][token_path]', token_path);
-				formData.set('caller[params][cursor_row]', pos.row);
-				formData.set('caller[params][cursor_column]', pos.column);
-				formData.set('caller[params][trigger]', 'cerb.trigger.webhook.respond');
-				formData.set('caller[params][value]', automation_editor.getValue());
-			},
-			done: function(e) {
-				e.stopPropagation();
-
-				var $target = e.trigger;
-
-				if(!$target.is('.cerb-bot-trigger'))
-					return;
-
-				if (e.eventData.exit === 'error') {
-
-				} else if(e.eventData.exit === 'return') {
-					Devblocks.interactionWorkerPostActions(e.eventData, automation_editor);
+		// Editor — KataEditor with integrated event-handler toolbar (Automation + Placeholders/Test toggles)
+		let automation_editor = new CerbUI.KataEditor($popup.find('textarea[name=automations_kata]')[0], {
+			onAutocomplete: CerbUI.KataEditor.kataFieldSource(CerbUI.editorCore.autocompleteSchemas.kataAutomationEvent),
+			toolbar: {
+				sections: [
+					$popup.find('[data-cerb-interaction-toolbar] ul.cerb-ui-toolbar')[0],
+					$popup.find('[data-cerb-event-toolbar]')[0]
+				],
+				toolbarOpts: {
+					caller: { name: 'cerb.toolbar.eventHandlers.editor', params: { selected_text: '' } },
+					width: '75%',
+					start: function(formData) {
+						let pos = automation_editor.getCursorPosition();
+						formData.set('caller[params][selected_text]', automation_editor.getSelectedText());
+						formData.set('caller[params][token_path]', automation_editor.getTokenPath().join(''));
+						formData.set('caller[params][cursor_row]', pos.row);
+						formData.set('caller[params][cursor_column]', pos.column);
+						formData.set('caller[params][trigger]', 'cerb.trigger.webhook.respond');
+						formData.set('caller[params][value]', automation_editor.getValue());
+					},
+					done: function(e) {
+						e.stopPropagation();
+						if(!e.trigger.is('.cerb-bot-trigger'))
+							return;
+						if(e.eventData.exit === 'return')
+							Devblocks.interactionWorkerPostActions(e.eventData, automation_editor);
+					}
+				},
+				onAction: function(value, ed, item) {
+					if(value === 'placeholders') { $popup.find('[data-cerb-event-placeholders]').toggle(!!(item && item.pressed)); return true; }
+					if(value === 'tester')       { $popup.find('[data-cerb-event-tester]').toggle(!!(item && item.pressed)); return true; }
+					return false;
 				}
 			}
 		});
-		
-		$toolbar.cerbCodeEditorToolbarEventHandler({
-			editor: automation_editor
-		});
 
-		// Webhook listener engine fieldsets
-		
-		var $fieldsets = $popup.find('fieldset');
-		
-		$popup.find('fieldset legend input:radio').on('click', function() {
-			$fieldsets.find('> div').hide();
-			$(this).closest('fieldset').find('> div').fadeIn();
-		});
-		
+		// Tester panel ("Test" → placeholders KataEditor + ▶ Run). The editor lives in a cerb-ui-panel, so the
+		// legacy $.fn.cerbCodeEditorToolbarEventHandler (closest('fieldset')) no longer applies — this is the
+		// shared replacement. Show-hide toggles are driven by the editor toolbar onAction above.
+		CerbUI.editorCore.attachEventHandlerTester($popup, automation_editor);
 	});
 });
 </script>
