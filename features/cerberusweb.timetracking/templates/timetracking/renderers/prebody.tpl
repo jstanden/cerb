@@ -205,7 +205,7 @@ var timeTrackingTimerClass = function() {
 		genericAjaxPost(formData, '', '', function(json) {
 			if(json.hasOwnProperty('status') && json.hasOwnProperty('id') && json.hasOwnProperty('total_secs') && json.status) {
 				var $popup = genericAjaxPopup('peek','c=internal&a=invoke&module=records&action=showPeekPopup&context={CerberusContexts::CONTEXT_TIMETRACKING}&context_id=' + parseInt(json.id) + '&secs=' + scope.counter + '&edit=true',null,false,'50%');
-				$popup.one('dialogclose', function() {
+				$popup.one('popup_close', function() {
 					$playBtn.show();
 					$stopBtn.show();
 				});
