@@ -1228,6 +1228,96 @@ CerbUI.editorCore.attachToolbar = function(editor, opts, defaults) {
 };
 
 /*
+ * CerbUI.editorCore.attachEventHandlerTester — wire the shared automation event-handler "Test" panel to a
+ * main KataEditor. The panel markup lives in automations/triggers/editor_event_handler.tpl
+ * (`[data-cerb-event-tester]` with a nested placeholders <textarea> + a ▶ Run button + a results slot).
+ * This initializes the placeholders KataEditor and binds Run to POST automation_event/tester, rendering the
+ * matched handlers as clickable bubbles that jump to their line in the main editor.
+ *
+ * Replaces the legacy `$.fn.cerbCodeEditorToolbarEventHandler` for cerb-ui peeks: that helper located the
+ * panel via `closest('fieldset')`, but a converted editor lives in a `cerb-ui-panel`, not a `<fieldset>`, so
+ * the lookup no longer resolves. Here the caller passes the scope to search (typically `$popup`) explicitly.
+ * The placeholders/tester show-hide toggles are driven by the editor toolbar's `onAction`, not this helper.
+ *
+ * @param {Element|jQuery} scope   container searched for `[data-cerb-event-tester]` (e.g. the popup)
+ * @param {Object} mainEditor      the main CerbUI.KataEditor whose value is tested + line-jumped
+ * @returns {Object|null}          the placeholders KataEditor, or null when no tester panel is present
+ */
+CerbUI.editorCore.attachEventHandlerTester = function(scope, mainEditor) {
+	const $tester = ((scope instanceof jQuery) ? scope : $(scope)).find('[data-cerb-event-tester]');
+
+	if(!$tester.length || !mainEditor)
+		return null;
+
+	const $textarea = $tester.find('textarea');
+	const tester_editor = ($textarea.length && window.CerbUI && CerbUI.KataEditor)
+		? new CerbUI.KataEditor($textarea[0])
+		: null;
+
+	$tester.find('.cerb-code-editor-toolbar-button--run').on('click', function() {
+		const formData = new FormData();
+		formData.set('c', 'profiles');
+		formData.set('a', 'invoke');
+		formData.set('module', 'automation_event');
+		formData.set('action', 'tester');
+		formData.set('automations_kata', mainEditor.getValue());
+		formData.set('placeholders_kata', tester_editor ? tester_editor.getValue() : '');
+
+		const $results = $tester.find('[data-cerb-event-tester-results]').empty();
+
+		genericAjaxPost(formData, null, null, function(json) {
+			if('object' !== typeof json)
+				return;
+
+			if(json.hasOwnProperty('error') && json.error) {
+				$results.append($('<div/>').addClass('cerb-ui-panel cerb-ui-panel--alert').text(json.error));
+				return;
+			}
+
+			if(!Array.isArray(json))
+				return;
+
+			const $container = $('<div/>').addClass('bubbles');
+
+			json.forEach(function(handler) {
+				$('<div/>')
+					.addClass('bubble')
+					.css({ 'font-weight': 'bold', 'margin': '0 5px 5px 0', 'cursor': 'pointer' })
+					.attr('data-line', handler.hasOwnProperty('kata') && handler.kata.line ? handler.kata.line : null)
+					.text(handler.id)
+					.on('click', function() {
+						const line = $(this).attr('data-line');
+
+						if(!line)
+							return;
+
+						// Jump to the handler's definition in the main editor
+						mainEditor.gotoLine(line, 0, true);
+						mainEditor.focus();
+					})
+					.appendTo($container)
+				;
+			});
+
+			const $close_button = $('<span/>')
+				.addClass('cerb-icons cerb-icon-circle-remove')
+				.css({ 'position': 'absolute', 'top': '0', 'right': '0', 'cursor': 'pointer', 'font-size': '16px' })
+				.on('click', function() { $results.empty(); })
+			;
+
+			const $fieldset = $('<fieldset/>').addClass('black');
+			$fieldset.append($('<legend/>').text('Results'));
+			$fieldset.append($container);
+
+			$results.append($fieldset);
+			$results.append($close_button);
+		});
+	});
+
+	return tester_editor;
+};
+
+/*
  * ── Find/Replace (Ctrl/Cmd+F) — one shared controller + a thin per-editor adapter ──────────────────────────
  *
  * editor-core loads before every editor in the bundle, so FindController is visible to all of them. The
