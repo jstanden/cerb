@@ -70,8 +70,7 @@
 		<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.watchers'|devblocks_translate|capitalize|capitalize}: </td>
 		<td width="100%">
 			{if empty($model->id)}
-				<button type="button" class="chooser_watcher"><span class="cerb-icons cerb-icon-search"></span></button>
-				<ul class="chooser-container bubbles" style="display:block;"></ul>
+				<div class="cerb-ui-record-chooser cerb-jira-watchers-chooser"></div>
 			{else}
 				{$object_watchers = DAO_ContextLink::getContextLinks(Context_JiraIssue::ID, array($model->id), CerberusContexts::CONTEXT_WORKER)}
 				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=Context_JiraIssue::ID context_id=$model->id full_label=true}
@@ -136,9 +135,10 @@ $(function() {
 		$popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
 		$popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
 
-		$popup.find('button.chooser_watcher').each(function() {
-			ajax.chooser(this,'cerberusweb.contexts.worker','add_watcher_ids', { autocomplete:true });
-		});
+		if(window.CerbUI && CerbUI.RecordChooser)
+			$popup.find('.cerb-jira-watchers-chooser').each(function() {
+				new CerbUI.RecordChooser(this, { context: 'worker', name: 'add_watcher_ids', multiple: true, emptyIcon: 'user' });
+			});
 
 		$popup.find('input:text:first').focus();
 	});

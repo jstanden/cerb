@@ -1,14 +1,10 @@
 <b>{'common.connected_account'|devblocks_translate|capitalize}:</b>
 <div style="margin-left:10px;margin-bottom:10px;">
-	<button type="button" class="chooser-abstract" data-field-name="{$namePrefix}[connected_account_id]" data-context="{CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}" data-single="true" data-query="service:jira"><span class="cerb-icons cerb-icon-search"></span></button>
-	<ul class="bubbles chooser-container">
+	<div class="cerb-ui-record-chooser" id="{$namePrefix}_account_chooser">
 		{if $connected_account}
-		<li>
-			<input type="hidden" name="{$namePrefix}[connected_account_id]" value="{$connected_account->id}">
-			<a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}" data-context-id="{$connected_account->id}">{$connected_account->name}</a>
-		</li>
+			<li data-context-id="{$connected_account->id}" data-label="{$connected_account->name}"></li>
 		{/if}
-	</ul>
+	</div>
 </div>
 
 <b>API Path:</b>
@@ -50,13 +46,11 @@ $(function() {
 		.cerbPeekTrigger()
 		;
 
-	$action.find('.chooser-abstract')
-		.cerbChooserTrigger()
-		;
+	if(window.CerbUI && CerbUI.RecordChooser)
+		new CerbUI.RecordChooser($action.find('#{$namePrefix}_account_chooser')[0], { context: '{CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}', name: '{$namePrefix}[connected_account_id]', emptyIcon: 'key', query: 'service:jira' });
 	
 	$action.find('select.jira-api-verb').change(function() {
-		var $container = $(this).closest('fieldset');
-		var $div_json = $container.find('div.jira-api-json');
+		var $div_json = $action.find('div.jira-api-json');
 		var val = $(this).val();
 		
 		if(val == 'post' || val == 'put')
