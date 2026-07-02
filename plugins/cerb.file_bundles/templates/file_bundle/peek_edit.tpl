@@ -11,70 +11,55 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<table cellspacing="0" cellpadding="2" border="0" width="98%" style="margin-bottom:5px;">
-	<tr>
-		<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate}:</b></td>
-		<td width="99%">
-			<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
-		</td>
-	</tr>
-	
-	<tr>
-		<td width="1%" nowrap="nowrap"><b>{'common.tag'|devblocks_translate}:</b></td>
-		<td width="99%">
-			<input type="text" name="tag" value="{$model->tag}" style="width:50%;" placeholder="example" title="This tag can be used in snippets and other text commands to quickly attach these files. The tag name can contain letters, numbers, dashes, and underscores, without spaces.">
-		</td>
-	</tr>
-	
-	<tr>
-		<td width="1%" nowrap="nowrap" valign="top">
-			<b>{'common.owner'|devblocks_translate|capitalize}:</b>
-		</td>
-		<td width="99%">
-			{include file="devblocks:cerberusweb.core::internal/peek/menu_actor_owner.tpl"}
-		</td>
-	</tr>
-	
-	{if !empty($custom_fields)}
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
-	{/if}
-</table>
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--row">
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.name'|devblocks_translate|capitalize}</label>
+				<input type="text" name="name" value="{$model->name}" autofocus="autofocus">
+			</div>
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.tag'|devblocks_translate|capitalize}</label>
+				<label class="cerb-ui-form--control">
+					<span class="cerb-ui-form--control-icon cerb-icons cerb-icon-tag"></span>
+					<input type="text" name="tag" value="{$model->tag}" placeholder="example">
+				</label>
+				<div class="cerb-ui-form--help">Used in snippets and text commands to attach these files. Letters, numbers, dashes, and underscores; no spaces.</div>
+			</div>
+		</div>
 
-<fieldset class="peek">
-	<legend>{'common.attachments'|devblocks_translate|capitalize}</legend>
-	
-	<button type="button" class="chooser_file"><span class="cerb-icons cerb-icon-paperclip"></span></button>
-	<ul class="chooser-container bubbles" style="display:inline-block;">
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'common.owner'|devblocks_translate|capitalize}</label>
+			{include file="devblocks:cerberusweb.core::internal/peek/menu_actor_owner.tpl"}
+		</div>
+
+		{if !empty($custom_fields)}
+		{include file="devblocks:cerberusweb.core::internal/custom_fields/form.tpl" custom_fields=$custom_fields}
+		{/if}
+	</div>
+</div>
+
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">{'common.attachments'|devblocks_translate|capitalize}</div>
+	</div>
+
+	<div class="cerb-ui-file-upload" data-name="file_ids" data-multiple="1">
 		{foreach from=$attachments item=attachment}
-		<li>
-		{$attachment->name} ({$attachment->storage_size|devblocks_prettybytes:1})
-		<input type="hidden" name="file_ids[]" value="{$attachment->id}">
-		<a data-cerb-link="remove_parent"><span class="cerb-icons cerb-icon-circle-remove"></span></a>
-		</li>
+		<li data-file-id="{$attachment->id}" data-file-name="{$attachment->name}" data-file-size="{$attachment->storage_size}"></li>
 		{/foreach}
-	</ul>
-</fieldset>
+	</div>
+</div>
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
 {if $model->id && $active_worker->hasPriv("contexts.{$peek_context}.delete")}
-<fieldset style="display:none;" class="delete">
-	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
-	
-	<div>
-		Are you sure you want to delete this file bundle?
-	</div>
-
-	<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
-	<button type="button" class="delete-cancel">{'common.no'|devblocks_translate|capitalize}</button>
-</fieldset>
+	{include file="devblocks:cerberusweb.core::internal/peek/delete_confirm.tpl" noun="file bundle"}
 {/if}
 
-<div class="status"></div>
-
-<div class="buttons">
-	{if (!$model->id && $active_worker->hasPriv("contexts.{$peek_context}.create")) || ($model->id && $active_worker->hasPriv("contexts.{$peek_context}.update"))}<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {$translate->_('common.save_changes')|capitalize}</button>{/if}
-	{if $model->id && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+<div class="buttons" style="margin-top:10px;">
+	{if (!$model->id && $active_worker->hasPriv("contexts.{$peek_context}.create")) || ($model->id && $active_worker->hasPriv("contexts.{$peek_context}.update"))}<button type="button" class="cerb-ui-button save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>{/if}
+	{if $model->id && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="cerb-ui-button cerb-ui-button--subtle delete-prompt"><span class="cerb-icons cerb-icon-trash"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>
@@ -85,73 +70,23 @@ $(function() {
 	let $popup = genericAjaxPopupFind($frm);
 
 	Devblocks.formDisableSubmit($frm);
-	
+
 	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"{'common.file_bundle'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		$popup.css('overflow', 'inherit');
 
-		let $textarea = $popup.find('textarea[name=comment]');
-		
 		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
 
 		// Buttons
-		
-		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
+		$popup.find('button.save').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-		$popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
-		$popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
+		if(window.CerbUI && CerbUI.Form) CerbUI.Form.ConfirmDelete($popup[0]);
 
-		// Owner
-		
-		var $owners_menu = $popup.find('ul.owners-menu');
-		var $ul = $owners_menu.siblings('ul.chooser-container');
-		
-		$ul.on('bubble-remove', function(e, ui) {
-			e.stopPropagation();
-			$(e.target).closest('li').remove();
-			$ul.hide();
-			$owners_menu.show();
-		});
-		
-		$owners_menu.menu({
-			select: function(event, ui) {
-				var token = ui.item.attr('data-token');
-				var label = ui.item.attr('data-label');
-				
-				if(undefined == token || undefined == label)
-					return;
-				
-				$owners_menu.hide();
-				
-				// Build bubble
-				
-				var context_data = token.split(':');
-				var $li = $('<li/>');
-				let $label = $('<a class="cerb-peek-trigger no-underline" />').attr('data-context',context_data[0]).attr('data-context-id',context_data[1]).text(label);
-				$label.cerbPeekTrigger().appendTo($li);
-				$('<input type="hidden">').attr('name', 'owner').attr('value',token).appendTo($li);
-				ui.item.find('img.cerb-avatar').clone().prependTo($li);
-				let $a = $('<a><span class="cerb-icons cerb-icon-circle-remove"></span></a>').appendTo($li);
-				$a.on('click', function(e) {
-					e.stopPropagation();
-					$(this).trigger('bubble-remove');
-				});
-				
-				$ul.find('> *').remove();
-				$ul.append($li);
-				$ul.show();
-			}
-		});
-		
 		// Attachments
-		
-		$popup.find('button.chooser_file').each(function() {
-			ajax.chooserFile(this,'file_ids');
-		});
-		
-		$popup.find('input:text[name=name]').focus();
+		if(window.CerbUI && CerbUI.FileUpload)
+			$popup.find('.cerb-ui-file-upload').each(function() { new CerbUI.FileUpload(this, { name: 'file_ids', multiple: true }); });
 
-		$popup.find('.chooser-container [data-cerb-link=remove_parent]').on('click', Devblocks.onClickRemoveParent);
+		$popup.find('input:text[name=name]').focus();
 	});
-});	
+});
 </script>
