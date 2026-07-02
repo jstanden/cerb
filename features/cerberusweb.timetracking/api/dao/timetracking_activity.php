@@ -212,8 +212,39 @@ class DAO_TimeTrackingActivity extends Cerb_ORMHelper {
 	 */
 	static function getIds(array $ids) : array {
 		return parent::getIds($ids);
-	}	
-	
+	}
+
+	/**
+	 * @param string $term
+	 * @param string $as
+	 * @return array|Model_TimeTrackingActivity[]
+	 */
+	static function autocomplete($term, $as='models') {
+		$db = DevblocksPlatform::services()->database();
+		$objects = [];
+
+		$results = $db->GetArrayReader(sprintf("SELECT id ".
+			"FROM timetracking_activity ".
+			"WHERE name LIKE %s ".
+			"ORDER BY name ASC ".
+			"LIMIT 25 ",
+			$db->qstr($term.'%')
+		));
+
+		if(is_array($results))
+			foreach($results as $row) {
+				$objects[$row['id']] = null;
+			}
+
+		switch($as) {
+			case 'ids':
+				return array_keys($objects);
+
+			default:
+				return DAO_TimeTrackingActivity::getIds(array_keys($objects));
+		}
+	}
+
 	/**
 	 * @param mysqli_result|false $rs
 	 * @return Model_TimeTrackingActivity[]
@@ -667,10 +698,25 @@ class View_TimeTrackingActivity extends C4_AbstractView implements IAbstractView
 	}
 };
 
-class Context_TimeTrackingActivity extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
+class Context_TimeTrackingActivity extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
 	const ID = CerberusContexts::CONTEXT_TIMETRACKING_ACTIVITY;
 	const URI = 'timetracking_activity';
-	
+
+	function autocomplete($term, $query=null) {
+		$results = DAO_TimeTrackingActivity::autocomplete($term);
+		$list = [];
+
+		if(is_array($results))
+			foreach($results as $id => $model) {
+				$entry = new stdClass();
+				$entry->label = $model->name;
+				$entry->value = sprintf("%d", $id);
+				$list[] = $entry;
+			}
+
+		return $list;
+	}
+
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);
