@@ -35,8 +35,7 @@
 			<td width="0%" nowrap="nowrap" align="right" valign="top">Add watchers:</td>
 			<td width="100%">
 				<div>
-					<button type="button" class="chooser-abstract" data-field-name="do_watcher_add_ids[]" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-autocomplete=""><span class="cerb-icons cerb-icon-search"></span></button>
-					<ul class="bubbles chooser-container" style="display:block;"></ul>
+					<div class="cerb-ui-record-chooser" id="do_watcher_add_ids"></div>
 				</div>
 			</td>
 		</tr>
@@ -45,8 +44,7 @@
 			<td width="0%" nowrap="nowrap" align="right" valign="top">Remove watchers:</td>
 			<td width="100%">
 				<div>
-					<button type="button" class="chooser-abstract" data-field-name="do_watcher_remove_ids[]" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-autocomplete=""><span class="cerb-icons cerb-icon-search"></span></button>
-					<ul class="bubbles chooser-container" style="display:block;"></ul>
+					<div class="cerb-ui-record-chooser" id="do_watcher_remove_ids"></div>
 				</div>
 			</td>
 		</tr>
@@ -61,7 +59,7 @@
 </fieldset>
 {/if}
 
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_FEED_ITEM bulk=true}
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/bulk_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_FEED_ITEM}
 
 <button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 </form>
@@ -73,7 +71,10 @@ $(function() {
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'common.bulk_update'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		
-		$popup.find('button.chooser-abstract').cerbChooserTrigger();
+		if(window.CerbUI && CerbUI.RecordChooser) {
+			new CerbUI.RecordChooser($popup.find('#do_watcher_add_ids')[0], { context: '{CerberusContexts::CONTEXT_WORKER}', name: 'do_watcher_add_ids', multiple: true, emptyIcon: 'user', query: 'isDisabled:n' });
+			new CerbUI.RecordChooser($popup.find('#do_watcher_remove_ids')[0], { context: '{CerberusContexts::CONTEXT_WORKER}', name: 'do_watcher_remove_ids', multiple: true, emptyIcon: 'user', query: 'isDisabled:n' });
+		}
 		
 		$popup.find('button.submit').click(function() {
 			genericAjaxPost('formBatchUpdate', '', null, function(json) {
