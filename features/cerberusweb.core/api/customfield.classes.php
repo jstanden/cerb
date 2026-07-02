@@ -644,8 +644,8 @@ class CustomField_RecordLinks extends Extension_CustomField {
 		$target_context = $field->params['context'] ?? null;
 		
 		$models = CerberusContexts::getModels($target_context, $values);
-		$target_dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $target_context, ['_label']);
-		
+		$target_dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $target_context, ['_label', '_image_url']);
+
 		$tpl->assign('target_dicts', $target_dicts);
 		$tpl->display('devblocks:cerberusweb.core::internal/custom_fields/extensions/record_links/render_value.tpl');
 	}

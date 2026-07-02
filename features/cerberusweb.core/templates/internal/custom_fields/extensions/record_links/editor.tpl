@@ -1,25 +1,25 @@
 {$field_uniqid = uniqid('cfield_')}
-<div id="{$field_uniqid}">
-    <button type="button" class="chooser-cfield-links" data-field-name="{$form_key}[]" data-context="{$field->params.context}" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="cerb-icons cerb-icon-search"></span></button>
-
-    <ul class="bubbles chooser-container">
-        {if $linked_dicts && is_array($linked_dicts)}
-            {foreach from=$linked_dicts item=linked_dict}
-            <li>
-                <a class="peek-cfield-links no-underline" data-context="{$linked_dict->_context}" data-context-id="{$linked_dict->id}">{$linked_dict->_label}</a>
-                <input type="hidden" name="{$form_key}[]" value="{$linked_dict->id}">
-            </li>
-            {/foreach}
-        {/if}
-    </ul>
+{* Self-contained record-links chooser. No `data-cerb-cfield-chooser` marker so the parent form's generic
+   chooser init loop doesn't also claim it (which would re-init it single, dropping multiple). It's a direct
+   child of the field cell so it flex-stretches to full width like the other cfield types. *}
+<div class="cerb-ui-record-chooser" id="{$field_uniqid}" data-context="{$field->params.context}" data-name="{$form_key}">
+    {if $linked_dicts && is_array($linked_dicts)}
+        {foreach from=$linked_dicts item=linked_dict}
+        <li data-context-id="{$linked_dict->id}" data-label="{$linked_dict->_label}" data-image="{$linked_dict->_image_url}"></li>
+        {/foreach}
+    {/if}
 </div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $cfield = $('#{$field_uniqid}');
+	var el = document.getElementById('{$field_uniqid}');
 
-	// Links
-	$cfield.find('button.chooser-cfield-links').cerbChooserTrigger();
-	$cfield.find('a.peek-cfield-links').cerbPeekTrigger();
+	if(el && window.CerbUI && CerbUI.RecordChooser)
+		new CerbUI.RecordChooser(el, {
+			context: el.getAttribute('data-context'),
+			name: el.getAttribute('data-name'),
+			emptyIcon: 'link',
+			multiple: true
+		});
 });
 </script>
