@@ -19,6 +19,10 @@
  *     value:     [{id,name,size}],      // PREFER server-rendered [data-file-id] seed markup over this
  *     onChange:  (values) => { ... },   // fired after add/remove
  *     onError:   (msg, file) => { ... },// validation/upload failure
+ *     asResource: false,               // upload to an anonymous, ephemeral automation resource instead of
+ *                                      // an attachment; the hidden input posts the resource TOKEN (not an
+ *                                      // id). For transient content the server immediately consumes (e.g.
+ *                                      // a resource file) — nothing to clean up; the resource auto-expires.
  *   });
  *
  * API: fu.getValue(); fu.setValue(v); fu.add(items); fu.clear(); fu.destroy().
@@ -46,6 +50,8 @@ CerbUI.FileUpload = class {
 			value:     null,
 			onChange:  null,
 			onError:   null,
+			asResource: false, // upload to an anonymous, ephemeral automation resource; the hidden input
+			                   // posts the resource TOKEN instead of an attachment id (nothing to clean up)
 		}, opts);
 
 		// Initial value(s): an explicit `value` option (an item or array of {id,name,size}), else enhance
@@ -222,6 +228,7 @@ CerbUI.FileUpload = class {
 		xhr.setRequestHeader('X-File-Name', encodeURIComponent(file.name));
 		xhr.setRequestHeader('X-File-Type', file.type || 'application/octet-stream');
 		xhr.setRequestHeader('X-File-Size', file.size);
+		if(this.opts.asResource) xhr.setRequestHeader('X-File-As-Resource', '1');
 		if(csrf) xhr.setRequestHeader('X-CSRF-Token', csrf.getAttribute('content'));
 
 		xhr.upload.addEventListener('progress', (e) => {
@@ -237,8 +244,12 @@ CerbUI.FileUpload = class {
 			let json = null;
 			try { json = JSON.parse(xhr.responseText); } catch(ex) { json = null; }
 
-			if(xhr.status === 200 && json && json.id) {
-				const item = { id: json.id, name: json.name || file.name, size: json.size || file.size };
+			// Attachment uploads return `id`; asResource uploads return `token` — the hidden input posts
+			// whichever identifier the server hands back.
+			const identifier = json ? (json.id != null ? json.id : json.token) : null;
+
+			if(xhr.status === 200 && json && identifier != null) {
+				const item = { id: identifier, name: json.name || file.name, size: json.size || file.size };
 				this.values.push(item);
 				this._finishTile(tile, item);
 				this._syncHidden();
@@ -317,6 +328,11 @@ CerbUI.FileUpload = class {
 
 		const size = tile.querySelector('.cerb-ui-file-upload--size');
 		if(size) size.textContent = item.size ? this._prettyBytes(item.size) : '';
+
+		// asResource uploads have no attachment record to open, so the chip stays a plain (pending-style)
+		// label — only attachment uploads get promoted to a card-peek link.
+		if(this.opts.asResource)
+			return;
 
 		const label = tile.querySelector('.cerb-ui-file-upload--label');
 		if(label) {
