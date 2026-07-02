@@ -1227,6 +1227,28 @@ DIV.cerb-properties-grid {
 
 // Peek fieldsets
 
+// Custom fieldset: a collapsible group of custom fields in a record peek/form. The title row toggles
+// .is-collapsed on the wrapper; the chevron rotates and the body hides. See custom_fieldsets/fieldset.tpl.
+.cerb-custom-fieldset {
+	.cerb-custom-fieldset--title {
+		cursor: pointer;
+		user-select: none;
+	}
+
+	.cerb-custom-fieldset--chevron {
+		transition: transform 0.12s ease;
+		vertical-align: middle;
+	}
+
+	&:not(.is-collapsed) .cerb-custom-fieldset--chevron {
+		transform: rotate(90deg);
+	}
+
+	&.is-collapsed .cerb-custom-fieldset--body {
+		display: none;
+	}
+}
+
 FIELDSET.peek {
 	border-width:1px 0 0 0;
 

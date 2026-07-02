@@ -28,13 +28,10 @@
 				{elseif $f->type==Model_CustomField::TYPE_URL}
 					<input type="text" name="{$field_name}" size="45" style="width:98%;" maxlength="255" value="{$custom_field_values.$f_id}" class="url">
 				{elseif $f->type==Model_CustomField::TYPE_LIST}
-					<div data-cerb-record-editor-list>
+					<div class="cerb-ui-tag-input" data-cerb-cfield-taginput data-name="{$field_name}">
 						{foreach from=$custom_field_values.$f_id item=val}
-						<div>
-							<input type="text" name="{$field_name}[]" size="45" style="width:98%;" maxlength="255" value="{$val}">
-						</div>
+							<input type="text" name="{$field_name}[]" maxlength="255" value="{$val}">
 						{/foreach}
-						<button type="button" class="multi-text-add" data-field-name="{$field_name}"><span class="cerb-icons cerb-icon-circle-plus"></span></button>
 					</div>
 				{elseif $f->type==Model_CustomField::TYPE_CURRENCY}
 					{$currency = DAO_Currency::get($f->params.currency_id)}
@@ -56,24 +53,8 @@
 							</ul>
 							
 							<div id="{$tabs_uniqid}Editor">
-								<div class="cerb-code-editor-toolbar">
-									<button type="button">
-										{'common.format.markdown'|devblocks_translate|capitalize}
-									</button>
-
-									<div class="cerb-code-editor-subtoolbar-format-html" style="display:inline-block;">
-										<button type="button" title="Bold (Ctrl+B)" data-cerb-key-binding="ctrl+b" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--bold"><span class="cerb-icons cerb-icon-bold"></span></button>
-										<button type="button" title="Italics (Ctrl+I)" data-cerb-key-binding="ctrl+i" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--italic"><span class="cerb-icons cerb-icon-italic"></span></button>
-										<button type="button" title="Link (Ctrl+K)" data-cerb-key-binding="ctrl+k" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--link"><span class="cerb-icons cerb-icon-link"></span></button>
-										<button type="button" title="List" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--list"><span class="cerb-icons cerb-icon-list"></span></button>
-										<button type="button" title="Quote (Ctrl+Q)" data-cerb-key-binding="ctrl+q" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--quote"><span class="cerb-icons cerb-icon-quote"></span></button>
-										<button type="button" title="Code (Ctrl+O)" data-cerb-key-binding="ctrl+o" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--code"><span class="cerb-icons cerb-icon-embed"></span></button>
-										<button type="button" title="Table" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--table"><span class="cerb-icons cerb-icon-table"></span></button>
-									</div>
-
-									<div class="cerb-code-editor-toolbar-divider"></div>
-								</div>
-								<textarea name="{$field_name}" class="multi-lines multi-lines-markdown">{$custom_field_values.$f_id}</textarea>
+								{* Formatting toolbar is built by the editor (opts.toolbar). Preview is the tab beside it. *}
+								<textarea class="multi-lines multi-lines-markdown" name="{$field_name}">{$custom_field_values.$f_id}</textarea>
 							</div>
 							
 							<div id="{$tabs_uniqid}Preview" style="border:1px solid var(--cerb-color-background-contrast-200);background-color:var(--cerb-color-form-input-background);"></div>
@@ -107,51 +88,39 @@
 						{/foreach}
 					</select>
 				{elseif $f->type==Model_CustomField::TYPE_WORKER}
-					{if empty($workers)}
-						{$workers = DAO_Worker::getAllActive()}
-					{/if}
-					
-					<button type="button" class="chooser-cfield-worker" data-field-name="{$field_name}" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="cerb-icons cerb-icon-search"></span></button>
-					
-					<ul class="bubbles chooser-container">
+					<div class="cerb-ui-record-chooser" data-cerb-cfield-chooser data-context="worker" data-name="{$field_name}" data-empty-icon="user">
 						{if $custom_field_values.$f_id}
-							{$cf_link_labels = []}
-							{$cf_link_values = []}
-							{CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $custom_field_values.$f_id, $cf_link_labels, $cf_link_values, null, true)}
-							<li><img src="{devblocks_url}c=avatars&context=worker&context_id={$custom_field_values.$f_id}{/devblocks_url}?v=" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;"> <input type="hidden" name="{$field_name}" value="{$custom_field_values.$f_id}">{$cf_link_values._label} <a data-cerb-link="remove"><span class="cerb-icons cerb-icon-circle-remove"></span></a></li>
+							{$cf_worker_labels = []}
+							{$cf_worker_values = []}
+							{CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $custom_field_values.$f_id, $cf_worker_labels, $cf_worker_values, null, true)}
+							<li data-context-id="{$custom_field_values.$f_id}" data-label="{$cf_worker_values._label}" data-image="{devblocks_url}c=avatars&context=worker&context_id={$custom_field_values.$f_id}{/devblocks_url}?v="></li>
 						{/if}
-					</ul>
+					</div>
 				{elseif $f->type==Model_CustomField::TYPE_LINK}
-					<button type="button" class="chooser-cfield-link" data-field-name="{$field_name}" data-context="{$f->params.context}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="cerb-icons cerb-icon-search"></span></button>
-					
-					<ul class="bubbles chooser-container">
+					<div class="cerb-ui-record-chooser" data-cerb-cfield-chooser data-context="{$f->params.context}" data-name="{$field_name}" data-empty-icon="link">
 						{if $custom_field_values.$f_id}
 							{$link_dict = DevblocksDictionaryDelegate::instance(['_context' => $f->params.context, 'id' => $custom_field_values.$f_id])}
-							<li>
-								<a class="peek-cfield-link no-underline" data-context="{$link_dict->_context}" data-context-id="{$link_dict->id}">{$link_dict->_label}</a>
-								<input type="hidden" name="{$field_name}" value="{$link_dict->id}">
-								<a data-cerb-link="remove"><span class="cerb-icons cerb-icon-circle-remove"></span></a>
-							</li>
+							<li data-context-id="{$link_dict->id}" data-label="{$link_dict->_label}" data-image="{$link_dict->_image_url}"></li>
 						{/if}
-					</ul>
+					</div>
 				{elseif $f->type==Model_CustomField::TYPE_FILE}
-					<button type="button" field_name="{$field_name}" class="chooser-cfield-file">{'common.upload'|devblocks_translate|lower}</button>
-
-					<ul class="bubbles chooser-container">
+					<div class="cerb-ui-file-upload" data-cerb-cfield-file-upload data-name="{$field_name}">
 					{if $custom_field_values.$f_id}
-						{$file_id = $custom_field_values.$f_id}
-						{$file = DAO_Attachment::get($file_id)}
-						<li><input type="hidden" name="{$field_name}" value="{$file->id}"><a href="{devblocks_url}c=files&id={$file->id}&file={$file->name|escape:'url'}{/devblocks_url}" target="_blank" rel="noopener">{$file->name}</a> ({$file->storage_size|devblocks_prettybytes}) <a data-cerb-link="remove"><span class="cerb-icons cerb-icon-circle-remove"></span></a></li>
+						{$file = DAO_Attachment::get($custom_field_values.$f_id)}
+						{if $file}
+							<li data-file-id="{$file->id}" data-file-name="{$file->name}" data-file-size="{$file->storage_size}"></li>
+						{/if}
 					{/if}
-					</ul>
+					</div>
 				{elseif $f->type==Model_CustomField::TYPE_FILES}
-					<button type="button" field_name="{$field_name}" class="chooser-cfield-files">{'common.upload'|devblocks_translate|lower}</button>
-					<ul class="bubbles chooser-container">
+					<div class="cerb-ui-file-upload" data-cerb-cfield-file-upload data-name="{$field_name}" data-multiple="1">
 					{foreach from=$custom_field_values.$f_id item=file_id}
 						{$file = DAO_Attachment::get($file_id)}
-						<li><input type="hidden" name="{$field_name}[]" value="{$file->id}"><a href="{devblocks_url}c=files&id={$file->id}&file={$file->name|escape:'url'}{/devblocks_url}" target="_blank" rel="noopener">{$file->name}</a> ({$file->storage_size|devblocks_prettybytes}) <a data-cerb-link="remove"><span class="cerb-icons cerb-icon-circle-remove"></span></a></li>
+						{if $file}
+							<li data-file-id="{$file->id}" data-file-name="{$file->name}" data-file-size="{$file->storage_size}"></li>
+						{/if}
 					{/foreach}
-					</ul>
+					</div>
 				{elseif $f->type==Model_CustomField::TYPE_DATE}
 					<input type="text" id="{$field_name}" name="{$field_name}" data-cerb-date-picker size="45" maxlength="255" value="{if !empty($custom_field_values.$f_id)}{if is_numeric($custom_field_values.$f_id)}{$custom_field_values.$f_id|devblocks_date}{else}{$custom_field_values.$f_id}{/if}{/if}">
 				{else}
@@ -174,7 +143,11 @@
 $(function() {
 	var $cfields = $('#cfields{$uniqid}');
 	
-	$cfields.find('input[data-cerb-date-picker]').cerbDateInputHelper();
+	$cfields.find('input[data-cerb-date-picker]').each(function() { if(window.CerbUI && CerbUI.DatePicker) new CerbUI.DatePicker.FormInput(this); });
+
+	// List
+	if(window.CerbUI && CerbUI.TagInput)
+		$cfields.find('[data-cerb-cfield-taginput]').each(function() { new CerbUI.TagInput(this); });
 	
 	$cfields.find('input:checkbox[name="field_ids[]"]').change(function() {
 		var $div = $('#bulkOpts' + $(this).val());
@@ -188,75 +161,47 @@ $(function() {
 
 	// Remove buttons
 	$cfields.find('[data-cerb-link=remove').on('click', Devblocks.onClickRemoveParent);
-	
-	// Workers
-	$cfields.find('button.chooser-cfield-worker').cerbChooserTrigger();
-	
-	// Links
-	$cfields.find('button.chooser-cfield-link').cerbChooserTrigger();
-	$cfields.find('a.peek-cfield-link').cerbPeekTrigger();
-	
-	$cfields.find('button.chooser-cfield-file').each(function() {
-		var options = {
-			single: true,
-		};
-		ajax.chooserFile(this,$(this).attr('field_name'),options);
-	});
-	
+
+	// Workers + Links
+	if(window.CerbUI && CerbUI.RecordChooser) {
+		$cfields.find('[data-cerb-cfield-chooser]').each(function() {
+			new CerbUI.RecordChooser(this, {
+				context: this.getAttribute('data-context'),
+				name: this.getAttribute('data-name'),
+				emptyIcon: this.getAttribute('data-empty-icon') || 'file'
+			});
+		});
+	}
+
 	// Files
-	$cfields.find('button.chooser-cfield-files').each(function() {
-		ajax.chooserFile(this,$(this).attr('field_name'));
-	});
-	
-	// List
-	$cfields.find('[data-cerb-record-editor-list]').on('keydown', function(e) {
-		e.stopPropagation();
-		
-		let $this = $(this);
-		let $target = $(e.target);
-		let key_code = (window.Event) ? e.which : e.keyCode;
-		
-		if(!$target.is('input:text') || $target.val().length > 0)
-			return true;
-		
-		if(8 === key_code) {
-			$target.parent().remove();
-			$this.find('input:text').last().focus();
-			return false;
-		}
-		
-		return true;
-	});
-	
-	$cfields.find('button.multi-text-add').click(function() {
-		var $button = $(this);
-		var field_name = $button.attr('data-field-name');
-		var $input = $('<input type="text" size="45" style="width:98%;" maxlength="255" class="multi-text">')
-			.attr('name', field_name + '[]')
-			;
-		var $div = $('<div/>').append($input);
-		$div.insertBefore($button);
-		$input.focus();
-	});
+	if(window.CerbUI && CerbUI.FileUpload) {
+		$cfields.find('[data-cerb-cfield-file-upload]').each(function() {
+			new CerbUI.FileUpload(this, {
+				name: this.getAttribute('data-name'),
+				multiple: this.hasAttribute('data-multiple'),
+				accept: this.getAttribute('data-accept') || '',
+				maxSize: parseInt(this.getAttribute('data-max-size'), 10) || 0
+			});
+		});
+	}
 
 	$cfields.find('[data-cerb-record-editor-markdown-tabs]').each(function() {
 		let $tabs_container = $(this);
-		
-		$tabs_container.find('textarea')
-			.cerbTextEditor()
-		; 
 
-		// Comment editor toolbar
-		$tabs_container.find('.cerb-code-editor-toolbar')
-			.cerbTextEditorToolbarMarkdown()
-		;
-		
-		$tabs_container.tabs({
-			beforeActivate: function(event, ui) {
-				if(ui.newTab.attr('data-cerb-tab') !== 'preview')
+		// Markdown editor with its built-in formatting toolbar (no mode toggle; the field is always markdown).
+		let editor_el = $tabs_container.find('textarea.multi-lines-markdown')[0];
+		let ed = (editor_el && window.CerbUI && CerbUI.MarkdownEditor)
+			? new CerbUI.MarkdownEditor(editor_el, { mode: 'markdown', minHeight: 120, toolbar: { mode: false } })
+			: null;
+
+		$tabs_container.find('> ul').each(function() {
+			if(!(window.CerbUI && CerbUI.Tabs)) return;
+			new CerbUI.Tabs(this, { onTabSelected: function(index, tab) {
+				if(tab.li.getAttribute('data-cerb-tab') !== 'preview')
 					return;
 
-				Devblocks.getSpinner().appendTo(ui.newPanel.html(''));
+				var $panel = $(tab.panel);
+				Devblocks.getSpinner().appendTo($panel.html(''));
 
 				var formData = new FormData();
 				formData.set('c', 'ui');
@@ -264,9 +209,9 @@ $(function() {
 				formData.set('content', $tabs_container.find('textarea.multi-lines-markdown').val());
 
 				genericAjaxPost(formData, null, null, function(html) {
-					ui.newPanel.html(html);
+					$panel.html(html);
 				});
-			}
+			} });
 		});
 	});
 });

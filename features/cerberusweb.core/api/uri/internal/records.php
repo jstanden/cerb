@@ -245,20 +245,24 @@ class PageSection_InternalRecords extends Extension_PageSection {
 	private function _internalAction_getCustomFieldSet() {
 		$id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null, 'integer', 0);
 		$bulk = DevblocksPlatform::importGPC($_REQUEST['bulk'] ?? null, 'integer', 0);
+		$collapsible = DevblocksPlatform::importGPC($_REQUEST['collapsible'] ?? null, 'integer', 0);
 		$field_wrapper = DevblocksPlatform::importGPC($_REQUEST['field_wrapper'] ?? null, 'string', '');
-		$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'] ?? null, 'integer', 0);
-		
+
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
-		
+
 		$tpl->assign('bulk', !empty($bulk) ? true : false);
+		$tpl->assign('collapsible', !empty($collapsible) ? true : false);
 		
 		if(empty($id))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
-		if(!empty($field_wrapper))
+		if(!empty($field_wrapper)) {
 			$tpl->assign('field_wrapper', $field_wrapper);
-		
+			// Wrapped fields post into action params (form strings), not DB-scaled values
+			$tpl->assign('custom_field_values_raw', true);
+		}
+
 		if(null == ($custom_fieldset = DAO_CustomFieldset::get($id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
@@ -267,19 +271,12 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		
 		$tpl->assign('custom_fieldset', $custom_fieldset);
 		$tpl->assign('custom_fieldset_is_new', true);
-		
-		// If we're drawing the fieldset for a VA action, include behavior and event meta
-		if(DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy')) {
-			if ($trigger_id && false !== ($trigger = DAO_TriggerEvent::get($trigger_id))) {
-				$event = $trigger->getEvent();
-				$values_to_contexts = $event->getValuesContexts($trigger);
-				
-				$tpl->assign('trigger', $trigger);
-				$tpl->assign('values_to_contexts', $values_to_contexts);
-			}
+
+		if(!empty($bulk)) {
+			$tpl->display('devblocks:cerberusweb.core::internal/custom_fieldsets/bulk_fieldset.tpl');
+		} else {
+			$tpl->display('devblocks:cerberusweb.core::internal/custom_fieldsets/fieldset.tpl');
 		}
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/custom_fieldsets/fieldset.tpl');
 	}
 	
 	private function _internalAction_autocomplete() {

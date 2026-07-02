@@ -1,27 +1,6 @@
 {if !$custom_fieldsets_available}
 	{$custom_fieldsets_available = DAO_CustomFieldset::getUsableByActorByContext($active_worker, $context)}
 {/if}
-{if !$custom_fields_expanded}
-	{$custom_fields_expanded = []}
-{/if}
-{if !$custom_fieldsets_linked}
-	{if $context_id}
-		{$custom_fieldsets_linked = DAO_CustomFieldset::getUsedByContext($context, $context_id)}
-	{else}
-		{$custom_fieldsets_linked = []}
-	{/if}
-{/if}
-
-{* Collapsible everywhere; reply opts into collapse_default=true *}
-{$collapsible = $collapsible|default:true}
-{$collapse_default = $collapse_default|default:false}
-
-{$custom_fieldsets_editable = array_intersect_key($custom_fieldsets_available, $custom_fieldsets_linked)}
-{$custom_fieldsets_available = array_diff_key($custom_fieldsets_available, $custom_fieldsets_linked)}
-
-{foreach from=$custom_fieldsets_editable item=cf_group}
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/fieldset.tpl" collapsible=$collapsible collapse_default=$collapse_default custom_fieldset=$cf_group custom_fields_expanded=$custom_fields_expanded}
-{/foreach}
 
 <div class="custom-fieldset-insertion"></div>
 
@@ -88,7 +67,7 @@ $(function() {
 	var onSelect = function(li, src) {
 		var cf_group_id = src.getAttribute('data-id');
 
-		genericAjaxGet('', 'c=internal&a=invoke&module=records&action=getCustomFieldSet&collapsible={if $collapsible}1{else}0{/if}&id=' + cf_group_id, function(html) {
+		genericAjaxGet('', 'c=internal&a=invoke&module=records&action=getCustomFieldSet&bulk=1&id=' + cf_group_id, function(html) {
 			if(undefined == html || null == html)
 				return;
 
