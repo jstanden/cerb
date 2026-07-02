@@ -126,6 +126,13 @@ CerbUI.SelectMenu = class {
 		const ul = document.createElement('ul');
 		ul.id = `cerb-ui-sm-${this.uid}`;
 		Array.from(this.select.options).forEach(option => {
+			// Skip blank-text options: an empty <li> would be read by CerbUI.Menu as a *separator*
+			// (a phantom divider). Such options are "nothing selected" placeholders — the trigger shows
+			// them as empty, they don't belong as a list row. Options with a label (even value="", e.g.
+			// snippet's "Plaintext") are kept.
+			if((option.text ?? '').trim() === '')
+				return;
+
 			const li = document.createElement('li');
 			li.textContent = option.text; // textContent — never innerHTML for user data
 			li._option = option;          // back-reference so callbacks can reach the real <option>
