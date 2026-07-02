@@ -10,6 +10,17 @@
 		<a href="{$owner_meta.permalink}" target="_blank" rel="noopener">{$owner_meta.name}</a>
 		{else}
 		{$owner_meta.name}
+{* Reply: a new comment on this note's *target* (the top-level comment/message/draft — we don't nest
+   deeper), seeded with an @mention of this note's author. *}
+{$can_reply = $active_worker->hasPriv('contexts.cerberusweb.contexts.comment.comment')}
+{$reply_mention = ''}
+{if $note->owner_context == CerberusContexts::CONTEXT_WORKER}
+	{$reply_worker = DAO_Worker::get($note->owner_context_id)}
+	{if $reply_worker && $reply_worker->at_mention_name && $reply_worker->id != $active_worker->id}
+		{$reply_mention = '@'|cat:$reply_worker->at_mention_name}
+	{/if}
+{/if}
+{capture assign=reply_edit}context:{$note->context} context.id:{$note->context_id}{if $reply_mention} comment:{$reply_mention}{/if}{/capture}
 		{/if}
 	{/if}
 	</b>

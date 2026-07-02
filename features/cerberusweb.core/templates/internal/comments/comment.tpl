@@ -2,6 +2,16 @@
 {$target_context = $comment->getTargetContext(false)}
 {$is_writeable = CerberusContexts::isWriteableByActor(CerberusContexts::CONTEXT_COMMENT, $comment, $active_worker)}
 
+{* Reply: a new comment on this comment, seeded with an @mention of its author (skip self-mentions) *}
+{$reply_mention = ''}
+{if $comment->owner_context == CerberusContexts::CONTEXT_WORKER}
+	{$reply_worker = DAO_Worker::get($comment->owner_context_id)}
+	{if $reply_worker && $reply_worker->at_mention_name && $reply_worker->id != $active_worker->id}
+		{$reply_mention = '@'|cat:$reply_worker->at_mention_name}
+	{/if}
+{/if}
+{capture assign=reply_edit}context:{CerberusContexts::CONTEXT_COMMENT} context.id:{$comment->id}{if $reply_mention} comment:{$reply_mention}{/if}{/capture}
+
 <div class="block" style="position:relative;margin-bottom:10px;padding-left:10px;">
 	<span class="tag" style="background-color:rgb(71,133,210);color:white;margin-right:5px;">{'common.comment'|devblocks_translate|lower}</span>
 

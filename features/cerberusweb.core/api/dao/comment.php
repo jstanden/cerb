@@ -1589,6 +1589,11 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 						case 'context.id':
 							$model->context_id = intval($v);
 							break;
+
+						case 'comment':
+							// Pre-fill the body (e.g. a "reply" that seeds an @mention of the author)
+							$model->comment = $v . ' ';
+							break;
 					}
 				}
 
