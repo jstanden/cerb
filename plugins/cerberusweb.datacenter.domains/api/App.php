@@ -12,9 +12,18 @@ class VaAction_CreateDomain extends Extension_DevblocksEventAction {
 	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=array(), $seq=null) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
-		
+
 		if(!is_null($seq))
 			$tpl->assign('namePrefix', 'action'.$seq);
+
+		// Resolve the preselected contact addresses here (numeric ids only) — keeps the DAO_ lookup out of
+		// the template, which would otherwise trip the [16384] unregistered-static warning.
+		$contact_addresses = [];
+		foreach(($params['email_ids'] ?? []) as $email_id) {
+			if($email_id && is_numeric($email_id) && (false != ($address = DAO_Address::get($email_id))))
+				$contact_addresses[$email_id] = $address;
+		}
+		$tpl->assign('contact_addresses', $contact_addresses);
 		
 		$event = $trigger->getEvent();
 		$values_to_contexts = $event->getValuesContexts($trigger);

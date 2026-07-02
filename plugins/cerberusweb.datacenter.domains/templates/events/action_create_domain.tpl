@@ -1,11 +1,3 @@
-{capture name="addy_placeholders"}
-{foreach from=$trigger->variables item=var key=var_key name=var_keys}{if $var.type == "ctx_{CerberusContexts::CONTEXT_ADDRESS}"}{$var.key}{if !$smarty.foreach.var_keys.last},{/if}{/if}{/foreach}
-{/capture}
-
-{capture name="server_placeholders"}
-{foreach from=$trigger->variables item=var key=var_key name=var_keys}{if $var.type == "ctx_{CerberusContexts::CONTEXT_SERVER}"}{$var.key}{if !$smarty.foreach.var_keys.last},{/if}{/if}{/foreach}
-{/capture}
-
 <b>Name:</b>
 <div style="margin-left:10px;margin-bottom:10px;">
 	<input type="text" name="{$namePrefix}[name]" value="{$params.name}" class="placeholders" spellcheck="false" size="45" style="width:100%;" placeholder="example.com">
@@ -13,38 +5,26 @@
 
 <b>Server:</b>
 <div style="margin-left:10px;margin-bottom:10px;">
-	<button type="button" class="chooser-abstract" data-field-name="{$namePrefix}[server_id]" data-context="{CerberusContexts::CONTEXT_SERVER}" data-single="true" data-autocomplete="" data-autocomplete-if-empty="true" data-autocomplete-placeholders="{$smarty.capture.server_placeholders}" data-create="if-null" ><span class="cerb-icons cerb-icon-search"></span></button>
-	<ul class="bubbles chooser-container">
-		{if $params.server_id}
-			{if is_numeric($params.server_id)}
-				{$server = DAO_Server::get($params.server_id)}
-				{if $server}
-					<li><input type="hidden" name="{$namePrefix}[server_id]" value="{$params.server_id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_SERVER}" data-context-id="{$server->id}">{$server->name}</a></li>
-				{/if}
-			{else}
-				<li><input type="hidden" name="{$namePrefix}[server_id]" value="{$params.server_id}"><a class="no-underline">(variable) {$params.server_id}</a></li>
-			{/if}
-		{/if}
-	</ul>
+	<a class="cerb-chooser cerb-server-chooser" data-context="{CerberusContexts::CONTEXT_SERVER}" data-single="true">ID</a>:
+	<input type="text" name="{$namePrefix}[server_id]" value="{$params.server_id}" class="placeholders" size="40" autocomplete="off" spellcheck="false">
 </div>
 
 <b>Contacts:</b>
 <div style="margin-left:10px;margin-bottom:10px;">
-	<button type="button" class="chooser-abstract" data-field-name="{$namePrefix}[email_ids][]" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-autocomplete="" data-autocomplete-placeholders="{$smarty.capture.addy_placeholders}"><span class="cerb-icons cerb-icon-search"></span></button>
-	<ul class="bubbles chooser-container">
+	<div class="cerb-ui-record-chooser cerb-contacts-chooser">
 		{foreach from=$params.email_ids item=email_id}
-		{if $email_id}
-			{if is_numeric($email_id)}
-				{$address = DAO_Address::get($email_id)}
-				{if $address}
-					<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$address->id}{/devblocks_url}?v={$address->updated}"><input type="hidden" name="{$namePrefix}[email_ids][]" value="{$email_id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$email_id}">{$address->email}</a></li>
-				{/if}
-			{else}
-				<li><input type="hidden" name="{$namePrefix}[email_ids][]" value="{$email_id}"><a class="no-underline">(variable) {$email_id}</a></li>
+			{if $email_id && is_numeric($email_id) && isset($contact_addresses[$email_id])}
+				{$address = $contact_addresses[$email_id]}
+				<li data-context-id="{$email_id}" data-label="{$address->email}" data-image="{devblocks_url}c=avatars&context=address&context_id={$address->id}{/devblocks_url}?v={$address->updated}"></li>
 			{/if}
-		{/if}
 		{/foreach}
-	</ul>
+	</div>
+	{* Preserve any saved trigger-variable values (non-numeric); the picker is records-only but shouldn't drop them on save *}
+	{foreach from=$params.email_ids item=email_id}
+		{if $email_id && !is_numeric($email_id)}
+		<input type="hidden" name="{$namePrefix}[email_ids][]" value="{$email_id}">
+		{/if}
+	{/foreach}
 </div>
 
 {if !empty($custom_fields)}
@@ -94,11 +74,20 @@
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $action = $('#{$namePrefix}_{$nonce}');
-	
+
 	// Peeks
 	$action.find('.cerb-peek-trigger').cerbPeekTrigger();
-	
-	// Choosers
-	$action.find('button.chooser-abstract').cerbChooserTrigger();
+
+	if(window.CerbUI && CerbUI.RecordChooser) {
+		// Server: placeholder-capable (type a variable, or pick a server via the ID link)
+		$action.find('.cerb-server-chooser').each(function() {
+			CerbUI.RecordChooser.pickerLink(this, { input: $action.find('input[name="{$namePrefix}[server_id]"]')[0] });
+		});
+
+		// Contacts: pick Address records
+		$action.find('.cerb-contacts-chooser').each(function() {
+			new CerbUI.RecordChooser(this, { context: '{CerberusContexts::CONTEXT_ADDRESS}', name: '{$namePrefix}[email_ids]', multiple: true, emptyIcon: 'mail' });
+		});
+	}
 });
 </script>

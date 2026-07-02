@@ -42,7 +42,7 @@
 </fieldset>
 {/if}
 
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_SERVER bulk=true}
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/bulk_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_SERVER}
 
 {include file="devblocks:cerberusweb.core::internal/cards/editors/comment.tpl" peek_context=CerberusContexts::CONTEXT_SERVER}
 

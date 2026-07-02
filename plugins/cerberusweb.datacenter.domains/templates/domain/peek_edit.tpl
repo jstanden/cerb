@@ -11,75 +11,57 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<table cellspacing="0" cellpadding="2" border="0" width="98%" style="margin-bottom:10px;">
-	<tr>
-		<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate}:</b></td>
-		<td width="99%">
-			<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
-		</td>
-	</tr>
-	<tr>
-		<td width="1%" nowrap="nowrap"><b>{'cerberusweb.datacenter.common.server'|devblocks_translate}:</b></td>
-		<td width="99%">
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--row">
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.name'|devblocks_translate|capitalize}</label>
+				<input type="text" name="name" value="{$model->name}" autofocus="autofocus">
+			</div>
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.created'|devblocks_translate|capitalize}</label>
+				<input type="text" name="created" class="input_date" value="{if empty($model->created)}now{else}{$model->created|devblocks_date}{/if}">
+			</div>
+		</div>
+
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'cerberusweb.datacenter.common.server'|devblocks_translate|capitalize}</label>
 			{$server = $model->getServer()}
-			
-			<button type="button" class="chooser-abstract" data-field-name="server_id" data-context="{CerberusContexts::CONTEXT_SERVER}" data-single="true" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="cerb-icons cerb-icon-search"></span></button>
-			
-			<ul class="bubbles chooser-container">
+			<div class="cerb-ui-record-chooser" id="serverChooser_{$form_id}">
 				{if $server}
-					<li><input type="hidden" name="server_id" value="{$server->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_SERVER}" data-context-id="{$server->id}">{$server->name}</a></li>
+					<li data-context-id="{$server->id}" data-label="{$server->name}"></li>
 				{/if}
-			</ul>
-		</td>
-	</tr>
-	<tr>
-		<td width="1%" nowrap="nowrap"><b>{'common.created'|devblocks_translate|capitalize}:</b></td>
-		<td width="99%">
-			<input type="text" name="created" class="input_date" size="45" value="{if empty($model->created)}now{else}{$model->created|devblocks_date}{/if}">
-		</td>
-	</tr>
-	<tr>
-		<td width="1%" nowrap="nowrap" valign="top"><b>Contacts:</b></td>
-		<td width="99%">
-			<ul class="bubbles chooser-container" style="display:block;">
+			</div>
+		</div>
+
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">Contacts</label>
+			<div class="cerb-ui-record-chooser" id="contactsChooser_{$form_id}">
 				{if !empty($contact_addresses)}
-					{foreach from=$contact_addresses item=contact_address key=contact_address_id}
-					<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$contact_address->id}{/devblocks_url}?v={$contact_address->updated}"><input type="hidden" name="contact_address_id[]" value="{$contact_address->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$contact_address->id}">{$contact_address->getNameWithEmail()}</a></li>
+					{foreach from=$contact_addresses item=contact_address}
+						<li data-context-id="{$contact_address->id}" data-label="{$contact_address->getNameWithEmail()}" data-image="{devblocks_url}c=avatars&context=address&context_id={$contact_address->id}{/devblocks_url}?v={$contact_address->updated}"></li>
 					{/foreach}
 				{/if}
-			</ul>
-			
-			<button type="button" class="chooser-abstract" data-field-name="contact_address_id[]" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-autocomplete="" data-create="true"><span class="cerb-icons cerb-icon-search"></span></button>
-		</td>
-	</tr>
-	
-	{if !empty($custom_fields)}
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
-	{/if}
-</table>
+			</div>
+		</div>
+
+		{if !empty($custom_fields)}
+		{include file="devblocks:cerberusweb.core::internal/custom_fields/form.tpl" custom_fields=$custom_fields}
+		{/if}
+	</div>
+</div>
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
 {include file="devblocks:cerberusweb.core::internal/cards/editors/comment.tpl"}
 
 {if !empty($model->id)}
-<fieldset style="display:none;" class="delete">
-	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
-	
-	<p>
-		Are you sure you want to permanently delete this domain?
-	</p>
-
-	<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
-	<button type="button" class="delete-cancel">{'common.no'|devblocks_translate|capitalize}</button>
-</fieldset>
+	{include file="devblocks:cerberusweb.core::internal/peek/delete_confirm.tpl" noun="domain"}
 {/if}
 
-<div class="status"></div>
-
-<div class="buttons">
-	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if $model->id && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+<div class="buttons" style="margin-top:10px;">
+	<button type="button" class="cerb-ui-button save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if $model->id && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="cerb-ui-button cerb-ui-button--subtle delete-prompt"><span class="cerb-icons cerb-icon-trash"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>
@@ -90,20 +72,35 @@ $(function() {
 	let $popup = genericAjaxPopupFind($frm);
 
 	Devblocks.formDisableSubmit($frm);
-	
+
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'common.edit'|devblocks_translate|capitalize}: {'cerberusweb.datacenter.domain'|devblocks_translate|escape:'javascript' nofilter}");
-		
+
 		// Buttons
-		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
+		$popup.find('button.save').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-		$popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
-		$popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
+		if(window.CerbUI && CerbUI.Form) CerbUI.Form.ConfirmDelete($popup[0]);
 
 		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
-		$popup.find('.chooser-abstract').cerbChooserTrigger();
-		$popup.find('input.input_date').cerbDateInputHelper();
-		
+		if(window.CerbUI && CerbUI.RecordChooser) {
+			new CerbUI.RecordChooser($popup.find('#serverChooser_{$form_id}')[0], {
+				context: '{CerberusContexts::CONTEXT_SERVER}',
+				name: 'server_id',
+				emptyIcon: 'server',
+				searchPlaceholder: "{'cerberusweb.datacenter.common.server'|devblocks_translate|capitalize|escape:'javascript' nofilter}",
+				create: 'if-null'
+			});
+			new CerbUI.RecordChooser($popup.find('#contactsChooser_{$form_id}')[0], {
+				context: '{CerberusContexts::CONTEXT_ADDRESS}',
+				name: 'contact_address_id',
+				multiple: true,
+				emptyIcon: 'mail',
+				searchPlaceholder: 'Contacts',
+				create: true
+			});
+		}
+		$popup.find('input.input_date').each(function() { if(window.CerbUI && CerbUI.DatePicker) new CerbUI.DatePicker.FormInput(this); });
+
 	});
 });
 </script>
