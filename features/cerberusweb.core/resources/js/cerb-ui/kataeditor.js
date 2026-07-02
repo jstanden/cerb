@@ -288,6 +288,9 @@ CerbUI.KataEditor = class {
 		band.className = 'cerb-ui-kataeditor--active-line';
 		band.style.top = (padTop + vr * lh) + 'px';
 		band.style.height = lh + 'px';
+		// Span the full scrollable content width, not just the client width (the CSS right:0 clamps to the
+		// padding box, so a horizontally scrolled long line would run past the band's tint).
+		band.style.width = 'max(100%, ' + this.textarea.scrollWidth + 'px)';
 		if(this._highlightColor)
 			band.style.setProperty('--cerb-ui-kataeditor-active-accent', 'var(--cerb-color-tag-' + this._highlightColor + ')');
 		this.highlight.appendChild(band);
@@ -989,6 +992,7 @@ CerbUI.KataEditor = class {
 		const cs = window.getComputedStyle(this.textarea);
 		const lh = parseFloat(cs.lineHeight) || (parseFloat(cs.fontSize) * 1.5);
 		const padTop = parseFloat(cs.paddingTop) || 0;
+		const width = 'max(100%, ' + this.textarea.scrollWidth + 'px)';   // full content width, not just the client width
 		for(const [mr, cls] of this._lineDecos) {
 			const vr = this._modelRowToViewRow(mr);
 			if(vr < 0) continue;                              // hidden inside a fold (n/a when folding is off)
@@ -996,6 +1000,7 @@ CerbUI.KataEditor = class {
 			band.className = 'cerb-ui-kataeditor--line-deco' + (cls ? (' ' + cls) : '');
 			band.style.top = (padTop + vr * lh) + 'px';
 			band.style.height = lh + 'px';
+			band.style.width = width;
 			this.highlight.appendChild(band);
 		}
 	}
