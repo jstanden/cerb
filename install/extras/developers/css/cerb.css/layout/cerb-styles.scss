@@ -145,46 +145,6 @@ A.no-underline {
 	}
 }
 
-// Text input icons
-
-@mixin form-input-icon($icon) {
-	padding: 2px 2px 2px 25px;
-	background: url(#{$icon}?v=#{$timestamp}) no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
-}
-
-@mixin form-input-icon-svg($svg) {
-	padding: 2px 2px 2px 25px;
-	background: url("data:image/svg+xml;utf8,#{$svg}") no-repeat scroll 5px 50% var(--cerb-color-form-input-background);
-}
-
-$icon-svg-mail: "<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='rgb(136,136,136)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='2' y='4' width='20' height='16' rx='2'/><path d='m22 7-10 6L2 7'/></svg>";
-
-$icon-svg-lock: "<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='rgb(136,136,136)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='11' width='18' height='11' rx='2'/><path d='M7 11V7a5 5 0 0 1 10 0v4'/></svg>";
-
-$icon-svg-search: "<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='rgb(136,136,136)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='11' cy='11' r='8'/><path d='m21 21-4.35-4.35'/></svg>";
-
-$icon-svg-hash: "<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='rgb(136,136,136)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><line x1='4' y1='9' x2='20' y2='9'/><line x1='4' y1='15' x2='20' y2='15'/><line x1='10' y1='3' x2='8' y2='21'/><line x1='16' y1='3' x2='14' y2='21'/></svg>";
-
-INPUT[type=text] {
-	&.input_email {
-		@include form-input-icon-svg($icon-svg-mail);
-	}
-
-	&.input_number {
-		@include form-input-icon-svg($icon-svg-hash);
-	}
-
-	&.input_search {
-		@include form-input-icon-svg($icon-svg-search);
-	}
-}
-
-// Password inputs
-
-INPUT[type=password] {
-	@include form-input-icon-svg($icon-svg-lock);
-}
-
 // Email bodies
 // 	See: http://www.longren.org/2006/09/27/wrapping-text-inside-pre-tags/
 
