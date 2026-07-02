@@ -149,13 +149,7 @@
 {elseif $v.type == 'phone'}
 	<a href="tel:{$dict->$k}">{$v.value}</a>
 {elseif $v.type == 'slider'}
-	{$min = $v.params.min}
-	{$max = $v.params.max}
-	{$mid = $v.params.mid}
-	{$pos = (($v.value-$min)/($max-$min))*100}
-	<div style="display:inline-block;margin-top:5px;width:100px;height:10px;background-color:var(--cerb-color-background-contrast-220);border-radius:8px;">
-		<div style="position:relative;margin-left:-5px;top:-1px;left:{$v.value}%;width:12px;height:12px;border-radius:12px;background-color:{if $v.value < $mid}rgb(0,200,0);{elseif $v.value > $mid}rgb(230,70,70);{else}rgb(175,175,175);{/if}"></div>
-	</div>
+	{include file="devblocks:cerberusweb.core::internal/cerb_ui/slider_readonly.tpl" value=$v.value min=$v.params.min max=$v.params.max midpoint=$v.params.mid width='100px' track_height='10px' thumb='12px'}
 {elseif $v.type == 'size_bytes'}
 	{$v.value|devblocks_prettybytes}
 {elseif $v.type == 'time_mins'}
