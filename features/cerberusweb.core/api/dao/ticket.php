@@ -4099,12 +4099,12 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				return DevblocksSearchCriteria::getNumberParamFromTokens(SearchFields_Ticket::VIRTUAL_WATCHERS_COUNT, $tokens);
 				
 			case 'worker.commented':
-				$search_fields = SearchFields_Ticket::getFields();
-				return DevblocksSearchCriteria::getWorkerParamFromTokens(SearchFields_Ticket::VIRTUAL_WORKER_COMMENTED, $tokens, $search_fields[SearchFields_Ticket::VIRTUAL_WORKER_COMMENTED]);
-				
+				$search_fields = $this->getQuickSearchFields();
+				return DevblocksSearchCriteria::getWorkerParamFromTokens(SearchFields_Ticket::VIRTUAL_WORKER_COMMENTED, $tokens, $search_fields['worker.commented']);
+
 			case 'worker.replied':
-				$search_fields = SearchFields_Ticket::getFields();
-				return DevblocksSearchCriteria::getWorkerParamFromTokens(SearchFields_Ticket::VIRTUAL_WORKER_REPLIED, $tokens, $search_fields[SearchFields_Ticket::VIRTUAL_WORKER_REPLIED]);
+				$search_fields = $this->getQuickSearchFields();
+				return DevblocksSearchCriteria::getWorkerParamFromTokens(SearchFields_Ticket::VIRTUAL_WORKER_REPLIED, $tokens, $search_fields['worker.replied']);
 				
 			default:
 				if($field == 'links' || str_starts_with($field, 'links.'))
