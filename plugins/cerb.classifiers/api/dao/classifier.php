@@ -153,6 +153,31 @@ class DAO_Classifier extends Cerb_ORMHelper {
 	 * @param integer $limit
 	 * @return Model_Classifier[]
 	 */
+	static function autocomplete($term, $as='models') {
+		$db = DevblocksPlatform::services()->database();
+		$objects = [];
+
+		$results = $db->GetArrayReader(sprintf("SELECT id ".
+			"FROM classifier ".
+			"WHERE name LIKE %s ".
+			"ORDER BY name ASC ".
+			"LIMIT 25 ",
+			$db->qstr('%'.$term.'%')
+		));
+
+		if(is_array($results))
+			foreach($results as $row)
+				$objects[$row['id']] = null;
+
+		switch($as) {
+			case 'ids':
+				return array_keys($objects);
+
+			default:
+				return DAO_Classifier::getIds(array_keys($objects));
+		}
+	}
+
 	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null, $options=null) {
 		$db = DevblocksPlatform::services()->database();
 
@@ -2611,25 +2636,16 @@ class Context_Classifier extends Extension_DevblocksContext implements IDevblock
 	function autocomplete($term, $query=null) {
 		$list = [];
 		
-		list($results,) = DAO_Classifier::search(
-			array(),
-			array(
-				new DevblocksSearchCriteria(SearchFields_Classifier::NAME,DevblocksSearchCriteria::OPER_LIKE,'%'.$term.'%'),
-			),
-			25,
-			0,
-			SearchFields_Classifier::NAME,
-			true,
-			false
-		);
+		$results = DAO_Classifier::autocomplete($term);
 
-		foreach($results AS $row){
-			$entry = new stdClass();
-			$entry->label = $row[SearchFields_Classifier::NAME];
-			$entry->value = $row[SearchFields_Classifier::ID];
-			$list[] = $entry;
-		}
-		
+		if(is_array($results))
+			foreach($results as $id => $model) {
+				$entry = new stdClass();
+				$entry->label = $model->name;
+				$entry->value = sprintf("%d", $id);
+				$list[] = $entry;
+			}
+
 		return $list;
 	}
 	

@@ -16,10 +16,6 @@ $(function() {
     var $config = $('#cardWidgetConfig{$config_uniqid}');
     var $input_classifier_id = $config.find('input[name="params[classifier_id]"]');
 
-    $config.find('.cerb-chooser').cerbChooserTrigger()
-        .on('cerb-chooser-selected', function(e) {
-            {literal}$input_classifier_id.val(e.values[0] + '{# ' + e.labels[0] + ' #}');{/literal}
-        })
-    ;
+    if(window.CerbUI && CerbUI.RecordChooser) CerbUI.RecordChooser.pickerLink($config.find('.cerb-chooser')[0], { input: $input_classifier_id });
 });
 </script>

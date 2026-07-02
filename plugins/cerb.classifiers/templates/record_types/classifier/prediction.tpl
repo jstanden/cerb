@@ -1,4 +1,5 @@
 {$div_id = uniqid()}
+<link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=cerb.classifiers&f=css/expression-editor.css{/devblocks_url}?v={$smarty.const.APP_BUILD}">
 
 <div id="{$div_id}">
 	<div>

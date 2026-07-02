@@ -1,6 +1,7 @@
 {$peek_context = CerberusContexts::CONTEXT_CLASSIFIER_ENTITY}
 {$peek_context_id = $model->id}
 {$form_id = uniqid()}
+{$active_type = $model->type|default:'list'}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" class="cerb-form">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
@@ -11,76 +12,63 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<table cellspacing="0" cellpadding="2" border="0" width="98%" style="margin-bottom:10px;">
-	<tr>
-		<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate|capitalize}:</b></td>
-		<td width="99%">
-			<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
-		</td>
-	</tr>
-	<tr>
-		<td width="1%" nowrap="nowrap"><b>{'common.description'|devblocks_translate|capitalize}:</b></td>
-		<td width="99%">
-			<input type="text" name="description" value="{$model->description}" style="width:98%;" placeholder="">
-		</td>
-	</tr>
-</table>
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--row">
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.name'|devblocks_translate|capitalize}</label>
+				<input type="text" name="name" value="{$model->name}" autofocus="autofocus">
+			</div>
 
-<fieldset class="peek">
-	<legend><label><input type="radio" name="type" value="list" {if $model->type =='list'}checked="checked"{/if}> List</label></legend>
-	<div>
-		<textarea name="params[list][labels]" style="width:100%;height:150px;">{if $model->type == 'list'}{$model->params.labels}{/if}</textarea>
-	</div>
-	<div class="cerb-list-examples" style="display:none;margin-top:5px;">
-		<tt>&lt;label&gt;, &lt;alias&gt;</tt> &nbsp; e.g.:
-		<pre style="margin:0px 0px 0px 20px;"><code>mobile, cell
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.description'|devblocks_translate|capitalize}</label>
+				<input type="text" name="description" value="{$model->description}" placeholder="">
+			</div>
+		</div>
+
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'common.type'|devblocks_translate|capitalize}</label>
+			<input type="hidden" name="type" id="entityType{$form_id}" value="{$active_type}">
+			<div>
+				<div class="cerb-ui-switcher" data-cerb-input="entityType{$form_id}">
+					<button type="button" data-value="list" {if $active_type == 'list'}class="cerb-ui-switcher--active"{/if}>List</button>
+					<button type="button" data-value="regexp" {if $active_type == 'regexp'}class="cerb-ui-switcher--active"{/if}>Token Regexp</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="cerb-ui-form--field" data-cerb-entity-type-panel="list" {if $active_type != 'list'}style="display:none;"{/if}>
+			<textarea name="params[list][labels]" rows="8">{if $model->type == 'list'}{$model->params.labels}{/if}</textarea>
+			<div class="cerb-ui-form--help">
+				<tt>&lt;label&gt;, &lt;alias&gt;</tt> &nbsp; e.g.:
+				<pre style="margin:0px 0px 0px 20px;"><code>mobile, cell
 mobile, cellphone
 mobile, mobile
 website, homepage
 website, url
 website, website</code></pre>
+			</div>
+		</div>
+
+		<div class="cerb-ui-form--field" data-cerb-entity-type-panel="regexp" {if $active_type != 'regexp'}style="display:none;"{/if}>
+			<textarea name="params[regexp][pattern]" rows="3">{if $model->type == 'regexp'}{$model->params.pattern}{/if}</textarea>
+		</div>
+
+		{if !empty($custom_fields)}
+		{include file="devblocks:cerberusweb.core::internal/custom_fields/form.tpl" custom_fields=$custom_fields}
+		{/if}
 	</div>
-</fieldset>
-
-<fieldset class="peek">
-	<legend><label><input type="radio" name="type" value="regexp" {if $model->type == 'regexp'}checked="checked"{/if}> Token Regexp</label></legend>
-	<textarea name="params[regexp][pattern]" style="width:100%;height:50px;">{if $model->type == 'regexp'}{$model->params.pattern}{/if}</textarea>
-</fieldset>
-
-{*
-<fieldset class="peek">
-	<legend><label><input type="radio" name="type" value="text" {if $model->type == 'text'}checked="checked"{/if}> Unstructured Text</label></legend>
-	
-</fieldset>
-*}
-
-{if !empty($custom_fields)}
-<fieldset class="peek">
-	<legend>{'common.custom_fields'|devblocks_translate}</legend>
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-</fieldset>
-{/if}
+</div>
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
 {if !empty($model->id)}
-<fieldset style="display:none;" class="delete">
-	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
-	
-	<div>
-		Are you sure you want to permanently delete this classifier entity?
-	</div>
-	
-	<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
-	<button type="button" class="delete-cancel">{'common.no'|devblocks_translate|capitalize}</button>
-</fieldset>
+	{include file="devblocks:cerberusweb.core::internal/peek/delete_confirm.tpl" noun="classifier entity"}
 {/if}
 
-<div class="status"></div>
-
-<div class="buttons">
-	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+<div class="buttons" style="margin-top:10px;">
+	<button type="button" class="cerb-ui-button save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="cerb-ui-button cerb-ui-button--subtle delete-prompt"><span class="cerb-icons cerb-icon-trash"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>
@@ -91,27 +79,37 @@ $(function() {
 	let $popup = genericAjaxPopupFind($frm);
 
 	Devblocks.formDisableSubmit($frm);
-	
+
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'common.classifier.entity'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 
 		// Buttons
-		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
+		$popup.find('button.save').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-		$popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
-		$popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
+		if(window.CerbUI && CerbUI.Form) CerbUI.Form.ConfirmDelete($popup[0]);
 
-		var $textarea_labels_hints = $popup.find('div.cerb-list-examples');
-		var $radio_type = $frm.find('input:radio[name=type]');
-		
-		$radio_type.on('click', function(e) {
-			if('list' == $(e.target).val()) {
-				$textarea_labels_hints.fadeIn();
-			} else {
-				$textarea_labels_hints.hide();
-			}
-		});
-		
+		// Type switcher: reveal the matching params panel; both textareas stay in the DOM (the save handler
+		// only reads the selected type's params).
+		let typeInput = document.getElementById('entityType{$form_id}');
+		let switcherEl = $popup.find('[data-cerb-input="entityType{$form_id}"]')[0];
+
+		let applyType = function(value) {
+			$popup.find('[data-cerb-entity-type-panel]').each(function() {
+				$(this).toggle(this.getAttribute('data-cerb-entity-type-panel') === value);
+			});
+		};
+
+		if(switcherEl && window.CerbUI && CerbUI.Switcher)
+			new CerbUI.Switcher(switcherEl, {
+				value: typeInput.value,
+				onSelect: function(value) {
+					typeInput.value = value;
+					applyType(value);
+				}
+			});
+
+		applyType(typeInput.value);
+
 	});
 });
 </script>

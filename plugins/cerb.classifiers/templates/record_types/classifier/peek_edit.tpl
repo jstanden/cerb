@@ -11,55 +11,46 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<table cellspacing="0" cellpadding="2" border="0" width="98%" style="margin-bottom:10px;">
-	<tr>
-		<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate|capitalize}:</b></td>
-		<td width="99%">
-			<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
-		</td>
-	</tr>
-	
-	<tr>
-		<td width="1%" valign="top" nowrap="nowrap"><b>{'common.owner'|devblocks_translate|capitalize}:</b></td>
-		<td width="99%">
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'common.name'|devblocks_translate|capitalize}</label>
+			<input type="text" name="name" value="{$model->name}" autofocus="autofocus">
+		</div>
+
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'common.owner'|devblocks_translate|capitalize}</label>
 			{include file="devblocks:cerberusweb.core::internal/peek/menu_actor_owner.tpl"}
-		</td>
-	</tr>
-	
-	{if !empty($model)}
-	<tr>
-		<td width="1%" valign="top" nowrap="nowrap"><b>{'common.training'|devblocks_translate|capitalize}:</b></td>
-		<td width="99%">
-			<label><input type="checkbox" name="do_retrain" value="1"> Build a new model using the training examples</label>
-		</td>
-	</tr>
-	{/if}
-	
-	{if !empty($custom_fields)}
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
-	{/if}
-</table>
+		</div>
+
+		{if !empty($model)}
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'common.training'|devblocks_translate|capitalize}</label>
+			<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-2">
+				<label class="cerb-ui-toggle" id="doRetrain{$frm_id}">
+					<input type="checkbox" name="do_retrain" value="1">
+					<span class="cerb-ui-toggle--slider"></span>
+				</label>
+				<label for="doRetrain{$frm_id}">Build a new model using the training examples</label>
+			</div>
+		</div>
+		{/if}
+
+		{if !empty($custom_fields)}
+		{include file="devblocks:cerberusweb.core::internal/custom_fields/form.tpl" custom_fields=$custom_fields}
+		{/if}
+	</div>
+</div>
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
 {if !empty($model->id)}
-<fieldset style="display:none;" class="delete">
-	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
-	
-	<div>
-		Are you sure you want to permanently delete this classifier, its classes, and training data?
-	</div>
-	
-	<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
-	<button type="button" class="delete-cancel">{'common.no'|devblocks_translate|capitalize}</button>
-</fieldset>
+	{include file="devblocks:cerberusweb.core::internal/peek/delete_confirm.tpl" noun="classifier, its classes, and training data"}
 {/if}
 
-<div class="status"></div>
-
-<div class="buttons">
-	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+<div class="buttons" style="margin-top:10px;">
+	<button type="button" class="cerb-ui-button save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="cerb-ui-button cerb-ui-button--subtle delete-prompt"><span class="cerb-icons cerb-icon-trash"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>
@@ -70,64 +61,21 @@ $(function() {
 	let $popup = genericAjaxPopupFind($frm);
 
 	Devblocks.formDisableSubmit($frm);
-	
+
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'common.classifier'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		$popup.css('overflow', 'inherit');
-		
-		// Buttons
-		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
-		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-		$popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
-		$popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
 
-		// Owners
-		
-		var $owners_menu = $popup.find('ul.owners-menu');
-		var $ul = $owners_menu.siblings('ul.chooser-container');
-		
+		// Buttons
+		$popup.find('button.save').click(Devblocks.callbackPeekEditSave);
+		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
+		if(window.CerbUI && CerbUI.Form) CerbUI.Form.ConfirmDelete($popup[0]);
+
 		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
-		
-		$ul.on('bubble-remove', function(e, ui) {
-			e.stopPropagation();
-			$(e.target).closest('li').remove();
-			$ul.hide();
-			$owners_menu.show();
-		});
-		
-		$owners_menu.menu({
-			select: function(event, ui) {
-				var token = ui.item.attr('data-token');
-				var label = ui.item.attr('data-label');
-				
-				if(undefined == token || undefined == label)
-					return;
-				
-				$owners_menu.hide();
-				
-				// Build bubble
-				
-				var context_data = token.split(':');
-				var $li = $('<li/>');
-				let $label = $('<a class="cerb-peek-trigger no-underline" />').attr('data-context',context_data[0]).attr('data-context-id',context_data[1]).text(label);
-				$label.cerbPeekTrigger().appendTo($li);
-				$('<input type="hidden">').attr('name', 'owner').attr('value',token).appendTo($li);
-				ui.item.find('img.cerb-avatar').clone().prependTo($li);
-				let $a = $('<a><span class="cerb-icons cerb-icon-circle-remove"></span></a>').appendTo($li);
-				$a.on('click', function(e) {
-					e.stopPropagation();
-					$(this).trigger('bubble-remove');
-				});
-				
-				$ul.find('> *').remove();
-				$ul.append($li);
-				$ul.show();
-			}
-		});
-		
+
 		// Focus
 		$popup.find('input:text[name=name]').focus();
-		
+
 	});
 });
 </script>

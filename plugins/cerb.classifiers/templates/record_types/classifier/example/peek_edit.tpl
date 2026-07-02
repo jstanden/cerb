@@ -1,5 +1,6 @@
 {$peek_context = CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE}
 {$peek_context_id = $model->id}
+<link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=cerb.classifiers&f=css/expression-editor.css{/devblocks_url}?v={$smarty.const.APP_BUILD}">
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=devblocks.core&f=js/rangy/rangy-core.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=devblocks.core&f=js/rangy/rangy-classapplier.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=devblocks.core&f=js/rangy/rangy-highlighter.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
@@ -15,50 +16,48 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<table cellspacing="0" cellpadding="2" border="0" width="100%" style="margin-bottom:5px;">
-	<tr>
-		<td width="1%" nowrap="nowrap"><b>{'common.classifier'|devblocks_translate|capitalize}:</b></td>
-		<td width="99%">
-			<button type="button" class="chooser-abstract" data-field-name="classifier_id" data-context="{CerberusContexts::CONTEXT_CLASSIFIER}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="cerb-icons cerb-icon-search"></span></button>
-			
-			<ul class="bubbles chooser-container">
-				{if $model}
-					{$classifier = $model->getClassifier()}
-					{if $classifier}
-						<li><input type="hidden" name="classifier_id" value="{$classifier->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CLASSIFIER}" data-context-id="{$classifier->id}">{$classifier->name}</a></li>
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--row">
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.classifier'|devblocks_translate|capitalize}</label>
+				<div class="cerb-ui-record-chooser" id="classifierChooser{$frm_id}" data-context="{CerberusContexts::CONTEXT_CLASSIFIER}" data-name="classifier_id">
+					{if $model}
+						{$classifier = $model->getClassifier()}
+						{if $classifier}
+							<li data-context-id="{$classifier->id}" data-label="{$classifier->name}"></li>
+						{/if}
 					{/if}
-				{/if}
-			</ul>
-		</td>
-	</tr>
-	
-	<tr>
-		<td width="1%" nowrap="nowrap"><b>{'common.classifier.classification'|devblocks_translate|capitalize}:</b></td>
-		<td width="99%">
-			<button type="button" class="chooser-abstract" data-field-name="class_id" data-context="{CerberusContexts::CONTEXT_CLASSIFIER_CLASS}" data-single="true" data-query="{if $model->classifier_id}classifier.id:{$model->classifier_id}{/if}" data-autocomplete="{if $model->classifier_id}classifier.id:{$model->classifier_id}{/if}"><span class="cerb-icons cerb-icon-search"></span></button>
-			
-			<ul class="bubbles chooser-container">
-				{if $model}
-					{$class = $model->getClass()}
-					{if $class}
-						<li><input type="hidden" name="class_id" value="{$class->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CLASSIFIER_CLASS}" data-context-id="{$class->id}">{$class->name}</a></li>
-					{/if}
-				{/if}
-			</ul>
-		</td>
-	</tr>
-</table>
+				</div>
+			</div>
 
-<fieldset class="peek">
-	<legend>{'dao.classifier_example.expression'|devblocks_translate|capitalize} <small>(highlight to tag)</small></legend>
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.classifier.classification'|devblocks_translate|capitalize}</label>
+				<div class="cerb-ui-record-chooser" id="classChooser{$frm_id}" data-context="{CerberusContexts::CONTEXT_CLASSIFIER_CLASS}" data-name="class_id" data-query="{if $model->classifier_id}classifier.id:{$model->classifier_id}{/if}">
+					{if $model}
+						{$class = $model->getClass()}
+						{if $class}
+							<li data-context-id="{$class->id}" data-label="{$class->name}"></li>
+						{/if}
+					{/if}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">{'dao.classifier_example.expression'|devblocks_translate|capitalize} <small class="cerb-u-text-muted cerb-u-fw-400">(highlight to tag)</small></div>
+	</div>
 
 	<input type="hidden" name="expression" value="{$model->expression}">
-	
+
 	<div class="cerb-expression-editor">
-		<div class="expression" contenteditable="true" autofocus="autofocus" spellcheck="false" style="border:1px solid rgb(150,150,150);padding:2px;min-height:1.2em;line-height:1.2em;width:100%;">
+		<div class="expression cerb-u-w-100" contenteditable="true" autofocus="autofocus" spellcheck="false" style="min-height:1.2em;line-height:1.2em;">
 			{$model->expression|escape|devblocks_rangy_deserialize nofilter}
 		</div>
-		
+
 		<ul class="expression-toolbar" style="margin-top:5px;display:none;">
 			<li data-tag="">
 				<span style="color:var(--cerb-color-text);font-weight:bold;">- remove selected tags -</span>
@@ -71,35 +70,25 @@
 			{/foreach}
 		</ul>
 	</div>
-</fieldset>
+</div>
 
 {if !empty($custom_fields)}
-<fieldset class="peek">
-	<legend>{'common.custom_fields'|devblocks_translate}</legend>
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-</fieldset>
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-form">
+		{include file="devblocks:cerberusweb.core::internal/custom_fields/form.tpl" custom_fields=$custom_fields}
+	</div>
+</div>
 {/if}
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
 {if !empty($model->id)}
-<fieldset style="display:none;" class="delete">
-	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
-	
-	<div>
-		Are you sure you want to permanently delete this classifier example?
-	</div>
-	
-	<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
-	<button type="button" class="delete-cancel">{'common.no'|devblocks_translate|capitalize}</button>
-</fieldset>
+	{include file="devblocks:cerberusweb.core::internal/peek/delete_confirm.tpl" noun="classifier example"}
 {/if}
 
-<div class="status"></div>
-
-<div class="buttons">
-	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+<div class="buttons" style="margin-top:10px;">
+	<button type="button" class="cerb-ui-button save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="cerb-ui-button cerb-ui-button--subtle delete-prompt"><span class="cerb-icons cerb-icon-trash"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>
@@ -111,19 +100,17 @@ $(function() {
 	let $layer = $popup.attr('data-layer');
 
 	Devblocks.formDisableSubmit($frm);
-	
+
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'common.example'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
-		var $chooser_classifier = $frm.find('button.chooser-abstract[data-field-name="classifier_id"]');
-		var $chooser_class = $frm.find('button.chooser-abstract[data-field-name="class_id"]');
 		var $expression_field = $frm.find('input:hidden[name=expression]');
 		var $expression_editor = $frm.find('div.cerb-expression-editor');
 		var $expression = $expression_editor.find('div.expression');
 		var $menu = $expression_editor.find('ul.expression-toolbar');
-		
+
 		var serializeExpression = function(e) {
 			var $clone = $expression.clone();
-			
+
 			$clone.find('span').each(function(i, node) {
 				var $node = $(node);
 				var text = $node.text();
@@ -133,68 +120,92 @@ $(function() {
 				{/literal}
 				$node.remove();
 			});
-			
+
 			$expression_field.val($.trim($clone.html()));
 			$clone.remove();
 		}
-		
+
 		// Buttons
-		$popup.find('button.submit').click({ before: serializeExpression }, Devblocks.callbackPeekEditSave);
+		$popup.find('button.save').click({ before: serializeExpression }, Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-		$popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
-		$popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
+		if(window.CerbUI && CerbUI.Form) CerbUI.Form.ConfirmDelete($popup[0]);
 
 		rangy.init();
 		var highlighter = rangy.createHighlighter();
-		
+
 		// Content editable
-		
+
 		{foreach from=$entities item=entity key=k}
 		highlighter.addClassApplier(rangy.createClassApplier("{$k}"));
 		{/foreach}
-		
-		$menu
-			.menu()
-			.on('click', function(e) {
-				var $target = $(e.target);
-				
-				if($target.is('span,div'))
-					$target = $target.closest('li');
-				
-				if(!$target.is('li'))
-					return;
-				
-				e.stopPropagation();
-				
-				var tag = $target.attr('data-tag');
-				
-				if(0 == tag.length) {
-					//var sel = rangy.getSelection();
-					//var range = sel.getRange();
-					highlighter.unhighlightSelection();
-				} else {
-					highlighter.highlightSelection(tag);
+
+		// The entity-tag toolbar: a flat CerbUI.Menu that floats below the editor when text is selected.
+		// We snapshot the selection when it's made because opening the floating menu collapses it.
+		let exprSavedRanges = null;
+
+		let exprMenu = (window.CerbUI && CerbUI.Menu) ? new CerbUI.Menu($menu[0], {
+			panelClass: 'cerb-expression-menu',
+			onRenderItem: function(li, src) {
+				let tag = src.getAttribute('data-tag');
+				let $label = $(li).find('.cerb-ui-menu--label');
+
+				// Render entity rows as the same colored chip the editor uses (shared %cerb-expression-tag);
+				// the "remove tags" row (no entity) stays plain bold text.
+				if(tag)
+					$label.addClass('cerb-expression-tag').addClass(tag);
+				else
+					$label.css('font-weight', 'bold');
+
+				let desc = $(src).children('div').text();
+
+				if(desc.length) {
+					// Two-line cell: the colored entity label over its description
+					li.style.height = 'auto';
+					li.style.minHeight = '40px';
+					li.style.whiteSpace = 'normal';
+
+					let $col = $('<div/>').css('display', 'flex').css('flex-direction', 'column').css('gap', '2px');
+					$label.before($col);
+					$col.append($label);
+					$('<div/>').css('color', 'var(--cerb-color-text)').css('opacity', '0.7').css('font-size', '0.85em').text(desc).appendTo($col);
 				}
-				
-				var sel = rangy.getSelection();
+			},
+			onSelect: function(li, src) {
+				let tag = src.getAttribute('data-tag');
+
+				if(null == tag)
+					return;
+
+				// Restore the selection the floating menu took focus from
+				let sel = rangy.getSelection();
+				if(exprSavedRanges) sel.setRanges(exprSavedRanges);
+
+				if(0 == tag.length)
+					highlighter.unhighlightSelection();
+				else
+					highlighter.highlightSelection(tag);
+
 				sel.removeAllRanges();
-				$menu.hide();
-			})
-			;
-		
+				exprSavedRanges = null;
+			}
+		}) : null;
+
 		$expression
 			.on('keypress keyup keydown', function(e) {
 				e.stopPropagation();
 			})
 			.on('keyup mouseup', function(e) {
 				e.stopPropagation();
-				var range = rangy.createRangyRange();
 				var sel = rangy.getSelection();
-				
+
 				if(sel.toString().length > 0) {
-					$menu.show();
+					exprSavedRanges = sel.getAllRanges();
+					if(exprMenu && !exprMenu.isOpen())
+						exprMenu.open($expression[0]);
 				} else {
-					$menu.hide();
+					exprSavedRanges = null;
+					if(exprMenu)
+						exprMenu.close();
 				}
 			})
 			.on('paste', function(e) {
@@ -215,27 +226,36 @@ $(function() {
 				sel.removeAllRanges();
 			})
 		;
-		
+
 		$expression.focus();
-		
+
 		// Triggers
 		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
 
-		$popup.find('.chooser-abstract').cerbChooserTrigger()
-			.on('cerb-chooser-saved', function(e) {
-				// When the classifier changes, default the class chooser filter
-				if($(e.target).attr('data-field-name') == 'classifier_id') {
-					var $bubble = $chooser_classifier.siblings('ul.chooser-container').find('> li:first input:hidden');
-					
-					if($bubble.length > 0) {
-						var classifier_id = $bubble.val();
-						$chooser_class.attr('data-query', 'classifier.id:' + classifier_id);
-						$chooser_class.attr('data-autocomplete', 'classifier.id:' + classifier_id);
+		// Coupled choosers: the class chooser is scoped to the picked classifier
+		let classChooserEl = document.getElementById('classChooser{$frm_id}');
+		let classChooser = (classChooserEl && window.CerbUI && CerbUI.RecordChooser) ? new CerbUI.RecordChooser(classChooserEl, {
+			context: classChooserEl.getAttribute('data-context'),
+			name: 'class_id',
+			emptyIcon: 'tag',
+			query: classChooserEl.getAttribute('data-query') || ''
+		}) : null;
+
+		let classifierChooserEl = document.getElementById('classifierChooser{$frm_id}');
+		if(classifierChooserEl && window.CerbUI && CerbUI.RecordChooser)
+			new CerbUI.RecordChooser(classifierChooserEl, {
+				context: classifierChooserEl.getAttribute('data-context'),
+				name: 'classifier_id',
+				emptyIcon: 'brain',
+				onSelect: function(item) {
+					// Picking a classifier rescopes the class chooser and clears the stale class
+					if(classChooser && item && item.id) {
+						classChooser.setQuery('classifier.id:' + item.id);
+						classChooser.clear(false);
 					}
 				}
-			})
-			;
-		
+			});
+
 	});
 });
 </script>

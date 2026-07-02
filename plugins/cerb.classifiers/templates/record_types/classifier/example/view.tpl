@@ -1,4 +1,5 @@
 {$view_context = CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE}
+<link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=cerb.classifiers&f=css/expression-editor.css{/devblocks_url}?v={$smarty.const.APP_BUILD}">
 {$view_fields = $view->getColumnsAvailable()}
 {$results = $view->getData()}
 {$total = $results[1]}

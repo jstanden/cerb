@@ -1,0 +1,123 @@
+/*
+ * Classifier expression-editor / entity-tag chip styles.
+ * Hand-maintained (copied from the former core cerb-styles.scss block); not build-generated.
+ * Loaded via <link c=resource&p=cerb.classifiers&f=css/expression-editor.css> only on the
+ * classifier surfaces that use it (example peek, example worklist, prediction output).
+ * Depends only on the global --cerb-color-* vars from the core cerb.css bundle.
+ */
+
+.cerb-expression-menu .cerb-expression-tag, .cerb-expression-editor .expression SPAN {
+  color: var(--cerb-color-text);
+  font-weight: bold;
+  border-radius: 10px;
+  padding: 0 6px;
+  background-color: var(--cerb-color-background-contrast-200);
+}
+.cerb-expression-menu .default.cerb-expression-tag, .cerb-expression-editor .expression SPAN.default {
+  font-weight: normal;
+  background-color: var(--cerb-color-background-contrast-200);
+}
+.cerb-expression-menu .alias.cerb-expression-tag, .cerb-expression-editor .expression SPAN.alias {
+  background-color: var(--cerb-color-background-contrast-200);
+}
+.cerb-expression-menu .avail.cerb-expression-tag, .cerb-expression-editor .expression SPAN.avail {
+  background-color: var(--cerb-color-background-contrast-200);
+}
+.cerb-expression-menu .contact.cerb-expression-tag, .cerb-expression-editor .expression SPAN.contact {
+  color: rgb(0, 120, 0);
+  background-color: rgb(235, 255, 205);
+}
+.cerb-expression-menu .contact_method.cerb-expression-tag, .cerb-expression-editor .expression SPAN.contact_method {
+  background-color: var(--cerb-color-background-contrast-200);
+}
+.cerb-expression-menu .context.cerb-expression-tag, .cerb-expression-editor .expression SPAN.context {
+  background-color: var(--cerb-color-background-contrast-200);
+}
+.cerb-expression-menu .date.cerb-expression-tag, .cerb-expression-editor .expression SPAN.date {
+  color: rgb(68, 147, 224);
+  background-color: rgb(217, 239, 255);
+}
+.cerb-expression-menu .duration.cerb-expression-tag, .cerb-expression-editor .expression SPAN.duration {
+  color: rgb(188, 121, 20);
+  background-color: rgb(255, 228, 16);
+}
+.cerb-expression-menu .entity.cerb-expression-tag, .cerb-expression-editor .expression SPAN.entity {
+  background-color: var(--cerb-color-background-contrast-200);
+}
+.cerb-expression-menu .event.cerb-expression-tag, .cerb-expression-editor .expression SPAN.event {
+  background-color: var(--cerb-color-background-contrast-200);
+}
+.cerb-expression-menu .number.cerb-expression-tag, .cerb-expression-editor .expression SPAN.number {
+  background-color: var(--cerb-color-background-contrast-200);
+}
+.cerb-expression-menu .org.cerb-expression-tag, .cerb-expression-editor .expression SPAN.org {
+  background-color: var(--cerb-color-background-contrast-200);
+}
+.cerb-expression-menu .phone.cerb-expression-tag, .cerb-expression-editor .expression SPAN.phone {
+  background-color: var(--cerb-color-background-contrast-200);
+}
+.cerb-expression-menu .place.cerb-expression-tag, .cerb-expression-editor .expression SPAN.place {
+  background-color: var(--cerb-color-background-contrast-200);
+}
+.cerb-expression-menu .remind.cerb-expression-tag, .cerb-expression-editor .expression SPAN.remind {
+  background-color: var(--cerb-color-background-contrast-200);
+}
+.cerb-expression-menu .status.cerb-expression-tag, .cerb-expression-editor .expression SPAN.status {
+  background-color: var(--cerb-color-background-contrast-200);
+}
+.cerb-expression-menu .temperature.cerb-expression-tag, .cerb-expression-editor .expression SPAN.temperature {
+  color: rgb(212, 4, 30);
+  background-color: rgb(245, 200, 200);
+}
+.cerb-expression-menu .time.cerb-expression-tag, .cerb-expression-editor .expression SPAN.time {
+  color: rgb(255, 128, 0);
+  background-color: rgb(253, 238, 193);
+}
+.cerb-expression-menu .worker.cerb-expression-tag, .cerb-expression-editor .expression SPAN.worker {
+  color: rgb(169, 63, 255);
+  background-color: rgb(233, 217, 255);
+}
+
+.cerb-expression-editor UL.expression-toolbar {
+  width: 100%;
+  border: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  max-height: 35em;
+}
+.cerb-expression-editor UL.expression-toolbar LI {
+  color: var(--cerb-color-text);
+}
+.cerb-expression-editor UL.expression-toolbar::-webkit-scrollbar {
+  width: 12px;
+}
+.cerb-expression-editor UL.expression-toolbar::-webkit-scrollbar-track {
+  background-color: var(--cerb-color-background-contrast-240);
+  border-radius: 10px;
+}
+.cerb-expression-editor UL.expression-toolbar::-webkit-scrollbar-thumb {
+  background-color: var(--cerb-color-background-contrast-200);
+  border-radius: 10px;
+}
+.cerb-expression-editor .expression:focus {
+  outline: none;
+}
+.cerb-expression-editor .expression[contenteditable=true] {
+  padding: 0.5em 0.7em;
+  border: 1px solid var(--cerb-color-background-contrast-220);
+  border-radius: 6px;
+  background-color: var(--cerb-color-form-input-background);
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.12s, outline-color 0.12s;
+}
+.cerb-expression-editor .expression[contenteditable=true]:focus {
+  border-color: var(--cerb-color-action-primary);
+  outline: 2px solid var(--cerb-color-action-primary);
+  outline-offset: 1px;
+}
+
+.cerb-expression-menu .cerb-expression-tag {
+  flex: 0 0 auto;
+  align-self: flex-start;
+}
