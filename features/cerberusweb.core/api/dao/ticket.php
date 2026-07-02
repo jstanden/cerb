@@ -2767,6 +2767,38 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 					},
 				];
 				
+			case 'sender.first':
+			case 'sender.last':
+				$search_key = ('sender.first' == $key)
+					? SearchFields_Ticket::TICKET_FIRST_WROTE_ID
+					: SearchFields_Ticket::TICKET_LAST_WROTE_ID;
+				$search_field = $search_fields[$search_key];
+
+				return [
+					'label' => $search_field->db_label,
+					'key_query' => $key,
+					'key_select' => $search_key,
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'sql_select' => sprintf("%s.%s",
+						Cerb_ORMHelper::escape($search_field->db_table),
+						Cerb_ORMHelper::escape($search_field->db_column)
+					),
+					'get_labels_callback' => function($values) {
+						$label_map = [];
+
+						if(in_array(0, $values))
+							$label_map[0] = sprintf('(%s)', DevblocksPlatform::translate('common.none'));
+
+						if(($models = DAO_Address::getIds($values)))
+							$label_map += array_column($models, 'email', 'id');
+
+						return $label_map;
+					},
+					'get_value_as_filter_callback' => function($value) {
+						return sprintf('(id:%d)', $value);
+					},
+				];
+
 			case 'status':
 			case 'status.id':
 				$search_key = SearchFields_Ticket::TICKET_STATUS_ID;
