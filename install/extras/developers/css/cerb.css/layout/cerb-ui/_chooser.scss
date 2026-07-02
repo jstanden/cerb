@@ -273,6 +273,21 @@
 	white-space: nowrap;
 }
 
+// Two-line tile: a disambiguating eyebrow (e.g. parent path) stacked above the label.
+.cerb-ui-record-chooser--text {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	line-height: 1.15;
+}
+.cerb-ui-record-chooser--eyebrow {
+	font-size: 0.8em;
+	color: var(--cerb-color-background-contrast-140);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
 .cerb-ui-record-chooser--placeholder {
 	flex: 1 1 auto;
 	color: var(--cerb-color-background-contrast-150);
