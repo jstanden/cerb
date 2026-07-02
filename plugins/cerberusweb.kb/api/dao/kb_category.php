@@ -501,9 +501,27 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 		}
 	}
 	
+	// Ancestor path (parent → root) as a string, e.g. "Cerb / Installation" — disambiguates same-named
+	// subcategories in the record chooser (eyebrow). Pass $all (getAll()) to avoid re-fetching in a loop.
+	static function getAncestorPathString($category_id, $all=null, $sep=' / ') {
+		if(is_null($all))
+			$all = self::getAll();
+
+		$path = [];
+		$pid = isset($all[$category_id]) ? $all[$category_id]->parent_id : 0;
+		$guard = 0;
+
+		while($pid && isset($all[$pid]) && $guard++ < 25) {
+			array_unshift($path, $all[$pid]->name);
+			$pid = $all[$pid]->parent_id;
+		}
+
+		return implode($sep, $path);
+	}
+
 	static function countByArticleId($article_id) {
 		$db = DevblocksPlatform::services()->database();
-		
+
 		$sql = sprintf("SELECT count(kb_category_id) FROM kb_article_to_category WHERE kb_article_id = %d",
 			$article_id
 		);
@@ -771,15 +789,21 @@ class Context_KbCategory extends Extension_DevblocksContext implements IDevblock
 		$list = [];
 		
 		$results = DAO_KbCategory::autocomplete($term);
+		$all = DAO_KbCategory::getAll();
 
 		if(is_array($results))
 		foreach($results as $id => $record) {
 			$entry = new stdClass();
 			$entry->label = sprintf("%s", $record->name);
 			$entry->value = sprintf("%d", $id);
+
+			// Eyebrow: the ancestor path (parent -> root) to disambiguate same-named subcategories
+			if('' !== ($path = DAO_KbCategory::getAncestorPathString($id, $all)))
+				$entry->meta = ['parent' => $path];
+
 			$list[] = $entry;
 		}
-		
+
 		return $list;
 	}
 	

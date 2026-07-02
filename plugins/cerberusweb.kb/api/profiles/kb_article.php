@@ -33,8 +33,6 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 			switch ($action) {
 				case 'savePeekJson':
 					return $this->_profileAction_savePeekJson();
-				case 'showBulkPopup':
-					return $this->_profileAction_showBulkPopup();
 				case 'startBulkUpdateJson':
 					return $this->_profileAction_startBulkUpdateJson();
 				case 'preview':
@@ -194,37 +192,6 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 		
 		$http_response = Cerb_ORMHelper::generateRecordExploreSet($view_id, $explore_from);
 		DevblocksPlatform::redirect($http_response);
-	}
-	
-	private function _profileAction_showBulkPopup() {
-		$tpl = DevblocksPlatform::services()->template();
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		if(!$active_worker->hasPriv(sprintf('contexts.%s.update.bulk', Context_KbArticle::ID)))
-			DevblocksPlatform::dieWithHttpError(null, 403);
-		
-		$id_csv = DevblocksPlatform::importGPC($_REQUEST['ids'] ?? null);
-		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null);
-
-		$tpl->assign('view_id', $view_id);
-
-		if(!empty($id_csv)) {
-			$ids = DevblocksPlatform::parseCsvString($id_csv);
-			$tpl->assign('ids', implode(',', $ids));
-		}
-		
-		// Categories
-		$categories = DAO_KbCategory::getAll();
-		$tpl->assign('categories', $categories);
-		
-		$levels = DAO_KbCategory::getTree(0); //$root_id
-		$tpl->assign('levels',$levels);
-		
-		// Custom Fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_KB_ARTICLE, false);
-		$tpl->assign('custom_fields', $custom_fields);
-
-		$tpl->display('devblocks:cerberusweb.kb::kb/article/bulk.tpl');
 	}
 	
 	private function _profileAction_startBulkUpdateJson() {

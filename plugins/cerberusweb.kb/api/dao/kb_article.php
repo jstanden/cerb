@@ -1212,10 +1212,16 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 			
 			$article_categories = DAO_KbArticle::getCategoriesByArticleId($context_id);
 			$tpl->assign('article_categories', $article_categories);
-			
+
 			// Categories
 			$categories = DAO_KbCategory::getAll();
 			$tpl->assign('categories', $categories);
+
+			// Eyebrow (ancestor path) per selected category — disambiguates same-named subcategories in the chooser
+			$category_eyebrows = [];
+			foreach(array_keys($article_categories) as $cat_id)
+				$category_eyebrows[$cat_id] = DAO_KbCategory::getAncestorPathString($cat_id, $categories);
+			$tpl->assign('category_eyebrows', $category_eyebrows);
 			
 			$levels = DAO_KbCategory::getTree(0); //$root_id
 			$tpl->assign('levels',$levels);
