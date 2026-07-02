@@ -1,65 +1,59 @@
 {if $model->type == Model_CustomField::TYPE_DROPDOWN || $model->type == Model_CustomField::TYPE_MULTI_CHECKBOX}
-	<fieldset>
-		<legend>{'common.options'|devblocks_translate|capitalize}:</legend>
-		
-		<textarea cols="35" rows="6" name="params[options]" style="width:100%;">{foreach from=$model->params.options item=opt}{$opt|cat:"\r\n"}{/foreach}</textarea>
-		<div>
-			(one option per line)
-		</div>
-	</fieldset>
+	<div class="cerb-ui-form--field">
+		<label class="cerb-ui-form--label">{'common.options'|devblocks_translate|capitalize}</label>
+		<textarea rows="6" name="params[options]">{foreach from=$model->params.options item=opt}{$opt|cat:"\r\n"}{/foreach}</textarea>
+		<div class="cerb-ui-form--help">(one option per line)</div>
+	</div>
 {elseif $model->type == Model_CustomField::TYPE_CURRENCY}
-	<fieldset>
-		<legend>{'common.options'|devblocks_translate|capitalize}:</legend>
-		
-		<b>Currency:</b>
+	<div class="cerb-ui-form--field">
+		<label class="cerb-ui-form--label">Currency</label>
 		{$currencies = DAO_Currency::getAll()}
 		<select name="params[currency_id]">
 		{foreach from=$currencies item=currency}
 		<option value="{$currency->id}" {if $model->params.currency_id==$currency->id}selected="selected"{/if}>{$currency->name}</option>
 		{/foreach}
 		</select>
-	</fieldset>
+	</div>
 {elseif $model->type == Model_CustomField::TYPE_DECIMAL}
-	<fieldset>
-		<legend>{'common.options'|devblocks_translate|capitalize}:</legend>
-		
-		<b>{'dao.currency.decimal_at'|devblocks_translate|capitalize}:</b>
-		<input type="text" name="params[decimal_at]" size="3" maxlength="2" value="{$model->params.decimal_at|round}" style="width:4em;" placeholder="e.g. 2">
-		<i>(e.g. <tt>4</tt> for <tt>1.2345</tt>)</i>
-	</fieldset>
+	<div class="cerb-ui-form--field">
+		<label class="cerb-ui-form--label">{'dao.currency.decimal_at'|devblocks_translate|capitalize}</label>
+		<input type="text" name="params[decimal_at]" maxlength="2" value="{$model->params.decimal_at|round}" placeholder="e.g. 2" style="width:6em;">
+		<div class="cerb-ui-form--help">(e.g. <tt>4</tt> for <tt>1.2345</tt>)</div>
+	</div>
 {elseif $model->type == Model_CustomField::TYPE_LINK}
 	{$contexts = Extension_DevblocksContext::getAll(false)}
-	<fieldset>
-		<legend>To record type:</legend>
-		
+	<div class="cerb-ui-form--field">
+		<label class="cerb-ui-form--label">To record type</label>
 		{if $model->params.context}
 			<input type="hidden" name="params[context]" value="{$model->params.context}">
 			{$context = Extension_DevblocksContext::getByAlias($model->params.context, false)}
-			{if $context->name}
-				{$context->name}
-			{/if}
+			{if $context->name}<div class="cerb-u-text-muted">{$context->name}</div>{/if}
 		{else}
-		<select name="params[context]">
+		<select name="params[context]" data-cerb-cfield-context>
 			{foreach from=$contexts item=context}
-			<option value="{$context->id}" {if $model->params.context == $context->id}selected="selected"{/if}>{$context->name}</option>
+			<option value="{$context->id}" data-cerb-ui-icon="{$context->params.icon|default:'collection'}" {if $model->params.context == $context->id}selected="selected"{/if}>{$context->name}</option>
 			{/foreach}
 		</select>
 		{/if}
-	</fieldset>
+	</div>
 {elseif $model->type == Model_CustomField::TYPE_MULTI_LINE}
-	<fieldset>
-		<legend>{'common.options'|devblocks_translate|capitalize}:</legend>
-
-		<b>{'common.format'|devblocks_translate|capitalize}:</b>
+	<div class="cerb-ui-form--field">
+		<label class="cerb-ui-form--label">{'common.format'|devblocks_translate|capitalize}</label>
 		<select name="params[format]">
 			<option value="" {if $model->params.format==''}selected="selected"{/if}>{'common.text'|devblocks_translate|capitalize}</option>
 			<option value="markdown" {if $model->params.format=='markdown'}selected="selected"{/if}>{'common.format.markdown'|devblocks_translate|capitalize}</option>
 		</select>
-	</fieldset>
+	</div>
 {elseif $model->type == Model_CustomField::TYPE_WORKER}
-	<fieldset>
-		<legend>{'common.options'|devblocks_translate|capitalize}:</legend>
-		
-		<label><input type="checkbox" name="params[send_notifications]" value="1" {if $model->params.send_notifications}checked="checked"{/if}> Send watcher notifications</label>
-	</fieldset>
+	{$cf_worker_uid = uniqid('cf')}
+	<div class="cerb-ui-form--field">
+		<label class="cerb-ui-form--label">{'common.options'|devblocks_translate|capitalize}</label>
+		<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-2">
+			<label class="cerb-ui-toggle" id="{$cf_worker_uid}">
+				<input type="checkbox" name="params[send_notifications]" value="1" {if $model->params.send_notifications}checked="checked"{/if}>
+				<span class="cerb-ui-toggle--slider"></span>
+			</label>
+			<label for="{$cf_worker_uid}">Send watcher notifications</label>
+		</div>
+	</div>
 {/if}

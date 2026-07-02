@@ -1,8 +1,6 @@
 {$cf_id = str_replace('cf_', '', $k)}
 <div style="margin-bottom:5px;max-width:200px;">
-<div>
-	<b style="font-size:.9em;">{$v.label|capitalize}</b>
-</div>
+<div class="cerb-field-cell-label">{$v.label}</div>
 {if $v.type == Model_CustomField::TYPE_CHECKBOX}
 	{if $v.value}{'common.yes'|devblocks_translate}{else}{'common.no'|devblocks_translate}{/if}
 {elseif $v.type == Model_CustomField::TYPE_DATE}
@@ -61,11 +59,10 @@
 {elseif $v.type == Model_CustomField::TYPE_WORKER}
 	{if !isset($workers)}{$workers = DAO_Worker::getAll()}{/if}
 	{if isset($workers.{$v.value})}
-		<ul class="bubbles">
-			<li>
-				<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$v.value}">{$workers.{$v.value}->getName()}</a>
-			</li>
-		</ul>
+		<span class="cerb-ui-pill">
+			<img src="{devblocks_url}c=avatars&context=worker&context_id={$v.value}{/devblocks_url}?v={$workers.{$v.value}->updated}" style="height:16px;width:16px;border-radius:16px;">
+			<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$v.value}">{$workers.{$v.value}->getName()}</a>
+		</span>
 	{/if}
 {elseif $v.type == Model_CustomField::TYPE_LIST}
 	{if is_array($v.value)}
@@ -80,56 +77,52 @@
 	{if is_a($link_context_ext, 'Extension_DevblocksContext')}
 		{$link_meta = $link_context_ext->getMeta($v.value)}
 		{if $link_meta && ($link_context_ext->id == CerberusContexts::CONTEXT_APPLICATION || $v.value)}
-			<ul class="bubbles">
-			<li class="bubble-gray" style="white-space:normal;">
+			<span class="cerb-ui-pill" style="white-space:normal;">
 				{if $link_context_ext->id == CerberusContexts::CONTEXT_APPLICATION}
-				<img src="{devblocks_url}c=avatars&context=app&context_id={$v.value}{/devblocks_url}?v={$link_meta.updated}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
+				<img src="{devblocks_url}c=avatars&context=app&context_id={$v.value}{/devblocks_url}?v={$link_meta.updated}" style="height:16px;width:16px;border-radius:16px;">
 				{else}
 					{if $v.value}
 						{if $link_context_ext->hasOption('avatars')}
-						<img src="{devblocks_url}c=avatars&context={$link_context_ext->manifest->params.alias}&context_id={$v.value}{/devblocks_url}?v={$link_meta.updated}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
+						<img src="{devblocks_url}c=avatars&context={$link_context_ext->manifest->params.alias}&context_id={$v.value}{/devblocks_url}?v={$link_meta.updated}" style="height:16px;width:16px;border-radius:16px;">
 						{/if}
 					{/if}
 				{/if}
-				
+
 				{if $link_context_ext->hasOption('cards')}
 					<a class="cerb-peek-trigger" data-context="{$v.params.context}" data-context-id="{$v.value}">{$link_meta.name|truncate:64}</a>
 				{else}
 					{$link_meta.name|truncate:64}
 				{/if}
-			</li>
-			</ul>
+			</span>
 		{/if}
 	{/if}
 {elseif $v.type == Model_CustomField::TYPE_FILE}
 	{$file_id = $v.value}
 	{$file = DAO_Attachment::get($file_id)}
 	{if $file}
-		<ul class="bubbles">
-			<li>
-				<span class="cerb-icons cerb-icon-paperclip" style="vertical-align:baseline;"></span>
-				<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$file->id}">
-					<b>{$file->name}</b>
-					({$file->storage_size|devblocks_prettybytes}{if !empty($file->mime_type)} - {$file->mime_type}{/if})
-				</a>
-			</li>
-		</ul>
+		<span class="cerb-ui-pill" style="white-space:normal;word-break:break-word;">
+			<span class="cerb-icons cerb-icon-paperclip"></span>
+			<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$file->id}"{if !empty($file->mime_type)} title="{$file->mime_type}"{/if}>
+				<b>{$file->name}</b>
+				<span class="cerb-u-fgg-7">({$file->storage_size|devblocks_prettybytes})</span>
+			</a>
+		</span>
 	{/if}
 {elseif $v.type == Model_CustomField::TYPE_FILES}
-	<ul class="bubbles">
+	<div class="cerb-u-flex cerb-u-flex-column cerb-u-items-start cerb-u-gap-1">
 		{foreach from=$v.value item=file_id}
 			{$file = DAO_Attachment::get($file_id)}
 			{if $file}
-			<li>
-				<span class="cerb-icons cerb-icon-paperclip" style="vertical-align:baseline;"></span>
-				<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$file->id}">
+			<span class="cerb-ui-pill" style="white-space:normal;word-break:break-word;">
+				<span class="cerb-icons cerb-icon-paperclip"></span>
+				<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$file->id}"{if !empty($file->mime_type)} title="{$file->mime_type}"{/if}>
 					<b>{$file->name}</b>
-					({$file->storage_size|devblocks_prettybytes}{if !empty($file->mime_type)} - {$file->mime_type}{/if})
+					<span class="cerb-u-fgg-7">({$file->storage_size|devblocks_prettybytes})</span>
 				</a>
-			</li>
+			</span>
 			{/if}
 		{/foreach}
-	</ul>
+	</div>
 {elseif $v.type == 'context'}
 	{$display_ctx = Extension_DevblocksContext::getByAlias($v.value|default:'', true)}
 	{if is_a($display_ext, 'Extension_DevblocksContext')}
