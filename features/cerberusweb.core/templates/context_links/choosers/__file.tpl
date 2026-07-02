@@ -121,7 +121,7 @@ $(function() {
 			var bundle_id = $bundle.val();
 
 			jobs.push(
-				async.apply(loadBundleFunc, bundle_id, labels, values)
+				CerbUI.utils.apply(loadBundleFunc, bundle_id, labels, values)
 			);
 		});
 		{/if}
@@ -132,11 +132,11 @@ $(function() {
 		
 		for(var i = 0, f; f = files[i]; i++) {
 			jobs.push(
-				async.apply(uploadFunc, f, labels, values)
+				CerbUI.utils.apply(uploadFunc, f, labels, values)
 			);
 		}
 		
-		async.series(jobs, function(err, json) {
+		CerbUI.utils.series(jobs, function(err, json) {
 			// Trigger event
 			var event = jQuery.Event('chooser_save');
 			event.response = json;

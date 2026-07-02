@@ -316,7 +316,7 @@ $(function() {
             var widget_id = e.widget_id;
             var refresh_options = (e.refresh_options && typeof e.refresh_options == 'object') ? e.refresh_options : [];
 
-            async.series([ async.apply(loadWidgetFunc, widget_id, false, refresh_options) ], function(err, json) {
+            CerbUI.utils.series([ CerbUI.utils.apply(loadWidgetFunc, widget_id, false, refresh_options) ], function(err, json) {
                 // Done
             });
         });
@@ -334,12 +334,12 @@ $(function() {
                 // If we're refreshing this widget or all widgets
                 if(widget_id && (0 === widget_ids.length || -1 !== $.inArray(widget_id, widget_ids))) {
                     jobs.push(
-                        async.apply(loadWidgetFunc, widget_id, false, refresh_options)
+                        CerbUI.utils.apply(loadWidgetFunc, widget_id, false, refresh_options)
                     );
                 }
             });
 
-            async.parallelLimit(jobs, 2, function(err, json) {
+            CerbUI.utils.parallelLimit(jobs, 2, function(err, json) {
                 // Done
             });
         });
@@ -376,7 +376,7 @@ $(function() {
                                 .cerbPeekTrigger()
                                 .on('cerb-peek-saved', function(e) {
                                     // [TODO] Check the event type
-                                    async.series([ async.apply(loadWidgetFunc, e.id, true, {}) ], function(err, json) {
+                                    CerbUI.utils.series([ CerbUI.utils.apply(loadWidgetFunc, e.id, true, {}) ], function(err, json) {
                                         // Done
                                     });
                                 })
@@ -388,7 +388,7 @@ $(function() {
                             ;
 
                         } else if($li.is('.cerb-card-widget-menu--refresh')) {
-                            async.series([ async.apply(loadWidgetFunc, widget_id, false, {}) ], function(err, json) {
+                            CerbUI.utils.series([ CerbUI.utils.apply(loadWidgetFunc, widget_id, false, {}) ], function(err, json) {
                                 // Done
                             });
                         } else if($li.is('.cerb-card-widget-menu--export-widget')) {
@@ -418,7 +418,7 @@ $(function() {
                 var $placeholder = $('<div class="cerb-card-widget"/>').attr('data-widget-id', e.id).hide().appendTo($zone);
                 $('<div/>').attr('id', 'cardWidget' + e.id + '_{$dict->id}').addClass('cerb-card-widget--content').appendTo($placeholder);
 
-                async.series([ async.apply(loadWidgetFunc, e.id, true, {}) ], function(err, json) {
+                CerbUI.utils.series([ CerbUI.utils.apply(loadWidgetFunc, e.id, true, {}) ], function(err, json) {
                     $popup.trigger('cerb-reorder');
                 });
             })

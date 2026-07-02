@@ -58,3 +58,59 @@ CerbUI.utils.focusable = function(container) {
 		return el.offsetWidth > 0 || el.offsetHeight > 0 || el.getClientRects().length > 0;
 	});
 };
+
+// Async flow control — the small surface we used from the caolan/async library (now retired). A "task" is a
+// node-style function `task(callback)` that eventually calls `callback(err, result)`; iteratees may call
+// `callback()` with no args (treated as success). Both runners aggregate results in original order and stop
+// on the first error.
+
+// apply(fn, ...args) => a task `callback => fn(...args, callback)`. Handy for building task arrays.
+CerbUI.utils.apply = function(fn) {
+	const boundArgs = Array.prototype.slice.call(arguments, 1);
+	return function(callback) { fn.apply(this, boundArgs.concat(callback)); };
+};
+
+// series(tasks, done): run tasks strictly one at a time; done(err, results).
+CerbUI.utils.series = function(tasks, done) {
+	done = done || function() {};
+	const results = [];
+	let i = 0;
+	const next = function() {
+		if(i >= tasks.length) return done(null, results);
+		const idx = i++;
+		tasks[idx](function(err, result) {
+			if(err) return done(err, results);
+			results[idx] = result;
+			next();
+		});
+	};
+	next();
+};
+
+// parallelLimit(tasks, limit, done): run tasks with at most `limit` in flight; done(err, results).
+// The `inPump` guard keeps a synchronously-completing task (e.g. an early-exit that calls callback() inline)
+// from re-entering the launch loop and recursing — the active loop just picks up the freed slot instead.
+CerbUI.utils.parallelLimit = function(tasks, limit, done) {
+	done = done || function() {};
+	const results = [];
+	let nextIndex = 0, running = 0, finished = false, inPump = false;
+	if(!tasks.length) return done(null, results);
+	const pump = function() {
+		if(inPump) return;
+		inPump = true;
+		while(!finished && running < limit && nextIndex < tasks.length) {
+			const idx = nextIndex++;
+			running++;
+			tasks[idx](function(err, result) {
+				running--;
+				if(finished) return;
+				if(err) { finished = true; return done(err, results); }
+				results[idx] = result;
+				if(nextIndex >= tasks.length && running === 0) return done(null, results);
+				pump();
+			});
+		}
+		inPump = false;
+	};
+	pump();
+};

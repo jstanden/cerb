@@ -81,10 +81,10 @@ $(function() {
 	}
 	
 	{foreach from=$worklists item=worklist key=worklist_id}
-	async_tasks.push(async.apply(cerbLoadWorklist, '{$worklist_id}'));
+	async_tasks.push(CerbUI.utils.apply(cerbLoadWorklist, '{$worklist_id}'));
 	{/foreach}
 
-	async.series(async_tasks, function(err, data) {
+	CerbUI.utils.series(async_tasks, function(err, data) {
 		// Done!
 	});
 });

@@ -809,10 +809,10 @@ function DevblocksClass() {
 			if(url.substring(0,1) == '/')
 				url = DevblocksWebPath + url.substring(1);
 			
-			jobs.push(async.apply($instance.loadScript.bind($instance), url));
+			jobs.push(CerbUI.utils.apply($instance.loadScript.bind($instance), url));
 		});
 		
-		async.parallelLimit(jobs, 2, function(err, json) {
+		CerbUI.utils.parallelLimit(jobs, 2, function(err, json) {
 			if(err)
 				return finished(err);
 			
@@ -835,7 +835,7 @@ function DevblocksClass() {
 				if(url.substring(0,1) == '/')
 					url = DevblocksWebPath + url.substring(1);
 				
-				jobs.push(async.apply($instance.loadStylesheet.bind($instance), url));
+				jobs.push(CerbUI.utils.apply($instance.loadStylesheet.bind($instance), url));
 			});
 		}
 		
@@ -847,11 +847,11 @@ function DevblocksClass() {
 				if(url.substring(0,1) === '/')
 					url = DevblocksWebPath + url.substring(1);
 				
-				jobs.push(async.apply($instance.loadScript.bind($instance), url));
+				jobs.push(CerbUI.utils.apply($instance.loadScript.bind($instance), url));
 			});
 		}
 		
-		async.parallelLimit(jobs, 2, function(err, json) {
+		CerbUI.utils.parallelLimit(jobs, 2, function(err, json) {
 			if(err)
 				return finished(err);
 			

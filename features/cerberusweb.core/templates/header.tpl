@@ -3,6 +3,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset={$smarty.const.LANG_CHARSET_CODE}">
 	<meta http-equiv="Cache-Control" content="no-cache">
+	<meta name="color-scheme" content="{if $pref_dark_mode}dark{else}light{/if}">
 
 	<meta name="robots" content="noindex">
 	<meta name="googlebot" content="noindex">
@@ -37,7 +38,6 @@
 	<meta name="apple-mobile-web-app-title" content="Cerb">
 	
 	<!-- Platform -->
-	<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=devblocks.core&f=js/async-min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
 	<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=devblocks.core&f=js/jquery/jquery.combined.min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
 	<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=devblocks.core&f=js/devblocks.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
 
