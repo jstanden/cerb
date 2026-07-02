@@ -329,6 +329,31 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 	 * @param integer $limit
 	 * @return Model_ContactOrg[]
 	 */
+	static function autocomplete($term, $as='models') {
+		$db = DevblocksPlatform::services()->database();
+		$objects = [];
+
+		$results = $db->GetArrayReader(sprintf("SELECT id ".
+			"FROM contact_org ".
+			"WHERE name LIKE %s ".
+			"ORDER BY name ASC ".
+			"LIMIT 25 ",
+			$db->qstr($term.'%')
+		));
+
+		if(is_array($results))
+			foreach($results as $row)
+				$objects[$row['id']] = null;
+
+		switch($as) {
+			case 'ids':
+				return array_keys($objects);
+
+			default:
+				return DAO_ContactOrg::getIds(array_keys($objects));
+		}
+	}
+
 	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null) {
 		$db = DevblocksPlatform::services()->database();
 		
@@ -1410,26 +1435,17 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 			$list[] = $empty;
 		}
 		
-		list($results,) = DAO_ContactOrg::search(
-			array(),
-			array(
-				new DevblocksSearchCriteria(SearchFields_ContactOrg::NAME,DevblocksSearchCriteria::OPER_LIKE,$term.'%'),
-			),
-			25,
-			0,
-			SearchFields_ContactOrg::NAME,
-			true,
-			false
-		);
+		$results = DAO_ContactOrg::autocomplete($term);
 
-		foreach($results AS $row){
-			$entry = new stdClass();
-			$entry->label = $row[SearchFields_ContactOrg::NAME];
-			$entry->value = $row[SearchFields_ContactOrg::ID];
-			$entry->icon = $url_writer->write('c=avatars&type=org&id=' . $row[SearchFields_ContactOrg::ID], true) . '?v=' . $row[SearchFields_ContactOrg::UPDATED];
-			$list[] = $entry;
-		}
-		
+		if(is_array($results))
+			foreach($results as $id => $model) {
+				$entry = new stdClass();
+				$entry->label = $model->name;
+				$entry->value = sprintf("%d", $id);
+				$entry->icon = $url_writer->write('c=avatars&type=org&id=' . $id, true) . '?v=' . $model->updated;
+				$list[] = $entry;
+			}
+
 		return $list;
 	}
 	

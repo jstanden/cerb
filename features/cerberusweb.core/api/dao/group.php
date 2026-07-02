@@ -169,6 +169,31 @@ class DAO_Group extends Cerb_ORMHelper {
 	 * @param integer $limit
 	 * @return Model_ContactOrg[]
 	 */
+	static function autocomplete($term, $as='models') {
+		$db = DevblocksPlatform::services()->database();
+		$objects = [];
+
+		$results = $db->GetArrayReader(sprintf("SELECT id ".
+			"FROM worker_group ".
+			"WHERE name LIKE %s ".
+			"ORDER BY name ASC ".
+			"LIMIT 25 ",
+			$db->qstr($term.'%')
+		));
+
+		if(is_array($results))
+			foreach($results as $row)
+				$objects[$row['id']] = null;
+
+		switch($as) {
+			case 'ids':
+				return array_keys($objects);
+
+			default:
+				return DAO_Group::getIds(array_keys($objects));
+		}
+	}
+
 	static function getWhere($where=null, $sortBy=DAO_Group::NAME, $sortAsc=true, $limit=null, $options=null) {
 		$db = DevblocksPlatform::services()->database();
 		
@@ -1950,27 +1975,17 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		$url_writer = DevblocksPlatform::services()->url();
 		$list = [];
 		
-		list($results,) = DAO_Group::search(
-			[],
-			[
-				new DevblocksSearchCriteria(SearchFields_Group::NAME,DevblocksSearchCriteria::OPER_LIKE,$term.'%'),
-			],
-			25,
-			0,
-			DAO_Group::NAME,
-			true,
-			false
-		);
+		$results = DAO_Group::autocomplete($term);
 
 		if(is_array($results))
-		foreach($results as $row){
-			$entry = new stdClass();
-			$entry->label = $row[SearchFields_Group::NAME];
-			$entry->value = $row[SearchFields_Group::ID];
-			$entry->icon = $url_writer->write('c=avatars&type=group&id=' . $row[SearchFields_Group::ID], true) . '?v=' . $row[SearchFields_Group::UPDATED];
-			$list[] = $entry;
-		}
-		
+			foreach($results as $id => $model) {
+				$entry = new stdClass();
+				$entry->label = $model->name;
+				$entry->value = sprintf("%d", $id);
+				$entry->icon = $url_writer->write('c=avatars&type=group&id=' . $id, true) . '?v=' . $model->updated;
+				$list[] = $entry;
+			}
+
 		return $list;
 	}
 	

@@ -139,6 +139,32 @@ class DAO_TaskProject extends Cerb_ORMHelper {
 	 * @param string $where
 	 * @return Model_TaskProject[]
 	 */
+	static function autocomplete($term, $as='models') {
+		$db = DevblocksPlatform::services()->database();
+		$objects = [];
+
+		// Archived projects are hidden from the picker
+		$results = $db->GetArrayReader(sprintf("SELECT id ".
+			"FROM task_project ".
+			"WHERE name LIKE %s AND is_closed = 0 ".
+			"ORDER BY name ASC ".
+			"LIMIT 25 ",
+			$db->qstr('%'.$term.'%')
+		));
+
+		if(is_array($results))
+			foreach($results as $row)
+				$objects[$row['id']] = null;
+
+		switch($as) {
+			case 'ids':
+				return array_keys($objects);
+
+			default:
+				return DAO_TaskProject::getIds(array_keys($objects));
+		}
+	}
+
 	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null, $options=null) {
 		$db = DevblocksPlatform::services()->database();
 
@@ -772,18 +798,10 @@ class Context_TaskProject extends Extension_DevblocksContext implements IDevbloc
 	// Autocomplete suggestions for the record chooser. Projects can share a name (esp. personal
 	// worker-owned ones), so each row carries its owner in `meta` to disambiguate.
 	function autocomplete($term, $query=null) {
-		$db = DevblocksPlatform::services()->database();
 		$active_worker = CerberusApplication::getActiveWorker();
 		$list = [];
 
-		// Match by name; archived projects are hidden from the picker.
-		$models = DAO_TaskProject::getWhere(
-			sprintf("%s LIKE %s AND %s = 0",
-				DAO_TaskProject::NAME, $db->qstr('%' . $term . '%'),
-				DAO_TaskProject::IS_CLOSED
-			),
-			DAO_TaskProject::NAME, true, 25
-		);
+		$models = DAO_TaskProject::autocomplete($term);
 
 		if(!$models)
 			return $list;

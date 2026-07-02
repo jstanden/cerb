@@ -1076,8 +1076,28 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 	function autocomplete($term, $query=null) {
 		$list = [];
 		
-		$models = DAO_ConnectedAccount::autocomplete($term);
-		
+		// Filter via the worklist quick-search so a caller's query (e.g. service:(type:oauth2)) applies
+		$view_id = 'autocomplete_connected_accounts';
+		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
+		$defaults->id = $view_id;
+		$defaults->is_ephemeral = true;
+
+		if(!($view = C4_AbstractViewLoader::getView($view_id, $defaults)))
+			return $list;
+
+		$params = $view->getParamsFromQuickSearch($query ?? '');
+		$params[] = new DevblocksSearchCriteria(SearchFields_ConnectedAccount::NAME, DevblocksSearchCriteria::OPER_LIKE, $term.'*');
+		$view->addParams($params, true);
+		$view->renderSortBy = SearchFields_ConnectedAccount::NAME;
+		$view->renderSortAsc = true;
+		$view->renderLimit = 25;
+		$view->renderPage = 0;
+		$view->renderTotal = false;
+		$view->setAutoPersist(false);
+
+		list($results,) = $view->getData();
+		$models = DAO_ConnectedAccount::getIds(array_keys($results));
+
 		if(stristr('none',$term) || stristr('empty',$term)) {
 			$empty = new stdClass();
 			$empty->label = '(no account)';
@@ -1085,18 +1105,30 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 			$empty->meta = array('desc' => 'Clear the account');
 			$list[] = $empty;
 		}
-		
-		if(is_array($models))
+
+		// Resolve each owner's label once (worker/group/role/app) for the eyebrow
+		$owner_labels = [];
+		foreach($models as $account) {
+			$key = $account->owner_context . ':' . $account->owner_context_id;
+			if(!array_key_exists($key, $owner_labels)) {
+				$labels = $values = [];
+				CerberusContexts::getContext($account->owner_context, $account->owner_context_id, $labels, $values, null, true, true);
+				$owner_labels[$key] = $values['_label'] ?? '';
+			}
+		}
+
 		foreach($models as $account_id => $account){
 			$entry = new stdClass();
 			$entry->label = $account->name;
 			$entry->value = sprintf("%d", $account_id);
-			
-			$meta = array();
-			$entry->meta = $meta;
+
+			$owner_label = $owner_labels[$account->owner_context . ':' . $account->owner_context_id] ?? '';
+			if($owner_label)
+				$entry->meta = ['owner' => $owner_label];
+
 			$list[] = $entry;
 		}
-		
+
 		return $list;
 	}
 	

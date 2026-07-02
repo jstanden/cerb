@@ -129,6 +129,31 @@ class DAO_ProjectBoard extends Cerb_ORMHelper {
 	 * @param integer $limit
 	 * @return Model_ProjectBoard[]
 	 */
+	static function autocomplete($term, $as='models') {
+		$db = DevblocksPlatform::services()->database();
+		$objects = [];
+
+		$results = $db->GetArrayReader(sprintf("SELECT id ".
+			"FROM project_board ".
+			"WHERE name LIKE %s ".
+			"ORDER BY name ASC ".
+			"LIMIT 25 ",
+			$db->qstr($term.'%')
+		));
+
+		if(is_array($results))
+			foreach($results as $row)
+				$objects[$row['id']] = null;
+
+		switch($as) {
+			case 'ids':
+				return array_keys($objects);
+
+			default:
+				return DAO_ProjectBoard::getIds(array_keys($objects));
+		}
+	}
+
 	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null, $options=null) {
 		$db = DevblocksPlatform::services()->database();
 
@@ -796,25 +821,16 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 	function autocomplete($term, $query=null) {
 		$list = [];
 		
-		list($results,) = DAO_ProjectBoard::search(
-			array(),
-			array(
-				new DevblocksSearchCriteria(SearchFields_ProjectBoard::NAME,DevblocksSearchCriteria::OPER_LIKE,$term.'%'),
-			),
-			25,
-			0,
-			SearchFields_ProjectBoard::NAME,
-			true,
-			false
-		);
+		$results = DAO_ProjectBoard::autocomplete($term);
 
-		foreach($results AS $row){
-			$entry = new stdClass();
-			$entry->label = $row[SearchFields_ProjectBoard::NAME];
-			$entry->value = $row[SearchFields_ProjectBoard::ID];
-			$list[] = $entry;
-		}
-		
+		if(is_array($results))
+			foreach($results as $id => $model) {
+				$entry = new stdClass();
+				$entry->label = $model->name;
+				$entry->value = sprintf("%d", $id);
+				$list[] = $entry;
+			}
+
 		return $list;
 	}
 	

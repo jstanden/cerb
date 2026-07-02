@@ -201,6 +201,31 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 	 * @param integer $limit
 	 * @return Model_WorkspacePage[]
 	 */
+	static function autocomplete($term, $as='models') {
+		$db = DevblocksPlatform::services()->database();
+		$objects = [];
+
+		$results = $db->GetArrayReader(sprintf("SELECT id ".
+			"FROM workspace_page ".
+			"WHERE name LIKE %s ".
+			"ORDER BY name ASC ".
+			"LIMIT 25 ",
+			$db->qstr('%'.$term.'%')
+		));
+
+		if(is_array($results))
+			foreach($results as $row)
+				$objects[$row['id']] = null;
+
+		switch($as) {
+			case 'ids':
+				return array_keys($objects);
+
+			default:
+				return DAO_WorkspacePage::getIds(array_keys($objects));
+		}
+	}
+
 	static function getWhere($where=null, $sortBy=DAO_WorkspacePage::NAME, $sortAsc=true, $limit=null, $options=null) {
 		$db = DevblocksPlatform::services()->database();
 
@@ -929,7 +954,7 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 	}
 };
 
-class Context_WorkspacePage extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextWorkflow {
+class Context_WorkspacePage extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextWorkflow, IDevblocksContextAutocomplete {
 	const ID = 'cerberusweb.contexts.workspace.page';
 	const URI = 'workspace_page';
 	
@@ -944,7 +969,48 @@ class Context_WorkspacePage extends Extension_DevblocksContext implements IDevbl
 	static function isDeletableByActor($models, $actor) {
 		return self::isWriteableByActor($models, $actor);
 	}
-	
+
+	function autocomplete($term, $query=null) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		$list = [];
+
+		$models = DAO_WorkspacePage::autocomplete($term);
+
+		if(!$models)
+			return $list;
+
+		// Keep only readable pages
+		$readable = self::isReadableByActor($models, $active_worker);
+
+		// Resolve each owner's label once (worker/group/role/app)
+		$owner_labels = [];
+		foreach($models as $model) {
+			$key = $model->owner_context . ':' . $model->owner_context_id;
+			if(!array_key_exists($key, $owner_labels)) {
+				$labels = $values = [];
+				CerberusContexts::getContext($model->owner_context, $model->owner_context_id, $labels, $values, null, true, true);
+				$owner_labels[$key] = $values['_label'] ?? '';
+			}
+		}
+
+		foreach($models as $id => $model) {
+			if(empty($readable[$id]))
+				continue;
+
+			$entry = new stdClass();
+			$entry->value = (string) $id;
+			$entry->label = $model->name;
+
+			$owner_label = $owner_labels[$model->owner_context . ':' . $model->owner_context_id] ?? '';
+			if($owner_label)
+				$entry->meta = ['owner' => $owner_label];
+
+			$list[] = $entry;
+		}
+
+		return $list;
+	}
+
 	function profileGetUrl($context_id) {
 		if(empty($context_id))
 			return '';

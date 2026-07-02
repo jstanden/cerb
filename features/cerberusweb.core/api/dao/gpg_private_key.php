@@ -131,6 +131,31 @@ class DAO_GpgPrivateKey extends Cerb_ORMHelper {
 	 * @param integer $limit
 	 * @return Model_GpgPrivateKey[]
 	 */
+	static function autocomplete($term, $as='models') {
+		$db = DevblocksPlatform::services()->database();
+		$objects = [];
+
+		$results = $db->GetArrayReader(sprintf("SELECT id ".
+			"FROM gpg_private_key ".
+			"WHERE name LIKE %s ".
+			"ORDER BY name ASC ".
+			"LIMIT 25 ",
+			$db->qstr($term.'%')
+		));
+
+		if(is_array($results))
+			foreach($results as $row)
+				$objects[$row['id']] = null;
+
+		switch($as) {
+			case 'ids':
+				return array_keys($objects);
+
+			default:
+				return DAO_GpgPrivateKey::getIds(array_keys($objects));
+		}
+	}
+
 	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null, $options=null) {
 		$db = DevblocksPlatform::services()->database();
 		
@@ -732,10 +757,26 @@ class View_GpgPrivateKey extends C4_AbstractView implements IAbstractView_Subtot
 	}
 };
 
-class Context_GpgPrivateKey extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
+class Context_GpgPrivateKey extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
 	const ID = 'cerb.contexts.gpg.private.key';
 	const URI = 'gpg_private_key';
-	
+
+	function autocomplete($term, $query=null) {
+		$list = [];
+
+		$results = DAO_GpgPrivateKey::autocomplete($term);
+
+		if(is_array($results))
+			foreach($results as $id => $model) {
+				$entry = new stdClass();
+				$entry->label = $model->name;
+				$entry->value = sprintf("%d", $id);
+				$list[] = $entry;
+			}
+
+		return $list;
+	}
+
 	static function isReadableByActor($models, $actor) {
 		return self::isWriteableByActor($models, $actor);
 	}

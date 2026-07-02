@@ -366,6 +366,31 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 	 * @param string $where
 	 * @return Model_WorkerRole[]
 	 */
+	static function autocomplete($term, $as='models') {
+		$db = DevblocksPlatform::services()->database();
+		$objects = [];
+
+		$results = $db->GetArrayReader(sprintf("SELECT id ".
+			"FROM worker_role ".
+			"WHERE name LIKE %s ".
+			"ORDER BY name ASC ".
+			"LIMIT 25 ",
+			$db->qstr($term.'%')
+		));
+
+		if(is_array($results))
+			foreach($results as $row)
+				$objects[$row['id']] = null;
+
+		switch($as) {
+			case 'ids':
+				return array_keys($objects);
+
+			default:
+				return DAO_WorkerRole::getIds(array_keys($objects));
+		}
+	}
+
 	static function getWhere($where=null, $sortBy=DAO_WorkerRole::NAME, $sortAsc=true, $limit=null, $options=null) {
 		$db = DevblocksPlatform::services()->database();
 
@@ -1119,25 +1144,15 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 	function autocomplete($term, $query=null) {
 		$list = [];
 
-		list($results,) = DAO_WorkerRole::search(
-			[],
-			[
-				new DevblocksSearchCriteria(SearchFields_WorkerRole::NAME, DevblocksSearchCriteria::OPER_LIKE, $term.'%'),
-			],
-			25,
-			0,
-			DAO_WorkerRole::NAME,
-			true,
-			false
-		);
+		$results = DAO_WorkerRole::autocomplete($term);
 
 		if(is_array($results))
-		foreach($results as $row) {
-			$entry = new stdClass();
-			$entry->label = $row[SearchFields_WorkerRole::NAME];
-			$entry->value = $row[SearchFields_WorkerRole::ID];
-			$list[] = $entry;
-		}
+			foreach($results as $id => $model) {
+				$entry = new stdClass();
+				$entry->label = $model->name;
+				$entry->value = sprintf("%d", $id);
+				$list[] = $entry;
+			}
 
 		return $list;
 	}

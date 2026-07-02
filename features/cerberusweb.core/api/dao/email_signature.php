@@ -150,6 +150,31 @@ class DAO_EmailSignature extends Cerb_ORMHelper {
 	 * @param integer $limit
 	 * @return Model_EmailSignature[]
 	 */
+	static function autocomplete($term, $as='models') {
+		$db = DevblocksPlatform::services()->database();
+		$objects = [];
+
+		$results = $db->GetArrayReader(sprintf("SELECT id ".
+			"FROM email_signature ".
+			"WHERE name LIKE %s ".
+			"ORDER BY name ASC ".
+			"LIMIT 25 ",
+			$db->qstr($term.'%')
+		));
+
+		if(is_array($results))
+			foreach($results as $row)
+				$objects[$row['id']] = null;
+
+		switch($as) {
+			case 'ids':
+				return array_keys($objects);
+
+			default:
+				return DAO_EmailSignature::getIds(array_keys($objects));
+		}
+	}
+
 	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null, $options=null) {
 		$db = DevblocksPlatform::services()->database();
 
@@ -883,25 +908,31 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 	function autocomplete($term, $query=null) {
 		$list = [];
 		
-		list($results,) = DAO_EmailSignature::search(
-			[],
-			[
-				new DevblocksSearchCriteria(SearchFields_EmailSignature::NAME,DevblocksSearchCriteria::OPER_LIKE,$term.'%'),
-			],
-			25,
-			0,
-			DAO_EmailSignature::NAME,
-			true,
-			false
-		);
+		$models = DAO_EmailSignature::autocomplete($term);
 
-		foreach($results AS $row){
+		// Resolve each owner's label once (worker/group/role/app) for the eyebrow
+		$owner_labels = [];
+		foreach($models as $model) {
+			$key = $model->owner_context . ':' . $model->owner_context_id;
+			if(!array_key_exists($key, $owner_labels)) {
+				$labels = $values = [];
+				CerberusContexts::getContext($model->owner_context, $model->owner_context_id, $labels, $values, null, true, true);
+				$owner_labels[$key] = $values['_label'] ?? '';
+			}
+		}
+
+		foreach($models AS $id => $model){
 			$entry = new stdClass();
-			$entry->label = $row[SearchFields_EmailSignature::NAME];
-			$entry->value = $row[SearchFields_EmailSignature::ID];
+			$entry->label = $model->name;
+			$entry->value = sprintf("%d", $id);
+
+			$owner_label = $owner_labels[$model->owner_context . ':' . $model->owner_context_id] ?? '';
+			if($owner_label)
+				$entry->meta = ['owner' => $owner_label];
+
 			$list[] = $entry;
 		}
-		
+
 		return $list;
 	}
 	

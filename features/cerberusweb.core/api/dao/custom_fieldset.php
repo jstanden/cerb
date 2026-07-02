@@ -963,7 +963,7 @@ class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subto
 	}
 };
 
-class Context_CustomFieldset extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextWorkflow {
+class Context_CustomFieldset extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextWorkflow, IDevblocksContextAutocomplete {
 	const ID = 'cerberusweb.contexts.custom_fieldset';
 	const URI = 'custom_fieldset';
 	
@@ -1227,6 +1227,55 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 		return $values;
 	}
 	
+	function autocomplete($term, $query=null) {
+		$list = [];
+
+		$view = $this->getSearchView('autocomplete_custom_fieldset');
+		$view->is_ephemeral = true;
+		$view->renderPage = 0;
+		$view->renderLimit = 25;
+		$view->renderSortBy = SearchFields_CustomFieldset::NAME;
+		$view->renderSortAsc = true;
+		$view->renderTotal = false;
+
+		// Honor a scoping query from the chooser (e.g. `context:` to restrict to a record type)
+		if($query)
+			$view->addParamsWithQuickSearch($query, true);
+
+		$view->addParams([
+			SearchFields_CustomFieldset::NAME => new DevblocksSearchCriteria(SearchFields_CustomFieldset::NAME, DevblocksSearchCriteria::OPER_LIKE, $term.'%'),
+		]);
+
+		list($results,) = $view->getData();
+
+		$models = DAO_CustomFieldset::getIds(array_keys($results));
+
+		// Resolve each owner's label once (worker/group/role/app) for the eyebrow
+		$owner_labels = [];
+		foreach($models as $model) {
+			$key = $model->owner_context . ':' . $model->owner_context_id;
+			if(!array_key_exists($key, $owner_labels)) {
+				$labels = $values = [];
+				CerberusContexts::getContext($model->owner_context, $model->owner_context_id, $labels, $values, null, true, true);
+				$owner_labels[$key] = $values['_label'] ?? '';
+			}
+		}
+
+		foreach($models as $id => $model) {
+			$entry = new stdClass();
+			$entry->label = $model->name;
+			$entry->value = sprintf("%d", $id);
+
+			$owner_label = $owner_labels[$model->owner_context . ':' . $model->owner_context_id] ?? '';
+			if($owner_label)
+				$entry->meta = ['owner' => $owner_label];
+
+			$list[] = $entry;
+		}
+
+		return $list;
+	}
+
 	function getChooserView($view_id=null) {
 		if(empty($view_id))
 			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
