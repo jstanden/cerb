@@ -251,6 +251,7 @@ CerbUI.RecordChooser = class {
 				id:        node.getAttribute('data-context-id'),
 				label:     node.getAttribute('data-label') || '',
 				image_url: node.getAttribute('data-image') || '',
+				eyebrow:   node.getAttribute('data-eyebrow') || '',
 			});
 		});
 		return out;
@@ -391,7 +392,23 @@ CerbUI.RecordChooser = class {
 				if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); name.click(); }
 			});
 		}
-		tile.appendChild(name);
+
+		// Optional eyebrow (e.g. a disambiguating parent path) stacks above the label. Seeds pass it as
+		// `data-eyebrow`; autocomplete picks inherit it from the result's `sublabel` (joined `meta`).
+		const eyebrowText = item.eyebrow || item.sublabel || '';
+		if(eyebrowText) {
+			const stack = document.createElement('span');
+			stack.className = 'cerb-ui-record-chooser--text';
+			const eb = document.createElement('span');
+			eb.className = 'cerb-ui-record-chooser--eyebrow';
+			eb.textContent = eyebrowText;
+			eb.title = eyebrowText;
+			stack.appendChild(eb);
+			stack.appendChild(name);
+			tile.appendChild(stack);
+		} else {
+			tile.appendChild(name);
+		}
 
 		const clear = document.createElement('button');
 		clear.type = 'button';
