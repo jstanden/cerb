@@ -1,5 +1,7 @@
 {if $trigger_inputs}
-<legend>{'common.placeholders'|devblocks_translate|capitalize}</legend>
+<div class="cerb-ui-header cerb-ui-header--tight">
+    <div class="cerb-ui-header--title-sm">{'common.placeholders'|devblocks_translate|capitalize}</div>
+</div>
 <div>
     <div class="cerb-markdown-content">
         <table cellpadding="2" cellspacing="2" width="100%">

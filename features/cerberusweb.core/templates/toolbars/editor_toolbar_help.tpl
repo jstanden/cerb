@@ -3,10 +3,12 @@
 {$toolbar_output = $toolbar_ext->getInteractionOutputMeta()}
 {$toolbar_after = $toolbar_ext->getInteractionAfterMeta()}
 
-<legend style="font-size:140%;">{'common.help'|devblocks_translate|capitalize}</legend>
+<div class="cerb-ui-header cerb-ui-header--tight">
+    <div class="cerb-ui-header--title-sm">{'common.help'|devblocks_translate|capitalize}</div>
+</div>
 
 {if $toolbar_placeholders}
-    <h3 style="padding:0;margin:0 0 5px 0;">{'common.placeholders'|devblocks_translate|capitalize}</h3>
+    <div class="cerb-ui-header--title-sm cerb-u-mb-1">{'common.placeholders'|devblocks_translate|capitalize}</div>
     <div>
         <div class="cerb-markdown-content">
             <table cellpadding="2" cellspacing="2" width="100%">
@@ -32,7 +34,7 @@
 {/if}
 
 {if $toolbar_inputs}
-    <h3 style="padding:0;margin:0 0 5px 0;">{'common.inputs'|devblocks_translate|capitalize}</h3>
+    <div class="cerb-ui-header--title-sm cerb-u-mt-3 cerb-u-mb-1">{'common.inputs'|devblocks_translate|capitalize}</div>
     <div>
         <div class="cerb-markdown-content">
             <table cellpadding="2" cellspacing="2" width="100%">
@@ -58,7 +60,7 @@
 {/if}
 
 {if $toolbar_output}
-    <h3 style="padding:0;margin:0 0 5px 0;">{'common.output'|devblocks_translate|capitalize}</h3>
+    <div class="cerb-ui-header--title-sm cerb-u-mt-3 cerb-u-mb-1">{'common.output'|devblocks_translate|capitalize}</div>
     <div>
         <div class="cerb-markdown-content">
             <table cellpadding="2" cellspacing="2" width="100%">
@@ -84,7 +86,7 @@
 {/if}
 
 {if $toolbar_after}
-    <h3 style="padding:0;margin:0;">After</h3>
+    <div class="cerb-ui-header--title-sm cerb-u-mt-3 cerb-u-mb-1">After</div>
     <div>
         <div class="cerb-markdown-content">
             <table cellpadding="2" cellspacing="2" width="100%">
