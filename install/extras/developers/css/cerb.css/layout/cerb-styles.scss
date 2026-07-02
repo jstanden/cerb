@@ -1911,3 +1911,37 @@ TBODY.cerb-plugin-disabled td[data-column="icon"] IMG {
 	filter: grayscale(100%);
 	transition: opacity 0.2s ease, filter 0.2s ease;
 }
+// Selectable layout-mockup cards (the dashboard / profile-tab "Layout" picker): a visually-hidden radio +
+// an SVG mockup that borders in the accent when its radio is checked. Pure CSS (checked + sibling), so it
+// works even when the config partial is injected via AJAX.
+.cerb-layout-choice {
+	display: inline-block;
+	cursor: pointer;
+
+	> input[type=radio] {
+		position: absolute;
+		opacity: 0;
+		width: 0;
+		height: 0;
+	}
+
+	> svg {
+		display: block;
+		border: 2px solid var(--cerb-color-background-contrast-220);
+		border-radius: 6px;
+		padding: 3px;
+		transition: border-color 0.1s ease;
+	}
+
+	&:hover > svg {
+		border-color: var(--cerb-color-background-contrast-150);
+	}
+
+	> input[type=radio]:checked + svg {
+		border-color: var(--cerb-color-link);
+	}
+
+	> input[type=radio]:focus-visible + svg {
+		@include cerb-ui-focus-ring;
+	}
+}
