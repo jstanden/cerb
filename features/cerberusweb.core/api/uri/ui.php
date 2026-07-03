@@ -83,6 +83,8 @@ class Controller_UI extends DevblocksControllerExtension {
 				return $this->_uiAction_kataSuggestionsIconJson();
 			case 'kataSuggestionsMetricDimensionJson':
 				return $this->_uiAction_kataSuggestionsMetricDimensionJson();
+			case 'kataSuggestionsMetricNamesJson':
+				return $this->_uiAction_kataSuggestionsMetricNamesJson();
 			case 'kataSuggestionsRecordFieldJson':
 				return $this->_uiAction_kataSuggestionsRecordFieldJson();
 			case 'kataSuggestionsRecordFieldsJson':
@@ -219,12 +221,29 @@ class Controller_UI extends DevblocksControllerExtension {
 		
 	private function _uiAction_kataSuggestionsRecordTypeJson() : void {
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
-		
-		echo json_encode(
-			array_values(
-				Extension_DevblocksContext::getUris()
-			)
-		);
+
+		$suggestions = [];
+
+		foreach(Extension_DevblocksContext::getAll(false) as $mft) { /* @var $mft DevblocksExtensionManifest */
+			if(!($alias = $mft->params['alias'] ?? null))
+				continue;
+
+			$icon = $mft->params['icon'] ?? 'circle';
+
+			$suggestions[$alias] = [
+				'caption' => $alias,
+				'snippet' => $alias,
+				'docHTML' => sprintf(
+					'<span class="cerb-icons cerb-icon-%s"></span> %s',
+					DevblocksPlatform::strEscapeHtml($icon),
+					DevblocksPlatform::strEscapeHtml($alias)
+				),
+			];
+		}
+
+		ksort($suggestions);
+
+		echo json_encode(array_values($suggestions));
 	}
 	
 	private function _uiAction_kataSuggestionsMetricDimensionJson() : void {
@@ -277,6 +296,38 @@ class Controller_UI extends DevblocksControllerExtension {
 		);
 	}
 	
+	private function _uiAction_kataSuggestionsMetricNamesJson() : void {
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+
+		$prefix = DevblocksPlatform::importGPC($_POST['prefix'] ?? null, 'string', '');
+
+		$suggestions = [];
+
+		// Offer the current-record placeholder (resolves to the metric's name on a metric card)
+		if($prefix === '' || false !== stripos('{{record_name}}', $prefix)) {
+			$suggestions[] = [
+				'caption' => '{{record_name}}',
+				'snippet' => '{{record_name}}',
+				'docHTML' => '<b>{{record_name}}</b><br>The current record&#39;s name',
+			];
+		}
+
+		foreach(DAO_Metric::getAll() as $metric) { /* @var $metric Model_Metric */
+			if($prefix !== '' && false === stripos($metric->name, $prefix))
+				continue;
+
+			$doc = $metric->type . ($metric->description ? (' — ' . $metric->description) : '');
+
+			$suggestions[] = [
+				'caption' => $metric->name,
+				'snippet' => $metric->name,
+				'docHTML' => '<b>' . DevblocksPlatform::strEscapeHtml($metric->name) . '</b><br>' . DevblocksPlatform::strEscapeHtml($doc),
+			];
+		}
+
+		echo json_encode($suggestions);
+	}
+
 	private function _uiAction_kataSuggestionsAutomationCommandParamsJson() {
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		
