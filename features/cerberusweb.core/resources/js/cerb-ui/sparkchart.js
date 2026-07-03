@@ -33,43 +33,28 @@
  *   'cerb-ui-sparkchart:leave'
  *   'cerb-ui-sparkchart:click'  detail = same shape as hover
  */
-CerbUI.Sparkchart = class {
-	static _instances = new WeakMap();
-	static from(el) { return CerbUI.Sparkchart._instances.get(el); }
-
+CerbUI.Sparkchart = class extends CerbUI.Chart {
 	constructor(el, options = {}) {
-		this.el = (typeof el === 'string') ? document.querySelector(el) : el;
+		// The base sets up el + instance registry, palette/scale, the <svg>, ResizeObserver, the shared
+		// tooltip, and _color/_tooltip/_search; Sparkchart keeps only its bespoke independent-scale render().
+		super(el, options);
 		if(!this.el) return;
-		CerbUI.Sparkchart._instances.set(this.el, this);
+
+		// Spark stretches non-proportionally (compact plot), owns its plot class + a small default height.
+		this._svg.setAttribute('preserveAspectRatio', 'none');
+		this._svg.setAttribute('class', 'cerb-ui-sparkchart--plot');
+		this.el.classList.add('cerb-ui-sparkchart');
+		this.height = options.height || 56;
 
 		this.categories = options.categories || [];
 		this.series = options.series || [];
-		this.palette = CerbUI.resolvePalette(options.palette);
-		this.scale = options.scale || null; // optional shared color scale (color by series label, like Legend)
-		if(this.scale && options.palette != null) this.scale.usePalette(options.palette); // honor an explicit palette
-		this.height = options.height || 56;
 		this.barWidth = (options.barWidth != null) ? options.barWidth : 0.6;
 		this.ticks = (options.ticks !== false);
 		this.caption = options.caption; // [start, end] | 'centered string' | omitted = none
-		this.tooltipEnabled = (options.tooltip !== false);
 		this.tooltipLabels = (options.tooltipLabels === true); // force labels even for a single series
-		this.NS = 'http://www.w3.org/2000/svg';
-
-		this.el.classList.add('cerb-ui-sparkchart');
-
-		this._svg = document.createElementNS(this.NS, 'svg');
-		this._svg.setAttribute('class', 'cerb-ui-sparkchart--plot');
-		this._svg.setAttribute('preserveAspectRatio', 'none');
-		this.el.appendChild(this._svg);
 
 		this._buildCaption();
-
 		this._bindHover();
-
-		if(window.ResizeObserver) {
-			this._ro = new ResizeObserver(() => this.render());
-			this._ro.observe(this.el);
-		}
 		this.render();
 	}
 
@@ -88,11 +73,6 @@ CerbUI.Sparkchart = class {
 			cap.appendChild(s);
 		}
 		this.el.appendChild(cap);
-	}
-
-	_color(i, s) {
-		if(s.color) return s.color;
-		return this.scale ? this.scale.color(s.label) : this.palette[i % this.palette.length];
 	}
 
 	render() {
@@ -240,13 +220,6 @@ CerbUI.Sparkchart = class {
 		};
 	}
 
-	// One shared tooltip across all sparkcharts (only one is ever visible) — lazily created
-	_tooltip() {
-		if(!this.tooltipEnabled || !CerbUI.Tooltip) return null;
-		if(!CerbUI.Sparkchart._sharedTooltip) CerbUI.Sparkchart._sharedTooltip = new CerbUI.Tooltip();
-		return CerbUI.Sparkchart._sharedTooltip;
-	}
-
 	// Tooltip body: a category title + a swatch·[label]·value row per series. The label is shown only
 	// for multi-series charts (a single series' label would just be noise next to its value).
 	_tooltipContent(detail) {
@@ -327,18 +300,13 @@ CerbUI.Sparkchart = class {
 		this.el.addEventListener('click', this._onClick);
 	}
 
-	// Tear down listeners, the ResizeObserver, and the SVG so the el can be safely re-rendered or removed
+	// Remove Sparkchart's element-level hover listeners, then let the base tear down the ResizeObserver,
+	// tooltip, SVG, and instance registry so the el can be safely re-rendered or removed.
 	destroy() {
-		if(this._ro) { this._ro.disconnect(); this._ro = null; }
 		if(this._onMove) this.el.removeEventListener('mousemove', this._onMove);
 		if(this._onLeave) this.el.removeEventListener('mouseleave', this._onLeave);
 		if(this._onClick) this.el.removeEventListener('click', this._onClick);
-
-		const tip = this._tooltip();
-		if(tip) tip.hide();
-
-		this.el.replaceChildren();
 		this.el.classList.remove('cerb-ui-sparkchart');
-		CerbUI.Sparkchart._instances.delete(this.el);
+		super.destroy();
 	}
 };
