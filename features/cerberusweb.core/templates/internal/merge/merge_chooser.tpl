@@ -9,21 +9,13 @@
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <b>Select {$aliases.plural|lower} to merge:</b><br>
-<button type="button" class="cerb-chooser-trigger" data-context="{$context_ext->id}" data-field-name="ids[]" data-query="" {if $context_ext->hasOption('autocomplete')}data-autocomplete{/if}><span class="cerb-icons cerb-icon-search"></span></button>
-<ul class="chooser-container bubbles" style="display:block;">
+<div class="cerb-ui-record-chooser cerb-merge-chooser">
 {if $dicts}
 {foreach from=$dicts item=dict}
-<li>
-	<input type="hidden" name="ids[]" value="{$dict->id}">
-	{if $context_ext->hasOption('avatars')}
-	<img class="cerb-avatar" src="{devblocks_url}c=avatars&context={$context_ext->id}&context_id={$dict->id}{/devblocks_url}?v={$dict->updated_at}">
-	{/if}
-	<a class="cerb-peek-trigger" data-context="{$dict->_context}" data-context-id="{$dict->id}">{$dict->_label}</a>
-	<a data-cerb-link="remove_parent"><span class="cerb-icons cerb-icon-circle-remove"></span></a>
-</li>
+<li data-context="{$dict->_context}" data-context-id="{$dict->id}" data-label="{$dict->_label}"{if $context_ext->hasOption('avatars')} data-image="{devblocks_url}c=avatars&context={$context_ext->id}&context_id={$dict->id}{/devblocks_url}?v={$dict->updated_at}"{/if}></li>
 {/foreach}
 {/if}
-</ul>
+</div>
 <br>
 
 {if $active_worker->hasPriv("contexts.{$context_ext->id}.merge")}
@@ -41,13 +33,11 @@ $(function() {
 	$popup.one('popup_open',function() {
 		$(this).dialog('option','title', "Merge {$aliases.plural|capitalize}");
 
-		// Peeks
-		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
-
 		// Chooser
-		$popup.find('.cerb-chooser-trigger').cerbChooserTrigger();
-
-		$frm.find('[data-cerb-link=remove_parent]').on('click', Devblocks.onClickRemoveParent);
+		if(window.CerbUI && CerbUI.RecordChooser)
+			$popup.find('.cerb-merge-chooser').each(function() {
+				new CerbUI.RecordChooser(this, { context: '{$context_ext->id}', name: 'ids', multiple: true });
+			});
 
 		$frm.find('BUTTON.submit').click(function(e) {
 			e.stopPropagation();
