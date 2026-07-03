@@ -4867,6 +4867,18 @@
 		</extension>
 
 		<extension point="cerb.card.widget">
+			<id>cerb.card.widget.calendar</id>
+			<name>Calendar</name>
+			<class>
+				<file>api/cards/widgets/calendar.php</file>
+				<name>CardWidget_Calendar</name>
+			</class>
+			<params>
+				<param key="icon" value="calendar" />
+			</params>
+		</extension>
+
+		<extension point="cerb.card.widget">
 			<id>cerb.card.widget.chart.timeblocks</id>
 			<name>Chart: Time Blocks</name>
 			<class>
