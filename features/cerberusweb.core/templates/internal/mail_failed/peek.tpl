@@ -13,8 +13,6 @@
 	<iframe sandbox="allow-same-origin" src="about:blank" style="width:100%;height:250px;margin:0;padding:0;border:1px solid var(--cerb-color-background-contrast-150);background-color:white;"></iframe>
 </div>
 
-<div class="output" style="display:none;"></div>
-
 <fieldset class="delete" style="display:none;margin-top:5px;">
 	<legend>Delete this message?</legend>
 	<p>Are you sure you want to permanently delete this message source?</p>
@@ -55,8 +53,6 @@ $(function() {
 			$frm.find('input:hidden[name=action]').val('parseFailedMessageJson');
 
 			genericAjaxPost($frm, '', '', function(json) {
-				let $output = $frm.find('div.output');
-
 				// If successful, reload worklist
 				if(undefined != json.status && true == json.status) {
 					genericAjaxGet('view{$view_id}', 'c=internal&a=invoke&module=worklists&action=refresh&id={$view_id}');
@@ -65,7 +61,7 @@ $(function() {
 				// If an error, display it
 				} else if(undefined != json.status && false == json.status) {
 					let message = (undefined != json.log && json.log.length > 0) ? json.log : json.message;
-					Devblocks.showError($output, message, false, true);
+					Devblocks.createAlertError(message);
 
 				}
 			});
@@ -89,8 +85,6 @@ $(function() {
 			$frm.find('textarea[name=message_content]').val('');
 
 			genericAjaxPost($frm, '', '', function(json) {
-				let $output = $frm.find('div.output');
-				
 				// If successful, reload worklist
 				if(undefined != json.status && true == json.status) {
 					genericAjaxGet('view{$view_id}', 'c=internal&a=invoke&module=worklists&action=refresh&id={$view_id}');
@@ -99,7 +93,7 @@ $(function() {
 				// If an error, display it
 				} else if(undefined != json.status && false == json.status) {
 					let message = (undefined != json.log && json.log.length > 0) ? json.log : json.message;
-					Devblocks.showError($output, message, false, true);
+					Devblocks.createAlertError(message);
 					
 				}
 			});

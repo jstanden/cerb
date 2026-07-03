@@ -46,7 +46,7 @@ $(function() {
 				}
 				
 				if(!json || !json.status) {
-					Devblocks.showError($status, json.error);
+					Devblocks.createAlertError(json.error);
 					return;
 				}
 				

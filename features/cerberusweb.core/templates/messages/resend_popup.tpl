@@ -11,8 +11,6 @@
 {$source}
 </textarea>
 
-<div class="status"></div>
-
 <button type="button" class="close"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.send'|devblocks_translate|capitalize}</button>
 </form>
 
@@ -20,7 +18,6 @@
 $(function() {
 	let $frm = $('#{$popup_id}');
 	let $popup = genericAjaxPopupFind($frm);
-	let $status = $popup.find('div.status');
 
 	Devblocks.formDisableSubmit($frm);
 	
@@ -35,7 +32,7 @@ $(function() {
 					if(json.status == true) {
 						genericAjaxPopupClose($popup);
 					} else if (json.status == false && json.error) {
-						Devblocks.showError($status, json.error);
+						Devblocks.createAlertError(json.error);
 					}
 				}
 			});

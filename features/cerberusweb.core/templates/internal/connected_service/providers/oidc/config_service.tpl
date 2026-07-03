@@ -68,7 +68,7 @@ $(function() {
 			
 			if(null == json || null == json.issuer) {
 				if(json.error) {
-					Devblocks.showError($status_discovery, json.error);
+					Devblocks.createAlertError(json.error);
 				}
 				return;
 			}

@@ -287,7 +287,7 @@
 		if(!f) return;
 		
 		if(!f.type.match('image.*')) {
-			//Devblocks.showError($error, "You may only upload images.");
+			//Devblocks.createAlertError("You may only upload images.");
 			return;
 		}
 		

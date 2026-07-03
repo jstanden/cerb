@@ -21,9 +21,7 @@ no,don't do it
 reminder,Remind me about {{remind:meeting}} {{time:at 2pm}}
 		{/literal}</pre>
 	</div>
-	
-	<div class="status"></div>
-	
+
 	<button class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.import'|devblocks_translate|capitalize}</button>
 </fieldset>
 </form>
@@ -33,7 +31,6 @@ $(function() {
 	let $div = $('#{$popup_id}');
 	let $popup = genericAjaxPopupFind($div);
 	let $frm = $popup.find('form');
-	let $status = $popup.find('div.status');
 
 	Devblocks.formDisableSubmit($frm);
 	
@@ -47,7 +44,7 @@ $(function() {
 					
 				} else {
 					var error = json.error || "An unexpected error occurred.";
-					Devblocks.showError($status, error);
+					Devblocks.createAlertError(error);
 				}
 			});
 		});

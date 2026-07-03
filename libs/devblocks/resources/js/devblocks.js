@@ -225,26 +225,6 @@ function DevblocksClass() {
 		return $alert;
 	};
 	
-	this.showError = function(target, message, animate) {
-		var $html = $('<div class="ui-widget"/>')
-			.append(
-				$('<div class="ui-state-error ui-corner-all" style="padding:0 0.5em;margin:0.5em;"/>')
-				.append(
-					$('<p/>').text(message)
-						.prepend($('<span class="cerb-icons cerb-icon-circle-exclamation-mark" style="margin-right:5px;"></span>'))
-				)
-			)
-		;
-		
-		var $status = $(target).html($html).show();
-		
-		animate = (null == animate || false !== animate);
-		if(animate)
-			$status.effect('slide',{ direction:'up', mode:'show' },250);
-		
-		return $status;
-	};
-	
 	// A single reused CerbUI.Tooltip for automation callouts: a floating panel pinned to a DOM element,
 	// with an arrow pointing at it, dismissed by click or outside-click. Reused (not per-callout) because
 	// hiding a Tooltip keeps its panel in the DOM — a fresh instance each time would leak one.
