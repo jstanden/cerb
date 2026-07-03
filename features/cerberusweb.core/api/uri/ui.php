@@ -57,6 +57,8 @@ class Controller_UI extends DevblocksControllerExtension {
 		switch($action) {
 			case 'behavior':
 				return $this->_uiAction_behavior();
+			case 'calendarEventsJson':
+				return $this->_uiAction_calendarEventsJson();
 			case 'dataQuery':
 				return $this->_uiAction_dataQuery();
 			case 'dataQuerySuggestions':
@@ -871,6 +873,65 @@ class Controller_UI extends DevblocksControllerExtension {
 		}
 		
 		echo DevblocksPlatform::strFormatJson(json_encode($results));
+	}
+
+	// Feeds CerbUI.Calendar: a calendar's events for a [from,to] range, day-keyed (the shape
+	// CerbUI.cal.dedupeServerEvents expects). No occlusion — that only trims/splits availability
+	// blocks and would fragment spanning-strip events. Epochs are absolute; the client interprets
+	// them at the tzOffsetMinutes passed by the widget (the worker's timezone).
+	private function _uiAction_calendarEventsJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+
+		$calendar_id = DevblocksPlatform::importGPC($_REQUEST['calendar_id'] ?? null, 'integer', 0);
+		$from = DevblocksPlatform::importGPC($_REQUEST['from'] ?? null, 'integer', 0);
+		$to = DevblocksPlatform::importGPC($_REQUEST['to'] ?? null, 'integer', 0);
+
+		$empty = ['events' => new stdClass()];
+
+		if(!$calendar_id || false == ($calendar = DAO_Calendar::get($calendar_id))) {
+			echo json_encode($empty);
+			return;
+		}
+
+		if(!Context_Calendar::isReadableByActor($calendar, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
+		if($from <= 0 || $to <= 0 || $to < $from) {
+			echo json_encode($empty);
+			return;
+		}
+
+		// Cap the range (a year view fetches ~365 days) to bound abuse.
+		if(($to - $from) > (400 * 86400))
+			$to = $from + (400 * 86400);
+
+		$calendar_events = $calendar->getEvents($from, $to);
+
+		$out = [];
+
+		foreach($calendar_events as $ts => $ts_events) {
+			$rows = [];
+
+			foreach($ts_events as $ev) {
+				$rows[] = [
+					'context' => $ev['context'] ?? null,
+					'context_id' => $ev['context_id'] ?? null,
+					'label' => $ev['label'] ?? '',
+					'color' => $ev['color'] ?? null,
+					'ts' => $ev['ts'] ?? null,
+					'ts_end' => $ev['ts_end'] ?? null,
+					'ts_range_start' => $ev['ts_range_start'] ?? ($ev['ts'] ?? null),
+					'ts_range_end' => $ev['ts_range_end'] ?? ($ev['ts_end'] ?? null),
+					'is_available' => intval($ev['is_available'] ?? 0),
+				];
+			}
+
+			$out[strval($ts)] = $rows;
+		}
+
+		echo json_encode(['events' => empty($out) ? new stdClass() : $out]);
 	}
 
 	private function _uiAction_resource() {

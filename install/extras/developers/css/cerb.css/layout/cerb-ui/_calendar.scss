@@ -1,0 +1,560 @@
+// Calendar (CerbUI.Calendar) — an inline day/week/month/year calendar with multiple event sources.
+// Geometry (positions/heights/lane offsets) is computed in JS and applied inline; this file is skin only.
+// Colors are tokens, so dark mode is automatic (html.dark redefines them). Event fill colors are arbitrary
+// hex and always arrive inline. Reuses .cerb-ui-pip (year pips) and .cerb-ui-tooltip (year day details).
+
+$cal-gutter-w: 56px;
+
+.cerb-ui-calendar {
+	display: flex;
+	flex-direction: column;
+	color: var(--cerb-color-text);
+	font-size: 13px;
+	user-select: none;
+}
+
+// Several content elements below are <button>s; the global BUTTON{height:2.4em} would clip/bloat them.
+// Neutralize it so they size to their content (chrome buttons — nav/today/views — keep the default height).
+.cerb-ui-calendar--legend-item,
+.cerb-ui-calendar--day-timed,
+.cerb-ui-calendar--more,
+.cerb-ui-calendar--minicaption {
+	height: auto;
+}
+
+// ── Toolbar ─────────────────────────────────────────────────────────────────
+.cerb-ui-calendar--toolbar {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-bottom: 8px;
+	flex-wrap: wrap;
+}
+
+.cerb-ui-calendar--nav-group {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+}
+
+.cerb-ui-calendar--nav {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: transparent;
+	border: 1px solid var(--cerb-color-background-contrast-220);
+	color: var(--cerb-color-text);
+	cursor: pointer;
+	padding: 4px 5px;
+	border-radius: 6px;
+	line-height: 0;
+	transition: background 0.1s;
+
+	&:hover { background: var(--cerb-color-background-contrast-240); }
+	&:focus-visible { outline: 2px solid var(--cerb-color-action-primary); outline-offset: 1px; }
+}
+
+.cerb-ui-calendar--today {
+	background: transparent;
+	border: 1px solid var(--cerb-color-background-contrast-220);
+	color: var(--cerb-color-text);
+	cursor: pointer;
+	padding: 4px 10px;
+	border-radius: 6px;
+	font-size: 12px;
+	transition: background 0.1s;
+
+	&:hover { background: var(--cerb-color-background-contrast-240); }
+	&:focus-visible { outline: 2px solid var(--cerb-color-action-primary); outline-offset: 1px; }
+}
+
+.cerb-ui-calendar--caption {
+	flex: 1;
+	font-weight: 600;
+	font-size: 15px;
+	white-space: nowrap;
+}
+
+.cerb-ui-calendar--views {
+	flex-shrink: 0;
+}
+
+// ── Legend (sources; click-to-toggle) ───────────────────────────────────────
+.cerb-ui-calendar--legend {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 14px;
+	margin-bottom: 8px;
+}
+
+.cerb-ui-calendar--legend-item {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	background: transparent;
+	border: none;
+	padding: 2px 4px;
+	border-radius: 5px;
+	cursor: pointer;
+	color: var(--cerb-color-text);
+	font-size: 12px;
+	transition: background 0.1s, opacity 0.1s;
+
+	&:hover { background: var(--cerb-color-background-contrast-240); }
+	&:focus-visible { outline: 2px solid var(--cerb-color-action-primary); outline-offset: 1px; }
+
+	&.is-off {
+		opacity: 0.45;
+		.cerb-ui-calendar--legend-label { text-decoration: line-through; }
+	}
+}
+
+.cerb-ui-calendar--legend-item-error .cerb-ui-calendar--legend-label {
+	color: var(--cerb-color-tag-red);
+}
+
+.cerb-ui-calendar--legend-swatch {
+	width: 12px;
+	height: 12px;
+	border-radius: 3px;
+	flex-shrink: 0;
+}
+
+.cerb-ui-calendar--legend-label { white-space: nowrap; }
+
+// ── Body / shared ───────────────────────────────────────────────────────────
+.cerb-ui-calendar--body {
+	border: 1px solid var(--cerb-color-background-contrast-225);
+	border-radius: 8px;
+	overflow: hidden;
+	background: var(--cerb-color-background);
+}
+
+.cerb-ui-calendar--day-other { color: var(--cerb-color-background-contrast-180); }
+
+// A generic left color swatch (month timed rows, tooltip rows).
+.cerb-ui-calendar--swatch {
+	width: 4px;
+	align-self: stretch;
+	min-height: 12px;
+	border-radius: 2px;
+	flex-shrink: 0;
+}
+
+// ── Month view ──────────────────────────────────────────────────────────────
+.cerb-ui-calendar--weekdays {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	border-bottom: 1px solid var(--cerb-color-background-contrast-230);
+}
+
+.cerb-ui-calendar--weekday {
+	text-align: center;
+	font-size: 11px;
+	font-weight: 600;
+	color: var(--cerb-color-background-contrast-150);
+	padding: 5px 0;
+}
+
+.cerb-ui-calendar--week {
+	position: relative;
+	border-bottom: 1px solid var(--cerb-color-background-contrast-235);
+
+	&:last-child { border-bottom: none; }
+}
+
+.cerb-ui-calendar--daycells {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	min-height: 92px;
+}
+
+.cerb-ui-calendar--daycell {
+	position: relative;
+	border-right: 1px solid var(--cerb-color-background-contrast-235);
+	padding: 2px 3px 4px;
+	min-width: 0;
+	cursor: pointer;
+
+	&:last-child { border-right: none; }
+	&.cerb-ui-calendar--day-other { background: var(--cerb-color-background-contrast-245); }
+}
+
+.cerb-ui-calendar--daynum {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 24px;
+	background: transparent;
+	border: none;
+	color: inherit;
+	cursor: pointer;
+	font-size: 12px;
+	border-radius: 50%;
+	padding: 0 4px;
+
+	&:hover { background: var(--cerb-color-background-contrast-235); }
+}
+
+.cerb-ui-calendar--day-today > .cerb-ui-calendar--daynum {
+	background: var(--cerb-color-action-primary);
+	color: var(--cerb-color-action-primary-text);
+	font-weight: 700;
+}
+
+// Strips overlay (absolute over the daycells; click-through except on the bars).
+.cerb-ui-calendar--strips {
+	position: absolute;
+	left: 0;
+	right: 0;
+	pointer-events: none;
+}
+
+.cerb-ui-calendar--strip {
+	position: absolute;
+	height: 18px;
+	box-sizing: border-box;
+	border-radius: 4px;
+	color: rgb(255, 255, 255); // event bg is saturated in both themes → white always reads
+	font-size: 11px;
+	line-height: 18px;
+	padding: 0 6px;
+	overflow: hidden;
+	white-space: nowrap;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	cursor: pointer;
+	pointer-events: auto;
+
+	&:hover { filter: brightness(0.94); }
+
+	// Continuation edges (event wraps to/from an adjacent week row).
+	&.cerb-ui-calendar--continues-left { border-top-left-radius: 0; border-bottom-left-radius: 0; }
+	&.cerb-ui-calendar--continues-right { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+}
+
+.cerb-ui-calendar--strip-icon { font-size: 11px; }
+.cerb-ui-calendar--strip-label { overflow: hidden; text-overflow: ellipsis; }
+
+// A single-day timed event in a month cell: swatch + label + start time.
+.cerb-ui-calendar--day-timed-list {
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+}
+
+.cerb-ui-calendar--day-timed {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	background: transparent;
+	border: none;
+	padding: 1px 2px;
+	border-radius: 4px;
+	cursor: pointer;
+	color: inherit;
+	font-size: 11px;
+	text-align: left;
+	width: 100%;
+	min-width: 0;
+
+	&:hover { background: var(--cerb-color-background-contrast-240); }
+}
+
+.cerb-ui-calendar--day-timed-label {
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	min-width: 0;
+}
+
+.cerb-ui-calendar--day-timed-time {
+	color: var(--cerb-color-background-contrast-150);
+	flex-shrink: 0;
+	font-variant-numeric: tabular-nums;
+}
+
+.cerb-ui-calendar--more {
+	display: block;
+	background: transparent;
+	border: none;
+	color: var(--cerb-color-background-contrast-150);
+	cursor: pointer;
+	font-size: 11px;
+	padding: 1px 2px;
+	border-radius: 4px;
+
+	&:hover { background: var(--cerb-color-background-contrast-240); color: var(--cerb-color-text); }
+}
+
+// ── Day / Week views ────────────────────────────────────────────────────────
+.cerb-ui-calendar--day-view,
+.cerb-ui-calendar--week-view {
+	display: flex;
+	flex-direction: column;
+	max-height: 640px;
+}
+
+// All-day band (top; continuous strips across day columns).
+.cerb-ui-calendar--allday-band {
+	display: flex;
+	border-bottom: 1px solid var(--cerb-color-background-contrast-225);
+}
+
+.cerb-ui-calendar--gutter-spacer {
+	width: $cal-gutter-w;
+	flex-shrink: 0;
+	font-size: 10px;
+	color: var(--cerb-color-background-contrast-150);
+	text-align: right;
+	padding: 3px 6px 0 0;
+	box-sizing: border-box;
+}
+
+.cerb-ui-calendar--allday-cols {
+	position: relative;
+	flex: 1;
+	min-width: 0;
+	padding: 2px 0;
+}
+
+.cerb-ui-calendar--allday-strips { position: absolute; inset: 2px 0; pointer-events: none; }
+
+// Week column headers
+.cerb-ui-calendar--week-header {
+	display: flex;
+	border-bottom: 1px solid var(--cerb-color-background-contrast-225);
+}
+
+.cerb-ui-calendar--week-header-cols {
+	flex: 1;
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+}
+
+.cerb-ui-calendar--daycol-header {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1px;
+	background: transparent;
+	border: none;
+	border-left: 1px solid var(--cerb-color-background-contrast-235);
+	color: var(--cerb-color-text);
+	cursor: pointer;
+	padding: 4px 0;
+	height: auto; // beat the global BUTTON{height:2.4em} which clips the two-line dow+number
+
+	&:first-child { border-left: none; }
+	&:hover { background: var(--cerb-color-background-contrast-245); }
+}
+
+.cerb-ui-calendar--daycol-dow { font-size: 10px; color: var(--cerb-color-background-contrast-150); text-transform: uppercase; }
+.cerb-ui-calendar--daycol-num { font-size: 15px; font-weight: 600; }
+
+.cerb-ui-calendar--daycol-header.cerb-ui-calendar--day-today .cerb-ui-calendar--daycol-num {
+	color: var(--cerb-color-action-primary);
+}
+
+// Scrollable hour grid. A little top padding separates the first hour line + "12 AM" label from the
+// day-number header above it (otherwise the flush top gridline reads as cutting through the numbers).
+.cerb-ui-calendar--grid {
+	display: flex;
+	overflow-y: auto;
+	flex: 1;
+	padding-top: 8px;
+}
+
+.cerb-ui-calendar--gutter {
+	width: $cal-gutter-w;
+	flex-shrink: 0;
+}
+
+.cerb-ui-calendar--hour {
+	position: relative;
+	box-sizing: border-box;
+	border-top: 1px solid var(--cerb-color-background-contrast-235);
+}
+
+.cerb-ui-calendar--hour-label {
+	position: absolute;
+	top: -7px;
+	right: 6px;
+
+	// The very first label (top of the grid) sits just below its line instead of straddling it, so it
+	// never pokes up into the header.
+	.cerb-ui-calendar--hour:first-child & { top: 1px; }
+	font-size: 10px;
+	color: var(--cerb-color-background-contrast-150);
+	background: var(--cerb-color-background);
+	padding: 0 2px;
+}
+
+.cerb-ui-calendar--day-cols {
+	flex: 1;
+	display: grid;
+	min-width: 0;
+}
+
+.cerb-ui-calendar--canvas {
+	position: relative;
+	border-left: 1px solid var(--cerb-color-background-contrast-235);
+	min-width: 0;
+
+	&:first-child { border-left: none; }
+}
+
+.cerb-ui-calendar--hourline {
+	position: absolute;
+	left: 0;
+	right: 0;
+	border-top: 1px solid var(--cerb-color-background-contrast-235);
+}
+
+.cerb-ui-calendar--nowline {
+	position: absolute;
+	left: 0;
+	right: 0;
+	height: 0;
+	border-top: 2px solid var(--cerb-color-tag-red);
+	z-index: 3;
+
+	&::before {
+		content: '';
+		position: absolute;
+		left: -1px;
+		top: -4px;
+		width: 7px;
+		height: 7px;
+		border-radius: 50%;
+		background: var(--cerb-color-tag-red);
+	}
+}
+
+.cerb-ui-calendar--event {
+	position: absolute;
+	box-sizing: border-box;
+	border-radius: 4px;
+	background: color-mix(in srgb, var(--cerb-cal-event-color) 22%, var(--cerb-color-background));
+	border-left: 3px solid var(--cerb-cal-event-color);
+	color: var(--cerb-color-text);
+	padding: 1px 5px;
+	overflow: hidden;
+	cursor: pointer;
+	font-size: 11px;
+	z-index: 2;
+
+	&:hover { filter: brightness(1.04); background: color-mix(in srgb, var(--cerb-cal-event-color) 32%, var(--cerb-color-background)); }
+}
+
+.cerb-ui-calendar--event-time {
+	font-weight: 600;
+	margin-right: 4px;
+	font-variant-numeric: tabular-nums;
+}
+
+.cerb-ui-calendar--event-label { }
+
+// ── Year view ───────────────────────────────────────────────────────────────
+.cerb-ui-calendar--year {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+	gap: 14px;
+	padding: 12px;
+}
+
+.cerb-ui-calendar--minimonth { min-width: 0; }
+
+.cerb-ui-calendar--minicaption {
+	display: block;
+	width: 100%;
+	background: transparent;
+	border: none;
+	color: var(--cerb-color-text);
+	font-weight: 600;
+	font-size: 13px;
+	text-align: left;
+	cursor: pointer;
+	padding: 2px 2px 4px;
+	border-radius: 4px;
+
+	&:hover { background: var(--cerb-color-background-contrast-240); color: var(--cerb-color-action-primary); }
+}
+
+.cerb-ui-calendar--miniweekdays {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+}
+
+.cerb-ui-calendar--miniweekday {
+	text-align: center;
+	font-size: 9px;
+	color: var(--cerb-color-background-contrast-150);
+	padding-bottom: 2px;
+}
+
+.cerb-ui-calendar--minigrid {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	gap: 1px;
+}
+
+.cerb-ui-calendar--minicell {
+	position: relative;
+	aspect-ratio: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 11px;
+	border-radius: 4px;
+
+	&.cerb-ui-calendar--minicell-marked {
+		cursor: pointer;
+		font-weight: 600;
+		&:hover { background: var(--cerb-color-background-contrast-240); }
+	}
+}
+
+.cerb-ui-calendar--minicell.cerb-ui-calendar--day-today .cerb-ui-calendar--mininum {
+	color: var(--cerb-color-action-primary);
+	font-weight: 700;
+}
+
+.cerb-ui-calendar--minipips {
+	position: absolute;
+	bottom: 1px;
+	left: 0;
+	right: 0;
+	display: flex;
+	justify-content: center;
+	gap: 2px;
+	pointer-events: none;
+
+	.cerb-ui-pip { width: 4px; height: 4px; flex-basis: 4px; }
+}
+
+.cerb-ui-calendar--minipip-more { font-size: 8px; line-height: 1; color: var(--cerb-color-background-contrast-150); }
+
+// ── Tooltip content (year day details) ──────────────────────────────────────
+.cerb-ui-calendar--tip { min-width: 140px; max-width: 260px; }
+
+.cerb-ui-calendar--tip-date {
+	font-weight: 600;
+	margin-bottom: 4px;
+	font-size: 12px;
+}
+
+.cerb-ui-calendar--tip-list { display: flex; flex-direction: column; gap: 2px; }
+
+.cerb-ui-calendar--tip-row {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 12px;
+}
+
+.cerb-ui-calendar--tip-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cerb-ui-calendar--tip-time { color: var(--cerb-color-background-contrast-150); font-variant-numeric: tabular-nums; }
+.cerb-ui-calendar--tip-more { font-size: 11px; color: var(--cerb-color-background-contrast-150); margin-top: 2px; }

@@ -169,6 +169,7 @@
 						<li data-target="distribution-bar" data-icon="chart-bar">Distribution bar</li>
 						<li data-target="sparkchart" data-icon="chart-line">Sparkchart</li>
 						<li data-target="timering" data-icon="clock">TimeRing</li>
+						<li data-target="calendar" data-icon="calendar">Calendar</li>
 					</ul>
 				</div>
 				<div class="cerb-ui-sidebar--section">
@@ -250,6 +251,7 @@
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/distribution-bar.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/sparkchart.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/timering.tpl"}
+			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/calendar.tpl"}
 
 			<h2 class="cerb-uiref-grouplabel" id="group-dragdrop">Drag &amp; drop</h2>
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/sortable.tpl"}
