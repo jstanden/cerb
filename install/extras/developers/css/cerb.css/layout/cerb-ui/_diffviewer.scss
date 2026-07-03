@@ -27,7 +27,9 @@
         min-width: 0;
         align-self: stretch;
         background: var(--cerb-editor-gutter-background);
-        overflow: visible;
+        // Clip the change-bands to the gutter viewport — a tall insertion/deletion band maps to a y-range
+        // past the visible editor height, and would otherwise paint above/below the panes.
+        overflow: hidden;
     }
 
     // Per-line tints (applied to KataEditor --line-deco bands). Removed = red on the left pane, added = green on
