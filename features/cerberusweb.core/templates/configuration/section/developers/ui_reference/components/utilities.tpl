@@ -158,5 +158,35 @@
 
 			<code class="cerb-uiref-utils--name" data-cerb-uiref-copy data-cerb-uiref-source title="Copy to clipboard">cerb-u-select-none</code>
 			<div><span class="cerb-u-select-none cerb-uiref-utils--note">try to select this text — you can't (good for click-to-toggle affordances)</span></div>
+
+			<div class="cerb-uiref-utils--full cerb-ui-header--label cerb-u-mt-3">Color · contrast <span class="cerb-u-text-muted cerb-u-fw-400 cerb-u-fs-n1">(JS)</span></div>
+
+			<code class="cerb-uiref-utils--name" data-cerb-uiref-copy data-cerb-uiref-source title="Copy to clipboard">CerbUI.color.idealTextColor</code>
+			<div class="cerb-u-flex cerb-u-gap-2 cerb-u-items-center cerb-u-flex-wrap" id="uiref-idealtext">
+				<span class="cerb-uiref-swatch cerb-u-flex-inline cerb-u-p-2 cerb-u-rounded-2 cerb-u-fw-600" data-bg="#C5DCFA">#C5DCFA</span>
+				<span class="cerb-uiref-swatch cerb-u-flex-inline cerb-u-p-2 cerb-u-rounded-2 cerb-u-fw-600" data-bg="#1a3d7c">#1a3d7c</span>
+				<span class="cerb-uiref-swatch cerb-u-flex-inline cerb-u-p-2 cerb-u-rounded-2 cerb-u-fw-600" data-bg="#A0D95B">#A0D95B</span>
+				<span class="cerb-uiref-swatch cerb-u-flex-inline cerb-u-p-2 cerb-u-rounded-2 cerb-u-fw-600" data-bg="#C8C8C8">#C8C8C8</span>
+				<span class="cerb-uiref-swatch cerb-u-flex-inline cerb-u-p-2 cerb-u-rounded-2 cerb-u-fw-600" data-bg="#e67e22">#e67e22</span>
+				<span class="cerb-uiref-swatch cerb-u-flex-inline cerb-u-p-2 cerb-u-rounded-2 cerb-u-fw-600" data-bg="#8e44ad">#8e44ad</span>
+				<span class="cerb-uiref-swatch cerb-u-flex-inline cerb-u-p-2 cerb-u-rounded-2 cerb-u-fw-600" data-bg="#111111">#111111</span>
+				<span class="cerb-uiref-swatch cerb-u-flex-inline cerb-u-p-2 cerb-u-rounded-2 cerb-u-fw-600" data-bg="#ffffff">#ffffff</span>
+			</div>
+
+			<div class="cerb-uiref-utils--note cerb-uiref-utils--full">Picks near-black (<code>#141414</code>) or white for the higher WCAG contrast on a fill &mdash; legible labels on any tag / event / chart / user-chosen color, in light or dark mode. Each chip sets its own text color via <code>CerbUI.color.idealTextColor(bg)</code>. Companions: <code>CerbUI.color.luminance(c)</code> (0&ndash;1), <code>contrastRatio(a,b)</code> (1&ndash;21), <code>parseHex(c)</code>. A non-hex value (CSS var / named color) returns <code>null</code> so callers can defer to the stylesheet.</div>
 		</div>
 	</div>
+
+<script nonce="{DevblocksPlatform::getRequestNonce()}">
+(function() {
+	if(!window.CerbUI || !CerbUI.color)
+		return;
+
+	document.querySelectorAll('#uiref-idealtext .cerb-uiref-swatch').forEach(function(el) {
+		const bg = el.getAttribute('data-bg');
+		el.style.backgroundColor = bg;
+		const tc = CerbUI.color.idealTextColor(bg);
+		if(tc) el.style.color = tc;
+	});
+})();
+</script>

@@ -46,3 +46,46 @@ CerbUI.ColorScale = class {
 };
 
 CerbUI.colorScale = function(palette) { return new CerbUI.ColorScale(palette); };
+
+/*
+ * CerbUI.color — small color-math helpers (WCAG luminance + auto text contrast). Use idealTextColor(bg)
+ * to pick legible label text on an arbitrary fill (tag/event/chart colors, user-chosen swatches, etc.).
+ */
+CerbUI.color = {
+	// Parse '#rgb' / '#rrggbb' (with or without the leading '#') into {r,g,b}; null if not a hex color.
+	parseHex: function(c) {
+		if(typeof c !== 'string') return null;
+		let s = c.trim();
+		if(s.charAt(0) === '#') s = s.slice(1);
+		if(s.length === 3) s = s.charAt(0) + s.charAt(0) + s.charAt(1) + s.charAt(1) + s.charAt(2) + s.charAt(2);
+		if(s.length !== 6 || /[^0-9a-fA-F]/.test(s)) return null;
+		const n = parseInt(s, 16);
+		return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+	},
+
+	// WCAG relative luminance (0..1) of a hex color or an {r,g,b}; null if unparseable.
+	luminance: function(c) {
+		const rgb = (c && typeof c === 'object') ? c : CerbUI.color.parseHex(c);
+		if(!rgb) return null;
+		const lin = (v) => { v /= 255; return (v <= 0.03928) ? (v / 12.92) : Math.pow((v + 0.055) / 1.055, 2.4); };
+		return 0.2126 * lin(rgb.r) + 0.7152 * lin(rgb.g) + 0.0722 * lin(rgb.b);
+	},
+
+	// WCAG contrast ratio (1..21) between two colors; null if either is unparseable.
+	contrastRatio: function(a, b) {
+		const la = CerbUI.color.luminance(a), lb = CerbUI.color.luminance(b);
+		if(la == null || lb == null) return null;
+		const hi = Math.max(la, lb), lo = Math.min(la, lb);
+		return (hi + 0.05) / (lo + 0.05);
+	},
+
+	// Near-black ('#141414') or white ('#ffffff') — whichever has the higher contrast on `bg`.
+	// Returns null for a non-hex bg (a CSS var / named color) so the caller can defer to the stylesheet.
+	idealTextColor: function(bg) {
+		const L = CerbUI.color.luminance(bg);
+		if(L == null) return null;
+		const contrastWhite = 1.05 / (L + 0.05);   // (1.0 + 0.05) / (L + 0.05)
+		const contrastBlack = (L + 0.05) / 0.05;
+		return (contrastBlack >= contrastWhite) ? '#141414' : '#ffffff';
+	}
+};
