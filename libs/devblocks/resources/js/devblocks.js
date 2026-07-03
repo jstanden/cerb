@@ -190,38 +190,48 @@ function DevblocksClass() {
 		;
 		
 		var $alerts = $('#cerb-alerts');
-		
+
 		var $alert = $('<div/>')
 			.addClass('cerb-alert')
 			.text(message)
-			.hide()
 			.appendTo($alerts)
 			;
-		
+
+		// Leave with a CSS transition (.cerb-alert--in off); a timer falls back when transitionend
+		// can't fire (reduced-motion = no transition).
+		var removeAlert = function() {
+			$alert.removeClass('cerb-alert--in');
+
+			var el = $alert[0], done = false;
+			var finish = function() {
+				if(done) return;
+				done = true;
+				$alert.remove();
+			};
+
+			el.addEventListener('transitionend', finish);
+			setTimeout(finish, 600);
+		};
+
 		$('<span class="cerb-alert-close"><span class="cerb-icons cerb-icon-circle-remove"></span></span>')
 			.on('click', function(e) {
-				var $alert = $(this).closest('.cerb-alert');
-				
-				$alert.effect('slide',{ direction:'up', mode:'hide' }, 500, function() {
-					$alert.remove();
-				});
+				removeAlert();
 			})
 			.appendTo($alert)
 			;
-		
+
 		if(style != undefined)
 			$alert
 				.addClass('cerb-alert-' + style)
 				;
-		
-		$alert.delay(0).effect('slide',{ direction:'up', mode:'show' }, 250);
-		
+
+		// Reveal on the next frame so the enter transition runs.
+		requestAnimationFrame(function() { $alert.addClass('cerb-alert--in'); });
+
 		if(parseInt(duration) > 0) {
-			$alert.delay(duration).effect('slide',{ direction:'up', mode:'hide' }, 500, function() {
-				$alert.remove();
-			});
+			setTimeout(removeAlert, parseInt(duration));
 		}
-		
+
 		return $alert;
 	};
 	
