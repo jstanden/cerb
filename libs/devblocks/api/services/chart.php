@@ -116,8 +116,10 @@ class _DevblocksChartService {
 			$this->_parseChartLegend($chart_kata, $chart_json);
 			
 			$this->_parseChartTooltip($chart_kata, $chart_json);
-			
-			return $chart_json;
+
+			// Re-shape the assembled structure into the CerbUI chart-family config (the public return);
+			// the intermediate above is an internal build detail, never sent to the client.
+			return $this->_toChartConfig($chart_json);
 			
 		} catch (Exception_DevblocksValidationError $e) {
 			$error = sprintf("ERROR: %s",
@@ -569,12 +571,204 @@ class _DevblocksChartService {
 		if(array_key_exists('tooltip', $chart_kata)) {
 			if(array_key_exists('show', $chart_kata['tooltip']))
 				$chart_json['tooltip']['show'] = boolval($chart_kata['tooltip']['show']);
-			
+
 			if(array_key_exists('grouped', $chart_kata['tooltip']))
 				$chart_json['tooltip']['grouped'] = boolval($chart_kata['tooltip']['grouped']);
-			
+
 			if(array_key_exists('ratios', $chart_kata['tooltip']))
 				$chart_json['tooltip']['ratios'] = boolval($chart_kata['tooltip']['ratios']);
 		}
-	}	
+	}
+
+	// ── CerbUI chart-family output ────────────────────────────────────────────
+	// Transform the assembled intermediate into the config the CerbUI.* chart components consume:
+	//   { kind, height, palette, x, y, y2?, series[], legend, tooltip }  (pie/gauge have their own shapes).
+
+	private function _toChartConfig(array $c3) : array {
+		$data = $c3['data'] ?? [];
+		$axis = $c3['axis'] ?? [];
+		$type = $data['type'] ?? 'line';
+
+		$kind = match(true) {
+			in_array($type, ['pie', 'donut']) => 'pie',
+			$type === 'gauge' => 'gauge',
+			$type === 'scatter' => 'scatter',
+			default => 'cartesian',
+		};
+
+		$out = [
+			'kind' => $kind,
+			'height' => $c3['size']['height'] ?? 320,
+			'palette' => $c3['color']['patterns'] ?? null,
+		];
+
+		// columns [[id, ...values], …] → id => values
+		$col_map = [];
+		foreach(($data['columns'] ?? []) as $col) {
+			if(!is_array($col) || !count($col))
+				continue;
+			$id = array_shift($col);
+			$col_map[$id] = $col;
+		}
+
+		// c3 mark type → CerbUI mark (we render area-* as filled area, step as line)
+		$mark_type = fn($t) => match($t) {
+			'area', 'area-spline', 'area-step' => 'area',
+			'spline' => 'spline',
+			'bar' => 'bar',
+			'step' => 'line',
+			default => 'line',
+		};
+		$format_of = fn($a) => $axis[$a]['tick']['format_options'] ?? null;
+
+		// stacking: which group (if any) each series-id belongs to
+		$stack_of = [];
+		foreach(($data['groups'] ?? []) as $gi => $group) {
+			foreach($group as $id)
+				$stack_of[$id] = 'g' . $gi;
+		}
+
+		// drill-through: the plotted id's companion "<id>__click" series holds "<context> <query>" strings
+		$click_of = fn($id) => $data['click_search'][$id . '__click'] ?? null;
+
+		// ── pie / donut ──
+		if($kind === 'pie') {
+			$slices = [];
+
+			if(array_key_exists('x', $col_map)) {
+				// Pie built with a shared x (slice labels) + one value series (each x point is a slice).
+				$labels = $col_map['x'];
+				$series_id = null;
+				foreach($col_map as $id => $vals) { if($id !== 'x') { $series_id = $id; break; } }
+				$values = ($series_id !== null) ? $col_map[$series_id] : [];
+				$click = ($series_id !== null) ? $click_of($series_id) : null;
+				foreach($labels as $i => $label) {
+					$slice = ['label' => $label, 'value' => (float)($values[$i] ?? 0)];
+					if($click) $slice['click'] = $click[count($click) === 1 ? 0 : $i] ?? null;
+					$slices[] = $slice;
+				}
+
+			} else {
+				// Standard pie: each series column IS a slice (its label = the series name, value = its total).
+				foreach($col_map as $id => $vals) {
+					$click = $click_of($id);
+					$slice = [
+						'label' => $data['names'][$id] ?? $id,
+						'value' => array_sum(array_map('floatval', (array)$vals)),
+					];
+					if($data['colors'][$id] ?? null) $slice['color'] = $data['colors'][$id];
+					if($click) $slice['click'] = $click[0] ?? null;
+					$slices[] = $slice;
+				}
+			}
+
+			$out['type'] = ($type === 'donut') ? 'donut' : 'pie';
+			$out['slices'] = $slices;
+			$out['legend'] = $this->_toChartLegend($c3);
+			$out['tooltip'] = $this->_toChartTooltip($c3);
+			return $out;
+		}
+
+		// ── gauge ──
+		if($kind === 'gauge') {
+			$series_id = null;
+			foreach($col_map as $id => $vals) { if($id !== 'x') { $series_id = $id; break; } }
+			$val = 0;
+			foreach(($series_id !== null ? $col_map[$series_id] : []) as $v) { if($v !== null) $val = $v; }
+			$out['value'] = $val;
+			$out['min'] = 0;
+			$out['max'] = 100;
+			if($f = $format_of('y')) $out['format'] = $f;
+			return $out;
+		}
+
+		// ── cartesian / scatter ──
+		$out['orientation'] = ($axis['rotated'] ?? false) ? 'horizontal' : 'vertical';
+
+		$x_type = $axis['x']['type'] ?? 'linear';
+		$x = ['scale' => ($x_type === 'timeseries' ? 'time' : ($x_type === 'category' ? 'category' : 'linear'))];
+		if($axis['x']['label'] ?? null) $x['label'] = $axis['x']['label'];
+		if($f = $format_of('x')) $x['format'] = $f;
+		if(isset($axis['x']['tick']['rotate'])) $x['rotate'] = $axis['x']['tick']['rotate'];
+		if(isset($axis['x']['tick']['multiline'])) $x['multiline'] = $axis['x']['tick']['multiline'];
+		if($kind !== 'scatter') {
+			$xvals = $col_map['x'] ?? [];
+			if($x['scale'] === 'category') $x['categories'] = $xvals;
+			else $x['values'] = $xvals; // time: ISO strings (client parses to ms); linear: numbers
+		}
+		$out['x'] = $x;
+
+		$y = ['grid' => true];
+		if($axis['y']['label'] ?? null) $y['label'] = $axis['y']['label'];
+		if($f = $format_of('y')) $y['format'] = $f;
+		$out['y'] = $y;
+
+		if($axis['y2']['show'] ?? false) {
+			$y2 = [];
+			if($axis['y2']['label'] ?? null) $y2['label'] = $axis['y2']['label'];
+			if($f = $format_of('y2')) $y2['format'] = $f;
+			$out['y2'] = $y2;
+		}
+
+		$series = [];
+		if($kind === 'scatter') {
+			foreach(($data['xs'] ?? []) as $id => $xid) {
+				$series[] = [
+					'key' => $id,
+					'name' => $data['names'][$id] ?? $id,
+					'color' => $data['colors'][$id] ?? null,
+					'values' => $col_map[$id] ?? [],
+					'x' => $col_map[$xid] ?? [],
+					'click' => $click_of($id),
+				];
+			}
+		} else {
+			foreach($col_map as $id => $vals) {
+				if($id === 'x')
+					continue;
+				$series[] = [
+					'key' => $id,
+					'name' => $data['names'][$id] ?? $id,
+					'type' => $mark_type($data['types'][$id] ?? $type),
+					'axis' => (($data['axes'][$id] ?? null) === 'y2') ? 'y2' : 'y',
+					'color' => $data['colors'][$id] ?? null,
+					'stack' => $stack_of[$id] ?? null,
+					'values' => $vals,
+					'click' => $click_of($id),
+				];
+			}
+		}
+		$out['series'] = $series;
+
+		$out['legend'] = $this->_toChartLegend($c3);
+		$out['tooltip'] = $this->_toChartTooltip($c3);
+		return $out;
+	}
+
+	private function _toChartLegend(array $c3) : array {
+		$style = $c3['legend']['style'] ?? null;
+		if($style === null) // legend:show:false path leaves no style
+			return ['show' => false];
+
+		$key = array_key_first($style); // table | compact | hidden
+		if($key === 'hidden')
+			return ['show' => false];
+
+		$out = ['show' => true, 'style' => $key];
+		if($key === 'table') {
+			$out['data'] = boolval($style['table']['data'] ?? false);
+			if($style['table']['stats'] ?? null)
+				$out['stats'] = array_values($style['table']['stats']);
+		}
+		return $out;
+	}
+
+	private function _toChartTooltip(array $c3) : array {
+		$t = $c3['tooltip'] ?? [];
+		return [
+			'show' => $t['show'] ?? true,
+			'grouped' => $t['grouped'] ?? true,
+			'ratios' => $t['ratios'] ?? false,
+		];
+	}
 }
