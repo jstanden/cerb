@@ -171,6 +171,7 @@
 						<li data-target="sparkchart" data-icon="chart-line">Sparkchart</li>
 						<li data-target="piechart" data-icon="chart-pie">Pie / donut</li>
 						<li data-target="cartesian-chart" data-icon="chart-bar">Bar / line</li>
+						<li data-target="scatter-chart" data-icon="chart-scatterplot">Scatterplot</li>
 						<li data-target="timering" data-icon="clock">TimeRing</li>
 						<li data-target="calendar" data-icon="calendar">Calendar</li>
 					</ul>
@@ -256,6 +257,7 @@
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/sparkchart.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/piechart.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/cartesian-chart.tpl"}
+			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/scatter-chart.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/timering.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/calendar.tpl"}
 
