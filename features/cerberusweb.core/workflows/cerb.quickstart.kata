@@ -1,205 +1,390 @@
 workflow:
   name: cerb.quickstart
-  version: 2026-05-31T00:00:00Z
-  description: A workspace with a quickstart checklist for initial configuration of Cerb
-  website: https://https://cerb.ai/workflows/cerb.quickstart/
+  version: 2026-07-02T00:00:00Z
+  description: A guided setup tour that walks administrators through initial Cerb configuration
+  website: https://cerb.ai/workflows/cerb.quickstart/
   requirements:
-    cerb_version: >=11.0 <11.3
-    cerb_plugins: cerberusweb.core, cerb.project_boards
+    cerb_version: >=11.2 <11.3
+    cerb_plugins: cerberusweb.core
 
 records:
-  task/card_task_welcome:
+  # The explore-mode step machine. Each POST re-enters `start:` and renders the
+  # step named by `explore_page` (defaults to 1 on first load).
+  automation/tourExplore:
     fields:
-      title: Welcome to Cerb!
-      importance: 50
-      status: open
-  task/card_task_branding:
-    fields:
-      title: Configure branding
-      importance: 50
-      status: open
-  task/card_task_sender_addys:
-    fields:
-      title: Configure sender addresses
-      importance: 50
-      status: open
-  task/card_task_email_signatures:
-    fields:
-      title: Configure email signatures
-      importance: 50
-      status: open
-  task/card_task_mailboxes:
-    fields:
-      title: Configure mailboxes
-      importance: 50
-      status: open
-  task/card_task_groups:
-    fields:
-      title: Review groups
-      importance: 50
-      status: open
-  task/card_task_team_members:
-    fields:
-      title: Invite other team members
-      importance: 50
-      status: open
-  task/card_task_roles:
-    fields:
-      title: Configure roles
-      importance: 50
-      status: open
-  task/card_task_workspace_home:
-    fields:
-      title: Create a home workspace
-      importance: 50
-      status: open
-  task/card_task_license:
-    fields:
-      title: Add your license
-      importance: 50
-      status: open
-  task/card_task_scheduler:
-    fields:
-      title: Enable the scheduler
-      importance: 50
-      status: open
-  project_board/project_board_checklist:
-    fields:
-      name: Checklist
-      owner__context: app
-      owner_id: 0
-      cards_kata@raw:
-  project_board_column/project_board_checklist_todo:
-    fields:
-      name: TODO
-      board_id: {{records.project_board_checklist.id}}
-      pos@int: 0
-      cards@list:
-        task:{{records.card_task_branding.id}}
-        task:{{records.card_task_sender_addys.id}}
-        task:{{records.card_task_email_signatures.id}}
-        task:{{records.card_task_mailboxes.id}}
-        task:{{records.card_task_groups.id}}
-        task:{{records.card_task_team_members.id}}
-        task:{{records.card_task_roles.id}}
-        task:{{records.card_task_workspace_home.id}}
-        task:{{records.card_task_license.id}}
-        task:{{records.card_task_scheduler.id}}
-      cards_kata@raw:
-        automation/todo:
-          uri: cerb:automation:cerb.projectBoard.card.sheet
-          disabled@bool:
-            {{card__context is not record type ('task')}}
-          inputs:
-            sheet:
-              layout:
-                headings@bool: no
-              columns:
-                markdown/notes:
-                  params:
-                    #icon:
-                    #  image: right-arrow
-                    value_template@raw:
-                      {{card__label}}
-                      =====
-                      Drag this to **In Progress** to start.
-  project_board_column/project_board_checklist_in_progress:
-    fields:
-      name: In Progress
-      board_id: {{records.project_board_checklist.id}}
-      pos@int: 1
-      cards@list:
-        task:{{records.card_task_welcome.id}}
-      cards_kata@raw:
-        automation/progress:
-          uri: cerb:automation:cerb.projectBoard.card.sheet
-          disabled@bool:
-            {{card__context is not record type ('task')}}
-          inputs:
-            sheet:
-              layout:
-                headings@bool: no
-              columns:
-                text/notes:
-                  label: Notes
-                  params:
-                    value_template@ref: cardTemplates
+      name: cerb.quickstart.tour.explore
+      description: Step through the initial Cerb setup pages in a guided tour
+      extension_id: cerb.trigger.interaction.worker.explore
+      script@raw:
+        start:
+          set/steps:
+            steps:
+              0:
+                title: Welcome to Cerb
+                url@text:
+                label: This guided tour walks you through the essential setup steps. Use Next and Back to move between pages.
+              1:
+                title: Configure branding
+                url: c=config&a=branding
+                label: Upload your logo and set your brand colors and helpdesk name.
+              2:
+                title: Configure sender addresses
+                url: c=config&a=mail_outgoing&tab=senders
+                label: Add a mail transport to a sender address to enable it for outgoing mail.
+              3:
+                title: Configure email signatures
+                url: c=search&context=email_signature
+                label: Create email signatures for your groups and workers.
+              4:
+                title: Configure mailboxes
+                url: c=config&a=mail_incoming&tab=mailboxes
+                label: Configure the mailboxes Cerb checks for incoming email.
+              5:
+                title: Review groups
+                url: c=search&context=group
+                label: Review your groups and each group mail setting.
+              6:
+                title: Invite team members
+                url: c=search&context=worker
+                label: Invite your team by adding worker accounts.
+              7:
+                title: Configure roles
+                url: c=search&context=role
+                label: Set permissions with roles, then assign them to workers and groups.
+              8:
+                title: Create a home workspace
+                url: c=pages
+                label: Create a new Home page from your workspace pages list.
+              9:
+                title: Add your license
+                url: c=config&a=license
+                label: Add your license, or request a free 3-seat license from cerb.ai/pricing.
+              10:
+                title: Enable the scheduler
+                url: c=config&a=scheduler
+                label: Enable the scheduler so Cerb can run its background jobs.
 
-        &cardTemplates@text:
-          <h2 style="margin:0 0 5px 0;">{{card__label}}</h2>
-          {% set card_templates = {
-            "Welcome to Cerb!": "<p>This project board provides a quick checklist for getting Cerb up and running.</p>\n\n<p>Drag cards from the top of the <b>TODO</b> backlog into the <b>In Progress</b> column to work on them. You should limit the in progress cards to only a few at a time.</p>\n\n<p>When you finish a card, drag it from <b>In Progress</b> to <b>Completed!</b>. You'll notice that a bot automatically marks the task completed for you.</p>\n\n<p>This on-boarding workflow was built entirely with Cerb's tools in the browser. You can edit the project board to see how it works (or even make changes).</p>\n\n<p>Drag this card to <b>Completed!</b> <span class=\"cerb-icons cerb-icon-right-arrow\" style=\"margin-left:5px;\"></span></p>",
+          # Each Next/Back resumes the await, loops back here, and re-renders the
+          # step named by `explore_page`. The loop ends once we page past the last step.
+          while:
+            if@bool: {{(explore_page|default(1)) <= (steps|length)}}
+            do:
+              set/total:
+                total@int: {{steps|length}}
+                step@int: {{explore_page|default(1)}}
+                current@json: {{steps[step - 1]|default(steps[0])|json_encode}}
 
-            "Configure branding": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li>Navigate to <b>Setup &raquo; Configure &raquo; Branding</b>.</li>\n<li>Upload your logo.</li>\n</ol>",
+              await/explore:
+                explore:
+                  title: Step {{step}} of {{total}}: {{current.title}}
+                  url: {{cerb_url(current.url)}}
+                  label: {{current.label}}
+                  toolbar:
+                    interaction/back:
+                      label: Back
+                      icon: chevron-left
+                      keyboard: [
+                      hidden@bool: {{step <= 1}}
+                      uri: cerb:automation:cerb.interaction.echo
+                      inputs:
+                        outputs:
+                          explore_page@int: {{step - 1}}
+                    interaction/help:
+                      label: Help
+                      icon: circle-question-mark
+                      hidden@bool: {{step <= 1}}
+                      uri: cerb:automation:cerb.quickstart.tour.launch
+                      inputs:
+                        step@int: {{step}}
+                    interaction/next:
+                      label: Next
+                      icon: chevron-right
+                      icon_at: end
+                      keyboard: ]
+                      hidden@bool: {{step >= total}}
+                      uri: cerb:automation:cerb.interaction.echo
+                      inputs:
+                        outputs:
+                          explore_page@int: {{step + 1}}
+                    interaction/finish:
+                      label: Finish
+                      icon: circle-ok
+                      hidden@bool: {{step < total}}
+                      uri: cerb:automation:cerb.interaction.echo
+                      inputs:
+                        outputs:
+                          open_url: {{cerb_url('')}}
 
-            "Configure sender addresses": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.address\" data-query=\"mailTransport.id:>0\">List sender addresses</button></li>\n<li>Click the <span class=\"cerb-icons cerb-icon-circle-plus\" style=\"font-size:12px;color:var(--cerb-color-background-contrast-50);\"></span> icon to add new email addresses.</li>\n<li>Add a <button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.mail.transport\" data-query=\"\">mail transport</button> to an address to enable it as a outgoing sender.</li>\n</ol>",
-
-            "Configure email signatures": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.email.signature\" data-query=\"\">List email signatures</button></li>\n<li>Click the <span class=\"cerb-icons cerb-icon-circle-plus\" style=\"font-size:12px;color:var(--cerb-color-background-contrast-50);\"></span> icon to add new signatures.</li>\n<li>Modify signatures to meet your needs.</li>\n</ol>",
-
-            "Configure mailboxes": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.mailbox\" data-query=\"\">List mailboxes</button></li>\n<li>Click the <span class=\"cerb-icons cerb-icon-circle-plus\" style=\"font-size:12px;color:var(--cerb-color-background-contrast-50);\"></span> icon to add new mailboxes.</li>\n</ol>",
-
-            "Review groups": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.group\" data-query=\"\">List groups</button></li>\n<li>Click the <span class=\"cerb-icons cerb-icon-circle-plus\" style=\"font-size:12px;color:var(--cerb-color-background-contrast-50);\"></span> icon to add new groups.</li>\n<li>Review the mail settings for each group.</li>\n</ol>",
-
-            "Invite other team members": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.worker\" data-query=\"\">List workers</button></li>\n<li>Click the <span class=\"cerb-icons cerb-icon-circle-plus\" style=\"font-size:12px;color:var(--cerb-color-background-contrast-50);\"></span> icon to create new workers.</li>\n</ol>",
-
-            "Configure roles": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.role\" data-query=\"\">List roles</button></li>\n<li>Determine the permissions for each role.</li>\n<li>Assign the roles to workers and groups.</li>\n</ol>",
-
-            "Create a home workspace": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li>Click on the <span class=\"cerb-icons cerb-icon-chevron-down\"></span> icon in the top navigation bar.</li>\n<li>Click <b>(+)</b> above the worklist.</li>\n<li>Click <b>Home</b>.</li>\n<li>Click <b>Create</b>.</li>\n</ol>",
-
-            "Add your license": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><a href=\"https://cerb.ai/pricing/#bot/license.free\" target=\"_blank\" rel=\"noopener\"><b>Request a free 3-seat license</b></a> if you haven't already.</li>\n<li>Install your license in <b>Setup &raquo; Configure &raquo; License</b>.</li>\n</ol>",
-
-            "Enable the scheduler": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li>Navigate to <b>Setup &raquo; Configure &raquo; Scheduler</b>.</li>\n<li>Configure the scheduler to run automatically.</li>\n</ol>",
-          }%}
-          {{card_templates[card__label]}}
-  project_board_column/project_board_checklist_completed:
+  # The command-bar launcher: creates a dynamic explore set bound to the tour and
+  # navigates the worker into explore mode.
+  automation/tourLauncher:
     fields:
-      name: Completed!
-      board_id: {{records.project_board_checklist.id}}
-      pos@int: 2
-      cards@list:
-      cards_kata@raw:
-        automation/done:
-          uri: cerb:automation:cerb.projectBoard.card.sheet
-          disabled@bool:
-            {{card__context is not record type ('task')}}
-          inputs:
-            sheet:
-              layout:
-                headings@bool: no
-              columns:
-                text/notes:
-                  label: Notes
-                  params:
-                    value_template@raw:
-                      <h2 style="margin:0 0 5px 0;">
-                      <span class="cerb-icons cerb-icon-circle-ok"></span>
-                      {{card__label}}
-                      </h2>
+      name: cerb.quickstart.tour.launch
+      description: Launch the guided setup tour
+      extension_id: cerb.trigger.interaction.worker
+      policy_kata@raw:
+        commands:
+          api.command:
+            deny/name@bool: {{inputs.name not in ['cerb.commands.worklist.explorer.create']}}
+            allow@bool: yes
+      script@raw:
+        # Optional. When the tour's per-step Help button invokes this interaction it
+        # passes the current step, which routes to that step's help instead of launching.
+        inputs:
+          text/step:
+            type: number
 
-      functions_kata@text:
-        automation/close:
-          uri: cerb:automation:cerb.projectBoard.action.task.close
-  workspace_page/workspace_demo:
+        start:
+          # Defense-in-depth: the command-bar item is already hidden from non-admins.
+          decision:
+            outcome/notAdmin:
+              if@bool: {{not worker_is_superuser}}
+              then:
+                return:
+                  alert: The guided setup tour is only available to administrators.
+
+            # Help mode: a step was passed from the tour toolbar. Show its help, then
+            # return so we don't also launch a new explore set. Add a step's help by
+            # giving it an outcome here; most are a single `await:form:`, but a step can
+            # chain multiple awaits for a multi-page walkthrough (see `mailboxes`).
+            outcome/help:
+              if@bool: {{inputs.step}}
+              then:
+                decision/step:
+                  outcome/branding:
+                    if@bool: {{2 == inputs.step}}
+                    then:
+                      await:
+                        form:
+                          title: Configure branding
+                          elements:
+                            say:
+                              content@text:
+                                ## Branding
+                                Set your helpdesk name, logo, and accent colors. These appear across the worker interface and any customer portals.
+
+                                You can revisit this later under **Setup → Configure → Branding**.
+                            submit:
+                              buttons:
+                                continue/close:
+                                  label: Close
+                                  value: close
+                  outcome/senders:
+                    if@bool: {{3 == inputs.step}}
+                    then:
+                      await:
+                        form:
+                          title: Configure sender addresses
+                          elements:
+                            say:
+                              content@text:
+                                ## Sender addresses
+                                A sender address is an email address Cerb sends replies from (e.g. `support@example.com`).
+
+                                Attach a **mail transport** (SMTP or a provider API) to each address to enable it for outgoing mail.
+                            submit:
+                              buttons:
+                                continue/close:
+                                  label: Close
+                                  value: close
+                  outcome/signatures:
+                    if@bool: {{4 == inputs.step}}
+                    then:
+                      await:
+                        form:
+                          title: Configure email signatures
+                          elements:
+                            say:
+                              content@text:
+                                ## Email signatures
+                                Signatures are appended to outgoing replies. Set a default signature for each group, and optionally per worker.
+
+                                Use placeholders like the worker's name and title to personalize them.
+                            submit:
+                              buttons:
+                                continue/close:
+                                  label: Close
+                                  value: close
+                  outcome/mailboxes:
+                    if@bool: {{5 == inputs.step}}
+                    then:
+                      await/overview:
+                        form:
+                          title: Configure mailboxes
+                          elements:
+                            say:
+                              content@text:
+                                ## Mailboxes
+                                A mailbox is an inbox Cerb checks for incoming mail and files into tickets.
+
+                                Cerb supports standard **IMAP/POP3** as well as OAuth providers like **Gmail** and **Microsoft 365**.
+                            submit:
+                              buttons:
+                                continue/next:
+                                  label: Next
+                                  icon: chevron-right
+                                  icon_at: end
+                                  value: next
+                      await/oauth:
+                        form:
+                          title: Gmail & Microsoft 365 (OAuth)
+                          elements:
+                            say:
+                              content@text:
+                                ## OAuth providers
+                                For Gmail or Microsoft 365, first create an **OAuth connected account** under *Setup → Connected Accounts*.
+
+                                Then choose that connected account as the mailbox's authentication. This avoids app passwords and supports MFA.
+                            submit:
+                              buttons:
+                                continue/close:
+                                  label: Close
+                                  value: close
+                  outcome/groups:
+                    if@bool: {{6 == inputs.step}}
+                    then:
+                      await:
+                        form:
+                          title: Review groups
+                          elements:
+                            say:
+                              content@text:
+                                ## Groups
+                                Groups organize and route work (e.g. Support, Sales). Each group has its own mail settings, members, and buckets.
+
+                                Review the default group before inviting your team.
+                            submit:
+                              buttons:
+                                continue/close:
+                                  label: Close
+                                  value: close
+                  outcome/workers:
+                    if@bool: {{7 == inputs.step}}
+                    then:
+                      await:
+                        form:
+                          title: Invite team members
+                          elements:
+                            say:
+                              content@text:
+                                ## Team members
+                                Add a worker account for each teammate. They'll be invited to set a password.
+
+                                Assign them to groups and roles to grant the right access.
+                            submit:
+                              buttons:
+                                continue/close:
+                                  label: Close
+                                  value: close
+                  outcome/roles:
+                    if@bool: {{8 == inputs.step}}
+                    then:
+                      await:
+                        form:
+                          title: Configure roles
+                          elements:
+                            say:
+                              content@text:
+                                ## Roles
+                                Roles define permissions. Assign roles to workers and groups to control what each person can see and do.
+
+                                Start from the built-in roles and adjust as needed.
+                            submit:
+                              buttons:
+                                continue/close:
+                                  label: Close
+                                  value: close
+                  outcome/workspace:
+                    if@bool: {{9 == inputs.step}}
+                    then:
+                      await:
+                        form:
+                          title: Create a home workspace
+                          elements:
+                            say:
+                              content@text:
+                                ## Home workspace
+                                Workspace pages are dashboards of worklists and widgets.
+
+                                Create a **Home** page so your team lands on the views that matter most.
+                            submit:
+                              buttons:
+                                continue/close:
+                                  label: Close
+                                  value: close
+                  outcome/license:
+                    if@bool: {{10 == inputs.step}}
+                    then:
+                      await:
+                        form:
+                          title: Add your license
+                          elements:
+                            say:
+                              content@text:
+                                ## License
+                                A license unlocks seats and premium features. Add your license key here,
+
+                                or request a free 3-seat license from [cerb.ai/pricing](https://cerb.ai/pricing).
+                            submit:
+                              buttons:
+                                continue/close:
+                                  label: Close
+                                  value: close
+                  outcome/scheduler:
+                    if@bool: {{11 == inputs.step}}
+                    then:
+                      await:
+                        form:
+                          title: Enable the scheduler
+                          elements:
+                            say:
+                              content@text:
+                                ## Scheduler
+                                The scheduler runs Cerb's background jobs — checking mail, sending queued mail, and running automations.
+
+                                Enable it (usually via cron) so your helpdesk stays live.
+                            submit:
+                              buttons:
+                                continue/close:
+                                  label: Close
+                                  value: close
+                  outcome/default:
+                    then:
+                      await:
+                        form:
+                          title: Help
+                          elements:
+                            say:
+                              content@text:
+                                Follow the page shown below to complete this step. Use **Back** and **Next** to move through the tour.
+                            submit:
+                              buttons:
+                                continue/close:
+                                  label: Close
+                                  value: close
+                return:
+
+          api.command:
+            inputs:
+              name: cerb.commands.worklist.explorer.create
+              params:
+                title: Guided Setup
+                interaction: cerb:automation:cerb.quickstart.tour.explore
+            output: results
+            on_success:
+              return:
+                open_url: {{cerb_url('c=explore&guid=' ~ results.hash)}}
+
+  # Surface the tour in the command bar (global menu) for administrators only.
+  toolbar_section/globalMenu:
     fields:
-      name: Quickstart
-      owner__context: app
-      owner_id: 0
-      extension_id: core.workspace.page.workspace
-  workspace_tab/workspace_tab_eval_checklist:
-    fields:
-      name: Checklist
-      page_id: {{records.workspace_demo.id}}
-      pos@int: 0
-      extension_id: core.workspace.tab.dashboard
-      params:
-        layout@text:
-  workspace_widget/workspace_widget_checklist_board:
-    fields:
-      label: Checklist
-      extension_id: cerb.workspace.widget.project_board
-      tab_id: {{records.workspace_tab_eval_checklist.id}}
-      pos@int: 1
-      width_units@int: 4
-      zone: content
-      params:
-        project_board_id: {{records.project_board_checklist.id}}
+      name: Guided Setup
+      toolbar_name: global.menu
+      priority@int: 250
+      is_disabled: 0
+      toolbar_kata@raw:
+        interaction/quickstart:
+          label: Guided Setup
+          icon: signpost
+          uri: cerb:automation:cerb.quickstart.tour.launch
+          hidden@bool: {{not worker_is_superuser}}

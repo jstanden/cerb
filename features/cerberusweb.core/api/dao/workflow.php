@@ -1958,8 +1958,8 @@ function getContextIdFromAlias($alias) {
 					],
 					'cerb.quickstart' => [
 						'id' => 'cerb.quickstart',
-						'name' => 'Quickstart Checklist',
-						'description' => 'A workspace with a quickstart checklist for initial configuration of Cerb',
+						'name' => 'Guided Setup',
+						'description' => 'A guided setup tour that walks administrators through initial Cerb configuration',
 					],
 					'cerb.records.reminders' => [
 						'id' => 'cerb.records.reminders',
