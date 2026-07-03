@@ -6,7 +6,7 @@
  *
  *  - anchored mode (anchor): pin to a DOM element, auto-picking the side with the most room (flip-fit,
  *    like CerbUI.Menu) and drawing an SVG arrow that points back at the element. Interactive by default
- *    (dismiss on click or outside-click). Powers automation callouts (Devblocks.tooltip).
+ *    (dismiss on click or outside-click). Powers automation callouts (interactionWorkerPostActions).
  *
  * Usage:
  *   const tip = new CerbUI.Tooltip();

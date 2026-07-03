@@ -245,26 +245,11 @@ function DevblocksClass() {
 		return $status;
 	};
 	
+	// A single reused CerbUI.Tooltip for automation callouts: a floating panel pinned to a DOM element,
+	// with an arrow pointing at it, dismissed by click or outside-click. Reused (not per-callout) because
+	// hiding a Tooltip keeps its panel in the DOM — a fresh instance each time would leak one.
 	this._tooltip = undefined;
-	
-	// Anchored callout: a floating panel pinned to a DOM element, with an arrow pointing at it,
-	// dismissed by click or outside-click. Optional jQuery-UI-style my/at position the panel/arrow;
-	// omitted, it defaults to pointing at the target's top-middle (and flips/slides to stay on-screen).
-	this.tooltip = function(target, message, my, at) {
-		if(undefined === message)
-			return;
-		
-		let el = $(target)[0];
-		if(!el)
-			return;
-		
-		if(undefined === this._tooltip)
-			this._tooltip = new CerbUI.Tooltip( { gap: 0 } );
-		
-		// Pass the message as a text node (jQuery UI escaped the title; keep that posture).
-		this._tooltip.anchor(document.createTextNode(message), el, { my: my, at: at, interactive: true });
-	}
-	
+
 	this.interactionWorkerPostActions = function(eventData, editor) {
 		if('object' != typeof eventData.return)
 			return;
@@ -335,15 +320,26 @@ function DevblocksClass() {
 			&& eventData.return.callout.hasOwnProperty('selector')
 		) {
 			let $target = $(eventData.return.callout.selector);
-			
-			if(!$target.visible()) {
-				$target[0].scrollIntoView();
+
+			// Selector may not exist in this document (e.g. an explore callout targets
+			// the page inside the iframe, not the top window) — skip rather than throw.
+			if($target.length) {
+				if(!$target.visible()) {
+					$target[0].scrollIntoView();
+				}
+
+				let message = eventData.return.callout.message;
+				let my = eventData.return.callout.my;
+				let at = eventData.return.callout.at;
+
+				if(undefined !== message) {
+					if(undefined === Devblocks._tooltip)
+						Devblocks._tooltip = new CerbUI.Tooltip( { gap: 0 } );
+
+					// Pass the message as a text node (jQuery UI escaped the title; keep that posture).
+					Devblocks._tooltip.anchor(document.createTextNode(message), $target[0], { my: my, at: at, interactive: true });
+				}
 			}
-			
-			let message = eventData.return.callout.message;
-			let my = eventData.return.callout.my;
-			let at = eventData.return.callout.at;
-			Devblocks.tooltip($target, message, my, at);
 		}
 		
 		// Open time tracking timer
