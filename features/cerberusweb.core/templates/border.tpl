@@ -11,17 +11,19 @@
 	<div style="flex:2 2;">
 		<a href="{devblocks_url}{/devblocks_url}"><div id="cerb-logo"></div></a>
 	</div>
-	<div style="flex:1 1 250px;text-align:right;padding-bottom:5px;margin-top:auto;">
-			<img src="{devblocks_url}c=avatars&context=worker&context_id={$active_worker->id}{/devblocks_url}?v={$active_worker->updated}" style="height:1.75em;width:1.75em;border-radius:0.875em;vertical-align:middle;">
-			<b><a id="lnkSignedIn" class="no-underline" data-worker-id="{$active_worker->id}" data-worker-name="{$active_worker->getName()}">{$active_worker->getName()}</a></b><span class="cerb-icons cerb-icon-chevron-down"></span>
-			{if $visit->isImposter()}
-				[ <a id="aImposter">{$visit->getImposter()->getName()}</a> ]
-			{/if}
+	<div style="flex:1 1 250px;display:flex;align-items:center;justify-content:flex-end;gap:5px;padding-bottom:5px;margin-top:auto;">
+			<span class="cerb-ui-pill">
+				<img src="{devblocks_url}c=avatars&context=worker&context_id={$active_worker->id}{/devblocks_url}?v={$active_worker->updated}" style="height:1.75em;width:1.75em;border-radius:0.875em;vertical-align:middle;">
+				<a id="lnkSignedIn" class="cerb-u-bold cerb-u-underline-hover" data-worker-id="{$active_worker->id}" data-worker-name="{$active_worker->getName()}">{$active_worker->getName()}</a><span class="cerb-icons cerb-icon-chevron-down"></span>
+				{if $visit->isImposter()}
+					<span class="cerb-ui-pill"><span class="cerb-icons cerb-icon-eye-open"></span><a id="aImposter">{$visit->getImposter()->getName()}</a></span>
+				{/if}
+			</span>
 
 			{if $pref_dark_mode}
-				<button type="button" id="cerb-theme" data-theme="dark" title="Switch to light mode" style="margin:0 0 0 5px;vertical-align:middle;"><span class="cerb-icons cerb-icon-moon"></span></button>
+				<button type="button" id="cerb-theme" data-theme="dark" title="Switch to light mode"><span class="cerb-icons cerb-icon-moon"></span></button>
 			{else}
-				<button type="button" id="cerb-theme" data-theme="light" title="Switch to dark mode" style="margin:0 0 0 5px;vertical-align:middle;"><span class="cerb-icons cerb-icon-sun"></span></button>
+				<button type="button" id="cerb-theme" data-theme="light" title="Switch to dark mode"><span class="cerb-icons cerb-icon-sun"></span></button>
 			{/if}
 			
 			<button id="badgeNotifications" class="red" style="display:none;"></button>
