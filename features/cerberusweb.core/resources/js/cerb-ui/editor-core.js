@@ -502,6 +502,12 @@ CerbUI.editorCore.Autocomplete = class {
 					item.onSelect(this.opts.editor, this);
 					return;
 				}
+				// A suggestion carrying an `interaction` runs a named automation and inserts its `return: snippet:`
+				// output instead of the caption (e.g. the chart date/number format pickers).
+				if(item && item.interaction) {
+					this._applyInteraction(item);
+					return;
+				}
 				this._apply({
 					insert: (src.dataset.snippet != null) ? src.dataset.snippet : src.dataset.value,
 					suppress: src.dataset.suppress === '1',
@@ -615,6 +621,34 @@ CerbUI.editorCore.Autocomplete = class {
 			hint.textContent = src.dataset.hint;
 			li.appendChild(hint);
 		}
+	}
+
+	// An interaction-backed suggestion: remove the partial token, run the named automation, and insert its
+	// `return: snippet:` output at the caret (port of the legacy cerberus.js `insertMatch` interaction branch).
+	_applyInteraction(item) {
+		this.close();
+		const editor = this.opts.editor;
+		this._replacePrefix('');          // drop the typed filter text; the snippet replaces it
+		this.textarea.focus();
+
+		const $ = window.jQuery;
+		if(!$ || typeof $.fn.cerbBotTrigger !== 'function') return;
+
+		const $trigger = $('<div/>')
+			.attr('data-interaction-uri', item.interaction)
+			.attr('data-interaction-params', item.interaction_params || '')
+			.cerbBotTrigger({
+				caller: 'automation.editor.kata.autocomplete',
+				done: function(e) {
+					e.stopPropagation();
+					$trigger.remove();
+					if(window.Devblocks && typeof Devblocks.interactionWorkerPostActions === 'function')
+						Devblocks.interactionWorkerPostActions(e.eventData, editor);
+				},
+				error: function(e) { e.stopPropagation(); $trigger.remove(); },
+				abort: function(e) { e.stopPropagation(); $trigger.remove(); }
+			})
+			.click();
 	}
 
 	// Replace the partial word at the caret with the chosen text, then re-suggest the next level (unless the

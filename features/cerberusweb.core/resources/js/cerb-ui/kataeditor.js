@@ -1694,6 +1694,13 @@ CerbUI.KataEditor.kataFieldSource = function(suggestionMap, opts) {
 		// matches the legacy completer's insertMatchAndAutocomplete. A terminal value doesn't cascade.
 		const ins = (s.snippet != null) ? s.snippet : value;
 		item.suppressAutocomplete = s.suppress_autocomplete ? true : (String(ins).indexOf(':') === -1);
+		// Interaction-backed suggestion: instead of inserting the caption, the editor-core accept path runs this
+		// named automation and inserts its `return: snippet:` output. The interaction supplies the terminal value.
+		if(s.interaction != null) {
+			item.interaction = s.interaction;
+			item.interaction_params = s.interaction_params || '';
+			item.suppressAutocomplete = true;
+		}
 		return item;
 	}
 
