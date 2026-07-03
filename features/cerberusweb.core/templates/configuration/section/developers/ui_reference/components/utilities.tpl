@@ -100,6 +100,11 @@
 			<code class="cerb-uiref-utils--name" data-cerb-uiref-copy data-cerb-uiref-source title="Copy to clipboard">cerb-u-nowrap</code>
 			<div class="cerb-u-nowrap" style="max-width:14em;overflow:hidden;">this long line stays on one row and never wraps</div>
 
+			<code class="cerb-uiref-utils--name" data-cerb-uiref-copy data-cerb-uiref-source title="Copy to clipboard">cerb-u-break-word</code>
+			<div class="cerb-u-break-word" style="max-width:14em;">a long unbreakable token like https://example.com/very/long/path/that/overflows wraps only where it must</div>
+
+			<div class="cerb-uiref-utils--note cerb-uiref-utils--full">Prefers breaking at word boundaries and only splits a token mid-character when it can't fit (via <code>word-break: break-word</code>), falling back to <code>break-all</code> on UAs that don't support it. Needs the element to be shrinkable &mdash; e.g. a flex child with <code>cerb-u-flex-1</code> (its <code>min-width:0</code>) or a fixed max-width. Use on record labels/titles that must wrap in a narrow column.</div>
+
 			<code class="cerb-uiref-utils--name" data-cerb-uiref-copy data-cerb-uiref-source title="Copy to clipboard">cerb-u-truncate</code>
 			<div class="cerb-u-truncate" style="max-width:14em;">this single line is clipped with an ellipsis when it overflows its box</div>
 

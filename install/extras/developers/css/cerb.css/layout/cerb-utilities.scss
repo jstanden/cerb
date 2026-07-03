@@ -17,6 +17,10 @@
 
 // Text
 .cerb-u-nowrap { white-space: nowrap; }
+// Wrap long/unbreakable tokens: prefer breaking at word boundaries only when a token overflows
+// (break-word), falling back to break-all for UAs that don't support it. Same-property cascade —
+// the later valid value wins, so non-supporting UAs drop break-word and keep break-all.
+.cerb-u-break-word { word-break: break-all; word-break: break-word; }
 .cerb-u-text-center { text-align: center; }
 .cerb-u-text-uppercase { text-transform: uppercase; }
 // Muted/secondary text — the design system's standard de-emphasized text color
