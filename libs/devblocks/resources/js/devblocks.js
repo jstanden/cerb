@@ -885,11 +885,6 @@ function DevblocksClass() {
 
 var Devblocks = new DevblocksClass();
 
-// [TODO] Remove this in favor of jQuery $(select).val()
-function selectValue(e) {
-	return e.options[e.selectedIndex].value;
-}
-
 function toggleDiv(divName,state) {
 	var div = document.getElementById(divName);
 	if(null == div) return;

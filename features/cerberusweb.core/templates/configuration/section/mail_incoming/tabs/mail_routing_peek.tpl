@@ -199,7 +199,7 @@ $(function() {
 
 		$popup.find('select[name=do_move]').on('change', function(e) {
 			e.stopPropagation();
-			document.getElementById('chkDoMove').checked=(('' == selectValue(this)) ? false : true);
+			document.getElementById('chkDoMove').checked=(('' == this.value) ? false : true);
 		});
 	});
 });

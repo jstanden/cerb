@@ -87,7 +87,7 @@ $(function() {
 
 		$frm.find('select[name=extension_id]').on('change', function(e) {
 			e.stopPropagation();
-			genericAjaxGet('divStorageEngineSettings','c=config&a=invoke&module=storage_profiles&action=showStorageProfileConfig&ext_id='+encodeURIComponent(selectValue(this))+'&id='+encodeURIComponent(this.form.id.value), function() {
+			genericAjaxGet('divStorageEngineSettings','c=config&a=invoke&module=storage_profiles&action=showStorageProfileConfig&ext_id='+encodeURIComponent(this.value)+'&id='+encodeURIComponent(this.form.id.value), function() {
 				$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
 			});
 		});
