@@ -1,0 +1,159 @@
+// CerbUI.Chart family (base) + PieChart. Geometry + colors are set by the JS; these are the structural
+// rules (the plot box, the legend slot, slice stroke/hover, and the shared tooltip body).
+.cerb-ui-chart {
+	display: block;
+
+	&--plot {
+		display: block;
+		width: 100%;
+		overflow: visible;
+	}
+
+	// Component-owned legend slot (a .cerb-ui-legend the chart renders below the plot)
+	&--legend {
+		margin-top: 0.5em;
+		text-align: center;
+		line-height: 1.5em;
+	}
+}
+
+// Pie / donut slices
+.cerb-ui-piechart {
+	&--slice {
+		// A thin separator between slices, using the page background so it reads in light + dark
+		stroke: var(--cerb-color-background);
+		stroke-width: 1;
+		transition: opacity 0.1s ease;
+	}
+}
+
+// Cartesian chart (bars + lines over a band + value axis)
+.cerb-ui-cartesian-chart {
+	&--grid {
+		stroke: var(--cerb-color-background-contrast-200);
+		stroke-width: 1;
+	}
+	&--tick {
+		fill: var(--cerb-color-background-contrast-150);
+		font-size: 11px;
+	}
+	&--axis-label {
+		fill: var(--cerb-color-text);
+		font-size: 11px;
+		font-weight: 600;
+	}
+	&--bar {
+		transition: opacity 0.1s ease;
+	}
+	&--line {
+		fill: none;
+		stroke-width: 1.5;
+		stroke-linejoin: round;
+		stroke-linecap: round;
+	}
+	&--area {
+		stroke: none;
+		fill-opacity: 0.82;
+	}
+	&--dot { /* line/area point + drill-through hit target (transparent when points are off) */ }
+	&--hover {
+		fill: var(--cerb-color-background-contrast-230);
+		opacity: 0.6;
+	}
+}
+
+// Scatterplot (point clouds on two linear axes)
+.cerb-ui-scatter-chart {
+	&--grid {
+		stroke: var(--cerb-color-background-contrast-200);
+		stroke-width: 1;
+	}
+	&--tick {
+		fill: var(--cerb-color-background-contrast-150);
+		font-size: 11px;
+	}
+	&--axis-label {
+		fill: var(--cerb-color-text);
+		font-size: 11px;
+		font-weight: 600;
+	}
+	&--point {
+		fill-opacity: 0.8;
+		transition: opacity 0.1s ease;
+	}
+}
+
+// Single-value radial gauge
+.cerb-ui-gauge {
+	display: block;
+	&--track {
+		stroke: var(--cerb-color-background-contrast-220);
+	}
+	&--value {
+		transition: stroke 0.15s ease;
+	}
+	&--value-text {
+		fill: var(--cerb-color-text);
+		font-size: 22px;
+		font-weight: 700;
+		dominant-baseline: middle;
+	}
+	&--label {
+		fill: var(--cerb-color-background-contrast-150);
+		font-size: 11px;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		dominant-baseline: middle;
+	}
+	&--end-label {
+		fill: var(--cerb-color-background-contrast-150);
+		font-size: 10px;
+	}
+}
+
+// Shared chart tooltip body (rendered inside a .cerb-ui-tooltip): title + value line, or grouped rows
+.cerb-ui-chart-tip {
+	&--title { font-weight: 600; margin-bottom: 0.25em; }
+	&--value { font-variant-numeric: tabular-nums; }
+	&--row { display: flex; align-items: center; gap: 0.4em; }
+	&--swatch { width: 9px; height: 9px; border-radius: 2px; flex: 0 0 9px; }
+	&--label { opacity: 0.7; }
+	&--row &--value { margin-left: auto; padding-left: 1em; }
+	&--pct { opacity: 0.55; padding-left: 0.5em; font-variant-numeric: tabular-nums; }
+	&--sum { margin-top: 0.2em; padding-top: 0.2em; border-top: 1px solid var(--cerb-color-background-contrast-210); font-weight: 600; }
+}
+
+// Chart-KATA rich table legend (per-series total + optional per-x data grid + stat rows + y2 split)
+.cerb-chart-kata--legend {
+	text-align: center;
+	line-height: 1.5em;
+	margin-top: 0.5em;
+	overflow-x: auto;
+}
+.cerb-chart-kata--legend-table {
+	border-spacing: 0;
+	margin: 0 auto;
+	max-width: 100%;
+	color: var(--cerb-color-text);
+
+	th, td { padding: 0.15em 0.6em; white-space: nowrap; }
+	thead th {
+		font-weight: 600;
+		border-bottom: 1px solid var(--cerb-color-background-contrast-220);
+		background-color: var(--cerb-color-background-contrast-235);
+		overflow: hidden; text-overflow: ellipsis; max-width: 160px;
+	}
+	tbody td { text-align: right; font-variant-numeric: tabular-nums; }
+}
+.cerb-chart-kata--legend-name { text-align: left !important; cursor: pointer; }
+.cerb-chart-kata--legend-swatch {
+	display: inline-block; width: 0.9em; height: 0.9em; border-radius: 2px;
+	margin-right: 0.4em; vertical-align: middle;
+}
+.cerb-chart-kata--legend-total { font-weight: 700; }
+.cerb-chart-kata--legend-clickable { cursor: pointer; text-decoration: underline dotted; }
+.cerb-chart-kata--legend-stat td {
+	font-weight: 600;
+	border-top: 1px solid var(--cerb-color-background-contrast-220);
+	color: var(--cerb-color-background-contrast-150);
+}

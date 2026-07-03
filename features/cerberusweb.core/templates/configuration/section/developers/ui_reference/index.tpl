@@ -168,6 +168,7 @@
 						<li data-target="legend" data-icon="key">Legend</li>
 						<li data-target="distribution-bar" data-icon="chart-bar">Distribution bar</li>
 						<li data-target="sparkchart" data-icon="chart-line">Sparkchart</li>
+						<li data-target="cartesian-chart" data-icon="chart-bar">Bar / line</li>
 						<li data-target="timering" data-icon="clock">TimeRing</li>
 						<li data-target="calendar" data-icon="calendar">Calendar</li>
 					</ul>
@@ -250,6 +251,7 @@
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/legend.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/distribution-bar.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/sparkchart.tpl"}
+			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/cartesian-chart.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/timering.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/calendar.tpl"}
 
