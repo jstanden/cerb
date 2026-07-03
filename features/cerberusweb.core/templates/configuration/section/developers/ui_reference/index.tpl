@@ -107,6 +107,7 @@
 						<li data-target="chip" data-icon="cpu">Chip</li>
 						<li data-target="tile" data-icon="square">Tile</li>
 						<li data-target="avatar" data-icon="user">Avatar</li>
+						<li data-target="qrcode" data-icon="qr-code">QR code</li>
 						<li data-target="pill" data-icon="rect-rounded">Pill</li>
 						<li data-target="pip" data-icon="dot">Pip</li>
 						<li data-target="kbd" data-icon="keyboard">Kbd</li>
@@ -203,6 +204,7 @@
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/chip.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/tile.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/avatar.tpl"}
+			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/qrcode.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/pill.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/pip.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/kbd.tpl"}
