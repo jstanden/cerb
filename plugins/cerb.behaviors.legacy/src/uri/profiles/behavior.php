@@ -837,7 +837,15 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		
 		$tpl->assign('trigger', $trigger);
 		$tpl->assign('event', $event);
-		
+
+		// The tree can render in multiple widgets/cards at once, so each instance owns a unique container id;
+		// a refresh passes it back so the tree's drag/drop binds to the right copy (default = legacy id).
+		$tree_dom_id = DevblocksPlatform::importGPC($_REQUEST['tree_dom_id'] ?? null, 'string', '');
+		$tree_dom_id = preg_replace('/[^A-Za-z0-9_]/', '', $tree_dom_id);
+		if($tree_dom_id === '')
+			$tree_dom_id = 'decisionTree' . $trigger_id;
+		$tpl->assign('tree_dom_id', $tree_dom_id);
+
 		$tpl->display('devblocks:cerb.behaviors.legacy::internal/decisions/tree.tpl');
 	}
 	

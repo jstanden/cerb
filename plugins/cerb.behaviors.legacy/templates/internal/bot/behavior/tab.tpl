@@ -1,4 +1,5 @@
 {$tab_uniqid = "{uniqid()}"}
+{$tree_dom_id = "decisionTree{$tab_uniqid}"}
 {$is_writeable = CerberusContexts::isWriteableByActor(CerberusContexts::CONTEXT_BEHAVIOR, $behavior, $active_worker)}
 
 <form id="decisionTree{$behavior->id}" action="#" style="margin-top:10px;">
