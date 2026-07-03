@@ -8,7 +8,8 @@
  *   const dlg = new CerbUI.Dialog(contentEl, { title: 'Ticket', header: 'bar' });
  *   dlg.open(); dlg.close(); dlg.minimize(); dlg.restore(); CerbUI.Dialog.from(contentEl);
  *
- * Minimize: a minimize button (alongside close) docks the dialog into a single shared tray button (a window
+ * Minimize: a minimize button (alongside close) — or Shift+Esc on the topmost dialog — docks the dialog
+ *   into a single shared tray button (a window
  *   icon + a count, titlebar-blue) fixed at the top-right of the page. Available on any header with controls
  *   — both 'bar' and 'floating' (the buttons inject into the floating cluster / content header) — i.e.
  *   default on except header:'none'. With a single dialog minimized, clicking the tray restores it directly
@@ -554,10 +555,15 @@ CerbUI.Dialog = class {
 		// closed here too (so it works with focus inside the dialog) and then contained; the document-level
 		// docKeydown still handles Escape when focus is OUTSIDE the dialog.
 		this._containKeys = (e) => {
-			if(e.type === 'keydown' && e.key === 'Escape' && this.opts.closeOnEscape
+			if(e.type === 'keydown' && e.key === 'Escape'
 				&& this.el.style.zIndex === String(CerbUI.Dialog._zTop)) {
-				e.preventDefault();
-				this.close();
+				// Shift+Esc docks to the tray; plain Esc closes. The shift guard keeps close from also firing.
+				if(e.shiftKey) {
+					if(this.opts.minimizable) { e.preventDefault(); this.minimize(); }
+				} else if(this.opts.closeOnEscape) {
+					e.preventDefault();
+					this.close();
+				}
 			}
 			e.stopPropagation();
 		};
@@ -585,7 +591,7 @@ CerbUI.Dialog = class {
 		controls.className = 'cerb-ui-dialog--controls';
 
 		if(this.opts.minimizable) {
-			this.minimizeBtn = this._makeBtn('cerb-icon-chevron-up', 'Minimize', () => this.minimize());
+			this.minimizeBtn = this._makeBtn('cerb-icon-chevron-up', 'Minimize (Shift+Esc)', () => this.minimize());
 			controls.appendChild(this.minimizeBtn);
 		}
 		if(this.opts.closable) {
@@ -672,7 +678,11 @@ CerbUI.Dialog = class {
 
 		this.docKeydown = (e) => {
 			// Only the topmost dialog responds to Escape.
-			if(e.key === 'Escape' && this.opts.closeOnEscape && this.el.style.zIndex === String(CerbUI.Dialog._zTop)) {
+			if(e.key !== 'Escape' || this.el.style.zIndex !== String(CerbUI.Dialog._zTop)) return;
+			// Shift+Esc docks to the tray; plain Esc closes. The shift guard keeps close from also firing.
+			if(e.shiftKey) {
+				if(this.opts.minimizable) this.minimize();
+			} else if(this.opts.closeOnEscape) {
 				this.close();
 			}
 		};

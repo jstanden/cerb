@@ -98,7 +98,7 @@ new CerbUI.Dialog(el, { header: 'floating', title: 'Helio Inc' }); // no titleba
 
 		{* Example: minimize / drag / resize, reporting callbacks *}
 		<div class="cerb-ui-header">
-			<div class="cerb-ui-header--label">Minimize, drag &amp; resize &mdash; the caret docks the window into the top-right tray (a window icon + count); click the tray to restore, or pick <b>Close all</b> when several are docked. Open a few and minimize them; <code>onMinimize</code>/<code>onResized</code> fire</div>
+			<div class="cerb-ui-header--label">Minimize, drag &amp; resize &mdash; the caret (or <code>Shift+Esc</code> on the topmost dialog) docks the window into the top-right tray (a window icon + count); click the tray to restore, or pick <b>Close all</b> when several are docked. Open a few and minimize them; <code>onMinimize</code>/<code>onResized</code> fire</div>
 		</div>
 		<div class="cerb-uiref-example">
 			<div class="cerb-uiref-demo">
@@ -219,7 +219,7 @@ genericAjaxPost(form, '', null, function() {
 		<div id="uiref-dialog-templates" style="display:none;">
 			<div id="uiref-dialog-classic-content" style="line-height:1.5;">
 				<p>This is a classic Cerb dialog with the accent title bar &mdash; the look you know.</p>
-				<p>Drag it by the bar, resize from any edge or corner, minimize with the caret (it docks to the top-right tray), or press <b>Esc</b> to close.</p>
+				<p>Drag it by the bar, resize from any edge or corner, minimize with the caret or <b>Shift+Esc</b> (it docks to the top-right tray), or press <b>Esc</b> to close.</p>
 			</div>
 
 			<div id="uiref-dialog-floating-content" style="line-height:1.5;">
@@ -246,7 +246,7 @@ genericAjaxPost(form, '', null, function() {
 			</div>
 
 			<div id="uiref-dialog-resize-content" style="line-height:1.5;">
-				<p>Drag the title bar to move me. Grab an edge or corner to resize (I won't shrink below the minimums). Use the caret to minimize me to the top-right tray, then click the tray to restore me.</p>
+				<p>Drag the title bar to move me. Grab an edge or corner to resize (I won't shrink below the minimums). Use the caret or press <b>Shift+Esc</b> to minimize me to the top-right tray, then click the tray to restore me.</p>
 			</div>
 
 			<div id="uiref-dialog-ns-a-content" style="line-height:1.5;">
