@@ -584,18 +584,20 @@ class CerbMetricsExplorer {
 			this.lastDatasetsKata = json.datasets_kata || '';
 			this.lastChartKata = json.chart_kata || '';
 			this.statusEl.textContent = '';
-			this.renderChart(json.config);
+			this.renderChart(json);
 		});
 	}
 
-	// Isolated chart renderer — consumes the Chart-service C3 config (columns/x/types/axes/groups).
-	// Replace this method to swap C3 for a CerbUI-native chart.
-	renderChart(config) {
-		if(!config) { this._destroyChart(); return; }
+	// Isolated chart renderer — builds a CerbUI.CartesianChart from the client's own series metadata
+	// (type/axis/stack/color/label) zipped onto the raw {ts, <label>:[…]} timeseries the server returns.
+	renderChart(payload) {
+		const data = payload && payload.data;
+		const meta = payload && payload.meta;
+		const ts = (data && data.ts) || [];
 
-		const columns = (config.data && config.data.columns) || [];
-		// columns[0] is the shared x column; need at least one series column with data
-		const hasRows = columns.some((col, i) => i > 0 && Array.isArray(col) && col.length > 1);
+		// Series metadata is owned client-side; the server only supplies the numbers.
+		const specs = this.series.filter(s => s.metric && !s.hidden);
+		const hasRows = ts.length > 0 && specs.some(s => Array.isArray(data[s.label]) && data[s.label].length > 0);
 
 		if(!hasRows) {
 			this.statusEl.textContent = '(no data)';
@@ -603,32 +605,35 @@ class CerbMetricsExplorer {
 			return;
 		}
 
-		config.bindto = '#' + this.chartId;
-		config.size = { height: 320 };
+		// PHP date tokens -> strftime (minutes/seconds); fall back to a full timestamp pattern.
+		const xaxisFormat = ((meta && meta.format_params && meta.format_params.xaxis_format) || '%Y-%m-%d %H:%M')
+			.replace('%i', '%M').replace('%s', '%S');
+		const timestamps = ts.map(s => Date.parse(String(s).replace(' ', 'T')));
 
-		// The chart service emits Cerb's custom legend.style; use C3's built-in legend here
-		config.legend = { show: true };
+		const series = specs.map(s => ({
+			key: s.label,
+			name: s.label,
+			type: s.type,               // line | bar | area
+			axis: (s.axis === 'y2') ? 'y2' : 'y',
+			stack: s.stack || null,
+			color: s.color,
+			values: (data[s.label] || []).map(v => Number(v) || 0),
+		}));
 
-		config.axis = config.axis || {};
+		const options = {
+			x: { scale: 'time', timestamps: timestamps, tickFormat: CerbUI.date.strftime(xaxisFormat), rotate: -90 },
+			y: { tickFormat: CerbUI.num.format(','), grid: true },
+			series: series,
+			legend: true,
+			height: 320,
+		};
 
-		// The chart service emits the x date pattern as format_options (not a C3 format fn); apply it.
-		// rotate / multiline are already real C3 options in the config.
-		const xtick = config.axis.x && config.axis.x.tick;
-		if(xtick && xtick.format_options && xtick.format_options.as === 'date') {
-			const pattern = (xtick.format_options.params || {}).pattern;
-			if(pattern) xtick.format = d3.timeFormat(pattern);
-		}
-
-		['y', 'y2'].forEach(a => {
-			if(a === 'y2' && !(config.axis.y2 && config.axis.y2.show)) return;
-			config.axis[a] = config.axis[a] || {};
-			config.axis[a].tick = config.axis[a].tick || {};
-			config.axis[a].tick.format = d3.format(',');
-		});
+		if(specs.some(s => s.axis === 'y2'))
+			options.y2 = { tickFormat: CerbUI.num.format(',') };
 
 		try {
 			this._destroyChart();
-			this.chart = c3.generate(config);
+			this.chart = new CerbUI.CartesianChart(this.chartEl, options);
 		} catch(e) {
 			if(console && console.error) console.error(e);
 			this.statusEl.textContent = 'Failed to render chart.';

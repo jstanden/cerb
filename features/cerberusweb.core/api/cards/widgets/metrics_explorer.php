@@ -131,10 +131,8 @@ class CardWidget_MetricsExplorer extends Extension_CardWidget {
 
 	private function _invokeQuery(Model_CardWidget $model) {
 		$http = DevblocksPlatform::services()->http();
-		$chart = DevblocksPlatform::services()->chart();
-		$dataset = DevblocksPlatform::services()->dataset();
-		$kata = DevblocksPlatform::services()->kata();
-		$active_worker = CerberusApplication::getActiveWorker();
+		$data = DevblocksPlatform::services()->data();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$http->setHeader('Content-Type', 'application/json; charset=utf-8');
 
 		$range = DevblocksPlatform::importGPC($_POST['range'] ?? null, 'string', '-24 hours to now');
@@ -154,30 +152,22 @@ class CardWidget_MetricsExplorer extends Extension_CardWidget {
 			return true;
 		}
 
-		// Resolve {{record_*}} placeholders + run the datasets, then compile to a C3 config
+		// Resolve {{record_*}} placeholders and run the combined metrics.timeseries query. The client builds the
+		// chart from its own series metadata + this raw data (no server-side chart compile needed to render).
 		$dict = $this->_recordDict($model);
 		$error = null;
 
-		if(
-			!($chart_kata_tree = $kata->parse($chart_kata, $error))
-			|| !($chart_kata_tree = $kata->formatTree($chart_kata_tree, $dict, $error))
-			|| false === ($datasets = $dataset->parse($datasets_kata, $dict, $error))
-		) {
-			echo json_encode(['error' => $error]);
-			return true;
-		}
+		$query = $tpl_builder->build($data_query, $dict);
+		$bindings = $dict->getDictionary();
 
-		$chart_options = [
-			'dark_mode' => DAO_WorkerPref::get($active_worker->id, 'dark_mode', 0),
-		];
-
-		if(false === ($config = $chart->parse($chart_kata_tree, $datasets, $chart_options, $error))) {
+		if(false === ($results = $data->executeQuery($query, $bindings, $error))) {
 			echo json_encode(['error' => $error]);
 			return true;
 		}
 
 		echo json_encode([
-			'config' => $config,
+			'data' => $results['data'] ?? null,
+			'meta' => $results['_'] ?? null,
 			'data_query' => $data_query,
 			'datasets_kata' => $datasets_kata,
 			'chart_kata' => $chart_kata,
