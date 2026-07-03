@@ -7,6 +7,22 @@
  */
 window.CerbUI = window.CerbUI || {};
 
+// The browser fires a benign, spec-defined ErrorEvent ("ResizeObserver loop completed with
+// undelivered notifications." / "...loop limit exceeded") when an observer callback dirties
+// layout mid-frame. It self-recovers and renders correctly — the message is pure console noise.
+// It's dispatched to window (not thrown), so only a global error listener can silence it.
+if(!CerbUI._resizeObserverErrorSuppressed) {
+	CerbUI._resizeObserverErrorSuppressed = true;
+	window.addEventListener('error', function(e) {
+		const msg = e && e.message ? e.message : '';
+		if(/ResizeObserver loop (completed with undelivered notifications|limit exceeded)/.test(msg)) {
+			e.stopImmediatePropagation();
+			e.preventDefault();
+			return false;
+		}
+	});
+}
+
 // Metric data lives under two parallel namespaces, keyed the same way (a key suffix, or none = default):
 //   numeric  -> data-value  / data-value-{key}   (e.g. 'size' -> data-value-size)   [used for math]
 //   display  -> data-text   / data-text-{key}    (e.g. 'size' -> data-text-size)    [optional formatted text]
