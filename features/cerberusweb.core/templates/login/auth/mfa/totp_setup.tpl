@@ -66,14 +66,9 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	const options = { width:192, height:192, text:"otpauth://totp/Cerb:{$seed_name}?secret={$seed}" };
-	const hasCanvasSupport = !!window.CanvasRenderingContext2D;
+	if(window.CerbUI && CerbUI.QrCode)
+		new CerbUI.QrCode(document.getElementById('qrcode'), { size:192, text:"otpauth://totp/Cerb:{$seed_name|escape:'url'}?secret={$seed}&issuer=Cerb" });
 
-	// If no <canvas> tag, use <table> instead
-	if(!hasCanvasSupport)
-		options.render = 'table';
-
-	$('#qrcode').qrcode(options);
 	$('#setupMfaForm').find('input[name=otp]').first().focus();
 });
 </script>
