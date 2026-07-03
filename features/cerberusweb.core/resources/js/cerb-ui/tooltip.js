@@ -71,7 +71,20 @@ CerbUI.Tooltip = class {
 		this.el.hidden = false;
 		this.move(x, y);
 		this._watchOwner(owner || null);
+		this._watchScroll(); // a fixed hover panel would otherwise linger at stale coords when the page scrolls
 		return this;
+	}
+
+	// Hide a point-mode tooltip on any scroll (a fresh mousemove re-shows it). Capture-phase so scrolls inside
+	// any ancestor container are caught (scroll events don't bubble).
+	_watchScroll() {
+		if(this._onScroll) return;
+		this._onScroll = () => this.hide();
+		window.addEventListener('scroll', this._onScroll, { capture: true, passive: true });
+	}
+
+	_unwatchScroll() {
+		if(this._onScroll) { window.removeEventListener('scroll', this._onScroll, { capture: true }); this._onScroll = null; }
 	}
 
 	// Reposition relative to a viewport point: above-centered by default, flip below / clamp to stay on-screen
@@ -275,6 +288,7 @@ CerbUI.Tooltip = class {
 		this._anchorTarget = null;
 		this._anchorOptions = null;
 		this._teardownInteractive();
+		this._unwatchScroll();
 		if(this._observer) this._observer.disconnect();
 		if(this._resizeObserver) this._resizeObserver.disconnect();
 		return this;
