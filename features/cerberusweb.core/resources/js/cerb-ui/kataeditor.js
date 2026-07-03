@@ -170,9 +170,11 @@ CerbUI.KataEditor = class {
 		this._onScroll = () => this._handleScroll();
 		this._onBlur = () => { this._ac.clearTimer(); };
 		this._onGutterClick = (e) => this._handleGutterClick(e);
+		this._onPaste = (e) => this._handlePaste(e);
 
 		this.textarea.addEventListener('input', this._onInput);
 		this.textarea.addEventListener('keydown', this._onKeydown);
+		this.textarea.addEventListener('paste', this._onPaste);
 		this.textarea.addEventListener('scroll', this._onScroll, { passive: true });
 		this.textarea.addEventListener('blur', this._onBlur);
 		if(this.gutter) this.gutter.addEventListener('click', this._onGutterClick);
@@ -439,6 +441,7 @@ CerbUI.KataEditor = class {
 		if(this.textarea) {
 			this.textarea.removeEventListener('input', this._onInput);
 			this.textarea.removeEventListener('keydown', this._onKeydown);
+			this.textarea.removeEventListener('paste', this._onPaste);
 			this.textarea.removeEventListener('scroll', this._onScroll);
 			this.textarea.removeEventListener('blur', this._onBlur);
 		}
@@ -537,6 +540,13 @@ CerbUI.KataEditor = class {
 
 	// ── Input / keyboard ────────────────────────────────────────────────
 
+	// A multi-line paste is a block of content, not authoring a token — flag it so the following `input` event
+	// doesn't pop suggestions at the end of the pasted block. Single-line pastes still suggest (like typing).
+	_handlePaste(e) {
+		const text = (e.clipboardData || window.clipboardData) ? (e.clipboardData || window.clipboardData).getData('text') : '';
+		this._pasteIsBlock = /[\r\n]/.test(text);
+	}
+
 	_handleInput(e) {
 		// Our own programmatic writes (_writeValue) re-emit an `input` event via execCommand; ignore it — the
 		// command that called _setValueAndCaret already drives the re-render (and decides about suggestions).
@@ -556,6 +566,8 @@ CerbUI.KataEditor = class {
 		// Backspace/Delete shouldn't pop suggestions either (esp. when deleting indentation whitespace) — re-render
 		// only. ⌘/Ctrl+Space still forces the menu, and typing a char re-suggests normally.
 		if(it === 'deleteContentBackward' || it === 'deleteContentForward') return;
+		// Pasting a multi-line block isn't authoring a token — don't pop suggestions at the end of it.
+		if(it === 'insertFromPaste' && this._pasteIsBlock) { this._pasteIsBlock = false; return; }
 		// Otherwise always schedule — KataScript autocomplete is built in even without a KATA `onAutocomplete`
 		// source; the controller's onItems decides whether there's anything to show.
 		this._ac.schedule();
