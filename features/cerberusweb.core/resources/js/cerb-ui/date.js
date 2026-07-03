@@ -19,5 +19,43 @@ CerbUI.date = {
 		if(sec < 3600) return Math.floor(sec / 60) + 'm ago';
 		if(sec < 86400) return Math.floor(sec / 3600) + 'h ago';
 		return Math.floor(sec / 86400) + 'd ago';
+	},
+
+	_days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+	_months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+
+	// A small strftime subset (replaces d3.timeFormat) for absolute date/time axis ticks + tooltips.
+	// Returns a formatter (date) => string. Supported: %Y %y %m %d %e %H %M %S %I %p %a %A %b %B %%.
+	// The GNU `-` flag (%-I, %-d, %-m, %-H, %-M, %-S, %-y) is honored to suppress zero-padding — so
+	// an otherwise-unhandled pattern renders (e.g. "3 PM") instead of leaking a literal "%-I".
+	strftime: function(pattern) {
+		const pad = (n) => (n < 10 ? '0' + n : '' + n);
+		const D = CerbUI.date;
+		return function(date) {
+			const d = (date instanceof Date) ? date : new Date(date);
+			if(isNaN(d.getTime())) return '';
+			const h = d.getHours();
+			return String(pattern).replace(/%(-?)([YymdeHMSIpaAbB%])/g, function(_, flag, t) {
+				const num = (flag === '-') ? ((n) => '' + n) : pad;
+				switch(t) {
+					case 'Y': return '' + d.getFullYear();
+					case 'y': return num(d.getFullYear() % 100);
+					case 'm': return num(d.getMonth() + 1);
+					case 'd': return num(d.getDate());
+					case 'e': return (d.getDate() < 10 ? ' ' : '') + d.getDate();
+					case 'H': return num(h);
+					case 'M': return num(d.getMinutes());
+					case 'S': return num(d.getSeconds());
+					case 'I': return num((h % 12) || 12);
+					case 'p': return h < 12 ? 'AM' : 'PM';
+					case 'a': return D._days[d.getDay()].slice(0, 3);
+					case 'A': return D._days[d.getDay()];
+					case 'b': return D._months[d.getMonth()].slice(0, 3);
+					case 'B': return D._months[d.getMonth()];
+					case '%': return '%';
+				}
+				return _;
+			});
+		};
 	}
 };
