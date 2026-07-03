@@ -172,6 +172,7 @@
 						<li data-target="piechart" data-icon="chart-pie">Pie / donut</li>
 						<li data-target="cartesian-chart" data-icon="chart-bar">Bar / line</li>
 						<li data-target="scatter-chart" data-icon="chart-scatterplot">Scatterplot</li>
+						<li data-target="timeblocks" data-icon="chart-timeblocks">Timeblocks</li>
 						<li data-target="gauge" data-icon="gauge">Gauge</li>
 						<li data-target="timering" data-icon="clock">TimeRing</li>
 						<li data-target="calendar" data-icon="calendar">Calendar</li>
@@ -259,6 +260,7 @@
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/piechart.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/cartesian-chart.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/scatter-chart.tpl"}
+			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/timeblocks.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/gauge.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/timering.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/calendar.tpl"}
