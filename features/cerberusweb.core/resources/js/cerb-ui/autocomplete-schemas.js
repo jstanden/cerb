@@ -550,7 +550,6 @@ let cerbAutocompleteSuggestions = {
 		],
 		'map:projection:type:': [
 			'mercator',
-			'naturalEarth',
 			'albersUsa'
 		],
 		'map:projection:scale:': [
