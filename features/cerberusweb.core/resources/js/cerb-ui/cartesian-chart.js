@@ -178,13 +178,16 @@ CerbUI.CartesianChart = class extends CerbUI.Chart {
 		const mTop = 8;
 		const mRight = (this.hasY2 && !horizontal) ? 52 : 14; // room for the right-hand y2 ticks
 		const mLeft = horizontal ? (this.xcfg.width || 150) : 58;
+		// Which x points get labeled — width-aware, computed once (plot L/R are known here; the bottom
+		// margin below needs the rotated-label lengths from this set).
+		this._xTickIdx = this._computeXTickIndices((W - mRight) - mLeft);
 		// Rotated x labels extend downward by ~their text length; size the bottom margin so they don't
 		// overflow the (overflow:visible) svg onto whatever sits below it (e.g. the legend).
 		let mBottom;
 		if(horizontal) {
 			mBottom = 30;
 		} else if(this.xcfg.rotate) {
-			const maxChars = this._xTickIndices().reduce((m, i) => Math.max(m, ('' + this._xLabel(i)).length), 0);
+			const maxChars = this._xTickIdx.reduce((m, i) => Math.max(m, ('' + this._xLabel(i)).length), 0);
 			mBottom = Math.min(140, 24 + Math.round(maxChars * 6.2));
 		} else {
 			mBottom = 34;
@@ -297,14 +300,34 @@ CerbUI.CartesianChart = class extends CerbUI.Chart {
 		}
 	}
 
-	// Indices of the x points to label (every category, or a thinned ~8 subset for a continuous axis).
-	_xTickIndices() {
+	// Indices of the x points to label: every category, else as many evenly-spaced continuous-axis
+	// points as horizontally fit (anchoring both endpoints so the last tick is never crammed).
+	_computeXTickIndices(plotW) {
+		const N = this._N;
 		if(this.xMode === 'category') return this.xPoints.map((_, i) => i);
-		const target = 8;
-		const stepN = Math.max(1, Math.ceil(this._N / target));
+		if(N <= 1) return N ? [0] : [];
+
+		// One label's footprint along the axis: rotated labels stand ~1 line tall (their text runs
+		// vertically) so they pack tightly; flat labels need their full text width. Reuse the ~6.2px/char
+		// estimate already used for the bottom margin.
+		let footprint;
+		if(this.xcfg.rotate) {
+			footprint = 18;
+		} else {
+			let maxChars = 0;
+			for(let i = 0; i < N; i++) maxChars = Math.max(maxChars, ('' + this._xLabel(i)).length);
+			footprint = maxChars * 6.2 + 14;
+		}
+		const fit = Math.max(2, Math.floor(plotW / footprint));
+		if(fit >= N) return this.xPoints.map((_, i) => i); // everything fits → label every point
+
+		// Evenly distribute `fit` ticks across [0, N-1] with both endpoints anchored (no forced-last cram).
 		const out = [];
-		for(let i = 0; i < this._N; i += stepN) out.push(i);
-		if(out[out.length - 1] !== this._N - 1) out.push(this._N - 1); // always label the last point
+		let last = -1;
+		for(let k = 0; k < fit; k++) {
+			const i = Math.round(k * (N - 1) / (fit - 1));
+			if(i !== last) { out.push(i); last = i; }
+		}
 		return out;
 	}
 
@@ -316,7 +339,7 @@ CerbUI.CartesianChart = class extends CerbUI.Chart {
 	_drawXAxis() {
 		const svg = this._svg, horizontal = (this.orientation === 'horizontal');
 		const maxChars = Math.max(4, Math.floor((this.xcfg.width || 150) / 7));
-		this._xTickIndices().forEach(i => {
+		this._xTickIdx.forEach(i => {
 			const center = this._pointCenter(i);
 			let txt = '' + this._xLabel(i);
 			const label = document.createElementNS(this.NS, 'text');
@@ -330,7 +353,11 @@ CerbUI.CartesianChart = class extends CerbUI.Chart {
 				label.setAttribute('x', center);
 				label.setAttribute('y', this._plot.bottom + 14);
 				label.setAttribute('text-anchor', this.xcfg.rotate ? 'end' : 'middle');
-				if(this.xcfg.rotate) label.setAttribute('transform', 'rotate(' + this.xcfg.rotate + ',' + center + ',' + (this._plot.bottom + 14) + ')');
+				if(this.xcfg.rotate) {
+					// central baseline so the rotated strip centers on the tick x, not offset left by the glyph ascent
+					label.setAttribute('dominant-baseline', 'central');
+					label.setAttribute('transform', 'rotate(' + this.xcfg.rotate + ',' + center + ',' + (this._plot.bottom + 14) + ')');
+				}
 			}
 			label.textContent = txt;
 			svg.appendChild(label);

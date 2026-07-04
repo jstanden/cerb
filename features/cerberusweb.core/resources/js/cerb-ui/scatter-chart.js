@@ -186,7 +186,11 @@ CerbUI.ScatterChart = class extends CerbUI.Chart {
 			lbl.setAttribute('class', 'cerb-ui-scatter-chart--tick');
 			lbl.setAttribute('x', x); lbl.setAttribute('y', this._plot.bottom + 14);
 			lbl.setAttribute('text-anchor', this.xcfg.rotate ? 'end' : 'middle');
-			if(this.xcfg.rotate) lbl.setAttribute('transform', 'rotate(' + this.xcfg.rotate + ',' + x + ',' + (this._plot.bottom + 14) + ')');
+			if(this.xcfg.rotate) {
+				// central baseline so the rotated strip centers on the tick x, not offset left by the glyph ascent
+				lbl.setAttribute('dominant-baseline', 'central');
+				lbl.setAttribute('transform', 'rotate(' + this.xcfg.rotate + ',' + x + ',' + (this._plot.bottom + 14) + ')');
+			}
 			lbl.textContent = this.xFmt(t);
 			svg.appendChild(lbl);
 		});
