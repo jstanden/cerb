@@ -209,6 +209,10 @@ CerbUI.CartesianChart = class extends CerbUI.Chart {
 				for(let i = 1; i < pts.length; i++) { const d = pts[i] - pts[i - 1]; if(d > 0 && d < step) step = d; }
 				if(!isFinite(step) || step <= 0) step = (hi - lo) || 1;
 				this.xScale = CerbUI.scale.time({ domain: [lo - step / 2, hi + step / 2], range: bandRange });
+			} else if(lo === hi) {
+				// A single distinct x: center it — a proportional pad would otherwise pin the lone point (and
+				// its label) to the left edge.
+				this.xScale = CerbUI.scale.time({ domain: [lo - 1, hi + 1], range: bandRange });
 			} else {
 				// Lines/areas: small proportional padding so end points aren't flush against the plot edges.
 				const padFrac = 0.03;
@@ -471,12 +475,15 @@ CerbUI.CartesianChart = class extends CerbUI.Chart {
 		const svg = this._svg;
 		const color = this._seriesColor(si, s);
 		const scale = this._valueScaleFor(s);
+		// A single point has no line/area segment to show it, so always draw it (else the chart looks empty).
+		const lone = (this._N === 1);
+		const shown = this.points || lone;
 		for(let i = 0; i < this._N; i++) {
 			const p = this._point(this._pointCenter(i), s._top[i], scale);
 			const dot = document.createElementNS(this.NS, 'circle');
 			dot.setAttribute('class', 'cerb-ui-cartesian-chart--dot');
-			dot.setAttribute('cx', p[0]); dot.setAttribute('cy', p[1]); dot.setAttribute('r', this.points ? 3 : 5);
-			dot.setAttribute('fill', this.points ? color : 'transparent');
+			dot.setAttribute('cx', p[0]); dot.setAttribute('cy', p[1]); dot.setAttribute('r', shown ? (lone ? 4 : 3) : 5);
+			dot.setAttribute('fill', shown ? color : 'transparent');
 			dot.dataset.series = si; dot.dataset.cat = i;
 			if(s.click && s.click[i] && s.click[i].query) dot.style.cursor = 'pointer';
 			svg.appendChild(dot);
