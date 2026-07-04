@@ -812,7 +812,9 @@ CerbUI.KataEditor = class {
 		this._ac.clearTimer();
 		this._revealForEdit();
 		const ta = this.textarea, v = ta.value, s = ta.selectionStart;
-		const lineStart = v.lastIndexOf('\n', s - 1) + 1;
+		// s>0 guard: lastIndexOf('\n', -1) clamps to index 0 and matches a leading '\n', mis-placing
+		// lineStart on an empty first line (caret at 0) and making the delete a no-op.
+		const lineStart = s > 0 ? v.lastIndexOf('\n', s - 1) + 1 : 0;
 		const lineEnd = v.indexOf('\n', s);
 		let cutStart, cutEnd;
 		if(lineEnd === -1) { cutStart = lineStart > 0 ? lineStart - 1 : 0; cutEnd = v.length; } // last line: eat preceding \n
