@@ -214,7 +214,35 @@ class _DevblocksChartService {
 		}
 		
 		$x_labels = array_keys($x_labels);
-		
+
+		// When the schema omits an x-axis (no series declares an `x_key`), synthesize an index-based
+		// categorical x so a bare `data:series:` still plots as 0..n-1 (matches the former C3 default).
+		// Skipped for pie/donut/gauge (no x column) and scatter (uses its own `*_x` companions).
+		$chart_type = $chart_kata['data']['type'] ?? 'line';
+		if(!$x_labels && !in_array($chart_type, ['pie', 'donut', 'gauge', 'scatter'], true)) {
+			$max_len = 0;
+
+			foreach($chart_kata['data']['series'] ?? [] as $dataset_key => $dataset_params) {
+				$x_key = $dataset_params['x_key'] ?? null;
+
+				foreach($datasets_kata[$dataset_key] ?? [] as $key => $values) {
+					if($key === $x_key || DevblocksPlatform::strEndsWith($key, '__click'))
+						continue;
+
+					if(is_array($values))
+						$max_len = max($max_len, count($values));
+				}
+			}
+
+			if($max_len > 0) {
+				$x_labels = range(0, $max_len - 1);
+
+				// Emit a category axis so ticks are the clean integer indices 0..n-1
+				if(!($chart_kata['axis']['x']['type'] ?? null))
+					$chart_json['axis']['x']['type'] = 'category';
+			}
+		}
+
 		if($x_labels) {
 			$x_labels = array_unique($x_labels);
 			
