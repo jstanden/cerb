@@ -210,6 +210,15 @@
 .cerb-ui-toolbar-button { @include cerb-ui-toolbar-button; }
 .cerb-ui-toolbar-button--active { @include cerb-ui-toolbar-button-active; }
 
+// A vertical rule between button groups in a hand-coded strip (mirrors the component's `--divider`).
+.cerb-ui-toolbar-divider {
+	align-self: center;
+	width: 1px;
+	height: 16px;
+	margin: 0 4px;
+	background: var(--cerb-color-background-contrast-220);
+}
+
 // One-class hybrid rail: drop this on a wrapper that holds built-in buttons + an injected `[data-cerb-toolbar]`
 // (record profile/card/message action bars) to fuse them into one seamless strip. See cerb-ui-toolbar-hybrid.
 .cerb-ui-toolbar-rail { @include cerb-ui-toolbar-hybrid; }

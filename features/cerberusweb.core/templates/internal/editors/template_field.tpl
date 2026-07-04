@@ -22,11 +22,11 @@
 {if strpos($context, ',') !== false}{$tf_primary_context = $context|substr:0:strpos($context, ',')}{/if}
 
 <div class="cerb-ui-template-field" id="{$tf_id}" data-context="{$context}" data-key-prefix="{$tf_key_prefix}" data-primary-context="{$tf_primary_context}">
-	<div class="cerb-code-editor-toolbar">
-		<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-template-insert><span class="cerb-icons cerb-icon-placeholders"></span> {'common.placeholders'|devblocks_translate|capitalize}</button>
-		<div class="cerb-code-editor-toolbar-divider"></div>
-		<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-template-test><span class="cerb-icons cerb-icon-play"></span> {'common.test'|devblocks_translate|capitalize}</button>
-		<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-template-help title="{'common.help'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-circle-question-mark"></span></button>
+	<div class="cerb-ui-toolbar-strip">
+		<button type="button" class="cerb-ui-toolbar-button" data-cerb-template-insert><span class="cerb-icons cerb-icon-placeholders"></span> {'common.placeholders'|devblocks_translate|capitalize}</button>
+		<span class="cerb-ui-toolbar-divider"></span>
+		<button type="button" class="cerb-ui-toolbar-button" data-cerb-template-test><span class="cerb-icons cerb-icon-play"></span> {'common.test'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cerb-ui-toolbar-button" data-cerb-template-help title="{'common.help'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-circle-question-mark"></span></button>
 	</div>
 
 	<textarea name="{$name}" data-editor-lines="{$tf_lines}" spellcheck="false"{if !empty($placeholder)} placeholder="{$placeholder}"{/if}>{$value}</textarea>
