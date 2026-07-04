@@ -8,6 +8,17 @@ CerbUI.num = {
 		return n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k' : ('' + n);
 	},
 
+	// Group thousands but keep the value's natural decimals: 1234 -> "1,234", 0.5 -> "0.5", 1234.5 -> "1,234.5".
+	// This is the default axis tick formatter — unlike format(',') (0 decimals) it doesn't round fractional
+	// ticks (e.g. 0, 0.5, 1, 1.5) down to duplicate integer labels (0, 1, 1, 2).
+	grouped: function(n) {
+		n = Number(n);
+		if(!isFinite(n)) return '' + n;
+		const parts = String(n).split('.');
+		parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+		return parts.join('.');
+	},
+
 	// A small subset of d3-format, covering the patterns the charts actually use (grow as needed):
 	//   ','    thousands grouping, no decimals        1234    -> "1,234"
 	//   '.2f'  fixed decimals                          1.5     -> "1.50"

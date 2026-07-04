@@ -51,8 +51,8 @@ CerbUI.CartesianChart = class extends CerbUI.Chart {
 		}));
 		this.hasY2 = !!this.y2cfg && this.series.some(s => s.axis === 'y2');
 		this.xFmt = (typeof this.xcfg.tickFormat === 'function') ? this.xcfg.tickFormat : null;
-		this.yFmt = (typeof this.ycfg.tickFormat === 'function') ? this.ycfg.tickFormat : CerbUI.num.format(',');
-		this.y2Fmt = (this.y2cfg && typeof this.y2cfg.tickFormat === 'function') ? this.y2cfg.tickFormat : CerbUI.num.format(',');
+		this.yFmt = (typeof this.ycfg.tickFormat === 'function') ? this.ycfg.tickFormat : CerbUI.num.grouped;
+		this.y2Fmt = (this.y2cfg && typeof this.y2cfg.tickFormat === 'function') ? this.y2cfg.tickFormat : CerbUI.num.grouped;
 		this.legendEnabled = !!options.legend;
 		this.points = !!options.points;
 		this.tooltipRatios = !!(options.tooltip && options.tooltip.ratios); // per-series % of the x-total

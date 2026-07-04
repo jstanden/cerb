@@ -37,8 +37,8 @@ CerbUI.ScatterChart = class extends CerbUI.Chart {
 				click: s.click || null,
 			};
 		});
-		this.xFmt = (typeof this.xcfg.tickFormat === 'function') ? this.xcfg.tickFormat : CerbUI.num.format(',');
-		this.yFmt = (typeof this.ycfg.tickFormat === 'function') ? this.ycfg.tickFormat : CerbUI.num.format(',');
+		this.xFmt = (typeof this.xcfg.tickFormat === 'function') ? this.xcfg.tickFormat : CerbUI.num.grouped;
+		this.yFmt = (typeof this.ycfg.tickFormat === 'function') ? this.ycfg.tickFormat : CerbUI.num.grouped;
 		this.legendEnabled = !!options.legend;
 		this.radius = options.radius || 4;
 		this.axesIndependent = !!options.axesIndependent; // each series scaled to its own x/y range
