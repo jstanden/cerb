@@ -95,7 +95,7 @@ $(function() {
 			if(toggleAll) {
 				const allSel = all.length && n === all.length;
 				const icon = toggleAll.querySelector('.cerb-icons');
-				if(icon) icon.className = 'cerb-icons ' + (allSel ? 'cerb-icon-unchecked' : 'cerb-icon-checked');
+				if(icon) icon.className = 'cerb-icons ' + (allSel ? 'cerb-icon-checked' : 'cerb-icon-unchecked');
 				toggleAll.title = allSel ? 'Clear all' : 'Select all';
 			}
 		};

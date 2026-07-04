@@ -10,7 +10,7 @@
 *}
 <label class="cerb-ui-tile cerb-ui-tile--block cerb-fieldpicker-cell{if $selected} is-selected{/if}" data-token="{$k}">
 	<input type="checkbox" class="cerb-fieldpicker-cell--cb" name="params[properties][{$group}][]" value="{$k}"{if $selected} checked="checked"{/if}>
-	<div class="cerb-fieldpicker-cell--body">
+	<div class="cerb-fieldpicker-cell--body cerb-u-break-word">
 		{if !empty($v.value)}
 			{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
 		{else}
