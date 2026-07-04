@@ -10,14 +10,7 @@
 			<b>Copy explorer config</b> button to generate this.
 		</div>
 
-		<div class="cerb-ui-kataeditor">
-			<div class="cerb-ui-kataeditor--gutter" aria-hidden="true"></div>
-			<div class="cerb-ui-kataeditor--field">
-				<div class="cerb-ui-kataeditor--highlight" aria-hidden="true"></div>
-				<textarea class="cerb-ui-kataeditor--input" name="params[series_kata]" data-editor-lines="10" spellcheck="false">{$widget->extension_params.series_kata}</textarea>
-				<span class="cerb-ui-kataeditor--caret-anchor"></span>
-			</div>
-		</div>
+		<textarea name="params[series_kata]" class="placeholders" data-cerb-placeholders-placement="top" data-editor-lines="10" spellcheck="false">{$widget->extension_params.series_kata}</textarea>
 	</div>
 
 	<div class="cerb-ui-panel cerb-ui-panel--spaced">
@@ -49,7 +42,7 @@
 $(function() {
 	var $config = $('#widget{$widget->id}Config');
 
-	new CerbUI.KataEditor($config.find('textarea[name="params[series_kata]"]').closest('.cerb-ui-kataeditor')[0], {
+	new CerbUI.KataEditor($config.find('textarea[name="params[series_kata]"]')[0], {
 		onAutocomplete: CerbUI.KataEditor.kataFieldSource(CerbUI.editorCore.autocompleteSchemas.kataSchemaMetricsExplorerSeries)
 	});
 });

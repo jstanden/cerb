@@ -35,7 +35,7 @@
             {/if}
 
             {if $active_worker->is_superuser}
-                <button data-cerb-button-toggle-hidden type="button" style="display:none;"><div class="badge-count">0</div> Hidden Widgets</button>
+                <button data-cerb-button-toggle-hidden type="button" class="cerb-ui-toolbar-button" style="display:none;" aria-pressed="false" title="Hidden widgets"><span class="cerb-icons cerb-icon-eye-close"></span> Hidden Widgets <span class="cerb-ui-toolbar--badge cerb-ui-toolbar--badge-neutral badge-count">0</span></button>
             {/if}
 
             {if !is_array($toolbar_card) || !array_key_exists('watchers', $toolbar_card)}
@@ -206,7 +206,31 @@ $(function() {
         $toggle_widgets_button
             .on('click', function(e) {
                 e.stopPropagation();
-                $popup.find('.cerb-card-widget--hidden').toggle();
+
+                let $btn = $(this);
+                let show = 'true' !== $btn.attr('aria-pressed');
+
+                $btn.attr('aria-pressed', show ? 'true' : 'false')
+                    .toggleClass('cerb-ui-toolbar-button--active', show);
+
+                let $hidden = $popup.find('.cerb-card-widget--hidden');
+
+                if(show) {
+                    $hidden.show();
+
+                    // Load content for any widget revealed for the first time (harmless no-op if already loaded)
+                    let load_ids = [];
+                    $hidden.each(function() {
+                        let $content = $(this).find('.cerb-card-widget--content');
+                        if($content.length && 0 === $content.children().length)
+                            load_ids.push(parseInt($(this).attr('data-widget-id')));
+                    });
+
+                    if(load_ids.length)
+                        $popup.trigger($.Event('cerb-widgets-refresh', { widget_ids: load_ids }));
+                } else {
+                    $hidden.hide();
+                }
             })
         ;
 

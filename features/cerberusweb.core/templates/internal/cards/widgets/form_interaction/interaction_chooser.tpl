@@ -104,6 +104,8 @@ $(function() {
 		error: errorFunc
 	};
 
-	$div.cerbToolbar(toolbarOptions);
+	let div_toolbar_ul = $div.find('ul.cerb-ui-toolbar')[0];
+	if(div_toolbar_ul && window.CerbUI && CerbUI.Toolbar)
+	new CerbUI.Toolbar(div_toolbar_ul, toolbarOptions);
 });
 </script>

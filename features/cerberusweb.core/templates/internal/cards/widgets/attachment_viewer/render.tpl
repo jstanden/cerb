@@ -1,18 +1,20 @@
 {$is_downloadable = $active_worker->hasPriv('core.display.actions.attachments.download') && Context_Attachment::isDownloadableByActor($dict, $active_worker)}
 
-<div style="margin-top:5px;">
-    {if $is_downloadable}
-        <button type="button" class="cerb-peek-download"><span class="cerb-icons cerb-icon-cloud-download"></span> {'common.download'|devblocks_translate|capitalize}</button>
-    {/if}
+<div class="cerb-u-mt-2">
+    <ul class="cerb-ui-toolbar" data-cerb-attachment-toolbar hidden>
+        {if $is_downloadable}
+        <li class="cerb-peek-download" data-icon="download">{'common.download'|devblocks_translate|capitalize}</li>
+        {/if}
 
-    {if $context_counts}
-        {foreach from=$context_counts item=count key=context_ext_id}
-            {$context = $contexts.$context_ext_id}
-            {if $context}
-                <button type="button" class="cerb-search-trigger" data-context="{$context_ext_id}" data-query="attachments:(id:{$dict->id})"><div class="badge-count">{$count|default:0}</div> {$context->name}</button>
-            {/if}
-        {/foreach}
-    {/if}
+        {if $context_counts}
+            {foreach from=$context_counts item=count key=context_ext_id}
+                {$context = $contexts.$context_ext_id}
+                {if $context}
+                <li class="cerb-search-trigger" data-context="{$context_ext_id}" data-query="attachments:(id:{$dict->id})" data-icon="{$context->params.icon|default:'collection'}" data-badge="{$count|default:0|number_format}">{$context->name}</li>
+                {/if}
+            {/foreach}
+        {/if}
+    </ul>
 </div>
 
 {if $is_downloadable}
@@ -53,14 +55,18 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-    var $widget = $('#cardWidget{$widget->getUniqueId($dict->id)}');
+    const $widget = $('#cardWidget{$widget->getUniqueId($dict->id)}');
+    const $toolbar = $widget.find('ul[data-cerb-attachment-toolbar]');
 
-    // Download button
+    // The source <li>s stay wired to their original behaviors; CerbUI.Toolbar renders the
+    // visible strip and clicks the matching source <li> on select.
+
+    // Download
     {if $is_downloadable}
-    $widget.find('button.cerb-peek-download')
+    $toolbar.find('li.cerb-peek-download')
         .on('click', function(e) {
             e.stopPropagation();
-            var a = document.createElement('a');
+            const a = document.createElement('a');
             a.style.display = 'none';
             document.body.appendChild(a);
             a.href = '{devblocks_url}c=files&id={$dict->id}&name={$dict->_label|devblocks_permalink}{/devblocks_url}?download=';
@@ -70,6 +76,17 @@ $(function() {
     {/if}
 
     // Search
-    $widget.find('.cerb-search-trigger').cerbSearchTrigger();
+    $toolbar.find('li.cerb-search-trigger').cerbSearchTrigger();
+
+    // Toolbar strip: record-type icons + count badges
+    if($toolbar.length && window.CerbUI && CerbUI.Toolbar) {
+        new CerbUI.Toolbar($toolbar[0], {
+            badgeStyle: 'pill',
+            onSelect: function(item, sourceLi) {
+                if(sourceLi)
+                    $(sourceLi).trigger('click');
+            }
+        });
+    }
 });
 </script>

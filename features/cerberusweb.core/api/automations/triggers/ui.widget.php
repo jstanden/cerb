@@ -123,6 +123,16 @@ class AutomationTrigger_UiWidget extends Extension_AutomationTrigger {
 	}
 	
 	public function getAutocompleteSuggestions() : array {
-		return [];
+		return [
+			'*' => [
+				'(.*):return:' => [
+					[
+						'caption' => 'html@text:',
+						'snippet' => "html@text:\n\t\${1:<div></div>}",
+						'docHTML' => "<b>html@text:</b><br>The HTML to render for the widget",
+					],
+				],
+			],
+		];
 	}
 }

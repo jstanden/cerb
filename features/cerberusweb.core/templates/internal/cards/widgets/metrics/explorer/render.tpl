@@ -3,12 +3,7 @@
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	Devblocks.loadResources({
-		'css': [
-			'/resource/devblocks.core/js/c3/c3.min.css'
-		],
 		'js': [
-			'/resource/devblocks.core/js/d3/d3.v5.min.js',
-			'/resource/devblocks.core/js/c3/c3.min.js',
 			'/resource/cerberusweb.core/js/cards/metrics_explorer.js'
 		]
 	}, function() {

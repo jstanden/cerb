@@ -1,6 +1,8 @@
 {$peek_context = CerberusContexts::CONTEXT_CARD_WIDGET}
 {$form_id = uniqid()}
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}">
+{$widget_type_icon = 'dashboard'}
+{if $model->getExtension()}{$widget_type_icon = $model->getExtension()->getIcon()}{/if}
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" data-cerb-placeholders>
     <input type="hidden" name="c" value="profiles">
     <input type="hidden" name="a" value="invoke">
     <input type="hidden" name="module" value="card_widget">
@@ -262,27 +264,16 @@
                 });
             });
 
-            // Placeholder toolbar
-            $popup.delegate(':text.placeholders, textarea.placeholders, pre.placeholders', 'focus', function(e) {
+            // Placeholder toolbar — reveal it below the focused config field
+            $popup.delegate(':text.placeholders, textarea.placeholders', 'focus', function(e) {
                 e.stopPropagation();
 
                 var $target = $(e.target);
-                var $parent = $target.closest('.ace_editor');
 
-                if(0 != $parent.length) {
+                if(0 == $target.nextAll($toolbar).length) {
                     $toolbar.find('div.tester').html('');
-                    $toolbar.find('ul.menu').hide();
-                    $toolbar.show().insertAfter($parent);
-                    $toolbar.data('src', $parent);
-
-                } else {
-                    if(0 == $target.nextAll($toolbar).length) {
-                        $toolbar.find('div.tester').html('');
-                        $toolbar.find('ul.menu').hide();
-                        $toolbar.show().insertAfter($target);
-                        $toolbar.data('src', $target);
-                        $toolbar.find('button.tester').show();
-                    }
+                    $toolbar.show().insertAfter($target);
+                    $toolbar.data('src', $target);
                 }
             });
 
