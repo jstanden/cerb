@@ -58,19 +58,9 @@
 			</div>
 
 			<div class="cerb-ui-form--field">
-				<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-2">
-					<label class="cerb-ui-form--label" style="margin:0;">{'dashboard.columns'|devblocks_translate|capitalize}</label>
-					<span class="cerb-u-text-muted cerb-u-fs-n1" data-cerb-columns-count></span>
-					<button type="button" class="cerb-ui-selectall" data-cerb-columns-toggleall title="Select all"><span class="cerb-icons cerb-icon-checked"></span></button>
-				</div>
-				<div class="cerb-columns cerb-ui-tile-grid" data-cerb-columns>
-					{foreach from=$columns item=column}
-					<label class="cerb-ui-tile cerb-ui-tile--block cerb-columns-cell cerb-ui-tile-grid--cell{if $column.is_selected} is-selected{/if}" data-token="{$column.key}">
-						<input type="checkbox" class="cerb-columns-cb cerb-u-flex-shrink-0" name="params[columns][]" value="{$column.key}"{if $column.is_selected} checked="checked"{/if}>
-						<span class="cerb-columns-cell--label cerb-u-truncate">{$column.label}</span>
-					</label>
-					{/foreach}
-				</div>
+				<label class="cerb-ui-form--label">{'dashboard.columns'|devblocks_translate|capitalize}</label>
+				{* Sections (base + one collapsible group per custom fieldset) are built by the picker JS below *}
+				<div class="cerb-columns-picker" data-cerb-columns-root></div>
 			</div>
 		</div>
 	</div>
@@ -80,9 +70,7 @@
 $(function() {
 	var $config = $('#widget{$widget->id}Config');
 	var $select = $config.find("select[name='params[context]']");
-	var $columns = $config.find('[data-cerb-columns]');
-	var $columnsCount = $config.find('[data-cerb-columns-count]');
-	var $columnsToggleAll = $config.find('[data-cerb-columns-toggleall]');
+	var $columnsRoot = $config.find('[data-cerb-columns-root]');
 
 	// Record type — SelectMenu (type-to-filter + per-type icons). Keeps the native <select>, so its change
 	// event still drives the query editors + columns list below.
@@ -108,7 +96,9 @@ $(function() {
 		});
 	}
 
-	// ── Columns picker (a fields_picker-style tile grid: dim unselected, count + select-all, drag-reorder) ──
+	// ── Columns picker: a base group (drag-reorderable) plus one collapsible group per custom fieldset ──
+	// Every checkbox posts to the flat params[columns][] list; the grouping is display-only, and DOM order
+	// (base first, then fieldsets) is the saved column order.
 
 	var buildColumnCell = function(field) {
 		var $cell = $('<label/>')
@@ -124,39 +114,95 @@ $(function() {
 		return $cell;
 	};
 
-	var refreshColumnsUI = function() {
-		var $cbs = $columns.find('input.cerb-columns-cb');
+	// opts: { label, columns, fieldset (bool), hint }
+	var buildColumnSection = function(opts) {
+		var isFieldset = !!opts.fieldset;
+		var $section = $(isFieldset ? '<details open/>' : '<div/>')
+			.addClass('cerb-columns-section' + (isFieldset ? ' cerb-u-mt-2' : ''))
+			.attr('data-cerb-section', '');
+
+		var $header = $(isFieldset ? '<summary/>' : '<div/>')
+			.addClass('cerb-columns-section--header cerb-u-flex cerb-u-items-center cerb-u-gap-2 cerb-u-mb-1')
+			.attr('style', 'font-weight:600;' + (isFieldset ? 'cursor:pointer;' : ''));
+
+		if(isFieldset)
+			$header.append($('<span/>').addClass('cerb-icons cerb-icon-collection'));
+
+		$header.append($('<span/>').text(opts.label || ''));
+
+		if(opts.hint)
+			$header.append($('<span/>').addClass('cerb-u-text-muted cerb-u-fs-n1').text(opts.hint));
+
+		$header.append($('<span/>').addClass('cerb-u-text-muted cerb-u-fs-n1 cerb-u-ml-auto').attr('data-cerb-count', ''));
+		$header.append($('<button/>')
+			.attr({ 'type': 'button', 'title': 'Select all' })
+			.addClass('cerb-ui-selectall')
+			.attr('data-cerb-toggleall', '')
+			.append($('<span/>').addClass('cerb-icons cerb-icon-checked'))
+		);
+
+		var $grid = $('<div/>').addClass('cerb-columns cerb-ui-tile-grid');
+		if(!isFieldset) $grid.attr('data-cerb-columns-base', '');
+		(opts.columns || []).forEach(function(f) { $grid.append(buildColumnCell(f)); });
+
+		return $section.append($header).append($grid);
+	};
+
+	var refreshSection = function(section) {
+		var $section = $(section);
+		var $cbs = $section.find('input.cerb-columns-cb');
 		var n = 0;
 		$cbs.each(function() {
 			$(this).closest('.cerb-columns-cell').toggleClass('is-selected', this.checked);
 			if(this.checked) n++;
 		});
-		$columnsCount.text($cbs.length ? (n + ' / ' + $cbs.length) : '');
+		$section.find('[data-cerb-count]').text($cbs.length ? (n + ' / ' + $cbs.length) : '');
 		var allSel = $cbs.length && n === $cbs.length;
-		$columnsToggleAll.find('.cerb-icons').attr('class', 'cerb-icons ' + (allSel ? 'cerb-icon-checked' : 'cerb-icon-unchecked'));
-		$columnsToggleAll.attr('title', allSel ? 'Clear all' : 'Select all');
+		var $toggle = $section.find('[data-cerb-toggleall]');
+		$toggle.find('.cerb-icons').attr('class', 'cerb-icons ' + (allSel ? 'cerb-icon-checked' : 'cerb-icon-unchecked'));
+		$toggle.attr('title', allSel ? 'Clear all' : 'Select all');
 	};
 
-	var ensureColumnsSortable = function() {
-		if(!(window.CerbUI && CerbUI.Sortable)) return;
-		var inst = CerbUI.Sortable.from($columns.get(0));
-		if(inst) inst.refresh();
-		else new CerbUI.Sortable($columns.get(0), { grid: true, helper: 'clone' });
+	var renderColumns = function(grouped) {
+		$columnsRoot.empty();
+
+		if(!grouped || 'object' != typeof(grouped))
+			return;
+
+		$columnsRoot.append(buildColumnSection({
+			label: grouped.base_label || '{'common.fields'|devblocks_translate|capitalize}',
+			hint: '(drag to reorder)',
+			columns: grouped.base || []
+		}));
+
+		(grouped.fieldsets || []).forEach(function(fs) {
+			$columnsRoot.append(buildColumnSection({ fieldset: true, label: fs.name, columns: fs.columns || [] }));
+		});
+
+		$columnsRoot.find('[data-cerb-section]').each(function() { refreshSection(this); });
+
+		// Only base columns are drag-reorderable (their DOM order = the saved column order)
+		var baseGrid = $columnsRoot.find('[data-cerb-columns-base]').get(0);
+		if(baseGrid && window.CerbUI && CerbUI.Sortable)
+			new CerbUI.Sortable(baseGrid, { grid: true, helper: 'clone' });
 	};
 
-	$columns.on('change', 'input.cerb-columns-cb', refreshColumnsUI);
-
-	$columnsToggleAll.on('click', function(e) {
-		e.preventDefault();
-		e.stopPropagation();
-		var $cbs = $columns.find('input.cerb-columns-cb');
-		var target = !$cbs.toArray().every(function(cb) { return cb.checked; });
-		$cbs.prop('checked', target);
-		refreshColumnsUI();
+	// Each section owns its count + select-all/clear toggle
+	$columnsRoot.on('change', 'input.cerb-columns-cb', function() {
+		refreshSection($(this).closest('[data-cerb-section]').get(0));
 	});
 
-	refreshColumnsUI();
-	ensureColumnsSortable();
+	$columnsRoot.on('click', '[data-cerb-toggleall]', function(e) {
+		e.preventDefault(); // don't also collapse/expand the <details> summary
+		e.stopPropagation();
+		var section = $(this).closest('[data-cerb-section]').get(0);
+		var $cbs = $(section).find('input.cerb-columns-cb');
+		var target = !$cbs.toArray().every(function(cb) { return cb.checked; });
+		$cbs.prop('checked', target);
+		refreshSection(section);
+	});
+
+	renderColumns({$columns_json nofilter});
 
 	$select.on('change', function(e) {
 		var ctx = $select.val();
@@ -165,23 +211,14 @@ $(function() {
 		worklistSqs.forEach(function(sq) { sq.setContext(ctx); });
 
 		if(0 == ctx.length) {
-			$columns.empty();
-			refreshColumnsUI();
+			renderColumns(null);
 			return;
 		}
 
-		Devblocks.getSpinner().appendTo($columns.empty());
+		Devblocks.getSpinner().appendTo($columnsRoot.empty());
 
 		genericAjaxGet('', 'c=profiles&a=invoke&module=profile_tab&action=getContextColumnsJson&context=' + encodeURIComponent(ctx), function(json) {
-			$columns.empty();
-
-			if('object' == typeof(json) && json.length > 0) {
-				for(let idx in json)
-					$columns.append(buildColumnCell(json[idx]));
-			}
-
-			refreshColumnsUI();
-			ensureColumnsSortable();
+			renderColumns(json);
 		});
 	});
 });

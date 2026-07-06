@@ -80,18 +80,20 @@ class ProfileWidget_Worklist extends Extension_ProfileWidget {
 	function renderConfig(Model_ProfileWidget $model) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('widget', $model);
-		
+
 		$context_mfts = Extension_DevblocksContext::getAll(false, ['workspace']);
 		$tpl->assign('context_mfts', $context_mfts);
-		
+
 		$context = $model->extension_params['context'] ?? null;
 		$columns = $model->extension_params['columns'] ?? [];
-		
+
+		$grouped = ['base_label' => '', 'base' => [], 'fieldsets' => []];
+
 		if($context)
-			$columns = $this->_getContextColumns($context, $columns);
-			
-		$tpl->assign('columns', $columns);
-		
+			$grouped = self::getContextColumnsGrouped($context, $columns);
+
+		$tpl->assign('columns_json', json_encode($grouped));
+
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/worklist/config.tpl');
 	}
 	
@@ -109,54 +111,103 @@ class ProfileWidget_Worklist extends Extension_ProfileWidget {
 		return true;
 	}
 	
-	private function _getContextColumns($context, $columns_selected=[]) {
-		if(null == ($context_ext = Extension_DevblocksContext::get($context))) {
-			return json_encode(false);
-		}
-		
+	/**
+	 * Build the available columns for a record type, segregating any custom-field columns into their
+	 * custom fieldset. Returns `['base_label', 'base' => [...], 'fieldsets' => [['id','name','columns'],...]]`.
+	 * Every column posts to the flat `params[columns][]` list regardless of group — grouping is display-only.
+	 */
+	public static function getContextColumnsGrouped($context, $columns_selected=[]) {
+		$grouped = ['base_label' => '', 'base' => [], 'fieldsets' => []];
+
+		if(null == ($context_ext = Extension_DevblocksContext::get($context)))
+			return $grouped;
+
+		$grouped['base_label'] = $context_ext->manifest->name;
+
 		$view_class = $context_ext->getViewClass();
-		
-		if(null == ($view = new $view_class())) /* @var $view C4_AbstractView */
-			return json_encode(false);
-		
+
+		if(empty($view_class) || null == ($view = new $view_class())) /* @var $view C4_AbstractView */
+			return $grouped;
+
 		$view->setAutoPersist(false);
-		
-		$results = [];
-		
+
 		$columns_avail = $view->getColumnsAvailable();
-		
+
 		if(empty($columns_selected))
 			$columns_selected = $view->view_columns;
-		
+
+		// Map custom-field columns (token `cf_<id>`) to their fieldset so we can segregate them below
+		$custom_fields = DAO_CustomField::getByContext($context_ext->id, true, false);
+		$custom_fieldsets = DAO_CustomFieldset::getAll();
+
+		$fieldsets = [];
+
 		if(is_array($columns_avail))
 		foreach($columns_avail as $column) {
 			if(empty($column->db_label))
 				continue;
-			
-			$results[] = array(
+
+			$entry = [
 				'key' => $column->token,
 				'label' => mb_convert_case($column->db_label, MB_CASE_TITLE),
 				'type' => $column->type,
 				'is_selected' => in_array($column->token, $columns_selected),
-			);
+			];
+
+			$fieldset_id = 0;
+
+			if(DevblocksPlatform::strStartsWith($column->token, 'cf_')) {
+				$field_id = substr($column->token, 3);
+				$cfield = $custom_fields[$field_id] ?? null;
+
+				if($cfield && !empty($cfield->custom_fieldset_id) && isset($custom_fieldsets[$cfield->custom_fieldset_id]))
+					$fieldset_id = $cfield->custom_fieldset_id;
+			}
+
+			if($fieldset_id) {
+				if(!isset($fieldsets[$fieldset_id]))
+					$fieldsets[$fieldset_id] = [
+						'id' => $fieldset_id,
+						'name' => $custom_fieldsets[$fieldset_id]->name,
+						'columns' => [],
+					];
+
+				$fieldsets[$fieldset_id]['columns'][] = $entry;
+
+			} else {
+				$grouped['base'][] = $entry;
+			}
 		}
-		
-		usort($results, function($a, $b) use ($columns_selected) {
+
+		// Selected-first (in saved order), then alphabetical — applied per group
+		self::_sortContextColumns($grouped['base'], $columns_selected);
+
+		foreach($fieldsets as &$fieldset)
+			self::_sortContextColumns($fieldset['columns'], $columns_selected);
+		unset($fieldset);
+
+		// Stable group order by fieldset name
+		usort($fieldsets, fn($a, $b) => strcmp($a['name'], $b['name']));
+
+		$grouped['fieldsets'] = array_values($fieldsets);
+
+		return $grouped;
+	}
+
+	private static function _sortContextColumns(array &$columns, array $columns_selected) : void {
+		usort($columns, function($a, $b) use ($columns_selected) {
 			if($a['is_selected'] == $b['is_selected']) {
 				if($a['is_selected']) {
 					$a_idx = array_search($a['key'], $columns_selected);
 					$b_idx = array_search($b['key'], $columns_selected);
 					return $a_idx < $b_idx ? -1 : 1;
-					
+
 				} else {
-					return $a['label'] < $b['label'] ? -1 : 1;
+					return strcmp($a['label'], $b['label']);
 				}
-				
-			} else {
-				return $a['is_selected'] ? -1 : 1;
 			}
+
+			return $a['is_selected'] ? -1 : 1;
 		});
-		
-		return $results;
 	}
 }
