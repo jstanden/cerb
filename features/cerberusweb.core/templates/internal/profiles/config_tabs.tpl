@@ -61,9 +61,7 @@ $(function() {
 		.on('cerb-peek-deleted', function(e) {
 			e.stopPropagation();
 			$(this).closest('tbody.cerb-sort-item').remove();
-
-			let $tabs = $('#{$tabset_id}');
-			$tabs.tabs('option', 'active', -1);
+			// The strip reflects the removal on Save → reload
 		})
 		;
 	
@@ -109,9 +107,9 @@ $(function() {
 			$('<td/>').appendTo($tr);
 
 			$sortable.append($sort_item);
-			$sortable.sortable('refresh');
+			if(window.CerbUI && CerbUI.Sortable) CerbUI.Sortable.from($sortable.get(0))?.refresh();
 
-			// Add a new tab
+			// Add the new tab to the strip optimistically (Save → reload rebuilds it authoritatively)
 			let $tabs = $('#{$tabset_id}');
 			let $this = $(this);
 
@@ -120,25 +118,23 @@ $(function() {
 
 			$new_tab.insertBefore($tabs.find('.ui-tabs-nav > li:last'));
 
-			$tabs.tabs('refresh');
+			// Insert before the trailing config-gear tab, then let CerbUI.Tabs pick it up
+			$new_tab.insertBefore($tabs.children('li:last'));
+			window.CerbUI?.Tabs?.from($tabs[0])?.sync();
 
-			$this.effect('transfer', { to:$new_tab, className:'effects-transfer' }, 500, function() { });
-
-			$tabs.tabs('option', 'active', -1);
+			if(window.CerbUI && CerbUI.effects)
+				CerbUI.effects.transfer($this[0], $new_tab[0], {});
 		})
 		;
 	
 	// Sortable
 	
-	$sortable
-	.sortable({
-		tolerance: 'pointer',
-		helper: 'clone',
-		handle: '.cerb-icon-menu-hamburger',
-		items: '.cerb-sort-item',
-		opacity: 0.7
-	})
-	;
+	if(window.CerbUI && CerbUI.Sortable)
+		new CerbUI.Sortable($sortable.get(0), {
+			helper: 'clone',
+			handle: '.cerb-icon-menu-hamburger',
+			items: '.cerb-sort-item'
+		});
 	
 	// Submit
 	

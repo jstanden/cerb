@@ -13,23 +13,34 @@
 </div>
 {/if}
 
-{if $context_ext->hasOption('avatars')}
 <div style="float:left;margin-right:10px;">
-	<img src="{devblocks_url}c=avatars&context={$page_record_uri}&context_id={$page_context_id}{/devblocks_url}?v={$dict->updated_at|default:$dict->updated|default:$dict->updated_date}" style="height:75px;width:75px;border-radius:5px;">
+
+	<span data-cerb-profile-avatar
+		class="cerb-ui-avatar cerb-ui-avatar--tile"
+		data-avatar="{$dict->_label|escape}"
+		{* data-avatar-seed="{$page_context}:{$page_context_id}" *}
+	  	data-avatar-color="var(--cerb-color-background-contrast-180)"
+		data-avatar-size="75"
+		{if $context_ext->hasOption('avatars')}data-avatar-image="{devblocks_url}c=avatars&context={$page_record_uri}&context_id={$page_context_id}{/devblocks_url}?v={$dict->updated_at|default:$dict->updated|default:$dict->updated_date}"{else}data-avatar-icon="{$context_ext->getIcon()}"{/if}
+	></span>
 </div>
-{/if}
+
+<div class="cerb-ui-header cerb-ui-header--tight">
+	<div>
+		<div class="cerb-ui-header--subtitle">{$context_ext->manifest->name}</div>
+		<div class="cerb-ui-header--title">{$dict->_label}</div>
+	</div>
+</div>
 
 <div id="profileToolbar" style="float:left;">
-	<h1 style="font-size:2em;">{$dict->_label}</h1>
-	
 	<div class="cerb-profile-toolbar cerb-no-print">
 		<form class="toolbar" action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:5px;">
 			<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
-			
+
 			{if !is_array($toolbar_profile) || !array_key_exists('card', $toolbar_profile)}
 				<button type="button" id="btnProfileCard" title="{'common.card'|devblocks_translate|capitalize}{if $pref_keyboard_shortcuts} (V){/if}" data-context="{$page_context}" data-context-id="{$page_context_id}"><span class="cerb-icons cerb-icon-id-card"></span> {'common.card'|devblocks_translate|capitalize}</button>
 			{/if}
-			
+
 			{if !is_array($toolbar_profile) || !array_key_exists('edit', $toolbar_profile)}
 				{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
 				<button type="button" id="btnProfileCardEdit" title="{'common.edit'|devblocks_translate|capitalize}{if $pref_keyboard_shortcuts} (E){/if}" class="cerb-peek-trigger" data-context="{$page_context}" data-context-id="{$page_context_id}" data-width="75%" data-edit="true"><span class="cerb-icons cerb-icon-gear"></span> {'common.edit'|devblocks_translate|capitalize}</button>
@@ -43,7 +54,7 @@
 				</button>
 				{/if}
 			{/if}
-			
+
 			{if !is_array($toolbar_profile) || !array_key_exists('watchers', $toolbar_profile)}
 				{if $context_ext->hasOption('watchers')}
 					<span id="spanProfileWatchers" title="{'common.watchers'|devblocks_translate|capitalize}{if $pref_keyboard_shortcuts} (W){/if}">
@@ -60,21 +71,19 @@
 					</button>
 				{/if}
 			{/if}
-			
+
 			<div data-cerb-toolbar style="display:inline-block;">
 				{if $toolbar_profile}
 				{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar_profile)}
 				{/if}
 			</div>
-			
+
 			{if !is_array($toolbar_profile) || !array_key_exists('refresh', $toolbar_profile)}
 				<button data-cerb-button-refresh type="button" title="{'common.refresh'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-refresh"></span></button>
 			{/if}
-			
+
 			{if $active_worker->is_superuser}
-				<div data-cerb-toolbar-setup style="display:inline-block;vertical-align:middle;">
-					<a data-context="{CerberusContexts::CONTEXT_TOOLBAR}" data-context-id="record.profile" data-edit="true"><span class="cerb-icons cerb-icon-gear" style="color:lightgray;"></span></a>
-				</div>
+				<button type="button" data-cerb-toolbar-setup class="cerb-ui-toolbar-config-button" title="{'common.configure'|devblocks_translate|capitalize}" data-context="{CerberusContexts::CONTEXT_TOOLBAR}" data-context-id="record.profile" data-edit="true"><span class="cerb-icons cerb-icon-gear"></span></button>
 			{/if}
 		</form>
 	</div>
@@ -92,42 +101,51 @@
 </div>
 {/if}
 
-<div style="clear:both;" id="{$tabset_id}">
-	<ul>
+<div style="clear:both;">
+	<ul id="{$tabset_id}">
 		{$tabs = []}
-		
+
 		{$profile_tabs = DAO_ProfileTab::getByContext($page_context)}
 
 		{foreach from=$profile_tabs item=profile_tab}
 			{if !$profile_tab->isHidden($profile_dict)}
 				{$tabs[] = "{$profile_tab->name|lower|devblocks_permalink}"}
-				<li><a href="{devblocks_url}ajax.php?c=profiles&a=renderTab&tab_id={$profile_tab->id}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}" draggable="false">{$profile_tab->name}</a></li>
+				<li><a href="c=profiles&a=renderTab&tab_id={$profile_tab->id}&context={$page_context}&context_id={$page_context_id}" draggable="false">{$profile_tab->name}</a></li>
 			{/if}
 		{/foreach}
-		
+
 		{if $active_worker->is_superuser}
-		<li class="cerb-no-print"><a href="{devblocks_url}ajax.php?c=profiles&a=configTabs&context={$page_context}{/devblocks_url}">&nbsp;<span class="cerb-icons cerb-icon-gear"></span>&nbsp;</a></li>
+		<li class="cerb-no-print"><a href="c=profiles&a=configTabs&context={$page_context}&context_id={$page_context_id}">&nbsp;<span class="cerb-icons cerb-icon-gear"></span>&nbsp;</a></li>
 		{/if}
 	</ul>
-</div> 
+</div>
 <br>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
-	
-	{if $tab_selected && in_array($tab_selected, $tabs)}
-	{$tab_idx = array_search($tab_selected, $tabs)}
-	tabOptions.active = {$tab_idx};
-	Devblocks.setjQueryUiTabSelected('{$tabset_id}', {$tab_idx});
-	{else}
-	tabOptions.active = Devblocks.getjQueryUiTabSelected('{$tabset_id}');
-	{/if}
-	
+	// Profile header avatar
+	if(window.CerbUI && CerbUI.Avatar) {
+		CerbUI.Avatar.enhance(document, '[data-cerb-profile-avatar]');
+	}
+
 	// Tabs
-	var $tabs = $("#{$tabset_id}").tabs(tabOptions);
-	var $profile_tab = $tabs.find('.ui-tabs-panel[aria-hidden=false]');
-	
+	const profileTabsUl = document.getElementById('{$tabset_id}');
+	let cerbProfileTabs = null;
+
+	if(profileTabsUl && window.CerbUI && CerbUI.Tabs) {
+		let active; // undefined → use the remembered index / 0
+		{if $tab_selected && in_array($tab_selected, $tabs)}
+		active = {array_search($tab_selected, $tabs)};
+		{/if}
+
+		cerbProfileTabs = new CerbUI.Tabs(profileTabsUl, { remember: '{$tabset_id}', active: active });
+	}
+
+	// The active panel can change after init, and dynamic content loads async — look it up live
+	const getProfileActivePanel = function() {
+		return (cerbProfileTabs && cerbProfileTabs.activeTab) ? $(cerbProfileTabs.activeTab.panel) : $();
+	};
+
 	// Set the browser tab label to the record label
 	document.title = "{$dict->_label|escape:'javascript' nofilter} - {$settings->get('cerberusweb.core','helpdesk_title')|escape:'javascript' nofilter}";
 	
@@ -135,6 +153,7 @@ $(function() {
         e.stopPropagation();
 
         var $target = e.trigger;
+        var $profile_tab = getProfileActivePanel();
 
         if(!$target.is('.cerb-bot-trigger'))
             return;
@@ -210,7 +229,7 @@ $(function() {
 			e.stopPropagation();
 
 			if(e.id && e.hasOwnProperty('comment_html') && e.comment_html) {
-				var $tab_content = $('#' + $tabs.find('li.ui-tabs-active').attr('aria-controls'));
+				var $tab_content = getProfileActivePanel();
 				var $widgets = $tab_content.find('div.cerb-profile-widget');
 				
 				var event_new_comment = $.Event('cerb_profile_comment_created');
@@ -257,7 +276,10 @@ $(function() {
         });
     });
 
-	$toolbar.cerbToolbar({
+	let buildProfileToolbar = function() {
+	let profile_toolbar_ul = $toolbar.find('ul.cerb-ui-toolbar')[0];
+	if(!profile_toolbar_ul || !(window.CerbUI && CerbUI.Toolbar)) return;
+	new CerbUI.Toolbar(profile_toolbar_ul, {
 		caller: {
 			name: 'cerb.toolbar.record.profile',
 			params: {
@@ -269,10 +291,13 @@ $(function() {
 		},
 		done: doneFunc
 	});
+	};
+	$toolbar.on('cerb-toolbar--refreshed', buildProfileToolbar);
+	buildProfileToolbar();
 	
 	var $toolbar_setup = $profile_toolbar.find('[data-cerb-toolbar-setup]');
-	
-	$toolbar_setup.find('a')
+
+	$toolbar_setup
 		.cerbPeekTrigger()
 		.on('cerb-peek-saved', function() {
 			genericAjaxGet('', 'c=profiles&a=renderToolbar&record_type={$dict->_context}&record_id={$dict->id}&toolbar=record.profile', function(html) {
@@ -291,8 +316,8 @@ $(function() {
 $(function() {
 	var $document = $(document);
 	var $body = $document.find('body');
-	var $tabs = $("#{$tabset_id}").tabs();
-	
+	const cerbProfileTabs = (window.CerbUI && CerbUI.Tabs) ? CerbUI.Tabs.from(document.getElementById('{$tabset_id}')) : null;
+
 	$body.bind('keypress', 'E', function(e) {
 		e.preventDefault();
 		e.stopPropagation();
@@ -333,15 +358,15 @@ $(function() {
 		
 		try {
 			var idx = event.which-49;
-			$tabs.tabs('option', 'active', idx);
+			if(cerbProfileTabs) cerbProfileTabs.select(idx);
 		} catch(ex) { }
 	});
-	
+
 	$document.bind('keydown', function(e) {
 		if($(e.target).is(':input'))
 			return;
-		
-		var $tab_content = $('#' + $tabs.find('li.ui-tabs-active').attr('aria-controls'));
+
+		var $tab_content = (cerbProfileTabs && cerbProfileTabs.activeTab) ? $(cerbProfileTabs.activeTab.panel) : $();
 		var $widgets = $tab_content.find('div.cerb-profile-widget');
 		
 		$widgets.each(function() {
