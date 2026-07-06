@@ -145,7 +145,32 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::services()->database();
 		return $db->GetOneReader(sprintf("SELECT content FROM kb_article WHERE id = %d", $id));
 	}
-	
+
+	static function autocomplete($term, $as='models') {
+		$db = DevblocksPlatform::services()->database();
+		$objects = [];
+
+		$results = $db->GetArrayReader(sprintf("SELECT id ".
+			"FROM kb_article ".
+			"WHERE title LIKE %s ".
+			"ORDER BY title ASC ".
+			"LIMIT 25 ",
+			$db->qstr($term.'%')
+		));
+
+		if(is_array($results))
+			foreach($results as $row)
+				$objects[$row['id']] = null;
+
+		switch($as) {
+			case 'ids':
+				return array_keys($objects);
+
+			default:
+				return DAO_KbArticle::getIds(array_keys($objects));
+		}
+	}
+
 	/**
 	 *
 	 * @param mysqli_result|false $rs
@@ -838,7 +863,7 @@ class Model_KbArticle extends DevblocksRecordModel {
 	}
 };
 
-class Context_KbArticle extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
+class Context_KbArticle extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
 	const ID = 'cerberusweb.contexts.kb_article';
 	const URI = 'kb_article';
 	
@@ -906,6 +931,22 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 		return $properties;
 	}
 	
+	function autocomplete($term, $query=null) {
+		$list = [];
+
+		$results = DAO_KbArticle::autocomplete($term);
+
+		if(is_array($results))
+			foreach($results as $id => $model) {
+				$entry = new stdClass();
+				$entry->label = $model->title;
+				$entry->value = sprintf("%d", $id);
+				$list[] = $entry;
+			}
+
+		return $list;
+	}
+
 	function getMeta($context_id) {
 		if(null == ($article = DAO_KbArticle::get($context_id)))
 			return [];
