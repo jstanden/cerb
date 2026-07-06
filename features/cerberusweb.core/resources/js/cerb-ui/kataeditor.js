@@ -563,9 +563,13 @@ CerbUI.KataEditor = class {
 		// Undo/redo reverts text — the user isn't authoring, so don't pop suggestions (but still re-render above).
 		const it = e && e.inputType;
 		if(it === 'historyUndo' || it === 'historyRedo') return;
-		// Backspace/Delete shouldn't pop suggestions either (esp. when deleting indentation whitespace) — re-render
-		// only. ⌘/Ctrl+Space still forces the menu, and typing a char re-suggests normally.
-		if(it === 'deleteContentBackward' || it === 'deleteContentForward') return;
+		// Backspace/Delete shouldn't *pop* a fresh menu (esp. when deleting indentation whitespace). But if a menu
+		// is already open, re-evaluate it at the new caret — schedule()→trigger() recomputes items and auto-closes
+		// when nothing matches, so a stale suggestion can't linger. ⌘/Ctrl+Space still forces the menu.
+		if(it === 'deleteContentBackward' || it === 'deleteContentForward') {
+			if(this._ac.isOpen()) this._ac.schedule();
+			return;
+		}
 		// Pasting a multi-line block isn't authoring a token — don't pop suggestions at the end of it.
 		if(it === 'insertFromPaste' && this._pasteIsBlock) { this._pasteIsBlock = false; return; }
 		// Otherwise always schedule — KataScript autocomplete is built in even without a KATA `onAutocomplete`
