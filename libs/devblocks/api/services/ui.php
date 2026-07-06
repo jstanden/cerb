@@ -690,11 +690,27 @@ class DevblocksUiMap {
 		}
 		
 		$tpl->assign('widget', $widget);
-		
+
+		// Build the mapClicked round-trip descriptor from the widget type (was inline is_a() branches in the
+		// template). CerbUI.Map POSTs c/a/widget_id/action=mapClicked only when `enabled` and a widget is set.
+		$click = null;
+		if($widget instanceof Model_ProfileWidget) {
+			$click = [
+				'enabled' => !empty($widget->extension_params['automation']['map_clicked'] ?? null),
+				'c' => 'profiles', 'a' => 'invokeWidget', 'widget_id' => $widget->id,
+			];
+		} elseif($widget instanceof Model_WorkspaceWidget) {
+			$click = [
+				'enabled' => !empty($widget->params['automation']['map_clicked'] ?? null),
+				'c' => 'pages', 'a' => 'invokeWidget', 'widget_id' => $widget->id,
+			];
+		}
+		$tpl->assign('click_json', $click ? json_encode($click) : null);
+
 		if($map) {
 			$tpl->assign('map', $map);
 			$tpl->display('devblocks:cerberusweb.core::internal/widgets/map/geopoints/render_regions.tpl');
-		}		
+		}
 	}
 }
 

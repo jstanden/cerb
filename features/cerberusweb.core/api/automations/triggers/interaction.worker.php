@@ -697,7 +697,6 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 				
 				'(.*):await:form:elements:map:projection:type:' => [
 					'mercator',
-					'naturalEarth',
 					'albersUsa',
 				],
 				

@@ -1036,6 +1036,7 @@ if(!array_key_exists('queue_depth', $indexes)) {
 // Update built-in automations
 
 $automation_files = [
+	'ai.cerb.editor.mapBuilder.json',
 	'ai.cerb.toolbarBuilder.interaction.json',
 	'ai.cerb.toolbarBuilder.menu.json',
 	'cerb.reply.isBannedDefunct.json',
