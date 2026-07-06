@@ -1,19 +1,15 @@
-<div id="widget{$widget->id}Config" style="margin-top:10px;">
-	<fieldset id="widget{$widget->id}Editor" class="peek">
-		<legend>Render this template:</legend>
-		
-		<textarea name="params[template]" data-editor-mode="ace/mode/twig" class="placeholders" style="width:95%;height:50px;">{$widget->extension_params.template}</textarea>
-	</fieldset>
+<div id="widget{$widget->id}Config" class="cerb-u-mt-3">
+	<div class="cerb-ui-panel cerb-ui-panel--spaced">
+		<div class="cerb-ui-header cerb-ui-header--tight">
+			<div class="cerb-ui-header--title-sm">Render this template:</div>
+		</div>
+
+		<textarea id="widget{$widget->id}TemplateEditor" name="params[template]" data-editor-lines="8" spellcheck="false">{$widget->extension_params.template}</textarea>
+	</div>
 </div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $fieldset = $('fieldset#widget{$widget->id}Editor');
-	var $textarea = $fieldset.find('textarea[name="params[template]"]');
-	
-	var $editor = $textarea
-		.cerbCodeEditor()
-		.nextAll('pre.ace_editor')
-		;
+	new CerbUI.ScriptingEditor(document.getElementById('widget{$widget->id}TemplateEditor'), { minLines: 4 });
 });
 </script>

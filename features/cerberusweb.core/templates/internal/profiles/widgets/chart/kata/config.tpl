@@ -10,26 +10,12 @@
 				<li data-icon="play" data-value="test" title="Test datasets"></li>
 			</ul>
 
-			<div class="cerb-ui-kataeditor" id="widget{$widget->id}DatasetsEditor">
-				<div class="cerb-ui-kataeditor--gutter" aria-hidden="true"></div>
-				<div class="cerb-ui-kataeditor--field">
-					<div class="cerb-ui-kataeditor--highlight" aria-hidden="true"></div>
-					<textarea class="cerb-ui-kataeditor--input" name="params[datasets_kata]" data-editor-lines="8" spellcheck="false">{$widget->extension_params.datasets_kata}</textarea>
-					<span class="cerb-ui-kataeditor--caret-anchor"></span>
-				</div>
-			</div>
+			<textarea id="widget{$widget->id}DatasetsEditor" name="params[datasets_kata]" data-editor-lines="8" spellcheck="false">{$widget->extension_params.datasets_kata}</textarea>
 		</div>
 
 		<div class="cerb-ui-form--field">
 			<label class="cerb-ui-form--label">Simulate placeholders: (KATA)</label>
-			<div class="cerb-ui-kataeditor" id="widget{$widget->id}SimulatorEditor">
-				<div class="cerb-ui-kataeditor--gutter" aria-hidden="true"></div>
-				<div class="cerb-ui-kataeditor--field">
-					<div class="cerb-ui-kataeditor--highlight" aria-hidden="true"></div>
-					<textarea class="cerb-ui-kataeditor--input" name="params[placeholder_simulator_kata]" data-editor-lines="4" spellcheck="false">{$widget->extension_params.placeholder_simulator_kata}</textarea>
-					<span class="cerb-ui-kataeditor--caret-anchor"></span>
-				</div>
-			</div>
+			<textarea id="widget{$widget->id}SimulatorEditor" name="params[placeholder_simulator_kata]" data-editor-lines="4" spellcheck="false">{$widget->extension_params.placeholder_simulator_kata}</textarea>
 		</div>
 
 		<div class="cerb-ui-panel" style="display:none;" data-cerb-results-datasets>
@@ -39,14 +25,7 @@
 					<button type="button" class="cerb-ui-button cerb-ui-button--transparent" data-cerb-results-close><span class="cerb-icons cerb-icon-circle-remove"></span></button>
 				</div>
 			</div>
-			<div class="cerb-ui-jsoneditor" id="widget{$widget->id}ResultsEditor">
-				<div class="cerb-ui-jsoneditor--gutter" aria-hidden="true"></div>
-				<div class="cerb-ui-jsoneditor--field">
-					<div class="cerb-ui-jsoneditor--highlight" aria-hidden="true"></div>
-					<textarea class="cerb-ui-jsoneditor--input" data-editor-lines="15" spellcheck="false"></textarea>
-					<span class="cerb-ui-jsoneditor--caret-anchor"></span>
-				</div>
-			</div>
+			<textarea id="widget{$widget->id}ResultsEditor" data-editor-lines="15" spellcheck="false"></textarea>
 		</div>
 	</div>
 
@@ -61,14 +40,7 @@
 				<li data-icon="play" data-value="test" title="Test chart"></li>
 			</ul>
 
-			<div class="cerb-ui-kataeditor" id="widget{$widget->id}ChartEditor">
-				<div class="cerb-ui-kataeditor--gutter" aria-hidden="true"></div>
-				<div class="cerb-ui-kataeditor--field">
-					<div class="cerb-ui-kataeditor--highlight" aria-hidden="true"></div>
-					<textarea class="cerb-ui-kataeditor--input" name="params[chart_kata]" data-editor-lines="10" spellcheck="false">{$widget->extension_params.chart_kata}</textarea>
-					<span class="cerb-ui-kataeditor--caret-anchor"></span>
-				</div>
-			</div>
+			<textarea id="widget{$widget->id}ChartEditor" name="params[chart_kata]" data-editor-lines="10" spellcheck="false">{$widget->extension_params.chart_kata}</textarea>
 		</div>
 
 		<div class="cerb-ui-panel" style="display:none;" data-cerb-results-chart-wrap>

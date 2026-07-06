@@ -122,7 +122,10 @@ $(function() {
 
 	// Toolbars
 
-	$sheet_toolbar.cerbToolbar({
+	let buildSheetToolbar = function() {
+	let sheet_toolbar_ul = $sheet_toolbar.find('ul.cerb-ui-toolbar')[0];
+	if(!sheet_toolbar_ul || !(window.CerbUI && CerbUI.Toolbar)) return;
+	new CerbUI.Toolbar(sheet_toolbar_ul, {
 		caller: {
 			name: 'cerb.toolbar.profileWidget.sheet',
 			params: {
@@ -141,9 +144,13 @@ $(function() {
 		},
 		done: doneFunc
 	});
+	};
+	$sheet_toolbar.on('cerb-toolbar--refreshed', buildSheetToolbar);
+	buildSheetToolbar();
 
-	$sheet.find('[data-cerb-sheet-column-toolbar]').cerbToolbar({
-		interaction_class: 'cerb-sheet-toolbar--interaction',
+	$sheet.find('[data-cerb-sheet-column-toolbar] ul.cerb-ui-toolbar').each(function() {
+	if(!(window.CerbUI && CerbUI.Toolbar)) return;
+	new CerbUI.Toolbar(this, {
 		caller: {
 			name: 'cerb.toolbar.profileWidget.sheet.column',
 			params: {
@@ -161,6 +168,7 @@ $(function() {
 			}
 		},
 		done: doneFunc,
+	});
 	});
 
 	// Keyboard shortcuts

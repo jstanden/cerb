@@ -1,14 +1,14 @@
 {if $active_worker->is_superuser}
-<div style="margin-bottom:5px;" class="cerb-no-print">
-	<button id="btnProfileTabAddWidget{$model->id}" type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_PROFILE_WIDGET}" data-context-id="0" data-edit="tab:{$model->id}" data-width="75%"><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.add.widget'|devblocks_translate|capitalize}</button>
-	<button id="btnProfileTabEdit{$model->id}" type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_PROFILE_TAB}" data-context-id="{$model->id}" data-edit="true" data-width="75%"><span class="cerb-icons cerb-icon-edit"></span> Edit Tab</button>
-	<button id="btnProfileTabToggleWidgets{$model->id}" type="button" style="display:none;"><div class="badge-count">0</div> Hidden Widgets</button>
+<div class="cerb-ui-toolbar-strip cerb-no-print" style="margin-bottom:5px;">
+	<button id="btnProfileTabAddWidget{$model->id}" type="button" class="cerb-peek-trigger cerb-ui-toolbar-button" data-context="{CerberusContexts::CONTEXT_PROFILE_WIDGET}" data-context-id="0" data-edit="tab:{$model->id}" data-width="75%"><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.add.widget'|devblocks_translate|capitalize}</button>
+	<button id="btnProfileTabEdit{$model->id}" type="button" class="cerb-peek-trigger cerb-ui-toolbar-button" data-context="{CerberusContexts::CONTEXT_PROFILE_TAB}" data-context-id="{$model->id}" data-edit="true" data-width="75%"><span class="cerb-icons cerb-icon-edit"></span> Edit Tab</button>
+	<button id="btnProfileTabToggleWidgets{$model->id}" type="button" class="cerb-ui-toolbar-button" style="display:none;" aria-pressed="false" title="Hidden widgets"><span class="cerb-icons cerb-icon-eye-close"></span> Hidden Widgets <span class="cerb-ui-toolbar--badge cerb-ui-toolbar--badge-neutral badge-count">0</span></button>
 </div>
 {/if}
 
 {if 'sidebar_left' == $layout}
 	<div id="profileTab{$model->id}" class="cerb-profile-layout cerb-profile-layout--sidebar-left" style="vertical-align:top;display:flex;flex-flow:row wrap;">
-		<div data-layout-zone="sidebar" class="cerb-profile-layout-zone" style="flex:1 1 33%;min-width:345px;overflow-x:hidden;">
+		<div data-layout-zone="sidebar" class="cerb-profile-layout-zone" style="flex:1 1 33%;min-width:345px;overflow-x:clip;">
 			<div class="cerb-profile-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 			{foreach from=$zones.sidebar item=widget name=widgets}
 				{include file="devblocks:cerberusweb.core::internal/profiles/widgets/render.tpl" widget=$widget}
@@ -16,7 +16,7 @@
 			</div>
 		</div>
 		
-		<div data-layout-zone="content" class="cerb-profile-layout-zone" style="flex:2 2 66%;min-width:345px;overflow-x:hidden;">
+		<div data-layout-zone="content" class="cerb-profile-layout-zone" style="flex:2 2 66%;min-width:345px;overflow-x:clip;">
 			<div class="cerb-profile-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 			{foreach from=$zones.content item=widget name=widgets}
 				{include file="devblocks:cerberusweb.core::internal/profiles/widgets/render.tpl" widget=$widget}
@@ -26,7 +26,7 @@
 	</div>
 {elseif 'sidebar_right' == $layout}
 	<div id="profileTab{$model->id}" class="cerb-profile-layout cerb-profile-layout--sidebar-right" style="vertical-align:top;display:flex;flex-flow:row wrap;">
-		<div data-layout-zone="content" class="cerb-profile-layout-zone cerb-profile-layout-zone--content" style="flex:2 2 66%;min-width:345px;overflow-x:hidden;">
+		<div data-layout-zone="content" class="cerb-profile-layout-zone cerb-profile-layout-zone--content" style="flex:2 2 66%;min-width:345px;overflow-x:clip;">
 			<div class="cerb-profile-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 			{foreach from=$zones.content item=widget name=widgets}
 				{include file="devblocks:cerberusweb.core::internal/profiles/widgets/render.tpl" widget=$widget}
@@ -34,7 +34,7 @@
 			</div>
 		</div>
 		
-		<div data-layout-zone="sidebar" class="cerb-profile-layout-zone cerb-profile-layout-zone--sidebar" style="flex:1 1 33%;min-width:345px;overflow-x:hidden;">
+		<div data-layout-zone="sidebar" class="cerb-profile-layout-zone cerb-profile-layout-zone--sidebar" style="flex:1 1 33%;min-width:345px;overflow-x:clip;">
 			<div class="cerb-profile-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 			{foreach from=$zones.sidebar item=widget name=widgets}
 				{include file="devblocks:cerberusweb.core::internal/profiles/widgets/render.tpl" widget=$widget}
@@ -44,7 +44,7 @@
 	</div>
 {elseif 'halves' == $layout}
 	<div id="profileTab{$model->id}" class="cerb-workspace-layout cerb-profile-layout--halves" style="vertical-align:top;display:flex;flex-flow:row wrap;">
-		<div data-layout-zone="left" class="cerb-profile-layout-zone cerb-profile-layout-zone--left" style="flex:1 1 50%;min-width:345px;overflow-x:hidden;">
+		<div data-layout-zone="left" class="cerb-profile-layout-zone cerb-profile-layout-zone--left" style="flex:1 1 50%;min-width:345px;overflow-x:clip;">
 			<div class="cerb-profile-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 				{foreach from=$zones.left item=widget name=widgets}
 					{include file="devblocks:cerberusweb.core::internal/profiles/widgets/render.tpl" widget=$widget}
@@ -52,7 +52,7 @@
 			</div>
 		</div>
 
-		<div data-layout-zone="right" class="cerb-profile-layout-zone cerb-profile-layout-zone--right" style="flex:1 1 50%;min-width:345px;overflow-x:hidden;">
+		<div data-layout-zone="right" class="cerb-profile-layout-zone cerb-profile-layout-zone--right" style="flex:1 1 50%;min-width:345px;overflow-x:clip;">
 			<div class="cerb-profile-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 				{foreach from=$zones.right item=widget name=widgets}
 					{include file="devblocks:cerberusweb.core::internal/profiles/widgets/render.tpl" widget=$widget}
@@ -62,7 +62,7 @@
 	</div>
 {elseif 'thirds' == $layout}
 	<div id="profileTab{$model->id}" class="cerb-profile-layout cerb-profile-layout--thirds" style="vertical-align:top;display:flex;flex-flow:row wrap;">
-		<div data-layout-zone="left" class="cerb-profile-layout-zone cerb-profile-layout-zone--left" style="flex:1 1 33%;min-width:345px;overflow-x:hidden;">
+		<div data-layout-zone="left" class="cerb-profile-layout-zone cerb-profile-layout-zone--left" style="flex:1 1 33%;min-width:345px;overflow-x:clip;">
 			<div class="cerb-profile-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 				{foreach from=$zones.left item=widget name=widgets}
 					{include file="devblocks:cerberusweb.core::internal/profiles/widgets/render.tpl" widget=$widget}
@@ -70,7 +70,7 @@
 			</div>
 		</div>
 
-		<div data-layout-zone="center" class="cerb-profile-layout-zone cerb-profile-layout-zone--center" style="flex:1 1 33%;min-width:345px;overflow-x:hidden;">
+		<div data-layout-zone="center" class="cerb-profile-layout-zone cerb-profile-layout-zone--center" style="flex:1 1 33%;min-width:345px;overflow-x:clip;">
 			<div class="cerb-profile-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 				{foreach from=$zones.center item=widget name=widgets}
 					{include file="devblocks:cerberusweb.core::internal/profiles/widgets/render.tpl" widget=$widget}
@@ -78,7 +78,7 @@
 			</div>
 		</div>
 
-		<div data-layout-zone="right" class="cerb-profile-layout-zone cerb-profile-layout-zone--right" style="flex:1 1 33%;min-width:345px;overflow-x:hidden;">
+		<div data-layout-zone="right" class="cerb-profile-layout-zone cerb-profile-layout-zone--right" style="flex:1 1 33%;min-width:345px;overflow-x:clip;">
 			<div class="cerb-profile-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 				{foreach from=$zones.right item=widget name=widgets}
 					{include file="devblocks:cerberusweb.core::internal/profiles/widgets/render.tpl" widget=$widget}
@@ -88,7 +88,7 @@
 	</div>
 {else}
 	<div id="profileTab{$model->id}" class="cerb-profile-layout cerb-profile-layout--content" style="vertical-align:top;display:flex;flex-flow:row wrap;">
-		<div data-layout-zone="content" class="cerb-profile-layout-zone" style="flex:1 1 100%;overflow-x:hidden;">
+		<div data-layout-zone="content" class="cerb-profile-layout-zone" style="flex:1 1 100%;overflow-x:clip;">
 			<div class="cerb-profile-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 			{foreach from=$zones.content item=widget name=widgets}
 				{include file="devblocks:cerberusweb.core::internal/profiles/widgets/render.tpl" widget=$widget}
@@ -101,53 +101,43 @@
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $container = $('#profileTab{$model->id}');
-	let $tabs = $container.closest('.ui-tabs');
+	let cerbTabs = window.CerbUI?.Tabs?.fromPanel($container[0]);
 	var $add_button = $('#btnProfileTabAddWidget{$model->id}');
 	var $edit_button = $('#btnProfileTabEdit{$model->id}');
 	var $toggle_widgets_button = $('#btnProfileTabToggleWidgets{$model->id}');
 
 	// Drag
 	{if $active_worker->is_superuser}
-	$container.find('.cerb-profile-layout-zone--widgets')
-		.sortable({
-			tolerance: 'pointer',
-			cursorAt: { top: 5, left: 5 },
-			items: '.cerb-profile-widget',
-			helper: function(event, element) {
-				return element.clone()
-					.css('outline','2px dashed gray')
-					.css('outline-offset','-2px')
-					.css('background-color', 'var(--cerb-color-background)')
-					;
-			},
-			placeholder: 'cerb-widget-drag-placeholder',
-			forceHelperSize: true,
-			forcePlaceholderSize: true,
-			handle: '.cerb-profile-widget--header .cerb-icon-menu-hamburger',
-			connectWith: '.cerb-profile-layout-zone--widgets',
-			opacity: 0.7,
-			start: function(event, ui) {
-				ui.placeholder.css('flex', ui.item.css('flex'));
-				$container.find('.cerb-profile-layout-zone--widgets')
-					.css('outline', '2px dashed orange')
-					.css('outline-offset', '-3px')
-					.css('background-color', 'var(--cerb-color-background-contrast-250)')
-					.css('min-height', '100px')
-					;
-			},
-			stop: function(event, ui) {
-				$container.find('.cerb-profile-layout-zone--widgets')
-					.css('outline', '')
-					.css('outline-offset', '')
-					.css('background-color', '')
-					.css('min-height', 'initial')
-					;
-			},
-			update: function(event, ui) {
-				$container.trigger('cerb-reorder');
-			}
-		})
-		;
+	$container.find('.cerb-profile-layout-zone--widgets').each(function() {
+		if(window.CerbUI && CerbUI.Sortable)
+			new CerbUI.Sortable(this, {
+				tolerance: 'pointer',
+				items: '.cerb-profile-widget',
+				handle: '.cerb-profile-widget--header .cerb-icon-menu-hamburger',
+				connectWith: '.cerb-profile-layout-zone--widgets',
+				helper: 'clone',
+				onStart: function() {
+					// Faint outline marks the drop areas (zones already carry a min-height so empty ones are
+					// droppable; the moving slot placeholder shows the actual drop spot).
+					$container.find('.cerb-profile-layout-zone--widgets')
+						.css('outline', '1px dashed var(--cerb-color-background-contrast-200)')
+						.css('outline-offset', '-2px')
+						;
+				},
+				onEnd: function() {
+					// Clears on commit AND cancel (snap-back)
+					$container.find('.cerb-profile-layout-zone--widgets')
+						.css('outline', '')
+						.css('outline-offset', '')
+						;
+				}
+			});
+	});
+
+	// reorderWidgets posts the full zone→widget map; the bubbling sorted event fires once per drop
+	$container[0].addEventListener('cerb-ui-sortable:sorted', function() {
+		$container.trigger('cerb-reorder');
+	});
 	{/if}
 	
 	$container.on('cerb-reorder', function(e) {
@@ -205,7 +195,7 @@ $(function() {
 	});
 
 	var addEvents = function($target) {
-		var $menu = $target.find('.cerb-profile-widget--menu');
+		var menuEl = $target.find('.cerb-profile-widget--menu')[0];
 		var $menu_link = $target.find('.cerb-profile-widget--link');
 		var $handle = $target.find('.cerb-profile-widget--header .cerb-icon-menu-hamburger');
 
@@ -222,11 +212,10 @@ $(function() {
 		});
 		{/if}
 
-		$menu
-			.menu({
-				select: function(event, ui) {
-					var $li = $(ui.item);
-					$li.closest('ul').hide();
+		var menu = (menuEl && window.CerbUI && CerbUI.Menu) ? new CerbUI.Menu(menuEl, {
+				clickTrigger: $menu_link[0],
+				onSelect: function(li, src) {
+					var $li = $(src);
 					
 					var $widget = $li.closest('.cerb-profile-widget');
 					var widget_id = $widget.attr('data-widget-id');
@@ -255,13 +244,7 @@ $(function() {
 						genericAjaxPopup('export_widget', 'c=profiles&a=invoke&module=profile_widget&action=exportWidget&id=' + widget_id, null, false);
 					}
 				}
-			})
-			;
-		
-		$menu_link.on('click', function(e) {
-			e.stopPropagation();
-			$(this).closest('.cerb-profile-widget').find('.cerb-profile-widget--menu').toggle();
-		});
+			}) : null;
 		
 		return $target;
 	}
@@ -287,23 +270,48 @@ $(function() {
 	$edit_button
 		.cerbPeekTrigger()
 		.on('cerb-peek-saved', function(e) {
-			if(e.hasOwnProperty('label')) {
-				$tabs.tabs("instance").active.find('a').text(e.label);
+			if(e.hasOwnProperty('label') && cerbTabs && cerbTabs.activeTab) {
+				$(cerbTabs.activeTab.li).find('a').text(e.label);
 			}
-			
-			let tabId = $tabs.tabs("option", "active");
-			$tabs.tabs("load", tabId);
+
+			if(cerbTabs) cerbTabs.refresh();
 		})
 		.on('cerb-peek-deleted', function(e) {
-			let tabId = $tabs.tabs("instance").active.remove();
-			$tabs.tabs("refresh", tabId);
+			if(cerbTabs && cerbTabs.activeTab) {
+				$(cerbTabs.activeTab.li).remove();
+				cerbTabs.sync();
+			}
 		})
 	;
 	
 	$toggle_widgets_button
 		.on('click', function(e) {
 			e.stopPropagation();
-			$container.find('.cerb-profile-widget--hidden').toggle();
+
+			let $btn = $(this);
+			let show = 'true' !== $btn.attr('aria-pressed');
+
+			$btn.attr('aria-pressed', show ? 'true' : 'false')
+				.toggleClass('cerb-ui-toolbar-button--active', show);
+
+			let $hidden = $container.find('.cerb-profile-widget--hidden');
+
+			if(show) {
+				$hidden.show();
+
+				// The initial refresh skips non-visible widgets, so load content for any revealed for the first time
+				let load_ids = [];
+				$hidden.each(function() {
+					let $content = $(this).find('.cerb-profile-widget--content');
+					if($content.length && 0 === $content.children().length)
+						load_ids.push(parseInt($(this).attr('data-widget-id')));
+				});
+
+				if(load_ids.length)
+					$container.trigger({ type: 'cerb-widgets-refresh', widget_ids: load_ids });
+			} else {
+				$hidden.hide();
+			}
 		})
 	;
 

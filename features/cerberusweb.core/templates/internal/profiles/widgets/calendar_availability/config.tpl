@@ -1,24 +1,23 @@
-<div id="widget{$widget->id}Config" style="margin-top:10px;">
-	<fieldset id="widget{$widget->id}Worklist" class="peek">
-		<legend>Display this calendar</legend>
-		
-		<b><a class="cerb-chooser" data-context="{CerberusContexts::CONTEXT_CALENDAR}" data-single="true">ID</a>:</b>
-		
-		<div style="margin-left:10px;">
-			<input type="text" name="params[calendar_id]" value="{$widget->extension_params.calendar_id}" class="placeholders" style="width:95%;padding:5px;border-radius:5px;" autocomplete="off" spellcheck="false">
+<div id="widget{$widget->id}Config" class="cerb-u-mt-3">
+	<div class="cerb-ui-panel cerb-ui-panel--spaced">
+		<div class="cerb-ui-header cerb-ui-header--tight">
+			<div class="cerb-ui-header--title-sm">Display this calendar</div>
 		</div>
-	</fieldset>
+
+		<div class="cerb-ui-form">
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label"><a class="cerb-chooser cerb-u-cursor-pointer" data-context="{CerberusContexts::CONTEXT_CALENDAR}" data-single="true">ID</a></label>
+				<input type="text" name="params[calendar_id]" value="{$widget->extension_params.calendar_id}" class="placeholders" autocomplete="off" spellcheck="false">
+			</div>
+		</div>
+	</div>
 </div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $config = $('#widget{$widget->id}Config');
 	var $input = $config.find('input[name="params[calendar_id]"]');
-	
-	$config.find('.cerb-chooser').cerbChooserTrigger()
-		.on('cerb-chooser-selected', function(e) {
-			{literal}$input.val(e.values[0] + '{# ' + e.labels[0] + ' #}');{/literal}
-		})
-		;
+
+	if(window.CerbUI && CerbUI.RecordChooser) CerbUI.RecordChooser.pickerLink($config.find('.cerb-chooser')[0], { input: $input });
 });
 </script>

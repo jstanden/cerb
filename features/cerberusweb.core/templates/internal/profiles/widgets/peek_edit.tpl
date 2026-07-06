@@ -263,27 +263,16 @@ $(function() {
 			});
 		});
 		
-		// Placeholder toolbar
-		$popup.delegate(':text.placeholders, textarea.placeholders, pre.placeholders', 'focus', function(e) {
+		// Placeholder toolbar — reveal it below the focused config field
+		$popup.delegate(':text.placeholders, textarea.placeholders', 'focus', function(e) {
 			e.stopPropagation();
-			
+
 			var $target = $(e.target);
-			var $parent = $target.closest('.ace_editor');
-			
-			if(0 != $parent.length) {
+
+			if(0 == $target.nextAll($toolbar).length) {
 				$toolbar.find('div.tester').html('');
-				$toolbar.find('ul.menu').hide();
-				$toolbar.show().insertAfter($parent);
-				$toolbar.data('src', $parent);
-				
-			} else {
-				if(0 == $target.nextAll($toolbar).length) {
-					$toolbar.find('div.tester').html('');
-					$toolbar.find('ul.menu').hide();
-					$toolbar.show().insertAfter($target);
-					$toolbar.data('src', $target);
-					$toolbar.find('button.tester').show();
-				}
+				$toolbar.show().insertAfter($target);
+				$toolbar.data('src', $target);
 			}
 		});
 

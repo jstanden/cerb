@@ -1,18 +1,22 @@
 <form action="#" method="post" id="frmProfileWidgetExport">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<fieldset class="peek">
-	<legend>JSON</legend>
-	<textarea data-editor-mode="ace/mode/json" data-editor-readonly="true">{$export_json}</textarea>
-</fieldset>
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">JSON</div>
+	</div>
+	<textarea id="profileWidgetExportJson" data-editor-lines="20" spellcheck="false">{$export_json}</textarea>
+</div>
 
-<fieldset class="peek">
-	<legend>{{'common.workflow'|devblocks_translate|capitalize}}</legend>
-	<textarea data-editor-mode="ace/mode/cerb_kata" data-editor-readonly="true">{$export_workflow}</textarea>
-</fieldset>
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">{'common.workflow'|devblocks_translate|capitalize}</div>
+	</div>
+	<textarea id="profileWidgetExportWorkflow" data-editor-lines="20" spellcheck="false">{$export_workflow}</textarea>
+</div>
 
-<div style="padding:5px;">
-	<button class="submit" type="button"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.close'|devblocks_translate|capitalize}</button>
+<div class="buttons" style="margin-top:10px;">
+	<button class="cerb-ui-button submit" type="button"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.close'|devblocks_translate|capitalize}</button>
 </div>
 
 </form>
@@ -30,7 +34,8 @@ $(function() {
 		let title = "Export Widget: " + {$widget->name|json_encode nofilter};
 		$this.dialog('option','title', title);
 
-		$popup.find('textarea[data-editor-mode]').cerbCodeEditor();
+		new CerbUI.JsonEditor($popup.find('#profileWidgetExportJson')[0], { readOnly: true });
+		new CerbUI.KataEditor($popup.find('#profileWidgetExportWorkflow')[0], { readOnly: true });
 
 		$frm.find('button.submit').click(function(e) {
 			e.stopPropagation();

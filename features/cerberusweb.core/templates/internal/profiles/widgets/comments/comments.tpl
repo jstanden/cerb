@@ -63,7 +63,7 @@ $(function() {
 			var offset = $anchor.offset();
 			window.scrollTo(offset.left, offset.top);
 
-			$anchor.find('> div.block').effect('highlight', { }, 1000);
+			if(window.CerbUI && CerbUI.effects) CerbUI.effects.flash($anchor.find('> div.block'));
 		}
 	}
 });

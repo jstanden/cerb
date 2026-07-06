@@ -11,7 +11,7 @@
 					<select name="params[context]">
 						<option value=""></option>
 						{foreach from=$context_mfts item=context_mft}
-						<option value="{$context_mft->id}" {if CerberusContexts::isSameContext($widget->extension_params.context, $context_mft->id)}selected="selected"{/if}>{$context_mft->name}</option>
+						<option value="{$context_mft->id}" data-cerb-ui-icon="{$context_mft->params.icon|default:'collection'}" {if CerberusContexts::isSameContext($widget->extension_params.context, $context_mft->id)}selected="selected"{/if}>{$context_mft->name}</option>
 						{/foreach}
 					</select>
 				</div>
@@ -37,13 +37,18 @@ $(function() {
 	var $input_context_id = $config.find('input[name="params[context_id]"]');
 	var $context_tabs = $config.find('div.cerb-context-tabs');
 
+	// Record type — SelectMenu (type-to-filter + per-type icons). Keeps the native <select>, so its
+	// change event still drives the field tabs below.
+	if(window.CerbUI && CerbUI.SelectMenu)
+		$select.each(function() { new CerbUI.SelectMenu(this, { filter: true }); });
+
 	$context_tabs.find('div.cerb-tabs > ul').each(function() { if(window.CerbUI && CerbUI.Tabs) new CerbUI.Tabs(this); });
 
 	$select.on('change', function(e) {
 		var context = $(this).val();
 
 		if(0 === context.length) {
-			$tabs.hide();
+			$context_tabs.hide();
 			return;
 		}
 

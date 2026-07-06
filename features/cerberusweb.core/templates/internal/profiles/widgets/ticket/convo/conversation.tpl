@@ -17,15 +17,15 @@
 
 	<div id="tourDisplayConversation"></div>
 	
+	{if $expand_all}
 	<div style="display:inline-block;margin-right:1em;">
-        {if $expand_all}
-			<b>{'display.convo.order_oldest'|devblocks_translate}</b>
-        {else}
-			{if count($convo_timeline) > 1}
-			<button data-cerb-shortcut="read-all" type="button"><span class="cerb-icons cerb-icon-book-open"></span> {'display.button.read_all'|devblocks_translate|capitalize}</button>
-			{/if}
-        {/if}
+		<b>{'display.convo.order_oldest'|devblocks_translate}</b>
 	</div>
+	{elseif count($convo_timeline) > 1}
+	<div class="cerb-ui-toolbar-strip" style="margin-right:1em;">
+		<button data-cerb-shortcut="read-all" type="button" class="cerb-ui-toolbar-button"><span class="cerb-icons cerb-icon-book-open"></span> {'display.button.read_all'|devblocks_translate|capitalize}</button>
+	</div>
+	{/if}
 
 	{if is_array($messages_highlighted) && $messages_highlighted}
     <div class="cerb-conversation--new-messages-warning" style="display:inline-block;color:var(--cerb-color-warning-text);">
@@ -369,7 +369,7 @@ $(function() {
 		// If it's not expanded yet, expand it
 		$anchor.find('button[id^="btnMsgMax"]').click();
 		
-		$anchor.find('> div.block').effect('highlight', { }, 1000);
+		if(window.CerbUI && CerbUI.effects) CerbUI.effects.flash($anchor.find('> div.block'));
 	}
 });
 </script>
