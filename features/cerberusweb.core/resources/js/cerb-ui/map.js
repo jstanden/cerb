@@ -36,6 +36,7 @@ CerbUI.Map = class {
 	static NS = 'http://www.w3.org/2000/svg';
 	static RAD = Math.PI / 180;
 	static MERCATOR_MAX_LAT = 85.0511287798; // atan(sinh(π)) — Mercator's usable latitude cap
+	static OVERSCROLL_RELEASE = 200; // px of zoom-out scroll absorbed at min zoom before the wheel releases to the page
 
 	constructor(el, options = {}) {
 		this.el = (typeof el === 'string') ? document.querySelector(el) : el;
@@ -53,6 +54,8 @@ CerbUI.Map = class {
 		this._lastK = null; // last zoom factor points were scaled for (so pan skips the point-rescale loop)
 		this._selected = null; // the currently-selected feature (region or point datum)
 		this._dragMoved = false; // a pan in progress passed the click-suppression threshold
+		this._overscroll = 0; // accumulated zoom-out scroll while pinned at min zoom (dead-zone before page-scroll)
+		this._overscrollAt = 0; // timestamp of the last overscroll tick (resets the accumulator after an idle gap)
 
 		this.el.classList.add('cerb-ui-map');
 		this._buildChrome();
@@ -720,6 +723,23 @@ CerbUI.Map = class {
 			// Only zoom if the active scroll gesture began over THIS map; otherwise let the page scroll.
 			const g = CerbUI.Map._wheelGesture;
 			if(!g || g.owner !== this.el) return;
+
+			// Already zoomed all the way out: don't escape to the page instantly. Absorb a little zoom-out
+			// scroll first (a dead zone that signals "you're fully zoomed out"), then release the wheel to
+			// the page once the user pushes past the threshold. The accumulator resets after an idle gap (a
+			// fresh gesture) or as soon as any real zoom happens (the branch below).
+			if(this._transform.k <= 1 && e.deltaY > 0) {
+				const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+				if(now - this._overscrollAt > 250) this._overscroll = 0; // fresh gesture → a new dead zone
+				this._overscrollAt = now;
+				let dy = e.deltaY;
+				if(e.deltaMode === 1) dy *= 16; else if(e.deltaMode === 2) dy *= this.height; // lines/pages → ~px
+				this._overscroll += dy;
+				if(this._overscroll < CerbUI.Map.OVERSCROLL_RELEASE) { e.preventDefault(); return; } // absorb: nothing moves
+				return; // pushed past the dead zone → let the page scroll
+			}
+
+			this._overscroll = 0; // any real zoom (in, or out while still zoomable) clears the resistance
 			e.preventDefault();
 			const p = this._clientToSvg(e);
 			this._zoomAt(p[0], p[1], e.deltaY < 0 ? 1.2 : 1 / 1.2);
