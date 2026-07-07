@@ -86,6 +86,7 @@ class Toolbar_GlobalSearch extends Extension_Toolbar {
 						$context_aliases = Extension_DevblocksContext::getAliasesForContext($context_mft);
 						return [
 							'id' => $context_mft->id,
+							'icon' => $context_mft->params['icon'] ?? 'circle',
 							'label' => DevblocksPlatform::strTitleCase($context_aliases['plural'] ?? $context_aliases['singular'] ?? $record_type),
 						];
 					},
@@ -96,9 +97,10 @@ class Toolbar_GlobalSearch extends Extension_Toolbar {
 		DevblocksPlatform::sortObjects($record_types, '[label]');
 		
 		foreach($record_types as $record_type => $record_type_data) {
-			$legacy_kata .= sprintf("\ninteraction/%s:\n  label: %s\n  uri: cerb:automation:%s\n  inputs:\n    record_type: %s\n",
+			$legacy_kata .= sprintf("\ninteraction/%s:\n  label: %s\n  icon: %s\n  uri: cerb:automation:%s\n  inputs:\n    record_type: %s\n",
 				$record_type,
 				$record_type_data['label'],
+				$record_type_data['icon'],
 				'ai.cerb.interaction.search',
 				$record_type_data['id'],
 			);
@@ -106,9 +108,41 @@ class Toolbar_GlobalSearch extends Extension_Toolbar {
 		
 		if($legacy_kata)
 			$legacy_kata .= "\ndivider/divByRecordType:\n";
-		
-		$legacy_kata .= "\ninteraction/byRecordType:\n  label: (show all record types)\n  uri: cerb:automation:ai.cerb.interaction.search\n";
-		
+
+		// "All record types" submenu — every searchable type, alphabetized. Each row fires the same
+		// ai.cerb.interaction.search interaction (just pre-targeted), so usage still records metrics.
+		// Note: toolbar parse() only resolves `cerb:` URIs on TOP-LEVEL items, so these nested items use
+		// the already-resolved automation name directly.
+		$all_record_types = [];
+
+		foreach(Extension_DevblocksContext::getAll(false, 'search') as $context_mft) {
+			if(!($alias = $context_mft->params['alias'] ?? null))
+				continue;
+			
+			/* @var DevblocksExtensionManifest $context_mft */
+
+			$context_aliases = Extension_DevblocksContext::getAliasesForContext($context_mft);
+
+			$all_record_types[$alias] = [
+				'id' => $context_mft->id,
+				'icon' => $context_mft->params['icon'] ?? 'circle',
+				'label' => DevblocksPlatform::strTitleCase($context_aliases['plural'] ?? $context_aliases['singular'] ?? $alias),
+			];
+		}
+
+		DevblocksPlatform::sortObjects($all_record_types, '[label]');
+
+		$legacy_kata .= "\nmenu/allRecordTypes:\n  label: All record types\n  icon: collection\n  items:\n";
+
+		foreach($all_record_types as $alias => $record_type_data) {
+			$legacy_kata .= sprintf("    interaction/%s:\n      label: %s\n      icon: %s\n      uri: ai.cerb.interaction.search\n      inputs:\n        record_type: %s\n",
+				$alias,
+				$record_type_data['label'],
+				$record_type_data['icon'],
+				$record_type_data['id'],
+			);
+		}
+
 		$toolbar_kata .= $legacy_kata;
 		
 		$toolbar_dict = DevblocksDictionaryDelegate::instance([

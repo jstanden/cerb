@@ -40,6 +40,7 @@
 					data-interaction-uri="{$item.uri}"
 					data-interaction-params="{if array_key_exists('inputs', $item) && is_array($item.inputs)}{DevblocksPlatform::services()->url()->arrayToQueryString($item.inputs)}{/if}"
 					data-interaction-done="{if array_key_exists('after', $item) && is_array($item.after)}{DevblocksPlatform::services()->url()->arrayToQueryString($item.after)}{/if}"
+					{if array_key_exists('icon', $item) && $item.icon}data-icon="{$item.icon}"{/if}
 					>
 					<div>
 						{if array_key_exists('icon', $item) && $item.icon}
@@ -75,6 +76,7 @@
 					data-interaction-uri="{$item.uri}"
 					data-interaction-params="{if array_key_exists('inputs', $item) && is_array($item.inputs)}{DevblocksPlatform::services()->url()->arrayToQueryString($item.inputs)}{/if}"
 					data-interaction-done="{if array_key_exists('after', $item) && is_array($item.after)}{DevblocksPlatform::services()->url()->arrayToQueryString($item.after)}{/if}"
+					{if array_key_exists('icon', $item) && $item.icon}data-icon="{$item.icon}"{/if}
 					>
 					<div>
 						{if array_key_exists('icon', $item) && $item.icon}
@@ -84,7 +86,7 @@
 					</div>
 				</li>
 			{elseif 'menu' == $item.type}
-				<li>
+				<li{if array_key_exists('icon', $item) && $item.icon} data-icon="{$item.icon}"{/if}>
 					<div>
 						{if array_key_exists('icon', $item) && $item.icon}
 							<span class="cerb-icons cerb-icon-{$item.icon}"></span>

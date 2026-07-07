@@ -52,7 +52,7 @@ $(function() {
 		new CerbUI.Menu(submenu, {
 			hoverTrigger: this,
 			hoverGroup: 'navmenu',
-			filter: true,             // start typing to filter long tab lists
+			filter: true,             // start typing to filter long tab lists (auto-captures filter keys)
 			maxHeight: 'viewport',    // grow into the available viewport height instead of a fixed cap
 			onSelect: function(rendered, source, e) {
 				const href = source.dataset.href;
@@ -133,87 +133,101 @@ $(function() {
 	});
 
 	const $search_button = $menu.find('> LI A.submenu');
-	let $search_menu = null;
-	
+	let searchMenu = null;
+	let $searchUl = null;
+
+	// Tear down the fetched source <ul> + refs whenever the dropdown closes
+	const teardownSearchMenu = function() {
+		if($searchUl) { $searchUl.remove(); $searchUl = null; }
+		searchMenu = null;
+	};
+
+	// CerbUI.Menu rebuilds each row from its text label, so inject the record-type glyph from data-icon
+	const renderSearchIcon = function(li, src) {
+		const name = src.getAttribute('data-icon');
+		if(!name) return;
+		const ico = document.createElement('span');
+		ico.className = (name.charAt(0) === '.') ? name.slice(1).split('.').join(' ') : ('cerb-icons cerb-icon-' + name);
+		ico.setAttribute('aria-hidden', 'true');
+		ico.style.marginRight = '0.5em';
+		li.insertBefore(ico, li.firstChild);
+	};
+
 	$search_button
 		.closest('li')
 		.click(function(e) {
 			e.stopPropagation();
-			
-			// Is the menu currently visible?
-			if(null == $search_menu) {
-				// If not, show a spinner and fetch it via Ajax
-				genericAjaxGet('', 'c=search&a=getSearchMenu', function(html) {
-					if(typeof e == 'object' && e.status && 200 !== e.status)
-						return;
 
-					$search_menu = $(html)
-						.hide()
-						.insertAfter($search_button)
-						.menu({
-							select: function(event, ui) {
-								event.stopPropagation();
-								const $li = $(ui.item);
-
-								if($li.is('.cerb-bot-trigger'))
-									$li.click();
-							}
-						})
-					;
-
-					$search_menu.find('li.cerb-bot-trigger')
-						.cerbBotTrigger({
-							'width': '80%',
-							'caller': {
-								'name': 'cerb.toolbar.global.search',
-								'params': { }
-							},
-							'start': function(formData) {
-								$search_menu.empty().remove();
-								$search_menu = null;
-							},
-							'done': function(e) {
-								e.stopPropagation();
-
-								if('object' !== typeof e || !e.hasOwnProperty('eventData'))
-									return;
-
-								const $target = e.trigger;
-
-								if(!$target.is('.cerb-bot-trigger'))
-									return;
-
-								if (e.eventData.exit === 'error') {
-
-								} else if(e.eventData.exit === 'return') {
-									Devblocks.interactionWorkerPostActions(e.eventData);
-
-									// [TODO] This could use the `return:search:` interaction key now
-									if(e.eventData.hasOwnProperty('return') && e.eventData.return.hasOwnProperty('record_type')) {
-										const search_context = e.eventData.return.record_type;
-										genericAjaxPopup('search' + Devblocks.uniqueId(),'c=search&a=openSearchPopup&context=' + encodeURIComponent(search_context) + '&q=*&qr=', null, false, '90%');
-									}
-								}
-							},
-							'reset': function(e) {
-							},
-							'error': function(e) {
-							},
-							'abort': function(e) {
-							}
-						})
-					;
-
-					$search_menu.show().position({ my: "right top", at: "right bottom", of: $search_button, collision: "fit" });
-					
-					$search_menu.focus().menu('focus', null, $search_menu.find('.ui-menu-item').first());
-				});
-				
-			} else {
-				// If so, close it
-				$search_menu.empty().remove();
-				$search_menu = null;
+			// Toggle: a second click on the button closes the open menu
+			if(searchMenu && searchMenu.isOpen()) {
+				searchMenu.close();
+				return;
 			}
+
+			genericAjaxGet('', 'c=search&a=getSearchMenu', function(html) {
+				if(typeof e == 'object' && e.status && 200 !== e.status)
+					return;
+
+				// Keep the fetched <ul> in the DOM (hidden) so its cerbBotTrigger handlers + data-* persist;
+				// CerbUI.Menu renders its own floating panel from it.
+				$searchUl = $(html).hide().appendTo('body');
+
+				// Fire the record-type search interaction when a row is chosen (preserves the
+				// open-search-popup-on-return flow)
+				$searchUl.find('li.cerb-bot-trigger')
+					.cerbBotTrigger({
+						'width': '80%',
+						'caller': {
+							'name': 'cerb.toolbar.global.search',
+							'params': { }
+						},
+						'done': function(e) {
+							e.stopPropagation();
+
+							if('object' !== typeof e || !e.hasOwnProperty('eventData'))
+								return;
+
+							const $target = e.trigger;
+
+							if(!$target.is('.cerb-bot-trigger'))
+								return;
+
+							if (e.eventData.exit === 'error') {
+
+							} else if(e.eventData.exit === 'return') {
+								Devblocks.interactionWorkerPostActions(e.eventData);
+
+								if(e.eventData.hasOwnProperty('return') && e.eventData.return.hasOwnProperty('record_type')) {
+									const search_context = e.eventData.return.record_type;
+									genericAjaxPopup('search' + Devblocks.uniqueId(),'c=search&a=openSearchPopup&context=' + encodeURIComponent(search_context) + '&q=*&qr=', null, false, '90%');
+								}
+							}
+						},
+						'reset': function(e) {
+						},
+						'error': function(e) {
+						},
+						'abort': function(e) {
+						}
+					})
+				;
+
+				searchMenu = new CerbUI.Menu($searchUl[0], {
+					filter: true,          // auto-captures filter keys so they don't leak to page hotkeys
+					filterPlaceholder: 'Filter record types…',
+					filterDedupe: true,    // a suggested type at the top is the same action as its "All record types" copy
+					filterShowPath: false, // drop the "All record types ›" eyebrow on filtered matches
+					maxHeight: 'viewport',
+					onRenderItem: renderSearchIcon,
+					onClose: teardownSearchMenu,
+					onSelect: function(rendered, source, e) {
+						if(source && source.getAttribute('data-interaction-uri'))
+							jQuery(source).trigger('click');
+					}
+				});
+
+				searchMenu.open($search_button.closest('li')[0]);
+			});
 		})
 	;
 
