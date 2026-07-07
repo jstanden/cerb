@@ -93,6 +93,15 @@
 
 	button:not([data-cerb-toolbar-setup]):not(.cerb-ui-button) {
 		@include cerb-ui-toolbar-button;
+
+		// Active/pressed toggle — re-included at the rail's own button specificity (0,3,1) so the enabled
+		// background + text color win over the base item look above. A bare `.cerb-ui-toolbar-button--active`
+		// (0,1,0) loses to that base rule, which is why only the icon (set via `> span.cerb-icons`, untouched
+		// by the rail) was tinting while the button chrome stayed flat.
+		&.cerb-ui-toolbar-button--active,
+		&.cerb-ui-toolbar--item-active {
+			@include cerb-ui-toolbar-button-active;
+		}
 	}
 
 	.cerb-ui-toolbar--strip {
@@ -209,6 +218,26 @@
 .cerb-ui-toolbar-strip { @include cerb-ui-toolbar-strip; }
 .cerb-ui-toolbar-button { @include cerb-ui-toolbar-button; }
 .cerb-ui-toolbar-button--active { @include cerb-ui-toolbar-button-active; }
+
+// Hold the enabled (dark amber) text/icon color on an active toggle's :hover. Without this, the global
+// `button:has(> span.cerb-icons):hover` rule (0,2,2 in cerb-icons.scss) outranks the active mixin's own
+// hover (0,2,0) and forces `--cerb-color-button-icon--hover` (white in dark mode) onto the yellow enabled
+// background — illegible. The compound class selector (0,3,0) wins, in both the public-class and component forms.
+.cerb-ui-toolbar-button.cerb-ui-toolbar-button--active:hover,
+.cerb-ui-toolbar--item.cerb-ui-toolbar--item-active:hover {
+	color: var(--cerb-color-button-icon-enabled);
+
+	> span.cerb-icons { color: var(--cerb-color-button-icon-enabled); }
+}
+
+// A calm, informational count badge — neutral gray instead of the attention accent — for tallies that
+// aren't alerts (e.g. the dashboard "hidden widgets" toggle), matching the record-links / search-button
+// treatment. contrast-75 is adaptive (dark gray in light mode, light gray in dark); text-inverse keeps the
+// number legible in both.
+.cerb-ui-toolbar--badge-neutral {
+	background: var(--cerb-color-background-contrast-75);
+	color: var(--cerb-color-text-inverse);
+}
 
 // A vertical rule between button groups in a hand-coded strip (mirrors the component's `--divider`).
 .cerb-ui-toolbar-divider {
