@@ -125,8 +125,16 @@ class _DevblocksWorkflowService {
 			return $results;
 		}
 		
-		$automation = $was_workflow->getChangesAutomation($new_workflow, $resource_keys);
-		
+		$automation = $was_workflow->getChangesAutomation($new_workflow, $resource_keys, $error);
+
+		// A false result means the new template couldn't be parsed/formatted. Abort BEFORE any record
+		// changes — `$results->resources` still holds the original bindings, so nothing is deleted.
+		if(false === $automation) {
+			$results->state = CerbWorkflowResults::STATE_ERROR;
+			$results->error = '[Template] ' . ($error ?: 'The workflow template could not be parsed.');
+			return $results;
+		}
+
 		if($automation instanceof Model_Automation && $automation->script) {
 			$exit_state = null;
 			

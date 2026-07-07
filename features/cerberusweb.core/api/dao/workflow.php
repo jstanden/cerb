@@ -822,33 +822,35 @@ class Model_Workflow extends DevblocksRecordModel {
 		return $initial_state;
 	}
 	
-	public function getChangesAutomation(Model_Workflow $new, ?array &$resource_keys=[]) : Model_Automation|false {
+	public function getChangesAutomation(Model_Workflow $new, ?array &$resource_keys=[], ?string &$error=null) : Model_Automation|false {
 		$kata = DevblocksPlatform::services()->kata();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-		
+
 		$error = null;
-		
+
 		// Existing Template
-		
+
 		if(false === ($was_template = $kata->parse($this->workflow_kata, $error)))
 			$was_template = [];
-		
+
 		if(false === ($was_initial_state = $this->getChangesAutomationInitialState($error)))
 			return false;
-		
+
 		if(false === ($was_template = $kata->formatTree($was_template, null, $error, true)))
 			$was_template = [];
-		
+
 		// Modified Template
-		
+
+		// A parse/format failure here must NEVER be treated as an empty template — that would make every
+		// existing resource look "removed" and delete them all. Abort with the error instead.
 		if(false === ($new_template = $kata->parse($new->workflow_kata, $error)))
-			$new_template = [];
-		
+			return false;
+
 		if(false === ($initial_state = $new->getChangesAutomationInitialState($error)))
 			return false;
-		
+
 		if(false === ($new_template = $kata->formatTree($new_template, null, $error, true)))
-			$new_template = [];
+			return false;
 		
 		$resource_keys['templates']['was'] = $was_template;
 		$resource_keys['templates']['new'] = $new_template;
