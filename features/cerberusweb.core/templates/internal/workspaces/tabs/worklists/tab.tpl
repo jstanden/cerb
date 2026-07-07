@@ -39,11 +39,16 @@ $(function() {
 	$('#divWorklistsTab{$tab->id}').prev('form').find('[data-cerb-button=edit_menu]').on('click', function(e) {
 		e.stopPropagation();
 
-		let $btn = $('#frmWorkspacePage{$page->id} button.config-page.split-left');
+		let $btn = $('#frmWorkspacePage{$page->id} button.config-page');
+		let $el = $(this);
 
-		$(this).effect('transfer', { to:$btn, className:'effects-transfer' }, 500, function() {
-			$btn.effect('pulsate', {  times: 3 }, function() { $(this).click(); } );
-		});
+		if(window.CerbUI && CerbUI.effects) {
+			CerbUI.effects.transfer($el[0], $btn[0], { onEnd: function() {
+				CerbUI.effects.pulse($btn[0], { times: 3, onEnd: function() { $btn.click(); } });
+			}});
+		} else {
+			$btn.click();
+		}
 	});
 	
 	// Worklist loader

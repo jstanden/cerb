@@ -1,20 +1,20 @@
 {$is_writeable = !$is_locked && CerberusContexts::isWriteableByActor(CerberusContexts::CONTEXT_WORKSPACE_PAGE, $page, $active_worker)}
 
-<div style="margin-bottom:5px;">
-	{include file="devblocks:cerberusweb.core::internal/dashboards/prompts/render.tpl" prompts=$prompts}
-	
+<div style="margin-bottom:5px;display:flex;flex-flow:row wrap;align-items:flex-start;gap:10px;">
 	{if $is_writeable}
-	<div style="display:inline-block;vertical-align:middle;" class="cerb-no-print">
-		{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}.create")}<button id="btnWorkspaceTabAddWidget{$model->id}" type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}" data-context-id="0" data-edit="tab:{$model->id}" data-width="75%"><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.widget.add'|devblocks_translate|capitalize}</button>{/if}
-		<button id="btnWorkspaceTabEditDashboard{$model->id}" type="button"><span class="cerb-icons cerb-icon-edit"></span> {'common.dashboard.edit'|devblocks_translate|capitalize}</button>
+	<div class="cerb-ui-toolbar-strip cerb-no-print">
+		{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}.create")}<button id="btnWorkspaceTabAddWidget{$model->id}" type="button" class="cerb-peek-trigger cerb-ui-toolbar-button" data-context="{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}" data-context-id="0" data-edit="tab:{$model->id}" data-width="75%"><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.widget.add'|devblocks_translate|capitalize}</button>{/if}
+		<button id="btnWorkspaceTabEditDashboard{$model->id}" type="button" class="cerb-ui-toolbar-button"><span class="cerb-icons cerb-icon-edit"></span> {'common.dashboard.edit'|devblocks_translate|capitalize}</button>
+		<button id="btnWorkspaceTabToggleWidgets{$model->id}" type="button" class="cerb-ui-toolbar-button" style="display:none;" aria-pressed="false" title="Hidden widgets"><span class="cerb-icons cerb-icon-eye-close"></span> Hidden Widgets <span class="cerb-ui-toolbar--badge cerb-ui-toolbar--badge-neutral badge-count">0</span></button>
 	</div>
-	<button id="btnWorkspaceTabToggleWidgets{$model->id}" type="button" style="display:none;"><div class="badge-count">0</div> Hidden Widgets</button>
 	{/if}
+
+	{include file="devblocks:cerberusweb.core::internal/dashboards/prompts/render.tpl" prompts=$prompts}
 </div>
 
 {if 'sidebar_left' == $layout}
 	<div id="workspaceTab{$model->id}" class="cerb-workspace-layout cerb-workspace-layout--sidebar-left" style="vertical-align:top;display:flex;flex-flow:row wrap;">
-		<div data-layout-zone="sidebar" class="cerb-workspace-layout-zone" style="flex:1 1 33%;min-width:345px;overflow-x:hidden;">
+		<div data-layout-zone="sidebar" class="cerb-workspace-layout-zone" style="flex:1 1 33%;min-width:345px;overflow-x:clip;">
 			<div class="cerb-workspace-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 			{foreach from=$zones.sidebar item=widget name=widgets}
 				{include file="devblocks:cerberusweb.core::internal/workspaces/widgets/render.tpl" widget=$widget}
@@ -22,7 +22,7 @@
 			</div>
 		</div>
 		
-		<div data-layout-zone="content" class="cerb-workspace-layout-zone" style="flex:2 2 66%;min-width:345px;overflow-x:hidden;">
+		<div data-layout-zone="content" class="cerb-workspace-layout-zone" style="flex:2 2 66%;min-width:345px;overflow-x:clip;">
 			<div class="cerb-workspace-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 			{foreach from=$zones.content item=widget name=widgets}
 				{include file="devblocks:cerberusweb.core::internal/workspaces/widgets/render.tpl" widget=$widget}
@@ -32,7 +32,7 @@
 	</div>
 {elseif 'sidebar_right' == $layout}
 	<div id="workspaceTab{$model->id}" class="cerb-workspace-layout cerb-workspace-layout--sidebar-right" style="vertical-align:top;display:flex;flex-flow:row wrap;">
-		<div data-layout-zone="content" class="cerb-workspace-layout-zone cerb-workspace-layout-zone--content" style="flex:2 2 66%;min-width:345px;overflow-x:hidden;">
+		<div data-layout-zone="content" class="cerb-workspace-layout-zone cerb-workspace-layout-zone--content" style="flex:2 2 66%;min-width:345px;overflow-x:clip;">
 			<div class="cerb-workspace-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 			{foreach from=$zones.content item=widget name=widgets}
 				{include file="devblocks:cerberusweb.core::internal/workspaces/widgets/render.tpl" widget=$widget}
@@ -40,7 +40,7 @@
 			</div>
 		</div>
 		
-		<div data-layout-zone="sidebar" class="cerb-workspace-layout-zone cerb-workspace-layout-zone--sidebar" style="flex:1 1 33%;min-width:345px;overflow-x:hidden;">
+		<div data-layout-zone="sidebar" class="cerb-workspace-layout-zone cerb-workspace-layout-zone--sidebar" style="flex:1 1 33%;min-width:345px;overflow-x:clip;">
 			<div class="cerb-workspace-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 			{foreach from=$zones.sidebar item=widget name=widgets}
 				{include file="devblocks:cerberusweb.core::internal/workspaces/widgets/render.tpl" widget=$widget}
@@ -50,7 +50,7 @@
 	</div>
 {elseif 'halves' == $layout}
 	<div id="workspaceTab{$model->id}" class="cerb-workspace-layout cerb-workspace-layout--halves" style="vertical-align:top;display:flex;flex-flow:row wrap;">
-		<div data-layout-zone="left" class="cerb-workspace-layout-zone cerb-workspace-layout-zone--left" style="flex:1 1 50%;min-width:345px;overflow-x:hidden;">
+		<div data-layout-zone="left" class="cerb-workspace-layout-zone cerb-workspace-layout-zone--left" style="flex:1 1 50%;min-width:345px;overflow-x:clip;">
 			<div class="cerb-workspace-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 				{foreach from=$zones.left item=widget name=widgets}
 					{include file="devblocks:cerberusweb.core::internal/workspaces/widgets/render.tpl" widget=$widget}
@@ -58,7 +58,7 @@
 			</div>
 		</div>
 
-		<div data-layout-zone="right" class="cerb-workspace-layout-zone cerb-workspace-layout-zone--right" style="flex:1 1 50%;min-width:345px;overflow-x:hidden;">
+		<div data-layout-zone="right" class="cerb-workspace-layout-zone cerb-workspace-layout-zone--right" style="flex:1 1 50%;min-width:345px;overflow-x:clip;">
 			<div class="cerb-workspace-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 				{foreach from=$zones.right item=widget name=widgets}
 					{include file="devblocks:cerberusweb.core::internal/workspaces/widgets/render.tpl" widget=$widget}
@@ -68,7 +68,7 @@
 	</div>
 {elseif 'thirds' == $layout}
 	<div id="workspaceTab{$model->id}" class="cerb-workspace-layout cerb-workspace-layout--thirds" style="vertical-align:top;display:flex;flex-flow:row wrap;">
-		<div data-layout-zone="left" class="cerb-workspace-layout-zone cerb-workspace-layout-zone--left" style="flex:1 1 33%;min-width:345px;overflow-x:hidden;">
+		<div data-layout-zone="left" class="cerb-workspace-layout-zone cerb-workspace-layout-zone--left" style="flex:1 1 33%;min-width:345px;overflow-x:clip;">
 			<div class="cerb-workspace-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 			{foreach from=$zones.left item=widget name=widgets}
 				{include file="devblocks:cerberusweb.core::internal/workspaces/widgets/render.tpl" widget=$widget}
@@ -76,7 +76,7 @@
 			</div>
 		</div>
 		
-		<div data-layout-zone="center" class="cerb-workspace-layout-zone cerb-workspace-layout-zone--center" style="flex:1 1 33%;min-width:345px;overflow-x:hidden;">
+		<div data-layout-zone="center" class="cerb-workspace-layout-zone cerb-workspace-layout-zone--center" style="flex:1 1 33%;min-width:345px;overflow-x:clip;">
 			<div class="cerb-workspace-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 			{foreach from=$zones.center item=widget name=widgets}
 				{include file="devblocks:cerberusweb.core::internal/workspaces/widgets/render.tpl" widget=$widget}
@@ -84,7 +84,7 @@
 			</div>
 		</div>
 		
-		<div data-layout-zone="right" class="cerb-workspace-layout-zone cerb-workspace-layout-zone--right" style="flex:1 1 33%;min-width:345px;overflow-x:hidden;">
+		<div data-layout-zone="right" class="cerb-workspace-layout-zone cerb-workspace-layout-zone--right" style="flex:1 1 33%;min-width:345px;overflow-x:clip;">
 			<div class="cerb-workspace-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 			{foreach from=$zones.right item=widget name=widgets}
 				{include file="devblocks:cerberusweb.core::internal/workspaces/widgets/render.tpl" widget=$widget}
@@ -94,7 +94,7 @@
 	</div>
 {else}
 	<div id="workspaceTab{$model->id}" class="cerb-workspace-layout cerb-workspace-layout--content" style="vertical-align:top;display:flex;flex-flow:row wrap;">
-		<div data-layout-zone="content" class="cerb-workspace-layout-zone" style="flex:1 1 100%;overflow-x:hidden;">
+		<div data-layout-zone="content" class="cerb-workspace-layout-zone" style="flex:1 1 100%;overflow-x:clip;">
 			<div class="cerb-workspace-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 			{foreach from=$zones.content item=widget name=widgets}
 				{include file="devblocks:cerberusweb.core::internal/workspaces/widgets/render.tpl" widget=$widget}
@@ -113,47 +113,36 @@ $(function() {
 	
 	// Drag
 	{if $is_writeable}
-	$container.find('.cerb-workspace-layout-zone--widgets')
-		.sortable({
-			tolerance: 'pointer',
-			cursorAt: { top: 5, left: 5 },
-			items: '.cerb-workspace-widget',
-			helper: function(event, element) {
-				return element.clone()
-					.css('outline','2px dashed gray')
-					.css('outline-offset','-2px')
-					.css('background-color', 'var(--cerb-color-background)')
-					;
-			},
-			placeholder: 'cerb-widget-drag-placeholder',
-			forceHelperSize: true,
-			forcePlaceholderSize: true,
-			handle: '.cerb-workspace-widget--header .cerb-icon-menu-hamburger',
-			connectWith: '.cerb-workspace-layout-zone--widgets',
-			opacity: 0.7,
-			start: function(event, ui) {
-				ui.placeholder.css('flex', ui.item.css('flex'));
-				$container.find('.cerb-workspace-layout-zone--widgets')
-					.css('outline', '2px dashed orange')
-					.css('outline-offset', '-3px')
-					.css('background-color', 'var(--cerb-color-background-contrast-250)')
-					.css('min-height', '100px')
-					;
-			},
-			stop: function(event, ui) {
-				$container.find('.cerb-workspace-layout-zone--widgets')
-					.css('outline', '')
-					.css('outline-offset', '')
-					.css('background-color', '')
-					.css('min-height', 'initial')
-					;
-			},
-			//receive: function(e, ui) {},
-			update: function(event, ui) {
-				$container.trigger('cerb-reorder');
-			}
-		})
-		;
+	$container.find('.cerb-workspace-layout-zone--widgets').each(function() {
+		if(window.CerbUI && CerbUI.Sortable)
+			new CerbUI.Sortable(this, {
+				tolerance: 'pointer',
+				items: '.cerb-workspace-widget',
+				handle: '.cerb-workspace-widget--header .cerb-icon-menu-hamburger',
+				connectWith: '.cerb-workspace-layout-zone--widgets',
+				helper: 'clone',
+				onStart: function() {
+					// Faint outline marks the drop areas (zones already carry a min-height so empty ones are
+					// droppable; the moving slot placeholder shows the actual drop spot).
+					$container.find('.cerb-workspace-layout-zone--widgets')
+						.css('outline', '1px dashed var(--cerb-color-background-contrast-200)')
+						.css('outline-offset', '-2px')
+						;
+				},
+				onEnd: function() {
+					// Clears on commit AND cancel (snap-back)
+					$container.find('.cerb-workspace-layout-zone--widgets')
+						.css('outline', '')
+						.css('outline-offset', '')
+						;
+				}
+			});
+	});
+
+	// reorderWidgets posts the full zone→widget map; the bubbling sorted event fires once per drop
+	$container[0].addEventListener('cerb-ui-sortable:sorted', function() {
+		$container.trigger('cerb-reorder');
+	});
 	{/if}
 	
 	$container.on('cerb-reorder', function(e) {
@@ -211,7 +200,7 @@ $(function() {
 	});
 
 	var addEvents = function($target) {
-		var $menu = $target.find('.cerb-workspace-widget--menu');
+		var menuEl = $target.find('.cerb-workspace-widget--menu')[0];
 		var $menu_link = $target.find('.cerb-workspace-widget--link');
 		var $handle = $target.find('.cerb-workspace-widget--header .cerb-icon-menu-hamburger');
 
@@ -228,11 +217,10 @@ $(function() {
 		});
 		{/if}
 
-		$menu
-			.menu({
-				select: function(event, ui) {
-					var $li = $(ui.item);
-					$li.closest('ul').hide();
+		var menu = (menuEl && window.CerbUI && CerbUI.Menu) ? new CerbUI.Menu(menuEl, {
+				clickTrigger: $menu_link[0],
+				onSelect: function(li, src) {
+					var $li = $(src);
 					
 					var $widget = $li.closest('.cerb-workspace-widget');
 					var widget_id = $widget.attr('data-widget-id');
@@ -272,13 +260,7 @@ $(function() {
 						
 					}
 				}
-			})
-			;
-		
-		$menu_link.on('click', function(e) {
-			e.stopPropagation();
-			$(this).closest('.cerb-workspace-widget').find('.cerb-workspace-widget--menu').toggle();
-		});
+			}) : null;
 		
 		return $target;
 	}
@@ -305,14 +287,38 @@ $(function() {
 		.on('click', function(e) {
 			e.stopPropagation();
 			var $workspace = $('#frmWorkspacePage{$model->workspace_page_id}');
-			$workspace.find('a.edit-tab').click();
+			$workspace.find('a.edit-tab').attr('data-context-id', '{$model->id}').click();
 		})
 		;
 
 	$toggle_widgets_button
 		.on('click', function(e) {
 			e.stopPropagation();
-			$container.find('.cerb-workspace-widget--hidden').toggle();
+
+			let $btn = $(this);
+			let show = 'true' !== $btn.attr('aria-pressed');
+
+			$btn.attr('aria-pressed', show ? 'true' : 'false')
+				.toggleClass('cerb-ui-toolbar-button--active', show);
+
+			let $hidden = $container.find('.cerb-workspace-widget--hidden');
+
+			if(show) {
+				$hidden.show();
+
+				// The initial refresh skips non-visible widgets, so load content for any revealed for the first time
+				let load_ids = [];
+				$hidden.each(function() {
+					let $content = $(this).find('.cerb-workspace-widget--content');
+					if($content.length && 0 === $content.children().length)
+						load_ids.push(parseInt($(this).attr('data-widget-id')));
+				});
+
+				if(load_ids.length)
+					$container.trigger({ type: 'cerb-widgets-refresh', widget_ids: load_ids });
+			} else {
+				$hidden.hide();
+			}
 		})
 	;
 

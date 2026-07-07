@@ -1588,12 +1588,26 @@ class Context_WorkspaceTab extends Extension_DevblocksContext implements IDevblo
 			$tpl->assign('tab_extensions', $tab_extensions);
 			
 			// Library
-			
+
 			if(empty($context_id)) {
 				$packages = DAO_PackageLibrary::getByPoint('workspace_tab');
 				$tpl->assign('packages', $packages);
 			}
-			
+
+			// Placeholder menu
+			$labels = $values = [];
+
+			$merge_labels = $merge_values = [];
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKSPACE_TAB, null, $merge_labels, $merge_values, '', true);
+			CerberusContexts::merge('tab_', 'Tab ', $merge_labels, $merge_values, $labels, $values);
+
+			$merge_labels = $merge_values = [];
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, null, $merge_labels, $merge_values, '', true);
+			CerberusContexts::merge('worker_', 'Worker ', $merge_labels, $merge_values, $labels, $values);
+
+			$placeholders = Extension_DevblocksContext::getPlaceholderTree($labels);
+			$tpl->assign('placeholders', $placeholders);
+
 			// View
 			$tpl->assign('id', $context_id);
 			$tpl->assign('view_id', $view_id);
