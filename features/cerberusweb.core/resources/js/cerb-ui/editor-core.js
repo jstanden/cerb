@@ -275,6 +275,19 @@ CerbUI.editorCore.buildEditorShell = function(field, NS, opts = {}) {
 	const wrap = document.createElement('div');
 	wrap.className = cls();
 
+	// Carry a `.placeholders` opt-in (full floating placeholder strip) + its placement attr from a bare source
+	// field onto the wrapper, and drop it from the field — so the legacy `textarea.placeholders` peek delegate
+	// won't also match, and the component reads the opt-in from its own wrapper.
+	if(field.classList && field.classList.contains('placeholders')) {
+		wrap.classList.add('placeholders');
+		field.classList.remove('placeholders');
+		const _pl = field.getAttribute('data-cerb-placeholders-placement');
+		if(_pl) {
+			wrap.setAttribute('data-cerb-placeholders-placement', _pl);
+			field.removeAttribute('data-cerb-placeholders-placement');
+		}
+	}
+
 	let gutterEl = null;
 	if(gutter) {
 		gutterEl = document.createElement('div');

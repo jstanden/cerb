@@ -337,3 +337,27 @@
 	border-radius: 0;
 	padding: 0;
 }
+
+// Floating placeholder strip (insert + test + help + a `.tester` output). A component wrapper tagged
+// `.placeholders` floats the shared `.cerb-placeholder-menu` beside it on focus (CerbUI.placeholders._floatPanel).
+// In-flow (plain inputs) the strip sits on the form background; floated over content it needs its own solid
+// surface so the toolbar + tester stay legible. The class is added/removed by _floatPanel / the plain-input reset.
+.cerb-placeholder-menu--floating {
+	background: var(--cerb-color-background);
+	border: 1px solid var(--cerb-color-background-contrast-210);
+	border-radius: 6px;
+	box-shadow: 0 0 10px 3px var(--cerb-color-shadow-menu);
+	padding: 5px;
+	max-width: min(90vw, 640px);
+
+	// The tester renders BELOW the toolbar (DOM order); frame it only while it holds a result panel. (Keying
+	// on a child panel, not :not(:empty) — the tester's dismiss (×) removes the panel but leaves its sibling
+	// <script>, which would otherwise keep an empty divider bar around.)
+	.tester:has(> .cerb-ui-panel) {
+		margin-top: 5px;
+		padding-top: 5px;
+		border-top: 1px solid var(--cerb-color-background-contrast-210);
+		max-height: 40vh;
+		overflow: auto;
+	}
+}

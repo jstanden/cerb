@@ -1,13 +1,13 @@
 {$uniqid = uniqid('toolbar')}
 <div id="{$uniqid}">
-	<div class="tester"></div>
-
 	<ul class="cerb-ui-toolbar">
 		<li data-value="placeholders" data-icon="placeholders" title="Insert placeholder"></li>
 		<li></li>
 		<li data-value="test" data-icon="play" title="{'common.test'|devblocks_translate|capitalize}"></li>
 		<li data-value="help" data-icon="circle-question-mark" title="{'common.help'|devblocks_translate|capitalize}"></li>
 	</ul>
+
+	<div class="tester"></div>
 
 	{function tree level=0}
 		{foreach from=$keys item=data key=idx}
@@ -46,9 +46,44 @@ $(function() {
 		return ($field && $field.length) ? $field : null;
 	};
 
+	// Insert a token into a field — component-aware: KataEditor/SearchQuery route through the instance
+	// (so the mirror/highlight updates); plain inputs use insertAtCursor.
+	var insertIntoField = function($field, placeholder) {
+		if(!$field || !$field.length)
+			return;
+
+		var el = $field[0];
+		var kEl = el.closest ? el.closest('.cerb-ui-kataeditor') : null;
+		var sEl = el.closest ? el.closest('.cerb-ui-searchquery') : null;
+		var dEl = el.closest ? el.closest('.cerb-ui-dataquery') : null;
+
+		if(kEl && window.CerbUI && CerbUI.KataEditor && CerbUI.KataEditor.from(kEl))
+			CerbUI.KataEditor.from(kEl).insertSnippet(placeholder);
+		else if(sEl && window.CerbUI && CerbUI.SearchQuery && CerbUI.SearchQuery.from(sEl))
+			CerbUI.SearchQuery.from(sEl).insertAtCursor(placeholder);
+		else if(dEl && window.CerbUI && CerbUI.DataQuery && CerbUI.DataQuery.from(dEl))
+			CerbUI.DataQuery.from(dEl).insertAtCursor(placeholder);
+		else
+			$field.focus().insertAtCursor(placeholder);
+	};
+
 	// When a modern component (SearchQuery/DataQuery/KataEditor) opens the menu it supplies its own insert
 	// callback; otherwise fall back to inserting into the strip's currently-focused field.
 	var pendingInsert = null;
+
+	// Floating-strip dismiss: while a component float is showing, an outside pointer-down (not on the strip,
+	// its token menu, or the host field) hides it so it stops covering the fields below.
+	var floatHost = null;
+	var floatDocHandler = null;
+
+	var hideFloat = function() {
+		floatHost = null;
+		$toolbar.removeClass('cerb-placeholder-menu--floating').css({ position: '', top: '', left: '', 'z-index': '' }).hide();
+		if(floatDocHandler) {
+			document.removeEventListener('pointerdown', floatDocHandler, true);
+			floatDocHandler = null;
+		}
+	};
 
 	// Quick insert token menu — a separate filterable menu (the toolbar doesn't forward `filter` to submenus)
 	var menu = new CerbUI.Menu($placeholder_menu[0], {
@@ -67,10 +102,7 @@ $(function() {
 			if(typeof pendingInsert === 'function') {
 				pendingInsert(placeholder);
 			} else {
-				var $field = activeField();
-
-				if($field)
-					$field.focus().insertAtCursor(placeholder);
+				insertIntoField(activeField(), placeholder);
 			}
 		}
 	});
@@ -136,14 +168,52 @@ $(function() {
 	var $scope = $div.closest('[data-cerb-placeholders]');
 	if($scope.length && window.CerbUI && CerbUI.placeholders) {
 		CerbUI.placeholders.register($scope[0], {
-			open: function(anchorEl, insertFn) {
-				pendingInsert = (typeof insertFn === 'function') ? insertFn : null;
-				menu.open(anchorEl);
+			// A wrapper tagged `.placeholders` (KataEditor/SearchQuery) floats the FULL strip beside it on
+			// focus and binds it to the component's named field (for the tester + token insertion).
+			attach: function(hostEl, fieldEl, opts) {
+				pendingInsert = null;
+
+				var $form = $(hostEl).closest('form');
+				if($form.length && $form.css('position') === 'static')
+					$form.css('position', 'relative');
+
+				// Re-home the shared strip inside the form (widget peeks detach it on open) so it renders
+				// and the tester can still serialize the enclosing form.
+				($form.length ? $form : $(document.body)).append($toolbar);
+
+				$toolbar.find('div.tester').html('');
+				$toolbar.data('src', $(fieldEl));
+				$toolbar.show();
+
+				CerbUI.placeholders._floatPanel($toolbar[0], hostEl, (opts && opts.placement) || 'auto');
+
+				floatHost = hostEl;
+				if(!floatDocHandler) {
+					floatDocHandler = function(e) {
+						var t = e.target;
+						if($toolbar[0].contains(t)) return;                                  // a strip control (test/help/menu)
+						if(floatHost && floatHost.contains(t)) return;                       // back inside the field
+						if(t && t.closest && t.closest('.cerb-ui-menu, .cerb-ui-menu--panel')) return; // the token menu (on <body>)
+						hideFloat();
+					};
+					document.addEventListener('pointerdown', floatDocHandler, true);
+				}
 			}
+		});
+
+		// When a plain `.placeholders` input takes focus, the peek's legacy delegate re-inserts the strip
+		// in-flow below it. Detach + clear any absolute positioning left over from a component float first, so
+		// it lands correctly (this bubbles through the form before the peek's delegate on the popup).
+		$scope.on('focusin', ':text.placeholders, textarea.placeholders', function() {
+			hideFloat();
+			$toolbar.detach();
 		});
 	}
 
 	// Teardown the menu with the toolbar
-	$div.on('remove', function() { if(menu) menu.destroy(); });
+	$div.on('remove', function() {
+		if(menu) menu.destroy();
+		if(floatDocHandler) { document.removeEventListener('pointerdown', floatDocHandler, true); floatDocHandler = null; }
+	});
 });
 </script>

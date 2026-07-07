@@ -4,7 +4,7 @@
 			<div class="cerb-ui-header--title-sm">Render this template:</div>
 		</div>
 
-		<textarea id="widget{$widget->id}TemplateEditor" name="params[template]" data-editor-lines="8" spellcheck="false">{$widget->extension_params.template}</textarea>
+		<textarea id="widget{$widget->id}TemplateEditor" name="params[template]" class="placeholders" data-editor-lines="8" spellcheck="false">{$widget->extension_params.template}</textarea>
 	</div>
 </div>
 

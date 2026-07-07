@@ -10,7 +10,7 @@
 			<li data-value="help" data-icon="circle-question-mark" title="{'common.help'|devblocks_translate|capitalize}"></li>
 		</ul>
 
-		<textarea id="widget{$widget->id}DataQuery" name="params[data_query]" data-editor-lines="12" spellcheck="false">{$widget->extension_params.data_query}</textarea>
+		<textarea id="widget{$widget->id}DataQuery" class="placeholders" name="params[data_query]" data-editor-lines="12" spellcheck="false">{$widget->extension_params.data_query}</textarea>
 
 		<div class="cerb-ui-form--field cerb-u-mt-2">
 			<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-1 cerb-u-flex-wrap">

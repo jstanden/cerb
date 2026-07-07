@@ -10,7 +10,7 @@
 				<li data-icon="play" data-value="test" title="Test datasets"></li>
 			</ul>
 
-			<textarea id="widget{$widget->id}DatasetsEditor" name="params[datasets_kata]" data-editor-lines="8" spellcheck="false">{$widget->extension_params.datasets_kata}</textarea>
+			<textarea id="widget{$widget->id}DatasetsEditor" name="params[datasets_kata]" class="placeholders" data-editor-lines="8" spellcheck="false">{$widget->extension_params.datasets_kata}</textarea>
 		</div>
 
 		<div class="cerb-ui-form--field">
@@ -40,7 +40,7 @@
 				<li data-icon="play" data-value="test" title="Test chart"></li>
 			</ul>
 
-			<textarea id="widget{$widget->id}ChartEditor" name="params[chart_kata]" data-editor-lines="10" spellcheck="false">{$widget->extension_params.chart_kata}</textarea>
+			<textarea id="widget{$widget->id}ChartEditor" name="params[chart_kata]" class="placeholders" data-editor-lines="10" spellcheck="false">{$widget->extension_params.chart_kata}</textarea>
 		</div>
 
 		<div class="cerb-ui-panel" style="display:none;" data-cerb-results-chart-wrap>

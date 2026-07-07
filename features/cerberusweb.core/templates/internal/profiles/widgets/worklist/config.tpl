@@ -17,7 +17,7 @@
 
 			<div class="cerb-ui-form--field">
 				<label class="cerb-ui-form--label">Filter using required query</label>
-				<div class="cerb-ui-searchquery" data-cerb-searchquery>
+				<div class="cerb-ui-searchquery placeholders" data-cerb-searchquery>
 					<span class="cerb-ui-searchquery--icon cerb-icons cerb-icon-search"></span>
 					<div class="cerb-ui-searchquery--field">
 						<div class="cerb-ui-searchquery--highlight" aria-hidden="true"></div>
@@ -32,7 +32,7 @@
 
 			<div class="cerb-ui-form--field">
 				<label class="cerb-ui-form--label">Default query</label>
-				<div class="cerb-ui-searchquery" data-cerb-searchquery>
+				<div class="cerb-ui-searchquery placeholders" data-cerb-searchquery>
 					<span class="cerb-ui-searchquery--icon cerb-icons cerb-icon-search"></span>
 					<div class="cerb-ui-searchquery--field">
 						<div class="cerb-ui-searchquery--highlight" aria-hidden="true"></div>

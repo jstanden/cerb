@@ -8,7 +8,7 @@
 			</div>
 		</div>
 
-		<textarea id="widget{$widget->id}DataQuery" name="params[data_query]" data-editor-lines="12" spellcheck="false">{$widget->extension_params.data_query}</textarea>
+		<textarea id="widget{$widget->id}DataQuery" class="placeholders" name="params[data_query]" data-editor-lines="12" spellcheck="false">{$widget->extension_params.data_query}</textarea>
 
 		<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-2 cerb-u-mt-2">
 			<b>Cache</b> results for
@@ -31,7 +31,7 @@
 		</div>
 
 		<div>
-			<textarea id="widget{$widget->id}TemplateEditor" name="params[template]" data-editor-lines="8" spellcheck="false">{$widget->extension_params.template}</textarea>
+			<textarea id="widget{$widget->id}TemplateEditor" name="params[template]" class="placeholders" data-editor-lines="8" spellcheck="false">{$widget->extension_params.template}</textarea>
 		</div>
 	</div>
 </div>

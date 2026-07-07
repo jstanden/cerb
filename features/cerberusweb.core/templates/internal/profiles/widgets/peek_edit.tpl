@@ -125,7 +125,7 @@
 				<ul class="cerb-ui-toolbar" data-cerb-editor-toolbar hidden>
 					<li data-value="suggest" data-icon="autocomplete" title="{'common.autocomplete'|devblocks_translate|capitalize} (Ctrl/⌘+Space)"></li>
 				</ul>
-				<textarea name="options_kata" data-editor-lines="10" spellcheck="false">{$model->options_kata}</textarea>
+				<textarea name="options_kata" class="placeholders" data-editor-lines="10" spellcheck="false">{$model->options_kata}</textarea>
 			</div>
 		</div>
 		

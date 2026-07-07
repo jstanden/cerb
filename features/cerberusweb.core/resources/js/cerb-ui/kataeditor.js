@@ -184,6 +184,18 @@ CerbUI.KataEditor = class {
 		// Core editor-family hook: a caller can add extensible toolbar `sections` to any editor (opt-in via opts.toolbar).
 		CerbUI.editorCore.attachToolbar(this, this.opts);
 
+		// Placeholder scope: a wrapper tagged `.placeholders` opts into the FULL floating strip
+		// (placeholders + test + help) on focus, instead of just the inline insert button in its toolbar.
+		if(CerbUI.placeholders && CerbUI.placeholders.hasScope(el) && el.classList.contains('placeholders')) {
+			const placement = el.getAttribute('data-cerb-placeholders-placement') || 'auto';
+			// Bind the strip to the NAMED field: a named editor edits in a nameless clone (this.textarea) and keeps
+			// the original as a hidden value carrier, so the strip's tester needs the carrier to resolve field_key.
+			const stripField = this._valueField || this.textarea;
+			this.textarea.addEventListener('focus', () => {
+				CerbUI.placeholders.attach(el, stripField, { placement: placement });
+			});
+		}
+
 		// Find/Replace (Mod-F) — shared controller + a folding adapter (model⇄projection offset mapping).
 		this._find = new CerbUI.editorCore.FindController(this, CerbUI.editorCore.makeFindAdapter(this, 'folding'));
 	}

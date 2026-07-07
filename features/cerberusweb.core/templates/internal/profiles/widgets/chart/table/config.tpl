@@ -7,7 +7,7 @@
 			</div>
 		</div>
 
-		<textarea id="widget{$widget->id}DataQuery" name="params[data_query]" data-editor-lines="12" spellcheck="false">{$widget->extension_params.data_query}</textarea>
+		<textarea id="widget{$widget->id}DataQuery" class="placeholders" name="params[data_query]" data-editor-lines="12" spellcheck="false">{$widget->extension_params.data_query}</textarea>
 	</div>
 </div>
 

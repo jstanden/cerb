@@ -141,6 +141,15 @@ CerbUI.ScriptingEditor = class {
 		// Inherited by DataQuery. No-op unless opts.toolbar is set.
 		CerbUI.editorCore.attachToolbar(this, this.opts);
 
+		// Placeholder scope (inherited by DataQuery): a wrapper tagged `.placeholders` opts into the FULL floating
+		// strip (placeholders + test + help) on focus, instead of just the inline insert button in its toolbar.
+		if(CerbUI.placeholders && CerbUI.placeholders.hasScope(el) && el.classList.contains('placeholders')) {
+			const placement = el.getAttribute('data-cerb-placeholders-placement') || 'auto';
+			this.textarea.addEventListener('focus', () => {
+				CerbUI.placeholders.attach(el, this.textarea, { placement: placement });
+			});
+		}
+
 		// Find/Replace (Mod-F) — shared controller + a 1:1 (no folding) adapter. Inherited by DataQuery.
 		this._find = new CerbUI.editorCore.FindController(this, CerbUI.editorCore.makeFindAdapter(this, 'linear'));
 	}

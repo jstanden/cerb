@@ -98,7 +98,7 @@
 
 				<div class="cerb-ui-form--field">
 					<label class="cerb-ui-form--label">Search query to count</label>
-					<textarea name="params[search][query][]" rows="1" spellcheck="false">{$query}</textarea>
+					<textarea name="params[search][query][]" class="placeholders" rows="1" spellcheck="false">{$query}</textarea>
 				</div>
 			</div>
 		</div>

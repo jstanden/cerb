@@ -138,6 +138,15 @@ CerbUI.SearchQuery = class {
 			btn.addEventListener('click', (e) => { e.preventDefault(); this.openAutocomplete(); });
 		});
 
+		// Placeholder scope (widget-config peek strip): a wrapper tagged `.placeholders` opts into the FULL
+		// floating strip (placeholders + test + help) on focus. The provider resolves at focus time.
+		if(CerbUI.placeholders && CerbUI.placeholders.hasScope(el) && el.classList.contains('placeholders')) {
+			const placement = el.getAttribute('data-cerb-placeholders-placement') || 'auto';
+			this.textarea.addEventListener('focus', () => {
+				CerbUI.placeholders.attach(el, this.textarea, { placement: placement });
+			});
+		}
+
 		this._renderHighlight();
 		this._autosize();
 

@@ -33,6 +33,102 @@ CerbUI._suffix = function(base, key) {
 CerbUI.valueAttr = function(key) { return CerbUI._suffix('value', key); };
 CerbUI.textAttr = function(key) { return CerbUI._suffix('text', key); };
 
+// CerbUI.placeholders — bridges the widget-config placeholder strip (the peek's dashboard/toolbar.tpl) to modern
+// editor components (SearchQuery, DataQuery, KataEditor, …). A peek marks a container with the static attribute
+// [data-cerb-placeholders] and registers a provider on that element; a component whose wrapper is tagged
+// `.placeholders` inside that scope floats the FULL strip (placeholders + test + help) beside it on focus.
+// Outside a marked scope there's no provider, so nothing attaches. The provider is resolved lazily at focus time
+// (registration may lag component construction). Tagging `.placeholders` is the ONLY opt-in — there's deliberately
+// no auto-surfaced inline button just for living in a scope.
+//   provider = { attach(hostEl, fieldEl, opts) }   // floats the strip beside hostEl, bound to fieldEl
+CerbUI.placeholders = {
+	_providers: new WeakMap(),
+
+	// The nearest marked container above `el`, or null.
+	scopeEl: function(el) {
+		return (el && el.closest) ? el.closest('[data-cerb-placeholders]') : null;
+	},
+
+	// True when `el` lives inside a placeholder scope (decides whether a component shows its button).
+	hasScope: function(el) {
+		return !!CerbUI.placeholders.scopeEl(el);
+	},
+
+	// Register a provider for a marked container (called once per peek by the toolbar strip).
+	register: function(containerEl, provider) {
+		if(containerEl) CerbUI.placeholders._providers.set(containerEl, provider);
+	},
+
+	// Resolve the provider for `el` at call time.
+	provider: function(el) {
+		const scope = CerbUI.placeholders.scopeEl(el);
+		return scope ? (CerbUI.placeholders._providers.get(scope) || null) : null;
+	},
+
+	// Attach the FULL floating strip (placeholders + test + help + tester) to a component. A wrapper tagged
+	// `.placeholders` inside a scope calls this on focus; the provider floats its strip beside `hostEl` and
+	// binds it to `fieldEl` (the component's named textarea — the tester reads its name + value).
+	//   opts = { placement }  // 'auto'|'top'|'bottom'|'left'|'right'
+	attach: function(hostEl, fieldEl, opts) {
+		const p = CerbUI.placeholders.provider(hostEl);
+		if(p && typeof p.attach === 'function') p.attach(hostEl, fieldEl, opts || {});
+	},
+
+	// Position a floating strip `panelEl` beside `hostEl` per a simple placement enum (default 'auto' =
+	// below, flipping above when there's no room). Writes position:absolute offsets relative to panelEl's
+	// offsetParent so the strip stays inside the <form> (the tester serializes the enclosing form).
+	_floatPanel: function(panelEl, hostEl, placement) {
+		if(!panelEl || !hostEl) return;
+		placement = placement || 'auto';
+
+		panelEl.classList.add('cerb-placeholder-menu--floating'); // solid surface + shadow (see _toolbar.scss)
+		panelEl.style.position = 'absolute';
+		panelEl.style.zIndex = panelEl.style.zIndex || '5';
+
+		// Measure against the viewport, then convert to offsets within the positioned offsetParent.
+		const host = hostEl.getBoundingClientRect();
+		const pw = panelEl.offsetWidth || 320;
+		const ph = panelEl.offsetHeight || 40;
+		const vw = document.documentElement.clientWidth;
+		const vh = document.documentElement.clientHeight;
+		const gap = 4;
+
+		const roomBelow = vh - host.bottom;
+		const roomAbove = host.top;
+		const roomRight = vw - host.right;
+		const roomLeft = host.left;
+
+		let side = placement;
+		if(side === 'auto')
+			side = (roomBelow >= ph + gap || roomBelow >= roomAbove) ? 'bottom' : 'top';
+		else if(side === 'bottom' && roomBelow < ph + gap && roomAbove > roomBelow) side = 'top';
+		else if(side === 'top' && roomAbove < ph + gap && roomBelow > roomAbove) side = 'bottom';
+		else if(side === 'right' && roomRight < pw + gap && roomLeft > roomRight) side = 'left';
+		else if(side === 'left' && roomLeft < pw + gap && roomRight > roomLeft) side = 'right';
+
+		// Viewport-space top/left for the chosen side, then clamp on-screen.
+		let vTop, vLeft;
+		if(side === 'top')          { vTop = host.top - ph - gap;    vLeft = host.left; }
+		else if(side === 'left')    { vTop = host.top;               vLeft = host.left - pw - gap; }
+		else if(side === 'right')   { vTop = host.top;               vLeft = host.right + gap; }
+		else /* bottom */           { vTop = host.bottom + gap;      vLeft = host.left; }
+
+		vLeft = Math.max(gap, Math.min(vLeft, vw - pw - gap));
+		vTop = Math.max(gap, Math.min(vTop, vh - ph - gap));
+
+		// Convert viewport coords → offset within the positioned offsetParent (or the document).
+		const parent = panelEl.offsetParent;
+		if(parent && parent !== document.body && parent !== document.documentElement) {
+			const pr = parent.getBoundingClientRect();
+			panelEl.style.top = (vTop - pr.top + parent.scrollTop) + 'px';
+			panelEl.style.left = (vLeft - pr.left + parent.scrollLeft) + 'px';
+		} else {
+			panelEl.style.top = (vTop + window.scrollY) + 'px';
+			panelEl.style.left = (vLeft + window.scrollX) + 'px';
+		}
+	}
+};
+
 // Small DOM utilities. These replace a few jQuery-UI helpers that were removed with that bundle. Each accepts a
 // DOM element or a selector string (NOT a jQuery object).
 CerbUI.utils = CerbUI.utils || {};
