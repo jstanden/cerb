@@ -46,10 +46,15 @@ $(function() {
 		return ($field && $field.length) ? $field : null;
 	};
 
+	// When a modern component (SearchQuery/DataQuery/KataEditor) opens the menu it supplies its own insert
+	// callback; otherwise fall back to inserting into the strip's currently-focused field.
+	var pendingInsert = null;
+
 	// Quick insert token menu — a separate filterable menu (the toolbar doesn't forward `filter` to submenus)
 	var menu = new CerbUI.Menu($placeholder_menu[0], {
 		selectableParents: true,
 		filter: true,
+		onClose: function() { pendingInsert = null; },
 		onSelect: function(li, src) {
 			var token = src.getAttribute('data-token');
 			var label = src.getAttribute('data-label');
@@ -57,10 +62,16 @@ $(function() {
 			if(undefined == token || undefined == label)
 				return;
 
-			var $field = activeField();
+			var placeholder = '{literal}{{{/literal}' + token + '{literal}}}{/literal}';
 
-			if($field)
-				$field.focus().insertAtCursor('{literal}{{{/literal}' + token + '{literal}}}{/literal}');
+			if(typeof pendingInsert === 'function') {
+				pendingInsert(placeholder);
+			} else {
+				var $field = activeField();
+
+				if($field)
+					$field.focus().insertAtCursor(placeholder);
+			}
 		}
 	});
 
@@ -115,6 +126,19 @@ $(function() {
 						});
 						break;
 				}
+			}
+		});
+	}
+
+	// Register this menu as the placeholder provider for the peek's [data-cerb-placeholders] scope so modern
+	// Cerb UI components (SearchQuery, DataQuery, KataEditor, …) inside it auto-surface an "insert placeholder"
+	// button — without the floating strip, which only auto-attaches to plain `.placeholders` inputs.
+	var $scope = $div.closest('[data-cerb-placeholders]');
+	if($scope.length && window.CerbUI && CerbUI.placeholders) {
+		CerbUI.placeholders.register($scope[0], {
+			open: function(anchorEl, insertFn) {
+				pendingInsert = (typeof insertFn === 'function') ? insertFn : null;
+				menu.open(anchorEl);
 			}
 		});
 	}
