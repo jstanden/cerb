@@ -162,10 +162,11 @@ $('#viewForm{$view->id}').find('button.add').click(function(e) {
 		$item.css('visibility','hidden');
 		
 		if($item.length > 0) {
-			$item.effect('transfer', { to:$this, className:'effects-transfer' }, 500, function() {
-				$(this).remove();
-			});
-			
+			if(window.CerbUI && CerbUI.effects)
+				CerbUI.effects.transfer($item[0], $this[0], { onEnd: function() { $item.remove(); } });
+			else
+				$item.remove();
+
 			$this.html('<span class="cerb-icons cerb-icon-circle-plus">');
 		}
 
@@ -192,9 +193,10 @@ $('#viewForm{$view->id}').find('button.add').click(function(e) {
 
 		}
 
-		$this.effect('transfer', { to:$li, className:'effects-transfer' }, 500, function() {
+		if(window.CerbUI && CerbUI.effects)
+			CerbUI.effects.transfer($this[0], $li[0], { onEnd: function() { $li.css('visibility','visible'); } });
+		else
 			$li.css('visibility','visible');
-		});
 
 		$this.html('<span class="cerb-icons cerb-icon-circle-minus">');
 

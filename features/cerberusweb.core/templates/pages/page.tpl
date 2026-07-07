@@ -5,45 +5,43 @@
 
 	{$menu = DAO_WorkerPref::getAsJson($active_worker->id, 'menu_json', '[]')}
 	{$in_menu = in_array($page->id, $menu)}
-	
-	<div style="float:left;">
-		<h2>{$page->name}</h2>
-	</div>
-	
-	<div style="float:right;">
-		{$page_owner_meta = $page->getOwnerMeta()}
-		{if !empty($page_owner_meta)}
-			<div style="display:inline-block;margin-right:5px;vertical-align:middle;">
-				Managed by
-				<img src="{devblocks_url}c=avatars&context={$page->owner_context}&context_id={$page->owner_context_id}{/devblocks_url}?v={$page_owner_meta.updated}" style="height:1.2em;width:1.2em;border-radius:0.75em;vertical-align:middle;">
-				<b>
-				{if $page->owner_context_id} 
-				<a class="cerb-peek-trigger no-underline" data-context="{$page->owner_context}" data-context-id="{$page->owner_context_id}">{$page_owner_meta.name}</a>
-				{else}
-				{$page_owner_meta.name}
-				{/if}
-				</b>
-			</div>
-		{/if}
-	
-		<button class="add" type="button" page_id="{$page->id}" page_label="{$page->name|lower}" page_url="{devblocks_url}c=pages&page={$page->id}-{$page->name|devblocks_permalink}{/devblocks_url}">{if $in_menu}<span class="cerb-icons cerb-icon-circle-minus"></span>{else}<span class="cerb-icons cerb-icon-circle-plus"></span>{/if} Menu</button>
 
-		{if CerberusContexts::isWriteableByActor(CerberusContexts::CONTEXT_WORKSPACE_PAGE, $page, $active_worker)}
-		<div style="display:inline-block;vertical-align:middle;">
-			<button class="config-page" type="button"><span class="cerb-icons cerb-icon-gear"></span><span class="cerb-icons cerb-icon-chevron-down"></span></button>
-			<ul hidden data-cerb-config-menu>
-				{if CerberusContexts::isWriteableByActor(CerberusContexts::CONTEXT_WORKSPACE_PAGE, $page, $active_worker)}
-					{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_PAGE}.update")}<li data-icon="edit"><a class="edit-page" data-context="{CerberusContexts::CONTEXT_WORKSPACE_PAGE}" data-context-id="{$page->id}" data-edit="true">Edit Page</a></li>{/if}
-					{if $page->extension_id == 'core.workspace.page.workspace' && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_TAB}.update")}<li data-icon="edit"><a class="edit-tab" data-context="{CerberusContexts::CONTEXT_WORKSPACE_TAB}" data-context-id="" data-edit="true">Edit Tab</a></li>{/if}
-				{/if}
-				{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_PAGE}.export")}<li data-icon="upload"><a class="export-page">Export Page</a></li>{/if}
-				{if $page->extension_id == 'core.workspace.page.workspace' && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_TAB}.export")}<li data-icon="upload"><a class="export-tab">Export Tab</a></li>{/if}
-			</ul>
+	<div class="cerb-ui-header cerb-ui-header--tight cerb-u-items-center">
+		<div>
+			<div class="cerb-ui-header--title">{$page->name}</div>
 		</div>
-		{/if}
-	</div>
+		<div class="cerb-ui-header--right">
+			{$page_owner_meta = $page->getOwnerMeta()}
+			{if !empty($page_owner_meta)}
+				<div class="cerb-ui-pill cerb-u-text-muted" title="Managed by {$page_owner_meta.name}">
+					<span class="cerb-icons cerb-icon-tag"></span>
+					<span class="cerb-font-bold">
+						{if $page->owner_context_id}
+							<a class="cerb-peek-trigger cerb-u-text-muted cerb-u-underline-hover" data-context="{$page->owner_context}" data-context-id="{$page->owner_context_id}">{$page_owner_meta.name}</a>
+						{else}
+							{$page_owner_meta.name}
+						{/if}
+					</span>
+				</div>
+			{/if}
 
-	<div style="clear:both;"></div>
+			<div class="cerb-ui-toolbar-strip">
+				<button class="add cerb-ui-toolbar-button" type="button" page_id="{$page->id}" page_label="{$page->name|lower}" page_url="{devblocks_url}c=pages&page={$page->id}-{$page->name|devblocks_permalink}{/devblocks_url}">{if $in_menu}<span class="cerb-icons cerb-icon-circle-minus"></span>{else}<span class="cerb-icons cerb-icon-circle-plus"></span>{/if} Menu</button>
+
+				{if CerberusContexts::isWriteableByActor(CerberusContexts::CONTEXT_WORKSPACE_PAGE, $page, $active_worker)}
+					<button class="config-page cerb-ui-toolbar-button" type="button"><span class="cerb-icons cerb-icon-gear"></span><span class="cerb-icons cerb-icon-chevron-down cerb-ui-toolbar--caret"></span></button>
+					<ul hidden data-cerb-config-menu>
+						{if CerberusContexts::isWriteableByActor(CerberusContexts::CONTEXT_WORKSPACE_PAGE, $page, $active_worker)}
+							{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_PAGE}.update")}<li data-icon="edit"><a class="edit-page" data-context="{CerberusContexts::CONTEXT_WORKSPACE_PAGE}" data-context-id="{$page->id}" data-edit="true">Edit Page</a></li>{/if}
+							{if $page->extension_id == 'core.workspace.page.workspace' && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_TAB}.update")}<li data-icon="edit"><a class="edit-tab" data-context="{CerberusContexts::CONTEXT_WORKSPACE_TAB}" data-context-id="" data-edit="true">Edit Tab</a></li>{/if}
+						{/if}
+						{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_PAGE}.export")}<li data-icon="upload"><a class="export-page">Export Page</a></li>{/if}
+						{if $page->extension_id == 'core.workspace.page.workspace' && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_TAB}.export")}<li data-icon="upload"><a class="export-tab">Export Tab</a></li>{/if}
+					</ul>
+				{/if}
+			</div>
+		</div>
+	</div>
 </form>
 
 <div style="margin-top:5px;">
@@ -108,25 +106,17 @@ $(function() {
 			.on('cerb-peek-saved', function(e) {
 				e.stopPropagation();
 
-				const $tabs = $("#pageTabs{$page->id}");
-				let $selected_tab = $tabs.find('li.ui-tabs-active').first();
+				const cerbTabs = window.CerbUI?.Tabs?.from(document.getElementById('pageTabs{$page->id}'));
 
-				if(0 == $selected_tab.length)
+				if(!cerbTabs || !cerbTabs.activeTab)
 					return;
-
-				const tab_id = $selected_tab.attr('data-tab-id');
 
 				// On this page
 				if(e.page_id == {$page->id}) {
-					if(0 != $tabs) {
-						const selected_idx = $tabs.tabs('option','active');
-						$tabs.tabs('load', selected_idx);
+					cerbTabs.refresh();
 
-						if(null != e.label) {
-							$selected_tab = $tabs.find('> ul > li.ui-tabs-active');
-							$selected_tab.find('a').text(e.label);
-						}
-					}
+					if(null != e.label)
+						$(cerbTabs.activeTab.li).find('a').text(e.label);
 
 				} else { // If moved to another page, remove the tab
 					const evt = jQuery.Event('cerb-peek-deleted');
@@ -134,25 +124,18 @@ $(function() {
 					evt.label = e.label;
 					$(this).trigger(evt);
 				}
-
 			})
 			.on('cerb-peek-deleted', function(e) {
 				e.stopPropagation();
 
-				const $tabs = $("#pageTabs{$page->id}");
-				const $selected_tab = $tabs.find('li.ui-tabs-active').first();
+				const cerbTabs = window.CerbUI?.Tabs?.from(document.getElementById('pageTabs{$page->id}'));
 
-				if(0 == $selected_tab.length)
+				if(!cerbTabs || !cerbTabs.activeTab)
 					return;
 
-				const tab_id = $selected_tab.attr('data-tab-id');
-
-				if(0 != $tabs.length) {
-					const tab = $tabs.find('.ui-tabs-nav li:eq(' + $tabs.tabs('option','active') + ')').remove();
-					const panelId = tab.attr('aria-controls');
-					$('#' + panelId).remove();
-					$tabs.tabs('refresh');
-				}
+				// Remove the active tab; sync() drops its auto-created panel and activates a sibling
+				$(cerbTabs.activeTab.li).remove();
+				cerbTabs.sync();
 			})
 			;
 	{/if}
@@ -167,14 +150,9 @@ $(function() {
 	$workspace.find('a.export-tab').click(function(e) {
 		e.stopPropagation();
 		
-		let $tabs = $("#pageTabs{$page->id}");
-		let $selected_tab = $tabs.find('li.ui-tabs-active').first();
-		
-		if(0 == $selected_tab.length)
-			return;
-		
-		let tab_id = $selected_tab.attr('data-tab-id');
-		
+		const cerbTabs = window.CerbUI?.Tabs?.from(document.getElementById('pageTabs{$page->id}'));
+		const tab_id = (cerbTabs && cerbTabs.activeTab) ? $(cerbTabs.activeTab.li).attr('data-tab-id') : null;
+
 		if(null == tab_id)
 			return;
 
@@ -192,10 +170,11 @@ $(function() {
 			// Is the page already in the menu?
 			$item.css('visibility','hidden');
 			
-			$item.effect('transfer', { to:$this, className:'effects-transfer' }, 500, function() {
-				$(this).remove();
-			});
-			
+			if(window.CerbUI && CerbUI.effects)
+				CerbUI.effects.transfer($item[0], $this[0], { onEnd: function() { $item.remove(); } });
+			else
+				$item.remove();
+
 			$this.html('<span class="cerb-icons cerb-icon-circle-plus"></span> Menu');
 
 			const formData = new FormData();
@@ -226,10 +205,11 @@ $(function() {
 				
 			}
 			
-			$this.effect('transfer', { to:$li, className:'effects-transfer' }, 500, function() {
+			if(window.CerbUI && CerbUI.effects)
+				CerbUI.effects.transfer($this[0], $li[0], { onEnd: function() { $li.css('visibility','visible'); } });
+			else
 				$li.css('visibility','visible');
-			});
-			
+
 			$this.html('<span class="cerb-icons cerb-icon-circle-minus"></span> Menu');
 
 			const formData = new FormData();

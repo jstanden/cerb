@@ -111,22 +111,21 @@ $(function() {
 				$('<td/>').appendTo($tr);
 
 				$sortable.append($sort_item);
-				$sortable.sortable('refresh');
+				if(window.CerbUI && CerbUI.Sortable) CerbUI.Sortable.from($sortable.get(0))?.refresh();
 
-				// Add new tab
+				// Add the new tab to the strip optimistically (Save → reload rebuilds it authoritatively)
 				let $this = $(this);
 				let $tabs = $('#pageTabs{$page->id}');
-				
+
 				let $new_tab = $('<li/>').attr('data-tab-id',e.id);
-				$new_tab.append($('<a/>').attr('href',e.tab_url).attr('draggable','false').append($('<span/>').text(e.label)));
-				
-				$new_tab.insertBefore($tabs.find('.ui-tabs-nav > li:last'));
-				
-				$tabs.tabs('refresh');
-				
-				$this.effect('transfer', { to:$new_tab, className:'effects-transfer' }, 500, function() { });
-				
-				$tabs.tabs('option', 'active', -1);
+				$new_tab.append($('<a/>').attr('href', e.tab_url.split('ajax.php?').pop()).attr('draggable','false').append($('<span/>').text(e.label)));
+
+				// Insert before the trailing add-tabs gear, then let CerbUI.Tabs pick it up
+				$new_tab.insertBefore($tabs.children('li:last'));
+				window.CerbUI?.Tabs?.from($tabs[0])?.sync();
+
+				if(window.CerbUI && CerbUI.effects)
+					CerbUI.effects.transfer($this[0], $new_tab[0], {});
 			})
 		;
 
@@ -141,23 +140,18 @@ $(function() {
 				e.stopPropagation();
 				// [TODO] Also remove the pages tab?
 				$(this).closest('tbody.cerb-sort-item').remove();
-
-				let $tabs = $('#pageTabs{$page->id}');
-				$tabs.tabs('option', 'active', -1);
+				// The strip reflects the removal on Save → reload
 			})
 	;
 
 	// Sortable
 
-	$sortable
-		.sortable({
-			tolerance: 'pointer',
+	if(window.CerbUI && CerbUI.Sortable)
+		new CerbUI.Sortable($sortable.get(0), {
 			helper: 'clone',
 			handle: '.cerb-icon-menu-hamburger',
-			items: '.cerb-sort-item',
-			opacity: 0.7
-		})
-	;
+			items: '.cerb-sort-item'
+		});
 
 	// Submit
 

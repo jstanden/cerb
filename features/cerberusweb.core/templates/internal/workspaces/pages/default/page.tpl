@@ -15,26 +15,24 @@
 	</div>
 {else}
 
-<div id="pageTabs{$page->id}">
-	<ul>
-		{$tabs = []}
-		
-		{foreach from=$page_tabs item=tab}
-			{if !$tab->isHidden($page_dict)}
-			{$tabs[] = "{$tab->name|lower|devblocks_permalink}"}
-			<li data-tab-id="{$tab->id}" {if $page->extension_params['tab_sorting']}class="drag"{/if}>
-				<a href="{devblocks_url}ajax.php?c=pages&a=renderTab&point={$point}&id={$tab->id}{/devblocks_url}" draggable="false">
-					{$tab->name}
-				</a>
-			</li>
-			{/if}
-		{/foreach}
+<ul id="pageTabs{$page->id}">
+	{$tabs = []}
 
-		{if $is_writeable && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_TAB}.create")}
-			<li><a href="{devblocks_url}ajax.php?c=pages&a=renderAddTabs&page_id={$page->id}{/devblocks_url}" draggable="false">&nbsp;<span class="cerb-icons cerb-icon-gear"></span>&nbsp;</a></li>
+	{foreach from=$page_tabs item=tab}
+		{if !$tab->isHidden($page_dict)}
+		{$tabs[] = "{$tab->name|lower|devblocks_permalink}"}
+		<li data-tab-id="{$tab->id}" {if $page->extension_params['tab_sorting']}class="drag"{/if}>
+			<a href="c=pages&a=renderTab&point={$point}&id={$tab->id}" draggable="false">
+				{$tab->name}
+			</a>
+		</li>
 		{/if}
-	</ul>
-</div>
+	{/foreach}
+
+	{if $is_writeable && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_TAB}.create")}
+		<li><a href="c=pages&a=renderAddTabs&page_id={$page->id}" draggable="false">&nbsp;<span class="cerb-icons cerb-icon-gear"></span>&nbsp;</a></li>
+	{/if}
+</ul>
 {/if}
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
@@ -42,86 +40,52 @@ $(function() {
 	// Set the browser tab label to the record label
 	document.title = "{$page->name|escape:'javascript' nofilter} - {$settings->get('cerberusweb.core','helpdesk_title')|escape:'javascript' nofilter}";
 	
-	let $tabs = $("#pageTabs{$page->id}");
+	const pageTabsUl = document.getElementById('pageTabs{$page->id}');
 
-	{if array_key_exists('tab_style', $page->extension_params) && 'menu' == $page->extension_params.tab_style}
-	var $tab_switcher = $tabs.prevAll('h2.cerb-page-tab--title');
-	var $tab_switcher_menu = $tab_switcher.next('.cerb-tab-switcher-menu').menu({
-		select: function(event, ui) {
-			var tab_index = ui.item.find('a').attr('data-index');
-			$tabs.tabs('option', 'active', tab_index);
-			$tab_switcher_menu.hide();
+	if(!pageTabsUl || !(window.CerbUI && CerbUI.Tabs))
+		return;
+
+	let $tabs = $(pageTabsUl);
+	let cerbPageTabs = null;
+
+	// Config menu (edit/export tab) visibility tracks the active tab's data-tab-id (the gear/add-tabs
+	// tab has none, so those entries hide)
+	const updatePageConfigMenu = function(tabLi) {
+		const tab_id = tabLi ? tabLi.getAttribute('data-tab-id') : null;
+		const $menu = $('#frmWorkspacePage{$page->id}').find('ul[data-cerb-config-menu]');
+
+		if(!tab_id) {
+			$menu.find('a.edit-tab').attr('data-context-id', '');
+			$menu.find('a.edit-tab').parent().hide();
+			$menu.find('a.export-tab').parent().hide();
+		} else {
+			$menu.find('a.edit-tab').attr('data-context-id', tab_id);
+			$menu.find('a.edit-tab').parent().show();
+			$menu.find('a.export-tab').parent().show();
 		}
-	});
-	
-	$tab_switcher.on('click', function(e) {
-		$tab_switcher_menu.toggle();
-	});
-	{/if}
-	
-	var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
-	tabOptions.collapsible = true;
-	tabOptions.active = false;
-	
-	var tabActiveIndex = 0;
-	
+	};
+
+	let active; // undefined → CerbUI.Tabs uses the remembered index / 0
 	{if isset($tab_selected) && in_array($tab_selected, $tabs)}
-	{$tab_idx = array_search($tab_selected, $tabs)}
-	tabActiveIndex = {$tab_idx};
-	Devblocks.setjQueryUiTabSelected('pageTabs{$page->id}', {$tab_idx});
-	{else}
-	tabActiveIndex = Devblocks.getjQueryUiTabSelected('pageTabs{$page->id}');
+	active = {array_search($tab_selected, $tabs)};
 	{/if}
-	
-	tabOptions.create = function(e, ui) {
-		let tab_id = $(ui.tab).attr('data-tab-id');
-		
-		let $frm = $('#frmWorkspacePage{$page->id}');
-		let $menu = $frm.find('ul.cerb-popupmenu');
-		
-		if(undefined == tab_id) {
-			$menu.find('a.edit-tab').attr('data-context-id', '');
-			$menu.find('a.edit-tab').parent().hide();
-			$menu.find('a.export-tab').parent().hide();
-		} else {
-			$menu.find('a.edit-tab').attr('data-context-id', tab_id);
-			$menu.find('a.edit-tab').parent().show();
-			$menu.find('a.export-tab').parent().show();
+
+	cerbPageTabs = new CerbUI.Tabs(pageTabsUl, {
+		remember: 'pageTabs{$page->id}',
+		active: active,
+		onTabSelected: function(index, tab) {
+			updatePageConfigMenu(tab.li);
 		}
-	};
-	
-	tabOptions.activate = function(e, ui) {
-		Devblocks.getDefaultjQueryUiTabOptions().activate(e, ui);
-		
-		let $new_tab = $(ui.newTab);
-		let tab_id = $new_tab.attr('data-tab-id');
-		
-		let $frm = $('#frmWorkspacePage{$page->id}');
-		let $menu = $frm.find('ul.cerb-popupmenu');
-		
-		if(undefined == tab_id) {
-			$menu.find('a.edit-tab').attr('data-context-id', '');
-			$menu.find('a.edit-tab').parent().hide();
-			$menu.find('a.export-tab').parent().hide();
-		} else {
-			$menu.find('a.edit-tab').attr('data-context-id', tab_id);
-			$menu.find('a.edit-tab').parent().show();
-			$menu.find('a.export-tab').parent().show();
-		}
-		
-		// Update the label
-		{if array_key_exists('tab_style', $page->extension_params) && 'menu' == $page->extension_params.tab_style}
-		$tab_switcher.find('> a').text($.trim($new_tab.text()));
-		{/if}
-	};
-	
-	$tabs.tabs(tabOptions);
-	$tabs.tabs('option', 'active', tabActiveIndex);
+	});
+
+	// Seed the config menu for the initially-active tab (onTabSelected doesn't fire on init)
+	if(cerbPageTabs.activeTab)
+		updatePageConfigMenu(cerbPageTabs.activeTab.li);
 	
 	{$user_agent = DevblocksPlatform::getClientUserAgent()}
 
 	{if $page->extension_params['tab_sorting'] && is_array($user_agent) && 0 != strcasecmp($user_agent.platform|default:'', 'Android')}
-	$tabs.find('ul')
+	$tabs
 		.find('> li.drag')
 		.hoverIntent({
 			interval:750,
@@ -139,28 +103,28 @@ $(function() {
 		})
 	;
 
-	$tabs.find('> ul').sortable({
-		items:'> li.drag',
-		distance: 20,
-		forcePlaceholderWidth:true,
-		stop:function(e) {
-			e.stopPropagation();
+	if(window.CerbUI && CerbUI.Sortable)
+		new CerbUI.Sortable($tabs.get(0), {
+			items:'> li.drag',
+			distance: 20,
+			onSorted:function() {
+				// Re-sync CerbUI.Tabs to the reordered <li> DOM order
+				if(cerbPageTabs) cerbPageTabs.sync();
 
-			$tabs = $("#pageTabs{$page->id}");
-			let $page_tabs = $tabs.find('ul.ui-tabs-nav > li.drag[data-tab-id]');
-			let page_tab_ids = $page_tabs.map(function() {
-				return $(this).attr('data-tab-id');
-			}).get().join(',');
+				let $page_tabs = $tabs.find('> li.drag[data-tab-id]');
+				let page_tab_ids = $page_tabs.map(function() {
+					return $(this).attr('data-tab-id');
+				}).get().join(',');
 
-			let formData = new FormData();
-			formData.set('c', 'pages');
-			formData.set('a', 'setWorkerTabOrder');
-			formData.set('page_id', '{$page->id}');
-			formData.set('tabs', page_tab_ids);
+				let formData = new FormData();
+				formData.set('c', 'pages');
+				formData.set('a', 'setWorkerTabOrder');
+				formData.set('page_id', '{$page->id}');
+				formData.set('tabs', page_tab_ids);
 
-			genericAjaxPost(formData, '', '');
-		}
-	});
+				genericAjaxPost(formData, '', '');
+			}
+		});
 	{/if}
 	
 	// Keyboard shortcuts
@@ -188,16 +152,14 @@ $(function() {
 		// [TODO] Intercept 91,93 ([] -- tabs prev/next)
 		
 		// How many tabs are we showing?
-		var num_tabs = $tabs.find('> ul > li').length;
-		
+		var num_tabs = $tabs.find('> li').length;
+
 		if(0 == num_tabs)
 			return;
-		
-		// Which tab is selected?
-		var tab_id = $tabs.tabs('option','active');
-		
-		// Find the worklists on this tab
-		var $worklists = $tabs.find('div.ui-tabs-panel').eq(tab_id).find('TABLE.worklistBody').closest('FORM');
+
+		// Find the worklists on the active tab's panel
+		var $tab_panel = (cerbPageTabs && cerbPageTabs.activeTab) ? $(cerbPageTabs.activeTab.panel) : $();
+		var $worklists = $tab_panel.find('TABLE.worklistBody').closest('FORM');
 		var $worklist = $('');
 		
 		// Are we confident about the user's intentions with this keystroke?
