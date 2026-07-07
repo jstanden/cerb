@@ -153,6 +153,9 @@
 	border-radius: 6px;
 	background: var(--cerb-color-form-input-background);
 	color: inherit;
+	// The whole control is a click-to-focus target (_onElClick focuses the input), so show the I-beam over
+	// the empty area — not just over the now-compact input. Interactive children reset to pointer/default.
+	cursor: text;
 
 	&:hover,
 	&.cerb-ui-record-chooser--open {
@@ -219,6 +222,7 @@
 	padding: 0.1em 0.25em 0.1em 0.15em;
 	background: var(--cerb-color-background-contrast-235);
 	border-radius: 5px;
+	cursor: default; // a tile isn't the text field; its label (peek link) + × set their own pointer
 }
 
 // Keyboard focus: ring the whole chip when its label (peek link) or × is focused. Unified focus look.
@@ -252,12 +256,17 @@
 }
 .cerb-ui-record-chooser--input[hidden] { display: none; }
 
-// Multiple + tiles present: keep the idle input compact (no placeholder text), then grow on hover or
-// focus so you can add more. It stays a NONZERO width even when idle — a width:0 input would otherwise
-// place the caret in a zero-width box on focus, leaving it invisible until the first keystroke.
-.cerb-ui-record-chooser--multiple.cerb-ui-record-chooser--has-tiles:not(:hover):not(:focus-within) .cerb-ui-record-chooser--input {
-	flex: 0 1 auto;
-	min-width: 1.5em;
+// Multiple + tiles present: keep the idle input compact (no placeholder text) so it tucks in after the
+// tiles instead of wrapping to its own full-width row. It grows only on FOCUS — the whole control is a
+// click target that focuses the input (cursor:text everywhere, and _onElClick), so the idle input needs
+// no big hitbox, and hover-growing would wrap the row out from under the pointer. It stays a NONZERO width
+// even when idle — a width:0 input would otherwise place the caret in a zero-width box on focus, leaving it
+// invisible until the first keystroke.
+.cerb-ui-record-chooser--multiple.cerb-ui-record-chooser--has-tiles:not(:focus-within) .cerb-ui-record-chooser--input {
+	// Explicit small basis — flex-basis:auto would use the input's intrinsic width (default size=20 ≈ 20ch)
+	// and never shrink to a floor in a wide field, so it kept forcing its own row.
+	flex: 0 1 1.5em;
+	min-width: 0;
 }
 // With tiles already present the in-field "Participants" placeholder is redundant (the field label says
 // so) and clutters the caret position — hide it whenever tiles exist, leaving a clean cursor.
@@ -271,6 +280,7 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+	cursor: pointer; // it's a peek link (hrefless <a>, so no default pointer)
 }
 
 // Two-line tile: a disambiguating eyebrow (e.g. parent path) stacked above the label.
