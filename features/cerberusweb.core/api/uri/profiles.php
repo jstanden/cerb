@@ -322,12 +322,14 @@ class Page_Profiles extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::services()->template();
 		
 		$context = DevblocksPlatform::importGPC($_REQUEST['context'] ?? null,'string','');
-		
+		$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'] ?? null, 'integer', 0);
+
 		if(!$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
-		
+
 		$tpl->assign('context', $context);
-		
+		$tpl->assign('context_id', $context_id);
+
 		$profile_tabs = DAO_ProfileTab::getByContext($context);
 		$tpl->assign('profile_tabs', $profile_tabs);
 		

@@ -53,8 +53,7 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 		
 		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
 		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'string', '');
-		
-		$url_writer = DevblocksPlatform::services()->url();
+
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
@@ -137,13 +136,10 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 						if($view_id)
 							C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_PROFILE_TAB, $new_tab['id']);
 						
-						$tab_url = $url_writer->write(sprintf('ajax.php?c=pages&a=renderTab&id=%d', $new_tab['id']));
-						
 						echo json_encode([
 							'status' => true,
 							'id' => $new_tab['id'],
 							'label' => $new_tab['label'],
-							'tab_url' => $tab_url,
 							'view_id' => $view_id,
 						]);
 						return;
@@ -203,13 +199,10 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 						if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_PROFILE_TAB, $id, $field_ids, $error))
 							throw new Exception_DevblocksAjaxValidationError($error);
 						
-						$tab_url = $url_writer->write(sprintf('ajax.php?c=pages&a=renderTab&id=%d', $id));
-						
 						echo json_encode(array(
 							'status' => true,
 							'id' => $id,
 							'label' => $name,
-							'tab_url' => $tab_url,
 							'view_id' => $view_id,
 						));
 						return;

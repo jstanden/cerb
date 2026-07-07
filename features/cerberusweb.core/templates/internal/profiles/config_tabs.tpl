@@ -114,9 +114,8 @@ $(function() {
 			let $this = $(this);
 
 			let $new_tab = $('<li/>');
-			$new_tab.append($('<a/>').attr('href',e.tab_url).attr('draggable','false').text(e.label));
-
-			$new_tab.insertBefore($tabs.find('.ui-tabs-nav > li:last'));
+			let tabHref = 'c=profiles&a=renderTab&tab_id=' + e.id + '&context={$context}&context_id={$context_id}';
+			$new_tab.append($('<a/>').attr('href', tabHref).attr('draggable','false').text(e.label));
 
 			// Insert before the trailing config-gear tab, then let CerbUI.Tabs pick it up
 			$new_tab.insertBefore($tabs.children('li:last'));
