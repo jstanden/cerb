@@ -320,9 +320,9 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 								'key_select' => $search_key,
 								'label' => $search_field->db_label,
 								'type' => DevblocksSearchCriteria::TYPE_TEXT,
-								'timestamp_step' => 'quarterofyear',
+								'timestamp_step' => 'quarter',
 								'timestamp_format' => $ts_format,
-								'sql_select' => sprintf("CONCAT_WS('-Q',YEAR(FROM_UNIXTIME(%s)),QUARTER(FROM_UNIXTIME(%s))",
+								'sql_select' => sprintf("CONCAT_WS('-Q',YEAR(FROM_UNIXTIME(%s)),QUARTER(FROM_UNIXTIME(%s)))",
 									$sql_select_field,
 									$sql_select_field
 								),
@@ -335,7 +335,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 								'key_select' => $search_key,
 								'label' => $search_field->db_label,
 								'type' => DevblocksSearchCriteria::TYPE_TEXT,
-								'timestamp_step' => 'quarter',
+								'timestamp_step' => 'quarterofyear',
 								'timestamp_format' => $ts_format,
 								'sql_select' => sprintf("CONCAT('Q',QUARTER(FROM_UNIXTIME(%s)))",
 									$sql_select_field
