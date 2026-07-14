@@ -271,6 +271,7 @@ class _DevblocksUiManager {
 			'sparkles',
 			'speaker',
 			'spinner',
+			'split-pane',
 			'square',
 			'star',
 			'step-backward',
