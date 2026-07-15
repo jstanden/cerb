@@ -31,6 +31,19 @@
 		</div>
 
 		<div class="cerb-ui-header" style="margin-top:3em;">
+			<div class="cerb-ui-header--label">Magic gradient styles &mdash; add a <code>cerb-u-anim-magic-*</code> class to any icon to draw attention (click to copy the class)</div>
+		</div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<div class="cerb-uiref-anim-row" id="uiref-icon-anim-magic">
+					<div class="cerb-uiref-icon" data-anim-class="cerb-u-anim-magic-sweep" title="cerb-u-anim-magic-sweep"><span class="cerb-icons cerb-icon-sparkles cerb-u-anim-magic-sweep"></span><span class="cerb-uiref-icon--label">cerb-u-anim-magic-sweep</span></div>
+					<div class="cerb-uiref-icon" data-anim-class="cerb-u-anim-magic-aurora" title="cerb-u-anim-magic-aurora"><span class="cerb-icons cerb-icon-zap cerb-u-anim-magic-aurora"></span><span class="cerb-uiref-icon--label">cerb-u-anim-magic-aurora</span></div>
+					<div class="cerb-uiref-icon" data-anim-class="cerb-u-anim-magic-cycle" title="cerb-u-anim-magic-cycle"><span class="cerb-icons cerb-icon-star cerb-u-anim-magic-cycle"></span><span class="cerb-uiref-icon--label">cerb-u-anim-magic-cycle</span></div>
+				</div>
+			</div>
+		</div>
+
+		<div class="cerb-ui-header" style="margin-top:3em;">
 			<div class="cerb-ui-header--label">Hover animation utilities &mdash; add a <code>cerb-u-anim-*-hover</code> class to any icon (click to copy the class)</div>
 		</div>
 		<div class="cerb-uiref-example">
@@ -87,7 +100,7 @@
 	}
 
 	// Icon animations: click a demo tile to copy its cerb-u-anim-* class
-	$('#uiref-icon-anim, #uiref-icon-anim-hover').on('click', '[data-anim-class]', function() {
+	$('#uiref-icon-anim, #uiref-icon-anim-hover, #uiref-icon-anim-magic').on('click', '[data-anim-class]', function() {
 		navigator.clipboard.writeText($(this).attr('data-anim-class'));
 		Devblocks.createAlert('Copied animation class to clipboard!');
 	});

@@ -228,3 +228,56 @@ $cerb-u-anims: (
 		.cerb-u-anim-group:hover .cerb-u-anim-#{$name}-hover { animation: none; }
 	}
 }
+
+// "Magic" attention styles for cerb-icons. A cerb-icon is a mask tinted by a solid
+// `background-color: currentColor` (cerb-icons.scss); these replace that solid fill with an animated
+// gradient, so the existing mask clips the moving color to the glyph shape. Icon-only (need the mask).
+// Applied either directly on the glyph span, or on an ancestor (e.g. a toolbar button, where the
+// item `class:` passthrough lands the class on the <button> rather than its child glyph span).
+// Shared vibrant, theme-agnostic palette — the mask shows only the gradient, so it reads in light+dark.
+$cerb-magic-gradient: (#a855f7, #6366f1, #06b6d4, #ec4899, #a855f7);
+
+// Angle for the rotating conic variant; registered so it can be tweened (else it falls back to static).
+@property --cerb-magic-angle {
+	syntax: '<angle>';
+	initial-value: 0deg;
+	inherits: false;
+}
+
+// Sweep — a color band slides across the glyph.
+.cerb-icons.cerb-u-anim-magic-sweep,
+.cerb-u-anim-magic-sweep > span.cerb-icons {
+	background-color: transparent;
+	background-image: linear-gradient(100deg, $cerb-magic-gradient);
+	background-size: 200% 100%;
+	animation: cerb-u-anim-magic-sweep 3s linear infinite;
+}
+@keyframes cerb-u-anim-magic-sweep { to { background-position: 200% 0; } }
+
+// Aurora — a conic gradient spins around the glyph's center.
+.cerb-icons.cerb-u-anim-magic-aurora,
+.cerb-u-anim-magic-aurora > span.cerb-icons {
+	background-color: transparent;
+	background-image: conic-gradient(from var(--cerb-magic-angle), $cerb-magic-gradient);
+	animation: cerb-u-anim-magic-aurora 4s linear infinite;
+}
+@keyframes cerb-u-anim-magic-aurora { to { --cerb-magic-angle: 360deg; } }
+
+// Cycle — a static gradient whose hue morphs slowly (no directional motion).
+.cerb-icons.cerb-u-anim-magic-cycle,
+.cerb-u-anim-magic-cycle > span.cerb-icons {
+	background-color: transparent;
+	background-image: linear-gradient(135deg, #a855f7, #06b6d4);
+	animation: cerb-u-anim-magic-cycle 6s linear infinite;
+}
+@keyframes cerb-u-anim-magic-cycle { to { filter: hue-rotate(360deg); } }
+
+// Reduced-motion: freeze the animation but keep a visible gradient fill.
+@media (prefers-reduced-motion: reduce) {
+	.cerb-icons.cerb-u-anim-magic-sweep,
+	.cerb-u-anim-magic-sweep > span.cerb-icons,
+	.cerb-icons.cerb-u-anim-magic-aurora,
+	.cerb-u-anim-magic-aurora > span.cerb-icons,
+	.cerb-icons.cerb-u-anim-magic-cycle,
+	.cerb-u-anim-magic-cycle > span.cerb-icons { animation: none; }
+}
