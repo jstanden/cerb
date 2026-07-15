@@ -111,8 +111,13 @@
 	}
 }
 
-// Floating controls render over the content surface (not the accent bar), so use content text color.
-.cerb-ui-dialog--floating-controls .cerb-ui-dialog--btn {
+// Controls rendered over the content surface — the floating fallback cluster OR the buttons docked into a
+// content header's `.cerb-ui-header--right` — sit on the content, not the accent bar, so use the content
+// text color and a solid, theme-aware hover fill. The base `color-mix(currentColor 18%, transparent)` hover
+// is a faint white tint (right for the titlebar over the purple accent bar, but near-invisible over a dark
+// content surface → "goes transparent in dark mode").
+.cerb-ui-dialog--floating-controls .cerb-ui-dialog--btn,
+.cerb-ui-header--right .cerb-ui-dialog--btn {
 	color: var(--cerb-color-text);
 
 	&:hover {
