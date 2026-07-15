@@ -125,6 +125,35 @@ CerbUI.editorCore = {
 		highlightEl.scrollLeft = textarea.scrollLeft;
 	},
 
+	// Size the decorative overlay layers (the colored mirror, the line-number gutter) to the textarea's CLIENT
+	// height. A horizontal scrollbar on the textarea steals rows from its client height but NOT from the
+	// overflow:hidden overlays — so without this the mirror ends up taller than the caret layer and lines drift by
+	// the scrollbar height (worst scrolled to the bottom). Call AFTER the textarea's height/overflow are set;
+	// clientHeight already excludes the h-scrollbar (a vertical scrollbar only steals width). Falsy overlays skipped.
+	syncOverlayHeight: function(textarea, overlays) {
+		if(!textarea) return;
+		const h = textarea.clientHeight + 'px';
+		(overlays || []).forEach((el) => { if(el) el.style.height = h; });
+	},
+
+	// Observe an element's WIDTH and invoke cb on change (coalesced to one call per frame). Height-only changes are
+	// ignored so an editor's own autosize height writes don't re-trigger it. Returns a disposer, or null when
+	// ResizeObserver is unavailable. Used to re-run _autosize when the editor is resized narrow/wide, which toggles
+	// the horizontal scrollbar that syncOverlayHeight compensates for.
+	observeWidth: function(el, cb) {
+		if(!el || typeof ResizeObserver !== 'function' || typeof cb !== 'function') return null;
+		let lastW = -1, raf = 0;
+		const ro = new ResizeObserver((entries) => {
+			const w = entries[0] ? Math.round(entries[0].contentRect.width) : el.clientWidth;
+			if(w === lastW) return;
+			lastW = w;
+			if(raf) return;
+			raf = requestAnimationFrame(() => { raf = 0; cb(); });
+		});
+		ro.observe(el);
+		return function() { ro.disconnect(); if(raf) cancelAnimationFrame(raf); };
+	},
+
 	// Mirror-div caret measurement: clone the textarea's text-affecting styles into an offscreen div, slice the
 	// text at the caret, and read the offset of a marker span. Coordinates are relative to the textarea's border
 	// box (callers position a caret anchor inside a position:relative --field that the textarea fills).
@@ -536,7 +565,10 @@ CerbUI.editorCore.Autocomplete = class {
 		this._pointerInMenu = false;
 		const panel = (this._menu.pnls && this._menu.pnls[0]) ? (this._menu.pnls[0].outer || this._menu.pnls[0].el) : null;
 		if(panel) {
-			panel.addEventListener('mouseover', () => { this._pointerInMenu = true; });
+			// Hovering a row also marks the menu `navigated` — the hover highlight is the user's choice, so Enter
+			// selects it, and (unlike _pointerInMenu) that persists after the pointer leaves, matching the sticky
+			// highlight. Fixes hosts that gate Enter on `navigated` alone (SearchQuery, ScriptingEditor).
+			panel.addEventListener('mouseover', () => { this._pointerInMenu = true; this.navigated = true; });
 			panel.addEventListener('mouseleave', () => { this._pointerInMenu = false; });
 		}
 	}
