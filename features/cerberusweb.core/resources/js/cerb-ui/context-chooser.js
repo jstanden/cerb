@@ -118,6 +118,10 @@ CerbUI.ContextChooser = class extends CerbUI.RecordChooser {
 		if(!(window.CerbUI && CerbUI.Menu)) return;
 		if(!this._menu) {
 			this._menu = new CerbUI.Menu(this._menuUl, {
+				// Type-to-filter the type list (hidden until typed, so short menus stay clean). Long context
+				// sets — e.g. an unscoped polymorphic chooser — become searchable instead of a wall of items.
+				filter: this.opts.typeFilter !== false,
+				filterPlaceholder: 'Filter types…',
 				onRenderItem: (renderedLi, sourceLi) => {
 					const icon = sourceLi.getAttribute('data-icon');
 					if(!icon) return;
