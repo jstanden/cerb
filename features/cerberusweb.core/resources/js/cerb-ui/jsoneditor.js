@@ -622,7 +622,7 @@ CerbUI.JsonEditor = class {
 	// ── Highlighting + gutter + sizing ──────────────────────────────────
 
 	_renderHighlight() {
-		let toks = this._tokenize(this.textarea.value);
+		let toks = CerbUI.JsonEditor._tokenize(this.textarea.value);
 		toks = this._injectIndentGuides(this._injectFoldMarks(toks));
 		CerbUI.editorCore.renderTokens(this.highlight, toks, CerbUI.JsonEditor._TOK_CLASS);
 		if(this._find) this._find.repaintBands();   // re-add find-match bands (the mirror was just wiped)
@@ -988,17 +988,24 @@ CerbUI.JsonEditor = class {
 	// true/false/null are colored; a string immediately before a `:` is a property name. Everything else
 	// (structural punctuation {}[],:, whitespace) is default-colored `text`.
 
-	_tokenize(text) {
+	// Static so the tokenizer can be reused (e.g. read-only highlighting via CerbUI.SyntaxHighlight) without an
+	// editor instance — it's pure string logic with no DOM/instance state.
+	static _tokenize(text) {
 		const lines = text.split('\n');
 		const toks = [];
 		for(let li = 0; li < lines.length; li++) {
 			if(li > 0) toks.push({ type: 'text', value: '\n' });
-			this._tokenizeLine(toks, lines[li]);
+			CerbUI.JsonEditor._tokenizeLine(toks, lines[li]);
 		}
 		return toks;
 	}
 
-	_tokenizeLine(toks, line) {
+	// Tokenize a string into colored mirror HTML using the editor's own token classes (no gutter/fold decoration).
+	static highlight(text) {
+		return CerbUI.editorCore.tokensToHtml(CerbUI.JsonEditor._tokenize(text), CerbUI.JsonEditor._TOK_CLASS);
+	}
+
+	static _tokenizeLine(toks, line) {
 		const RX = /"(?:\\.|[^"\\])*"?|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?|\b(?:true|false|null)\b/g;
 		let last = 0, m;
 		while((m = RX.exec(line)) !== null) {

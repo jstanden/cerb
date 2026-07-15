@@ -1006,7 +1006,7 @@ CerbUI.KataEditor = class {
 		if(this._renderModelKey === proj && this._lineToks) return;
 		this._renderModelKey = proj;
 
-		const flat = this._tokenize(proj);
+		const flat = CerbUI.KataEditor._tokenize(proj);
 		const lineToks = [[]];                              // group the flat stream on its standalone '\n' tokens
 		for(const t of flat) {
 			if(t.type === 'text' && t.value === '\n') { lineToks.push([]); continue; }
@@ -1730,7 +1730,9 @@ CerbUI.KataEditor = class {
 	// Line-oriented: KATA structure is indentation + line based. Returns a flat token list covering every
 	// character (newlines included), so editorCore.renderTokens can build the colored mirror spans.
 
-	_tokenize(text) {
+	// Static so the tokenizer can be reused (e.g. read-only highlighting via CerbUI.SyntaxHighlight) without an
+	// editor instance — it's pure string logic, delegating only to the shared CerbUI.editorCore.kataScript module.
+	static _tokenize(text) {
 		const lines = text.split('\n');
 		const toks = [];
 		let blockIndent = null; // indent (length) of the key owning an open @annotation text block, or null
@@ -1741,7 +1743,7 @@ CerbUI.KataEditor = class {
 			const line = lines[li];
 
 			// Continuation of a multi-line script tag — the whole line is tag content until it closes.
-			if(scriptOpen) { scriptOpen = this._pushValueTokens(toks, line, 'value', false, scriptOpen); continue; }
+			if(scriptOpen) { scriptOpen = CerbUI.KataEditor._pushValueTokens(toks, line, 'value', false, scriptOpen); continue; }
 
 			const trimmed = line.trimStart();
 			const indentLen = line.length - trimmed.length;
@@ -1750,7 +1752,7 @@ CerbUI.KataEditor = class {
 			// tags are highlighted — not '#' comments, not cerb: URIs). A dedent to <= the key's indent ends it.
 			if(blockIndent !== null) {
 				if(trimmed.length === 0) { toks.push({ type: 'text', value: line }); continue; }
-				if(indentLen > blockIndent) { scriptOpen = this._pushValueTokens(toks, line, 'text', true, null); continue; }
+				if(indentLen > blockIndent) { scriptOpen = CerbUI.KataEditor._pushValueTokens(toks, line, 'text', true, null); continue; }
 				blockIndent = null; // dedented — fall through and parse normally
 			}
 
@@ -1758,7 +1760,7 @@ CerbUI.KataEditor = class {
 			if(trimmed.charAt(0) === '#') { toks.push({ type: 'comment', value: line }); continue; }
 
 			// Key line: indent, name, optional /identifier, optional @annotation,csv run, then ':'.
-			const m = line.match(/^(\s*)([\w.]+)(\/[^\s:@]+)?((?:@[A-Za-z0-9_]+)(?:,[A-Za-z0-9_]+)*)?:/);
+			const m = line.match(/^(\s*)([\w.-]+)(\/[^\s:@]+)?((?:@[A-Za-z0-9_]+)(?:,[A-Za-z0-9_]+)*)?:/);
 			if(m) {
 				const indent = m[1], name = m[2], slash = m[3] || '', ann = m[4] || '';
 				if(indent) toks.push({ type: 'text', value: indent });
@@ -1767,22 +1769,27 @@ CerbUI.KataEditor = class {
 				if(ann) toks.push({ type: 'annotation', value: ann });
 				toks.push({ type: 'colon', value: ':' });
 				const rest = line.slice(m[0].length);
-				if(rest.length) scriptOpen = this._pushValueTokens(toks, rest, 'value', false, null);
+				if(rest.length) scriptOpen = CerbUI.KataEditor._pushValueTokens(toks, rest, 'value', false, null);
 				// An annotated key with no inline value opens a text block for its deeper-indented lines.
 				if(ann && rest.trim().length === 0) blockIndent = indent.length;
 				continue;
 			}
 
 			// Anything else: a bare value/continuation line.
-			scriptOpen = this._pushValueTokens(toks, line, 'value', false, null);
+			scriptOpen = CerbUI.KataEditor._pushValueTokens(toks, line, 'value', false, null);
 		}
 		return toks;
+	}
+
+	// Tokenize a string into colored mirror HTML using the editor's own token classes (no gutter/fold decoration).
+	static highlight(text) {
+		return CerbUI.editorCore.tokensToHtml(CerbUI.KataEditor._tokenize(text), CerbUI.KataEditor._TOK_CLASS);
 	}
 
 	// Tokenize a value/block string: KataScript tags via the shared module (opens `{{`/`{%` immediately), and
 	// non-tag runs as `baseType` — with `cerb:` URIs detected unless `noUris` (literal inside a text block).
 	// `startOpen` continues a tag from the previous line; returns the opener still in effect (or null).
-	_pushValueTokens(toks, str, baseType, noUris, startOpen) {
+	static _pushValueTokens(toks, str, baseType, noUris, startOpen) {
 		const plain = noUris
 			? function(t, s, bt) { if(s) t.push({ type: bt, value: s }); }
 			: function(t, s, bt) {
