@@ -283,21 +283,29 @@ CerbUI.KataEditor = class {
 	}
 
 	// Ace's gotoLine is 1-based MODEL row, 0-based column. Auto-reveals any fold hiding the target.
-	gotoLine(line, column) {
+	gotoLine(line, column) { return this._placeCaret((line || 1) - 1, column || 0, true); }
+
+	// 0-based MODEL row. `opts.scroll === false` places the caret WITHOUT scrolling it into view — for callers
+	// driving the caret from a pointer (a drag's drop-point preview), where scrolling would fight the pointer.
+	setCursorPosition(row, column, opts) {
+		return this._placeCaret(row || 0, column || 0, !(opts && opts.scroll === false));
+	}
+
+	_placeCaret(row, column, scroll) {
 		const mLines = this._modelLines();
-		const r = Math.max(0, Math.min((line || 1) - 1, mLines.length - 1));
+		const r = Math.max(0, Math.min(row, mLines.length - 1));
 		this._revealModelRow(r);
 		let mOff = 0;
 		for(let i = 0; i < r; i++) mOff += mLines[i].length + 1;
-		mOff += Math.min(column || 0, mLines[r].length);
-		this.textarea.focus();
+		mOff += Math.min(column, mLines[r].length);
+		// Not scrolling the caret into view means not scrolling an ANCESTOR to the editor either (a focus() alone
+		// would jump a dialog out from under the pointer).
+		if(scroll) this.textarea.focus(); else this.textarea.focus({ preventScroll: true });
 		const vo = this._modelOffsetToViewOffset(mOff);
 		this.textarea.setSelectionRange(vo, vo);
-		this.scrollToLine(r);
+		if(scroll) this.scrollToLine(r);
 		return this;
 	}
-
-	setCursorPosition(row, column) { return this.gotoLine((row || 0) + 1, column || 0); }
 
 	// row is a MODEL row; reveals it if folded, then scrolls its view row into the top region.
 	scrollToLine(row) {
@@ -449,6 +457,33 @@ CerbUI.KataEditor = class {
 		this._rebuildProjection(caretM);
 		return this;
 	}
+
+	// Hide explicit MODEL row ranges, independent of the auto-detected foldable ranges — the hook for a caller
+	// that already knows which rows are uninteresting (CerbUI.DiffViewer eliding runs of unchanged lines). Each
+	// {startRow, endRow} hides startRow+1..endRow, so startRow stays visible and anchors whatever marks the gap.
+	// The gutter keeps printing MODEL numbers, so they jump across a hidden run (1,2,3…47,48) for free.
+	//
+	// These are stored as FOLDS on purpose, not as a separate hidden-row set: _revealModelRow(),
+	// _modelOffsetToViewOffset() and the Find adapter all resolve a hidden row by looking up its enclosing fold.
+	// A hidden row with no fold to own it silently yields a garbage view offset. Don't "clean this up".
+	//
+	// Caveats: unfoldAll() (and its shortcut) clears these, and setValue() drops them — re-apply if you care.
+	// With opts.folding false nothing is auto-foldable, so these are the only folds and no chevrons render.
+	setHiddenRanges(ranges) {
+		const caretM = this._viewOffsetToModelOffset(this.textarea.value, this.textarea.selectionStart);
+		const last = this._modelLines().length - 1;
+		this._folds = (ranges || []).map(r => {
+			// A fold hides startRow+1.., so the anchor sits one row above the first hidden row; row 0 can't be
+			// hidden (nothing above it to anchor on) and is clamped to visible.
+			const s = Math.max(1, r.startRow | 0), e = Math.min(r.endRow | 0, last);
+			return (e >= s) ? { headerRow: s - 1, startRow: s - 1, endRow: e } : null;
+		}).filter(Boolean).sort((a, b) => a.startRow - b.startRow);
+		this._rebuildProjection(caretM);
+		return this;
+	}
+
+	// The hidden ranges as given to setHiddenRanges (first hidden row .. last hidden row), not the fold shape.
+	getHiddenRanges() { return this._folds.map(f => ({ startRow: f.startRow + 1, endRow: f.endRow })); }
 
 	// The raw KATA key-path at the caret (segments include their trailing ':', and any /id or @annotations) —
 	// a plain-string port of Devblocks.cerbCodeEditor.getKataTokenPath. Runs over the projection: all ancestors
@@ -1030,8 +1065,11 @@ CerbUI.KataEditor = class {
 		for(let mr = 0; mr < total; mr++) if(!this._hidden.has(mr)) v2m.push(mr);
 		this._viewToModel = v2m;
 
+		// The end-of-line "collapsed" mark is a fold affordance; suppress it wherever the fold UI is off (see
+		// _renderGutter) — setHiddenRanges' folds aren't user-collapsed headers.
 		this._foldMarkRows = new Set();
-		for(const f of this._folds) { const vr = this._modelRowToViewRow(f.startRow); if(vr >= 0) this._foldMarkRows.add(vr); }
+		if(this.opts.folding !== false)
+			for(const f of this._folds) { const vr = this._modelRowToViewRow(f.startRow); if(vr >= 0) this._foldMarkRows.add(vr); }
 	}
 
 	// Reconstruct the flat token stream (with '\n' separators) from the cached per-line groups — equals
@@ -1292,9 +1330,14 @@ CerbUI.KataEditor = class {
 		if(!this.gutter) return;
 		this._buildRenderModel();
 		// Map each foldable header row -> collapsed? (a detected range that's also in _folds is collapsed).
+		// `folding: false` means this editor has no fold UI at all. It can still HAVE folds — setHiddenRanges
+		// stores its ranges as folds — but those aren't the user's to expand, so they get no chevron and no
+		// end-of-line fold mark; whatever hid them owns the affordance (e.g. DiffViewer's tear).
 		const headerState = new Map();
-		for(const r of this._foldableRanges()) headerState.set(r.headerRow, false);
-		for(const f of this._folds) headerState.set(f.startRow, true);
+		if(this.opts.folding !== false) {
+			for(const r of this._foldableRanges()) headerState.set(r.headerRow, false);
+			for(const f of this._folds) headerState.set(f.startRow, true);
+		}
 		const uriRows = this._uriRowsMap();
 		const ctx = {
 			headerState: headerState,
@@ -1670,7 +1713,8 @@ CerbUI.KataEditor = class {
 		const oldProj = this._lastProjection;
 		if(oldProj === newProj) return;
 
-		if(!this._folds.length) { this._model = newProj; this._lastProjection = newProj; return; } // fast path
+		// Fast path only when nothing row-anchored needs reconciling (no folds AND no gutter markers).
+		if(!this._folds.length && !this._markers.size) { this._model = newProj; this._lastProjection = newProj; return; }
 
 		// minimal diff in projection space (same algorithm as _writeValue)
 		let p = 0; const max = Math.min(oldProj.length, newProj.length);
@@ -1680,11 +1724,13 @@ CerbUI.KataEditor = class {
 		const removed = oldProj.slice(p, so), inserted = newProj.slice(p, sn);
 
 		const oldModel = this._model;
-		const mStart = this._viewOffsetToModelOffset(oldProj, p);
-		const mEnd = this._viewOffsetToModelOffset(oldProj, so);
-		this._model = oldModel.slice(0, mStart) + inserted + oldModel.slice(mEnd);
-		this._remapFolds(mStart, mEnd, inserted, removed, oldModel);
-		this._hidden = this._hiddenModelRows();
+		// With no folds the model === projection, so the projection offsets ARE the model offsets.
+		const mStart = this._folds.length ? this._viewOffsetToModelOffset(oldProj, p) : p;
+		const mEnd   = this._folds.length ? this._viewOffsetToModelOffset(oldProj, so) : so;
+		const newModel = oldModel.slice(0, mStart) + inserted + oldModel.slice(mEnd);
+		this._model = newModel;
+		if(this._markers.size) this._remapMarkers(oldModel, newModel);
+		if(this._folds.length) { this._remapFolds(mStart, mEnd, inserted, removed, oldModel); this._hidden = this._hiddenModelRows(); }
 		this._lastProjection = newProj;
 	}
 
