@@ -935,7 +935,13 @@ CerbUI.Dialog = class {
 	// Whether a pointerdown target should start a drag (in the drag region, outside the controls).
 	_isDragTarget(target) {
 		if(target.closest('.cerb-ui-dialog--controls')) return false;
-		if(this.opts.header === 'bar') return !!target.closest('.cerb-ui-dialog--titlebar');
+		if(this.opts.header === 'bar') {
+			// Only THIS dialog's own titlebar (a direct child of its root) is a drag handle — never a NESTED
+			// `.cerb-ui-dialog--titlebar` (e.g. a static dialog-facsimile rendered inside the content, like the
+			// Form Builder preview), which `closest()` would otherwise match and let hijack the parent's drag.
+			const bar = target.closest('.cerb-ui-dialog--titlebar');
+			return !!bar && bar.parentNode === this.el;
+		}
 		return !!target.closest(this.opts.dragHandle);
 	}
 
