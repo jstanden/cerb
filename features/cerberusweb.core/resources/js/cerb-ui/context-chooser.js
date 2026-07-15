@@ -49,11 +49,21 @@ CerbUI.ContextChooser = class extends CerbUI.RecordChooser {
 		else
 			this.activeContext = firstSearchable ? firstSearchable.alias : (this.contexts[0] ? this.contexts[0].alias : '');
 
+		// A per-context `query` scopes the record search within that type (e.g. only chart-kata widgets). The
+		// active type's query wins; switching types swaps it (see _setContext).
+		this._applyContextQuery();
+
 		// The type-switcher head replaces the leading empty-state icon
 		if(this.iconEl) this.iconEl.remove();
 		this._buildHead();
 
 		this._syncState();
+	}
+
+	// Point opts.query at the active context's scope query (empty when it has none) so the inherited search uses it.
+	_applyContextQuery() {
+		const c = this._ctxByAlias[this.activeContext];
+		this.setQuery((c && c.query) || '');
 	}
 
 	// ── Seam overrides: search/identify/post by context AND id ──
@@ -141,6 +151,7 @@ CerbUI.ContextChooser = class extends CerbUI.RecordChooser {
 
 	_setContext(alias) {
 		this.activeContext = alias;
+		this._applyContextQuery();
 		this._updateHead();
 		if(this.core.isOpen()) this.core.refresh(); // re-search in the new type
 		if(!this.input.hidden) requestAnimationFrame(() => this.input.focus());
