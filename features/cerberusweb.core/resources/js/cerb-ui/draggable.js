@@ -28,8 +28,11 @@ CerbUI.Draggable = class {
 		items: null,        // selector for draggable children; null = the element itself is the draggable
 		handle: '',         // a drag-handle selector within an item (drag only starts from it)
 		helper: 'clone',    // 'clone' | 'original' | (item) => HTMLElement  (palette default: clone → original stays)
+		                    // clone/original are locked to the source's box; a built node sizes to its own content
 		tilt: true,         // rotate+scale the floating helper (the Sortable look)
 		distance: 5,        // px the pointer must move before a drag activates
+		autoScroll: false,  // scroll the source's nearest scrollable ancestor while the pointer nears its edge
+		                    // (needed whenever the drop target can be scrolled out of view)
 		data: null,         // (item) => any; null = collect the item's data-* into an object (the drop payload)
 		onStart: null,      // (item, e) when a drag begins
 		onMove: null,       // (item, e) on each move
@@ -106,10 +109,15 @@ CerbUI.Draggable = class {
 	_buildHelper(item, rect) {
 		const h = this.opts.helper;
 		let el;
+		// A clone/original must keep the SOURCE's box (it IS the source, visually). A caller-built helper is its
+		// own thing — it sizes to its own content, since the source may be nothing like it (e.g. a 1em grip
+		// dragging out a wide chip).
+		let lockBox = true;
 		if(h === 'original') {
 			el = item;
 		} else if(typeof h === 'function') {
 			el = h(item);
+			lockBox = false;
 		} else { // 'clone'
 			el = item.cloneNode(true);
 			el.removeAttribute('id');
@@ -117,8 +125,10 @@ CerbUI.Draggable = class {
 		}
 		el.classList.add('cerb-ui-draggable--helper');
 		if(this.opts.tilt) el.classList.add('cerb-ui-draggable--tilt');
-		el.style.width = rect.width + 'px';
-		el.style.height = rect.height + 'px'; // lock both dims to drag-time (border-box) so the clone matches the source box
+		if(lockBox) {
+			el.style.width = rect.width + 'px';
+			el.style.height = rect.height + 'px'; // lock both dims to drag-time (border-box) so the clone matches the source box
+		}
 		el.style.left = rect.left + 'px';
 		el.style.top = rect.top + 'px';
 		return el;
@@ -140,7 +150,8 @@ CerbUI.Draggable = class {
 		document.addEventListener('pointerup', up);
 		document.addEventListener('keydown', key);
 
-		this.drag = { item, helper, payload, offsetX, offsetY, over: null, overValid: false, move, up, key };
+		this.drag = { item, helper, payload, offsetX, offsetY, over: null, overValid: false, move, up, key,
+			scrollParent: this.opts.autoScroll ? this._scrollParent(item) : null, scrollVel: 0, scrollRaf: 0 };
 		document.body.classList.add('cerb-ui-draggable-dragging');
 		if(typeof this.opts.onStart === 'function') this.opts.onStart(item, e);
 	}
@@ -167,6 +178,48 @@ CerbUI.Draggable = class {
 			d.overValid = valid;
 			if(zone) (valid ? zone.enter(this._info(e)) : zone.reject(this._info(e)));
 			document.body.classList.toggle('cerb-ui-draggable-no', !!zone && !valid);
+		}
+		if(zone && valid) zone.move(this._info(e));
+
+		if(this.opts.autoScroll) this._autoScroll(e.clientY);
+	}
+
+	// The nearest ancestor of `el` that actually scrolls vertically, or the document. Resolved once per drag:
+	// the source and the target usually share one scroll container (a tall dialog), and the container can't
+	// change mid-drag anyway.
+	_scrollParent(el) {
+		for(let n = el ? el.parentElement : null; n; n = n.parentElement) {
+			if(n.scrollHeight <= n.clientHeight) continue;
+			const oy = window.getComputedStyle(n).overflowY;
+			if(oy === 'auto' || oy === 'scroll') return n;
+		}
+		return document.scrollingElement || document.documentElement;
+	}
+
+	// Edge auto-scroll: a drop target that's off-screen is unreachable otherwise (drag out of a panel toward an
+	// editor above it and the pointer just pins to the viewport edge). Scrolls while the pointer sits within
+	// EDGE px of the container's top/bottom, at a rate that ramps with how deep into the edge zone it is.
+	_autoScroll(clientY) {
+		const d = this.drag;
+		if(!d) return;
+		const sp = d.scrollParent;
+		const isDoc = (sp === document.scrollingElement || sp === document.documentElement);
+		const top = isDoc ? 0 : sp.getBoundingClientRect().top;
+		const bottom = isDoc ? (window.innerHeight || document.documentElement.clientHeight) : sp.getBoundingClientRect().bottom;
+		const EDGE = 40, MAX = 18;
+
+		let v = 0;
+		if(clientY < top + EDGE) v = -Math.ceil(MAX * Math.min(1, (top + EDGE - clientY) / EDGE));
+		else if(clientY > bottom - EDGE) v = Math.ceil(MAX * Math.min(1, (clientY - (bottom - EDGE)) / EDGE));
+
+		d.scrollVel = v;
+		if(v && !d.scrollRaf) {
+			const tick = () => {
+				if(!this.drag || !this.drag.scrollVel) { if(this.drag) this.drag.scrollRaf = 0; return; }
+				sp.scrollTop += this.drag.scrollVel;
+				this.drag.scrollRaf = requestAnimationFrame(tick);
+			};
+			d.scrollRaf = requestAnimationFrame(tick);
 		}
 	}
 
@@ -208,6 +261,8 @@ CerbUI.Draggable = class {
 		document.removeEventListener('pointerup', d.up);
 		document.removeEventListener('keydown', d.key);
 		document.body.classList.remove('cerb-ui-draggable-dragging', 'cerb-ui-draggable-no');
+		d.scrollVel = 0;
+		if(d.scrollRaf) { cancelAnimationFrame(d.scrollRaf); d.scrollRaf = 0; }
 
 		const finish = () => {
 			if(d.helper === d.item) {

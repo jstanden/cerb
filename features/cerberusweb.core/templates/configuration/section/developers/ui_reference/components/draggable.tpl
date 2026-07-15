@@ -35,6 +35,8 @@ const drag = new CerbUI.Draggable(document.getElementById('palette'), {
 	helper:   'clone',          // 'clone' | 'original' | (item) => node  (palette default: clone)
 	tilt:     true,             // rotate+scale the floating helper (the Sortable pickup look)
 	distance: 5,                // px the pointer must move before a drag starts
+	autoScroll: false,          // scroll the source's nearest scrollable ancestor while the pointer nears its
+	                            // edge — turn on whenever the drop zone can be scrolled out of view
 	data:     function(item) { return { ...item.dataset }; },  // the drop payload (default: the item's data-*)
 	onStart:  function(item, e) {},
 	onMove:   function(item, e) {},
