@@ -861,6 +861,10 @@ CerbUI.KataEditor = class {
 	}
 
 	_refresh() {
+		// Programmatic inserts (insertSnippet, autocomplete accept) bypass the native input handler, so sanitize
+		// tabs here too — the KATA model is always space-indented (mirrors _handleInput's guard). Bounded recursion:
+		// _sanitizeTabs rewrites via _setValueAndCaret -> _refresh, whose second pass sees no '\t' and renders once.
+		if(this.textarea.value.indexOf('\t') !== -1) { this._sanitizeTabs(); return; }
 		this._applyProjectionEditToModel();  // any projection change (programmatic edit, autocomplete apply) -> model
 		this._renderHighlight();
 		this._autosize();
