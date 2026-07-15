@@ -122,6 +122,19 @@
         }
     }
 
+    // An empty-but-clickable marker slot (host opted into gutterClickableRow, e.g. breakpoints): hovering the gutter
+    // row reveals a faint "ghost" pip, so it's discoverable that clicking here sets a marker. Only clickable rows
+    // carry the class, so the hint never appears on lines where a marker isn't allowed.
+    &--gutter-marker-clickable { cursor: pointer; }
+    &--gutter-line:hover &--gutter-marker-clickable::before {
+        content: "";
+        width: 0.6em;
+        height: 0.6em;
+        border-radius: 50%;
+        background: var(--cerb-color-tag-red);
+        opacity: 0.3;
+    }
+
     // Fold chevron (chevron-down expanded / chevron-right collapsed), to the RIGHT of the numbers. A fixed
     // 1em slot reserves the column even on non-header rows; only real chevrons (which carry cerb-icons) click.
     &--gutter-fold {

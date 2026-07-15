@@ -52,6 +52,8 @@ CerbUI.KataEditor = class {
 		indentGuides: true,       // faint vertical rule down each indentation level (continues across blank lines)
 		placeholder: null,
 		onGutterClick: null,      // (modelRow, e) when the left marker column is clicked (e.g. toggle a breakpoint)
+		gutterClickableRow: null, // (modelRow)->bool: gate WHICH rows fire onGutterClick + show the hover affordance
+		                          //   (e.g. only lines where a breakpoint is legal). null = every row is clickable.
 		onOpenUri: null,          // (uri) override for the hover "Open" action on a cerb: URI (default: open its peek)
 		readOnly: false,          // highlight + fold only; disable text-mutating keys (data-editor-readonly overrides)
 		folding: true,            // false = never foldable (no chevrons); keeps 1 model row = 1 view row (e.g. a diff pane)
@@ -372,6 +374,7 @@ CerbUI.KataEditor = class {
 			icon:  desc.icon || preset.icon || null,
 			color: desc.color || preset.color || null,
 			title: desc.title || '',
+			data:  (desc.data !== undefined) ? desc.data : null,   // opaque host payload (e.g. a breakpoint's alias)
 		});
 		this._renderGutter();
 		return this;
@@ -644,7 +647,8 @@ CerbUI.KataEditor = class {
 			if(uri) { this._openUri(uri); return; }
 			if(typeof this.opts.onGutterClick === 'function') {
 				const mr = parseInt(mk.getAttribute('data-model-row'), 10);
-				if(!isNaN(mr)) this.opts.onGutterClick(mr, e);
+				if(!isNaN(mr) && (typeof this.opts.gutterClickableRow !== 'function' || this.opts.gutterClickableRow(mr, this)))
+					this.opts.onGutterClick(mr, e);
 			}
 		}
 	}
@@ -1481,6 +1485,9 @@ CerbUI.KataEditor = class {
 			} else if(uri) {
 				cls += ' cerb-icons cerb-icon-search cerb-ui-kataeditor--gutter-marker-uri';
 				attrs = ' title="' + ctx.esc('Open ' + uri) + '" data-uri="' + ctx.esc(uri) + '"';
+			} else if(typeof this.opts.gutterClickableRow === 'function' && this.opts.gutterClickableRow(mr, this)) {
+				// Empty slot on a clickable row → a hover "ghost" affordance so it's discoverable you can mark here.
+				cls += ' cerb-ui-kataeditor--gutter-marker-clickable';
 			}
 			marker = '<span class="' + cls + '" data-model-row="' + mr + '"' + style + attrs + '></span>';
 		}
