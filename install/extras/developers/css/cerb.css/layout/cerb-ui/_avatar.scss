@@ -21,10 +21,20 @@
 
 	img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
+	// An icon glyph (data-avatar-icon) sizes to a fraction of the circle rather than the small
+	// inherited font-size, so a single glyph fills the avatar like the monogram initials do.
+	> span.cerb-icons { width: 60%; height: 60%; }
+
 	// Tile variant — a rounded square for larger avatars (profile/card headers) where a soft rect reads
 	// better than a circle. Radius is a percentage so it scales with the inline size; override per-instance
 	// via the `--cerb-ui-avatar-radius` custom property.
 	&.cerb-ui-avatar--tile { border-radius: var(--cerb-ui-avatar-radius, 22%); }
+
+	// Art variant — a non-square (e.g. 16:9) rounded rectangle for package/workflow thumbnails. Width and
+	// height come from the inline size the JS sets; the glyph/monogram stays centered with extra horizontal
+	// space. Applied automatically when the avatar is non-square. Override the corner via
+	// `--cerb-ui-avatar-art-radius`.
+	&.cerb-ui-avatar--art { border-radius: var(--cerb-ui-avatar-art-radius, 10px); }
 }
 
 // Badged avatar: a positioning context that pins a small circular status pill (sent/received/

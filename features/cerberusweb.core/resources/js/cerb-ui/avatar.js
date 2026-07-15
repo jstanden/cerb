@@ -18,8 +18,12 @@
  * Pass a `color` (option) or data-avatar-color (any CSS color) to force the background instead of the
  * seed-derived one — e.g. a category avatar tinted to its configured color.
  *
+ * Non-square (16:9 "art") avatars: pass `ratio` ("16:9") with `size` (read as the height), or explicit
+ * `width`+`height`. A non-square avatar becomes a rounded rectangle (--art) with the glyph/monogram
+ * centered and extra horizontal space — used for package/workflow thumbnails.
+ *
  * Enhancer data-* attributes (all optional except the label):
- *   data-avatar="Jane Doe"  data-avatar-seed="worker:5"  data-avatar-image="/avatar/worker/5"  data-avatar-size="32"  data-avatar-icon="bot"  data-avatar-color="#c0392b"
+ *   data-avatar="Jane Doe"  data-avatar-seed="worker:5"  data-avatar-image="/avatar/worker/5"  data-avatar-size="32"  data-avatar-icon="bot"  data-avatar-color="#c0392b"  data-avatar-ratio="16:9"  data-avatar-width="240"  data-avatar-height="135"
  *
  * CerbUI.AvatarStack — a row of overlapping avatars with a trailing "+N" for the overflow. Enhance a
  * container of [data-avatar] children (new CerbUI.AvatarStack(el)) or pass { items:[…], max, size }.
@@ -59,13 +63,30 @@ CerbUI.Avatar = class {
 
 	// ── Paint (shared by create() + the enhancer) ───────────────────────
 
-	// Apply avatar styling + content to `el` in place. spec: { label, seed, imageUrl, size, icon, enqueue }.
+	// Resolve pixel dimensions from the spec: explicit width+height, else ratio ("16:9") + size-as-height,
+	// else size (square). Returns { w, h } (0/0 when unsized).
+	static _dims(spec) {
+		if(spec.width && spec.height)
+			return { w: spec.width, h: spec.height };
+		if(spec.ratio && spec.size) {
+			const m = String(spec.ratio).split(/[:x\/]/).map(Number);
+			if(m.length === 2 && m[0] && m[1])
+				return { w: Math.round(spec.size * m[0] / m[1]), h: spec.size };
+		}
+		if(spec.size) return { w: spec.size, h: spec.size };
+		return { w: 0, h: 0 };
+	}
+
+	// Apply avatar styling + content to `el` in place. spec: { label, seed, imageUrl, size, ratio, width, height, icon, enqueue }.
 	static _apply(el, spec) {
 		el.classList.add('cerb-ui-avatar');
 		el.setAttribute('aria-hidden', 'true');
-		if(spec.size) {
-			el.style.width = el.style.height = spec.size + 'px';
-			el.style.fontSize = Math.round(spec.size * 0.42) + 'px';
+		const { w, h } = CerbUI.Avatar._dims(spec);
+		if(w && h) {
+			el.style.width = w + 'px';
+			el.style.height = h + 'px';
+			el.style.fontSize = Math.round(h * 0.42) + 'px'; // glyph/monogram scales off the shorter (height) dim
+			if(w !== h) el.classList.add('cerb-ui-avatar--art'); // non-square → rounded rect, not circle
 		}
 		const label = spec.label || '';
 		const seed = (spec.seed != null && spec.seed !== '') ? spec.seed : label;
@@ -132,6 +153,9 @@ CerbUI.Avatar = class {
 			icon:     opts.icon     != null ? opts.icon     : (d.avatarIcon || ''),
 			color:    opts.color    != null ? opts.color    : (d.avatarColor || ''),
 			size:     sizeAttr || 0,
+			ratio:    opts.ratio    != null ? opts.ratio    : (d.avatarRatio || ''),
+			width:    opts.width    != null ? opts.width    : (d.avatarWidth ? parseInt(d.avatarWidth, 10) : 0),
+			height:   opts.height   != null ? opts.height   : (d.avatarHeight ? parseInt(d.avatarHeight, 10) : 0),
 			enqueue:  opts.enqueue,
 		};
 		CerbUI.Avatar._apply(this.el, this.spec);
