@@ -62,11 +62,6 @@
 	// it; restoring it here at equal specificity but later source order wins).
 	.cerb-ui-datepicker-forminput > input { padding-left: 2.9em; }
 
-	// Password inputs carry an inset lock icon (cerb-styles' INPUT[type=password] background). The form's
-	// `padding` shorthand above resets its reserved left room — restore it here (later source order wins) so
-	// the typed text clears the lock instead of overlapping it.
-	input[type="password"] { padding-left: 2.2em; }
-
 	// The overlay editors (KataEditor / JsonEditor / ScriptingEditor / DataQuery / SearchQuery / MarkdownEditor)
 	// each render a transparent <textarea> over a colored mirror inside .cerb-ui-<editor>. The `textarea` rule
 	// above (0,1,1, and imported AFTER these components) out-specifies the component's own --input (0,1,0) and
