@@ -57,6 +57,19 @@
         background: color-mix(in srgb, var(--cerb-ui-kataeditor-active-accent) 18%, transparent);
     }
 
+    // One-shot flash variant (flashLine): a brighter pulse that fades out, marking a jump-to-line landing. `forwards`
+    // holds it transparent until flashLine auto-clears the band, so there's no resting-tint flicker before removal.
+    &--active-line--flash {
+        animation: cerb-ui-kataeditor-flash-line 1.2s ease-out forwards;
+    }
+    @keyframes cerb-ui-kataeditor-flash-line {
+        from { background-color: color-mix(in srgb, var(--cerb-ui-kataeditor-active-accent) 55%, transparent); }
+        to   { background-color: transparent; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        &--active-line--flash { animation: none; }
+    }
+
     // Full-width line decoration band — same painting model as --active-line (behind the mirror text), but a SET
     // of rows each carrying a caller-supplied class for its color. The base only positions; the color class wins
     // (e.g. CerbUI.DiffViewer's --line-added / --line-removed tints). No background here so the class can set it.

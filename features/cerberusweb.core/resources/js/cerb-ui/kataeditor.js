@@ -342,8 +342,18 @@ CerbUI.KataEditor = class {
 	// Reveals the row if it's hidden inside a fold so the marker is actually visible.
 	// Mark a MODEL row "active": a full-width line band in the editor body + a tinted gutter cell. `opts.color` is a
 	// Cerb tag color name ('red'|'green'|'blue'|'orange'|'purple'|'gray'); omitted = the component default accent.
-	highlightLine(row, opts) { this._highlightRow = row; this._highlightColor = (opts && opts.color) || null; this._revealModelRow(row); this._renderActiveLineBand(); this._renderGutter(); return this; }
-	clearHighlight() { this._highlightRow = null; this._highlightColor = null; this._renderActiveLineBand(); this._renderGutter(); return this; }
+	highlightLine(row, opts) { this._highlightRow = row; this._highlightColor = (opts && opts.color) || null; this._highlightFlash = !!(opts && opts.flash); this._revealModelRow(row); this._renderActiveLineBand(); this._renderGutter(); return this; }
+	clearHighlight() { this._highlightRow = null; this._highlightColor = null; this._highlightFlash = false; this._renderActiveLineBand(); this._renderGutter(); return this; }
+
+	// Briefly flash a MODEL row's line band (a one-shot attention pulse for jump-to-line), then auto-clear. A later
+	// flash/clear supersedes an in-flight one (token guard). Reveals the row if it's folded.
+	flashLine(row, opts) {
+		if(row == null) return this;
+		this.highlightLine(row, Object.assign({ flash: true }, opts || {}));
+		const token = (this._flashToken = (this._flashToken || 0) + 1);
+		setTimeout(() => { if(this._flashToken === token && this._highlightFlash) this.clearHighlight(); }, (opts && opts.duration) || 1300);
+		return this;
+	}
 
 	// The active-line background band, painted BEHIND the colored mirror text (z-index:-1 inside --highlight, which
 	// is the scroll-synced overlay, so the band tracks both axes of scroll). Recreated on each highlight repaint
@@ -359,7 +369,7 @@ CerbUI.KataEditor = class {
 		const lh = parseFloat(cs.lineHeight) || (parseFloat(cs.fontSize) * 1.5);
 		const padTop = parseFloat(cs.paddingTop) || 0;
 		const band = document.createElement('div');
-		band.className = 'cerb-ui-kataeditor--active-line';
+		band.className = 'cerb-ui-kataeditor--active-line' + (this._highlightFlash ? ' cerb-ui-kataeditor--active-line--flash' : '');
 		band.style.top = (padTop + vr * lh) + 'px';
 		band.style.height = lh + 'px';
 		// Span the full scrollable content width, not just the client width (the CSS right:0 clamps to the
