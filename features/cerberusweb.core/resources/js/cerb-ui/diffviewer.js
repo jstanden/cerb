@@ -2,8 +2,10 @@
  * CerbUI.DiffViewer — a read-only, side-by-side KATA diff (the plain-JS replacement for the ace-diff viewer in
  * the record-changeset "change history" popup). Two read-only CerbUI.KataEditor panes (left = a historical
  * version, right = the current value) with per-line add/remove tints and IDEA-style bezier connectors drawn in a
- * center gutter. It's a VIEWER, not a merge tool: no editing, no merge arrows/checkboxes. A "Restore this
- * version" host button copies the shown left (historical) document back into the source editor via onRestore.
+ * center gutter. Read-only by default (a viewer, no merge arrows/checkboxes); opt into `editableCurrent` to make
+ * the RIGHT pane editable so the diff re-computes live as you type (a light manual-merge affordance — read the
+ * result back with getCurrent()). A "Restore this version" host button copies the shown left (historical) document
+ * back into the source editor via onRestore.
  *
  * The diff is computed CLIENT-SIDE — a line-level LCS over the two documents (no server round-trip, no external
  * library). KATA docs are small, so the O(n·m) LCS is cheap; a guard falls back to a whole-document replace for
@@ -21,6 +23,8 @@
  *     left:  historicalKata,         // left pane content (changeset)
  *     right: currentKata,            // right pane content (the live field value)
  *     lines: 24,                     // fixed visible height in rows (both panes scroll internally)
+ *     editableCurrent: true,         // make the right pane editable; diff re-computes live (read via getCurrent())
+ *     onChange: (content) => {…},    // fired after an edit re-computes the diff
  *     onRestore: (content) => {…},   // wired to the host's "Restore this version" button
  *   });
  *   viewer.setLeft(changesetKata);   // swap the historical pane when a changeset row is clicked
@@ -38,6 +42,9 @@ CerbUI.DiffViewer = class {
 		right: '',         // current (right) document text
 		mode: 'kata',      // only 'kata' today (the panes are KataEditors); reserved for future syntaxes
 		lines: 24,         // fixed visible height (rows) for both panes; content beyond this scrolls
+		editableCurrent: false, // make the RIGHT ("current") pane editable → the diff re-computes live as you type
+		                        // (a light manual-merge affordance); read it back via getCurrent()
+		onChange: null,    // (rightContent) => void — fired after an edit re-computes the diff (editableCurrent only)
 		onRestore: null,   // (leftContent) => void — the host's "Restore this version" action
 	};
 
@@ -70,10 +77,28 @@ CerbUI.DiffViewer = class {
 			maxLines: this.opts.lines,
 		};
 		this.left = new CerbUI.KataEditor(this._leftEl.editor, edOpts);
-		this.right = new CerbUI.KataEditor(this._rightEl.editor, edOpts);
+		// The right pane can opt into being editable (manual merge); the left ("historical/before") stays read-only.
+		this.right = new CerbUI.KataEditor(this._rightEl.editor, Object.assign({}, edOpts, {
+			readOnly: !this.opts.editableCurrent,
+		}));
 
 		this.left.setValue(CerbUI.DiffViewer._normalize(this.opts.left));
 		this.right.setValue(CerbUI.DiffViewer._normalize(this.opts.right));
+
+		// Editable right pane → recompute the diff on every edit (rAF-coalesced) so tints/connectors track the text,
+		// and relay the new value to the host. The pane gets a marker class for optional styling.
+		if(this.opts.editableCurrent) {
+			this._onChange = (typeof this.opts.onChange === 'function') ? this.opts.onChange : null;
+			this._rightEl.pane.classList.add('cerb-ui-diffviewer--editable');
+			this.right.onChange(() => {
+				if(this._recomputeRaf) return;
+				this._recomputeRaf = requestAnimationFrame(() => {
+					this._recomputeRaf = 0;
+					this._recompute();
+					if(this._onChange) this._onChange(this.right.getValue());
+				});
+			});
+		}
 
 		// IDEA-style synchronized scroll: scrolling one pane drives the other through a piecewise-linear line map
 		// (slope 1 in equal regions, interpolated across a change block), and the connectors redraw. A re-entrancy
