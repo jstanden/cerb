@@ -29,6 +29,7 @@
 	lines: 24,                        // fixed visible height in rows (both panes scroll internally)
 	editableCurrent: false,           // true → the RIGHT pane is editable, diff re-computes live (see below)
 	collapseUnchanged: false,         // false | true | {context:3} — elide long identical runs (see below)
+	dragKeys: false,                  // hover a key in the RIGHT pane to drag it out as a placeholder
 	onChange: (content) => {          // after an edit re-computes the diff (editableCurrent only)
 		saveButton.disabled = ('' === content.trim());
 	},

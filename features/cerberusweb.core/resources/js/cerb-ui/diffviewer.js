@@ -49,6 +49,9 @@ CerbUI.DiffViewer = class {
 		collapseUnchanged: false, // false | true | {context:3} — elide long runs of identical lines behind a
 		                          // clickable "tear" divider (click reveals that run). Gutter numbers keep
 		                          // printing MODEL rows, so they jump across a tear (1,2,3…47,48).
+		dragKeys: false,   // hover a key in the RIGHT (current) pane to float a drag handle — see KataEditor's
+		                   // dragKeys. Right only: the left is a BEFORE document, so a key that the diff shows as
+		                   // removed no longer exists to reference. Set the pane's opts.onKeyClick to handle a click.
 	};
 
 	// A run must hide at least this many lines to be worth a tear.
@@ -90,6 +93,7 @@ CerbUI.DiffViewer = class {
 		// The right pane can opt into being editable (manual merge); the left ("historical/before") stays read-only.
 		this.right = new CerbUI.KataEditor(this._rightEl.editor, Object.assign({}, edOpts, {
 			readOnly: !this.opts.editableCurrent,
+			dragKeys: !!this.opts.dragKeys,
 		}));
 
 		this.left.setValue(CerbUI.DiffViewer._normalize(this.opts.left));

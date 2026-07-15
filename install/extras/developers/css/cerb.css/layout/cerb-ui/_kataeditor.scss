@@ -254,6 +254,50 @@
     caret-color: transparent;
 }
 
+// dragKeys: the drag handle that floats in when you hover a KEY token. It's a .cerb-ui-pill--circle placed
+// ABOVE the textarea (--input is z-index:1) — that stacking is the whole design: the drag starts on THIS, so
+// the caret/selection/typing in the text below never see it, and dragKeys works in an editable editor. The JS
+// owns left/top/[hidden] and parks it just left of the hovered key, in that row's own indent; a top-level key
+// has no indent, so there it reaches back over the gutter (--field doesn't clip, and z-index:2 beats the
+// non-positioned gutter). It can cover that row's fold chevron, which is fine: it's only up while you're on
+// the key token, and you're not reaching for the chevron then.
+.cerb-ui-kataeditor--key-handle {
+    position: absolute;
+    z-index: 2;
+    transform: translateY(-50%);   // the JS gives `top` the line's CENTER, so the height can't matter
+    width: 1.5em;
+    height: 1.5em;
+    opacity: 0.85;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+
+    &:hover { opacity: 1; }
+
+    // .cerb-ui-pill is display:inline-flex, which would beat [hidden]'s UA display:none.
+    &[hidden] { display: none; }
+}
+
+// dragKeys: the chip that follows the cursor while dragging a key out of the editor. Its text is the literal
+// `{{dot.notation}}` the drop will insert, so the drag shows what you're about to get. It's a .cerb-ui-pill —
+// a compact value label with a leading-icon slot and a fill that's already correct in both themes — so all
+// that's left here is what a pill doesn't cover.
+.cerb-ui-kataeditor--drag-chip {
+    // The one intentional font override: this chip's text is a literal KATA placeholder being dropped into a
+    // code editor, so it's code, not prose. It floats from <body> (position:fixed via --helper), where it would
+    // otherwise inherit the proportional page font.
+    font-family: var(--cerb-font-stack-fixed);
+    // .cerb-ui-draggable--helper sets a generic 8px on every floating helper and lands LATER in the cascade
+    // than .cerb-ui-pill, so re-assert the pill's shape (this rule is later still).
+    border-radius: 999px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22);   // tilt:false, so --tilt's shadow doesn't apply — lift it here
+}
+
+// A valid key drag is hovering this editor — the caret inside is already tracking the pointer as the insertion
+// preview, so this just frames the target.
+.cerb-ui-kataeditor--drop-target {
+    outline: 2px solid var(--cerb-color-tag-blue);
+    outline-offset: 1px;
+}
+
 // A CerbUI.Toolbar overlaid at the editor's top-right corner (like SearchQuery's --right toolbar). The
 // editor is overflow:hidden, so the floating strip lives on this relative wrapper AROUND it, not inside.
 .cerb-ui-kataeditor-wrap {

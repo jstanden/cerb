@@ -54,7 +54,43 @@ CerbUI.KataEditor = class {
 		onOpenUri: null,          // (uri) override for the hover "Open" action on a cerb: URI (default: open its peek)
 		readOnly: false,          // highlight + fold only; disable text-mutating keys (data-editor-readonly overrides)
 		folding: true,            // false = never foldable (no chevrons); keeps 1 model row = 1 view row (e.g. a diff pane)
+		dragKeys: false,          // hovering a KEY token floats a drag handle you can drag out to a CerbUI.Droppable
+		onKeyClick: null,         // (payload) the handle CLICKED rather than dragged — the no-drag fallback
 	};
+
+	// A KATA key at the head of a line: `name`, `name/id`, `name@anno` (group 2 is the whole key, sans the ':').
+	static _KEY_RE = /^(\s*)((?:[\w.-]+)(?:\/[^\s:@]+)?(?:@[A-Za-z0-9_,]+)?):/;
+
+	// Strip /identifiers and @annotations from each path segment so `series/s0:metric@int:` keys as `series:metric:`.
+	// Segments keep their trailing ':' (the shape getTokenPath/_scopePathAt return).
+	static _normalizePath(path) {
+		return path.map(function(v) {
+			let p = v.indexOf('@'); if(p !== -1) v = v.slice(0, p) + ':';
+			p = v.indexOf('/'); if(p !== -1) v = v.slice(0, p) + ':';
+			return v;
+		});
+	}
+
+	// What Twig can lex after a `.`: a NAME, or an integer (an array index). Anything else needs a subscript.
+	static _TWIG_NAME_RE = /^(?:[a-zA-Z_][a-zA-Z0-9_]*|\d+)$/;
+
+	// A key path (as returned by getTokenPath/getPathForRow) as a Twig accessor:
+	//   ['http_response:','headers:','set-cookie:']  ->  http_response.headers['set-cookie']
+	// Dot notation is only valid for a segment Twig lexes as a NAME. A KATA key may hold `-` or `.` (see _KEY_RE),
+	// and dotting those is silently WRONG rather than an error: `headers.set-cookie` parses as the subtraction
+	// `headers.set - cookie`. Such segments become a quoted subscript — the established Cerb idiom, as in the mail
+	// header placeholders ({{headers['delivered-to']}}).
+	static pathToAccessor(path) {
+		if(!Array.isArray(path) || !path.length) return '';
+		const segs = CerbUI.KataEditor._normalizePath(path).map(s => s.endsWith(':') ? s.slice(0, -1) : s);
+		return segs.map((s, i) => {
+			// The root can only be a bare name — a subscript needs something to hang off, and `_context[...]` isn't
+			// an idiom Cerb uses. In practice a dictionary's top-level keys are always identifiers.
+			if(i === 0) return s;
+			if(CerbUI.KataEditor._TWIG_NAME_RE.test(s)) return '.' + s;
+			return "['" + s.replace(/\\/g, '\\\\').replace(/'/g, "\\'") + "']";
+		}).join('');
+	}
 
 	// Viewport virtualization (large docs): at or below this many VIEW rows we paint the whole mirror + gutter
 	// (today's exact path — zero alignment risk for the common small doc); above it we paint only the visible
@@ -130,6 +166,7 @@ CerbUI.KataEditor = class {
 		this._painting = false;      // re-entry guard: _paintHighlightWindow ends in _syncScroll
 		this._scrollRaf = 0;         // rAF handle coalescing the scroll-driven window repaint
 		this._lineHeight = 0;        // cached lineHeight px (refreshed in _autosize / paint), avoids per-scroll getComputedStyle
+		this._charWidthPx = 0;       // cached char width px (fixed-pitch font), measured on demand by _charWidth()
 
 		// Code, not prose — disable the browser's text-assist features that fight the overlay + suggestions.
 		this.textarea.spellcheck = false;
@@ -179,6 +216,8 @@ CerbUI.KataEditor = class {
 		this.textarea.addEventListener('blur', this._onBlur);
 		if(this.gutter) this.gutter.addEventListener('click', this._onGutterClick);
 
+		if(this.opts.dragKeys) this._initKeyHandle();
+
 		this._rebuildProjection();  // initial render (projection === model while nothing is folded)
 
 		// Core editor-family hook: a caller can add extensible toolbar `sections` to any editor (opt-in via opts.toolbar).
@@ -211,6 +250,7 @@ CerbUI.KataEditor = class {
 		this._folds = [];                 // a fresh document drops all folds
 		this._markers.clear();            // …and all row-keyed gutter markers
 		this._lineDecos.clear();          // …and all row-keyed line decorations (diff bands)
+		this._hideKeyHandle();            // …and the hover handle, which points at a row this text no longer has
 		this._rebuildProjection(0);       // a fresh document starts at the top (caret + scroll), like the editor family
 		this._fireChange();
 		return this;
@@ -404,6 +444,65 @@ CerbUI.KataEditor = class {
 	// projection yields the same ancestor chain as the model would.
 	getTokenPath() { return this._scopePathAt(this.textarea.value, this.textarea.selectionStart).path; }
 
+	// The KATA key path OF a MODEL row (the row-keyed sibling of the caret-keyed getTokenPath), e.g. ['a:','b:'].
+	// Runs over the model so a row hidden inside a fold still resolves. Placing the probe just past the row's own
+	// `key:` puts _scopePathAt in VALUE position, which is what makes it push that key on as the last segment and
+	// prepend the ancestor chain. [] when the row isn't a key line (a blank, a comment, a `- list` item).
+	getPathForRow(modelRow) {
+		const lines = this._modelLines();
+		if(!(modelRow >= 0 && modelRow < lines.length)) return [];
+		const km = lines[modelRow].match(CerbUI.KataEditor._KEY_RE);
+		if(!km) return [];
+		let off = 0;
+		for(let i = 0; i < modelRow; i++) off += lines[i].length + 1;
+		return this._scopePathAt(this._model, off + km[0].length).path;
+	}
+
+	// {row, column} (MODEL row, 0-based) for a viewport point, or null if it's outside the text field — the hook
+	// for dropping something where the pointer is. The field is a fixed-pitch mirror, so this is the inverse of
+	// _renderActiveLineBand's geometry (top = padTop + viewRow*lineHeight) plus a char-width divide for the column.
+	//
+	// By default the point is CLAMPED onto the text — "where would a caret land", so a drop in the blank space
+	// under a short document lands at its end. Pass opts.exactRow to get null there instead — "what row is the
+	// pointer actually over" — which is what hit-testing wants, since otherwise every point below the text
+	// answers with the last line. (The column always clamps: past a line's end resolves to its end.)
+	positionFromPoint(clientX, clientY, opts) {
+		if(!this.textarea) return null;
+		const r = this.textarea.getBoundingClientRect();
+		if(!r.width || !r.height) return null;
+		if(clientX < r.left || clientX > r.right || clientY < r.top || clientY > r.bottom) return null;
+		const cs = window.getComputedStyle(this.textarea);
+		const lh = this._lineHeight || parseFloat(cs.lineHeight) || (parseFloat(cs.fontSize) * 1.5);
+		if(!lh) return null;
+		const y = clientY - r.top - (parseFloat(cs.paddingTop) || 0) + this.textarea.scrollTop;
+		const viewLines = this._viewLines();
+		const rawRow = Math.floor(y / lh);
+		if(opts && opts.exactRow && (rawRow < 0 || rawRow >= viewLines.length)) return null;
+		const viewRow = Math.max(0, Math.min(rawRow, viewLines.length - 1));
+		const cw = this._charWidth();
+		const x = clientX - r.left - (parseFloat(cs.paddingLeft) || 0) + this.textarea.scrollLeft;
+		const column = cw ? Math.max(0, Math.min(Math.round(x / cw), viewLines[viewRow].length)) : 0;
+		return { row: this._viewRowToModelRow(viewRow), column: column };
+	}
+
+	// Width of one character, cached. Measured off a throwaway span carrying the textarea's own font so it can't
+	// drift from the mirror. A zero measure (the editor is hidden) isn't cached, so the next call re-measures.
+	_charWidth() {
+		if(this._charWidthPx) return this._charWidthPx;
+		if(!this.textarea.getClientRects().length) return 0;   // hidden — don't cache a zero
+		const cs = window.getComputedStyle(this.textarea);
+		const span = document.createElement('span');
+		span.style.cssText = 'position:absolute;visibility:hidden;white-space:pre;top:0;left:-9999px';
+		span.style.font = cs.font;
+		span.style.letterSpacing = cs.letterSpacing;
+		span.textContent = '0'.repeat(100);
+		this.field.appendChild(span);
+		const w = span.getBoundingClientRect().width / 100;
+		span.remove();
+		if(w) this._charWidthPx = w;
+		return w;
+	}
+
 	// 0-based row of a colon-joined path (e.g. 'series/s0:metric:'), or false — port of getKataRowByPath.
 	getRowByPath(pathStr) {
 		if(typeof pathStr !== 'string') return false;
@@ -458,6 +557,15 @@ CerbUI.KataEditor = class {
 			this.textarea.removeEventListener('blur', this._onBlur);
 		}
 		if(this.gutter && this._onGutterClick) this.gutter.removeEventListener('click', this._onGutterClick);
+		if(this._keyDrag) { this._keyDrag.destroy(); this._keyDrag = null; }
+		if(this._keyHandle) {
+			this.field.removeEventListener('pointermove', this._onFieldPointerMove);
+			this.field.removeEventListener('pointerleave', this._onFieldPointerLeave);
+			this._keyHandle.removeEventListener('click', this._onKeyHandleClick);
+			this._keyHandle.remove();
+			this._keyHandle = null;
+		}
+		if(this._resizeDisposer) { this._resizeDisposer(); this._resizeDisposer = null; }
 		if(this._revealDisposer) { this._revealDisposer(); this._revealDisposer = null; }
 		if(this._scrollRaf) { cancelAnimationFrame(this._scrollRaf); this._scrollRaf = 0; }
 	}
@@ -563,6 +671,9 @@ CerbUI.KataEditor = class {
 		// Our own programmatic writes (_writeValue) re-emit an `input` event via execCommand; ignore it — the
 		// command that called _setValueAndCaret already drives the re-render (and decides about suggestions).
 		if(this._suppressInput) return;
+		// You're typing — the hover handle is stale (the line it points at is moving under it) and in the way.
+		// The next pointermove brings it back.
+		this._hideKeyHandle();
 		// Convert any pasted tabs to spaces so the stored value is always spaces (_sanitizeTabs fully refreshes).
 		if(this.textarea.value.indexOf('\t') !== -1) { this._sanitizeTabs(); return; }
 		this._applyProjectionEditToModel();  // fold the edit back into the full-text model
@@ -1111,6 +1222,7 @@ CerbUI.KataEditor = class {
 	_handleScroll() {
 		CerbUI.editorCore.syncScroll(this.textarea, this.highlight);
 		if(this.gutter) this.gutter.scrollTop = this.textarea.scrollTop;
+		if(!this._keyDragging) this._hideKeyHandle();   // it's pinned to a line that just moved; re-hover to re-place
 		if(this._scrollRaf) return;
 		this._scrollRaf = requestAnimationFrame(() => { this._scrollRaf = 0; this._repaintWindowIfMoved(); });
 	}
@@ -1204,6 +1316,138 @@ CerbUI.KataEditor = class {
 		this.gutter.scrollTop = this.textarea.scrollTop;
 	}
 
+	// ── dragKeys: hover a KEY token → a floating drag handle ─────────────────────────────────────────────
+	// The handle is its own element ABOVE the textarea (z-index beats --input), and that's the whole design:
+	// the drag starts on the HANDLE, never on the text, so the caret, selection and typing are untouched and
+	// this works in an editable editor. It parks at the end of the hovered line's text so it never covers code,
+	// and hides while you type (a stray handle over live text would be noise).
+	_initKeyHandle() {
+		if(!this.field || !CerbUI.Draggable) return;
+
+		this._keyHandleRow = -1;
+		this._keyDragging = false;
+
+		const h = document.createElement('span');
+		h.className = 'cerb-ui-pill cerb-ui-pill--circle cerb-ui-kataeditor--key-handle';
+		h.title = 'Drag this into an editor as a placeholder, or click to insert it';
+		h.hidden = true;
+		const icon = document.createElement('span');
+		icon.className = 'cerb-icons cerb-icon-placeholders';
+		h.appendChild(icon);
+		this.field.appendChild(h);
+		this._keyHandle = h;
+
+		this._onFieldPointerMove = (e) => {
+			if(this._keyDragging) return;                    // mid-drag: don't re-target under the pointer
+			if(e.target === h || h.contains(e.target)) return; // on the handle itself: keep it put
+			// exactRow: the blank space under a short document must answer "no row", not the last one — else the
+			// whole empty area below keeps the last key armed.
+			const p = this.positionFromPoint(e.clientX, e.clientY, { exactRow: true });
+			if(!p) { this._hideKeyHandle(); return; }
+			// ARM on the key token, but STAY armed anywhere on that row: the handle parks off to the side, so
+			// hiding the moment the pointer left the token made it impossible to travel to (you'd cross the
+			// value to reach it). Moving to a different row re-arms only if that row's key token is under you.
+			if(p.row === this._keyHandleRow && !h.hidden) return;
+			this._showKeyHandle(this._keyTokenRowAt(p.row, p.column));
+		};
+		this._onFieldPointerLeave = () => { if(!this._keyDragging) this._hideKeyHandle(); };
+
+		this.field.addEventListener('pointermove', this._onFieldPointerMove);
+		this.field.addEventListener('pointerleave', this._onFieldPointerLeave);
+
+		// Click (no drag — the Draggable's `distance` threshold keeps a tap a tap) inserts at the target's caret.
+		this._onKeyHandleClick = () => {
+			if(typeof this.opts.onKeyClick !== 'function') return;
+			const p = this._dragPayloadFor(this._keyHandleRow);
+			if(p) this.opts.onKeyClick(p);
+		};
+		h.addEventListener('click', this._onKeyHandleClick);
+
+		this._keyDrag = new CerbUI.Draggable(h, {
+			tilt: false,
+			autoScroll: true,   // the drop target is often scrolled out of view (e.g. an editor above a tab panel)
+			data: () => this._dragPayloadFor(this._keyHandleRow),
+			helper: () => {
+				const p = this._dragPayloadFor(this._keyHandleRow);
+				const chip = document.createElement('span');
+				chip.className = 'cerb-ui-pill cerb-ui-kataeditor--drag-chip';
+				const i = document.createElement('span');
+				i.className = 'cerb-icons cerb-icon-placeholders';
+				chip.appendChild(i);
+				chip.appendChild(document.createTextNode('{{' + (p ? p.expr : '') + '}}'));
+				return chip;
+			},
+			onStart: () => { this._keyDragging = true; },
+			onStop: () => { this._keyDragging = false; this._hideKeyHandle(); },
+		});
+	}
+
+	// The MODEL row whose KEY token covers (row, column), or -1. The token spans the key plus its ':' — pointing
+	// at the indent, the value, or a non-key row (blank / comment / `- list` item) is not the key.
+	_keyTokenRowAt(row, column) {
+		const km = this.getLine(row).match(CerbUI.KataEditor._KEY_RE);
+		if(!km) return -1;
+		const start = km[1].length;
+		return (column >= start && column < km[0].length) ? row : -1;
+	}
+
+	// Park the handle immediately LEFT of `modelRow`'s key, vertically centered on the line. -1 hides it. Uses
+	// the same geometry _renderActiveLineBand does, minus the textarea's scroll. It lands in the row's indent
+	// (or, for a top-level key, the reserved --dragkeys lane), so it never covers code at any nesting depth.
+	_showKeyHandle(modelRow) {
+		if(!this._keyHandle) return;
+		if(modelRow < 0) { this._hideKeyHandle(); return; }
+		if(modelRow === this._keyHandleRow && !this._keyHandle.hidden) return;   // already parked here — most moves
+		const vr = this._modelRowToViewRow(modelRow);
+		if(vr < 0) { this._hideKeyHandle(); return; }         // hidden inside a collapsed fold
+
+		const cs = window.getComputedStyle(this.textarea);
+		const lh = this._lineHeight || parseFloat(cs.lineHeight) || (parseFloat(cs.fontSize) * 1.5);
+		const cw = this._charWidth();
+		if(!lh || !cw) return;
+		const padL = parseFloat(cs.paddingLeft) || 0, padT = parseFloat(cs.paddingTop) || 0;
+
+		// Just left of the key's first character — i.e. in the row's own indent. A top-level key has no indent,
+		// so this goes NEGATIVE and reaches back over the gutter, which is deliberate (see the CSS): it beats a
+		// left-hand text lane, which would indent every line to serve one hovered row. Clamped to the editor's
+		// left edge, and to the right edge so a horizontally scrolled line can't slide it out of the box.
+		const km = this.getLine(modelRow).match(CerbUI.KataEditor._KEY_RE);
+		const w = this._keyHandle.offsetWidth || 22;
+		const gutterW = this.gutter ? this.gutter.offsetWidth : 0;
+		const x = padL + (km ? km[1].length : 0) * cw - w - 4 - this.textarea.scrollLeft;
+		const minX = 2 - gutterW;                                        // may overhang the gutter, not the editor
+		const maxX = Math.max(minX, this.textarea.clientWidth - w - 4);
+		this._keyHandle.style.left = Math.max(minX, Math.min(x, maxX)) + 'px';
+		this._keyHandle.style.top = (padT + vr * lh - this.textarea.scrollTop + lh / 2) + 'px';
+		this._keyHandleRow = modelRow;
+		this._keyHandle.hidden = false;
+	}
+
+	_hideKeyHandle() {
+		if(!this._keyHandle) return;
+		this._keyHandle.hidden = true;
+		this._keyHandleRow = -1;
+	}
+
+	// The drop payload for a key row, or null when the row has no resolvable path (see getPathForRow).
+	_dragPayloadFor(modelRow) {
+		if(isNaN(modelRow)) return null;
+		const path = this.getPathForRow(modelRow);
+		if(!path.length) return null;
+		const expr = CerbUI.KataEditor.pathToAccessor(path);
+		if(!expr) return null;
+		const segs = CerbUI.KataEditor._normalizePath(path);
+		const last = segs[segs.length - 1];
+		return {
+			editor: this,
+			modelRow: modelRow,
+			path: path,
+			expr: expr,                                       // Twig accessor, sans braces: a.b['c-d']
+			key: last.endsWith(':') ? last.slice(0, -1) : last,
+			line: this.getLine(modelRow),
+		};
+	}
+
 	// One gutter row's HTML for MODEL row `mr` (number jumps across folds: 1,2,6…). Shared by the full + windowed
 	// gutter paths; `ctx` carries the whole-doc-constant header/marker maps so every row reserves the same columns.
 	_gutterRowHtml(mr, ctx) {
@@ -1278,6 +1522,14 @@ CerbUI.KataEditor = class {
 
 	_lines() { return this.textarea.value.split('\n'); }       // projection (view) lines
 	_modelLines() { return this._model.split('\n'); }          // full-document lines
+
+	// Projection (textarea) lines, memoized on the text. Same split _modelLines does, but this one is on the
+	// pointermove path (dragKeys hit-testing), where re-splitting the whole doc per event is real work.
+	_viewLines() {
+		const t = this.textarea.value;
+		if(this._viewLinesKey !== t) { this._viewLinesKey = t; this._viewLinesCache = t.split('\n'); }
+		return this._viewLinesCache;
+	}
 
 	// ── Code folding internals (model ⇄ projection) ─────────────────────
 
@@ -1701,14 +1953,7 @@ CerbUI.KataEditor.kataFieldSource = function(suggestionMap, opts) {
 	const mode = opts.filterMode || 'subsequence';
 	const typeDefaults = opts.autocomplete_type_defaults || opts.typeDefaults || {};
 
-	// Strip /identifiers and @annotations from each segment so `series/s0:metric@int:` keys as `series:metric:`.
-	function normalizePath(path) {
-		return path.map(function(v) {
-			let p = v.indexOf('@'); if(p !== -1) v = v.slice(0, p) + ':';
-			p = v.indexOf('/'); if(p !== -1) v = v.slice(0, p) + ':';
-			return v;
-		});
-	}
+	const normalizePath = CerbUI.KataEditor._normalizePath;
 
 	function toItem(s) {
 		if(typeof s === 'string') s = { caption: s, snippet: s };

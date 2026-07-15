@@ -189,6 +189,70 @@ new CerbUI.KataEditor(el, {
 });{/literal}</pre>
 			</div>
 		</div>
+
+		{* Example 5: dragKeys — drag a key row out of one editor into another as a dot-notation placeholder *}
+		<div class="cerb-ui-header">
+			<div class="cerb-ui-header--label"><b>dragKeys</b> &mdash; reading nesting by eye and hand-typing <code>a.b.c</code> is the wall most authors hit (this is what the automation simulator's Input/Output panes use). Hover a <b>key</b> token and a drag handle floats in just left of it: <b>drag</b> it onto any <code>CerbUI.Droppable</code>, or <b>click</b> it to fire <code>onKeyClick</code>. The floating <code>cerb-ui-pill</code> is the literal placeholder the drop will insert, so the drag itself shows what you'll get. The handle is a separate element stacked <b>above</b> the textarea, so the drag starts on <em>it</em> &mdash; the caret, selection and typing are untouched and this works in an editable editor (it hides while you type). Only the key token itself arms it (the indent, the value, blanks, comments and <code>- list</code> items have no path), but once armed it stays up anywhere on that row so you can travel to it. It parks in the row's own indent; a top-level key has none, so there it reaches back over the gutter rather than indenting every line to make room. The zone below tracks the pointer with <code>positionFromPoint()</code> + <code>setCursorPosition(&hellip;, {literal}{ scroll: false }{/literal})</code>, so the <b>native caret is the drop-point preview</b></div>
+		</div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<div class="cerb-uiref-result" style="margin-bottom:0.4em;">Drag a key from here&hellip; (this pane is editable &mdash; type in it, the handle stays out of the way)</div>
+				<textarea id="uiref-kataeditor-dragsrc" data-editor-lines="14" spellcheck="false"># Hover a key token — a drag handle floats in to its left
+ticket:
+  id: 12345
+  subject: Re: your order
+  group:
+    name: Support
+    is_private: false
+worker:
+  email: alice@example.com
+http_response:
+  headers:
+    set-cookie: session=abc
+attempts: 2
+</textarea>
+				<div class="cerb-uiref-result" style="margin:0.6em 0 0.4em;">&hellip;and drop it in here (or click a grip to insert at the caret)</div>
+				<textarea id="uiref-kataeditor-dragdst" data-editor-lines="6" spellcheck="false">say:
+  content:
+</textarea>
+				<div class="cerb-uiref-result">Last insert &middot; <b id="uiref-kataeditor-drag-out">&mdash;</b></div>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>{literal}// The SOURCE: hovering a key token floats a drag handle. The drag payload is
+//   { editor, modelRow, path, expr, key, line }   — expr is a Twig accessor: ticket.group.name
+const src = new CerbUI.KataEditor(srcEl, {
+	dragKeys:   true,
+	onKeyClick: (payload) => insert(payload),   // the handle CLICKED, not dragged (the zone may be off-screen)
+});
+
+// The TARGET: any CerbUI.Droppable. Tracking the pointer with positionFromPoint() means the editor's own caret
+// is the insertion preview — pass { scroll: false } or the editor fights the pointer on every move.
+const insert = (payload) => dst.insertSnippet('{{' + payload.expr + '}}');
+
+new CerbUI.Droppable(dst.el, {
+	accept:     (item, payload) => !!(payload && payload.expr),
+	hoverClass: 'cerb-ui-kataeditor--drop-target',
+	overlay:    false,
+	onMove:     (info) => {
+		const p = dst.positionFromPoint(info.clientX, info.clientY);
+		if(p) dst.setCursorPosition(p.row, p.column, { scroll: false });
+	},
+	onDrop:     (info) => insert(info.payload),
+});{/literal}</pre>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>{literal}// The path APIs behind it — both are usable on their own.
+ed.getPathForRow(4);                        // ['ticket:', 'group:', 'name:']  (the row-keyed getTokenPath)
+CerbUI.KataEditor.pathToAccessor(path);     // 'ticket.group.name'  (strips /identifiers + @annotations)
+                                            // a key Twig can't dot becomes a subscript, since `a.set-cookie`
+                                            // would parse as SUBTRACTION:  headers['set-cookie']
+ed.positionFromPoint(clientX, clientY);     // { row, column } in MODEL space, or null if outside the field{/literal}</pre>
+			</div>
+		</div>
 	</div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}">
@@ -275,6 +339,34 @@ new CerbUI.KataEditor(el, {
 				},
 			});
 		}
+	})();
+
+	// KataEditor #5 — dragKeys: drag a key row out as a dot-notation placeholder (the automation simulator's pattern)
+	(function() {
+		const srcEl = document.getElementById('uiref-kataeditor-dragsrc');
+		const dstEl = document.getElementById('uiref-kataeditor-dragdst');
+		const out = document.getElementById('uiref-kataeditor-drag-out');
+		if(!srcEl || !dstEl || !(window.CerbUI && CerbUI.KataEditor && CerbUI.Droppable)) return;
+
+		const dst = new CerbUI.KataEditor(dstEl, { minLines: 6, maxLines: 6 });
+
+		const insert = function(payload) {
+			{literal}dst.insertSnippet('{{' + payload.expr + '}}');
+			if(out) out.textContent = '{{' + payload.expr + '}}';{/literal}
+		};
+
+		new CerbUI.KataEditor(srcEl, { minLines: 14, maxLines: 14, dragKeys: true, onKeyClick: insert });
+
+		new CerbUI.Droppable(dst.el, {
+			accept: function(item, payload) { return !!(payload && payload.expr); },
+			hoverClass: 'cerb-ui-kataeditor--drop-target',
+			overlay: false,
+			onMove: function(info) {
+				const p = dst.positionFromPoint(info.clientX, info.clientY);
+				if(p) dst.setCursorPosition(p.row, p.column, { scroll: false });
+			},
+			onDrop: function(info) { insert(info.payload); }
+		});
 	})();
 })();
 </script>
