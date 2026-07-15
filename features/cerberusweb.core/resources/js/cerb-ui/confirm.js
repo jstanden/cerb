@@ -26,6 +26,7 @@ CerbUI.Confirm = class {
 			body:        'Are you sure?',
 			confirmText: 'OK',
 			cancelText:  'Cancel',
+			width:       420,          // widen for a richer body (e.g. an inline diff preview)
 			onConfirm:   null,
 			onCancel:    null,
 		}, opts);
@@ -67,7 +68,7 @@ CerbUI.Confirm = class {
 			draggable:     false,
 			closeOnEscape: false,
 			fixed:         true,
-			width:         420,
+			width:         this.opts.width,
 		});
 
 		this.cancelBtn.addEventListener('click',  () => this._resolve(false));
