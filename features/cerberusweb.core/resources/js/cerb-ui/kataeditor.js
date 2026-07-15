@@ -54,6 +54,7 @@ CerbUI.KataEditor = class {
 		onGutterClick: null,      // (modelRow, e) when the left marker column is clicked (e.g. toggle a breakpoint)
 		gutterClickableRow: null, // (modelRow)->bool: gate WHICH rows fire onGutterClick + show the hover affordance
 		                          //   (e.g. only lines where a breakpoint is legal). null = every row is clickable.
+		onMarkersChanged: null,   // () after an edit shifts/drops gutter markers (line-anchored across edits)
 		onOpenUri: null,          // (uri) override for the hover "Open" action on a cerb: URI (default: open its peek)
 		readOnly: false,          // highlight + fold only; disable text-mutating keys (data-editor-readonly overrides)
 		folding: true,            // false = never foldable (no chevrons); keeps 1 model row = 1 view row (e.g. a diff pane)
@@ -1732,6 +1733,32 @@ CerbUI.KataEditor = class {
 		if(this._markers.size) this._remapMarkers(oldModel, newModel);
 		if(this._folds.length) { this._remapFolds(mStart, mEnd, inserted, removed, oldModel); this._hidden = this._hiddenModelRows(); }
 		this._lastProjection = newProj;
+	}
+
+	// Keep gutter markers glued to their MODEL line across edits, via a LINE-level diff (robust at line boundaries,
+	// unlike char offsets): markers in the unchanged prefix stay, markers in the unchanged suffix shift by the line
+	// delta, and a marker whose line fell in the changed region is DROPPED (its line was edited/removed). Touches
+	// only this._markers — never the text model — so a bug here can't corrupt editing. The caller re-renders.
+	_remapMarkers(oldModel, newModel) {
+		const oldLines = oldModel.split('\n'), newLines = newModel.split('\n');
+		if(oldLines.length === newLines.length) return;   // no rows added/removed → every marker keeps its row
+
+		const minLen = Math.min(oldLines.length, newLines.length);
+		let pre = 0;
+		while(pre < minLen && oldLines[pre] === newLines[pre]) pre++;
+		let suf = 0;
+		while(suf < (minLen - pre) && oldLines[oldLines.length - 1 - suf] === newLines[newLines.length - 1 - suf]) suf++;
+		const oldChangedEnd = oldLines.length - suf;   // exclusive
+		const delta = newLines.length - oldLines.length;
+
+		const next = new Map();
+		let changed = false;
+		for(const [row, mk] of this._markers) {
+			if(row < pre) next.set(row, mk);                                          // unchanged prefix
+			else if(row >= oldChangedEnd) { next.set(row + delta, mk); changed = true; }  // unchanged suffix → shift
+			else changed = true;                                                      // inside the changed region → drop
+		}
+		if(changed) { this._markers = next; if(typeof this.opts.onMarkersChanged === 'function') this.opts.onMarkersChanged(); }
 	}
 
 	// Shift folds the edit was strictly above; keep folds it was strictly below or a pure in-line header edit;
