@@ -128,6 +128,9 @@ CerbUI.MarkdownEditor = class {
 		this.textarea.addEventListener('blur', this._onBlur);
 		this.textarea.addEventListener('paste', this._onPaste);
 
+		// Re-autosize on width changes (narrowing toggles the horizontal scrollbar syncOverlayHeight compensates for).
+		this._resizeDisposer = CerbUI.editorCore.observeWidth(this.field, () => this._autosize());
+
 		this._renderHighlight();
 		this._autosize();
 
@@ -203,6 +206,7 @@ CerbUI.MarkdownEditor = class {
 			this.textarea.removeEventListener('blur', this._onBlur);
 			this.textarea.removeEventListener('paste', this._onPaste);
 		}
+		if(this._resizeDisposer) { this._resizeDisposer(); this._resizeDisposer = null; }
 	}
 
 	// ── Textarea command API (ported from the legacy cerb.cerbTextEditor widget) ──
@@ -519,7 +523,8 @@ CerbUI.MarkdownEditor = class {
 		const h = Math.min(Math.max(ta.scrollHeight, this.opts.minHeight), this.opts.maxHeight);
 		ta.style.height = h + 'px';
 		ta.style.overflowY = (ta.scrollHeight > this.opts.maxHeight) ? 'auto' : 'hidden';
-		this.highlight.style.height = ta.style.height;
+		// Match the mirror to the textarea's client height so a horizontal scrollbar doesn't drift them.
+		CerbUI.editorCore.syncOverlayHeight(ta, [this.highlight]);
 	}
 
 	// ── Markdown tokenizer (covers every char incl. newlines) ──

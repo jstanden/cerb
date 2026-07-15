@@ -133,6 +133,9 @@ CerbUI.ScriptingEditor = class {
 		this.textarea.addEventListener('blur', this._onBlur);
 		if(this.gutter) this.gutter.addEventListener('click', this._onGutterClick);
 
+		// Re-autosize on width changes (narrowing toggles the horizontal scrollbar syncOverlayHeight compensates for).
+		this._resizeDisposer = CerbUI.editorCore.observeWidth(this.field, () => this._autosize());
+
 		this._renderHighlight();
 		this._autosize();
 		this._renderGutter();
@@ -292,6 +295,7 @@ CerbUI.ScriptingEditor = class {
 			this.textarea.removeEventListener('blur', this._onBlur);
 		}
 		if(this.gutter && this._onGutterClick) this.gutter.removeEventListener('click', this._onGutterClick);
+		if(this._resizeDisposer) { this._resizeDisposer(); this._resizeDisposer = null; }
 		if(this._revealDisposer) { this._revealDisposer(); this._revealDisposer = null; }
 	}
 
@@ -653,8 +657,8 @@ CerbUI.ScriptingEditor = class {
 		const h = Math.max(minH, Math.min(ta.scrollHeight, maxH));
 		ta.style.height = h + 'px';
 		ta.style.overflowY = (ta.scrollHeight > maxH + 1) ? 'auto' : 'hidden';
-		this.highlight.style.height = h + 'px';
-		if(this.gutter) this.gutter.style.height = h + 'px';
+		// Match the decoration layers to the textarea's client height so a horizontal scrollbar doesn't drift them.
+		CerbUI.editorCore.syncOverlayHeight(ta, [this.highlight, this.gutter]);
 		this._syncScroll();
 	}
 

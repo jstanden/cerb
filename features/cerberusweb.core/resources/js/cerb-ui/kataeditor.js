@@ -218,6 +218,9 @@ CerbUI.KataEditor = class {
 
 		if(this.opts.dragKeys) this._initKeyHandle();
 
+		// Re-autosize on width changes (narrowing toggles the horizontal scrollbar syncOverlayHeight compensates for).
+		this._resizeDisposer = CerbUI.editorCore.observeWidth(this.field, () => this._autosize());
+
 		this._rebuildProjection();  // initial render (projection === model while nothing is folded)
 
 		// Core editor-family hook: a caller can add extensible toolbar `sections` to any editor (opt-in via opts.toolbar).
@@ -1515,8 +1518,8 @@ CerbUI.KataEditor = class {
 		const h = Math.max(minH, Math.min(ta.scrollHeight, maxH));
 		ta.style.height = h + 'px';
 		ta.style.overflowY = (ta.scrollHeight > maxH + 1) ? 'auto' : 'hidden';
-		this.highlight.style.height = h + 'px';
-		if(this.gutter) this.gutter.style.height = h + 'px';
+		// Match the decoration layers to the textarea's client height so a horizontal scrollbar doesn't drift them.
+		CerbUI.editorCore.syncOverlayHeight(ta, [this.highlight, this.gutter]);
 		this._syncScroll();
 	}
 

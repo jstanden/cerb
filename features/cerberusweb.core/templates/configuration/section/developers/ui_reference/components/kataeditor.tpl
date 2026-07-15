@@ -190,6 +190,34 @@ new CerbUI.KataEditor(el, {
 			</div>
 		</div>
 
+		{* Example 4: scroll-alignment regression — few maxLines (vertical scroll) + a very long line (horizontal scroll) *}
+		<div class="cerb-ui-header">
+			<div class="cerb-ui-header--label"><b>Scroll-alignment regression</b> &mdash; a low <code>maxLines</code> forces a <b>vertical</b> scrollbar while the very long first line forces a <b>horizontal</b> one. With both present the textarea's client height shrinks by the scrollbar; <code>editorCore.syncOverlayHeight()</code> matches the mirror/gutter to it so the colored text stays locked to the caret at every scroll position, and <code>editorCore.observeWidth()</code> re-runs autosize on resize. <b>Drag the pane narrow, then scroll to the very bottom</b> &mdash; the highlight must not drift from the textarea text. The fix is shared by every editorCore editor (KataEditor / JsonEditor / MarkdownEditor / ScriptingEditor / DataQuery / SearchQuery)</div>
+		</div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<textarea id="uiref-kataeditor-scroll" spellcheck="false"># Regression check: this first line is deliberately far wider than the editor to force a horizontal scrollbar — drag the pane narrow, scroll to the bottom, and confirm the colored mirror stays exactly on top of the caret text with no vertical drift.
+series/opened:
+  metric: ticket.created
+  function: count
+series/closed:
+  metric: ticket.closed
+  function: count
+series/waiting:
+  metric: ticket.waiting
+  function: count
+</textarea>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>{literal}// Low maxLines → vertical scroll; a long line → horizontal scroll. editorCore.syncOverlayHeight (called by every
+// editor's _autosize) sizes the mirror/gutter to the textarea's CLIENT height so a horizontal scrollbar can't
+// desync them; editorCore.observeWidth re-runs _autosize when the editor is resized narrow/wide.
+new CerbUI.KataEditor(el, { minLines: 4, maxLines: 6 });{/literal}</pre>
+			</div>
+		</div>
+
 		{* Example 5: dragKeys — drag a key row out of one editor into another as a dot-notation placeholder *}
 		<div class="cerb-ui-header">
 			<div class="cerb-ui-header--label"><b>dragKeys</b> &mdash; reading nesting by eye and hand-typing <code>a.b.c</code> is the wall most authors hit (this is what the automation simulator's Input/Output panes use). Hover a <b>key</b> token and a drag handle floats in just left of it: <b>drag</b> it onto any <code>CerbUI.Droppable</code>, or <b>click</b> it to fire <code>onKeyClick</code>. The floating <code>cerb-ui-pill</code> is the literal placeholder the drop will insert, so the drag itself shows what you'll get. The handle is a separate element stacked <b>above</b> the textarea, so the drag starts on <em>it</em> &mdash; the caret, selection and typing are untouched and this works in an editable editor (it hides while you type). Only the key token itself arms it (the indent, the value, blanks, comments and <code>- list</code> items have no path), but once armed it stays up anywhere on that row so you can travel to it. It parks in the row's own indent; a top-level key has none, so there it reaches back over the gutter rather than indenting every line to make room. The zone below tracks the pointer with <code>positionFromPoint()</code> + <code>setCursorPosition(&hellip;, {literal}{ scroll: false }{/literal})</code>, so the <b>native caret is the drop-point preview</b></div>
@@ -339,6 +367,13 @@ ed.positionFromPoint(clientX, clientY);     // { row, column } in MODEL space, o
 				},
 			});
 		}
+	})();
+
+	// KataEditor #4 — scroll-alignment regression (vertical + horizontal scrollbars); see syncOverlayHeight/observeWidth
+	(function() {
+		const el = document.getElementById('uiref-kataeditor-scroll');
+		if(el && window.CerbUI && CerbUI.KataEditor)
+			new CerbUI.KataEditor(el, { minLines: 4, maxLines: 6 });
 	})();
 
 	// KataEditor #5 — dragKeys: drag a key row out as a dot-notation placeholder (the automation simulator's pattern)

@@ -132,6 +132,9 @@ CerbUI.SearchQuery = class {
 		this.textarea.addEventListener('scroll', this._onScroll, { passive: true });
 		this.textarea.addEventListener('blur', this._onBlur);
 
+		// Re-autosize on width changes (narrowing toggles the horizontal scrollbar syncOverlayHeight compensates for).
+		this._resizeDisposer = CerbUI.editorCore.observeWidth(this.field, () => this._autosize());
+
 		// Self-wire the suggestions button that a self-built shell injected (legacy [data-action] markup is left
 		// to its own author wiring, so this never double-binds).
 		el.querySelectorAll('[data-cerb-editor-action=autocomplete]').forEach((btn) => {
@@ -237,6 +240,7 @@ CerbUI.SearchQuery = class {
 			this.textarea.removeEventListener('scroll', this._onScroll);
 			this.textarea.removeEventListener('blur', this._onBlur);
 		}
+		if(this._resizeDisposer) { this._resizeDisposer(); this._resizeDisposer = null; }
 	}
 
 	// ── Input / keyboard ────────────────────────────────────────────────
@@ -363,7 +367,8 @@ CerbUI.SearchQuery = class {
 		const h = Math.min(ta.scrollHeight, this.opts.maxHeight);
 		ta.style.height = h + 'px';
 		ta.style.overflowY = (ta.scrollHeight > this.opts.maxHeight) ? 'auto' : 'hidden';
-		this.highlight.style.height = ta.style.height;
+		// Match the mirror to the textarea's client height so a horizontal scrollbar doesn't drift them.
+		CerbUI.editorCore.syncOverlayHeight(ta, [this.highlight]);
 	}
 
 	// ── Tokenizer + scope-path (shared grammar) ─────────────────────────
