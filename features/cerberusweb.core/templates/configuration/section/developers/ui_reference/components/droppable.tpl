@@ -21,7 +21,9 @@
 				<pre data-cerb-uiref-source>{literal}new CerbUI.Draggable(palette, { items: '.cerb-ui-tile' });
 
 new CerbUI.Droppable(anyZone, {
-	onOver: function(info) {}, onOut: function(info) {},   // valid drag enter / leave
+	onOver: function(info) {}, onOut: function(info) {},   // valid drag ENTER / leave (once each, not per move)
+	onMove: function(info) { log(info.clientX + ',' + info.clientY); },  // every move while hovering — for a
+	                                                       // live drop-point preview (e.g. tracking a caret)
 	onDrop: function(info) { log('took ' + info.payload.name); },
 });
 
@@ -46,6 +48,7 @@ new CerbUI.Droppable(blueZone, {
 		if(src && any && blue && window.CerbUI && CerbUI.Draggable && CerbUI.Droppable) {
 			new CerbUI.Draggable(src, { items: '.cerb-ui-tile' });
 			new CerbUI.Droppable(any, {
+				onMove: function(info) { if(out) out.textContent = 'Accepts any: ' + info.payload.name + ' at ' + Math.round(info.clientX) + ',' + Math.round(info.clientY); },
 				onDrop: function(info) { if(out) out.textContent = 'Accepts any: took ' + info.payload.name; }
 			});
 			new CerbUI.Droppable(blue, {

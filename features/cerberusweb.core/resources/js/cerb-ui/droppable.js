@@ -6,6 +6,8 @@
  * gets `.cerb-ui-droppable--over` and (by default) a built-in `--overlay` highlight; on release it fires
  * `onDrop(info)`. Returning false from `onDrop` rejects the drop (the Draggable reverts its helper).
  *
+ * `onOver` fires once on entry; use `onMove` for per-move tracking (a live drop-point preview).
+ *
  * Usage:
  *   new CerbUI.Droppable(canvasEl, {
  *     accept: '.cerb-ui-tile',                 // selector | (item,payload)=>bool | null = accept all
@@ -27,7 +29,8 @@ CerbUI.Droppable = class {
 		overlay: true,     // show the built-in highlight overlay while a valid drag hovers
 		rejectOverlay: false, // also show a (red) overlay while an UNacceptable drag hovers — visible rejection
 		hoverClass: '',    // extra class toggled on the zone while a valid drag is over it
-		onOver: null,      // (info) when a valid drag enters
+		onOver: null,      // (info) when a valid drag ENTERS (once), not on every move — see onMove
+		onMove: null,      // (info) on each move while a valid drag hovers (e.g. track a live insertion point)
 		onReject: null,    // (info) when an unacceptable drag hovers (paired with rejectOverlay for the visual)
 		onOut: null,       // (info) when a valid drag leaves (or the drag ends elsewhere)
 		onDrop: null,      // (info) on release over this zone; return false to reject
@@ -67,6 +70,13 @@ CerbUI.Droppable = class {
 		if(this.opts.hoverClass) this.el.classList.add(this.opts.hoverClass);
 		if(this.opts.overlay) this._showOverlay(false);
 		if(typeof this.opts.onOver === 'function') this.opts.onOver(info);
+	}
+
+	// The valid drag already inside this zone moved. Fires after enter(), on every pointermove, so a zone can
+	// track the pointer (e.g. move a caret to the would-be drop point) rather than only knowing it was entered.
+	move(info) {
+		if(this._hover !== 'accept') return;
+		if(typeof this.opts.onMove === 'function') this.opts.onMove(info);
 	}
 
 	// An UNacceptable drag is hovering — visible only when rejectOverlay (or a hostile onReject) is set.
