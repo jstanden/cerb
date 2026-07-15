@@ -1672,6 +1672,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			$def->info_global_attr['data-autocomplete'] = new HTMLPurifier_AttrDef_Integer();
 			$def->info_global_attr['data-behavior-id'] = new HTMLPurifier_AttrDef_Integer();
 			$def->info_global_attr['data-cerb-external-link'] = new HTMLPurifier_AttrDef_Text();
+			$def->info_global_attr['data-cerb-syntax'] = new HTMLPurifier_AttrDef_Text();
 			$def->info_global_attr['data-context'] = new HTMLPurifier_AttrDef_Text();
 			$def->info_global_attr['data-context-id'] = new HTMLPurifier_AttrDef_Integer();
 			$def->info_global_attr['data-interaction'] = new HTMLPurifier_AttrDef_Text();

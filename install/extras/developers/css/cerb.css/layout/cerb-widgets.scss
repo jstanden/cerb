@@ -210,9 +210,30 @@ TABLE.cerb-widget-data-table {
 	}
 }
 
-.cerb-syntax-kata {
-	.cerb-syntax-kata--key        { color: var(--cerb-editor-syntax-tag); }
-	.cerb-syntax-kata--annotation { color: var(--cerb-editor-syntax-type); }
-	.cerb-syntax-kata--comment    { color: var(--cerb-editor-syntax-comment); }
-	.cerb-syntax-kata--twig       { color: var(--cerb-editor-syntax-twig-var); }
+// Read-only code pane for sheet `code` columns (syntax: kata|json|diff). Framed like the real code editors so the
+// syntax colors land on the surface they're tuned for. The token spans are injected on the client by
+// CerbUI.SyntaxHighlight, reusing the editors' own tokenizers + token classes (cerb-ui-kataeditor--tok-* /
+// cerb-ui-jsoneditor--tok-*), so no token colors are defined here.
+.cerb-ui-syntax {
+	display: block;
+	box-sizing: border-box;
+	width: 100%;
+	max-width: 100%;
+	// Long unwrapped `pre` lines scroll horizontally inside the pane instead of forcing the (auto-layout) table
+	// cell wider than the widget. `contain: inline-size` sizes the pane from its cell, not its longest line, so
+	// the cell stops expanding; overflow-x then gives a real scrollbar. Height stays content-driven (grows down).
+	contain: inline-size;
+	overflow-x: auto;
+	overflow-y: hidden;
+	margin: 0;
+	padding: 0.5em 0.7em;
+	border: 1px solid var(--cerb-color-background-contrast-200);
+	border-radius: 4px;
+	background: var(--cerb-editor-background);
+	color: var(--cerb-color-text);
+	font-family: var(--cerb-font-stack-fixed);
+	font-size: var(--cerb-font-size);
+	line-height: 1.5;
+	white-space: pre;
+	tab-size: 2;
 }
