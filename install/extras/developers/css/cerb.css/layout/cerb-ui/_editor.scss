@@ -81,6 +81,20 @@
 }
 .cerb-ui-menu--item-active .cerb-ui-editor-menu--sub { color: inherit; opacity: 0.7; }
 
+// ── Editor built-in toolbar strip (CerbUI.editorCore.EditorToolbar) ──────────────────────────────────
+// A flex row of [optional markdown↔plaintext CerbUI.Switcher] + [CerbUI.Toolbar formatting strip], sitting
+// flush atop the editor. In a narrow container (e.g. the Form Builder inspector rail) DON'T let the segmented
+// switcher shrink — it's `overflow:hidden`, so shrinking clips a whole segment (the plaintext toggle vanishes,
+// leaving a bare brush + a sliver). Instead the switcher holds its natural size while the formatting strip
+// takes the remaining width and wraps its own buttons; if they still can't share a row the strip flows onto
+// its own row beneath.
+.cerb-ui-editor-toolbar {
+	flex-wrap: wrap;
+
+	> .cerb-ui-switcher { flex: 0 0 auto; }                       // never shrink/clip the mode toggle
+	> .cerb-ui-toolbar--strip { flex: 1 1 auto; min-width: 0; }   // fill the rest; buttons wrap internally
+}
+
 // ── KataScript (Twig-syntax) token colors, shared by every editor that embeds scripting tags ──
 // Produced by CerbUI.editorCore.kataScript.tokenize(); reuse the legacy --cerb-editor-syntax-twig* palette.
 // COLOR ONLY — never font-weight/style, or the mirror's glyph advances stop matching the textarea's and the
