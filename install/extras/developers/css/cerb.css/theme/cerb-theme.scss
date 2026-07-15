@@ -1,6 +1,9 @@
 $timestamp: 2026062301;
 
-:root {
+// The complete light theme (color-scheme + every custom property). Extracted into a mixin so it can be
+// re-asserted on a subtree that must render light regardless of an ancestor `.dark` — e.g. the portal
+// form-builder preview (see layout/cerb-ui/_form-builder.scss), whose skin has no dark variant.
+@mixin cerb-theme-light-vars {
   color-scheme: light;
 
   --cerb-font-size: 12px;
@@ -194,6 +197,10 @@ $timestamp: 2026062301;
   
   --cerb-library-background-selected: rgba(255,230,110,0.2);
   --cerb-library-border: orange;
+}
+
+:root {
+  @include cerb-theme-light-vars;
 }
 
 .dark {
