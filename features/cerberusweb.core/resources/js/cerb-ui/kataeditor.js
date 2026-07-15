@@ -43,6 +43,7 @@ CerbUI.KataEditor = class {
 
 	static _DEFAULTS = {
 		onAutocomplete: null,     // (ctx) -> Array<item> | Promise<...>; ctx={path,prefix,context,query,caret,editor}
+		commentDecorators: null,  // Array<item> suggested on a `# @name` comment line (@ first non-space after #)
 		context: '',              // passed through to onAutocomplete
 		autocompleteDelay: 200,   // ms debounce for suggestions while typing
 		minLines: 2,              // editor never shrinks below this many rows
@@ -191,6 +192,11 @@ CerbUI.KataEditor = class {
 				// A script tag wins wherever one is open (incl. inside a @text block — scripting is live there).
 				const t = CerbUI.editorCore.kataScript.contextAt(v, c);
 				if(t) return (t.sub === 'args') ? CerbUI.editorCore.kataScript.suggestArgs(t) : CerbUI.editorCore.kataScript.suggest(t);
+				// Comment decorators (`# @name`): offer the configured vocabulary — comment lines otherwise suppress.
+				if(this.opts.commentDecorators && this.opts.commentDecorators.length) {
+					const dp = this._commentDecoratorPrefix(v, c);
+					if(dp !== null) return CerbUI.editorCore.filterItems(this.opts.commentDecorators, dp, 'prefix', it => it.caption || '');
+				}
 				// Otherwise: no suggestions inside a @annotation text block or on a comment line.
 				if(this._autocompleteSuppressed(v, c)) return [];
 				return (typeof this.opts.onAutocomplete === 'function') ? this.opts.onAutocomplete(ctx) : [];
@@ -1708,7 +1714,7 @@ CerbUI.KataEditor = class {
 	_computeFoldableRanges() {
 		if(this.opts.folding === false) return [];   // folding disabled (e.g. a diff pane) — nothing is ever foldable
 		const lines = this._modelLines();
-		const KEY = /^(\s*)([\w.]+)(\/[^\s:@]+)?((?:@[A-Za-z0-9_]+)(?:,[A-Za-z0-9_]+)*)?:/;
+		const KEY = /^(\s*)([\w.-]+)(\/[^\s:@]+)?((?:@[A-Za-z0-9_]+)(?:,[A-Za-z0-9_]+)*)?:/;
 		const out = [];
 		for(let r = 0; r < lines.length; r++) {
 			const m = lines[r].match(KEY);
@@ -1812,11 +1818,24 @@ CerbUI.KataEditor = class {
 	// the prefix is the partial value. In KEY position (typing a key) the path is the ancestor chain and the
 	// prefix is the partial key. Ancestors are found by walking up to lines with strictly smaller indent.
 
+	// The `@name` token being typed on a `#` comment line where `@` is the first non-space char after `#`
+	// (`#@name` / `# @name`) — used to autocomplete author decorators. Returns the token (e.g. `@no`) or null.
+	_commentDecoratorPrefix(text, caret) {
+		const lineStart = text.lastIndexOf('\n', caret - 1) + 1;
+		const before = text.slice(lineStart, caret);
+		const m = before.match(/^\s*#\s*(@[\w.]*)$/);
+		return m ? m[1] : null;
+	}
+
 	_scopePathAt(text, caret) {
 		// Inside a script tag the "path" is meaningless; return the partial script word so an accepted
 		// suggestion replaces it (not the surrounding KATA value).
 		const tctx = CerbUI.editorCore.kataScript.contextAt(text, caret);
 		if(tctx) return { path: [], prefix: tctx.prefix, prefixRaw: tctx.prefixRaw, caret };
+
+		// Comment decorator (`# @name`): the prefix is the `@name` token so an accepted item replaces just that.
+		const decoPrefix = this._commentDecoratorPrefix(text, caret);
+		if(decoPrefix !== null) return { path: ['#'], prefix: decoPrefix, prefixRaw: decoPrefix, caret };
 
 		const before = text.slice(0, caret);
 		const lineStart = before.lastIndexOf('\n') + 1;
@@ -1824,7 +1843,7 @@ CerbUI.KataEditor = class {
 		const nlAfter = text.indexOf('\n', caret);
 		const curLine = text.slice(lineStart, nlAfter === -1 ? undefined : nlAfter);
 		const indentLen = curLine.length - curLine.trimStart().length;
-		const KEY = /^(\s*)((?:[\w.]+)(?:\/[^\s:@]+)?(?:@[A-Za-z0-9_,]+)?):/;
+		const KEY = CerbUI.KataEditor._KEY_RE;
 
 		const path = [];
 		let prefix = '', prefixRaw = '', walkIndent = indentLen;
@@ -1873,7 +1892,7 @@ CerbUI.KataEditor = class {
 	_autocompleteSuppressed(text, caret) {
 		const caretLineIdx = (text.slice(0, caret).match(/\n/g) || []).length;
 		const lines = text.split('\n');
-		const KEY = /^(\s*)([\w.]+)(\/[^\s:@]+)?((?:@[A-Za-z0-9_]+)(?:,[A-Za-z0-9_]+)*)?:/;
+		const KEY = /^(\s*)([\w.-]+)(\/[^\s:@]+)?((?:@[A-Za-z0-9_]+)(?:,[A-Za-z0-9_]+)*)?:/;
 		let blockIndent = null;
 
 		// A just-completed key is still the field tag (it ends in `:`), not a value slot — KATA writes an inline
