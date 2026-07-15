@@ -177,8 +177,15 @@ CerbUI.chooserCore = (function() {
 				const row = document.createElement('li');
 				row.className = 'cerb-ui-chooser--item';
 				if(o.plain) {
-					// Plain text suggestion: no monogram. An optional per-item `icon` paints a leading glyph.
-					if(item.icon) {
+					// Plain text suggestion: no monogram. Optional per-item `swatch` (a color) or `icon` (a glyph)
+					// paints a leading indicator.
+					if(item.swatch) {
+						const sw = document.createElement('span');
+						sw.className = 'cerb-ui-chooser--swatch';
+						sw.style.backgroundColor = item.swatch; // the browser ignores an invalid color string
+						sw.setAttribute('aria-hidden', 'true');
+						row.appendChild(sw);
+					} else if(item.icon) {
 						const ic = document.createElement('span');
 						ic.className = 'cerb-icons cerb-icon-' + item.icon + ' cerb-ui-chooser--icon';
 						ic.setAttribute('aria-hidden', 'true');
@@ -201,6 +208,13 @@ CerbUI.chooserCore = (function() {
 					text.appendChild(sub);
 				}
 				row.appendChild(text);
+				// Optional right-aligned hint (e.g. a hex value beside a color swatch) — one row, not a second line.
+				if(item.hint) {
+					const hint = document.createElement('span');
+					hint.className = 'cerb-ui-chooser--hint';
+					hint.textContent = item.hint;
+					row.appendChild(hint);
+				}
 				// Keep focus on the search field while picking (standard autocomplete behavior) — a row
 				// click otherwise blurs an inline input, misfiring host blur handlers (e.g. date parse-on-blur).
 				row.addEventListener('mousedown', function(e) { e.preventDefault(); });

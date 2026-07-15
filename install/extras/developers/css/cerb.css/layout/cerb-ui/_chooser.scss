@@ -91,6 +91,23 @@
 	color: var(--cerb-color-background-contrast-150);
 }
 
+// Optional leading color swatch on a plain suggestion row (e.g. a palette-entry preview).
+.cerb-ui-chooser--swatch {
+	flex: 0 0 auto;
+	width: 1em;
+	height: 1em;
+	border-radius: 3px;
+	border: 1px solid var(--cerb-color-background-contrast-200);
+	box-sizing: border-box;
+}
+
+// Optional right-aligned hint on a plain suggestion row (e.g. the hex beside a swatch) — keeps it one line.
+.cerb-ui-chooser--hint {
+	flex: 0 0 auto;
+	margin-left: auto;
+	color: var(--cerb-color-background-contrast-150);
+}
+
 // ── TextChooser field (plain input + optional leading icon; suggestions write text, no tile) ──
 // block so the wrapper fills its container (a cerb-ui-form--field column, a table cell, …) — wrapping a
 // full-width input in an icon wrapper then doesn't shrink the field.
