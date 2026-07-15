@@ -1,0 +1,151 @@
+// SplitPane: two panes separated by a draggable divider (CerbUI.SplitPane). Enhances a container of two element
+// children — the first pane's main-axis size tracks --cerb-ui-splitpane-ratio (0..1, written by JS); the second
+// pane fills the rest. orientation:'horizontal' = a flex row (left/right, vertical divider); --vertical = a flex
+// column (top/bottom, horizontal divider). Structural only — colors are tokens (dark mode auto). The host sizes
+// the container (a height for horizontal splits; a width/height for vertical).
+.cerb-ui-splitpane {
+	--cerb-ui-splitpane-ratio: 0.5;
+	--cerb-ui-splitpane-divider: 7px;
+
+	display: flex;
+	flex-direction: row;
+	align-items: stretch;
+	box-sizing: border-box;
+	width: 100%;
+	min-width: 0;
+	min-height: 0;
+
+	// The two panes. The first is sized by the ratio (minus half the divider so the seam sits on the ratio line);
+	// the second takes the remainder. Panes clip + scroll their own overflow so a wide editor/preview can't push
+	// the seam around.
+	> .cerb-ui-splitpane--pane {
+		box-sizing: border-box;
+		min-width: 0;
+		min-height: 0;
+		overflow: auto;
+	}
+	> .cerb-ui-splitpane--pane:first-child {
+		flex: 0 0 calc(var(--cerb-ui-splitpane-ratio) * 100% - (var(--cerb-ui-splitpane-divider) / 2));
+	}
+	> .cerb-ui-splitpane--pane:last-child {
+		flex: 1 1 0;
+	}
+
+	// ── Divider ─────────────────────────────────────────────────────────────
+	// A thin grab strip between the panes. currentColor-free — background from tokens; a centered grip line marks
+	// the affordance and brightens on hover/drag/focus.
+	&--divider {
+		flex: 0 0 var(--cerb-ui-splitpane-divider);
+		align-self: stretch;
+		position: relative;
+		box-sizing: border-box;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: col-resize;
+		background: transparent;
+		touch-action: none; // let pointer drags win over scroll/zoom gestures
+		user-select: none;
+
+		// Always-visible thin seam line centered in the gutter — the reliable pane boundary even when both panes
+		// share the page background (so shading the panes is optional, not required). Brightens on hover/focus/drag.
+		&::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			bottom: 0;
+			left: 50%;
+			width: 1px;
+			transform: translateX(-0.5px);
+			background: var(--cerb-color-background-contrast-235);
+			transition: background 0.1s ease;
+		}
+		// Focus indication is the accent seam line + grip below (no boxy outline — it double-draws around the
+		// thin gutter and lingers after a mouse drag). :focus-visible is keyboard-only, so this stays accessible.
+		&:hover::before,
+		&:focus-visible::before {
+			background: var(--cerb-color-action-primary);
+		}
+		&:focus { outline: none; }
+	}
+
+	// The grip: a short accent bar centered on the seam, HIDDEN at rest and revealed on hover / keyboard focus /
+	// drag — so a resting SplitPane reads as a clean divider line, with the drag affordance appearing on approach.
+	&--grip {
+		display: block;
+		position: relative; // above the ::before seam line
+		background: var(--cerb-color-action-primary);
+		border-radius: 999px;
+		width: 3px;
+		height: 26px;
+		opacity: 0;
+		transition: opacity 0.1s ease;
+	}
+	&--divider:hover &--grip,
+	&--divider:focus-visible &--grip,
+	&--dragging &--divider &--grip {
+		opacity: 1;
+	}
+
+	// ── Vertical (stacked) ──────────────────────────────────────────────────
+	&--vertical {
+		flex-direction: column;
+
+		> .cerb-ui-splitpane--pane:first-child {
+			flex: 0 0 calc(var(--cerb-ui-splitpane-ratio) * 100% - (var(--cerb-ui-splitpane-divider) / 2));
+		}
+
+		.cerb-ui-splitpane--divider {
+			cursor: row-resize;
+
+			// Rotate the seam line to run across the gutter (horizontal rule).
+			&::before {
+				top: 50%;
+				bottom: auto;
+				left: 0;
+				right: 0;
+				width: auto;
+				height: 1px;
+				transform: translateY(-0.5px);
+			}
+		}
+		.cerb-ui-splitpane--grip {
+			width: 26px;
+			height: 3px;
+		}
+	}
+
+	// ── State ───────────────────────────────────────────────────────────────
+	// While dragging, kill pane pointer-events so an iframe/editor inside a pane can't swallow the move stream,
+	// and force the resize cursor across the whole component.
+	&--dragging {
+		cursor: col-resize;
+		> .cerb-ui-splitpane--pane { pointer-events: none; }
+	}
+	&--vertical.cerb-ui-splitpane--dragging {
+		cursor: row-resize;
+	}
+
+	// Collapsed: one pane + the divider are hidden so the other fills 100%. The ratio is preserved in JS and
+	// restored on expand(). Higher specificity than the base :first-child flex rule (source order also wins).
+	&--collapsed-first {
+		> .cerb-ui-splitpane--pane:first-child { display: none; }
+		> .cerb-ui-splitpane--divider { display: none; }
+		> .cerb-ui-splitpane--pane:last-child { flex: 1 1 100%; }
+	}
+	&--collapsed-second {
+		> .cerb-ui-splitpane--divider { display: none; }
+		> .cerb-ui-splitpane--pane:last-child { display: none; }
+		> .cerb-ui-splitpane--pane:first-child { flex: 1 1 100%; }
+	}
+
+	// Locked: keep the resting seam line, but suppress the hover/focus reveal (no grip, no accent).
+	&--disabled .cerb-ui-splitpane--divider {
+		cursor: default;
+		&:hover::before,
+		&:focus-visible::before { background: var(--cerb-color-background-contrast-235); }
+	}
+	&--disabled .cerb-ui-splitpane--grip {
+		display: none;
+	}
+}

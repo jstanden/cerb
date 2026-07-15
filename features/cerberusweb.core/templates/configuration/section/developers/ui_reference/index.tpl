@@ -151,6 +151,7 @@
 						<li data-target="sidebar" data-icon="window-left">Sidebar</li>
 						<li data-target="tabs" data-icon="folder-open">Tabs</li>
 						<li data-target="accordion" data-icon="chevron-right">Accordion</li>
+						<li data-target="splitpane" data-icon="split-pane">SplitPane</li>
 					</ul>
 				</div>
 				<div class="cerb-ui-sidebar--section">
@@ -246,6 +247,7 @@
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/sidebar.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/tabs.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/accordion.tpl"}
+			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/splitpane.tpl"}
 
 			<h2 class="cerb-uiref-grouplabel" id="group-overlays">Overlays &amp; feedback</h2>
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/tooltip.tpl"}
