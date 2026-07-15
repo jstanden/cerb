@@ -2,6 +2,14 @@
 // Two .cerb-ui-kataeditor panes (left = historical, right = current) with a center --connector SVG. The panes
 // are read-only KataEditors; this file styles the layout, the per-line add/remove tints (painted via KataEditor
 // --line-deco bands), and the connector bands. Behavior + geometry live in JS (CerbUI.DiffViewer).
+
+// The collapseUnchanged divider, in two states — the same 2px rule, drawn as a MASK over background-color
+// (a gradient can't carry a theme var, so it shapes a themed color instead; cf. _separator.scss).
+//   perforated = a run is torn out here (click to reveal it)   ·  solid = the seam of a revealed run
+// 2px dots every 6px: `repeat-x` on a 3px-tall tile keeps it to a single centred band (no vertical tiling).
+$_tear-perforated: radial-gradient(circle at 50% 50%, #000 1px, transparent 1.25px) center / 6px 3px repeat-x;
+$_tear-solid: linear-gradient(#000, #000) center / 100% 2px no-repeat;
+
 .cerb-ui-diffviewer {
     display: flex;
     align-items: stretch;
@@ -52,4 +60,42 @@
     &--gap-added-end   { border-bottom: 1px solid color-mix(in srgb, var(--cerb-color-tag-green) 60%, transparent); }
     &--gap-removed     { border-top:    1px solid color-mix(in srgb, var(--cerb-color-tag-red) 60%, transparent); }
     &--gap-removed-end { border-bottom: 1px solid color-mix(in srgb, var(--cerb-color-tag-red) 60%, transparent); }
+
+    // collapseUnchanged: the divider standing in for an elided run of identical lines — perforated, like a
+    // tear-off strip, because a run of the document is missing here. Click to reveal it. The gutter's line
+    // numbers jumping across it (1,2,3…47,48) say the same thing in words.
+    //
+    // Unlike the --gap-* rules above this is NOT a line-deco: those paint behind the mirror text (z-index:-1,
+    // pointer-events:none) and can't be clicked. The JS puts this in the pane's --field and owns top/[hidden].
+    &--tear {
+        position: absolute;
+        left: 0;
+        right: 0;
+        z-index: 2;                 // above --input (z-index:1), so the click lands here and not in the textarea
+        height: 12px;               // the CLICK target; the rule itself is 2px, centred by the mask
+        transform: translateY(-50%);   // the JS gives `top` the line BOUNDARY, so height changes need no JS edit
+        cursor: pointer;
+        // A DEFINED step: the ramp is 25/50/75/100/125/150/160/170/180/190/200/210/220/225/230/235/240/245/250.
+        // An undefined one (there's no 215) makes the whole declaration invalid → transparent → the mask paints
+        // nothing, leaving an invisible-but-clickable strip. Same trap as the `fill: contrast-140` chart bug.
+        background: var(--cerb-color-background-contrast-210);
+
+        // Masking (not clip-path) keeps the whole 12px strip clickable while only the 2px rule paints.
+        -webkit-mask: $_tear-perforated;
+        mask: $_tear-perforated;
+
+        &:hover { background: var(--cerb-color-tag-blue); }
+        &[hidden] { display: none; }
+    }
+
+    // An EXPANDED run keeps its seam so you can re-collapse it — the tear is the only handle, and dropping it
+    // on expand would make that a one-way door. Same rule, but SOLID and dimmed: nothing is missing there any
+    // more, so it's a quiet seam rather than a perforation. Same element + height ⇒ same click target.
+    &--tear-expanded {
+        opacity: 0.4;
+        -webkit-mask: $_tear-solid;
+        mask: $_tear-solid;
+
+        &:hover { opacity: 1; }
+    }
 }

@@ -25,9 +25,10 @@
 				<pre data-cerb-uiref-source>{literal}const viewer = new CerbUI.DiffViewer(document.getElementById('diff'), {
 	left:  historicalKata,            // the left (historical) document; CRLF/CR are folded to LF
 	right: currentKata,               // the right (current) document
-	lines: 16,                        // fixed visible height in rows (both panes scroll internally)
 	mode: 'kata',                     // only 'kata' today (the panes are KataEditors); reserved
+	lines: 24,                        // fixed visible height in rows (both panes scroll internally)
 	editableCurrent: false,           // true → the RIGHT pane is editable, diff re-computes live (see below)
+	collapseUnchanged: false,         // false | true | {context:3} — elide long identical runs (see below)
 	onChange: (content) => {          // after an edit re-computes the diff (editableCurrent only)
 		saveButton.disabled = ('' === content.trim());
 	},
@@ -45,7 +46,6 @@ viewer.getCurrent();                  // the right document — the edited text 
 // Change blocks
 viewer.getDiffs();                    // [{leftStartLine,leftEndLine,rightStartLine,rightEndLine}, …]
 viewer.scrollToDiff(0);               // step toolbar: scroll BOTH panes to change-block 0
-viewer.restore();                     // invoke onRestore with the current left document{/literal}</pre>
 
 // Restore
 viewer.onRestore(fn);                 // register/replace the handler after construction
@@ -57,6 +57,31 @@ CerbUI.DiffViewer.from(el);           // the instance built on a host element
 
 // The panes are plain CerbUI.KataEditor instances — reach through for their APIs:
 viewer.left; viewer.right;{/literal}</pre>
+			</div>
+		</div>
+
+		{* Example 2: collapseUnchanged — elide the unchanged runs behind a clickable tear *}
+		<div class="cerb-ui-header">
+			<div class="cerb-ui-header--label"><b>collapseUnchanged</b> &mdash; on a long document that differs in a few places, the diff is mostly identical lines. This omits any run of unchanged lines longer than the context window, leaving a <b>perforated divider</b> in its place; <b>click a tear</b> to reveal just that run &mdash; it stays behind as a <b>solid</b> seam, so you can click again to re-collapse. (Perforated = a run is missing here; solid = nothing is.) The gutter keeps printing <b>real</b> line numbers, so they jump across a tear (1,&nbsp;2,&nbsp;3&hellip;&nbsp;47,&nbsp;48) &mdash; that's the signal that something's hidden. <b>Ctrl/&#8984;+F still finds text inside an elided run</b> and reveals it, because the elision reuses the editor's fold machinery rather than inventing a second way to hide a row. Both panes always elide the <em>same</em> rows: every unchanged line pairs 1:1 across the diff, so the two sides can't drift out of alignment</div>
+		</div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<div id="uiref-diffviewer-collapse"></div>
+				<div class="cerb-uiref-result">40-line document, 3 changes &middot; <b id="uiref-diffviewer-collapse-out">&mdash;</b></div>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>{literal}new CerbUI.DiffViewer(el, {
+	left: before,
+	right: after,
+	lines: 18,
+	collapseUnchanged: true,          // or { context: 3 } — lines to keep either side of each change
+	dragKeys: true,                   // hover a key in the RIGHT pane to drag it out as a placeholder
+});
+
+// The popup that opens the viewer usually can't know what a dragged key should DO, so wire it after:
+viewer.right.opts.onKeyClick = (payload) => scriptEditor.insertSnippet('{{' + payload.expr + '}}');{/literal}</pre>
 			</div>
 		</div>
 
@@ -145,6 +170,33 @@ viewer.getCurrent();                 // the edited right document — read it ba
 
 	const $restore = document.getElementById('uiref-diffviewer-restore');
 	if($restore) $restore.addEventListener('click', function() { viewer.restore(); });
+{/literal}
+})();
+
+// collapseUnchanged — a long, mostly-identical document, so the tears have something to hide
+(function() {
+	const el = document.getElementById('uiref-diffviewer-collapse');
+	if(!el || !window.CerbUI || !CerbUI.DiffViewer)
+		return;
+{literal}
+	const before = [];
+	for(let i = 1; i <= 40; i++) before.push('key_' + String(i).padStart(2, '0') + ': value ' + i);
+
+	const after = before.slice();
+	after[4] = 'key_05: CHANGED value';
+	after[21] = 'key_22: CHANGED value';
+	after.splice(31, 0, 'key_31b: INSERTED');
+
+	const viewer = new CerbUI.DiffViewer(el, {
+		left: before.join('\n'),
+		right: after.join('\n'),
+		lines: 18,
+		collapseUnchanged: true,
+		dragKeys: true
+	});
+
+	const out = document.getElementById('uiref-diffviewer-collapse-out');
+	if(out) out.textContent = viewer.getDiffs().length + ' change blocks — click a tear to expand that run';
 {/literal}
 })();
 

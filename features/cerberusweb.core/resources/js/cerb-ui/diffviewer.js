@@ -46,7 +46,14 @@ CerbUI.DiffViewer = class {
 		                        // (a light manual-merge affordance); read it back via getCurrent()
 		onChange: null,    // (rightContent) => void — fired after an edit re-computes the diff (editableCurrent only)
 		onRestore: null,   // (leftContent) => void — the host's "Restore this version" action
+		collapseUnchanged: false, // false | true | {context:3} — elide long runs of identical lines behind a
+		                          // clickable "tear" divider (click reveals that run). Gutter numbers keep
+		                          // printing MODEL rows, so they jump across a tear (1,2,3…47,48).
 	};
+
+	// A run must hide at least this many lines to be worth a tear.
+	static _MIN_ELIDE = 2;
+	static _DEFAULT_CONTEXT = 3;
 
 	constructor(el, opts = {}) {
 		el = (typeof el === 'string') ? document.querySelector(el) : el;
@@ -56,6 +63,9 @@ CerbUI.DiffViewer = class {
 		this.opts = Object.assign({}, CerbUI.DiffViewer._DEFAULTS, opts);
 		this.diffs = [];                                          // change blocks {leftStartLine,leftEndLine,rightStart…}
 		this._onRestore = (typeof this.opts.onRestore === 'function') ? this.opts.onRestore : null;
+		this._runs = [];                                          // elided unchanged runs currently applied
+		this._expanded = new Set();                               // run keys the user clicked open (survive recompute)
+		this._tears = [];                                         // the clickable tear elements, rebuilt per recompute
 
 		el.classList.add('cerb-ui-diffviewer');
 		el.innerHTML = '';
@@ -135,14 +145,19 @@ CerbUI.DiffViewer = class {
 		const d = this.diffs[index];
 		if(!d) return this;
 		let lr = d.leftStartLine, rr = d.rightStartLine;
-		if(lr > 5) lr -= 5;
-		if(rr > 5) rr -= 5;
+		// Back off a little for headroom — but not when collapsed: the context lines already provide it, and
+		// scrollToLine reveals whatever it lands on, so backing into an elided run would silently expand it.
+		if(!this.opts.collapseUnchanged) {
+			if(lr > 5) lr -= 5;
+			if(rr > 5) rr -= 5;
+		}
 		// Drive both panes directly to the block; hold the sync lock through this frame so the resulting scroll
 		// events don't re-map one pane off the other.
 		this._syncing = true;
 		this.left.scrollToLine(lr);
 		this.right.scrollToLine(rr);
 		this._renderConnectors();
+		this._positionTears();
 		if(typeof window.requestAnimationFrame === 'function') window.requestAnimationFrame(() => { this._syncing = false; });
 		else this._syncing = false;
 		return this;
@@ -210,9 +225,73 @@ CerbUI.DiffViewer = class {
 		this.left.setLineDecorations(leftDecos);
 		this.right.setLineDecorations(rightDecos);
 
+		// Elide unchanged runs (opt-in). Decorations above are MODEL-keyed, so hiding rows after them is safe —
+		// _renderLineDecorations just skips a row with no view row.
+		if(this.opts.collapseUnchanged) {
+			// Keep EVERY candidate run — an expanded one still needs its seam rendered, or re-collapsing it
+			// becomes impossible (the tear is the only handle). Only the hidden set is filtered.
+			this._runs = this._collapseRuns(aligned);
+			const collapsed = this._runs.filter(r => !this._expanded.has(r.key));
+			this.left.setHiddenRanges(collapsed.map(r => r.left));
+			this.right.setHiddenRanges(collapsed.map(r => r.right));
+		}
+
 		this._anchors = this._buildScrollAnchors();
 		this._renderConnectors();
+		this._renderTears();
 		return this;
+	}
+
+	// The unchanged runs worth eliding, as {key, left:{startRow,endRow}, right:{startRow,endRow}}.
+	//
+	// Every 'eq' op advances BOTH sides by one (see _diffLines), so a run's left and right spans are always the
+	// same length — eliding them hides an equal number of rows from each pane, which is what keeps the two panes
+	// aligned. That's a property of the diff, not something this code arranges; _assertSymmetric holds it honest.
+	_collapseRuns(aligned) {
+		const cfg = this.opts.collapseUnchanged;
+		if(!cfg) return [];
+		const ctx = Math.max(0, (cfg === true || cfg.context == null)
+			? CerbUI.DiffViewer._DEFAULT_CONTEXT : (cfg.context | 0));
+
+		const runs = [];
+		let i = 0;
+		while(i < aligned.length) {
+			if(aligned[i].type !== 'eq') { i++; continue; }
+			let j = i;
+			while(j < aligned.length && aligned[j].type === 'eq') j++;   // aligned[i..j-1] is a maximal eq run
+
+			// Keep `ctx` lines of context beside each neighbouring change. A run against the document's start or
+			// end has no change on that side, so it needs no context there.
+			let head = (i === 0) ? 0 : ctx;
+			const tail = (j === aligned.length) ? 0 : ctx;
+			// setHiddenRanges can't hide row 0 (a fold's header row anchors it, and row 0 has nothing above it).
+			// Push the window down on BOTH sides together rather than letting each pane clamp independently —
+			// that's what would break symmetry.
+			while(i + head < j && (aligned[i + head].left < 1 || aligned[i + head].right < 1)) head++;
+
+			if(j - tail - (i + head) >= CerbUI.DiffViewer._MIN_ELIDE) {
+				const first = aligned[i + head], last = aligned[j - tail - 1];
+				runs.push({
+					key: first.left + ':' + first.right,
+					left:  { startRow: first.left,  endRow: last.left  },
+					right: { startRow: first.right, endRow: last.right },
+				});
+			}
+			i = j;
+		}
+		return runs;
+	}
+
+	// A MODEL line POSITION → its view position, discounting elided rows above it. Not _modelRowToViewRow: this
+	// must answer for an exclusive end (a boundary, which may sit on a hidden row) and for hidden rows, where
+	// that returns -1.
+	_viewPos(ed, modelLine) {
+		let hidden = 0;
+		for(const r of ed.getHiddenRanges()) {
+			if(r.endRow < modelLine) hidden += (r.endRow - r.startRow + 1);
+			else if(r.startRow < modelLine) hidden += (modelLine - r.startRow);
+		}
+		return modelLine - hidden;
 	}
 
 	_lineHeight(ta) {
@@ -243,10 +322,11 @@ CerbUI.DiffViewer = class {
 		const xm = W / 2;
 
 		for(const d of this.diffs) {
-			const lt = padTop + d.leftStartLine * lh - lScroll;
-			const lb = padTop + d.leftEndLine * lh - lScroll;
-			const rt = padTop + d.rightStartLine * lh - rScroll;
-			const rb = padTop + d.rightEndLine * lh - rScroll;
+			// Block lines are MODEL rows; with collapse on, elided rows above shift where they actually paint.
+			const lt = padTop + this._viewPos(this.left, d.leftStartLine) * lh - lScroll;
+			const lb = padTop + this._viewPos(this.left, d.leftEndLine) * lh - lScroll;
+			const rt = padTop + this._viewPos(this.right, d.rightStartLine) * lh - rScroll;
+			const rb = padTop + this._viewPos(this.right, d.rightEndLine) * lh - rScroll;
 			if(Math.max(lb, rb) < 0 || Math.min(lt, rt) > h) continue;   // wholly off-screen — skip
 
 			const kind = (d.leftEndLine === d.leftStartLine) ? 'added'
@@ -262,18 +342,68 @@ CerbUI.DiffViewer = class {
 		}
 	}
 
+	// One clickable "tear" per elided run, per pane — a perforated divider standing in for the hidden lines.
+	//
+	// It has to be a real element ABOVE the textarea (--input is z-index:1): the obvious home would be a
+	// --line-deco band, but those paint BEHIND the mirror text at z-index:-1 with pointer-events:none, so they
+	// can't be clicked. Same stacking trick the KataEditor dragKeys handle uses.
+	_renderTears() {
+		this._tears.forEach(t => t.remove());
+		this._tears = [];
+		if(!this.opts.collapseUnchanged || !this._runs.length) return;
+
+		for(const [ed, key] of [[this.left, 'left'], [this.right, 'right']]) {
+			const field = ed.el.querySelector('.cerb-ui-kataeditor--field');
+			if(!field) continue;
+			for(const run of this._runs) {
+				const hidden = run[key].endRow - run[key].startRow + 1;
+				const expanded = this._expanded.has(run.key);
+				const tear = document.createElement('div');
+				// Expanded → the seam stays put as a solid rule (see the CSS): it's the only way back, and a
+				// perforation would claim something is still missing there.
+				tear.className = 'cerb-ui-diffviewer--tear' + (expanded ? ' cerb-ui-diffviewer--tear-expanded' : '');
+				tear.title = (expanded ? 'Hide ' : 'Show ') + hidden + ' unchanged line' + (hidden === 1 ? '' : 's');
+				tear.addEventListener('click', () => {
+					if(this._expanded.has(run.key)) this._expanded.delete(run.key); else this._expanded.add(run.key);
+					this._recompute();
+				});
+				field.appendChild(tear);
+				this._tears.push(tear);
+				tear._run = run; tear._ed = ed; tear._side = key;
+			}
+		}
+		this._positionTears();
+	}
+
+	// Park each tear on the boundary BELOW its last visible context line (the fold's anchor row), and track the
+	// pane's scroll — same geometry as the connectors, so they move together.
+	_positionTears() {
+		for(const tear of this._tears) {
+			const ed = tear._ed, run = tear._run[tear._side];
+			const ta = ed.textarea;
+			const lh = this._lineHeight(ta);
+			const padTop = parseFloat(window.getComputedStyle(ta).paddingTop) || 0;
+			const vr = this._viewPos(ed, run.startRow);              // the elided run collapses to this boundary
+			const y = padTop + vr * lh - ta.scrollTop;
+			tear.style.top = y + 'px';                               // CSS centres it on the boundary (translateY)
+			tear.hidden = (y < -8 || y > ta.clientHeight + 8);       // scrolled out of the pane
+		}
+	}
+
 	// ── Synchronized scroll ─────────────────────────────────────────────
 
 	// A piecewise-linear map between left and right LINE positions: the anchors are (0,0), then each change block's
 	// (start, start) and (end, end), then (leftLines, rightLines). Equal regions get slope 1 (the panes scroll in
 	// lockstep); a change block interpolates its line-count difference, so the offset is absorbed across it.
+	// Anchors are VIEW line positions, because _mapScroll compares them against scrollTop/lineHeight. Without
+	// collapse the two spaces are identical (folding is off); with it, elided rows must be discounted.
 	_buildScrollAnchors() {
-		const leftLines = this.left.getValue().split('\n').length;
-		const rightLines = this.right.getValue().split('\n').length;
+		const leftLines = this.left.textarea.value.split('\n').length;    // the projection, not the model
+		const rightLines = this.right.textarea.value.split('\n').length;
 		const anchors = [{ L: 0, R: 0 }];
 		for(const d of this.diffs) {
-			anchors.push({ L: d.leftStartLine, R: d.rightStartLine });
-			anchors.push({ L: d.leftEndLine, R: d.rightEndLine });
+			anchors.push({ L: this._viewPos(this.left, d.leftStartLine), R: this._viewPos(this.right, d.rightStartLine) });
+			anchors.push({ L: this._viewPos(this.left, d.leftEndLine), R: this._viewPos(this.right, d.rightEndLine) });
 		}
 		anchors.push({ L: leftLines, R: rightLines });
 		return anchors;
@@ -308,6 +438,7 @@ CerbUI.DiffViewer = class {
 		const target = this._mapScroll(srcTa.scrollTop, fromLeft);
 		if(Math.abs(dstTa.scrollTop - target) > 0.5) dstTa.scrollTop = target;
 		this._renderConnectors();
+		this._positionTears();
 		if(typeof window.requestAnimationFrame === 'function') window.requestAnimationFrame(() => { this._syncing = false; });
 		else this._syncing = false;
 	}
