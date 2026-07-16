@@ -50,6 +50,8 @@ $(function() {
 	var $script = $('#{$script_uid}');
 	var $sheet = $script.siblings('div.cerb-sheet-layout');
 
+	if(window.CerbUI && CerbUI.SyntaxHighlight) CerbUI.SyntaxHighlight.enhance($sheet[0]);
+
 	$sheet.find('.cerb-peek-trigger')
 		.cerbPeekTrigger()
 		.on('cerb-peek-saved cerb-peek-deleted', function(e) {
@@ -63,6 +65,7 @@ $(function() {
 	;
 
 	$sheet.find('.cerb-bot-trigger, .cerb-interaction-trigger')
+		.not('.cerb-ui-toolbar .cerb-bot-trigger, .cerb-ui-toolbar .cerb-interaction-trigger')
 		.cerbBotTrigger({
 			done: function(e) {
 				let evt = $.Event('cerb-sheet--interaction-done', e);
@@ -87,7 +90,7 @@ $(function() {
 
 	{if $is_selection_enabled}
 	$sheet.find('div.cerb-sheet--row')
-		.disableSelection()
+		.each(function() { if(window.CerbUI && CerbUI.utils) CerbUI.utils.disableSelection(this); })
 		.on('click', function(e) {
 			e.stopPropagation();
 			e.preventDefault();

@@ -71,7 +71,7 @@ $(function() {
 
 	{if $is_selection_enabled}
 	$sheet.find('> div')
-		.disableSelection()
+		.each(function() { if(window.CerbUI && CerbUI.utils) CerbUI.utils.disableSelection(this); })
 		.on('click', function(e) {
 			e.stopPropagation();
 

@@ -68,7 +68,9 @@
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $sheet = $('#{$sheet_uid}');
-	
+
+	if(window.CerbUI && CerbUI.SyntaxHighlight) CerbUI.SyntaxHighlight.enhance($sheet[0]);
+
 	$sheet.find('.cerb-peek-trigger')
 		.cerbPeekTrigger()
 		;
@@ -78,6 +80,7 @@ $(function() {
 		;
 
 	$sheet.find('.cerb-bot-trigger, .cerb-interaction-trigger')
+		.not('.cerb-ui-toolbar .cerb-bot-trigger, .cerb-ui-toolbar .cerb-interaction-trigger')
 		.cerbBotTrigger({
 			done: function(e) {
 				var evt = $.Event('cerb-sheet--interaction-done', e);
@@ -102,7 +105,7 @@ $(function() {
 
 	{if $is_selection_enabled}
 	$sheet.find('tbody')
-		.disableSelection()
+		.each(function() { if(window.CerbUI && CerbUI.utils) CerbUI.utils.disableSelection(this); })
 		.on('click', function(e) {
 			e.stopPropagation();
 			console.log(e);

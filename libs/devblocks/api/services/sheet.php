@@ -615,10 +615,23 @@ class _DevblocksSheetServiceTypes {
 				$text = $sheet_dict->get($column['key']);
 			}
 			
-			$value = '<div style="white-space:pre;font-family: monospace;max-width:100%;overflow:auto;padding:0.5em;">';
-			
-			if('diff' == $syntax) {
+			// Exports/plain: return the raw code with no markup, like the other cell types.
+			if('text' == ($environment['format'] ?? null))
+				return $text;
+
+			// KATA/JSON are highlighted on the client (CerbUI.SyntaxHighlight reuses the editors' tokenizers). The
+			// server emits only the raw code + a `data-cerb-syntax` marker so the output stays portable — an API
+			// consumer or a non-Cerb-UI portal gets the plain text and can highlight it with its own system.
+			if('kata' == $syntax || 'json' == $syntax) {
+				$value = sprintf('<div class="cerb-ui-syntax cerb-ui-syntax--%s" data-cerb-syntax="%s">%s</div>',
+					DevblocksPlatform::strEscapeHtml($syntax),
+					DevblocksPlatform::strEscapeHtml($syntax),
+					DevblocksPlatform::strEscapeHtml($text)
+				);
+
+			} else if('diff' == $syntax) {
 				$lines = DevblocksPlatform::parseCrlfString($text, true, false);
+				$value = '<div class="cerb-ui-syntax cerb-ui-syntax--diff">';
 
 				foreach($lines as $line) {
 					if(str_starts_with($line, '+')) {
@@ -630,99 +643,14 @@ class _DevblocksSheetServiceTypes {
 					}
 				}
 
-			} elseif('kata' == $syntax) {
-				$value .= '<div class="cerb-syntax-kata">' . self::_highlightKata($text) . '</div>';
+				$value .= '</div>';
 
 			} else {
-				$value .= $text;
+				$value = '<div class="cerb-ui-syntax">' . DevblocksPlatform::strEscapeHtml($text) . '</div>';
 			}
-
-			$value .= '</div>';
 
 			return DevblocksPlatform::purifyHTML($value, false, true, [$filter]);
 		};
-	}
-
-	private static function _highlightKata(string $text) : string {
-		$lines = DevblocksPlatform::parseCrlfString($text, true, false);
-		$output = '';
-		$literal_indent = null;
-
-		foreach($lines as $line) {
-			$indent = strspn($line, " \t");
-			$indent_html = htmlspecialchars(substr($line, 0, $indent), ENT_QUOTES);
-			$trimmed = substr($line, $indent);
-
-			// Exit literal mode when a non-blank line de-indents to/past the parent
-			if(null !== $literal_indent && '' !== $trimmed && $indent <= $literal_indent)
-				$literal_indent = null;
-
-			// Blank line
-			if('' === $trimmed) {
-				$output .= '<div>' . $indent_html . '</div>';
-				continue;
-			}
-
-			// Literal text under `key@annotation:`
-			if(null !== $literal_indent) {
-				$output .= '<div>' . $indent_html . self::_highlightKataTwig($trimmed) . '</div>';
-				continue;
-			}
-
-			// Comment
-			if('#' === $trimmed[0]) {
-				$output .= '<div>' . $indent_html . '<span class="cerb-syntax-kata--comment">' . htmlspecialchars($trimmed, ENT_QUOTES) . '</span></div>';
-				continue;
-			}
-
-			// key[@annotation]: [value]
-			if(preg_match('/^([^:\s][^:]*?)(:)\s*(.*)$/', $trimmed, $m)) {
-				$key = $m[1];
-				$rest = $m[3];
-
-				$at = strpos($key, '@');
-				if(false !== $at) {
-					$bare = substr($key, 0, $at);
-					$ann = substr($key, $at);
-				} else {
-					$bare = $key;
-					$ann = '';
-				}
-
-				$key_html = '<span class="cerb-syntax-kata--key">' . htmlspecialchars($bare, ENT_QUOTES) . '</span>';
-				if('' !== $ann)
-					$key_html .= '<span class="cerb-syntax-kata--annotation">' . htmlspecialchars($ann, ENT_QUOTES) . '</span>';
-
-				// If annotated key with empty value, treat deeper-indented lines below as literal
-				if('' !== $ann && '' === trim($rest))
-					$literal_indent = $indent;
-
-				$value_html = '' === $rest ? '' : ' ' . self::_highlightKataTwig($rest);
-
-				$output .= '<div>' . $indent_html . $key_html . ':' . $value_html . '</div>';
-				continue;
-			}
-
-			// Fallback: escape + highlight Twig only
-			$output .= '<div>' . $indent_html . self::_highlightKataTwig($trimmed) . '</div>';
-		}
-
-		return $output;
-	}
-
-	private static function _highlightKataTwig(string $text) : string {
-		$parts = preg_split('/(\{\{.*?\}\}|\{%.*?%\})/s', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
-		$out = '';
-
-		foreach($parts as $i => $part) {
-			if($i % 2) {
-				$out .= '<span class="cerb-syntax-kata--twig">' . htmlspecialchars($part, ENT_QUOTES) . '</span>';
-			} else {
-				$out .= htmlspecialchars($part, ENT_QUOTES);
-			}
-		}
-
-		return $out;
 	}
 
 	function icon() {
