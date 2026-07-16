@@ -212,6 +212,30 @@ class _DevblocksLlmService {
 	}
 
 	/**
+	 * Chat-capable providers with their brand icon, for pickers (e.g. forking a
+	 * transcript onto another provider). Instantiated with validate:false — no
+	 * credentials needed just to enumerate.
+	 *
+	 * @return array<string,array{id:string,icon:string}>
+	 */
+	function getChatProviders() : array {
+		$out = [];
+
+		foreach($this->getProviderIds() as $id) {
+			try {
+				$provider = $this->getProvider($id, [], false);
+			} catch(\Throwable $e) {
+				continue;
+			}
+
+			if($provider instanceof \Cerb\LLM\Providers\Interfaces\Chat)
+				$out[$id] = ['id' => $id, 'icon' => $provider->getIcon()];
+		}
+
+		return $out;
+	}
+
+	/**
 	 * Build the KATA autocomplete for an `llm:<provider>:` params block, looped over the chat providers
 	 * and re-keyed under $prefix (which must end in `:` — e.g. `(.*):llm.agent:inputs:llm:` or
 	 * `(.*):await:form:elements:agentPrompt:models:(.*?):`). Each provider's block (model/auth/knobs +
