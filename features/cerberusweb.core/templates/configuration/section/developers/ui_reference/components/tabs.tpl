@@ -43,7 +43,7 @@ const tabs = new CerbUI.Tabs(ul, {
 tabs.select(1);   // activate by index
 tabs.refresh();   // re-fetch the active dynamic tab (refresh(i) for a specific one)
 tabs.setVariant('underline'); // switch skin at runtime: 'folder' | 'underline' | 'segmented'
-tabs.sync();      // re-parse the <ul> after adding/removing <li>
+tabs.sync();      // re-parse the &lt;ul&gt; after adding/removing &lt;li&gt;
 tabs.active; tabs.activeTab; tabs.allTabs; tabs.el;  // getters
 tabs.destroy();
 CerbUI.Tabs.from(ul);   // -> the instance for a source UL{/literal}</pre>
