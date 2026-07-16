@@ -143,6 +143,17 @@ abstract class Extension_DevblocksLlmProvider {
 		$this->_params[$key] = $value;
 	}
 	
+
+	// The cerb-icons name for this provider's mark; concrete providers with a brand logo override it.
+	function getIcon() : string {
+		return 'bot';
+	}
+
+	// A brand background color for this provider's mark (white glyph on top), for avatar chips. Empty
+	// means "no brand color" — callers fall back to a hashed/seeded color. Branded providers override.
+	function getIconColor() : string {
+		return '';
+	}
 	protected function _authenticateRequest(mixed $authentication_uri, Request &$request, array &$request_options, &$error=null) : bool {
 		$actor = [CerberusContexts::CONTEXT_APPLICATION, 0];
 		$uri_parts = DevblocksPlatform::services()->ui()->parseURI($authentication_uri);
@@ -181,6 +192,14 @@ class _DevblocksLlmService {
 		return self::$instance;
 	}
 	
+	// The cerb-icons name for a provider id (its brand logo, or `bot` for providers without one / unknown ids).
+	function getProviderIcon(string $provider_id) : string {
+		return $this->getProvider($provider_id, [], false)?->getIcon() ?? 'bot';
+	}
+
+	function getProviderIconColor(string $provider_id) : string {
+		return $this->getProvider($provider_id, [], false)?->getIconColor() ?? '';
+	}
 
 	/**
 	 * @return string[] Every known provider id (the getProvider() registry keys).
