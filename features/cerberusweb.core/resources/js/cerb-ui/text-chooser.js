@@ -156,6 +156,8 @@ CerbUI.TextChooser = class {
 			out.image_url = item.image_url || item.icon || ''; // record-autocomplete returns the avatar URL in `icon`
 		} else {
 			out.icon = item.icon; // plain mode: a cerb-icons glyph NAME
+			out.swatch = item.swatch; // plain mode: an optional leading color swatch (e.g. a palette entry preview)
+			out.hint = item.hint; // plain mode: an optional right-aligned hint (e.g. the swatch's hex value)
 		}
 		return out;
 	}
