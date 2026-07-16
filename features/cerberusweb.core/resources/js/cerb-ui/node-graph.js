@@ -44,6 +44,7 @@ CerbUI.NodeGraph = class {
 		rowGap: 40,          // vertical gap between stacked nodes (added to each node's measured height)
 		minimap: false,      // show the canvas minimap (forwarded to CerbUI.NodeCanvas)
 		onNodeOpen: null,    // (nodeData, node, event) => {}  double-click a node (not a handle) — e.g. open its peek
+		onNodePartOpen: null,// (part, nodeData, node, event) => {}  click a branch/preview row
 	};
 
 	constructor(el, opts = {}) {
@@ -90,9 +91,28 @@ CerbUI.NodeGraph = class {
 		const spec = { id: el.getAttribute('data-node-id'), type: el.getAttribute('data-node-type') };
 		const label = el.getAttribute('data-label'); if(label != null) spec.label = label;
 		const tier = el.getAttribute('data-tier'); if(tier != null) spec.tier = parseInt(tier, 10) || 0;
+		const icon = el.getAttribute('data-node-icon'); if(icon) spec.icon = icon;
 		if(el.hasAttribute('data-inlet-corner')) spec.inletCorner = true;
-		const branches = el.getAttribute('data-branches');
-		if(branches) spec.branches = branches.split(',').map((n) => ({ name: n.trim(), label: '' }));
+		const branchEls = Array.prototype.filter.call(el.children, (c) => c.matches && c.matches('[data-branch]'));
+		if(branchEls.length) {
+			spec.branches = branchEls.map((b) => ({
+				name: b.getAttribute('data-name'),
+				label: b.getAttribute('data-label') || '',
+				line: b.hasAttribute('data-line') ? parseInt(b.getAttribute('data-line'), 10) : null,
+			})).filter((b) => b.name);
+		} else {
+			// Backward compatibility with the original comma-separated branch-name markup.
+			const branches = el.getAttribute('data-branches');
+			if(branches) spec.branches = branches.split(',').map((n) => ({ name: n.trim(), label: '' }));
+		}
+		const previewEls = Array.prototype.filter.call(el.children, (c) => c.matches && c.matches('[data-preview-row]'));
+		if(previewEls.length) spec.previewRows = previewEls.map((row) => ({
+			label: row.getAttribute('data-label') || '',
+			icon: row.getAttribute('data-icon') || '',
+			tooltip: row.getAttribute('data-tooltip') || '',
+			variant: row.getAttribute('data-variant') || '',
+			line: row.hasAttribute('data-line') ? parseInt(row.getAttribute('data-line'), 10) : null,
+		}));
 
 		const data = {};
 		const ctx = el.getAttribute('data-context'), cid = el.getAttribute('data-context-id');
@@ -222,6 +242,8 @@ CerbUI.NodeGraph = class {
 		const overrides = {};
 		// A node may declare its own branch outlets (one edge each).
 		if(n.branches) overrides.branches = n.branches;
+		if(n.previewRows) overrides.previewRows = n.previewRows;
+		if(n.icon) overrides.icon = n.icon;
 		// A container node with no children renders as a plain panel (no empty container socket).
 		if(base.container && !(n.children && n.children.length)) overrides.container = false;
 		const schema = Object.keys(overrides).length ? Object.assign({}, base, overrides) : base;
@@ -237,6 +259,9 @@ CerbUI.NodeGraph = class {
 			readonly: true,
 			nested: !!nested,
 			inletCorner: !!n.inletCorner,
+			onPartOpen: (part, nd, e) => {
+				if(typeof this.opts.onNodePartOpen === 'function') this.opts.onNodePartOpen(part, n, nd, e);
+			},
 			onMove: nested ? null : (nd) => { this._updateEdgesForNode(nd); if(this.canvas.refreshMinimap) this.canvas.refreshMinimap(); },
 		});
 	}

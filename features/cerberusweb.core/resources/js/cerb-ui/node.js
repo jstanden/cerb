@@ -43,6 +43,7 @@ CerbUI.Node = class {
 		onRemoveHandle: null,  // (node, handleId) => {}  a dynamic row's handle was removed (editor drops its edges)
 		onSchemaChange: null,  // (node) => {}  a dynamic row was added/removed
 		onOpen: null,          // (node) => {}  double-clicked (e.g. open an expression node's builder)
+		onPartOpen: null,      // (part, node, event) => {}  clicked a branch/preview row
 	};
 
 	constructor(canvas, opts = {}) {
@@ -103,7 +104,7 @@ CerbUI.Node = class {
 		const s = this.schema;
 		const hasBody = !!(s.container || (s.fields || []).length || (s.valueIn || []).length
 			|| (s.inlets || []).length || (s.outputs || []).length || s.canAddOutputs
-			|| (s.branches || []).length || s.canAddOutcomes || this.data.description);
+			|| (s.branches || []).length || (s.previewRows || []).length || s.canAddOutcomes || this.data.description);
 		if(!hasBody) {
 			this.el.classList.add('cerb-ui-node--leaf');
 			this._buildHandles();
@@ -160,6 +161,11 @@ CerbUI.Node = class {
 				sec.appendChild(this._addOutcomeBtn);
 				(this.data.outcomes || []).forEach((o) => this.addOutcomeRow(o));   // restore dynamic rows on load
 			}
+		}
+
+		if((this.schema.previewRows || []).length) {
+			const sec = this._section('cerb-ui-node--preview');
+			this.schema.previewRows.forEach((row) => sec.appendChild(this._renderPreviewRow(row)));
 		}
 
 		// Container socket: a parent that holds an ordered list of nested child nodes (light/serial children) in
@@ -319,8 +325,36 @@ CerbUI.Node = class {
 			lbl.textContent = text;
 			row.appendChild(lbl);
 		}
+		this._bindPartOpen(row, b);
 		this._addHandle('branch:' + b.name, 'outlet', '_flow', { parent: row, posClass: 'cerb-ui-node--branch-handle' });
 		return row;
+	}
+
+	_renderPreviewRow(row) {
+		const el = document.createElement('div');
+		el.className = 'cerb-ui-node--preview-row';
+		if(row.variant) el.classList.add('cerb-ui-node--preview-row--' + row.variant);
+		const icon = document.createElement('span');
+		icon.className = 'cerb-icons cerb-icon-' + (row.icon || 'form') + ' cerb-ui-node--preview-icon';
+		if(row.tooltip) icon.title = row.tooltip;
+		const label = document.createElement('span');
+		label.className = 'cerb-ui-node--preview-label';
+		label.textContent = row.label || '';
+		el.appendChild(icon);
+		el.appendChild(label);
+		this._bindPartOpen(el, row);
+		return el;
+	}
+
+	_bindPartOpen(el, part) {
+		if(part.line == null || typeof this.opts.onPartOpen !== 'function') return;
+		el.classList.add('cerb-ui-node--part-clickable');
+		el.addEventListener('mousedown', (e) => e.stopPropagation());
+		el.addEventListener('click', (e) => {
+			e.stopPropagation();
+			this.opts.onPartOpen(part, this, e);
+		});
+		el.addEventListener('dblclick', (e) => e.stopPropagation());
 	}
 
 	// A dashed "+ Add …" button tinted by the node's accent.

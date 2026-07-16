@@ -161,7 +161,37 @@
 		padding-right: 0.4em;
 		margin-bottom: 0.2em;
 	}
-	&--branch-label { font-size: 0.85em; color: var(--cerb-color-background-contrast-150); }
+	// Branch/output/body names can be reasonably wide but must never blow the node out — cap + ellipsis
+	// (cf. the `--desc`/`# @node` width cap). Guards against a malformed key/value leaking a huge string.
+	&--branch-label {
+		margin-right: 0.25em;
+		max-width: 22em;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		color: var(--cerb-color-background-contrast-150);
+	}
+	&--preview-row {
+		display: flex;
+		align-items: center;
+		gap: 0.4em;
+		padding: 0.15em 0.25em;
+		color: var(--cerb-color-background-contrast-140);
+	}
+	&--preview-icon { flex: 0 0 1em; width: 1em; height: 1em; }
+	&--preview-label {
+		min-width: 0;
+		max-width: 22em;
+		text-align: left;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	// An action's output placeholder: right-aligned + branch-label gray, so it reads as an outlet (what flows out).
+	&--preview-row--output { justify-content: flex-end; color: var(--cerb-color-background-contrast-150); }
+	&--part-clickable { cursor: pointer; }
+	&--part-clickable:hover,
+	&--part-clickable:hover &--branch-label { color: var(--cerb-color-link); }
 
 	// "+ Add …" — dashed, accent-tinted (color set inline to the node's header color).
 	&--add {
