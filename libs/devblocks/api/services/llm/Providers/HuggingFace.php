@@ -224,4 +224,11 @@ class HuggingFace extends Extension_DevblocksLlmProvider implements Chat, Embedd
 		
 		$memory->appendMessage($tool_message);
 	}
+
+	function getChatModels() : array {
+		return [
+			'meta-llama/Llama-3.2-3B-Instruct',
+			'google/gemma-2-2b-it',
+		];
+	}
 }

@@ -28,4 +28,10 @@ class Docker extends OpenAI {
 		if($validate && !$this->getParam('model'))
 			throw new Exception_DevblocksAutomationError('llm:inputs:llm:docker:model: is required.');
 	}
+
+	function getChatModels() : array {
+		return [
+			'ai/llama3.2',
+		];
+	}
 }

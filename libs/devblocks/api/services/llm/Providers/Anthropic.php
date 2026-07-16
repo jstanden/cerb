@@ -214,4 +214,13 @@ class Anthropic extends Extension_DevblocksLlmProvider implements Chat {
 		
 		$memory->appendMessage($tool_message);
 	}
+
+	function getChatModels() : array {
+		return [
+			'claude-opus-4-8',
+			'claude-sonnet-5',
+			'claude-haiku-4-5-20251001',
+			'claude-fable-5',
+		];
+	}
 }

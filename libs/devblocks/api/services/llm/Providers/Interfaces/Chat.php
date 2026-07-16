@@ -15,4 +15,8 @@ interface Chat {
 	 * @return DevblocksLlmChatResponse
 	 */
 	function convertToGenericMessage(array $message, ?string $message_uuid=null) : DevblocksLlmChatResponse;
+
+	// The known chat model ids (KATA `model:` value autocompletion; not authoritative — a model is only
+	// usable if auth is set up).
+	function getChatModels() : array;
 }

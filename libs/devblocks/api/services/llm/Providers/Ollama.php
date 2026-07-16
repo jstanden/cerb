@@ -223,4 +223,10 @@ class Ollama extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 		
 		$memory->appendMessage($tool_message);
 	}
+
+	function getChatModels() : array {
+		return [
+			'llama3.2',
+		];
+	}
 }

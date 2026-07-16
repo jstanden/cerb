@@ -165,4 +165,16 @@ class Groq extends Extension_DevblocksLlmProvider implements Chat {
 		
 		$memory->appendMessage($tool_message);
 	}
+
+	function getChatModels() : array {
+		return [
+			'deepseek-r1-distill-llama-70b',
+			'deepseek-r1-distill-qwen-32b',
+			'gemma2-9b-it',
+			'llama-3.1-8b-instant',
+			'llama-3.3-70b-versatile',
+			'mixtral-8x7b-32768',
+			'qwen-2.5-32b',
+		];
+	}
 }

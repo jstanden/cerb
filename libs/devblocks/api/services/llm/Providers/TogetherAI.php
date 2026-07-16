@@ -236,4 +236,17 @@ class TogetherAI extends Extension_DevblocksLlmProvider implements Chat, Embeddi
 		
 		$memory->appendMessage($tool_message);
 	}
+
+	function getChatModels() : array {
+		return [
+			'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo',
+			'meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo',
+			'meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo',
+			'meta-llama/Llama-3.3-70B-Instruct-Turbo',
+			'mistralai/Mixtral-8x7B-Instruct-v0.1',
+			'mistralai/Mistral-7B-Instruct-v0.1',
+			'Qwen/Qwen2.5-7B-Instruct-Turbo',
+			'Qwen/Qwen2.5-72B-Instruct-Turbo',
+		];
+	}
 }

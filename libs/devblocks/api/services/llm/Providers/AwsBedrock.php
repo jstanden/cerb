@@ -274,4 +274,13 @@ class AwsBedrock extends Extension_DevblocksLlmProvider implements Chat, Embeddi
 		
 		$memory->appendMessage($tool_message);
 	}
+
+	function getChatModels() : array {
+		return [
+			'us.anthropic.claude-opus-4-8',
+			'us.anthropic.claude-sonnet-5',
+			'us.anthropic.claude-haiku-4-5-20251001-v1:0',
+			'us.anthropic.claude-fable-5',
+		];
+	}
 }
