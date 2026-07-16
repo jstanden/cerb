@@ -1,5 +1,6 @@
 **/.env
 .claude/*
+.codex/*
 .idea/*
 .tmp*
 .wip/*
