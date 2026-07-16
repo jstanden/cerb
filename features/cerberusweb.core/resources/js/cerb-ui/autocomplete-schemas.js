@@ -187,6 +187,7 @@ let twigAutocompleteSuggestions = {
 		{ value: "range(low,high,step)", snippet: "range(${1:low},${2:high},${3:step})", meta: "function" },
 		{ value: "regexp_match_all(pattern,text,group)", meta: "function" },
 		{ value: "shuffle(array)", meta: "function" },
+		{ value: "uuid()", meta: "function" },
 		{ value: "validate_email(string)", meta: "function" },
 		{ value: "validate_number(string)", meta: "function" },
 		{ value: "vobject_parse(string)", meta: "function" },

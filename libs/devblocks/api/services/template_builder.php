@@ -334,6 +334,7 @@ class _DevblocksTemplateBuilder {
 				'random_string',
 				'regexp_match_all',
 				'shuffle',
+				'uuid',
 				'validate_email',
 				'validate_number',
 				'vobject_parse',
@@ -1384,6 +1385,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFunction('kata_parse', [$this, 'function_kata_parse']),
 			new \Twig\TwigFunction('placeholders_list', [$this, 'function_cerb_placeholders_list'], ['needs_environment' => true]),
 			new \Twig\TwigFunction('random_string', [$this, 'function_random_string']),
+			new \Twig\TwigFunction('uuid', [$this, 'function_uuid']),
 			new \Twig\TwigFunction('regexp_match_all', [$this, 'function_regexp_match_all']),
 			new \Twig\TwigFunction('shuffle', [$this, 'function_shuffle']),
 			new \Twig\TwigFunction('validate_email', [$this, 'function_validate_email']),
@@ -1830,6 +1832,11 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 	function function_random_string($length=8) {
 		$length = DevblocksPlatform::intClamp($length, 1, 255);
 		return CerberusApplication::generatePassword($length);
+	}
+
+	// Generate a fresh UUID — e.g. `set: session_id: {{uuid()}}` to mint a stable LLM session id.
+	function function_uuid() {
+		return DevblocksPlatform::services()->string()->uuid();
 	}
 	
 	function function_clamp_float($string, $min=PHP_FLOAT_MIN, $max=PHP_FLOAT_MAX) {
