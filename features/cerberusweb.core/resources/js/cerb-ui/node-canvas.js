@@ -233,6 +233,19 @@ CerbUI.NodeCanvas = class {
 		return this;
 	}
 
+	// Pan (preserving the current scale) so a node sits at the viewport center. Unlike focusNodes it keeps the
+	// zoom — used to "follow" a branch edge to its target without disorienting the reader by snapping to 100%.
+	centerOnNode(node) {
+		if(!node || !node.el) return this;
+		const w = node.el.offsetWidth || 180, h = node.el.offsetHeight || 80;
+		const r = this.el.getBoundingClientRect(), O = CerbUI.NodeCanvas.OFFSET, s = this.transform.scale;
+		const vsCenterX = node.position.x + w / 2 + O, vsCenterY = node.position.y + h / 2 + O;
+		this.transform.x = r.width / 2 + O - vsCenterX * s;
+		this.transform.y = r.height / 2 + O - vsCenterY * s;
+		this.updateTransform();
+		return this;
+	}
+
 	updateTransform() {
 		if(this.viewport)
 			this.viewport.style.transform = 'translate(' + this.transform.x + 'px,' + this.transform.y + 'px) scale(' + this.transform.scale + ')';

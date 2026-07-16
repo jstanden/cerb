@@ -139,6 +139,19 @@ CerbUI.NodeGraph = class {
 			onTransform: () => this._updateAllEdges(),
 			minimap: this.opts.minimap,
 		});
+
+		// Click empty canvas → drop any pinned edge highlight (edge/node clicks stopPropagation before this). A pan
+		// also ends with a click on the background, so ignore it when the pointer moved — else panning to trace an
+		// edge would deselect it.
+		let downX = null, downY = null;
+		this.canvas.el.addEventListener('mousedown', (e) => { downX = e.clientX; downY = e.clientY; });
+		this.canvas.el.addEventListener('click', (e) => {
+			const dragged = downX != null && (Math.abs(e.clientX - downX) > 4 || Math.abs(e.clientY - downY) > 4);
+			downX = downY = null;
+			if(dragged) return;
+			if(e.target.closest('.cerb-ui-node-edge') || e.target.closest('.cerb-ui-node')) return;
+			this.clearEdgeSelection();
+		});
 	}
 
 	// ── Build from a serialized graph ────────────────────────────────────
@@ -163,11 +176,29 @@ CerbUI.NodeGraph = class {
 			const s = this.nodes.get(e.source), t = this.nodes.get(e.target);
 			if(!s || !t) return;
 			const sh = e.sourceHandle || '_next', th = e.targetHandle || '_in';
-			const edge = new CerbUI.NodeEdge(this.canvas, { source: s, sourceHandle: sh, target: t, targetHandle: th, straight: !e.curve });
+			const edge = new CerbUI.NodeEdge(this.canvas, { source: s, sourceHandle: sh, target: t, targetHandle: th, bidirectional: !!e.bidirectional, straight: !e.curve, endpointHit: true });
 			this.edges.push(edge);
 			// Reflect connection state so the inlet hides and the edge reads as an arrow (Kataflow look).
 			s.setHandleConnected(sh, true);
 			t.setHandleConnected(th, true);
+
+			// Tracing affordances (read-only): edges fan out densely, so following one by eye is hard.
+			//  · click the edge body → pin its highlight;
+			//  · click the OUTLET it leaves (main flow or branch dot) → jump to its TARGET (head);
+			//  · click the ARROWHEAD (target-end hit-circle) → jump back to its SOURCE (tail).
+			// (A branch NAME keeps its click → goto-source-line; only the outlet dot focuses the far end. Endpoint
+			// handlers stopPropagation so neither the row's goto nor the edge-body pin also fires.)
+			edge.el.addEventListener('click', (ev) => { ev.stopPropagation(); this.selectEdge(edge); });
+			const outletHandle = s.getHandleEl(sh);
+			if(outletHandle) {
+				outletHandle.style.cursor = 'pointer';
+				outletHandle.addEventListener('mousedown', (ev) => ev.stopPropagation());
+				outletHandle.addEventListener('click', (ev) => { ev.stopPropagation(); this._traceToNode(edge, t); });
+			}
+			if(edge.arrowHit) {
+				edge.arrowHit.addEventListener('mousedown', (ev) => ev.stopPropagation());
+				edge.arrowHit.addEventListener('click', (ev) => { ev.stopPropagation(); this._traceToNode(edge, s); });
+			}
 		});
 
 		// Compute lanes (exposed via getLaneCount/fitLane) and frame the whole graph by default. A host that wants
@@ -367,9 +398,36 @@ CerbUI.NodeGraph = class {
 	_updateAllEdges() { this.edges.forEach((e) => e.update()); }
 	_updateEdgesForNode(node) { this.edges.forEach((e) => { if(e.source === node || e.target === node) e.update(); }); }
 
+	// Read-only edge tracing: pin one edge's highlight and raise it above the bundle so a densely fanned-out
+	// branch is followable by eye. Passing null (or clicking empty canvas) clears it.
+	selectEdge(edge) {
+		if(this._selectedEdge && this._selectedEdge !== edge) this._selectedEdge.setSelected(false);
+		this._selectedEdge = edge || null;
+		if(edge) {
+			edge.setSelected(true);
+			if(edge.el && edge.el.parentNode) edge.el.parentNode.appendChild(edge.el);   // paint above sibling edges
+		}
+		return this;
+	}
+	clearEdgeSelection() { return this.selectEdge(null); }
+
+	// Jump to a node reached by tracing an edge endpoint: pin the edge, pan the node to center, then flash it.
+	// Flash the HEADER (opaque on every node) — the node body is transparent, so effects.flash on the root is
+	// invisible on body-less nodes (e.g. a Decision's Outcome targets).
+	_traceToNode(edge, node) {
+		this.selectEdge(edge);
+		if(!node || !node.el) return this;
+		this.canvas.centerOnNode(node);
+		const flashEl = node.el.querySelector('.cerb-ui-node--header') || node.el;
+		if(CerbUI.effects && CerbUI.effects.flash)
+			setTimeout(() => CerbUI.effects.flash(flashEl), 300);
+		return this;
+	}
+
 	fit() { if(this.canvas) this.canvas.fitToNodes(Array.from(this.nodes.values())); return this; }
 
 	clear() {
+		this._selectedEdge = null;
 		this.edges.forEach((e) => e.destroy());
 		this._nested.forEach((n) => n.destroy());
 		this.nodes.forEach((n) => n.destroy());

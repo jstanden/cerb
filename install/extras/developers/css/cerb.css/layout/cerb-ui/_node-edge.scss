@@ -21,9 +21,19 @@
 		cursor: pointer;
 	}
 
+	// Clickable target-end hit-circle standing in for the (non-hit-testable) arrowhead marker. Transparent, but
+	// being inside the edge group its :hover still highlights the line (so the arrowhead reads as part of the edge).
+	&--arrow-hit {
+		fill: transparent;
+		pointer-events: auto;
+		cursor: pointer;
+	}
+
 	&:hover &--line { stroke: var(--cerb-color-link); }
 
+	// A pinned edge (click-to-trace) stands out from the gray bundle: link color, thicker, with a soft glow.
 	&--selected &--line { stroke: var(--cerb-color-link); stroke-width: 3px; }
+	&--selected { filter: drop-shadow(0 0 3px var(--cerb-color-link)); }
 
 	// Live-connect feedback (also used by the provisional --temp drag path).
 	&--valid   { stroke: var(--cerb-color-tag-green); }

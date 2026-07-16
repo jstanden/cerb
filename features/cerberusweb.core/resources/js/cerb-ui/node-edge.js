@@ -28,6 +28,7 @@ CerbUI.NodeEdge = class {
 		target: null,        // CerbUI.Node the edge enters
 		targetHandle: '_in',
 		straight: false,     // draw a straight line instead of the bezier (clean for centered ports)
+		endpointHit: false,  // add a transparent hit-circle at the target end (the arrowhead marker isn't clickable)
 		onRemove: null,      // (edge) => {}  double-click to delete
 	};
 
@@ -50,9 +51,18 @@ CerbUI.NodeEdge = class {
 		this.hit.classList.add('cerb-ui-node-edge--hit');
 		this.line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
 		this.line.classList.add('cerb-ui-node-edge--line');
-		// No SVG marker — the connected target inlet itself becomes the arrowhead (a filled triangle, Kataflow style).
+		this.line.setAttribute('marker-end', 'url(#' + canvas.markerId + ')');
 		this.el.appendChild(this.hit);
 		this.el.appendChild(this.line);
+		// The arrowhead is a shared SVG marker (not a hit-testable element). A small transparent circle at the
+		// target end gives it a hover/click target — hovering it highlights the edge (it's inside this group), and
+		// the host can wire a click (e.g. jump to the tail node). Opt-in so the editor's live inlets stay clear.
+		if(this.opts.endpointHit) {
+			this.arrowHit = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+			this.arrowHit.classList.add('cerb-ui-node-edge--arrow-hit');
+			this.arrowHit.setAttribute('r', '9');
+			this.el.appendChild(this.arrowHit);
+		}
 		this.svg.appendChild(this.el);
 		CerbUI.NodeEdge._instances.set(this.el, this);
 
@@ -82,32 +92,29 @@ CerbUI.NodeEdge = class {
 		const a = this.source.getHandleEl(this.sourceHandle);
 		const b = this.target.getHandleEl(this.targetHandle);
 		if(!a || !b) return this;
-		const p1 = this.canvas.handleViewportCenter(a);
+		let p1 = this.canvas.handleViewportCenter(a);
 		const p2 = this.canvas.handleViewportCenter(b);
+		// Branch handles sit on the right edge. Start just beyond the outlet circle so the line/marker stays clear.
+		if(this.sourceHandle && this.sourceHandle.startsWith('branch:'))
+			p1 = { x: p1.x + 8, y: p1.y };
 
-		// Build the path and the END tangent (direction the line arrives at the target) in one place so the
-		// arrowhead always points along the actual geometry — chord for a straight edge, the bezier's end tangent
-		// for a curve. The curve's control axis follows the dominant delta (horizontal vs vertical flow).
-		let d, tx, ty;
+		// Build the path with a control axis following the dominant delta (horizontal vs vertical flow).
+		// The SVG marker automatically orients itself to the straight chord or bezier end tangent.
+		let d;
 		const dx = p2.x - p1.x, dy = p2.y - p1.y;
 		if(this.opts.straight) {
 			d = CerbUI.NodeEdge.lineD(p1, p2);
-			tx = dx; ty = dy;
 		} else if(Math.abs(dx) >= Math.abs(dy)) {
 			const c = Math.max(40, Math.abs(dx) * 0.5) * (dx < 0 ? -1 : 1);
 			d = 'M ' + p1.x + ' ' + p1.y + ' C ' + (p1.x + c) + ' ' + p1.y + ', ' + (p2.x - c) + ' ' + p2.y + ', ' + p2.x + ' ' + p2.y;
-			tx = c; ty = 0;
 		} else {
 			const c = Math.max(40, Math.abs(dy) * 0.5) * (dy < 0 ? -1 : 1);
 			d = 'M ' + p1.x + ' ' + p1.y + ' C ' + p1.x + ' ' + (p1.y + c) + ', ' + p2.x + ' ' + (p2.y - c) + ', ' + p2.x + ' ' + p2.y;
-			tx = 0; ty = c;
 		}
 		this.line.setAttribute('d', d);
 		this.hit.setAttribute('d', d);
+		if(this.arrowHit) { this.arrowHit.setAttribute('cx', p2.x); this.arrowHit.setAttribute('cy', p2.y); }
 
-		// Aim the target inlet's arrowhead (a right-pointing triangle) along the incoming tangent.
-		const deg = Math.atan2(ty, tx) * 180 / Math.PI;
-		b.style.transform = 'rotate(' + deg + 'deg)';
 		return this;
 	}
 
