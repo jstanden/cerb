@@ -131,6 +131,18 @@
 	color: var(--cerb-color-tag-red);
 }
 
+// A field whose client-side required check failed: flag its control(s) with a red border until refilled.
+.cerb-ui-form--field--invalid {
+	> input,
+	> textarea,
+	> select,
+	> .cerb-ui-record-chooser,
+	> .cerb-ui-datepicker-forminput > input {
+		border-color: var(--cerb-color-tag-red);
+		outline-color: var(--cerb-color-tag-red);
+	}
+}
+
 // Inline muted helper beside a label ("optional", "(leave blank…)"). Sits to the RIGHT of the label text
 // with a gap so it never abuts/collides with it (e.g. "PASSPHRASE optional"); normal-case (the label is
 // uppercase) so the hint reads as a distinct aside.
