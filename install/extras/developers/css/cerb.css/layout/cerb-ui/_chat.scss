@@ -1,0 +1,337 @@
+// Chat: a full-width transcript of conversational turns (user / assistant / tool / system) for rendering an
+// AI/LLM session. Unlike .cerb-sticky-note (a left/right chat bubble), turns here are full-width rows with a
+// role eyebrow (icon + uppercase label) above the body; assistant turns are tinted so a user → assistant → tool
+// flow reads as alternating bands. Tool calls/results collapse into quiet <details>. Reuses .cerb-ui-avatar and
+// the shared .commentBodyHtml markdown-body rules. See the LLM Agent Transcripts viewer + the UI Reference.
+.cerb-ui-chat {
+	display: flex;
+	flex-direction: column;
+	border: 1px solid var(--cerb-color-background-contrast-220);
+	border-radius: 10px;
+	overflow: hidden;
+
+	// Mock/placeholder transcript (design-time or a session with no messages yet): dashed + dimmed so it
+	// reads as sample data, never mistaken for a live conversation.
+	&--sample {
+		border-style: dashed;
+		opacity: 0.75;
+	}
+
+	// One turn — full width, role eyebrow stacked above the body; a divider rule separates turns.
+	&--turn {
+		position: relative; // anchor the hover copy toolbar
+		padding: 0.85em 1em;
+		border-top: 1px solid var(--cerb-color-background-contrast-220);
+
+		&:first-child { border-top: 0; }
+	}
+
+	// USER turns are filled (a subtle gray band); ASSISTANT turns are left UNFILLED on purpose — agent
+	// output is usually Markdown-formatted, and a background would clash with it. A user/assistant flow
+	// still reads as alternating bands (filled → plain).
+	&--user { background: var(--cerb-color-background-contrast-240); }
+
+	// A compaction/switch checkpoint — the synthetic boundary node (role=user, kind=summary) renders as a
+	// slim centered divider rather than a turn bubble; its assistant summary follows as a normal agent turn.
+	&--checkpoint {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.4em;
+		padding: 0.5em 1em;
+		border-top: 1px solid var(--cerb-color-background-contrast-220);
+		color: var(--cerb-color-background-contrast-150);
+		font-size: 0.8em;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+
+		&:first-child { border-top: 0; }
+	}
+
+	// Role eyebrow: role icon + uppercase muted label (mirrors .cerb-field-cell-label)
+	&--role {
+		display: flex;
+		align-items: center;
+		gap: 0.4em;
+		margin-bottom: 0.4em;
+		color: var(--cerb-color-background-contrast-150);
+		font-size: 0.9em;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+
+		> span.cerb-icons { font-size: 1.25em; }
+
+		// Worker name renders in natural case, not the eyebrow's ALL CAPS
+		&-name {
+			text-transform: none;
+			letter-spacing: normal;
+		}
+	}
+
+	// Message body — reuse the shared markdown-body rules; trim outer margins so it sits flush in the turn
+	&--body {
+		word-break: break-word;
+
+		pre.emailbody {
+			margin: 0;
+			padding: 0;
+			white-space: pre-wrap;
+			font-family: inherit;
+			font-size: inherit;
+			color: inherit;
+			background: none;
+			border: 0;
+		}
+
+		.commentBodyHtml {
+			> :first-child { margin-top: 0; }
+			> :last-child { margin-bottom: 0; }
+		}
+	}
+
+	// Tool call / tool result, plus the extended-thinking summary — a quiet collapsible inside a turn. The
+	// default disclosure marker is hidden and redrawn as a rotating caret so it themes with currentColor.
+	// `--thinking` shares this style 100% (chevron, hover, indent, tool-result background).
+	&--tool,
+	&--thinking {
+		margin: 0.5em 0;
+
+		> summary {
+			display: flex;
+			align-items: center;
+			gap: 0.4em;
+			padding: 0.3em 0.5em;
+			border-radius: 6px;
+			cursor: pointer;
+			color: var(--cerb-color-text);
+			font-family: ui-monospace, Menlo, Consolas, monospace;
+			font-size: 0.9em;
+			list-style: none;
+
+			&::-webkit-details-marker { display: none; }
+			&::marker { content: ""; }
+
+			&:hover { background: var(--cerb-color-background-contrast-230); }
+
+			// Caret — a small triangle drawn from borders so it tints with currentColor
+			&::before {
+				content: "";
+				flex: 0 0 auto;
+				width: 0;
+				height: 0;
+				border-style: solid;
+				border-width: 4px 0 4px 6px;
+				border-color: transparent transparent transparent currentColor;
+				opacity: 0.6;
+				transition: transform 0.1s ease;
+			}
+		}
+
+		&[open] > summary::before { transform: rotate(90deg); }
+
+		// Content box — indented under the (flush) label with the tool-result background. Shared by the tool's
+		// <pre> (params/result) and the thinking block's markdown body (.commentBodyHtml).
+		> pre,
+		> .commentBodyHtml {
+			margin: 0.4em 0 0 1.5em;
+			padding: 0.7em 0.9em;
+			max-width: 100%;
+			background: var(--cerb-color-background-contrast-230);
+			border: 1px solid var(--cerb-color-background-contrast-220);
+			border-radius: 6px;
+		}
+
+		> pre {
+			white-space: break-spaces;
+			overflow-x: auto;
+			font-family: ui-monospace, Menlo, Consolas, monospace;
+			font-size: 0.9em;
+			line-height: 1.5;
+		}
+
+		// Eyebrow separating a tool call's parameters from its inlined result
+		&-result-label {
+			margin-top: 0.6em;
+			margin-left: 1.5em; // align with the indented tool contents below
+			color: var(--cerb-color-background-contrast-150);
+			font-size: 0.8em;
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: 0.04em;
+		}
+	}
+
+	// Hover-revealed action strip pinned to a turn's top-right (e.g. the assistant copy button). Buttons wear
+	// the public .cerb-ui-toolbar-strip / .cerb-ui-toolbar-button chrome, added in the markup.
+	&--turn-toolbar {
+		zoom: 0.8;
+		position: absolute;
+		top: 6px;
+		right: 6px;
+		opacity: 0;
+		pointer-events: none;
+		transition: opacity 0.1s ease;
+	}
+	&--turn:hover &--turn-toolbar {
+		opacity: 1;
+		pointer-events: auto;
+	}
+
+	// ── Conversation layout (ticket-message style) ─────────────────────────────────────────────────────
+	// Opt-in via .cerb-ui-chat--conversation so the base banded chat (gallery / compact preview / awaits)
+	// is unchanged. Turns render like ticket messages: a large left avatar (identity, no badge), a bold
+	// sender title + muted meta with an optional hover toolbar on the right, and NO alternating band fill.
+	// System prompt / tools are plain blocks up top; thinking / tool calls become an indented sub-thread of
+	// .cerb-sticky-note bubbles (like a ticket message's notes).
+	&--conversation {
+		display: block;
+		border: 0;
+		border-radius: 0;
+		overflow: visible;
+
+		.cerb-ui-chat--block {
+			margin-bottom: 0.75em;
+			border: 1px solid var(--cerb-color-background-contrast-220);
+			border-radius: 10px;
+			padding: 0.85em 1em;
+		}
+		.cerb-ui-chat--block-label {
+			display: flex;
+			align-items: center;
+			gap: 0.4em;
+			margin-bottom: 0.5em;
+			color: var(--cerb-color-background-contrast-150);
+			font-size: 0.8em;
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: 0.04em;
+
+			> span.cerb-icons { font-size: 1.35em; }
+		}
+		// Transcript-wide controls (Expand all + Markdown/Text switcher) above the first turn.
+		.cerb-transcript-controls {
+			display: flex;
+			align-items: center;
+			justify-content: flex-end;
+			gap: 0.6em;
+			margin-bottom: 0.75em;
+		}
+
+		// Each turn is a bordered card; no band fill, no top divider.
+		.cerb-ui-chat--turn {
+			border: 1px solid var(--cerb-color-background-contrast-220);
+			border-radius: 10px;
+			margin-bottom: 0.75em;
+			background: none;
+
+			&:last-child { margin-bottom: 0; }
+		}
+		.cerb-ui-chat--user { background: none; }
+
+		// Avatar = identity, floated left (nothing stacks under it).
+		.cerb-ui-chat--avatar { float: left; margin: 0 0.85em 0.5em 0; }
+
+		// Content beside the avatar; overflow:hidden is a BFC so it doesn't wrap under the avatar.
+		.cerb-ui-chat--main { overflow: hidden; }
+
+		// Name flush to the top (aligned with the avatar's top) like a ticket-message header, not
+		// baseline-aligned to the taller hover toolbar on the right.
+		.cerb-ui-header {
+			align-items: flex-start;
+			margin: 0 0 0.5em 0;
+		}
+
+		// Sender: the name is the only enlarged text (1.2em bold); the sub (title / provider·model) stays at
+		// the readable 1em baseline — avoid stacking font-size shrinks.
+		.cerb-ui-chat--sender {
+			display: flex;
+			align-items: baseline;
+			flex-wrap: wrap;
+			gap: 0.4em;
+			line-height: 1.2;
+
+			&-name { font-size: 1.2em; font-weight: bold; }
+		}
+		// The worker sender name is a peek-trigger <a> (no href → inherits text color, not link blue).
+		a.cerb-ui-chat--sender-name { cursor: pointer; color: inherit; }
+		// Date line (matches the ticket message header): a bit of breathing room before the body.
+		.cerb-ui-chat--meta { margin: 0.15em 0 0.5em 0; }
+
+		// --right keeps the token chip always visible; the action group (copy toolbar + Markdown/Text
+		// switcher) fades in together on hover, like a ticket message toolbar. Opacity (not display) so the
+		// chip never shifts; pointer-events gate the hidden controls.
+		.cerb-ui-chat--turn-actions {
+			display: flex;
+			align-items: center;
+			gap: 0.5em;
+			opacity: 0;
+			pointer-events: none;
+			transition: opacity 0.1s ease;
+		}
+		.cerb-ui-chat--turn:hover .cerb-ui-chat--turn-actions {
+			opacity: 1;
+			pointer-events: auto;
+		}
+
+		// Markdown / Text toggle: the rendered body shows by default; Text swaps in the raw markdown source.
+		.cerb-transcript-assistant-markdown {
+			display: none;
+			margin: 0;
+			white-space: pre-wrap;
+			word-break: break-word;
+			font-family: inherit;
+		}
+		// Transcript-wide mode set on the chat container by the single Markdown/Text switcher above the convo.
+		&[data-cerb-view="text"] {
+			.cerb-ui-chat--body { display: none; }
+			.cerb-transcript-assistant-markdown { display: block; }
+		}
+
+		// Indented sub-thread of thinking / tool bubbles (sits to the right, under the agent's text).
+		.cerb-transcript-subthread {
+			margin: 0.75em 0 0 1.5em;
+			display: flex;
+			flex-direction: column;
+			gap: 0.6em;
+
+			pre {
+				margin: 0.4em 0 0;
+				padding: 0.6em 0.8em;
+				max-width: 100%;
+				overflow-x: auto;
+				background: var(--cerb-color-background-contrast-235);
+				border: 1px solid var(--cerb-color-background-contrast-220);
+				border-radius: 6px;
+				white-space: break-spaces;
+				font-family: ui-monospace, Menlo, Consolas, monospace;
+				font-size: 0.85em;
+				line-height: 1.5;
+			}
+
+			.cerb-ui-chat--tool-result-label { margin-left: 0; }
+
+			// A JSON tool param/result promoted to a read-only CerbUI.JsonEditor (folds + line numbers);
+			// same top gap the raw <pre> had, and never wider than the sub-thread column.
+			.cerb-transcript-json-editor {
+				margin: 0.4em 0 0;
+				max-width: 100%;
+			}
+		}
+
+		// Collapsible long tool result: the <pre> is hidden behind a "Show result (N)" button until
+		// revealed (per-result toggle, or the top "Expand all"). The button's more/less labels swap on
+		// .is-open. Placed after the subthread <pre> rule so its display wins at equal specificity.
+		.cerb-transcript-collapsible {
+			> pre { display: none; }
+			&.is-open > pre { display: block; }
+
+			.cerb-transcript-collapsible--less { display: none; }
+			&.is-open {
+				.cerb-transcript-collapsible--more { display: none; }
+				.cerb-transcript-collapsible--less { display: inline; }
+			}
+		}
+	}
+}
