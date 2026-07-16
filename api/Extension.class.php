@@ -732,7 +732,14 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 	abstract function getUsageMeta(string $automation_name) : array;
 	abstract function getAutocompleteSuggestions() : array;
 	abstract function getEditorToolbarItems(array $toolbar) : array;
-	
+
+	public static function getFormComponentClass(string $type) : ?string {
+		if(!method_exists(static::class, 'getFormComponentMeta'))
+			return null;
+		$meta = static::getFormComponentMeta();
+		$class = $meta[$type]['class'] ?? null;
+		return is_string($class) && strlen($class) && class_exists($class) ? $class : null;
+	}
 	protected function _getRecordTypeSuggestions() : array {
 		if(self::$_cache_record_types)
 			return self::$_cache_record_types;

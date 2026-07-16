@@ -437,7 +437,9 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 		list($prompt_type, $prompt_set_key) = array_pad(explode('/', $prompt_key), 2, null);
 		
 		if(array_key_exists($prompt_type, $form_components)) {
-			$component = new $form_components[$prompt_type]($prompt_set_key, null, $last_prompt, $portal_schema);
+			if(!($component_class = AutomationTrigger_InteractionWebsite::getFormComponentClass($prompt_type)))
+				return;
+			$component = new $component_class($prompt_set_key, null, $last_prompt, $portal_schema);
 			$component->invoke($prompt_key, $prompt_action, $continuation);
 		}
 	}
@@ -506,7 +508,9 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 						|| (is_array($prompt_value) && count($prompt_value));
 					
 					if ($is_required || $is_set) {
-						$component = new $form_components[$last_prompt_type]($prompt_set_key, $prompt_value, $last_prompt, $portal_schema);
+						if(!($component_class = AutomationTrigger_InteractionWebsite::getFormComponentClass($last_prompt_type)))
+							continue;
+						$component = new $component_class($prompt_set_key, $prompt_value, $last_prompt, $portal_schema);
 						
 						$component->validate($validation);
 						
@@ -588,7 +592,9 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 						if(in_array($last_prompt_type, $prompts_without_output))
 							continue;
 						
-						$component = new $form_components[$last_prompt_type]($prompt_set_key, $prompt_value, $last_prompt, $portal_schema);
+						if(!($component_class = AutomationTrigger_InteractionWebsite::getFormComponentClass($last_prompt_type)))
+							continue;
+						$component = new $component_class($prompt_set_key, $prompt_value, $last_prompt, $portal_schema);
 						$initial_state = $component->setValue($prompt_set_key, $component->formatValue(), $initial_state);
 					}
 				}
@@ -745,7 +751,9 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 			if(array_key_exists($action_key_type, $form_components)) {
 				$value = $automation_results->get($var, null);
 				
-				$component = new $form_components[$action_key_type]($var, $value, $element_data, $portal_schema);
+				if(!($component_class = AutomationTrigger_InteractionWebsite::getFormComponentClass($action_key_type)))
+					continue;
+				$component = new $component_class($var, $value, $element_data, $portal_schema);
 				$component->render($continuation);
 			}
 		}

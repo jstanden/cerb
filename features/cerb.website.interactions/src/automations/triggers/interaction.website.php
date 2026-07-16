@@ -4,14 +4,14 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 	
 	public static function getFormComponentMeta(): array {
 		return [
-			'end' => 'Cerb\Automation\Builder\Trigger\InteractionWebsite\Awaits\EndAwait',
-			'fileUpload' => 'Cerb\Automation\Builder\Trigger\InteractionWebsite\Awaits\FileUploadAwait',
-			'llmTranscript' => 'Cerb\Automation\Builder\Trigger\InteractionWebsite\Awaits\LlmTranscriptAwait',
-			'say' => 'Cerb\Automation\Builder\Trigger\InteractionWebsite\Awaits\SayAwait',
-			'sheet' => 'Cerb\Automation\Builder\Trigger\InteractionWebsite\Awaits\SheetAwait',
-			'submit' => 'Cerb\Automation\Builder\Trigger\InteractionWebsite\Awaits\SubmitAwait',
-			'text' => 'Cerb\Automation\Builder\Trigger\InteractionWebsite\Awaits\TextAwait',
-			'textarea' => 'Cerb\Automation\Builder\Trigger\InteractionWebsite\Awaits\TextareaAwait',
+			'end' => ['class' => 'Cerb\Automation\Builder\Trigger\InteractionWebsite\Awaits\EndAwait', 'icon' => 'stop'],
+			'fileUpload' => ['class' => 'Cerb\Automation\Builder\Trigger\InteractionWebsite\Awaits\FileUploadAwait', 'icon' => 'upload'],
+			'llmTranscript' => ['class' => 'Cerb\Automation\Builder\Trigger\InteractionWebsite\Awaits\LlmTranscriptAwait', 'icon' => 'conversation'],
+			'say' => ['class' => 'Cerb\Automation\Builder\Trigger\InteractionWebsite\Awaits\SayAwait', 'icon' => 'comments'],
+			'sheet' => ['class' => 'Cerb\Automation\Builder\Trigger\InteractionWebsite\Awaits\SheetAwait', 'icon' => 'table'],
+			'submit' => ['class' => 'Cerb\Automation\Builder\Trigger\InteractionWebsite\Awaits\SubmitAwait', 'icon' => 'send'],
+			'text' => ['class' => 'Cerb\Automation\Builder\Trigger\InteractionWebsite\Awaits\TextAwait', 'icon' => 'text'],
+			'textarea' => ['class' => 'Cerb\Automation\Builder\Trigger\InteractionWebsite\Awaits\TextareaAwait', 'icon' => 'text'],
 		];
 	}
 	

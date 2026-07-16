@@ -4,21 +4,21 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 	
 	public static function getFormComponentMeta() {
 		return [
-			'chart' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\ChartAwait',
-			'chooser' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\ChooserAwait',
-			'editor' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\EditorAwait',
-			'end' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\EndAwait',
-			'fileDownload' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\FileDownloadAwait',
-			'fileUpload' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\FileUploadAwait',
-			'llmTranscript' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\LlmTranscriptAwait',
-			'map' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\MapAwait',
-			'query' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\QueryAwait',
-			'say' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\SayAwait',
-			'audio' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\AudioAwait',
-			'sheet' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\SheetAwait',
-			'submit' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\SubmitAwait',
-			'text' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\TextAwait',
-			'textarea' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\TextareaAwait',
+			'audio' => ['class' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\AudioAwait', 'icon' => 'speaker'],
+			'chart' => ['class' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\ChartAwait', 'icon' => 'chart-line'],
+			'chooser' => ['class' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\ChooserAwait', 'icon' => 'search'],
+			'editor' => ['class' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\EditorAwait', 'icon' => 'editor'],
+			'end' => ['class' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\EndAwait', 'icon' => 'stop'],
+			'fileDownload' => ['class' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\FileDownloadAwait', 'icon' => 'download'],
+			'fileUpload' => ['class' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\FileUploadAwait', 'icon' => 'upload'],
+			'llmTranscript' => ['class' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\LlmTranscriptAwait', 'icon' => 'conversation'],
+			'map' => ['class' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\MapAwait', 'icon' => 'map'],
+			'query' => ['class' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\QueryAwait', 'icon' => 'search'],
+			'say' => ['class' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\SayAwait', 'icon' => 'comments'],
+			'sheet' => ['class' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\SheetAwait', 'icon' => 'table'],
+			'submit' => ['class' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\SubmitAwait', 'icon' => 'send'],
+			'text' => ['class' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\TextAwait', 'icon' => 'text'],
+			'textarea' => ['class' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\TextareaAwait', 'icon' => 'text'],
 		];
 	}
 	

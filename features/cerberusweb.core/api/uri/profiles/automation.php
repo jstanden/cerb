@@ -549,7 +549,9 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		if(!array_key_exists($prompt_type, $form_components))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
-		$component = new $form_components[$prompt_type]($prompt_name, null, $form[$prompt_key]);
+		if(!($component_class = AutomationTrigger_InteractionWorker::getFormComponentClass($prompt_type)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		$component = new $component_class($prompt_name, null, $form[$prompt_key]);
 		
 		$component->invoke($prompt_key, $prompt_action, $continuation);
 	}
