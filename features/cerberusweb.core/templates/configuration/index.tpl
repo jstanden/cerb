@@ -212,6 +212,7 @@ $(function() {
 		submenu.hidden = true; // hide the source UL (covers legacy cerb-popupmenu extension menus)
 
 		new CerbUI.Menu(submenu, {
+			maxHeight: 'viewport',    // grow into the available viewport height (no scroll for one extra item)
 			hoverTrigger: li,
 			hoverGroup: 'setupmenu',
 			onRenderItem: function(rendered, source) {
