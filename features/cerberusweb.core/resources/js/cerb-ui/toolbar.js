@@ -363,7 +363,10 @@ CerbUI.Toolbar = class {
 	_restoreOverflow() {
 		if(this._overflowMenu) { this._overflowMenu.destroy(); this._overflowMenu = null; }
 		if(this._sourceOrder)
-			this._sourceOrder.forEach(li => this.el.appendChild(li));
+			// Re-append in snapshot order to restore any overflow-moved <li>s. Skip <li>s the HOST removed from the
+			// source since the last render (li.remove() only detaches → isConnected=false) — else a refresh() would
+			// resurrect them, so a host that splices+refreshes a shared source ends up accumulating stale items.
+			this._sourceOrder.forEach(li => { if(li.isConnected) this.el.appendChild(li); });
 	}
 
 	// Read only the TOP-LEVEL <li> of a source <ul> into a flat model.
