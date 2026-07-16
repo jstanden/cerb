@@ -86,7 +86,7 @@ class FileUploadAwait extends AbstractAwait {
 	
 	function render(Model_AutomationContinuation $continuation) {
 		$tpl = DevblocksPlatform::services()->templateSandbox();
-		$session = \ChPortalHelper::getSession();
+		$session = $this->_getSession();
 		
 		$label = $this->_data['label'] ?? null;
 		$is_required = array_key_exists('required', $this->_data) && $this->_data['required'];

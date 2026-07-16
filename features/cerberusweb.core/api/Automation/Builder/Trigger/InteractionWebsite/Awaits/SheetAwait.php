@@ -34,7 +34,7 @@ class SheetAwait extends AbstractAwait {
 	private function _render(string $prompt_key, Model_AutomationContinuation $continuation) {
 		$sheets = DevblocksPlatform::services()->sheet();
 		$tpl = DevblocksPlatform::services()->template();
-		$session = \ChPortalHelper::getSession();
+		$session = $this->_getSession();
 		
 		$error = null;
 		

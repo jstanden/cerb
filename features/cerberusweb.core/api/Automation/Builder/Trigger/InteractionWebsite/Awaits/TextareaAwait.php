@@ -40,7 +40,7 @@ class TextareaAwait extends AbstractAwait {
 	
 	function render(Model_AutomationContinuation $continuation) {
 		$tpl = DevblocksPlatform::services()->template();
-		$session = \ChPortalHelper::getSession();
+		$session = $this->_getSession();
 		
 		$label = $this->_data['label'] ?? null;
 		$placeholder = $this->_data['placeholder'] ?? null;

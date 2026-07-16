@@ -9,27 +9,50 @@ abstract class AbstractAwait {
 	protected $_key;
 	protected $_data;
 	protected $_value;
-	protected CerbPortalWebsiteInteractions_Model $_schema;
-	
-	function __construct($key, $value, $data, CerbPortalWebsiteInteractions_Model $schema) {
+	protected ?CerbPortalWebsiteInteractions_Model $_schema;
+	private $_mock_session = null;
+
+	function __construct($key, $value, $data, ?CerbPortalWebsiteInteractions_Model $schema = null) {
 		$this->_key = $key;
 		$this->_data = $data;
 		$this->_value = $value;
 		$this->_schema = $schema;
 	}
-	
+
 	abstract function validate(_DevblocksValidationService $validation);
 	abstract function formatValue();
 	abstract function render(Model_AutomationContinuation $continuation);
 	abstract function invoke(string $prompt_key, string $action, Model_AutomationContinuation $continuation);
-	
+
 	function setValue($key, $value, $dict) {
 		if($dict instanceof \DevblocksDictionaryDelegate) {
 			$dict->set($key, $value);
 		} elseif (is_array($dict) && $key) {
 			$dict[$key] = $value;
 		}
-		
+
 		return $dict;
+	}
+
+	// True when rendering inert (no live scripting) — the design-time form-builder preview OR the simulator's
+	// form-fill (set by the automation editor's _renderFormElements()).
+	protected function _isSimulated() : bool {
+		return (bool)(\DevblocksPlatform::services()->template()->getTemplateVars('is_automation_simulated') ?? false);
+	}
+
+	// The runtime pulls the portal session from the cookie/DB via ChPortalHelper; in simulated mode there's no
+	// portal, so hand templates a mock session that supplies the CSP nonce (the only field form elements read).
+	protected function _getSession() {
+		if(!$this->_isSimulated())
+			return \ChPortalHelper::getSession();
+
+		if(is_null($this->_mock_session)) {
+			$session = new \Model_CommunitySession();
+			$session->nonce = \DevblocksPlatform::getRequestNonce();
+			$session->csrf_token = $session->nonce;
+			$this->_mock_session = $session;
+		}
+
+		return $this->_mock_session;
 	}
 }

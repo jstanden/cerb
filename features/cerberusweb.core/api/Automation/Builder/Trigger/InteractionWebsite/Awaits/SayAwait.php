@@ -19,7 +19,7 @@ class SayAwait extends AbstractAwait {
 	
 	function render(Model_AutomationContinuation $continuation) {
 		$tpl = DevblocksPlatform::services()->templateSandbox();
-		$session = \ChPortalHelper::getSession();
+		$session = $this->_getSession();
 		
 		$msg = '';
 		$format = 'text';

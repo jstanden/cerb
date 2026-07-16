@@ -20,8 +20,8 @@ class LlmTranscriptAwait extends AbstractAwait {
 	function render(Model_AutomationContinuation $continuation) {
 		$tpl = DevblocksPlatform::services()->templateSandbox();
 		$llm = DevblocksPlatform::services()->llm();
-		$session = \ChPortalHelper::getSession();
-		
+		$session = $this->_getSession();
+
 		$label = $this->_data['label'] ?? null;
 		$transcript_id = $this->_data['session_id'] ?? null;
 		$tool_labels = $this->_data['tool_labels'] ?? null;
