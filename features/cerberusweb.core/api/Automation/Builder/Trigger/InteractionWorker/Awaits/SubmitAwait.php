@@ -64,6 +64,7 @@ class SubmitAwait extends AbstractAwait {
 			}
 		}
 		
+		$tpl->assign('label', $this->_data['label'] ?? '');
 		$tpl->assign('var', $this->_key);
 		$tpl->assign('value', $this->_value);
 		$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.worker/await/submit.tpl');

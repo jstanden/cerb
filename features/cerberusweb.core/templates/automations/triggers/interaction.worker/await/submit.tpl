@@ -1,5 +1,6 @@
 {$response_uid = "response{uniqid()}"}
 <div id="{$response_uid}" class="cerb-form-builder-prompt-submit" style="display:flex;margin:40px 0 10px 0;">
+{if $label}<h6>{$label}</h6>{/if}
 	<input type="hidden" name="prompts[__submit]" value="continue">
 	
 	{if $var}
