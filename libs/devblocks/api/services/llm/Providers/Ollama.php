@@ -229,4 +229,10 @@ class Ollama extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 			'llama3.2',
 		];
 	}
+
+	function getEmbeddingModels() : array {
+		return [
+			'nomic-embed-text',
+		];
+	}
 }

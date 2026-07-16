@@ -283,4 +283,10 @@ class AwsBedrock extends Extension_DevblocksLlmProvider implements Chat, Embeddi
 			'us.anthropic.claude-fable-5',
 		];
 	}
+
+	function getEmbeddingModels() : array {
+		return [
+			'amazon.titan-embed-text-v2:0',
+		];
+	}
 }

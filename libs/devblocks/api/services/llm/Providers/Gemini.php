@@ -63,4 +63,10 @@ class Gemini extends OpenAI {
 			'gemini-2.0-flash-lite',
 		];
 	}
+
+	function getEmbeddingModels() : array {
+		return [
+			'text-embedding-004',
+		];
+	}
 }

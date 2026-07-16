@@ -263,4 +263,12 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 			'gpt-5.3-chat-latest',
 		];
 	}
+
+	function getEmbeddingModels() : array {
+		return [
+			'text-embedding-3-small',
+			'text-embedding-3-large',
+			'text-embedding-ada-002',
+		];
+	}
 }

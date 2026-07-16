@@ -80,4 +80,15 @@ class VoyageAI extends Extension_DevblocksLlmProvider implements Embedding {
 			),
 		];
 	}
+
+	function getEmbeddingModels() : array {
+		return [
+			'voyage-3-large',
+			'voyage-3',
+			'voyage-3-lite',
+			'voyage-code-3',
+			'voyage-finance-2',
+			'voyage-law-2',
+		];
+	}
 }

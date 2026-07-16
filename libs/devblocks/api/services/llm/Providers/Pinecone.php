@@ -81,4 +81,11 @@ class Pinecone extends Extension_DevblocksLlmProvider implements Embedding {
 			),
 		];
 	}
+
+	function getEmbeddingModels() : array {
+		return [
+			'llama-text-embed-v2',
+			'multilingual-e5-large',
+		];
+	}
 }

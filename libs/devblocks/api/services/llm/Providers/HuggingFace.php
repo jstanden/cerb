@@ -231,4 +231,10 @@ class HuggingFace extends Extension_DevblocksLlmProvider implements Chat, Embedd
 			'google/gemma-2-2b-it',
 		];
 	}
+
+	function getEmbeddingModels() : array {
+		return [
+			'BAAI/bge-large-en-v1.5',
+		];
+	}
 }

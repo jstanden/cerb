@@ -34,4 +34,10 @@ class Docker extends OpenAI {
 			'ai/llama3.2',
 		];
 	}
+
+	function getEmbeddingModels() : array {
+		return [
+			'ai/mxbai-embed-large',
+		];
+	}
 }

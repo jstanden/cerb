@@ -249,4 +249,13 @@ class TogetherAI extends Extension_DevblocksLlmProvider implements Chat, Embeddi
 			'Qwen/Qwen2.5-72B-Instruct-Turbo',
 		];
 	}
+
+	function getEmbeddingModels() : array {
+		return [
+			'BAAI/bge-base-en-v1.5',
+			'BAAI/bge-large-en-v1.5',
+			'togethercomputer/m2-bert-80M-2k-retrieval',
+			'togethercomputer/m2-bert-80M-8k-retrieval',
+		];
+	}
 }
