@@ -81,6 +81,7 @@ CerbUI.NodeGraph = class {
 			const e = { source: el.getAttribute('data-source'), target: el.getAttribute('data-target') };
 			const sh = el.getAttribute('data-source-handle'); if(sh) e.sourceHandle = sh;
 			const th = el.getAttribute('data-target-handle'); if(th) e.targetHandle = th;
+			if(el.hasAttribute('data-bidirectional')) e.bidirectional = true;
 			if(el.hasAttribute('data-curve')) e.curve = true;
 			return e;
 		});

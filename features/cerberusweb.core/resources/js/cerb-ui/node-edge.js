@@ -27,6 +27,7 @@ CerbUI.NodeEdge = class {
 		sourceHandle: '_next',
 		target: null,        // CerbUI.Node the edge enters
 		targetHandle: '_in',
+		bidirectional: false,// draw an arrowhead at both ends (used by branch edges to imply return to the parent)
 		straight: false,     // draw a straight line instead of the bezier (clean for centered ports)
 		endpointHit: false,  // add a transparent hit-circle at the target end (the arrowhead marker isn't clickable)
 		onRemove: null,      // (edge) => {}  double-click to delete
@@ -52,6 +53,7 @@ CerbUI.NodeEdge = class {
 		this.line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
 		this.line.classList.add('cerb-ui-node-edge--line');
 		this.line.setAttribute('marker-end', 'url(#' + canvas.markerId + ')');
+		if(this.opts.bidirectional) this.line.setAttribute('marker-start', 'url(#' + canvas.markerId + ')');
 		this.el.appendChild(this.hit);
 		this.el.appendChild(this.line);
 		// The arrowhead is a shared SVG marker (not a hit-testable element). A small transparent circle at the
