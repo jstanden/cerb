@@ -17,10 +17,12 @@ class AutomationTrigger_WebhookRespond extends Extension_AutomationTrigger {
 		return [
 			[
 				'key' => 'request_body',
+				'type' => 'text',
 				'notes' => 'The request body as text.',
 			],
 			[
 				'key' => 'request_client_ip',
+				'type' => 'text',
 				'notes' => 'The client IP making the request (e.g. `1.2.3.4`).',
 			],
 			[
@@ -29,6 +31,7 @@ class AutomationTrigger_WebhookRespond extends Extension_AutomationTrigger {
 			],
 			[
 				'key' => 'request_method',
+				'type' => 'text',
 				'notes' => 'Method name in uppercase (e.g. `POST`).',
 			],
 			[
@@ -37,6 +40,7 @@ class AutomationTrigger_WebhookRespond extends Extension_AutomationTrigger {
 			],
 			[
 				'key' => 'request_path',
+				'type' => 'text',
 				'notes' => 'The request path (e.g. `some/folder/file.ext`).',
 			],
 		];

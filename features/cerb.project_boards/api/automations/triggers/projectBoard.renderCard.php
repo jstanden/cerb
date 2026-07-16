@@ -17,14 +17,23 @@ class AutomationTrigger_ProjectBoardRenderCard extends Extension_AutomationTrigg
 		return [
 			[
 				'key' => 'board_*',
+				'type' => 'record',
+				'params' => [
+					'record_type' => 'project_board',
+				],
 				'notes' => 'The [project board](https://cerb.ai/docs/records/types/project_board/#dictionary-placeholders) record. Supports key expansion.',
 			],
 			[
 				'key' => 'card_*',
+				'type' => 'record',
 				'notes' => 'The card [record](https://cerb.ai/docs/records/types/). Supports key expansion. `card__type` is the record type alias (e.g. `ticket`).',
 			],
 			[
 				'key' => 'worker_*',
+				'type' => 'record',
+				'params' => [
+					'record_type' => 'worker',
+				],
 				'notes' => 'The current [worker](https://cerb.ai/docs/records/types/worker/#dictionary-placeholders) record. Supports key expansion.',
 			],
 		];

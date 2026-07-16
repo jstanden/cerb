@@ -17,6 +17,10 @@ class AutomationTrigger_MailFilter extends Extension_AutomationTrigger {
 		return [
 			[
 				'key' => 'email_sender_*',
+				'type' => 'record',
+				'params' => [
+					'record_type' => 'address',
+				],
 				'notes' => 'The [sender email](https://cerb.ai/docs/records/types/address/#dictionary-placeholders) record. Supports key expansion.',
 			],
 			[
@@ -41,6 +45,10 @@ class AutomationTrigger_MailFilter extends Extension_AutomationTrigger {
 			],
 			[
 				'key' => 'parent_ticket_*',
+				'type' => 'record',
+				'params' => [
+					'record_type' => 'ticket',
+				],
 				'notes' => 'The parent [ticket](https://cerb.ai/docs/records/types/ticket/#dictionary-placeholders) record (if a reply). Supports key expansion.',
 			],
 		];

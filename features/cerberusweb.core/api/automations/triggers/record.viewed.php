@@ -47,10 +47,15 @@ class AutomationTrigger_RecordViewed extends Extension_AutomationTrigger {
 		return [
 			[
 				'key' => 'record_*',
+				'type' => 'record',
 				'notes' => 'The viewed record dictionary. Supports key expansion.',
 			],
 			[
 				'key' => 'worker_*',
+				'type' => 'record',
+				'params' => [
+					'record_type' => 'worker',
+				],
 				'notes' => 'The current worker record. Supports key expansion.',
 			],
 		];

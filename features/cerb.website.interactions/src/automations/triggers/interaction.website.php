@@ -30,10 +30,12 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 		return [
 			[
 				'key' => 'interaction',
+				'type' => 'text',
 				'notes' => 'The name of the interaction.',
 			],
 			[
 				'key' => 'interaction_params',
+				'type' => 'text',
 				'notes' => 'Arbitrary interaction parameters.',
 			],
 			[
@@ -42,22 +44,30 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 			],
 			[
 				'key' => 'portal_*',
+				'type' => 'record',
+				'params' => [
+					'record_type' => 'portal',
+				],
 				'notes' => 'The portal record.',
 			],
 			[
 				'key' => 'client_ip',
+				'type' => 'text',
 				'notes' => 'The client IP address.',
 			],
 			[
 				'key' => 'client_browser_name',
+				'type' => 'text',
 				'notes' => 'The client browser name (e.g. Safari).',
 			],
 			[
 				'key' => 'client_browser_platform',
+				'type' => 'text',
 				'notes' => 'The client browser platform (e.g. Macintosh).',
 			],
 			[
 				'key' => 'client_browser_version',
+				'type' => 'text',
 				'notes' => 'The client browser version.',
 			],
 		];

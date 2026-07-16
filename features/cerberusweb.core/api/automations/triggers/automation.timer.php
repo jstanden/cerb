@@ -17,6 +17,10 @@ class AutomationTrigger_AutomationTimer extends Extension_AutomationTrigger {
 		return [
 			[
 				'key' => 'timer_*',
+				'type' => 'record',
+				'params' => [
+					'record_type' => 'automation_timer',
+				],
 				'notes' => 'The [automation timer](https://cerb.ai/docs/records/types/automation_timer/#dictionary-placeholders) record. Supports key expansion.',
 			],
 		];

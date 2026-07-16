@@ -17,10 +17,24 @@ class AutomationTrigger_UiChartData extends Extension_AutomationTrigger {
 		return [
 			[
 				'key' => 'widget_*',
+				'type' => 'record',
+				'params' => [
+					'record_types' => ['card_widget', 'profile_widget', 'workspace_widget'],
+					// Scope each type to its Chart KATA widget extension (the id differs per widget family).
+					'record_type_queries' => [
+						'card_widget' => 'type:cerb.card.widget.chart.kata',
+						'profile_widget' => 'type:cerb.profile.tab.widget.chart.kata',
+						'workspace_widget' => 'type:cerb.workspace.widget.chart.kata',
+					],
+				],
 				'notes' => 'The card, profile, or workspace widget record.',
 			],
 			[
 				'key' => 'worker_*',
+				'type' => 'record',
+				'params' => [
+					'record_type' => 'worker',
+				],
 				'notes' => 'The current worker record.',
 			],
 		];

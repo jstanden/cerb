@@ -17,14 +17,23 @@ class AutomationTrigger_UiWidget extends Extension_AutomationTrigger {
 		return [
 			[
 				'key' => 'record_*',
+				'type' => 'record',
 				'notes' => 'The current record dictionary when a card or profile widget (empty on workspace widgets).',
 			],
 			[
 				'key' => 'widget_*',
+				'type' => 'record',
+				'params' => [
+					'record_types' => ['card_widget', 'profile_widget', 'workspace_widget'],
+				],
 				'notes' => 'The card, profile, or workspace widget record.',
 			],
 			[
 				'key' => 'worker_*',
+				'type' => 'record',
+				'params' => [
+					'record_type' => 'worker',
+				],
 				'notes' => 'The current worker record.',
 			],
 		];

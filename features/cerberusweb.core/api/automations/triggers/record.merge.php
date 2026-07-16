@@ -17,6 +17,7 @@ class AutomationTrigger_RecordMerge extends Extension_AutomationTrigger {
 		return [
 			[
 				'key' => 'record_type',
+				'type' => 'text',
 				'notes' => 'The [record type](https://cerb.ai/docs/records/types/) being merged.',
 			],
 			[
@@ -25,14 +26,20 @@ class AutomationTrigger_RecordMerge extends Extension_AutomationTrigger {
 			],
 			[
 				'key' => 'source_ids',
+				'type' => 'array',
 				'notes' => 'The IDs of the records being merged from.',
 			],
 			[
 				'key' => 'target_id',
+				'type' => 'text',
 				'notes' => 'The ID of the record being merged to.',
 			],
 			[
 				'key' => 'worker_*',
+				'type' => 'record',
+				'params' => [
+					'record_type' => 'worker',
+				],
 				'notes' => 'The current [worker](https://cerb.ai/docs/records/types/worker/) record. Supports key expansion.',
 			],
 		];

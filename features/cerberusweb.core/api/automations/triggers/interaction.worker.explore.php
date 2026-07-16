@@ -21,10 +21,12 @@ class AutomationTrigger_InteractionWorkerExplore extends AutomationTrigger_Inter
 		return [
 			[
 				'key' => 'explore_hash',
+				'type' => 'text',
 				'notes' => 'The unique identifier of the explore set.',
 			],
 			[
 				'key' => 'explore_page',
+				'type' => 'text',
 				'notes' => 'The custom page action returned by `await:explore:` (e.g. `next`).',
 			],
 			[
@@ -33,6 +35,10 @@ class AutomationTrigger_InteractionWorkerExplore extends AutomationTrigger_Inter
 			],
 			[
 				'key' => 'worker_*',
+				'type' => 'record',
+				'params' => [
+					'record_type' => 'worker',
+				],
 				'notes' => 'The active [worker](https://cerb.ai/docs/records/types/worker/#dictionary-placeholders) record. Supports key expansion.',
 			],
 		];

@@ -17,10 +17,15 @@ class AutomationTrigger_ResourceGet extends Extension_AutomationTrigger {
 		return [
 			[
 				'key' => 'resource_*',
+				'type' => 'record',
+				'params' => [
+					'record_type' => 'resource',
+				],
 				'notes' => 'The [resource](https://cerb.ai/docs/records/types/resource/#dictionary-placeholders) record. Supports key expansion.',
 			],
 			[
 				'key' => 'actor_*',
+				'type' => 'record',
 				'notes' => 'The current actor [record](https://cerb.ai/docs/records/types/). Supports key expansion. `actor__type` is the record type alias (e.g. `worker`).',
 			],
 		];

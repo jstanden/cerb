@@ -37,6 +37,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 		return [
 			[
 				'key' => 'caller_name',
+				'type' => 'text',
 				'notes' => 'The caller which started the interaction.',
 			],
 			[
@@ -45,22 +46,27 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 			],
 			[
 				'key' => 'client_ip',
+				'type' => 'text',
 				'notes' => 'The client IP address.',
 			],
 			[
 				'key' => 'client_url',
+				'type' => 'text',
 				'notes' => 'The client current URL.',
 			],
 			[
 				'key' => 'client_browser_name',
+				'type' => 'text',
 				'notes' => 'The client browser name (e.g. Safari).',
 			],
 			[
 				'key' => 'client_browser_platform',
+				'type' => 'text',
 				'notes' => 'The client browser platform (e.g. Macintosh).',
 			],
 			[
 				'key' => 'client_browser_version',
+				'type' => 'text',
 				'notes' => 'The client browser version.',
 			],
 			[
@@ -69,6 +75,10 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 			],
 			[
 				'key' => 'worker_*',
+				'type' => 'record',
+				'params' => [
+					'record_type' => 'worker',
+				],
 				'notes' => 'The active [worker](https://cerb.ai/docs/records/types/worker/#dictionary-placeholders) record. Supports key expansion.',
 			],
 		];

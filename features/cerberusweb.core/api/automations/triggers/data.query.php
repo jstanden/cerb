@@ -37,6 +37,7 @@ class AutomationTrigger_DataQuery extends Extension_AutomationTrigger {
 			],
 			[
 				'key' => 'query_format',
+				'type' => 'text',
 				'notes' => 'The requested format for the data query results.',
 			],
 		];

@@ -29,6 +29,7 @@ class AutomationTrigger_MailDraftValidate extends AutomationTrigger_InteractionW
 		return [
 			[
 				'key' => 'caller_name',
+				'type' => 'text',
 				'notes' => 'The caller which started the interaction.',
 			],
 			[
@@ -41,6 +42,10 @@ class AutomationTrigger_MailDraftValidate extends AutomationTrigger_InteractionW
 			],
 			[
 				'key' => 'worker_*',
+				'type' => 'record',
+				'params' => [
+					'record_type' => 'worker',
+				],
 				'notes' => 'The active [worker](https://cerb.ai/docs/records/types/worker/#dictionary-placeholders) record. Supports key expansion.',
 			],
 		];

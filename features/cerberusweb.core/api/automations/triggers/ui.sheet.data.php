@@ -21,14 +21,17 @@ class AutomationTrigger_UiSheetData extends Extension_AutomationTrigger {
 			],
 			[
 				'key' => 'sheet_filter',
+				'type' => 'text',
 				'notes' => 'The optional text to filter results by (if `schema:layout:filtering:` is enabled).',
 			],
 			[
 				'key' => 'sheet_limit',
+				'type' => 'text',
 				'notes' => 'The number of results per page.',
 			],
 			[
 				'key' => 'sheet_page',
+				'type' => 'text',
 				'notes' => 'The zero-based current page of the sheet (if `schema:layout:paging:` is enabled).',
 			],
 		];

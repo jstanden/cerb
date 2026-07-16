@@ -17,18 +17,22 @@ class AutomationTrigger_RecordChanged extends Extension_AutomationTrigger {
 		return [
 			[
 				'key' => 'change_type',
+				'type' => 'text',
 				'notes' => 'The type of change: `created`, `updated`, `deleted`',
 			],
 			[
 				'key' => 'record_',
+				'type' => 'record',
 				'notes' => 'The changed record dictionary. Supports key expansion.',
 			],
 			[
 				'key' => 'was_record_',
+				'type' => 'record',
 				'notes' => 'The record dictionary before the changes. Supports key expansion.',
 			],
 			[
 				'key' => 'actor_*',
+				'type' => 'record',
 				'notes' => 'The current actor record. Supports key expansion.',
 			],
 		];

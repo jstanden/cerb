@@ -13,6 +13,7 @@ class AutomationTrigger_MapClicked extends Extension_AutomationTrigger {
 		return [
 			[
 				'key' => 'feature_type',
+				'type' => 'text',
 				'notes' => '`region` or `point`',
 			],
 			[
@@ -21,10 +22,23 @@ class AutomationTrigger_MapClicked extends Extension_AutomationTrigger {
 			],
 			[
 				'key' => 'widget_*',
+				'type' => 'record',
+				'params' => [
+					// Maps live only on profile/workspace widgets; scope each to its geopoints map extension.
+					'record_types' => ['profile_widget', 'workspace_widget'],
+					'record_type_queries' => [
+						'profile_widget' => 'type:cerb.profile.tab.widget.map.geopoints',
+						'workspace_widget' => 'type:cerb.workspace.widget.map.geopoints',
+					],
+				],
 				'notes' => 'The widget [record](https://cerb.ai/docs/records/types/). Supports key expansion.',
 			],
 			[
 				'key' => 'worker_*',
+				'type' => 'record',
+				'params' => [
+					'record_type' => 'worker',
+				],
 				'notes' => 'The active [worker](https://cerb.ai/docs/records/types/worker/#dictionary-placeholders) record. Supports key expansion.',
 			],
 		];
