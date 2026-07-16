@@ -264,11 +264,43 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 		];
 	}
 
+	function getChatKataAutocomplete() : array {
+		return [
+			'keys' => [
+				['caption' => 'model:', 'snippet' => 'model:', 'score' => 2000],
+				'api_endpoint_url:',
+				'authentication:',
+				['caption' => 'reasoning_effort:', 'snippet' => "reasoning_effort: medium"],
+			],
+			'values' => [
+				'model:' => $this->getChatModels(),
+				'authentication:' => ['type' => 'cerb-uri', 'params' => ['connected_account' => null]],
+				'api_endpoint_url:' => ['https://api.openai.com'],
+				'reasoning_effort:' => ['none', 'low', 'medium', 'high', 'xhigh'],
+			],
+		];
+	}
+
 	function getEmbeddingModels() : array {
 		return [
 			'text-embedding-3-small',
 			'text-embedding-3-large',
 			'text-embedding-ada-002',
+		];
+	}
+
+	function getEmbeddingKataAutocomplete() : array {
+		return [
+			'keys' => [
+				'api_endpoint_url:',
+				'authentication:',
+				'model:',
+			],
+			'values' => [
+				'model:' => $this->getEmbeddingModels(),
+				'authentication:' => ['type' => 'cerb-uri', 'params' => ['connected_account' => null]],
+				'api_endpoint_url:' => ['https://api.openai.com'],
+			],
 		];
 	}
 }

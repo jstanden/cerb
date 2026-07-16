@@ -250,12 +250,44 @@ class TogetherAI extends Extension_DevblocksLlmProvider implements Chat, Embeddi
 		];
 	}
 
+	function getChatKataAutocomplete() : array {
+		return [
+			'keys' => [
+				['caption' => 'model:', 'snippet' => 'model:', 'score' => 2000],
+				'api_endpoint_url:',
+				'authentication:',
+				'safety_model:',
+			],
+			'values' => [
+				'model:' => $this->getChatModels(),
+				'authentication:' => ['type' => 'cerb-uri', 'params' => ['connected_account' => null]],
+				'api_endpoint_url:' => ['https://api.together.xyz'],
+				'safety_model:' => ['Meta-Llama/Llama-Guard-7b'],
+			],
+		];
+	}
+
 	function getEmbeddingModels() : array {
 		return [
 			'BAAI/bge-base-en-v1.5',
 			'BAAI/bge-large-en-v1.5',
 			'togethercomputer/m2-bert-80M-2k-retrieval',
 			'togethercomputer/m2-bert-80M-8k-retrieval',
+		];
+	}
+
+	function getEmbeddingKataAutocomplete() : array {
+		return [
+			'keys' => [
+				'api_endpoint_url:',
+				'authentication:',
+				'model:',
+			],
+			'values' => [
+				'model:' => $this->getEmbeddingModels(),
+				'authentication:' => ['type' => 'cerb-uri', 'params' => ['connected_account' => null]],
+				'api_endpoint_url:' => ['https://api.together.xyz'],
+			],
 		];
 	}
 }

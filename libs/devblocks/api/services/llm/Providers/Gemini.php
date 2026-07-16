@@ -64,9 +64,42 @@ class Gemini extends OpenAI {
 		];
 	}
 
+	function getChatKataAutocomplete() : array {
+		return [
+			'keys' => [
+				['caption' => 'model:', 'snippet' => 'model:', 'score' => 2000],
+				'api_endpoint_url:',
+				'authentication:',
+				['caption' => 'thinking_include:', 'snippet' => "thinking_include@bool: yes", 'docHTML' => '<b>thinking_include:</b>Include thoughts in the chat completion output.'],
+				['caption' => 'thinking_level:', 'snippet' => "thinking_level: low", 'docHTML' => '<b>thinking_level:</b>Adjust the reasoning effort based on the complexity of a request.<br><code>low</code> or <code>high</code> for Gemini 3 Pro, any setting for Gemini 3 Flash. Not supported for Gemini 2.5.'],
+			],
+			'values' => [
+				'model:' => $this->getChatModels(),
+				'authentication:' => ['type' => 'cerb-uri', 'params' => ['connected_account' => null]],
+				'api_endpoint_url:' => ['https://generativelanguage.googleapis.com/v1beta/openai'],
+				'thinking_level:' => ['minimal', 'low', 'medium', 'high'],
+			],
+		];
+	}
+
 	function getEmbeddingModels() : array {
 		return [
 			'text-embedding-004',
+		];
+	}
+
+	function getEmbeddingKataAutocomplete() : array {
+		return [
+			'keys' => [
+				['caption' => 'model:', 'snippet' => 'model:', 'score' => 2000],
+				'api_endpoint_url:',
+				'authentication:',
+			],
+			'values' => [
+				'model:' => $this->getEmbeddingModels(),
+				'authentication:' => ['type' => 'cerb-uri', 'params' => ['connected_account' => null]],
+				'api_endpoint_url:' => ['https://generativelanguage.googleapis.com/v1beta/openai'],
+			],
 		];
 	}
 }

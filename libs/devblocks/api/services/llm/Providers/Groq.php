@@ -177,4 +177,19 @@ class Groq extends Extension_DevblocksLlmProvider implements Chat {
 			'qwen-2.5-32b',
 		];
 	}
+
+	function getChatKataAutocomplete() : array {
+		return [
+			'keys' => [
+				['caption' => 'model:', 'snippet' => 'model:', 'score' => 2000],
+				'api_endpoint_url:',
+				'authentication:',
+			],
+			'values' => [
+				'model:' => $this->getChatModels(),
+				'authentication:' => ['type' => 'cerb-uri', 'params' => ['connected_account' => null]],
+				'api_endpoint_url:' => ['https://api.groq.com/openai'],
+			],
+		];
+	}
 }

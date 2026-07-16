@@ -88,4 +88,19 @@ class Pinecone extends Extension_DevblocksLlmProvider implements Embedding {
 			'multilingual-e5-large',
 		];
 	}
+
+	function getEmbeddingKataAutocomplete() : array {
+		return [
+			'keys' => [
+				'api_endpoint_url:',
+				'authentication:',
+				'model:',
+			],
+			'values' => [
+				'model:' => $this->getEmbeddingModels(),
+				'authentication:' => ['type' => 'cerb-uri', 'params' => ['connected_account' => null]],
+				'api_endpoint_url:' => ['https://api.pinecone.io'],
+			],
+		];
+	}
 }

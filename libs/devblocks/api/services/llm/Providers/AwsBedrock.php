@@ -284,9 +284,43 @@ class AwsBedrock extends Extension_DevblocksLlmProvider implements Chat, Embeddi
 		];
 	}
 
+	function getChatKataAutocomplete() : array {
+		return [
+			'keys' => [
+				'anthropic_version: bedrock-2023-05-31',
+				'api_endpoint_url:',
+				'authentication:',
+				'max_tokens@int: 2048',
+				['caption' => 'model:', 'snippet' => "# See: https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles-support.html\nmodel:", 'score' => 2000],
+			],
+			'values' => [
+				'model:' => $this->getChatModels(),
+				'authentication:' => ['type' => 'cerb-uri', 'params' => ['connected_account' => null]],
+				'api_endpoint_url:' => ['https://bedrock-runtime.us-east-1.amazonaws.com'],
+			],
+		];
+	}
+
 	function getEmbeddingModels() : array {
 		return [
 			'amazon.titan-embed-text-v2:0',
+		];
+	}
+
+	function getEmbeddingKataAutocomplete() : array {
+		return [
+			'keys' => [
+				'api_endpoint_url:',
+				'authentication:',
+				'dimensions:',
+				'model:',
+			],
+			'values' => [
+				'model:' => $this->getEmbeddingModels(),
+				'authentication:' => ['type' => 'cerb-uri', 'params' => ['connected_account' => null]],
+				'api_endpoint_url:' => ['https://bedrock-runtime.us-east-1.amazonaws.com'],
+				'dimensions:' => ['256', '512', '1024'],
+			],
 		];
 	}
 }

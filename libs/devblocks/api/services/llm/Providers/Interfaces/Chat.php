@@ -19,4 +19,8 @@ interface Chat {
 	// The known chat model ids (KATA `model:` value autocompletion; not authoritative — a model is only
 	// usable if auth is set up).
 	function getChatModels() : array;
+
+	// KATA autocomplete contribution for this provider's chat params block, consumed by
+	// _DevblocksLlmService::getKataProviderAutocomplete(): ['keys' => block keys, 'values' => sub-path values].
+	function getChatKataAutocomplete() : array;
 }

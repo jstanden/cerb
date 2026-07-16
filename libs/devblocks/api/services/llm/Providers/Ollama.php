@@ -230,9 +230,39 @@ class Ollama extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 		];
 	}
 
+	function getChatKataAutocomplete() : array {
+		return [
+			'keys' => [
+				['caption' => 'model:', 'snippet' => 'model:', 'score' => 2000],
+				'api_endpoint_url:',
+				'authentication:',
+			],
+			'values' => [
+				'model:' => $this->getChatModels(),
+				'authentication:' => ['type' => 'cerb-uri', 'params' => ['connected_account' => null]],
+				'api_endpoint_url:' => ['http://localhost:11434', 'http://host.docker.internal:11434'],
+			],
+		];
+	}
+
 	function getEmbeddingModels() : array {
 		return [
 			'nomic-embed-text',
+		];
+	}
+
+	function getEmbeddingKataAutocomplete() : array {
+		return [
+			'keys' => [
+				'api_endpoint_url:',
+				'authentication:',
+				'model:',
+			],
+			'values' => [
+				'model:' => $this->getEmbeddingModels(),
+				'authentication:' => ['type' => 'cerb-uri', 'params' => ['connected_account' => null]],
+				'api_endpoint_url:' => ['http://localhost:11434', 'http://host.docker.internal:11434'],
+			],
 		];
 	}
 }

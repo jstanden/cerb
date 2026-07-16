@@ -223,4 +223,23 @@ class Anthropic extends Extension_DevblocksLlmProvider implements Chat {
 			'claude-fable-5',
 		];
 	}
+
+	function getChatKataAutocomplete() : array {
+		return [
+			'keys' => [
+				['caption' => 'model:', 'snippet' => 'model:', 'score' => 2000],
+				'authentication:',
+				'max_tokens@int: 2048',
+				['caption' => 'thinking:', 'snippet' => "thinking:\n\ttype: adaptive\n\teffort: high", 'docHTML' => '<b>thinking:</b>Extended thinking. <code>type</code>: adaptive|enabled|disabled &middot; <code>display</code>: summarized|omitted &middot; <code>effort</code>: low|medium|high|xhigh|max. Modern models use <code>adaptive</code>; older models use <code>enabled</code>.'],
+			],
+			'values' => [
+				'model:' => $this->getChatModels(),
+				'authentication:' => ['type' => 'cerb-uri', 'params' => ['connected_account' => null]],
+				'thinking:' => ['type:', 'display:', 'effort:'],
+				'thinking:type:' => ['adaptive', 'enabled', 'disabled'],
+				'thinking:display:' => ['summarized', 'omitted'],
+				'thinking:effort:' => ['low', 'medium', 'high', 'xhigh', 'max'],
+			],
+		];
+	}
 }

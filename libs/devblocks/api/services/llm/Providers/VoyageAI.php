@@ -91,4 +91,19 @@ class VoyageAI extends Extension_DevblocksLlmProvider implements Embedding {
 			'voyage-law-2',
 		];
 	}
+
+	function getEmbeddingKataAutocomplete() : array {
+		return [
+			'keys' => [
+				'api_endpoint_url:',
+				'authentication:',
+				['caption' => 'model:', 'snippet' => "# See: https://docs.voyageai.com/docs/embeddings#model-choices\nmodel:"],
+			],
+			'values' => [
+				'model:' => $this->getEmbeddingModels(),
+				'authentication:' => ['type' => 'cerb-uri', 'params' => ['connected_account' => null]],
+				'api_endpoint_url:' => [['caption' => 'https://api.voyageai.com', 'snippet' => 'https://api.voyageai.com', 'score' => 2000]],
+			],
+		];
+	}
 }

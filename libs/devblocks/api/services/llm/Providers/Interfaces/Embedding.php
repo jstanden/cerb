@@ -6,4 +6,8 @@ interface Embedding {
 
 	// The known embedding model ids (KATA `model:` value autocompletion).
 	function getEmbeddingModels() : array;
+
+	// KATA autocomplete contribution for this provider's embedding params block, consumed by
+	// _DevblocksLlmService::getKataProviderAutocomplete(): ['keys' => block keys, 'values' => sub-path values].
+	function getEmbeddingKataAutocomplete() : array;
 }

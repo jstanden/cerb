@@ -181,6 +181,70 @@ class _DevblocksLlmService {
 		return self::$instance;
 	}
 	
+
+	/**
+	 * @return string[] Every known provider id (the getProvider() registry keys).
+	 */
+	function getProviderIds() : array {
+		return [
+			'anthropic', 'aws_bedrock', 'docker', 'gemini', 'groq', 'huggingface',
+			'ollama', 'openai', 'pinecone', 'together', 'voyage',
+		];
+	}
+
+	/**
+	 * Build the KATA autocomplete for an `llm:<provider>:` params block, looped over the chat providers
+	 * and re-keyed under $prefix (which must end in `:` — e.g. `(.*):llm.agent:inputs:llm:` or
+	 * `(.*):await:form:elements:agentPrompt:models:(.*?):`). Each provider's block (model/auth/knobs +
+	 * value lists) comes from its own capability method (getChatKataAutocomplete /
+	 * getEmbeddingKataAutocomplete), so the lists live in ONE place. Optional
+	 * $extra_keys append to every provider block, and $extra_values add per-provider value sub-paths
+	 * (both used by the agentPrompt catalog for vision/context_window/compaction/disabled).
+	 *
+	 * $mode ('chat'|'embedding') selects the capability interface + which of the provider's two
+	 * contributions to use (Chat::getChatKataAutocomplete() or Embedding::getEmbeddingKataAutocomplete()).
+	 *
+	 * Emission order matters: value/knob sub-paths (most specific) precede the block, and the provider
+	 * LIST (least specific) is last — so a greedy shorter pattern never shadows a deeper value path.
+	 */
+	function getKataProviderAutocomplete(string $prefix, string $mode = 'chat', array $extra_keys = [], array $extra_values = []) : array {
+		$is_embedding = ('embedding' === $mode);
+		$interface = $is_embedding
+			? \Cerb\LLM\Providers\Interfaces\Embedding::class
+			: \Cerb\LLM\Providers\Interfaces\Chat::class;
+
+		$out = [];
+		$provider_list = [];
+
+		foreach($this->getProviderIds() as $provider_id) {
+			try {
+				$provider = $this->getProvider($provider_id, [], false);
+			} catch(\Throwable $e) {
+				continue;
+			}
+
+			if(!($provider instanceof $interface))
+				continue;
+
+			$provider_list[] = $provider_id . ':';
+			$base = $prefix . $provider_id . ':';
+			$block = $is_embedding ? $provider->getEmbeddingKataAutocomplete() : $provider->getChatKataAutocomplete();
+
+			// Value/knob sub-paths first (most specific), then the caller's extra value sub-paths.
+			foreach(($block['values'] ?? []) as $subpath => $suggestions)
+				$out[$base . $subpath] = $suggestions;
+			foreach($extra_values as $subpath => $suggestions)
+				$out[$base . $subpath] = $suggestions;
+
+			// The block keys (+ any caller extras like vision/context_window/compaction/disabled).
+			$out[$base] = array_merge($block['keys'] ?? [], $extra_keys);
+		}
+
+		// The provider list (least specific) last.
+		$out[$prefix] = $provider_list;
+
+		return $out;
+	}
 	function getProvider(string $provider_id, array $params=[], bool $validate=true) : ?Extension_DevblocksLlmProvider {
 		return match($provider_id) {
 			'anthropic' => new Cerb\LLM\Providers\Anthropic($params, $validate),
