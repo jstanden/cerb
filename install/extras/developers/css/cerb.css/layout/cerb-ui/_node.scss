@@ -269,15 +269,10 @@
 	&--value-out#{&}--handle-connected { background: currentColor; }
 	// An expression node's value outlet fills PURPLE (its accent) when connected; gray dotted when open.
 	&--expr &--value-out#{&}--handle-connected { color: var(--cerb-color-tag-purple, #805ad5); }
-	// Connected inlet → the edge's arrowhead: a filled right-pointing triangle sitting on top of the node, the
-	// edge running into it (Kataflow's "inlet becomes the arrow"). Replaces the old hide + SVG marker.
+	// Connected inlets stay in layout for edge geometry, but the topmost SVG edge owns the visible arrowhead.
 	&--inlet#{&}--handle-connected,
 	&--field-handle#{&}--handle-connected {
-		opacity: 1;
-		border: none;
-		background: currentColor;
-		clip-path: polygon(100% 50%, 0 0, 0 100%);
-		z-index: 6;
+		opacity: 0;
 	}
 
 	// Connection-drag target: the inlet under the cursor fills + glows green/red (matches the edge line; reads

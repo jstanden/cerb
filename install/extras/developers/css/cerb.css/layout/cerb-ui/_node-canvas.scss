@@ -30,7 +30,7 @@
 		will-change: transform;
 	}
 
-	// Edges render beneath nodes, in the same viewport space, so one transform moves both.
+	// Edges render above nodes, in the same viewport space, so paths and endpoint arrowheads aren't occluded.
 	&--edges {
 		position: absolute;
 		left: 0;
@@ -38,6 +38,7 @@
 		width: 100%;
 		height: 100%;
 		overflow: visible;
+		z-index: 2147483647;
 		pointer-events: none;   // individual edge hit paths re-enable this
 	}
 

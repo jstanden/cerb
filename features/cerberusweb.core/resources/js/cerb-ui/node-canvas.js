@@ -2,7 +2,7 @@
  * CerbUI.NodeCanvas — the pannable / zoomable surface that hosts nodes and the SVG edge-layer.
  *
  * It wraps a container element with: a large absolutely-positioned `viewport` layer (translated + scaled as one for
- * pan/zoom) and, inside it, an <svg> edge-layer beneath the node <div>s. Nodes store *logical* coordinates; the
+ * pan/zoom) and, inside it, an <svg> edge-layer above the node <div>s. Nodes store *logical* coordinates; the
  * viewport transform maps logical → screen, so a single CSS transform moves/zooms everything coherently. The canvas
  * also acts as the drop zone (via CerbUI.Droppable, owned by the editor) for palette tiles dragged in from the sidebar.
  *
@@ -46,7 +46,7 @@ CerbUI.NodeCanvas = class {
 		this.viewport = document.createElement('div');
 		this.viewport.className = 'cerb-ui-node-canvas--viewport';
 
-		// Edges render beneath nodes, in the same viewport space, so one transform moves both.
+		// Edges render above nodes, in the same viewport space, so one transform moves both.
 		this.edgeLayer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 		this.edgeLayer.classList.add('cerb-ui-node-canvas--edges');
 
@@ -59,7 +59,7 @@ CerbUI.NodeCanvas = class {
 		marker.setAttribute('markerHeight', '8');
 		marker.setAttribute('refX', '6');
 		marker.setAttribute('refY', '3');
-		marker.setAttribute('orient', 'auto');
+		marker.setAttribute('orient', 'auto-start-reverse');
 		marker.setAttribute('markerUnits', 'strokeWidth');
 		const tip = document.createElementNS('http://www.w3.org/2000/svg', 'path');
 		tip.setAttribute('d', 'M0,0 L6,3 L0,6 z');

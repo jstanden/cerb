@@ -1,7 +1,7 @@
 /*
  * CerbUI.NodeEdge — one directed connection between an outlet handle and an inlet handle, drawn as an SVG path.
  *
- * An edge renders into the shared <svg> edge-layer that CerbUI.NodeCanvas owns (under the nodes, in viewport space so
+ * An edge renders into the shared <svg> edge-layer that CerbUI.NodeCanvas owns (above the nodes, in viewport space so
  * it pans & zooms with them). It's a left-to-right bezier from the source outlet to the target inlet, with an
  * arrowhead at the target end; it recomputes whenever either endpoint moves. A fat invisible "hit" path makes the
  * thin line easy to click (double-click removes it, wired by the editor).
