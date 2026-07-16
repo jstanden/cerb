@@ -12,7 +12,15 @@ use GuzzleHttp\Psr7\Request;
 
 class Groq extends Extension_DevblocksLlmProvider implements Chat {
 	const ID = 'groq';
-	
+
+	function getIcon() : string {
+		return 'logo-groq';
+	}
+
+	function getIconColor() : string {
+		return '#F55036';
+	}
+
 	/**
 	 * @throws Exception_DevblocksAutomationError
 	 */

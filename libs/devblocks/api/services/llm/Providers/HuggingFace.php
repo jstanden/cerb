@@ -13,7 +13,15 @@ use GuzzleHttp\Psr7\Request;
 
 class HuggingFace extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 	const ID = 'huggingface';
-	
+
+	function getIcon() : string {
+		return 'logo-huggingface';
+	}
+
+	function getIconColor() : string {
+		return '#FF9D00';
+	}
+
 	/**
 	 * @throws Exception_DevblocksAutomationError
 	 */

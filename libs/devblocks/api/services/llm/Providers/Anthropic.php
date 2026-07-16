@@ -12,7 +12,15 @@ use GuzzleHttp\Psr7\Request;
 
 class Anthropic extends Extension_DevblocksLlmProvider implements Chat {
 	const ID = 'anthropic';
-	
+
+	function getIcon() : string {
+		return 'logo-claude';
+	}
+
+	function getIconColor() : string {
+		return '#D97757';
+	}
+
 	/**
 	 * @throws Exception_DevblocksAutomationError
 	 */

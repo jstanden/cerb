@@ -6,7 +6,15 @@ use Extension_DevblocksLlmProvider;
 
 class Docker extends OpenAI {
 	const ID = 'docker';
-	
+
+	function getIcon() : string {
+		return 'logo-docker';
+	}
+
+	function getIconColor() : string {
+		return '#2496ED';
+	}
+
 	/**
 	 * @throws Exception_DevblocksAutomationError
 	 * @noinspection PhpMissingParentConstructorInspection

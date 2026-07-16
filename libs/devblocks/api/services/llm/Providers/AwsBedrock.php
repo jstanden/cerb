@@ -13,7 +13,15 @@ use GuzzleHttp\Psr7\Request;
 
 class AwsBedrock extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 	const ID = 'aws_bedrock';
-	
+
+	function getIcon() : string {
+		return 'logo-bedrock';
+	}
+
+	function getIconColor() : string {
+		return '#EC7211';
+	}
+
 	/**
 	 * @throws Exception_DevblocksAutomationError
 	 */

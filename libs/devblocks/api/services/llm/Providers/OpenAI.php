@@ -13,7 +13,15 @@ use GuzzleHttp\Psr7\Request;
 
 class OpenAI extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 	const ID = 'openai';
-	
+
+	function getIcon() : string {
+		return 'logo-openai';
+	}
+
+	function getIconColor() : string {
+		return '#6E6E80';
+	}
+
 	/**
 	 * @throws Exception_DevblocksAutomationError
 	 */

@@ -13,7 +13,15 @@ use GuzzleHttp\Psr7\Request;
 
 class Ollama extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 	const ID = 'ollama';
-	
+
+	function getIcon() : string {
+		return 'logo-ollama';
+	}
+
+	function getIconColor() : string {
+		return '#3D3D3D';
+	}
+
 	/**
 	 * @throws Exception_DevblocksAutomationError
 	 */

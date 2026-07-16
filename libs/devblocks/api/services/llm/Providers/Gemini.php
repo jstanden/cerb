@@ -6,7 +6,15 @@ use Extension_DevblocksLlmProvider;
 
 class Gemini extends OpenAI {
 	const ID = 'gemini';
-	
+
+	function getIcon() : string {
+		return 'logo-gemini';
+	}
+
+	function getIconColor() : string {
+		return '#1A73E8';
+	}
+
 	/**
 	 * @throws Exception_DevblocksAutomationError
 	 * @noinspection PhpMissingParentConstructorInspection
