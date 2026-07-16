@@ -64,11 +64,15 @@
 		padding: 0.5em 0.75em;
 	}
 
-	// A per-node description/subtitle line (muted), e.g. an automation event's record description.
+	// A per-node description/subtitle line (muted), e.g. an automation event's record description or an
+	// author's `# @node` summary. Meant to be a one-liner, but can be wordy — cap the width and wrap.
 	&--desc {
-		font-size: 0.8em;
+		font-size: 0.9em;
 		line-height: 1.35;
 		color: var(--cerb-color-background-contrast-150);
+		max-width: 22em;
+		white-space: normal;
+		overflow-wrap: break-word;
 	}
 
 	// Read-only viewer: don't draw empty (unconnected) handles — only connected inlet arrowheads / outlet dots.
