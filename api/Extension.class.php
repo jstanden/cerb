@@ -613,6 +613,28 @@ abstract class Extension_ResourceType extends DevblocksExtension {
 	abstract function getContentData(Model_Resource $resource);
 	
 	abstract function validateContentData($fp, &$extension_params=[], &$error=null) : bool;
+
+	// Shared validator for JSON-backed resource types (map geometry/points/properties). Leniently accepts an
+	// empty upload; rejects malformed JSON with a real error. Rewinds $fp so the caller can still store it.
+	protected static function _validateJsonContentData($fp, &$error=null) : bool {
+		if(!is_resource($fp))
+			return true;
+
+		$bytes = stream_get_contents($fp);
+		fseek($fp, 0);
+
+		if($bytes === '' || $bytes === false)
+			return true;
+
+		json_decode($bytes);
+
+		if(json_last_error() !== JSON_ERROR_NONE) {
+			$error = 'The uploaded file is not valid JSON: ' . json_last_error_msg();
+			return false;
+		}
+
+		return true;
+	}
 	
 	/**
 	 * @param Model_Resource $resource

@@ -3,7 +3,7 @@ class ResourceType_MapPoints extends Extension_ResourceType {
 	const ID = 'cerb.resource.map.points';
 	
 	function validateContentData($fp, &$extension_params=[], &$error=null) : bool {
-		return [];
+		return self::_validateJsonContentData($fp, $error);
 	}
 	
 	/**
