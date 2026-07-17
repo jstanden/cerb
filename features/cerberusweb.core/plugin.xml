@@ -4136,6 +4136,7 @@
 				<name>AutomationTrigger_AutomationFunction</name>
 			</class>
 			<params>
+				<param key="icon" value="function" />
 				<param key="description" value="A reusable function with shared functionality called by other automations" />
 				<param key="features">
 					<value>
@@ -4153,6 +4154,7 @@
 				<name>AutomationTrigger_AutomationTimer</name>
 			</class>
 			<params>
+				<param key="icon" value="clock" />
 				<param key="description" value="A scheduled automation with continuations" />
 				<param key="features">
 					<value>
@@ -4171,6 +4173,7 @@
 				<name>AutomationTrigger_BehaviorAction</name>
 			</class>
 			<params>
+				<param key="icon" value="bot" />
 				<param key="description" value="A reusable function called by bot behaviors to simplify the migration to automations" />
 				<param key="features">
 					<value>
@@ -4188,6 +4191,7 @@
 				<name>AutomationTrigger_DataQuery</name>
 			</class>
 			<params>
+				<param key="icon" value="database" />
 				<param key="description" value="Fetch results for a custom data query" />
 				<param key="features">
 					<value>
@@ -4205,6 +4209,7 @@
 				<name>AutomationTrigger_InteractionWorker</name>
 			</class>
 			<params>
+				<param key="icon" value="bot-message" />
 				<param key="description" value="Worker interactions on toolbars and widgets" />
 				<param key="features">
 					<value>
@@ -4224,6 +4229,7 @@
 				<name>AutomationTrigger_InteractionInternal</name>
 			</class>
 			<params>
+				<param key="icon" value="gear" />
 				<param key="description" value="Worker interactions used and managed internally by Cerb" />
 				<param key="features">
 					<value>
@@ -4243,6 +4249,7 @@
 				<name>AutomationTrigger_LlmTool</name>
 			</class>
 			<params>
+				<param key="icon" value="wrench" />
 				<param key="description" value="Tool for use by a large language model" />
 				<param key="features">
 					<value>
@@ -4260,6 +4267,7 @@
 				<name>AutomationTrigger_MailDraft</name>
 			</class>
 			<params>
+				<param key="icon" value="mail" />
 				<param key="description" value="Modify a new or resumed draft before the editor opens" />
 				<param key="features">
 					<value>
@@ -4277,6 +4285,7 @@
 				<name>AutomationTrigger_MailFilter</name>
 			</class>
 			<params>
+				<param key="icon" value="funnel" />
 				<param key="description" value=" Modify or reject an inbound message based on its properties" />
 				<param key="features">
 					<value>
@@ -4294,6 +4303,7 @@
 				<name>AutomationTrigger_MailMoved</name>
 			</class>
 			<params>
+				<param key="icon" value="folder" />
 				<param key="description" value="After a ticket is moved to a new group/bucket" />
 				<param key="features">
 					<value>
@@ -4311,6 +4321,7 @@
 				<name>AutomationTrigger_MailReceived</name>
 			</class>
 			<params>
+				<param key="icon" value="inbox" />
 				<param key="description" value="After a new email message is received" />
 				<param key="features">
 					<value>
@@ -4328,6 +4339,7 @@
 				<name>AutomationTrigger_MailRoute</name>
 			</class>
 			<params>
+				<param key="icon" value="signpost" />
 				<param key="description" value="Determine a destination group inbox given properties of an incoming message" />
 				<param key="features">
 					<value>
@@ -4345,6 +4357,7 @@
 				<name>AutomationTrigger_ScriptingFunction</name>
 			</class>
 			<params>
+				<param key="icon" value="console" />
 				<param key="description" value="A custom function invoked from scripting syntax with cerb_automation()" />
 				<param key="features">
 					<value>
@@ -4362,6 +4375,7 @@
 				<name>AutomationTrigger_MailSend</name>
 			</class>
 			<params>
+				<param key="icon" value="send" />
 				<param key="description" value="Before a sent message is delivered" />
 				<param key="features">
 					<value>
@@ -4379,6 +4393,7 @@
 				<name>AutomationTrigger_MailSent</name>
 			</class>
 			<params>
+				<param key="icon" value="mailbox" />
 				<param key="description" value="After a sent message is delivered" />
 				<param key="features">
 					<value>
@@ -4396,6 +4411,7 @@
 				<name>AutomationTrigger_MailDraftValidate</name>
 			</class>
 			<params>
+				<param key="icon" value="check" />
 				<param key="description" value="Validate a draft before sending" />
 				<param key="features">
 					<value>
@@ -4415,6 +4431,7 @@
 				<name>AutomationTrigger_MailReplyValidate</name>
 			</class>
 			<params>
+				<param key="icon" value="check" />
 				<param key="description" value="Validate before a worker starts a new reply" />
 				<param key="features">
 					<value>
@@ -4434,6 +4451,7 @@
 				<name>AutomationTrigger_MapClicked</name>
 			</class>
 			<params>
+				<param key="icon" value="map" />
 				<param key="description" value="Handle clicks on map regions and points" />
 				<param key="features">
 					<value>
@@ -4451,6 +4469,7 @@
 				<name>AutomationTrigger_RecordChanged</name>
 			</class>
 			<params>
+				<param key="icon" value="edit" />
 				<param key="description" value="Actions that run when record fields change" />
 				<param key="features">
 					<value>
@@ -4468,6 +4487,7 @@
 				<name>AutomationTrigger_RecordMerge</name>
 			</class>
 			<params>
+				<param key="icon" value="merge" />
 				<param key="description" value="Allow or deny record merge requests" />
 				<param key="features">
 					<value>
@@ -4485,6 +4505,7 @@
 				<name>AutomationTrigger_RecordMerged</name>
 			</class>
 			<params>
+				<param key="icon" value="merge" />
 				<param key="description" value="After a set of records has been merged" />
 				<param key="features">
 					<value>
@@ -4502,6 +4523,7 @@
 				<name>AutomationTrigger_RecordViewed</name>
 			</class>
 			<params>
+				<param key="icon" value="eye-open" />
 				<param key="description" value="After a record profile or card is viewed by a worker" />
 				<param key="features">
 					<value>
@@ -4519,6 +4541,7 @@
 				<name>AutomationTrigger_QueueConsumer</name>
 			</class>
 			<params>
+				<param key="icon" value="enqueue" />
 				<param key="description" value="Process a batch of messages from a background queue" />
 				<param key="features">
 					<value>
@@ -4536,6 +4559,7 @@
 				<name>AutomationTrigger_ReminderRemind</name>
 			</class>
 			<params>
+				<param key="icon" value="bell" />
 				<param key="description" value="Actions that run for reminder alerts" />
 				<param key="features">
 					<value>
@@ -4553,6 +4577,7 @@
 				<name>AutomationTrigger_ResourceGet</name>
 			</class>
 			<params>
+				<param key="icon" value="file" />
 				<param key="description" value="Dynamic resource content" />
 				<param key="features">
 					<value>
@@ -4570,6 +4595,7 @@
 				<name>AutomationTrigger_UiSheetData</name>
 			</class>
 			<params>
+				<param key="icon" value="table" />
 				<param key="description" value="Data sources for sheets" />
 				<param key="features">
 					<value>
@@ -4587,6 +4613,7 @@
 				<name>AutomationTrigger_UiWidget</name>
 			</class>
 			<params>
+				<param key="icon" value="widget" />
 				<param key="description" value="Custom output for card, profile, or workspace widgets" />
 				<param key="features">
 					<value>
@@ -4604,6 +4631,7 @@
 				<name>AutomationTrigger_UiChartData</name>
 			</class>
 			<params>
+				<param key="icon" value="chart-bar" />
 				<param key="description" value="Generate data chart widgets on cards, profiles, or workspaces" />
 				<param key="features">
 					<value>
@@ -4621,6 +4649,7 @@
 				<name>AutomationTrigger_WebhookRespond</name>
 			</class>
 			<params>
+				<param key="icon" value="webhook" />
 				<param key="description" value="Handle an incoming webhook request" />
 				<param key="features">
 					<value>
@@ -4638,6 +4667,7 @@
 				<name>AutomationTrigger_WorkerAuthenticateFailed</name>
 			</class>
 			<params>
+				<param key="icon" value="user-lock" />
 				<param key="description" value="After a worker has failed to authenticate a new session" />
 				<param key="features">
 					<value>
@@ -4655,6 +4685,7 @@
 				<name>AutomationTrigger_WorkerAuthenticated</name>
 			</class>
 			<params>
+				<param key="icon" value="unlock" />
 				<param key="description" value="After a worker has authenticated a new session" />
 				<param key="features">
 					<value>
@@ -4672,6 +4703,7 @@
 				<name>AutomationTrigger_InteractionWorkerExplore</name>
 			</class>
 			<params>
+				<param key="icon" value="compass" />
 				<param key="description" value="Return the next record in explore mode" />
 				<param key="features">
 					<value>
