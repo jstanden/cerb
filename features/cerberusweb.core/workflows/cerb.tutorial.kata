@@ -1,6 +1,6 @@
 workflow:
   name: cerb.tutorial
-  version: 2026-07-02T00:00:00Z
+  version: 2026-07-13T00:00:00Z
   description: A workspace with detailed descriptions and examples of Cerb functionality
   requirements:
     cerb_version: >=11.2 <11.3
@@ -4803,42 +4803,67 @@ records:
             filtering@bool: no
 
           columns:
-            markdown/instructions:
+            markdown/intro:
               params:
                 text_size@raw: 120%
                 value@raw:
                   [**Automations**](https://cerb.ai/docs/automations/) are self-contained state machines written in [**KATA**](https://cerb.ai/docs/kata/) that transform an input dictionary into an output dictionary. The results are used to automate and customize workflows throughout Cerb.
 
                   This simple automation:
-
-                  ```cerb
+            code/script:
+              params:
+                syntax: kata
+                value@raw:
                   start:
                     return:
                       answer: {{a * b}}
-                  ```
-
+            markdown/_input:
+              params:
+                text_size@raw: 120%
+                value@raw:
                   With this input:
-
-                  ```cerb
+            code/input:
+              params:
+                syntax: kata
+                value@raw:
                   a: 5
                   b: 4
-                  ```
-
+            markdown/_output:
+              params:
+                text_size@raw: 120%
+                value@raw:
                   Returns this output:
-
-                  ```
+            code/output:
+              params:
+                syntax: kata
+                value@raw:
                   answer: 20
-                  ```
-
+            markdown/outro:
+              params:
+                text_size@raw: 120%
+                value@raw:
                   Some events run asynchronously through the [Background Queue](https://cerb.ai/docs/queues/#background-queue-scheduler) for better performance on bulk updates and imports — `record.changed` is a notable example. The [`queue.consumer`](https://cerb.ai/docs/automations/events/queue.consumer/) event makes it possible to process automation-backed queues with no per-queue timer.
         toolbar_kata@text:
+  workspace_widget/widget_automation_graph_demo:
+    fields:
+      label: Node Graph
+      icon: nodes
+      tab_id: {{records.tab_automations.id}}
+      extension_id: core.workspace.widget.automation.graph
+      pos@int: 2
+      width_units@int: 2
+      zone: content
+      params:
+        automation_id: {{records.tutorial_interactions_demo.id}}
+        height@int: 520
+        minimap@bool: yes
   workspace_widget/widget_list_of_automation_events:
     fields:
       label: List of Automation Events
       icon: list
       tab_id: {{records.tab_automations.id}}
       extension_id: core.workspace.widget.sheet
-      pos@int: 2
+      pos@int: 3
       width_units@int: 2
       zone: content
       params:
@@ -4869,7 +4894,7 @@ records:
       icon: book
       tab_id: {{records.tab_automations.id}}
       extension_id: core.workspace.widget.sheet
-      pos@int: 3
+      pos@int: 4
       width_units@int: 2
       zone: content
       params:
@@ -4913,7 +4938,7 @@ records:
       icon: translate
       tab_id: {{records.tab_automations.id}}
       extension_id: core.workspace.widget.sheet
-      pos@int: 4
+      pos@int: 5
       width_units@int: 2
       zone: content
       params:
@@ -4947,7 +4972,7 @@ records:
       icon: console
       tab_id: {{records.tab_automations.id}}
       extension_id: core.workspace.widget.sheet
-      pos@int: 5
+      pos@int: 6
       width_units@int: 2
       zone: content
       params:
@@ -4965,34 +4990,46 @@ records:
             filtering@bool: no
 
           columns:
-            markdown/instructions:
+            markdown/intro:
               params:
                 text_size@raw: 120%
                 value@raw:
                   Values can be _dynamically_ generated from the output of **scripting**.
 
                   In the previous examples we had this line:
-
-                  ```
+            code/multiply:
+              params:
+                syntax: kata
+                value@raw:
                   answer: {{a * b}}
-                  ```
-
+            markdown/_multiply:
+              params:
+                text_size@raw: 120%
+                value@raw:
                   This computes a new value by multiplying the value in placeholder `a` by the value in placeholder `b`.
 
                   Commands use the syntax:
-
-                  ```
+            code/loop:
+              params:
+                syntax: kata
+                value@raw:
                   {% for n in 1..5 %}
                   {{n}}
                   {% endfor %}
-                  ```
-
+            markdown/_comments:
+              params:
+                text_size@raw: 120%
+                value@raw:
                   And hidden code comments:
-
-                  ```
+            code/comment:
+              params:
+                syntax: kata
+                value@raw:
                   {# This is a comment #}
-                  ```
-
+            markdown/outro:
+              params:
+                text_size@raw: 120%
+                value@raw:
                   In scripts, you can refer to any key from the working memory dictionary, which are often referred to as **placeholders** to avoid ambiguity with keys in KATA documents.
 
                   Scripting provides several [functions](https://cerb.ai/docs/scripting/functions/) and [filters](https://cerb.ai/docs/scripting/filters/) for quickly formatting and manipulating data.
@@ -5005,7 +5042,7 @@ records:
       icon: brain
       tab_id: {{records.tab_automations.id}}
       extension_id: core.workspace.widget.sheet
-      pos@int: 6
+      pos@int: 7
       width_units@int: 2
       zone: content
       params:
@@ -5041,7 +5078,7 @@ records:
       icon: tag
       tab_id: {{records.tab_automations.id}}
       extension_id: core.workspace.widget.sheet
-      pos@int: 7
+      pos@int: 8
       width_units@int: 2
       zone: content
       params:
@@ -5059,17 +5096,21 @@ records:
             filtering@bool: no
 
           columns:
-            markdown/instructions:
+            markdown/intro:
               params:
                 text_size@raw: 120%
                 value@raw:
                   In KATA, all values that immediately follow a key are assumed to be text by default:
-
-                  ```
+            code/text_default:
+              params:
+                syntax: kata
+                value@raw:
                   a: 5
                   b: 4
-                  ```
-
+            markdown/_coerce:
+              params:
+                text_size@raw: 120%
+                value@raw:
                   In the example above, `5` and `4` are treated as text rather than numbers. However, in certain situations, like mathematical operations, a text value can be automatically **coerced** into a number.
 
                   KATA stands for **K**ey **A**nnotated **T**ree of **A**ttributes. Annotations are tags on keys with special instructions for handling their value.
@@ -5077,61 +5118,139 @@ records:
                   Annotations start with `@` and are appended to a key name.
 
                   For example, we can explicitly specify that a key's value is an integer (a non-fractional number) with `@int`:
-
-                  ```
+            code/int:
+              params:
+                syntax: kata
+                value@raw:
                   start:
                     set:
                       a@int: 5
                       b@int: 4
                     return:
                       answer@int: {{a * b}}
-                  ```
-
+            markdown/_notpath:
+              params:
+                text_size@raw: 120%
+                value@raw:
                   In the above automation's dictionary, the value for the keys `a:`, `b:`, and `answer:` are now strictly numeric.
 
                   Annotations are **not** part of a key's name or path. The key path `start:set/a:a:` points to the value `5`.
 
-                  Here are some common annotations:
-
-                  | Annotation ||
-                  |-|-
-                  | **`@base64:`** | Binary data encoded as Base64 text
-                  | **`@bit:`** | `0` (`off`, `false`, `no`, `n`) or `1` (any non-false value)
-                  | **`@bool:`** | `false` (`no`, `n`, `off`, `0`) or `true` (any non-false value)
-                  | **`@csv:`** | An array encoded as comma-separated text
-                  | **`@date:`** | A human-readable absolute (`Jan 1 2025 08:00`) or relative (`+2 hours`) date
-                  | **`@float:`** | A floating point number
-                  | **`@int:`** | A non-fractional number
-                  | **`@json:`** | A dictionary encoded as JSON text
-                  | **`@kata:`** | A dictionary encoded as KATA text
-                  | **`@key:`** | A copy of the value from the given key path
-                  | **`@list:`** | An array encoded as a line-delimited text block
-                  | **`@nowrap:`** | A multiple line text block with newlines removed
-                  | **`@optional:`** | Remove the key if the value is empty
-                  | **`@text:`** | A multiple line text block
-                  | **`@trim:`** | Remove the value's leading and trailing whitespace
-
                   Multiple annotations may be joined with commas. They are evaluated from left to right.
 
                   For instance:
-
-                  ```
+            code/multiple:
+              params:
+                syntax: kata
+                value@raw:
                   start:
                     set:
                       a: 5
                       b@key,int: a
                     return:
                       answer@int: {{a * b}}
-                  ```
-
+            markdown/outro:
+              params:
+                text_size@raw: 120%
+                value@raw:
                   The line `b@key,int: a` is setting the key `b:` to the value of the `a` key, and then converting it to an integer.
+        toolbar_kata@text:
+  workspace_widget/widget_annotation_types:
+    fields:
+      label: List of Annotations
+      icon: list
+      tab_id: {{records.tab_automations.id}}
+      extension_id: core.workspace.widget.sheet
+      pos@int: 9
+      width_units@int: 2
+      zone: content
+      params:
+        data_query@text:
+          type:sample.records
+          records:(
+            base64:(
+              name:"@base64"
+              description:"Binary data encoded as Base64 text"
+            )
+            bit:(
+              name:"@bit"
+              description:"0 (off, false, no, n) or 1 (any non-false value)"
+            )
+            bool:(
+              name:"@bool"
+              description:"false (no, n, off, 0) or true (any non-false value)"
+            )
+            csv:(
+              name:"@csv"
+              description:"An array encoded as comma-separated text"
+            )
+            date:(
+              name:"@date"
+              description:"A human-readable absolute (Jan 1 2025 08:00) or relative (+2 hours) date"
+            )
+            float:(
+              name:"@float"
+              description:"A floating point number"
+            )
+            int:(
+              name:"@int"
+              description:"A non-fractional number"
+            )
+            json:(
+              name:"@json"
+              description:"A dictionary encoded as JSON text"
+            )
+            kata:(
+              name:"@kata"
+              description:"A dictionary encoded as KATA text"
+            )
+            key:(
+              name:"@key"
+              description:"A copy of the value from the given key path"
+            )
+            list:(
+              name:"@list"
+              description:"An array encoded as a line-delimited text block"
+            )
+            nowrap:(
+              name:"@nowrap"
+              description:"A multiple line text block with newlines removed"
+            )
+            optional:(
+              name:"@optional"
+              description:"Remove the key if the value is empty"
+            )
+            text:(
+              name:"@text"
+              description:"A multiple line text block"
+            )
+            trim:(
+              name:"@trim"
+              description:"Remove the value's leading and trailing whitespace"
+            )
+          )
+          format:dictionaries
+        cache_secs@text:
+        placeholder_simulator_kata@text:
+        sheet_kata@text:
+          layout:
+            style: columns
+            headings@bool: no
+            paging@bool: yes
+            filtering@bool: no
+
+          columns:
+            text/name:
+              params:
+                text_size@raw: 125%
+            text/description:
         toolbar_kata@text:
   workspace_widget/widget_list_of_automations:
     fields:
       label: List of Automations
       tab_id: {{records.tab_automations.id}}
       extension_id: core.workspace.widget.worklist
-      pos@int: 8
+      pos@int: 10
       width_units@int: 4
       zone: content
       params:
