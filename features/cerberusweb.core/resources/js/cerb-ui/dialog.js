@@ -118,6 +118,22 @@ CerbUI.Dialog = class {
 		return d;
 	}
 
+	// Focus an already-open dialog whose content carries a hidden input[name]=value (e.g. a continuation
+	// token), returning true if one was found. Lets a "re-open" gesture find + raise the live dialog by a
+	// value already present in its markup — no namespace bookkeeping, no spilling the id into the opener.
+	static focusByInput(name, value) {
+		if(!value) return false;
+		for(const d of CerbUI.Dialog._openDialogs) {
+			if(!d._open || !d.innerContent) continue;
+			const input = d.innerContent.querySelector('input[name="' + name + '"]');
+			if(input && input.value === value) {
+				CerbUI.Dialog._focusExisting(d);
+				return true;
+			}
+		}
+		return false;
+	}
+
 	// After a dialog closes/minimizes, raise + focus the next-highest open dialog so keyboard focus (and the
 	// Escape-to-close target) move to it — letting Escape cascade down a whole stack (ESC/ESC/ESC). No-op when
 	// none remain. `except` skips a dialog mid-teardown (its _open may not be cleared yet).
