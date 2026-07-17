@@ -169,12 +169,8 @@ $timestamp: 2026062301;
   --cerb-callout-background: rgba(220,220,220,0.8);
 
   --cerb-editor-background: rgb(255,255,255);
-  --cerb-editor-completion-highlight: rgb(45,105,199);
   --cerb-editor-fold: rgb(60,76,114);
-  --cerb-editor-line-active: rgb(232,242,254);
-  --cerb-editor-line-hover: rgb(232,242,254);
   --cerb-editor-marker: rgb(255,255,0);
-  --cerb-editor-selection: rgb(181,213,255);
   --cerb-editor-syntax-comment: rgb(113,150,130);
   --cerb-editor-syntax-fold: rgb(192,192,192);
   --cerb-editor-syntax-function: rgb(60,76,114);
@@ -192,8 +188,6 @@ $timestamp: 2026062301;
   // Gutter surface tint. Aliases the adaptive contrast scale so one :root definition serves both
   // themes: rgb(240,240,240) in light, rgb(47,47,47) in dark (the closest step to the gutter target).
   --cerb-editor-gutter-background: var(--cerb-color-background-contrast-240);
-  --cerb-editor-diff-line: rgb(216,242,255);
-  --cerb-editor-diff-border: rgb(162,215,242);
   
   --cerb-library-background-selected: rgba(255,230,110,0.2);
   --cerb-library-border: orange;
@@ -321,12 +315,8 @@ $timestamp: 2026062301;
   --cerb-callout-background: rgba(57,57,57,0.8);
 
   --cerb-editor-background: rgb(22,22,22);
-  --cerb-editor-completion-highlight: rgb(255,255,255);
   --cerb-editor-fold: rgb(60,76,114);
-  --cerb-editor-line-active: rgb(32,42,54);
-  --cerb-editor-line-hover: rgb(32,42,54);
   --cerb-editor-marker: rgb(33,66,131);
-  --cerb-editor-selection: rgba(81, 113, 155,0.5);
   --cerb-editor-syntax-comment: rgb(95,95,95);
   --cerb-editor-syntax-fold: rgb(97,97,97);
   --cerb-editor-syntax-function: rgb(87, 110, 164);
@@ -341,6 +331,4 @@ $timestamp: 2026062301;
   --cerb-editor-syntax-var: rgb(186,186,186);
 
   --cerb-editor-gutter-border: rgb(80,80,80);
-  --cerb-editor-diff-line: rgb(0,77,122);
-  --cerb-editor-diff-border: rgb(0,53,84);
 }
