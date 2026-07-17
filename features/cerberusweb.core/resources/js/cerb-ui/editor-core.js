@@ -125,15 +125,40 @@ CerbUI.editorCore = {
 		highlightEl.scrollLeft = textarea.scrollLeft;
 	},
 
-	// Size the decorative overlay layers (the colored mirror, the line-number gutter) to the textarea's CLIENT
-	// height. A horizontal scrollbar on the textarea steals rows from its client height but NOT from the
-	// overflow:hidden overlays — so without this the mirror ends up taller than the caret layer and lines drift by
-	// the scrollbar height (worst scrolled to the bottom). Call AFTER the textarea's height/overflow are set;
-	// clientHeight already excludes the h-scrollbar (a vertical scrollbar only steals width). Falsy overlays skipped.
+	// Size the decorative overlay layers (the colored mirror) to the textarea's CLIENT height. A horizontal
+	// scrollbar on the textarea steals rows from its client height but NOT from the overflow:hidden overlays — so
+	// without this the mirror ends up taller than the caret layer and lines drift by the scrollbar height (worst
+	// scrolled to the bottom). Call AFTER the textarea's height/overflow are set; clientHeight already excludes the
+	// h-scrollbar (a vertical scrollbar only steals width). Falsy overlays skipped.
+	// The GUTTER needs the same scroll math but must stay full height (it's a visible surface, not a transparent
+	// mirror) — see syncGutterHeight.
 	syncOverlayHeight: function(textarea, overlays) {
 		if(!textarea) return;
 		const h = textarea.clientHeight + 'px';
 		(overlays || []).forEach((el) => { if(el) el.style.height = h; });
+	},
+
+	// The gutter's variant of syncOverlayHeight — it's a VISIBLE surface, so it must cover the editor's full height
+	// (sizing it to clientHeight like the mirror leaves the shell's editor background showing as a band under it
+	// once a horizontal scrollbar appears). An explicit height is still required: the gutter is the flex container's
+	// tallest item if left to size on its own content, which would drag the whole editor to the document's height —
+	// `align-items:stretch` can't help, since the container's own height comes FROM its items.
+	// So: size the border box to the textarea's FULL height, and equalize the scrollable RANGE separately, which is
+	// what the scroll-sync (scrollTop mirroring) actually needs. The gutter's client box is taller than the
+	// textarea's by the scrollbar's height, so its max scrollTop would land short and clamp — drifting the numbers
+	// up off their rows at the bottom. Padding-bottom counts toward scrollHeight, so growing it by the scrollbar
+	// height restores the match. `basePadBottom` is the gutter's AUTHORED padding-bottom in px — cache it before the
+	// first call (a later read would return our own inline value). Call AFTER the textarea's height/overflow are set.
+	syncGutterHeight: function(textarea, gutter, basePadBottom) {
+		if(!textarea || !gutter) return;
+		const scrollbarH = Math.max(0, textarea.offsetHeight - textarea.clientHeight);   // --input has no borders
+		gutter.style.height = textarea.offsetHeight + 'px';
+		gutter.style.paddingBottom = ((basePadBottom || 0) + scrollbarH) + 'px';
+	},
+
+	// The gutter's authored padding-bottom in px, read before any inline write — pair with syncGutterHeight.
+	gutterPadBottom: function(gutter) {
+		return gutter ? (parseFloat(window.getComputedStyle(gutter).paddingBottom) || 0) : 0;
 	},
 
 	// Observe an element's WIDTH and invoke cb on change (coalesced to one call per frame). Height-only changes are

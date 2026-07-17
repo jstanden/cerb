@@ -86,6 +86,7 @@ CerbUI.ScriptingEditor = class {
 		this.field = el.querySelector(ns + 'field');
 		this.highlight = el.querySelector(ns + 'highlight');
 		this.gutter = this.opts.gutter ? el.querySelector(ns + 'gutter') : null;
+		this._gutterPadBottom = CerbUI.editorCore.gutterPadBottom(this.gutter);  // read BEFORE _autosize writes it
 		this.caretAnchor = el.querySelector(ns + 'caret-anchor');
 		if(!this.textarea || !this.field || !this.highlight || !this.caretAnchor) return;
 
@@ -658,7 +659,8 @@ CerbUI.ScriptingEditor = class {
 		ta.style.height = h + 'px';
 		ta.style.overflowY = (ta.scrollHeight > maxH + 1) ? 'auto' : 'hidden';
 		// Match the decoration layers to the textarea's client height so a horizontal scrollbar doesn't drift them.
-		CerbUI.editorCore.syncOverlayHeight(ta, [this.highlight, this.gutter]);
+		CerbUI.editorCore.syncOverlayHeight(ta, [this.highlight]);
+		CerbUI.editorCore.syncGutterHeight(ta, this.gutter, this._gutterPadBottom);
 		this._syncScroll();
 	}
 

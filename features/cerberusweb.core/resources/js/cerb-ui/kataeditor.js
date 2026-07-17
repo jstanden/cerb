@@ -120,6 +120,7 @@ CerbUI.KataEditor = class {
 		this.field = el.querySelector('.cerb-ui-kataeditor--field');
 		this.highlight = el.querySelector('.cerb-ui-kataeditor--highlight');
 		this.gutter = el.querySelector('.cerb-ui-kataeditor--gutter');
+		this._gutterPadBottom = CerbUI.editorCore.gutterPadBottom(this.gutter);  // read BEFORE _autosize writes it
 		this.caretAnchor = el.querySelector('.cerb-ui-kataeditor--caret-anchor');
 		if(!this.textarea || !this.field || !this.highlight || !this.caretAnchor) return;
 
@@ -1590,7 +1591,8 @@ CerbUI.KataEditor = class {
 		ta.style.height = h + 'px';
 		ta.style.overflowY = (ta.scrollHeight > maxH + 1) ? 'auto' : 'hidden';
 		// Match the decoration layers to the textarea's client height so a horizontal scrollbar doesn't drift them.
-		CerbUI.editorCore.syncOverlayHeight(ta, [this.highlight, this.gutter]);
+		CerbUI.editorCore.syncOverlayHeight(ta, [this.highlight]);
+		CerbUI.editorCore.syncGutterHeight(ta, this.gutter, this._gutterPadBottom);
 		this._syncScroll();
 	}
 
