@@ -1,0 +1,365 @@
+// Agent transcript: a read-only LLM agent session rendered as a conversation. The read-side counterpart to
+// cerb-ui/_agentprompt (which composes a turn). Enhanced by CerbUI.AgentTranscript, which builds this chrome
+// around the caller's bare semantic markup — see resources/js/cerb-ui/agent-transcript.js for the contract.
+//
+// The DEFAULT is the ticket-message look: a large floated avatar for identity, a sender + meta header, an
+// always-visible aside (token chips), a hover-revealed action toolbar, and an indented sub-thread of
+// thinking / tool bubbles. `--banded` is the compact full-width variant (role eyebrow above the body, no
+// avatars) for dense hosts like the interaction awaits.
+.cerb-ui-agent-transcript {
+	display: block;
+
+	// Mock/placeholder transcript (design-time or a session with no messages yet): dashed + dimmed so it
+	// reads as sample data, never mistaken for a live conversation.
+	&--sample {
+		border: 1px dashed var(--cerb-color-background-contrast-220);
+		border-radius: 10px;
+		opacity: 0.75;
+	}
+
+	// Transcript-wide controls (Expand all + Markdown/Text), built above the first turn.
+	&--controls {
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+		gap: 0.6em;
+		margin-bottom: 0.75em;
+	}
+
+	// Each turn is a bordered card; no band fill, no divider rule.
+	&--turn {
+		position: relative;
+		padding: 0.85em 1em;
+		border: 1px solid var(--cerb-color-background-contrast-220);
+		border-radius: 10px;
+		margin-bottom: 0.75em;
+
+		&:last-child { margin-bottom: 0; }
+	}
+
+	// Avatar = identity, floated left (nothing stacks under it). Sized by CerbUI.Avatar (opts.avatarSize).
+	&--avatar {
+		float: left;
+		margin: 0 0.85em 0.5em 0;
+	}
+
+	// Content beside the avatar; overflow:hidden is a BFC so it doesn't wrap under the avatar.
+	&--main { overflow: hidden; }
+
+	// Name flush to the top (aligned with the avatar's top) like a ticket-message header, not
+	// baseline-aligned to the taller hover toolbar on the right.
+	.cerb-ui-header {
+		align-items: flex-start;
+		margin: 0 0 0.5em 0;
+	}
+
+	// Sender: the name is the only enlarged text; the sub (title / provider·model) stays at the readable
+	// 1em baseline — avoid stacking font-size shrinks.
+	&--sender {
+		display: flex;
+		align-items: baseline;
+		flex-wrap: wrap;
+		gap: 0.4em;
+		line-height: 1.2;
+
+		&-name { font-size: 1.2em; font-weight: bold; }
+	}
+
+	// A peek-trigger sender name is an <a> with no href → force text color, not link blue.
+	a.cerb-ui-agent-transcript--sender-name { cursor: pointer; color: inherit; }
+
+	// The timestamp sits in the header's --right beside the toolbar, not on its own line — quiet, and it
+	// shouldn't cost a row.
+	&--meta {
+		color: var(--cerb-color-background-contrast-150);
+		white-space: nowrap;
+	}
+
+	// The aside (token chip) stays visible; the action toolbar fades in on hover, like a ticket message
+	// toolbar. Opacity (not display) so the chip never shifts; pointer-events gate the hidden controls.
+	&--turn-actions {
+		display: flex;
+		align-items: center;
+		gap: 0.5em;
+		opacity: 0;
+		pointer-events: none;
+		transition: opacity 0.1s ease;
+	}
+
+	&--turn:hover &--turn-actions {
+		opacity: 1;
+		pointer-events: auto;
+	}
+
+	// Message body — reuse the shared markdown-body rules; trim outer margins so it sits flush in the turn.
+	&--body {
+		word-break: break-word;
+		line-height: 1.5em;
+
+		// Plain-text bodies render as <pre class="emailbody"> — normalize to wrapped body text.
+		pre.emailbody {
+			margin: 0;
+			padding: 0;
+			white-space: pre-wrap;
+			font-family: inherit;
+			font-size: inherit;
+			color: inherit;
+			background: none;
+			border: 0;
+		}
+
+		.commentBodyHtml {
+			> :first-child { margin-top: 0; }
+			> :last-child { margin-bottom: 0; }
+		}
+	}
+
+	// A turn groups several messages, each its own body ("I'll go do X" … "Did X"). The shared markdown rules
+	// trim the last child's margin, so without this they'd butt together and read as one block.
+	&--body + &--body,
+	&--images + &--body {
+		margin-top: 1em;
+	}
+
+	// Raw markdown source. Hidden until the transcript-wide Markdown/Text switcher flips the container.
+	&--source {
+		display: none;
+		margin: 0;
+		white-space: pre-wrap;
+		word-break: break-word;
+		font-family: inherit;
+	}
+
+	// Only turns that have a source swap — the rest keep their rendered body rather than going blank.
+	&[data-cerb-view="text"] {
+		.cerb-ui-agent-transcript--has-source .cerb-ui-agent-transcript--body { display: none; }
+		.cerb-ui-agent-transcript--source { display: block; }
+	}
+
+	&--images {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.4em;
+		margin-top: 0.5em;
+
+		img {
+			max-width: min(100%, 320px);
+			max-height: 320px;
+			border-radius: 8px;
+		}
+	}
+
+	// Eyebrow labelling each payload inside an expanded tool bubble — the tool's own name over its params,
+	// RESULT over its result.
+	&--tool-eyebrow {
+		margin-top: 0.6em;
+		color: var(--cerb-color-background-contrast-150);
+		font-size: 0.8em;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+
+		&:first-child { margin-top: 0; }
+	}
+
+	// A peek-trigger tool name is an <a> — keep the eyebrow's color, show it's clickable.
+	a#{&}--tool-eyebrow {
+		cursor: pointer;
+		text-decoration: none;
+
+		&:hover { text-decoration: underline; }
+	}
+
+	// ── Sub-thread (thinking / tool bubbles) ───────────────────────────────────────────────────────────
+	// Root class retained in every selector — see the CASCADE note at the top.
+	// No left indent: the bubble's own avatar already sets it apart, and a transcript has less room to give
+	// away than a ticket profile.
+	.cerb-ui-agent-transcript--subthread {
+		margin-top: 0.75em;
+		display: flex;
+		flex-direction: column;
+		gap: 0.6em;
+
+		// A plain-text payload. Capped + scrollable rather than hidden behind a second button — the bubble's
+		// own disclosure already gates it, and a huge result shouldn't run the turn off the page. (JSON is
+		// capped instead by CerbUI.JsonEditor's maxLines.)
+		pre {
+			margin: 0.4em 0 0;
+			padding: 0.6em 0.8em;
+			max-width: 100%;
+			max-height: 20em;
+			overflow: auto;
+			background: var(--cerb-color-background-contrast-235);
+			border: 1px solid var(--cerb-color-background-contrast-220);
+			border-radius: 6px;
+			white-space: break-spaces;
+			font-family: ui-monospace, Menlo, Consolas, monospace;
+			line-height: 1.5;
+		}
+	}
+
+	// Still running (no result yet) — reads as in-progress next to its settled siblings. The bubble's glyph
+	// also pulses (cerb-u-anim-pulse, added by the component).
+	.cerb-ui-agent-transcript--bubble-active .cerb-ui-agent-transcript--bubble-author {
+		font-style: italic;
+	}
+
+	// A thinking / tool-call bubble: an avatar + a tailed bubble, like a note on a ticket message.
+	.cerb-ui-agent-transcript--bubble {
+		display: flex;
+		gap: 0.6em;
+		align-items: flex-start;
+	}
+
+	// Size + fill come from CerbUI.Avatar (inline), so the glyph scales with the circle.
+	.cerb-ui-agent-transcript--bubble-avatar-box {
+		flex: 0 0 auto;
+		margin-top: 0.1em;
+	}
+
+
+	// The bubble surface — fill only, no border, quiet enough to sit in a thread.
+	.cerb-ui-agent-transcript--bubble-main {
+		flex: 1 1 auto;
+		min-width: 0; // let the body wrap instead of overflowing
+		position: relative;
+		padding: 0.5em 0.75em;
+		background: var(--cerb-color-background-contrast-250);
+		border: 1px solid var(--cerb-color-background-contrast-200);
+		border-radius: 10px;
+
+		// Tail: a small rotated square of the same fill, pointing toward the avatar.
+		&::before {
+			content: "";
+			position: absolute;
+			top: 11px;
+			left: -6px;
+			width: 9px;
+			height: 9px;
+			background: inherit;
+			transform: rotate(45deg);
+			border-left: 1px solid var(--cerb-color-background-contrast-200);
+			border-bottom: 1px solid var(--cerb-color-background-contrast-200);
+		}
+	}
+
+	.cerb-ui-agent-transcript--bubble-header {
+		display: flex;
+		align-items: center;
+		gap: 0.4em;
+		line-height: 1.3;
+	}
+
+	// Disclosure for a 'raw' bubble's payloads. The summary above it never changes, so an open and a closed
+	// bubble read the same — only the detail below differs.
+	.cerb-ui-agent-transcript--bubble-toggle {
+		margin-left: auto;
+		flex: 0 0 auto;
+
+		> span.cerb-icons { transition: transform 0.1s ease; }
+	}
+
+	.cerb-ui-agent-transcript--bubble-toggle > span.cerb-icons { transform: rotate(90deg); }
+
+	.cerb-ui-agent-transcript--bubble-collapsed {
+		.cerb-ui-agent-transcript--bubble-body { display: none; }
+		.cerb-ui-agent-transcript--bubble-toggle > span.cerb-icons { transform: none; }
+	}
+
+	// Author: a tool name or "Thinking".
+	.cerb-ui-agent-transcript--bubble-author {
+		color: var(--cerb-color-text);
+		text-decoration: none;
+		font-size: 1.2em;
+		font-weight: 700;
+	}
+
+	// Only a clickable (anchor) author shows the interactive affordance — a plain <span> author (a
+	// non-automation tool call, a Thinking note) must not look clickable.
+	a.cerb-ui-agent-transcript--bubble-author {
+		cursor: pointer;
+
+		&:hover { text-decoration: underline; }
+	}
+
+	.cerb-ui-agent-transcript--bubble-body {
+		margin-top: 0.4em;
+		word-break: break-word;
+
+		.commentBodyHtml {
+			> :first-child { margin-top: 0; }
+			> :last-child { margin-bottom: 0; }
+		}
+	}
+
+	// A JSON payload promoted to a read-only CerbUI.JsonEditor: the same top gap the raw <pre> had, and
+	// never wider than the sub-thread column.
+	.cerb-ui-agent-transcript--json-editor {
+		margin: 0.4em 0 0;
+		max-width: 100%;
+	}
+
+	// ── Banded variant ─────────────────────────────────────────────────────────────────────────────────
+	// The compact, full-width look: one bordered container, turns separated by divider rules, a role eyebrow
+	// above the body, no avatars. For dense hosts (interaction awaits, compact previews) where a 44px avatar
+	// per turn would be wrong.
+	&--banded {
+		display: flex;
+		flex-direction: column;
+		border: 1px solid var(--cerb-color-background-contrast-220);
+		border-radius: 10px;
+		overflow: hidden;
+
+		.cerb-ui-agent-transcript--turn {
+			border: 0;
+			border-top: 1px solid var(--cerb-color-background-contrast-220);
+			border-radius: 0;
+			margin-bottom: 0;
+
+			&:first-child { border-top: 0; }
+		}
+
+		// USER turns are filled (a subtle gray band); ASSISTANT turns are left UNFILLED on purpose — agent
+		// output is usually Markdown-formatted and a background would clash. The flow still reads as
+		// alternating bands (filled → plain).
+		.cerb-ui-agent-transcript--user { background: var(--cerb-color-background-contrast-240); }
+	}
+
+	// A span being summarized/bounded away (the compaction preview) — dimmed so the list that WILL be sent
+	// reads as the live one.
+	&--folded { opacity: 0.5; }
+
+	// A boundary / summary node: no tint, it stands out by a full-strength role eyebrow.
+	&--boundary &--role { color: var(--cerb-color-text); }
+
+	// Role eyebrow: role icon + uppercase muted label (mirrors .cerb-field-cell-label). Only the banded
+	// variant uses it — the default carries identity in the avatar + sender name instead.
+	&--role {
+		display: flex;
+		align-items: center;
+		gap: 0.4em;
+		margin-bottom: 0.4em;
+		color: var(--cerb-color-background-contrast-150);
+		font-size: 0.9em;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+
+		> span.cerb-icons { font-size: 1.25em; }
+	}
+
+	// A compaction/switch checkpoint — the synthetic boundary node renders as a slim centered divider rather
+	// than a turn card; its summary follows as a normal agent turn.
+	&--checkpoint {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.4em;
+		padding: 0.5em 1em;
+		color: var(--cerb-color-background-contrast-150);
+		font-size: 0.8em;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+	}
+}

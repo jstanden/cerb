@@ -98,7 +98,7 @@
 						<li data-target="page" data-icon="file-document">Page</li>
 						<li data-target="header" data-icon="header">Header</li>
 						<li data-target="panel" data-icon="text">Panel</li>
-						<li data-target="chat" data-icon="bot">Chat</li>
+						<li data-target="agent-transcript" data-icon="bot-message">AgentTranscript</li>
 						<li data-target="separator" data-icon="minus">Separator</li>
 					</ul>
 				</div>
@@ -204,7 +204,7 @@
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/page.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/header.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/panel.tpl"}
-			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/chat.tpl"}
+			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/agent-transcript.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/separator.tpl"}
 
 			<h2 class="cerb-uiref-grouplabel" id="group-labels">Labels &amp; status</h2>

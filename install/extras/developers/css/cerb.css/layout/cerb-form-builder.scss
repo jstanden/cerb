@@ -50,33 +50,11 @@
 		}
 	}
 	
+	// The scroll box only — turn styling belongs to cerb-ui/_agent-transcript.
 	.cerb-form-builder-response-llm-transcript {
 		overflow: auto;
 		max-height: 75vh;
 		padding-right: 0.5em;
-
-		[data-cerb-transcript-role="user"] {
-			color: var(--cerb-color-action-primary-text);
-			background-color: var(--cerb-color-background-contrast-230);
-			border: 0;
-			border-radius: 12px 12px 12px 0;
-			font-size: 1.1em;
-
-			> div {
-				padding: 0 0.5em;
-			}
-		}
-
-		[data-cerb-tool] {
-			display: inline-block;
-			background-color: var(--cerb-color-background-contrast-200);
-			padding: 0.5em 1em;
-			border-radius: 1em;
-		}
-
-		[data-cerb-dom="transcript-toolbar"] {
-			margin-bottom: 1em;
-		}
 	}
 
 	.cerb-form-builder-response-say {
