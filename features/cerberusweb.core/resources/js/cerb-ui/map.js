@@ -847,6 +847,18 @@ CerbUI.Map = class {
 		return this._projection.invert([(this.width / 2 - t.x) / t.k, (this.height / 2 - t.y) / t.k]);
 	}
 
+	// Current view as map-config values — the on-screen center + effective scale (base scale × zoom). Lets an
+	// editor capture the framing after the user pans/zooms, instead of typing lat/long/scale by hand.
+	getView() {
+		if(!this._projection) return null;
+		const ll = this._currentCenterLonLat();
+		if(!ll) return null;
+		return {
+			center: { longitude: ll[0], latitude: ll[1] },
+			scale: this._projection.scale * this._transform.k,
+		};
+	}
+
 	_onToolClick(action) {
 		if(action === 'reset') {
 			this._transform = { k: 1, x: 0, y: 0 };

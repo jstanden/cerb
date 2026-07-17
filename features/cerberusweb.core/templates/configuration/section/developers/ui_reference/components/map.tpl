@@ -15,12 +15,20 @@
 
 			<div class="cerb-uiref-code">
 				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
-				<pre data-cerb-uiref-source>{literal}// `map` mirrors the parsed map KATA; geometry sources are a URL to fetch or a pre-loaded object.
-new CerbUI.Map(el, {
-	regions: '/…c=ui&a=resource&key=map.world.countries',        // TopoJSON (decoded client-side)
-	points:  '/…c=ui&a=resource&key=mapPoints.worldCapitalCities', // GeoJSON points
-	map: {
-		projection: { type: 'mercator', scale: 90, center: { longitude: 0, latitude: 7 } },
+				<pre data-cerb-uiref-source>{literal}// ── Construct (all options; the live example passes only what it needs) ──────────────
+const map = new CerbUI.Map(el, {
+	// Geometry sources — each is a URL to fetch OR a pre-loaded object (TopoJSON or GeoJSON).
+	regions:                '/…c=ui&a=resource&key=map.world.countries',        // region geometry
+	points:                 '/…c=ui&a=resource&key=mapPoints.worldCapitalCities', // GeoJSON points
+	regionProperties:       urlOrObject,     // optional { joinValue: {prop:…} } resource (joined on)
+	regionPropertiesInline: {…},             // optional inline props merged OVER the resource
+	pointsInline:           { type: 'FeatureCollection', features: [] },  // optional; concatenated
+	click: { enabled: false, c: 'profiles', a: 'invokeWidget', widget_id: 0 }, // mapClicked round-trip
+	width:  600,                             // viewBox width  (default 600)
+	height: 325,                             // viewBox height (default 325)
+
+	map: {   // == the parsed $map KATA (DevblocksUiMap::parse); production passes it through verbatim
+		projection: { type: 'mercator', scale: 90, center: { longitude: 0, latitude: 7 } }, // or albersUsa
 		regions: {
 			fill:  { choropleth: { property: 'pop_est', classes: 8 } },   // or color_key / color_map
 			label: { title: 'name', properties: { name: { label: 'Country' },
@@ -29,7 +37,18 @@ new CerbUI.Map(el, {
 		points: { size: { default: 2 }, fill: { default: '#646464' },
 			label: { title: 'name', properties: { adm0name: { label: 'Country' } } } },
 	},
-});{/literal}</pre>
+});
+
+// ── Methods ──────────────────────────────────────────────────────────────────────────
+map.getView();          // → { center:{longitude,latitude}, scale } — on-screen center + effective
+                        //   scale (base × zoom); mirrors the live coordinate readout, so an editor
+                        //   can capture the framing after a pan/zoom. null before the map builds.
+map.destroy();          // unbind wheel/pan listeners and empty the element
+CerbUI.Map.from(el);    // the instance built on a host element
+
+// ── Events (bubbling; payload in e.detail) ─────────────────────────────────────────────
+// cerb-ui-map:click   { feature_type:'region'|'point', properties, point:{x,y} }
+// cerb-ui-map:ready   { regions:Number, points:Number }{/literal}</pre>
 			</div>
 		</div>
 
@@ -55,8 +74,7 @@ new CerbUI.Map(el, {
 			colors: { California: 'cornflowerblue', Texas: 'orangered' } } } },
 		points:  { size: { default: 2 }, fill: { default: '#646464' } },
 	},
-});
-// Events: el.addEventListener('cerb-ui-map:click', e =&gt; e.detail); // {feature_type, properties, point}{/literal}</pre>
+});{/literal}</pre>
 			</div>
 		</div>
 	</div>
