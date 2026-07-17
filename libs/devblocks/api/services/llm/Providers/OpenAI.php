@@ -92,7 +92,7 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 		];
 		$body_payload = [
 			'input' => $texts,
-			'model' => $this->getParam('model', 'text-embedding-ada-002'),
+			'model' => $this->getParam('model', 'text-embedding-3-large'),
 			'encoding_format' => 'float',
 		];
 		
