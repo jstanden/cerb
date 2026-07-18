@@ -1,28 +1,65 @@
-<h1 style="margin-bottom:10px;color:inherit;">Cerb Documentation</h1>
+<style nonce="{DevblocksPlatform::getRequestNonce()}">
+{literal}
+.cerb-help-docs { color: var(--cerb-color-text); }
+.cerb-help-docs__group {
+	font-size: 1.4em;
+	font-weight: 700;
+	line-height: 1.2;
+	margin: 1.5em 0 0.9em;
+}
+.cerb-help-docs__group:first-child { margin-top: 0; }
+.cerb-help-docs p { margin: 0 0 0.6em; line-height: 1.5; }
+.cerb-help-docs p:last-child { margin-bottom: 0; }
+.cerb-help-docs a.cerb-ui-pill:hover { background: var(--cerb-color-background-contrast-220); }
+.cerb-help-docs a.cerb-ui-pill .cerb-icons { opacity: 0.6; }
+.cerb-help-docs tt {
+	font-family: ui-monospace, Menlo, Consolas, monospace;
+	background: var(--cerb-color-background-contrast-220);
+	border-radius: 4px;
+	padding: 0.05em 0.35em;
+	font-size: 0.92em;
+}
+.cerb-help-docs pre {
+	margin: 0.5em 0 0;
+	padding: 0.9em 1.1em;
+	background: var(--cerb-color-background-contrast-220);
+	border: 1px solid var(--cerb-color-background-contrast-240);
+	border-radius: 8px;
+	overflow-x: auto;
+	font-family: ui-monospace, Menlo, Consolas, monospace;
+	font-size: 0.92em;
+	line-height: 1.5;
+}
+.cerb-help-docs pre b { font-weight: 700; }
+{/literal}
+</style>
 
-<fieldset class="peek">
-	<legend>Reference</legend>
-	
-	<ul style="margin:5px 0 0 0;padding:0;list-style-type:none;">
-		<li>
-			<a href="https://cerb.ai/docs/building-bots/scripting/" target="_blank" rel="noopener" style="font-weight:bold;">Bot Scripting</a>
-			<ul>
-				<li><a href="https://cerb.ai/docs/building-bots/scripting/commands" target="_blank" rel="noopener">Commands</a></li>
-				<li><a href="https://cerb.ai/docs/building-bots/scripting/functions" target="_blank" rel="noopener">Functions</a></li>
-				<li><a href="https://cerb.ai/docs/building-bots/scripting/filters" target="_blank" rel="noopener">Filters</a></li>
-			</ul>
-		</li>
-	</ul>
-</fieldset>
+<div class="cerb-help-docs" data-cerb-dialog-title="Help: Placeholders &amp; Scripting">
 
-<h1 style="margin-bottom:10px;color:inherit;">Placeholders</h1>
+<div class="cerb-help-docs__group">Cerb Documentation</div>
 
-<fieldset class="peek">
-	<legend>Placeholders</legend>
-	
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">Reference</div>
+	</div>
+
+	<div class="cerb-u-flex cerb-u-flex-wrap cerb-u-items-center cerb-u-gap-2">
+		<a href="https://cerb.ai/docs/building-bots/scripting/commands" target="_blank" rel="noopener" class="cerb-ui-pill">Commands <span class="cerb-icons cerb-icon-new-window"></span></a>
+		<a href="https://cerb.ai/docs/building-bots/scripting/functions" target="_blank" rel="noopener" class="cerb-ui-pill">Functions <span class="cerb-icons cerb-icon-new-window"></span></a>
+		<a href="https://cerb.ai/docs/building-bots/scripting/filters" target="_blank" rel="noopener" class="cerb-ui-pill">Filters <span class="cerb-icons cerb-icon-new-window"></span></a>
+	</div>
+</div>
+
+<div class="cerb-help-docs__group">Placeholders</div>
+
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">Placeholders</div>
+	</div>
+
 	{literal}
 	<p>
-		A <b><tt>{{placeholder}}</tt></b> will be automatically replaced with a fragment of text from a record. 
+		A <b><tt>{{placeholder}}</tt></b> will be automatically replaced with a fragment of text from a record.
 		Placeholders are surrounded by two pairs of curly braces.
 	</p>
 	{/literal}
@@ -30,58 +67,66 @@
 	<p>
 		For example, the placeholder text "Hi {literal}<b><tt>{{first_name}}</tt></b>{/literal}" would become "Hi {$active_worker->first_name}".
 	</p>
-</fieldset>
+</div>
 
-<fieldset class="peek">
-	<legend>Filters</legend>
-	
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">Filters</div>
+	</div>
+
 	{literal}
 	<p>
-		The value of a placeholder may be modified using <i>filters</i>. 
+		The value of a placeholder may be modified using <i>filters</i>.
 		Some filters also have parameters that modify their behavior, which are provided in parentheses.
-		The possible filters will be automatically suggested when you append the pipe character (<b><tt>|</tt></b>) to a placeholder name. 
+		The possible filters will be automatically suggested when you append the pipe character (<b><tt>|</tt></b>) to a placeholder name.
 	</p>
 	{/literal}
-	
+
 	<p>
 		For example, "Hi {literal}<b><tt>{{first_name|upper}}</tt></b>{/literal}" would become "Hi {$active_worker->first_name|upper}".
 	</p>
-</fieldset>
+</div>
 
-<fieldset class="peek">
-	<legend>Default values</legend>
-	
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">Default values</div>
+	</div>
+
 	<p>
 		You can use the <b><tt>|default</tt></b> filter to give a default value to empty placeholders.
 	</p>
-	
+
 	{literal}
-	<pre style="margin:0.5em 1em;">
+	<pre>
 {% set name = '' %}
 Hi {{name|default('there')}}
 </pre>
-{/literal}
-</fieldset>
+	{/literal}
+</div>
 
-<h1 style="margin-bottom:10px;color:inherit;">Scripting</h1>
+<div class="cerb-help-docs__group">Scripting</div>
 
-<fieldset class="peek">
-	<legend>Variables</legend>
-	
-	You can set temporary variables and use them as placeholders:
-	
-	<pre style="margin:0.5em 1em;">
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">Variables</div>
+	</div>
+
+	<p>You can set temporary variables and use them as placeholders:</p>
+
+	<pre>
 {literal}{%{/literal} <b>set</b> name = "{$active_worker->first_name}" {literal}%}
 {% <b>set</b> quantity = 5 %}
 {{name}} has {{quantity}} gold stars
 {/literal}</pre>
-</fieldset>
+</div>
 
-<fieldset class="peek">
-	<legend>Arrays and objects</legend>
-	
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">Arrays and objects</div>
+	</div>
+
 	{literal}
-	<pre style="margin:0.5em 1em;">
+	<pre>
 {# Associative array #}
 {% set var = <b>{"first_name": "William", "last_name":"Portcullis"}</b> %}
 {{var.first_name}} {{var.last_name}}
@@ -96,13 +141,15 @@ Hi {{name|default('there')}}
 <b>{{attribute(var,idx-1)}}</b> is after <b>{{var[idx-2]}}</b> and before <b>{{var[idx]}}</b>
 </pre>
 	{/literal}
-</fieldset>
+</div>
 
-<fieldset class="peek">
-	<legend>Modifying objects and arrays</legend>
-	
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">Modifying objects and arrays</div>
+	</div>
+
 	{literal}
-	<pre style="margin:0.5em 1em;">
+	<pre>
 {# Mixed objects and arrays #}
 {% set var = {"name":"..."} %}
 {% set var = <b>dict_set</b>(var, 'name', {}) %}
@@ -135,31 +182,34 @@ Hi {{name|default('there')}}
 These are new: {{diff|join(', ')}}
 </pre>
 	{/literal}
-</fieldset>
+</div>
 
-<fieldset class="peek">
-	<legend>Loops</legend>
-	
-	If a placeholder value is a list (array), then it can be iterated in a loop:
-	
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">Loops</div>
+	</div>
+
+	<p>If a placeholder value is a list (array), then it can be iterated in a loop:</p>
+
 	{literal}
-	<pre style="margin:0.5em 1em;">
+	<pre>
 {% set list_of_names = ["Jeff", "Dan", "Darren"] %}
 <b>{% for name in list_of_names %}</b>
 {{name}}
 <b>{% endfor %}</b>
 </pre>
 	{/literal}
-	
-</fieldset>
+</div>
 
-<fieldset class="peek">
-	<legend>Conditional Logic</legend>
-	
-	Conditional logic can display different content based on the value of a placeholder:
-	
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">Conditional Logic</div>
+	</div>
+
+	<p>Conditional logic can display different content based on the value of a placeholder:</p>
+
 	{literal}
-	<pre style="margin:0.5em 1em;">
+	<pre>
 {% set sla_expiration = '+2 weeks'|date('U') %}
 <b>{% if sla_expiration >= 'now'|date('U') %}</b>
 Your SLA coverage is active.
@@ -168,13 +218,15 @@ Your SLA coverage has expired.
 <b>{% endif %}</b>
 </pre>
 	{/literal}
-</fieldset>
+</div>
 
 {literal}
-<fieldset class="peek">
-	<legend>Operators</legend>
-	
-	<pre style="margin:0.5em 1em;">
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">Operators</div>
+	</div>
+
+	<pre>
 {% set this = 0 %}
 {% set that = 1 %}
 {% set those = [1,2,3] %}
@@ -202,77 +254,87 @@ Your SLA coverage has expired.
 {% if this <b>not in</b> those %}
 {{this}} is not in {{those|join(',')}}
 {% endif -%}</pre>
-
-</fieldset>
+</div>
 {/literal}
 
-<fieldset class="peek">
-	<legend>Concatenation</legend>
-	
-	<pre style="margin:0.5em 1em;">
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">Concatenation</div>
+	</div>
+
+	<pre>
 {literal}{%{/literal} set first_name = "{$active_worker->first_name}" {literal}%}{/literal}
 {literal}{%{/literal} set last_name = "{$active_worker->last_name}" {literal}%}{/literal}
 {literal}{% set full_name = first_name <b>~ " " ~</b> last_name %}{/literal}
 {literal}{{full_name}}{/literal}
 </pre>
-
-</fieldset>
+</div>
 
 {literal}
-<fieldset class="peek">
-	<legend>Whitespace</legend>
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">Whitespace</div>
+	</div>
 
-	You can ignore whitespace at the beginning or end of a tag with a dash (<tt><b>-</b></tt>):
-	
-	<pre style="margin:0.5em 1em;">
+	<p>You can ignore whitespace at the beginning or end of a tag with a dash (<tt><b>-</b></tt>):</p>
+
+	<pre>
 This text
 
 {{-" has no leading or trailing whitespace "-}}
 
 in it.
 </pre>
-</fieldset>
+</div>
 {/literal}
 
 {literal}
-<fieldset class="peek">
-	<legend>Regular Expressions</legend>
-	
-	<pre style="margin:0.5em 1em;">
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">Regular Expressions</div>
+	</div>
+
+	<pre>
 {% set text = "Your Amazon Order #Z-1234-5678-9 has shipped!" %}
 {% set order_id = text<b>|regexp</b>("/Amazon Order #([A-Z0-9\-]+)/", 1) %}
 Amazon Order #: {{order_id}}</pre>
-</fieldset>
+</div>
 {/literal}
 
 {literal}
-<fieldset class="peek">
-	<legend>Date/Time</legend>
-	
-	<pre style="margin:0.5em 1em;">
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">Date/Time</div>
+	</div>
+
+	<pre>
 {{'now'<b>|date</b>('F d, Y h:ia T')}}
 {{'tomorrow 5pm'<b>|date</b>('D, d F Y H:i T')}}
 {{'+2 weeks 08:00'<b>|date</b>('Y-m-d h:ia T')}}
 </pre>
-</fieldset>
+</div>
 {/literal}
 
 {literal}
-<fieldset class="peek">
-	<legend>Date/Time Manipulation</legend>
-	
-	<pre style="margin:0.5em 1em;">
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">Date/Time Manipulation</div>
+	</div>
+
+	<pre>
 {% set timestamp = date('now')<b>|date_modify</b>('-2 days') %}
 {{timestamp|date('D, d M Y T')}}
 </pre>
-</fieldset>
+</div>
 {/literal}
 
 {literal}
-<fieldset class="peek">
-	<legend>Timezones</legend>
-	
-	<pre style="margin:0.5em 1em;">
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">Timezones</div>
+	</div>
+
+	<pre>
 {% set time_format = 'D, d M Y H:i T' %}
 
 {#- Set the timezone in the date variable -#}
@@ -293,27 +355,31 @@ Bangalore: {{ts_now|date(time_format, <b>'Asia/Calcutta'</b>)}}
 Berlin: {{ts_now|date(time_format, <b>'Europe/Berlin'</b>)}}
 New York: {{ts_now|date(time_format, <b>'America/New_York'</b>)}}
 </pre>
-</fieldset>
+</div>
 {/literal}
 
 {literal}
-<fieldset class="peek">
-	<legend>JSON Decoding</legend>
-	
-	<pre style="margin:0.5em 1em;">
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">JSON Decoding</div>
+	</div>
+
+	<pre>
 {% set json_string = "{\"name\":\"Joe Customer\",\"order_id\":12345}" %}
 {% set json = <b>json_decode</b>(json_string) %}
 Customer: {{json.name}}
-Order #: {{json.order_id}}	
+Order #: {{json.order_id}}
 </pre>
-</fieldset>
+</div>
 {/literal}
 
 {literal}
-<fieldset class="peek">
-	<legend>JSON Modification</legend>
-	
-	<pre style="margin:0.5em 1em;">
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">JSON Modification</div>
+	</div>
+
+	<pre>
 {% set json = {'name': 'Joe Customer', 'order_id': 12345} %}
 {% set json = <b>dict_set</b>(json, 'order_id', 54321) %}
 {% set json = <b>dict_set</b>(json, 'status.text', 'shipped') %}
@@ -323,43 +389,49 @@ Order #: {{json.order_id}}
 Status: {{json.status.text}}
 Tracking #: {{json.status.tracking_id}}
 </pre>
-</fieldset>
+</div>
 {/literal}
 
 {literal}
-<fieldset class="peek">
-	<legend>JSON Encoding</legend>
-	
-	<pre style="margin:0.5em 1em;">
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">JSON Encoding</div>
+	</div>
+
+	<pre>
 {% set json = {'name': 'Joe Customer'} %}
 {% set json = dict_set(json, 'order_id', 54321) %}
 {% set json = dict_set(json, 'status.text', 'shipped') %}
 {% set json = dict_set(json, 'status.tracking_id', 'Z1F238') %}
-{{json<b>|json_encode</b>}}	
+{{json<b>|json_encode</b>}}
 </pre>
-</fieldset>
+</div>
 {/literal}
 
 {literal}
-<fieldset class="peek">
-	<legend>JSON Prettification</legend>
-	
-	<pre style="margin:0.5em 1em;">
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">JSON Prettification</div>
+	</div>
+
+	<pre>
 {% set json = {'name': 'Joe Customer'} %}
 {% set json = dict_set(json, 'order_id', 54321) %}
 {% set json = dict_set(json, 'status.text', 'shipped') %}
 {% set json = dict_set(json, 'status.tracking_id', 'Z1F238') %}
 {{json|json_encode<b>|json_pretty}}</b>
 </pre>
-</fieldset>
+</div>
 {/literal}
 
 {literal}
-<fieldset class="peek">
-	<legend>XML Decoding</legend>
-	
-	<pre style="margin:0.5em 1em;">
-{% set string_of_xml = 
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">XML Decoding</div>
+	</div>
+
+	<pre>
+{% set string_of_xml =
 "&lt;response&gt;
 	&lt;client_id&gt;1&lt;/client_id&gt;
 	&lt;invoice_id&gt;123&lt;/invoice_id&gt;
@@ -371,32 +443,36 @@ Tracking #: {{json.status.tracking_id}}
 Client ID: {{client_id}}
 Invoice ID: {{invoice_id}}
 </pre>
-</fieldset>
+</div>
 {/literal}
 
 {literal}
-<fieldset class="peek">
-	<legend>XML Encoding</legend>
-	
-	<pre style="margin:0.5em 1em;">
-{% set string_of_xml = 
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">XML Encoding</div>
+	</div>
+
+	<pre>
+{% set string_of_xml =
 "&lt;response xmlns=\"http://www.example.com/api/\"&gt;
 	&lt;client_id&gt;1&lt;/client_id&gt;
 	&lt;invoice_id&gt;123&lt;/invoice_id&gt;
 &lt;/response&gt;"
 -%}
 {% set xml = xml_decode(string_of_xml) %}
-{{<b>xml_encode</b>(xml.client_id)}}	
+{{<b>xml_encode</b>(xml.client_id)}}
 </pre>
-</fieldset>
+</div>
 {/literal}
 
 {literal}
-<fieldset class="peek">
-	<legend>XML Namespaces</legend>
-	
-	<pre style="margin:0.5em 1em;">
-{% set string_of_xml = 
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">XML Namespaces</div>
+	</div>
+
+	<pre>
+{% set string_of_xml =
 "&lt;response xmlns=\"http://www.example.com/api/\"&gt;
 	&lt;client_id&gt;1&lt;/client_id&gt;
 	&lt;invoice_id&gt;123&lt;/invoice_id&gt;
@@ -409,21 +485,26 @@ Invoice ID: {{invoice_id}}
 Client ID: {{client_id}}
 Invoice ID: {{invoice_id}}
 </pre>
-</fieldset>
+</div>
 {/literal}
+
+</div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFetch('help');
-	
-	$popup.one('popup_open', function(event, ui) {
-		$popup.dialog('option','title',"Help: Placeholders \x26 Scripting");
-		$popup.dialog('option', 'resizeable', false);
+	// Legacy layer path only: opened via genericAjaxPopup('help', …). When opened via CerbUI.Dialog (the editor
+	// placeholder strips) there's no 'help' layer, so skip — the dialog manages its own sizing/scroll.
+	const $popup = genericAjaxPopupFetch('help');
 
-		var max_height = Math.round($(window).height() * 0.85);
-		$popup.css('max-height', max_height + 'px');
-		
-		$popup.css('overflow', 'auto');
-	});
+	if($popup && typeof $popup.one === 'function') {
+		$popup.one('popup_open', function(event, ui) {
+			$popup.dialog('option', 'resizeable', false);
+
+			const max_height = Math.round($(window).height() * 0.85);
+			$popup.css('max-height', max_height + 'px');
+
+			$popup.css('overflow', 'auto');
+		});
+	}
 });
 </script>
