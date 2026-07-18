@@ -81,8 +81,8 @@ class MailboxCron extends CerberusCronPageExtension {
 				// Record the failure for historical reporting (status = Horde error code; 0 = other/config)
 				$metrics->increment('cerb.mail.mailbox.errors', 1, ['mailbox_id' => $account->id, 'status' => intval($error_code)]);
 				
-				// Increment fails
-				$num_fails = $account->num_fails + 1;
+				// Increment fails (clamp to the signed TINYINT column max)
+				$num_fails = DevblocksPlatform::intClamp($account->num_fails + 1, 0, 127);
 				$delay_until = time() + (min($num_fails, 15) * 120);
 				
 				$fields = [
