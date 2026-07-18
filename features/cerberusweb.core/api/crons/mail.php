@@ -75,8 +75,8 @@ class MailboxCron extends CerberusCronPageExtension {
 			if(false === $client) {
 				$logger->error("[Mailboxes] Failed with error: " . $error);
 				
-				// Increment fails
-				$num_fails = $account->num_fails + 1;
+				// Increment fails (clamp to the signed TINYINT column max)
+				$num_fails = DevblocksPlatform::intClamp($account->num_fails + 1, 0, 127);
 				$delay_until = time() + (min($num_fails, 15) * 120);
 				
 				$fields = [
