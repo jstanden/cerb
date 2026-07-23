@@ -367,8 +367,11 @@ CerbUI.SearchQuery = class {
 		const h = Math.min(ta.scrollHeight, this.opts.maxHeight);
 		ta.style.height = h + 'px';
 		ta.style.overflowY = (ta.scrollHeight > this.opts.maxHeight) ? 'auto' : 'hidden';
-		// Match the mirror to the textarea's client height so a horizontal scrollbar doesn't drift them.
+		// Match the mirror to the textarea's client box so a scrollbar doesn't drift them — height for the
+		// horizontal one, and (this editor WRAPS) width for the vertical one, which would otherwise let the
+		// mirror wrap later than the textarea.
 		CerbUI.editorCore.syncOverlayHeight(ta, [this.highlight]);
+		CerbUI.editorCore.syncOverlayWidth(ta, [this.highlight]);
 	}
 
 	// ── Tokenizer + scope-path (shared grammar) ─────────────────────────
