@@ -138,6 +138,19 @@ CerbUI.editorCore = {
 		(overlays || []).forEach((el) => { if(el) el.style.height = h; });
 	},
 
+	// The WIDTH counterpart, for WRAPPING editors only (white-space:pre-wrap — MarkdownEditor, SearchQuery). A
+	// vertical scrollbar steals width from the textarea's content box but NOT from the `inset:0` mirror, so the
+	// textarea wraps EARLIER than the mirror and every line below the first drifts (the caret lands a row off).
+	// clientWidth excludes the scrollbar and the border (the --input has none) and both layers share
+	// box-sizing:border-box + identical padding, so an explicit width equalizes their content boxes. `inset:0` plus
+	// a width is over-constrained, which drops `right` — the inline width wins. Call AFTER overflowY is set.
+	// Don't call it for `white-space:pre` editors: they don't wrap, so a narrower box changes nothing.
+	syncOverlayWidth: function(textarea, overlays) {
+		if(!textarea) return;
+		const w = textarea.clientWidth + 'px';
+		(overlays || []).forEach((el) => { if(el) el.style.width = w; });
+	},
+
 	// The gutter's variant of syncOverlayHeight — it's a VISIBLE surface, so it must cover the editor's full height
 	// (sizing it to clientHeight like the mirror leaves the shell's editor background showing as a band under it
 	// once a horizontal scrollbar appears). An explicit height is still required: the gutter is the flex container's
