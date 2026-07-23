@@ -91,6 +91,56 @@
         pointer-events: none;
     }
 
+    // Diff vs the checkpoint baseline (opt-in `diffGutter`, which reserves the left gutter strip below): a thin
+    // change BAR in the gutter spanning each changed logical line's (possibly wrapped) height — green=added,
+    // blue=modified; a deletion is a small red wedge at the boundary. Drawn into the scroll-synced overlay behind
+    // the text and positioned by editorCore.diff.renderBodyBands via caretCoords (so wrapped lines stay correct).
+    &--diff-band {
+        position: absolute;
+        left: 0.4em;
+        width: 3px;
+        z-index: -1;
+        pointer-events: none;
+    }
+    &--diff-band-added    { background: color-mix(in srgb, var(--cerb-color-tag-green) 85%, transparent); }
+    &--diff-band-modified { background: color-mix(in srgb, var(--cerb-color-tag-blue)  85%, transparent); }
+    // Deletion boundary: renderBodyBands emits a height:0 band at the boundary line's top — draw a small
+    // right-pointing wedge (via borders on the 0-box) instead of a bar.
+    &--diff-band-deleted-before,
+    &--diff-band-deleted-end {
+        left: 0.25em;
+        width: 0;
+        background: none;
+        border-left: 0.42em solid color-mix(in srgb, var(--cerb-color-tag-red) 80%, transparent);
+        border-top: 0.28em solid transparent;
+        border-bottom: 0.28em solid transparent;
+    }
+
+    // Left gutter strip (no line numbers) — a faint column with a right divider that hosts the diff change bars.
+    // Only present when diffGutter is on. Reserve room on BOTH text layers so prose clears the strip, and paint the
+    // strip as a --field::before behind the overlay (whose bars/text sit above it). Wrapping editor, so this is a
+    // margin strip, not a per-line-number gutter.
+    &--diffgutter {
+        --cerb-ui-markdowneditor-gutter-w: 1.1em;
+
+        .cerb-ui-markdowneditor--highlight,
+        .cerb-ui-markdowneditor--input {
+            padding-left: calc(var(--cerb-ui-markdowneditor-gutter-w) + var(--cerb-ui-markdowneditor-pad-x));
+        }
+
+        .cerb-ui-markdowneditor--field::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: var(--cerb-ui-markdowneditor-gutter-w);
+            background: var(--cerb-editor-gutter-background);
+            border-right: 1px solid var(--cerb-editor-gutter-border, var(--cerb-color-background-contrast-200));
+            pointer-events: none;
+        }
+    }
+
     // ── Token colors — SUBTLE: only dim the markdown punctuation; leave prose at the normal text color ──
     // METRIC-SAFE ONLY — color / background-color / text-decoration. NEVER font-weight/style/family/size/
     // letter-spacing/padding: the mirror's glyph advances must match the textarea's exactly or the caret

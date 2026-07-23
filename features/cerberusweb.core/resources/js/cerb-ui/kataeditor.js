@@ -60,6 +60,8 @@ CerbUI.KataEditor = class {
 		folding: true,            // false = never foldable (no chevrons); keeps 1 model row = 1 view row (e.g. a diff pane)
 		dragKeys: false,          // hovering a KEY token floats a drag handle you can drag out to a CerbUI.Droppable
 		onKeyClick: null,         // (payload) the handle CLICKED rather than dragged — the no-drag fallback
+		diffGutter: false,        // mark added/modified/deleted lines in the gutter vs a save-checkpoint baseline
+		                          //   (captured on open; re-capture via resetDiffBaseline() on save). See getDiffState().
 	};
 
 	// A KATA key at the head of a line: `name`, `name/id`, `name@anno` (group 2 is the whole key, sans the ':').
@@ -152,12 +154,27 @@ CerbUI.KataEditor = class {
 		this._markers = new Map();   // MODEL row -> gutter marker descriptor {type,icon,color,title,pip} (left of numbers)
 		this._lineDecos = new Map(); // MODEL row -> CSS class for a full-width body band (e.g. a diff add/remove tint)
 		this._changeCbs = [];
+
+		// ── Gutter diff vs a save-checkpoint baseline (opt-in) ──
+		// The baseline is the document as it stood at the last "save" (captured on open, re-captured via
+		// resetDiffBaseline). It is NOT derived from content, so it survives setValue(). _recomputeDiff() diffs the
+		// live value against it and colors the gutter rows; getDiffState() exposes the same hunks to agents.
+		this._diffBaseline = null;   // normalized checkpoint text, or null when diffGutter is off
+		this._diffRows = new Map();  // MODEL row -> 'added'|'modified' (rows present now)
+		this._diffDeletions = new Set(); // MODEL rows with a deletion boundary ABOVE them
+		this._diffAtEnd = false;     // a deletion sits past the last row
+		this._diffRaf = 0;           // rAF handle coalescing recompute-on-change
+		// NOTE: the baseline is captured below, AFTER this._model is assigned — capturing it here would normalize
+		// `undefined` to '' and mark every line changed on the first edit.
+
 		this._suppressInput = false; // true while _writeValue applies an edit (ignore the echoed `input` event)
 
 		// ── Code folding (model + projection) ──
 		// The textarea can't hide rows, so folding keeps the FULL text in this._model (the source of truth) and
 		// shows only the unfolded lines (the "projection") in the textarea. Public rows/getValue are MODEL space.
 		this._model = this.textarea.value;
+		if(this.opts.diffGutter)
+			this._diffBaseline = CerbUI.editorCore.lineDiff.normalize(this._model);   // the save checkpoint (now that _model exists)
 		this._folds = [];            // [{headerRow, startRow, endRow}] in MODEL rows; startRow===headerRow stays visible
 		this._hidden = new Set();    // cached set of hidden MODEL rows (= union of every fold's startRow+1..endRow)
 		this._lastProjection = this.textarea.value; // last textarea value we reconciled into the model
@@ -268,6 +285,7 @@ CerbUI.KataEditor = class {
 		this._hideKeyHandle();            // …and the hover handle, which points at a row this text no longer has
 		this._rebuildProjection(0);       // a fresh document starts at the top (caret + scroll), like the editor family
 		this._fireChange();
+		this._recomputeDiff();            // re-mark vs the (retained) baseline — setValue is a content change, not a save
 		return this;
 	}
 
@@ -441,7 +459,7 @@ CerbUI.KataEditor = class {
 		const caretM = this._viewOffsetToModelOffset(this.textarea.value, this.textarea.selectionStart);
 		this._folds.push({ headerRow: range.headerRow, startRow: range.startRow, endRow: range.endRow });
 		this._folds.sort((a, b) => a.startRow - b.startRow);
-		this._rebuildProjection(caretM);
+		this._rebuildProjection(caretM, { preserveScroll: true });
 		return this;
 	}
 
@@ -450,7 +468,7 @@ CerbUI.KataEditor = class {
 		this._folds = this._folds.filter(f => !(f.startRow === modelRow || (modelRow > f.startRow && modelRow <= f.endRow)));
 		if(this._folds.length === before) return this;
 		const caretM = this._viewOffsetToModelOffset(this.textarea.value, this.textarea.selectionStart);
-		this._rebuildProjection(caretM);
+		this._rebuildProjection(caretM, { preserveScroll: true });
 		return this;
 	}
 
@@ -629,6 +647,8 @@ CerbUI.KataEditor = class {
 		if(this._resizeDisposer) { this._resizeDisposer(); this._resizeDisposer = null; }
 		if(this._revealDisposer) { this._revealDisposer(); this._revealDisposer = null; }
 		if(this._scrollRaf) { cancelAnimationFrame(this._scrollRaf); this._scrollRaf = 0; }
+		if(this._diffRaf) { cancelAnimationFrame(this._diffRaf); this._diffRaf = 0; }
+		this._closeDiffPopover();
 	}
 
 	// ── Keyboard shortcuts (abstract, enumerable registry) ──────────────
@@ -699,8 +719,28 @@ CerbUI.KataEditor = class {
 				if(!isNaN(mr) && (typeof this.opts.gutterClickableRow !== 'function' || this.opts.gutterClickableRow(mr, this)))
 					this.opts.onGutterClick(mr, e);
 			}
+			return;
+		}
+		// A click on a diff-marked row (not the marker/chevron slots) floats a diff panel scrolled to that hunk.
+		if(this.opts.diffGutter) {
+			const line = e.target.closest('.cerb-ui-kataeditor--gutter-line');
+			const numEl = line && line.querySelector('.cerb-ui-kataeditor--gutter-num');
+			const mr = numEl ? (parseInt(numEl.textContent, 10) - 1) : NaN;
+			if(!isNaN(mr) && this._diffRowIndex(mr) >= 0) this._openDiffPopover(mr, e);
 		}
 	}
+
+	// The hunk index a MODEL row belongs to (added/modified rows, a deletion boundary, or the end deletion), or
+	// -1. Indices line up with CerbUI.DiffViewer's own change blocks (same source), so scrollToDiff(i) matches.
+	_diffRowIndex(mr) { return CerbUI.editorCore.diff.rowIndex(this, mr); }
+
+	// Float a read-only CerbUI.DiffViewer (baseline vs current, unchanged runs elided) near the clicked row,
+	// scrolled to that hunk — a quick reference without opening the Change History popup. Dismiss on outside-click / Escape.
+	_openDiffPopover(modelRow, e) {
+		CerbUI.editorCore.diff.openPopover(this, modelRow, e, { className: 'cerb-ui-kataeditor--diff-popover', anchorEl: this.gutter });
+	}
+
+	_closeDiffPopover() { CerbUI.editorCore.diff.closePopover(this); }
 
 	// ⌘/Ctrl+[ — fold the innermost foldable block at/containing the caret.
 	_foldAtCaret() {
@@ -898,8 +938,32 @@ CerbUI.KataEditor = class {
 
 	_fireChange() {
 		if(this._valueField) this._valueField.value = this._model;   // keep the hidden form carrier = full document
+		this._scheduleDiffRecompute();
 		for(const cb of this._changeCbs) { try { cb(this.getValue()); } catch(_) {} }
 	}
+
+	// ── Gutter diff (public API; baseline = the last "save" checkpoint) ──
+	// Diffing the whole doc on every keystroke is wasteful, so coalesce to one recompute per frame. Myers already
+	// trims to the changed middle, so even on a large doc a small edit is cheap.
+	_scheduleDiffRecompute() { CerbUI.editorCore.diff.schedule(this); }
+
+	// Diff the live value against the baseline and repaint the gutter. Synchronous — callers that want coalescing
+	// go through _scheduleDiffRecompute().
+	_recomputeDiff() { return CerbUI.editorCore.diff.recompute(this); }
+
+	// Set the checkpoint the gutter diffs against (defaults to the current value), then repaint — this is what
+	// clears the marks after a save. No-op unless diffGutter is enabled.
+	setDiffBaseline(text) { return CerbUI.editorCore.diff.setBaseline(this, text); }
+
+	// Re-baseline to the current value — the save-continue hook (marks clear until the next edit).
+	resetDiffBaseline() { return this.setDiffBaseline(this.getValue()); }
+
+	getDiffBaseline() { return this._diffBaseline; }
+
+	// The unsaved diff as pure data (no DOM): the baseline, the current value, and the change hunks (each with its
+	// status, current-row + baseline-row spans, and the added/removed line text). Lets an editor agent read what
+	// changed without opening the Change History popup. Empty hunks when diffGutter is off or nothing changed.
+	getDiffState() { return CerbUI.editorCore.diff.getState(this); }
 
 	// Tab key: insert tabSize spaces at the caret, or indent every line touched by the selection. As a special
 	// case, when nothing is selected and the caret sits at end-of-line with text behind it to complete, Tab asks
@@ -1196,23 +1260,7 @@ CerbUI.KataEditor = class {
 	// the mirror text like the active-line band (z-index:-1 inside --highlight, so they track scroll). Re-applied
 	// on every _renderHighlight (renderTokens wipes the mirror). Used by CerbUI.DiffViewer for add/remove tints.
 	_renderLineDecorations() {
-		if(!this.highlight) return;
-		this.highlight.querySelectorAll('.cerb-ui-kataeditor--line-deco').forEach(n => n.remove());
-		if(!this._lineDecos || !this._lineDecos.size) return;
-		const cs = window.getComputedStyle(this.textarea);
-		const lh = parseFloat(cs.lineHeight) || (parseFloat(cs.fontSize) * 1.5);
-		const padTop = parseFloat(cs.paddingTop) || 0;
-		const width = 'max(100%, ' + this.textarea.scrollWidth + 'px)';   // full content width, not just the client width
-		for(const [mr, cls] of this._lineDecos) {
-			const vr = this._modelRowToViewRow(mr);
-			if(vr < 0) continue;                              // hidden inside a fold (n/a when folding is off)
-			const band = document.createElement('div');
-			band.className = 'cerb-ui-kataeditor--line-deco' + (cls ? (' ' + cls) : '');
-			band.style.top = (padTop + vr * lh) + 'px';
-			band.style.height = lh + 'px';
-			band.style.width = width;
-			this.highlight.appendChild(band);
-		}
+		CerbUI.editorCore.renderLineDecorations(this, 'cerb-ui-kataeditor--line-deco', (mr) => this._modelRowToViewRow(mr));
 	}
 
 	// Append a zero-text `foldmark` token at the end of each collapsed header's VIEW row so the mirror paints a
@@ -1364,6 +1412,11 @@ CerbUI.KataEditor = class {
 			// Reserve the LEFT marker column when any marker (host or URI) exists, or a gutter-click handler is wired.
 			anyMarker: this._markers.size > 0 || uriRows.size > 0 || typeof this.opts.onGutterClick === 'function',
 			esc: CerbUI.editorCore.escapeHtml,
+			// Gutter diff (opt-in): whether any diff mark exists this render, and the last MODEL row (for a
+			// deletion past the document's end). Cheap constants so _gutterRowHtml stays a per-row lookup; the
+			// last-row split is skipped entirely unless this editor uses the diff gutter.
+			anyDiff: this.opts.diffGutter && (this._diffRows.size > 0 || this._diffDeletions.size > 0 || this._diffAtEnd),
+			lastRow: this.opts.diffGutter ? (this._modelLines().length - 1) : -1,
 		};
 		const v2m = this._viewToModel, vrc = v2m.length;
 
@@ -1558,7 +1611,10 @@ CerbUI.KataEditor = class {
 				(isHeader ? (' cerb-icons cerb-icon-' + (ctx.headerState.get(mr) ? 'chevron-right' : 'chevron-down')) : '') +
 				'"' + (isHeader ? (' data-fold-row="' + mr + '"') : '') + '></span>');
 		const foldable = isHeader ? ' cerb-ui-kataeditor--gutter-line-foldable' : '';
-		return '<div class="cerb-ui-kataeditor--gutter-line' + active + foldable + '"' + activeStyle + '>' +
+		// Gutter diff marks vs the baseline: a right-edge bar on added/modified rows (SCSS stacks contiguous rows
+		// into one span), a boundary wedge above a row that lost lines, and an end variant past the last row.
+		const diff = ctx.anyDiff ? CerbUI.editorCore.diff.gutterClasses(this, 'kataeditor', mr, ctx.lastRow) : '';
+		return '<div class="cerb-ui-kataeditor--gutter-line' + active + foldable + diff + '"' + activeStyle + '>' +
 			marker + '<span class="cerb-ui-kataeditor--gutter-num">' + num + '</span>' + slot + '</div>';
 	}
 

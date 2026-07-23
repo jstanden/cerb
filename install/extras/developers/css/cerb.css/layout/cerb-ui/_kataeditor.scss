@@ -94,6 +94,61 @@
         display: flex;
         align-items: center;
         gap: 0.25em;
+        position: relative;   // anchors the deletion wedge (::after)
+    }
+
+    // Gutter diff vs the save-checkpoint baseline (opt-in `diffGutter`). Colors match CerbUI.DiffViewer:
+    // green = added, blue = modified, red = deleted. Added/modified rows get a thin bar pinned to the gutter's
+    // RIGHT border (the gutter/code divider) — `right: -0.5em` reaches through the gutter's right padding so the
+    // bar clears the fold-chevron column (which sits at the row's own right edge). Because each row paints its
+    // own bar, contiguous rows in a hunk stack into one continuous span with no width reservation. Deletions
+    // have no current row, so they mark the BOUNDARY: a wedge on the row's top edge (lines removed just above)
+    // or bottom edge (removed past the end). The -0.5em offset tracks the gutter's `padding` (see &--gutter).
+    &--gutter-diff-added::before,
+    &--gutter-diff-modified::before {
+        content: "";
+        position: absolute;
+        right: -0.5em;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        pointer-events: none;
+    }
+    &--gutter-diff-added::before    { background: color-mix(in srgb, var(--cerb-color-tag-green) 85%, transparent); }
+    &--gutter-diff-modified::before { background: color-mix(in srgb, var(--cerb-color-tag-blue)  85%, transparent); }
+
+    &--gutter-diff-deleted-before::after,
+    &--gutter-diff-deleted-end::after {
+        content: "";
+        position: absolute;
+        right: -0.5em;
+        width: 0.42em;
+        height: 0.45em;
+        background: color-mix(in srgb, var(--cerb-color-tag-red) 85%, transparent);
+        // A triangle pinned to the divider, pointing left toward the code, so a deletion reads distinctly from a bar.
+        clip-path: polygon(100% 0, 0 0, 100% 100%);
+        pointer-events: none;
+    }
+    &--gutter-diff-deleted-before::after { top: 0; }
+    &--gutter-diff-deleted-end::after    { bottom: 0; clip-path: polygon(100% 100%, 0 100%, 100% 0); }
+
+    // A diff-marked row is clickable — it floats a reference diff panel scrolled to that hunk.
+    &--gutter-diff-added,
+    &--gutter-diff-modified,
+    &--gutter-diff-deleted-before,
+    &--gutter-diff-deleted-end { cursor: pointer; }
+
+    // The floating quick-reference diff panel (baseline vs current), anchored beside the clicked gutter row. It's
+    // appended to <body> so it floats above dialogs; the DiffViewer inside brings its own chrome.
+    &--diff-popover {
+        position: fixed;
+        z-index: 10000;
+        background: var(--cerb-color-background);
+        border: 1px solid var(--cerb-color-background-contrast-200);
+        border-radius: 6px;
+        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
+        padding: 0.5em;
+        max-width: calc(100vw - 16px);
     }
     &--gutter-num {
         flex: 1;

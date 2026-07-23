@@ -49,6 +49,9 @@ CerbUI.MarkdownEditor = class {
 		                           // object { buttons:[…], mode:true, onMode:fn, extra:[{value,icon,title,onSelect}|{separator:true}] }.
 		                           // The component OWNS the formatting strip; host-specific actions (placeholder, preview)
 		                           // merge in as their own section via `extra`. Suppressed when readOnly.
+		diffGutter: false,         // mark lines changed vs a checkpoint baseline (captured on open; re-capture via
+		                           //   resetDiffBaseline()). Gutterless + wrapping, so it paints full-width body bands
+		                           //   (not a gutter). Drives getDiffState() for an editor agent's getDiff command.
 		scripting: false,          // also highlight + autocomplete Twig/KataScript tags ({{ }} / {% %}) anywhere
 		onChange: null,            // (value) after any edit
 		onAutocomplete: null,      // (ctx) -> Array<item> | Promise<...>; ctx = {path, prefix, context, query, caret, editor}
@@ -81,6 +84,14 @@ CerbUI.MarkdownEditor = class {
 		this.highlight = el.querySelector('.cerb-ui-markdowneditor--highlight');
 		this.caretAnchor = el.querySelector('.cerb-ui-markdowneditor--caret-anchor');
 		if(!this.textarea || !this.field || !this.highlight || !this.caretAnchor) return;
+
+		// Diff vs a checkpoint baseline (opt-in diffGutter). Gutterless + wrapping, so editorCore.diff paints
+		// full-width body bands (via _renderDiff below) instead of a gutter. State shape shared with the family.
+		this._diffBaseline = null;
+		this._diffRows = new Map();      // row -> 'added'|'modified'
+		this._diffDeletions = new Set(); // rows with a deletion boundary ABOVE them
+		this._diffAtEnd = false;
+		this._diffRaf = 0;
 
 		// Prose, so DO leave spellcheck on by default — but kill the browser's form autofill which fights the
 		// overlay. (spellcheck honors any author-set attribute.)
@@ -133,6 +144,11 @@ CerbUI.MarkdownEditor = class {
 
 		this._renderHighlight();
 		this._autosize();
+
+		// The diff baseline = the document as it stands on open (the checkpoint); re-captured via resetDiffBaseline()
+		// (e.g. the host on save). No-op unless diffGutter is enabled.
+		if(this.opts.diffGutter)
+			this._diffBaseline = CerbUI.editorCore.lineDiff.normalize(this.getValue());
 
 		// The component owns its formatting toolbar (opt-in) — the shared core hook. Markdown seeds the
 		// markdown↔plaintext switcher ON by default (a caller's `toolbar.mode:false` overrides it). A read-only
@@ -206,6 +222,7 @@ CerbUI.MarkdownEditor = class {
 			this.textarea.removeEventListener('blur', this._onBlur);
 			this.textarea.removeEventListener('paste', this._onPaste);
 		}
+		if(this._diffRaf) { cancelAnimationFrame(this._diffRaf); this._diffRaf = 0; }
 		if(this._resizeDisposer) { this._resizeDisposer(); this._resizeDisposer = null; }
 	}
 
@@ -433,7 +450,19 @@ CerbUI.MarkdownEditor = class {
 	}
 
 	_emitImage(info) { if(typeof this.opts.onImage === 'function') this.opts.onImage(info); }
-	_emitChange() { if(typeof this.opts.onChange === 'function') this.opts.onChange(this.getValue()); }
+	_emitChange() {
+		CerbUI.editorCore.diff.schedule(this);   // repaint the diff bands vs the baseline (no-op unless diffGutter)
+		if(typeof this.opts.onChange === 'function') this.opts.onChange(this.getValue());
+	}
+
+	// ── Diff vs a checkpoint baseline (opt-in diffGutter; logic shared with the editor family via editorCore.diff) ──
+	// Gutterless + wrapping → full-width body bands rather than a gutter. setDiffBaseline/resetDiffBaseline move the
+	// checkpoint (the host calls resetDiffBaseline on save); getDiffState feeds an editor agent's getDiff command.
+	_renderDiff() { CerbUI.editorCore.diff.renderBodyBands(this, this.highlight, 'markdowneditor'); }
+	setDiffBaseline(text) { return CerbUI.editorCore.diff.setBaseline(this, text); }
+	resetDiffBaseline() { return this.setDiffBaseline(this.getValue()); }
+	getDiffBaseline() { return this._diffBaseline; }
+	getDiffState() { return CerbUI.editorCore.diff.getState(this); }
 
 	// ── Input / keyboard ────────────────────────────────────────────────
 
@@ -512,6 +541,7 @@ CerbUI.MarkdownEditor = class {
 		const toks = (this._markdown || this.opts.scripting) ? this._tokenize(this.textarea.value) : [{ type: 'text', value: this.textarea.value }];
 		CerbUI.editorCore.renderTokens(this.highlight, toks, CerbUI.MarkdownEditor._TOK_CLASS);
 		if(this._find) this._find.repaintBands();   // re-add find-match bands (the mirror was just wiped)
+		this._renderDiff();                          // …and any diff body bands (no-op unless diffGutter)
 		this._syncScroll();
 	}
 

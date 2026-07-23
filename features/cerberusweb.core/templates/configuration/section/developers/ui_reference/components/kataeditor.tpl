@@ -283,6 +283,39 @@ CerbUI.KataEditor.pathToAccessor(path);     // 'ticket.group.name'  (strips /ide
 ed.positionFromPoint(clientX, clientY);     // { row, column } in MODEL space, or null if outside the field{/literal}</pre>
 			</div>
 		</div>
+
+		{* Example: diffGutter — mark unsaved edits vs a save-checkpoint baseline *}
+		<div class="cerb-ui-header">
+			<div class="cerb-ui-header--label"><b>diffGutter</b> &mdash; mark your unsaved edits in the gutter against a <b>baseline</b> captured when the editor opened (the same idea git-gutter / VS Code give you). <b>Edit</b> the text below: <b>added</b> lines get a green right-edge bar, <b>modified</b> lines a blue bar, and a <b>deleted</b> run leaves a small red wedge at the boundary. Contiguous rows in a hunk stack into one continuous span. Click <b>Save (reset baseline)</b> to re-checkpoint &mdash; the marks clear until the next edit (this is what the automation editor calls on save-and-continue). <code>getDiffState()</code> returns the hunks as plain data (status, current/baseline row spans, added/removed line text) so an editor <b>agent</b> can read the unsaved diff without opening the Change History popup</div>
+		</div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<textarea id="uiref-kataeditor-diff" data-editor-lines="12" spellcheck="false">name: Order status
+color@text: green
+options:
+  multiple@bool: false
+  icon: circle-check
+worker:
+  email: alice@example.com
+attempts: 2
+</textarea>
+				<div class="cerb-uiref-result" style="margin-top:0.4em;">
+					<button type="button" class="cerb-ui-button cerb-ui-button--subtle" id="uiref-kataeditor-diff-save"><span class="cerb-icons cerb-icon-circle-arrow-right"></span> Save (reset baseline)</button>
+					&nbsp; Hunks &middot; <b id="uiref-kataeditor-diff-out">0</b>
+				</div>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>{literal}const ed = new CerbUI.KataEditor(el, { diffGutter: true });
+
+// …the user edits… the gutter now shows added/modified/deleted marks vs the baseline.
+
+ed.resetDiffBaseline();   // re-checkpoint on save (marks clear until the next edit)
+ed.getDiffState();        // { baseline, current, hunks:[ { status, rowStart, rowEnd,
+                          //   baseStart, baseEnd, added:[…], removed:[…] } ] }{/literal}</pre>
+			</div>
+		</div>
 	</div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}">
@@ -404,6 +437,20 @@ ed.positionFromPoint(clientX, clientY);     // { row, column } in MODEL space, o
 			},
 			onDrop: function(info) { insert(info.payload); }
 		});
+	})();
+
+	// KataEditor #6 — diffGutter: mark unsaved edits vs a save-checkpoint baseline
+	(function() {
+		const el = document.getElementById('uiref-kataeditor-diff');
+		const out = document.getElementById('uiref-kataeditor-diff-out');
+		const save = document.getElementById('uiref-kataeditor-diff-save');
+		if(!el || !(window.CerbUI && CerbUI.KataEditor)) return;
+
+		const ed = new CerbUI.KataEditor(el, { diffGutter: true, minLines: 6, maxLines: 12 });
+		const refresh = function() { if(out) out.textContent = String(ed.getDiffState().hunks.length); };
+		ed.onChange(refresh);
+		if(save) save.addEventListener('click', function() { ed.resetDiffBaseline(); refresh(); });
+		refresh();
 	})();
 })();
 </script>

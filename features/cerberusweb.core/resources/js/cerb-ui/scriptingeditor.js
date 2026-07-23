@@ -53,6 +53,8 @@ CerbUI.ScriptingEditor = class {
 		tabSize: 2,               // a Tab inserts this many spaces; Shift+Tab dedents by up to this many
 		indentGuides: false,      // templates aren't hierarchically indented — off by default
 		gutter: true,             // show the left line-number gutter (set false, or omit the element, to hide)
+		diffGutter: false,        // mark added/modified/deleted lines in the gutter vs a checkpoint baseline (captured
+		                          //   on open; re-capture via resetDiffBaseline()). Needs a gutter. See getDiffState().
 		readOnly: false,          // highlight only; disable text-mutating keys (data-editor-readonly overrides)
 		singleLine: false,        // VALUE is one line: Enter suppressed, pasted newlines -> spaces, wrap not scroll, no gutter
 		placeholder: null,
@@ -93,6 +95,15 @@ CerbUI.ScriptingEditor = class {
 		this.tab = ' '.repeat(this.opts.tabSize);
 		this._highlightRow = null;   // a MODEL row marked active in the gutter, or null
 		this._markers = new Map();   // row -> gutter marker descriptor {type,icon,color,title,pip}
+		this._lineDecos = new Map(); // row -> CSS class for a full-width tinted body band (edit flash / highlightLine)
+		// Gutter diff vs a checkpoint baseline (opt-in diffGutter). The baseline is NOT derived from content, so it
+		// survives setValue(); editorCore.diff diffs the live value against it and colors the gutter rows. Captured
+		// at the end of the constructor (after the textarea holds its initial value). See editorCore.diff.
+		this._diffBaseline = null;       // normalized checkpoint text, or null when diffGutter is off
+		this._diffRows = new Map();      // row -> 'added'|'modified'
+		this._diffDeletions = new Set(); // rows with a deletion boundary ABOVE them
+		this._diffAtEnd = false;         // a deletion sits past the last row
+		this._diffRaf = 0;               // rAF handle coalescing recompute-on-change
 		this._changeCbs = [];
 		this._suppressInput = false; // true while _writeValue applies an edit (ignore the echoed `input` event)
 
@@ -140,6 +151,11 @@ CerbUI.ScriptingEditor = class {
 		this._renderHighlight();
 		this._autosize();
 		this._renderGutter();
+
+		// The diff baseline = the document as it stands now (the initial "checkpoint"). Captured after the textarea
+		// holds its value; re-captured via resetDiffBaseline() (e.g. on run). No-op unless diffGutter is enabled.
+		if(this.opts.diffGutter)
+			this._diffBaseline = CerbUI.editorCore.lineDiff.normalize(this.getValue());
 
 		// Core editor-family hook: a caller can add extensible toolbar `sections` to any editor (opt-in via opts.toolbar).
 		// Inherited by DataQuery. No-op unless opts.toolbar is set.
@@ -257,6 +273,42 @@ CerbUI.ScriptingEditor = class {
 	highlightLine(row) { this._highlightRow = row; this._renderGutter(); return this; }
 	clearHighlight() { this._highlightRow = null; this._renderGutter(); return this; }
 
+	// ── Line decorations (full-width tinted body bands; linear so MODEL row == VIEW row) ──
+	// Replace the whole set of bands in one shot: a Map or plain object of row -> CSS class (the class supplies the
+	// color). Drives the agent edit-flash (CerbUI.editorCore.flashEditRange feature-detects setLineDecorations for
+	// the green/red diff bands) and flashLine below. Geometry is shared with KataEditor via editorCore.
+	setLineDecorations(map) {
+		this._lineDecos = new Map();
+		if(map instanceof Map) { for(const [k, v] of map) this._lineDecos.set(k | 0, v); }
+		else if(map && typeof map === 'object') { for(const k in map) this._lineDecos.set(parseInt(k, 10), map[k]); }
+		this._renderLineDecorations();
+		return this;
+	}
+	clearLineDecorations() { if(this._lineDecos.size) { this._lineDecos.clear(); this._renderLineDecorations(); } return this; }
+	_renderLineDecorations() {
+		CerbUI.editorCore.renderLineDecorations(this, 'cerb-ui-scriptingeditor--line-deco');
+	}
+
+	// Briefly tint a row (the highlightLine agent command), token-guarded so a rapid second flash owns the cue.
+	// Distinct from highlightLine/clearHighlight (the gutter active marker).
+	flashLine(row, opts) {
+		if(row == null) return this;
+		this.setLineDecorations({ [row]: 'cerb-ui-scriptingeditor--line-flash' });
+		this.scrollToLine(row);
+		const token = (this._flashToken = (this._flashToken || 0) + 1);
+		setTimeout(() => { if(this._flashToken === token) this.clearLineDecorations(); }, (opts && opts.duration) || 1300);
+		return this;
+	}
+
+	// ── Gutter diff vs a checkpoint baseline (opt-in diffGutter; logic shared with KataEditor via editorCore.diff) ──
+	// setDiffBaseline sets the checkpoint the gutter diffs against (defaults to the current value); resetDiffBaseline
+	// re-baselines to the current value (clears the marks — the host calls this on run/save). getDiffState exposes the
+	// same hunks to an editor agent (the getDiff command). All no-ops unless diffGutter is enabled.
+	setDiffBaseline(text) { return CerbUI.editorCore.diff.setBaseline(this, text); }
+	resetDiffBaseline() { return this.setDiffBaseline(this.getValue()); }
+	getDiffBaseline() { return this._diffBaseline; }
+	getDiffState() { return CerbUI.editorCore.diff.getState(this); }
+
 	// ── Gutter markers (LEFT of the line numbers) ──
 	setMarker(row, desc) {
 		desc = desc || {};
@@ -296,6 +348,8 @@ CerbUI.ScriptingEditor = class {
 			this.textarea.removeEventListener('blur', this._onBlur);
 		}
 		if(this.gutter && this._onGutterClick) this.gutter.removeEventListener('click', this._onGutterClick);
+		if(this._diffRaf) { cancelAnimationFrame(this._diffRaf); this._diffRaf = 0; }
+		CerbUI.editorCore.diff.closePopover(this);
 		if(this._resizeDisposer) { this._resizeDisposer(); this._resizeDisposer = null; }
 		if(this._revealDisposer) { this._revealDisposer(); this._revealDisposer = null; }
 	}
@@ -344,6 +398,15 @@ CerbUI.ScriptingEditor = class {
 		if(mk && typeof this.opts.onGutterClick === 'function') {
 			const r = parseInt(mk.getAttribute('data-model-row'), 10);
 			if(!isNaN(r)) this.opts.onGutterClick(r, e);
+			return;
+		}
+		// A click on a diff-marked row (not the marker slot) floats a diff panel scrolled to that hunk.
+		if(this.opts.diffGutter) {
+			const line = e.target.closest('.cerb-ui-scriptingeditor--gutter-line');
+			const numEl = line && line.querySelector('.cerb-ui-scriptingeditor--gutter-num');
+			const r = numEl ? (parseInt(numEl.textContent, 10) - 1) : NaN;
+			if(!isNaN(r) && CerbUI.editorCore.diff.rowIndex(this, r) >= 0)
+				CerbUI.editorCore.diff.openPopover(this, r, e, { className: 'cerb-ui-scriptingeditor--diff-popover', anchorEl: this.gutter });
 		}
 	}
 
@@ -449,6 +512,7 @@ CerbUI.ScriptingEditor = class {
 	}
 
 	_fireChange() {
+		CerbUI.editorCore.diff.schedule(this);   // repaint the gutter diff vs the baseline (no-op unless diffGutter)
 		for(const cb of this._changeCbs) { try { cb(this.getValue()); } catch(_) {} }
 	}
 
@@ -558,6 +622,7 @@ CerbUI.ScriptingEditor = class {
 		if(this.opts.indentGuides) toks = this._injectIndentGuides(toks);
 		CerbUI.editorCore.renderTokens(this.highlight, toks, this.constructor._TOK_CLASS);
 		if(this._find) this._find.repaintBands();   // re-add find-match bands (the mirror was just wiped)
+		this._renderLineDecorations();              // …and any full-width line bands (edit flash / highlightLine)
 		this._syncScroll();
 	}
 
@@ -611,9 +676,13 @@ CerbUI.ScriptingEditor = class {
 		const anyMarker = this._markers.size > 0 || typeof this.opts.onGutterClick === 'function';
 		const esc = CerbUI.editorCore.escapeHtml;
 		const count = this.textarea.value.split('\n').length;
+		// Gutter diff marks vs the baseline (a right-edge bar on added/modified rows, a boundary wedge on deletions).
+		const anyDiff = this.opts.diffGutter && (this._diffRows.size > 0 || this._diffDeletions.size > 0 || this._diffAtEnd);
+		const lastRow = count - 1;
 		let html = '';
 		for(let r = 0; r < count; r++) {
 			const active = (this._highlightRow === r) ? ' cerb-ui-scriptingeditor--gutter-line-active' : '';
+			const diff = anyDiff ? CerbUI.editorCore.diff.gutterClasses(this, 'scriptingeditor', r, lastRow) : '';
 			let marker = '';
 			if(anyMarker) {
 				const mk = this._markers.get(r);
@@ -626,7 +695,7 @@ CerbUI.ScriptingEditor = class {
 				}
 				marker = '<span class="' + cls + '" data-model-row="' + r + '"' + style + attrs + '></span>';
 			}
-			html += '<div class="cerb-ui-scriptingeditor--gutter-line' + active + '">' +
+			html += '<div class="cerb-ui-scriptingeditor--gutter-line' + active + diff + '">' +
 				marker + '<span class="cerb-ui-scriptingeditor--gutter-num">' + (r + 1) + '</span></div>';
 		}
 		this.gutter.innerHTML = html;

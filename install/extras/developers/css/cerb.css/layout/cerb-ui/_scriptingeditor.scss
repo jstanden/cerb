@@ -38,8 +38,9 @@
         font-weight: 600;
     }
 
-    // Each gutter row: marker (left) | number (flex, right-aligned).
+    // Each gutter row: marker (left) | number (flex, right-aligned). position:relative anchors the diff bars/wedges.
     &--gutter-line {
+        position: relative;
         display: flex;
         align-items: center;
         gap: 0.25em;
@@ -47,6 +48,57 @@
     &--gutter-num {
         flex: 1;
         text-align: right;
+    }
+
+    // Gutter diff vs the checkpoint baseline (opt-in `diffGutter`), mirroring KataEditor. Colors match
+    // CerbUI.DiffViewer: green = added, blue = modified, red = deleted. Added/modified rows get a thin bar pinned to
+    // the gutter's RIGHT border (`right: -0.5em` reaches through the gutter's 0.5em right padding); contiguous rows
+    // stack into one continuous span. Deletions have no current row, so they mark the BOUNDARY: a wedge on the row's
+    // top edge (removed just above) or bottom edge (removed past the end).
+    &--gutter-diff-added::before,
+    &--gutter-diff-modified::before {
+        content: "";
+        position: absolute;
+        right: -0.5em;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        pointer-events: none;
+    }
+    &--gutter-diff-added::before    { background: color-mix(in srgb, var(--cerb-color-tag-green) 85%, transparent); }
+    &--gutter-diff-modified::before { background: color-mix(in srgb, var(--cerb-color-tag-blue)  85%, transparent); }
+
+    &--gutter-diff-deleted-before::after,
+    &--gutter-diff-deleted-end::after {
+        content: "";
+        position: absolute;
+        right: -0.5em;
+        width: 0.42em;
+        height: 0.45em;
+        background: color-mix(in srgb, var(--cerb-color-tag-red) 85%, transparent);
+        clip-path: polygon(100% 0, 0 0, 100% 100%);   // triangle pinned to the divider, pointing left toward the code
+        pointer-events: none;
+    }
+    &--gutter-diff-deleted-before::after { top: 0; }
+    &--gutter-diff-deleted-end::after    { bottom: 0; clip-path: polygon(100% 100%, 0 100%, 100% 0); }
+
+    // A diff-marked row is clickable — it floats a reference diff panel scrolled to that hunk.
+    &--gutter-diff-added,
+    &--gutter-diff-modified,
+    &--gutter-diff-deleted-before,
+    &--gutter-diff-deleted-end { cursor: pointer; }
+
+    // The floating quick-reference diff panel (baseline vs current), anchored beside the clicked gutter row. Appended
+    // to <body> so it floats above dialogs; the DiffViewer inside brings its own chrome.
+    &--diff-popover {
+        position: fixed;
+        z-index: 10000;
+        background: var(--cerb-color-background);
+        border: 1px solid var(--cerb-color-background-contrast-200);
+        border-radius: 6px;
+        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
+        padding: 0.5em;
+        max-width: calc(100vw - 16px);
     }
 
     // Marker slot, LEFT of the numbers (errors/warnings/info — future template lint). Color set inline.
@@ -147,6 +199,12 @@
 
     // Optional indentation guide (off by default for templates). COLOR/box-shadow only — no width change.
     &--indent-guide { box-shadow: inset 1px 0 0 var(--cerb-color-background-contrast-225); padding: 0.35em 0; }
+
+    // Full-width tinted body band behind a row (structural only; the color comes from a second class supplied via
+    // setLineDecorations — e.g. cerb-ui-diffviewer--line-added/--gap-removed for the agent edit flash). Painted
+    // behind the transparent --input by editorCore.renderLineDecorations. Mirrors .cerb-ui-kataeditor--line-deco.
+    &--line-deco { position: absolute; left: 0; z-index: -1; pointer-events: none; }
+    &--line-flash { background: color-mix(in srgb, var(--cerb-color-tag-orange) 18%, transparent); }
 }
 
 // Read-only viewer: a muted caret (folding/selection N/A; the field just can't be edited).
