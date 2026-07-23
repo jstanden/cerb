@@ -787,6 +787,9 @@ CerbUI.Dialog = class {
 	// so a successful save never trips the discard warning (every close path guards on _dirty).
 	isDirty()   { return this._dirty; }
 	markClean() { this._dirty = false; CerbUI.Dialog._syncUnloadGuard(); }
+	// Flip dirty from code — for a programmatic change (e.g. an agent writing the editor) the input/change
+	// listeners never see. `closeWarnOnUnsavedChanges` still gates whether the (×)/Esc close actually warns.
+	markDirty() { this._dirty = true; CerbUI.Dialog._syncUnloadGuard(); }
 
 	setTitle(title) {
 		this.opts.title = title;
