@@ -1428,6 +1428,12 @@ class CerberusContexts {
 		return true;
 	}
 
+	// The "actor" context aliases — identity record types that can perform actions and own records.
+	// A deliberately compact canonical set (used for polymorphic actor choosers / owner pickers).
+	public static function getActorContexts() : array {
+		return ['app', 'automation', 'role', 'group', 'worker', 'workflow'];
+	}
+
 	public static function isSameActor($a, $b) {
 		if(!($a = CerberusContexts::polymorphActorToDictionary($a)))
 			return false;
