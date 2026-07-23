@@ -1990,3 +1990,193 @@ CerbUI.editorCore.FindController = class {
 		this.input.title = this._regexError || '';
 	}
 };
+
+/*
+ * CerbUI.editorCore.lineDiff — a pure, DOM-free line-level diff shared by CerbUI.DiffViewer (the change-history
+ * viewer) and the editors' gutter-diff feature (KataEditor marks its changes against a save checkpoint).
+ *
+ * It lives HERE, not on DiffViewer, because of load order: editor-core.js loads BEFORE kataeditor.js which
+ * loads before diffviewer.js. An editor needs the diff at construction time, so it can't reach up to
+ * DiffViewer. DiffViewer's own `_normalize`/`_diffLines`/`_blocks` statics now delegate down to this module.
+ *
+ * The engine is a line-level Myers O(ND) shortest-edit-script: intern lines to ints, trim the common
+ * prefix/suffix, run Myers on the changed middle, with a memory-budgeted D-cap that degrades to
+ * replace-the-middle for a pathologically dissimilar pair. Documents are small (KATA), so it's cheap.
+ */
+CerbUI.editorCore.lineDiff = {
+	// A run must hide at least this many lines to be worth eliding (used by DiffViewer's collapse); kept here so
+	// the two components share the constant. Not referenced by hunks().
+	MIN_ELIDE: 2,
+
+	// Coerce to string and fold CRLF/CR to LF. Without this a `\r\n`-stored baseline vs a `\n` live value
+	// mismatches EVERY line.
+	normalize(text) { return (text == null ? '' : String(text)).replace(/\r\n?/g, '\n'); },
+
+	// Align two documents by lines. Returns a flat op list in document order:
+	//   { type:'eq'|'del'|'add', left, right }  where left/right are the 0-based row each op sits at.
+	// A 'del' consumes a LEFT row (right holds at the insertion point); an 'add' consumes a RIGHT row. So within a
+	// contiguous run of non-'eq' ops the consumed left rows are contiguous from the first op's `left`, and the
+	// consumed right rows contiguous from its `right` — which blocks() relies on.
+	diffLines(aText, bText) {
+		const a = String(aText).split('\n'), b = String(bText).split('\n');
+
+		// Intern lines to integer ids so the inner Myers loop compares ints, not strings.
+		const ids = new Map();
+		const idOf = (s) => { let id = ids.get(s); if(id === undefined) { id = ids.size; ids.set(s, id); } return id; };
+		const A = a.map(idOf), B = b.map(idOf);
+
+		const types = this._diffTypes(A, B);   // ordered 0=eq / 1=del / 2=add
+
+		// Walk the type sequence, assigning the running left/right row each op sits at.
+		const out = [];
+		let i = 0, j = 0;
+		for(const t of types) {
+			if(t === 0) { out.push({ type: 'eq', left: i, right: j }); i++; j++; }
+			else if(t === 1) { out.push({ type: 'del', left: i, right: j }); i++; }
+			else { out.push({ type: 'add', left: i, right: j }); j++; }
+		}
+		return out;
+	},
+
+	// Ordered edit types for two integer sequences. Trims the common prefix + suffix (so near-identical documents
+	// reduce to a tiny middle), then runs Myers on the middle. Versions of the same doc differ in a handful of
+	// lines, so the work + memory stay small even at ~10K lines.
+	_diffTypes(A, B) {
+		const N = A.length, M = B.length;
+		const head = [];
+		let lo = 0;
+		while(lo < N && lo < M && A[lo] === B[lo]) { head.push(0); lo++; }
+		const tail = [];
+		let hiA = N, hiB = M;
+		while(hiA > lo && hiB > lo && A[hiA - 1] === B[hiB - 1]) { tail.push(0); hiA--; hiB--; }
+
+		const mid = this._myers(A.subarray ? A.subarray(lo, hiA) : A.slice(lo, hiA),
+		                        B.subarray ? B.subarray(lo, hiB) : B.slice(lo, hiB));
+		return head.concat(mid, tail);   // tail is all-eq, so order within it is irrelevant
+	},
+
+	// Classic Myers shortest-edit-script over two integer arrays -> ordered types (0=eq,1=del,2=add). O(ND) time;
+	// the V snapshots are O(D·(N+M)) memory, tiny when D (edit distance) is small — the common case for consecutive
+	// document versions. A memory-budgeted cap on D falls back to "replace the middle" for the rare wildly-different
+	// pair (where a precise diff isn't useful anyway).
+	_myers(A, B) {
+		const N = A.length, M = B.length;
+		if(N === 0) { const o = new Array(M); for(let j = 0; j < M; j++) o[j] = 2; return o; }
+		if(M === 0) { const o = new Array(N); for(let i = 0; i < N; i++) o[i] = 1; return o; }
+
+		const MAX = N + M;
+		const offset = MAX;
+		const size = 2 * MAX + 1;
+		// Cap D so the trace can't blow past ~200MB (size ints per snapshot, D+1 snapshots).
+		const dCap = Math.max(1, Math.min(MAX, Math.floor(50000000 / size)));
+
+		const v = new Int32Array(size);
+		const trace = [];
+		let foundD = -1;
+
+		for(let d = 0; d <= dCap; d++) {
+			trace.push(Int32Array.from(v));
+			for(let k = -d; k <= d; k += 2) {
+				let x;
+				if(k === -d || (k !== d && v[offset + k - 1] < v[offset + k + 1])) x = v[offset + k + 1];   // down (insert)
+				else x = v[offset + k - 1] + 1;                                                             // right (delete)
+				let y = x - k;
+				while(x < N && y < M && A[x] === B[y]) { x++; y++; }
+				v[offset + k] = x;
+				if(x >= N && y >= M) { foundD = d; break; }
+			}
+			if(foundD >= 0) break;
+		}
+
+		if(foundD < 0) {   // exceeded the cap — degrade to replace-the-middle
+			const o = []; for(let i = 0; i < N; i++) o.push(1); for(let j = 0; j < M; j++) o.push(2); return o;
+		}
+
+		// Backtrack through the snapshots to recover the ordered edit (built in reverse).
+		const rev = [];
+		let x = N, y = M;
+		for(let d = foundD; d > 0; d--) {
+			const vd = trace[d];
+			const k = x - y;
+			let prevK;
+			if(k === -d || (k !== d && vd[offset + k - 1] < vd[offset + k + 1])) prevK = k + 1;
+			else prevK = k - 1;
+			const prevX = vd[offset + prevK];
+			const prevY = prevX - prevK;
+			while(x > prevX && y > prevY) { rev.push(0); x--; y--; }   // diagonal (equal lines)
+			if(x === prevX) { rev.push(2); y--; }                      // down move -> an added (right) line
+			else { rev.push(1); x--; }                                // right move -> a deleted (left) line
+		}
+		while(x > 0 && y > 0) { rev.push(0); x--; y--; }              // d=0 leading diagonal
+		while(x > 0) { rev.push(1); x--; }
+		while(y > 0) { rev.push(2); y--; }
+		rev.reverse();
+		return rev;
+	},
+
+	// Collapse the op list into change blocks: each maximal run of non-'eq' ops -> a left line-span [start,end) and
+	// a right line-span [start,end). dels in the run count toward the left span, adds toward the right.
+	blocks(aligned) {
+		const blocks = [];
+		let cur = null;
+		for(const op of aligned) {
+			if(op.type === 'eq') { if(cur) { blocks.push(cur); cur = null; } continue; }
+			if(!cur) cur = { leftStartLine: op.left, rightStartLine: op.right, dels: 0, adds: 0 };
+			if(op.type === 'del') cur.dels++; else cur.adds++;
+		}
+		if(cur) blocks.push(cur);
+		return blocks.map(b => ({
+			leftStartLine: b.leftStartLine,
+			leftEndLine: b.leftStartLine + b.dels,
+			rightStartLine: b.rightStartLine,
+			rightEndLine: b.rightStartLine + b.adds,
+		}));
+	},
+
+	// Classify baseline→current changes for a gutter (and the agent-readable diff). Returns:
+	//   { rows:        Map<currentRow, 'added'|'modified'>   — rows present now, colored in the gutter
+	//     deletions:   Set<currentRow>                       — a deletion sits ABOVE this current row (boundary wedge)
+	//     deletedAtEnd: bool                                 — a deletion past the last current row
+	//     hunks: [ { status:'added'|'modified'|'deleted',
+	//                rowStart, rowEnd,                        — current-doc rows [start,end); empty for a pure deletion
+	//                baseStart, baseEnd,                      — baseline rows [start,end); empty for a pure addition
+	//                added:[…lines], removed:[…lines] } ] }  — the actual line text, for the panel + agents
+	// `baseEnd`/`rowEnd` are EXCLUSIVE. A pure addition has an empty baseline span; a pure deletion an empty current
+	// span (and lands as a boundary in `deletions`/`deletedAtEnd` rather than coloring a current row).
+	hunks(baselineText, currentText) {
+		const base = this.normalize(baselineText), cur = this.normalize(currentText);
+		const rows = new Map(), deletions = new Set(), hunks = [];
+		let deletedAtEnd = false;
+		if(base === cur) return { rows, deletions, deletedAtEnd, hunks };
+
+		const baseLines = base.split('\n'), curLines = cur.split('\n');
+		const curCount = curLines.length;
+		const blocks = this.blocks(this.diffLines(base, cur));
+
+		for(const b of blocks) {
+			const dels = b.leftEndLine - b.leftStartLine;
+			const adds = b.rightEndLine - b.rightStartLine;
+			const status = (dels > 0 && adds > 0) ? 'modified' : (adds > 0 ? 'added' : 'deleted');
+
+			if(adds > 0) {
+				for(let r = b.rightStartLine; r < b.rightEndLine; r++) rows.set(r, status);
+			} else {
+				// Pure deletion — no current row to color. Mark the boundary: above the current row the removed
+				// lines used to precede, or past the end when they were the document's tail.
+				if(b.rightStartLine < curCount) deletions.add(b.rightStartLine);
+				else deletedAtEnd = true;
+			}
+
+			hunks.push({
+				status: status,
+				rowStart: b.rightStartLine,
+				rowEnd: b.rightEndLine,
+				baseStart: b.leftStartLine,
+				baseEnd: b.leftEndLine,
+				added: curLines.slice(b.rightStartLine, b.rightEndLine),
+				removed: baseLines.slice(b.leftStartLine, b.leftEndLine),
+			});
+		}
+		return { rows, deletions, deletedAtEnd, hunks };
+	},
+};
