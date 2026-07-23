@@ -1684,6 +1684,27 @@ CerbUI.editorCore.flashEditRange = function(editor, nextText, at, addedLen) {
 	}
 };
 
+// Locate every line containing `query`; report a JSON array of hits, each with line (1-based), path, and text —
+// exact numbers from the live text so the agent never guesses. `path` is the KATA key path when the editor
+// exposes getPathForRow (KataEditor; value/list/blank lines climb to the nearest enclosing key), else ''.
+CerbUI.editorCore.grepEditor = function(editor, query, limit) {
+	const lines = editor.getValue().split('\n');
+	const cap = (limit > 0) ? limit : 25;
+	const hasPath = (typeof editor.getPathForRow === 'function');
+	const hits = [];
+	for(let row = 0; row < lines.length && hits.length < cap; row++) {
+		if(lines[row].indexOf(query) === -1) continue;
+		let path = '';
+		if(hasPath) {
+			let p = editor.getPathForRow(row);
+			for(let up = row - 1; (!p || !p.length) && up >= 0; up--) p = editor.getPathForRow(up);
+			path = (p && p.length) ? p.join('') : '';
+		}
+		hits.push({ line: row + 1, path: path, text: lines[row].trim().slice(0, 200) });
+	}
+	return JSON.stringify(hits);
+};
+
 // ── Gutter diff vs a checkpoint baseline (shared by KataEditor + ScriptingEditor) ──────────────────────────
 // The DOM-agnostic half of the opt-in `diffGutter` feature: it owns the baseline + change recompute + the
 // agent-readable state, and drives a floating DiffViewer popover. The per-editor gutter RENDER stays in each
