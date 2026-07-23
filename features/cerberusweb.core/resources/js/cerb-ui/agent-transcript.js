@@ -317,6 +317,24 @@ CerbUI.AgentTranscript = class {
 		}
 		if(asideEl) headRight.appendChild(asideEl);
 
+		// Turn-level collapse (opt-in via data-cerb-transcript-collapsible; value "collapsed" starts folded).
+		// Reuses the thinking/tool bubbles' chevron + rotate pattern. Only the system-prompt turn uses this
+		// today; a direct child of --right, so it's always visible rather than hover-gated like --turn-actions.
+		if(turnEl.hasAttribute('data-cerb-transcript-collapsible')) {
+			const toggle = document.createElement('button');
+			toggle.type = 'button';
+			toggle.className = 'cerb-ui-agent-transcript--turn-toggle cerb-ui-toolbar-button';
+			toggle.innerHTML = '<span class="cerb-icons cerb-icon-chevron-right"></span>';
+			toggle.setAttribute('title', 'Details');
+			toggle.addEventListener('click', e => {
+				e.stopPropagation();
+				turnEl.classList.toggle('cerb-ui-agent-transcript--turn-collapsed');
+			});
+			headRight.appendChild(toggle);
+			if('collapsed' === turnEl.getAttribute('data-cerb-transcript-collapsible'))
+				turnEl.classList.add('cerb-ui-agent-transcript--turn-collapsed');
+		}
+
 		// Only if it has content: an empty --right still occupies the flex row and its margins.
 		if(headRight.childNodes.length) head.appendChild(headRight);
 

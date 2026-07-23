@@ -266,6 +266,26 @@
 		.cerb-ui-agent-transcript--bubble-toggle > span.cerb-icons { transform: none; }
 	}
 
+	// Turn-level disclosure (the collapsible system-prompt turn). Chevron points down when open; folds the
+	// body (and its raw source) when collapsed — mirrors the thinking/tool bubble toggle above.
+	&--turn-toggle {
+		margin-left: auto;
+		flex: 0 0 auto;
+
+		> span.cerb-icons { transition: transform 0.1s ease; transform: rotate(90deg); }
+	}
+
+	&--turn-collapsed {
+		// A folded card's content is one header line — shorter than the 44px floated avatar — so without a
+		// BFC the avatar escapes the card's bottom border and overlaps the next turn. overflow:hidden makes
+		// the card contain the float (grow to fit it); safe here since the body/source are hidden anyway.
+		overflow: hidden;
+
+		.cerb-ui-agent-transcript--body,
+		.cerb-ui-agent-transcript--source { display: none; }
+		.cerb-ui-agent-transcript--turn-toggle > span.cerb-icons { transform: none; }
+	}
+
 	// Author: a tool name or "Thinking".
 	.cerb-ui-agent-transcript--bubble-author {
 		color: var(--cerb-color-text);
