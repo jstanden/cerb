@@ -1012,17 +1012,41 @@ CerbUI.KataEditor = class {
 	// non-space char is '#' (see the tokenizer). If every non-blank line is already commented we uncomment, else we
 	// comment; blank lines are left alone. The whole affected line range is re-selected so a repeated ⌘/ keeps
 	// toggling the same block.
+	//
+	// A COLLAPSED fold toggles its entire hidden subtree, and stays collapsed (Ace does the same). Commenting only the
+	// header would orphan its children at an indent with no parent — invalid KATA — and the rows aren't on screen to
+	// be selected. An EXPANDED `key:` header is still a plain one-line toggle: its children are visible, so selecting
+	// them is the user's call. The folds are saved and re-applied rather than left open because you folded the block
+	// to get it out of the way; commenting it shouldn't dump it back open.
 	_toggleComment() {
 		this._ac.clearTimer();
-		this._revealForEdit();
-		const ta = this.textarea, v = ta.value, s = ta.selectionStart, e = ta.selectionEnd;
+		const ta = this.textarea;
+		// `folding:false` editors keep _folds too, but they hold DiffViewer's collapseUnchanged ELISIONS, not user
+		// folds — an elided run of identical diff lines isn't a subtree anyone asked to comment. Leave those alone.
+		const foldable = this.opts.folding !== false && this._folds.length > 0;
+		// Model offsets survive the expand/re-fold below; view offsets don't.
+		const mS = foldable ? this._viewOffsetToModelOffset(ta.value, ta.selectionStart) : 0;
+		const mE = foldable ? this._viewOffsetToModelOffset(ta.value, ta.selectionEnd) : 0;
+		// Trim a selection that ends at column 0 (see `selEnd` below) BEFORE growing the range, or the extension
+		// would re-adopt the trailing line the trim exists to drop. A model offset sits at a row start exactly when
+		// its view offset does, so the two tests agree.
+		const mEsel = (mE > mS && this._model.charAt(mE - 1) === '\n') ? mE - 1 : mE;
+		const swallowed = foldable ? this._expandFoldsForComment(mS, mEsel) : null;
+		if(!swallowed) this._revealForEdit();
+
+		const v = ta.value;
+		const s = swallowed ? this._modelOffsetToViewOffset(mS) : ta.selectionStart;
+		const e = swallowed ? this._modelOffsetToViewOffset(mE) : ta.selectionEnd;
 		const lineStart = v.lastIndexOf('\n', s - 1) + 1;
-		const nl = v.indexOf('\n', e);
+		// A selection dragged to the start of the line *after* the block ends on the newline; that trailing line isn't
+		// part of what the user selected, so don't let its state decide comment-vs-uncomment (or get a '#' of its own).
+		const selEnd = (e > s && v.charAt(e - 1) === '\n') ? e - 1 : e;
+		const nl = v.indexOf('\n', Math.max(selEnd, swallowed ? swallowed.endOffset : 0));
 		const endPos = (nl === -1) ? v.length : nl;
 		const lines = v.slice(lineStart, endPos).split('\n');
 
 		const nonBlank = lines.filter(ln => ln.trim().length > 0);
-		if(nonBlank.length === 0) return;
+		if(nonBlank.length === 0) { this._restoreFoldsAfterComment(swallowed); return; }
 		const uncomment = nonBlank.every(ln => ln.trimStart().charAt(0) === '#');
 
 		const out = lines.map(ln => {
@@ -1044,10 +1068,22 @@ CerbUI.KataEditor = class {
 			const col = s - lineStart;
 			const newCol = (col <= indentLen) ? col : Math.max(indentLen, col + (newLine.length - oldLine.length));
 			this._setValueAndCaret(next, lineStart + newCol);
-			return;
+		} else {
+			// Selection: re-select the whole affected line range so a repeated ⌘/ keeps toggling the same block.
+			this._setValueAndCaret(next, lineStart, lineStart + out.length);
 		}
-		// Selection: re-select the whole affected line range so a repeated ⌘/ keeps toggling the same block.
-		this._setValueAndCaret(next, lineStart, lineStart + out.length);
+		this._restoreFoldsAfterComment(swallowed);
+	}
+
+	// Re-collapse the folds _expandFoldsForComment() opened. Safe as a straight re-push: commenting never adds or
+	// removes rows, so every saved {headerRow, startRow, endRow} is still accurate. The caret goes back in as a MODEL
+	// offset — _rebuildProjection() snaps a now-hidden one to the end of its enclosing header, so it lands on the
+	// header row and a repeat ⌘/ re-expands and toggles the same block.
+	_restoreFoldsAfterComment(swallowed) {
+		if(!swallowed || !swallowed.saved.length) return;
+		const caretM = this._viewOffsetToModelOffset(this.textarea.value, this.textarea.selectionStart);
+		this._folds = this._folds.concat(swallowed.saved).sort((a, b) => a.startRow - b.startRow);
+		this._rebuildProjection(caretM, { preserveScroll: true });
 	}
 
 	// Enter: newline, copying the current line's indent (and one extra level if it's a childless `key:`).
@@ -1736,7 +1772,13 @@ CerbUI.KataEditor = class {
 	// Recompute the textarea from this._model + this._folds and re-render. A fold toggle is NOT an undoable
 	// text edit, so we write the value directly (execCommand would push an undo entry). Optionally restores the
 	// caret to a model offset (mapped into the new projection).
-	_rebuildProjection(caretModelOffset) {
+	// `opts.preserveScroll` keeps the viewport where it is instead of scrolling to the caret — for fold/unfold,
+	// which only hide/insert rows BELOW the header, so every row at/above it keeps its position and the header
+	// should stay put. Without it a gutter-chevron fold scrolls to the (often stale, row-0) caret. Restored AFTER
+	// _autosize because its `height:auto` measuring pass zeroes scrollTop (the reason _scrollCaretIntoView runs last).
+	_rebuildProjection(caretModelOffset, opts) {
+		const preserveScroll = !!(opts && opts.preserveScroll);
+		const prevScrollTop = preserveScroll ? this.textarea.scrollTop : 0;
 		this._hidden = this._hiddenModelRows();
 		const proj = this._projectedText();
 		const ta = this.textarea;
@@ -1751,7 +1793,8 @@ CerbUI.KataEditor = class {
 		this._renderHighlight();
 		this._autosize();
 		this._renderGutter();
-		this._scrollCaretIntoView();
+		if(preserveScroll) { ta.scrollTop = prevScrollTop; this._syncScroll(); }
+		else this._scrollCaretIntoView();
 	}
 
 	// Expand every fold hiding a given model row (handles nested folds), then rebuild.
@@ -1759,6 +1802,45 @@ CerbUI.KataEditor = class {
 		const before = this._folds.length;
 		this._folds = this._folds.filter(f => !(mr > f.startRow && mr <= f.endRow));
 		if(this._folds.length !== before) this._rebuildProjection();
+	}
+
+	// ⌘/ only: temporarily open every fold the toggle needs to see, so the edit runs over the FULL subtree of a
+	// collapsed header. Unlike _revealForEdit() the folds come back afterwards (_restoreFoldsAfterComment).
+	//
+	// Growing the range one ascending pass over _folds (kept sorted by startRow) also picks up NESTED folds for free:
+	// a fold inside an expanded body has its startRow within the running range, so it's swallowed in the same pass —
+	// and its own endRow can't reach past its parent's. Without that, expanding only the outer fold would leave the
+	// inner body still hidden and the comment would skip those rows.
+	//
+	// Returns {saved, endOffset} — saved folds to restore, and a VIEW offset on the last row of the extended range
+	// (valid against the just-rebuilt textarea). `saved` empty means nothing was collapsed and the caller behaves
+	// exactly as it did before folds existed.
+	_expandFoldsForComment(mS, mE) {
+		const mLines = this._modelLines();
+		const rowAt = (off) => {
+			let acc = 0;
+			for(let r = 0; r < mLines.length; r++) { if(off <= acc + mLines[r].length) return r; acc += mLines[r].length + 1; }
+			return Math.max(0, mLines.length - 1);
+		};
+		const mr0 = rowAt(mS);
+		let mr1 = rowAt(mE);
+		for(const f of this._folds)
+			if(f.startRow >= mr0 && f.startRow <= mr1) mr1 = Math.max(mr1, f.endRow);
+
+		const saved = this._folds.filter(f => f.startRow <= mr1 && f.endRow >= mr0);
+		if(saved.length) {
+			this._folds = this._folds.filter(f => saved.indexOf(f) === -1);
+			// Park the caret at the selection start and hold the viewport: the rows we just revealed are all BELOW
+			// the header, so nothing above it moves and the block shouldn't jump under the user mid-keystroke.
+			this._rebuildProjection(mS, { preserveScroll: true });
+		}
+
+		// The extended range is fully visible now, so its last row has a view row.
+		const view = this.textarea.value.split('\n');
+		const vr = Math.min(Math.max(0, this._modelRowToViewRow(mr1)), view.length - 1);
+		let endOffset = 0;
+		for(let i = 0; i < vr; i++) endOffset += view[i].length + 1;
+		return { saved, endOffset };
 	}
 
 	// Before a structural line edit (indent/dedent/newline/delete/move): if the caret/selection sits on a
