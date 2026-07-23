@@ -1633,6 +1633,29 @@ CerbUI.editorCore.makeFindAdapter = function(ed, mode) {
 	};
 };
 
+// ── Agent-driven edit helpers (shared by the AgentPane host bridges) ───────────────────────────────────────
+// A Claude-Code-style search/replace: `oldStr` must match EXACTLY ONCE in the editor (0 or >1 is an error the
+// agent resolves by expanding context). Undo-safe via the editor's execCommand-backed _setValueAndCaret when it
+// has one (KataEditor/ScriptingEditor family), else a plain setValue. On success it briefly flashes the touched
+// span (see flashEditRange). Returns 'ok' or an actionable 'error: …' string the caller feeds straight back to
+// the model. `opts.flash:false` suppresses the flash.
+CerbUI.editorCore.applyUniqueEdit = function(editor, oldStr, newStr, opts) {
+	opts = opts || {};
+	if(oldStr === '') return 'error: `old` is empty. Use the whole-value set command to replace the field.';
+	const text = editor.getValue();
+	let from = 0, count = 0, at = -1;
+	while((from = text.indexOf(oldStr, from)) !== -1) { if(++count === 1) at = from; from += oldStr.length; }
+	if(count === 0) return 'error: no match for `old`. It must match exactly once — check whitespace/indentation, or include a larger unique surrounding block.';
+	if(count > 1) return 'error: `old` matched ' + count + ' times. It must match exactly once — add surrounding context to make it unique.';
+	const next = text.slice(0, at) + newStr + text.slice(at + oldStr.length);
+	if(typeof editor.unfoldAll === 'function') editor.unfoldAll();   // projection === model, so `at` is a valid view offset
+	if(typeof editor._setValueAndCaret === 'function') editor._setValueAndCaret(next, at + newStr.length);
+	else editor.setValue(next);
+	if(typeof editor.clearSelection === 'function') editor.clearSelection();
+	if(opts.flash !== false) CerbUI.editorCore.flashEditRange(editor, next, at, newStr.length);
+	return 'ok';
+};
+
 // ── Gutter diff vs a checkpoint baseline (shared by KataEditor + ScriptingEditor) ──────────────────────────
 // The DOM-agnostic half of the opt-in `diffGutter` feature: it owns the baseline + change recompute + the
 // agent-readable state, and drives a floating DiffViewer popover. The per-editor gutter RENDER stays in each
