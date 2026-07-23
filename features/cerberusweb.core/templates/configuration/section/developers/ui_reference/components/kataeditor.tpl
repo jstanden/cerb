@@ -8,10 +8,12 @@
 		<div class="cerb-uiref-example">
 			<div class="cerb-uiref-demo">
 				<textarea id="uiref-kataeditor-schema" data-editor-lines="16" spellcheck="false"># Metrics Explorer series — Ctrl/⌘+Space to suggest
-series/opened:
-  metric:
+&default-format:
   function: count
   label: Opened tickets
+series/opened:
+  metric:
+  format@ref: default-format
 </textarea>
 				<div class="cerb-uiref-result">State &middot; path at caret: <b id="uiref-kataeditor-schema-path">&mdash;</b></div>
 			</div>

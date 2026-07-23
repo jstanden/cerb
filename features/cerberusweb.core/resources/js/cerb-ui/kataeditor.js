@@ -63,7 +63,9 @@ CerbUI.KataEditor = class {
 	};
 
 	// A KATA key at the head of a line: `name`, `name/id`, `name@anno` (group 2 is the whole key, sans the ':').
-	static _KEY_RE = /^(\s*)((?:[\w.-]+)(?:\/[^\s:@]+)?(?:@[A-Za-z0-9_,]+)?):/;
+	// A leading `&` (reference key, e.g. `&my-block:`) is allowed on the name, mirroring the KATA lexer's
+	// `&?[a-z0-9\-_/.*]+` (kata.php); top-level-only is a dereference semantic, not lexical, so we don't gate on indent.
+	static _KEY_RE = /^(\s*)((?:&?[\w.-]+)(?:\/[^\s:@]+)?(?:@[A-Za-z0-9_,]+)?):/;
 
 	// Strip /identifiers and @annotations from each path segment so `series/s0:metric@int:` keys as `series:metric:`.
 	// Segments keep their trailing ':' (the shape getTokenPath/_scopePathAt return).
@@ -1810,7 +1812,7 @@ CerbUI.KataEditor = class {
 	_computeFoldableRanges() {
 		if(this.opts.folding === false) return [];   // folding disabled (e.g. a diff pane) — nothing is ever foldable
 		const lines = this._modelLines();
-		const KEY = /^(\s*)([\w.-]+)(\/[^\s:@]+)?((?:@[A-Za-z0-9_]+)(?:,[A-Za-z0-9_]+)*)?:/;
+		const KEY = /^(\s*)(&?[\w.-]+)(\/[^\s:@]+)?((?:@[A-Za-z0-9_]+)(?:,[A-Za-z0-9_]+)*)?:/;
 		const out = [];
 		for(let r = 0; r < lines.length; r++) {
 			const m = lines[r].match(KEY);
@@ -1861,8 +1863,8 @@ CerbUI.KataEditor = class {
 			// Comment: a line whose first non-space char is '#'.
 			if(trimmed.charAt(0) === '#') { toks.push({ type: 'comment', value: line }); continue; }
 
-			// Key line: indent, name, optional /identifier, optional @annotation,csv run, then ':'.
-			const m = line.match(/^(\s*)([\w.-]+)(\/[^\s:@]+)?((?:@[A-Za-z0-9_]+)(?:,[A-Za-z0-9_]+)*)?:/);
+			// Key line: indent, optional `&` (reference key), name, optional /identifier, optional @annotation,csv run, then ':'.
+			const m = line.match(/^(\s*)(&?[\w.-]+)(\/[^\s:@]+)?((?:@[A-Za-z0-9_]+)(?:,[A-Za-z0-9_]+)*)?:/);
 			if(m) {
 				const indent = m[1], name = m[2], slash = m[3] || '', ann = m[4] || '';
 				if(indent) toks.push({ type: 'text', value: indent });
@@ -1988,7 +1990,7 @@ CerbUI.KataEditor = class {
 	_autocompleteSuppressed(text, caret) {
 		const caretLineIdx = (text.slice(0, caret).match(/\n/g) || []).length;
 		const lines = text.split('\n');
-		const KEY = /^(\s*)([\w.-]+)(\/[^\s:@]+)?((?:@[A-Za-z0-9_]+)(?:,[A-Za-z0-9_]+)*)?:/;
+		const KEY = /^(\s*)(&?[\w.-]+)(\/[^\s:@]+)?((?:@[A-Za-z0-9_]+)(?:,[A-Za-z0-9_]+)*)?:/;
 		let blockIndent = null;
 
 		// A just-completed key is still the field tag (it ends in `:`), not a value slot — KATA writes an inline
