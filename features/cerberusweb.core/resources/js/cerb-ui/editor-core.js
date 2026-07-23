@@ -1633,6 +1633,155 @@ CerbUI.editorCore.makeFindAdapter = function(ed, mode) {
 	};
 };
 
+// ── Gutter diff vs a checkpoint baseline (shared by KataEditor + ScriptingEditor) ──────────────────────────
+// The DOM-agnostic half of the opt-in `diffGutter` feature: it owns the baseline + change recompute + the
+// agent-readable state, and drives a floating DiffViewer popover. The per-editor gutter RENDER stays in each
+// class (different markup + fold mapping); it just asks gutterClasses() for the row's diff class suffix.
+// Each host stores state on the editor instance: _diffBaseline, _diffRows (Map row->'added'|'modified'),
+// _diffDeletions (Set of rows with a deletion boundary above), _diffAtEnd (bool), _diffRaf. Model lines ==
+// getValue().split('\n') for both editors (KataEditor.getValue() returns the whole model, folds are view-only).
+CerbUI.editorCore.diff = {
+	// One recompute per frame — diffing the whole doc on every keystroke is wasteful (Myers trims to the middle).
+	schedule: function(editor) {
+		if(!editor.opts.diffGutter || editor._diffRaf) return;
+		const raf = (typeof window.requestAnimationFrame === 'function') ? window.requestAnimationFrame : (cb) => cb();
+		editor._diffRaf = raf(() => { editor._diffRaf = 0; CerbUI.editorCore.diff.recompute(editor); });
+	},
+	// Diff the live value against the baseline and repaint. Synchronous (callers wanting coalescing use schedule()).
+	// Render is pluggable: an editor with a gutter paints there via _renderGutter (Kata/Scripting); a gutterless
+	// editor defines _renderDiff to paint some other way (MarkdownEditor's wrap-aware body bands).
+	recompute: function(editor) {
+		if(!editor.opts.diffGutter || editor._diffBaseline == null) return editor;
+		const d = CerbUI.editorCore.lineDiff.hunks(editor._diffBaseline, editor.getValue());
+		editor._diffRows = d.rows;
+		editor._diffDeletions = d.deletions;
+		editor._diffAtEnd = d.deletedAtEnd;
+		if(typeof editor._renderDiff === 'function') editor._renderDiff();
+		else editor._renderGutter();
+		return editor;
+	},
+	// Set the checkpoint the gutter diffs against (defaults to the current value), then repaint — clears the marks
+	// after a save/run. No-op unless diffGutter is enabled.
+	setBaseline: function(editor, text) {
+		if(!editor.opts.diffGutter) return editor;
+		editor._diffBaseline = CerbUI.editorCore.lineDiff.normalize(text != null ? text : editor.getValue());
+		return CerbUI.editorCore.diff.recompute(editor);
+	},
+	// The unsaved diff as pure data (no DOM): baseline, current value, and the change hunks (status, current-row +
+	// baseline-row spans, added/removed line text). Lets an editor agent read what changed. Empty when off/unchanged.
+	getState: function(editor) {
+		const current = editor.getValue();
+		if(!editor.opts.diffGutter || editor._diffBaseline == null)
+			return { baseline: editor._diffBaseline, current: current, hunks: [] };
+		return { baseline: editor._diffBaseline, current: current,
+			hunks: CerbUI.editorCore.lineDiff.hunks(editor._diffBaseline, current).hunks };
+	},
+	// The hunk index a MODEL row belongs to (added/modified rows, a deletion boundary, or the end deletion), or -1.
+	// Indices line up with CerbUI.DiffViewer's own change blocks (same source), so scrollToDiff(i) matches.
+	rowIndex: function(editor, mr) {
+		const hunks = CerbUI.editorCore.diff.getState(editor).hunks || [];
+		const last = editor.getValue().split('\n').length - 1;
+		for(let i = 0; i < hunks.length; i++) {
+			const h = hunks[i];
+			if(h.status === 'deleted') {
+				if(h.rowStart === mr || (editor._diffAtEnd && h.rowStart > last && mr === last)) return i;
+			} else if(mr >= h.rowStart && mr < h.rowEnd) return i;
+		}
+		return -1;
+	},
+	// The gutter-line class suffix for a MODEL row: a right-edge bar on added/modified rows, a boundary wedge above
+	// a row that lost lines, and an end variant past the last row. `ns` = element namespace ('kataeditor'/…).
+	gutterClasses: function(editor, ns, mr, lastRow) {
+		let out = '';
+		const st = editor._diffRows.get(mr);
+		if(st) out += ' cerb-ui-' + ns + '--gutter-diff-' + st;
+		if(editor._diffDeletions.has(mr)) out += ' cerb-ui-' + ns + '--gutter-diff-deleted-before';
+		if(editor._diffAtEnd && mr === lastRow) out += ' cerb-ui-' + ns + '--gutter-diff-deleted-end';
+		return out;
+	},
+	// Wrap-aware full-width diff bands for a GUTTERLESS prose editor (MarkdownEditor): a tinted background spanning
+	// each changed logical line's full (possibly wrapped) height, drawn into the scroll-synced overlay behind the
+	// text. Added=green, modified=blue; a deletion boundary = a thin red rule at the top of the row below the loss
+	// (or past the last row for an end deletion). Positions come from caretCoords (the same primitive the find bands
+	// use), so wrapped lines stay correct. `ns` = element namespace for the band classes. Re-run on every repaint
+	// (renderTokens wipes the overlay) — call it from the editor's _renderHighlight after the find bands.
+	renderBodyBands: function(editor, overlay, ns) {
+		const cls = 'cerb-ui-' + ns + '--diff-band';
+		overlay.querySelectorAll('.' + cls).forEach((n) => n.remove());
+		if(!editor.opts.diffGutter || editor._diffBaseline == null) return;
+		if(!editor._diffRows.size && !editor._diffDeletions.size && !editor._diffAtEnd) return;
+		const ta = editor.textarea;
+		const value = editor.getValue();
+		const lines = value.split('\n');
+		const starts = []; let acc = 0;
+		for(let r = 0; r < lines.length; r++) { starts.push(acc); acc += lines[r].length + 1; }
+		const cs = window.getComputedStyle(ta);
+		const lh = parseFloat(cs.lineHeight) || (parseFloat(cs.fontSize) * 1.5);
+		const lastVis = ta.scrollTop + ta.clientHeight + 2 * lh;   // skip measuring lines well below the viewport
+		const lineTop = (r) => CerbUI.editorCore.caretCoords(ta, starts[r]).top;
+		const docBottom = () => { const c = CerbUI.editorCore.caretCoords(ta, value.length); return c.top + c.height; };
+		const band = (top, height, suffix) => {
+			const b = document.createElement('div');
+			b.className = cls + ' cerb-ui-' + ns + '--diff-band-' + suffix;
+			b.style.top = top + 'px';
+			b.style.height = height + 'px';
+			overlay.appendChild(b);
+		};
+		for(const [r, status] of editor._diffRows) {
+			const top = lineTop(r);
+			if(top > lastVis) continue;
+			const bottom = (r + 1 < lines.length) ? lineTop(r + 1) : docBottom();
+			band(top, Math.max(lh, bottom - top), status);   // 'added' | 'modified'
+		}
+		for(const r of editor._diffDeletions) {
+			const top = lineTop(r);
+			if(top <= lastVis) band(top, 0, 'deleted-before');
+		}
+		if(editor._diffAtEnd) band(docBottom(), 0, 'deleted-end');
+	},
+	// Float a read-only DiffViewer (baseline vs current, unchanged runs elided) near the clicked row, scrolled to
+	// that hunk. `opts.className` styles the popover; `opts.anchorEl` is the gutter (defaults to editor.gutter/el).
+	// DiffViewer loads after the editor files, so this is only reachable at click time (guarded).
+	openPopover: function(editor, modelRow, e, opts) {
+		opts = opts || {};
+		if(!window.CerbUI || !CerbUI.DiffViewer || editor._diffBaseline == null) return;
+		CerbUI.editorCore.diff.closePopover(editor);
+		const idx = CerbUI.editorCore.diff.rowIndex(editor, modelRow);
+		const pop = document.createElement('div');
+		pop.className = opts.className || 'cerb-ui-editor--diff-popover';
+		const body = document.createElement('div');
+		pop.appendChild(body);
+		document.body.appendChild(pop);
+		const viewer = new CerbUI.DiffViewer(body, {
+			left: editor._diffBaseline, right: editor.getValue(), lines: 14, collapseUnchanged: { context: 2 },
+		});
+		if(idx >= 0) viewer.scrollToDiff(idx);
+		const gr = (opts.anchorEl || editor.gutter || editor.el).getBoundingClientRect();
+		const w = 640, h = pop.offsetHeight || 320;
+		const left = Math.min(gr.right + 6, window.innerWidth - w - 8);
+		const top = Math.min(Math.max(8, (e ? e.clientY : gr.top) - 20), window.innerHeight - h - 8);
+		pop.style.left = Math.max(8, left) + 'px';
+		pop.style.top = Math.max(8, top) + 'px';
+		pop.style.width = w + 'px';
+		editor._diffPopover = { el: pop, viewer: viewer };
+		// Defer the outside-click binding a tick so the click that opened it doesn't immediately close it.
+		editor._diffPopoverOutside = (ev) => { if(!pop.contains(ev.target)) CerbUI.editorCore.diff.closePopover(editor); };
+		editor._diffPopoverKey = (ev) => { if(ev.key === 'Escape') { ev.stopPropagation(); CerbUI.editorCore.diff.closePopover(editor); } };
+		setTimeout(() => {
+			document.addEventListener('mousedown', editor._diffPopoverOutside, true);
+			document.addEventListener('keydown', editor._diffPopoverKey, true);
+		}, 0);
+	},
+	closePopover: function(editor) {
+		if(!editor._diffPopover) return;
+		document.removeEventListener('mousedown', editor._diffPopoverOutside, true);
+		document.removeEventListener('keydown', editor._diffPopoverKey, true);
+		try { editor._diffPopover.viewer.destroy(); } catch(_) {}
+		editor._diffPopover.el.remove();
+		editor._diffPopover = null;
+	},
+};
+
 // ── Shared Mod-F interception (one document-level capture handler for every editor) ────────────────────────
 // Every FindController registers here; the handler routes Cmd/Ctrl+F to the editor that owns focus (or, when
 // focus drifted to surrounding popup/dialog chrome, the most recently focused editor still in the DOM). Bound
