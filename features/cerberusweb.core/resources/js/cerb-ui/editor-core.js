@@ -1656,6 +1656,34 @@ CerbUI.editorCore.applyUniqueEdit = function(editor, oldStr, newStr, opts) {
 	return 'ok';
 };
 
+// Brief visual cue for a just-applied edit. Green (insert/replace) / red gap (delete) diff bands when the editor
+// exposes line decorations (KataEditor); otherwise select the changed span so the native highlight shows it
+// (ScriptingEditor/DataQuery, which have no deco bands). ~1.4s, token-guarded so a rapid second edit owns the cue.
+CerbUI.editorCore.flashEditRange = function(editor, nextText, at, addedLen) {
+	const token = (editor._editFlashToken = (editor._editFlashToken || 0) + 1);
+	const startRow = nextText.slice(0, at).split('\n').length - 1;
+	if(typeof editor.setLineDecorations === 'function') {
+		const decos = {};
+		if(addedLen > 0) {
+			const endRow = nextText.slice(0, at + addedLen).split('\n').length - 1;
+			for(let r = startRow; r <= endRow; r++) decos[r] = 'cerb-ui-diffviewer--line-added';
+		} else {
+			decos[startRow] = 'cerb-ui-diffviewer--gap-removed';
+		}
+		editor.setLineDecorations(decos);
+		if(typeof editor.scrollToLine === 'function') editor.scrollToLine(startRow);
+		setTimeout(function() { if(editor._editFlashToken === token && typeof editor.clearLineDecorations === 'function') editor.clearLineDecorations(); }, 1400);
+	} else if(editor.textarea && addedLen > 0) {
+		editor.textarea.setSelectionRange(at, at + addedLen);   // native highlight of exactly what changed
+		if(typeof editor.scrollToLine === 'function') editor.scrollToLine(startRow);
+		setTimeout(function() {
+			if(editor._editFlashToken === token && editor.textarea) { const end = at + addedLen; editor.textarea.setSelectionRange(end, end); }
+		}, 1400);
+	} else if(typeof editor.scrollToLine === 'function') {
+		editor.scrollToLine(startRow);   // pure deletion on a band-less editor: at least scroll to the spot
+	}
+};
+
 // ── Gutter diff vs a checkpoint baseline (shared by KataEditor + ScriptingEditor) ──────────────────────────
 // The DOM-agnostic half of the opt-in `diffGutter` feature: it owns the baseline + change recompute + the
 // agent-readable state, and drives a floating DiffViewer popover. The per-editor gutter RENDER stays in each
