@@ -109,6 +109,35 @@ CerbUI.editorCore = {
 		highlightEl.innerHTML = CerbUI.editorCore.tokensToHtml(tokens, classMap);
 	},
 
+	// Paint full-width tinted body bands for a set of MODEL rows behind the mirror text (z-index:-1 inside the
+	// --highlight layer, so they track scroll). Shared by KataEditor/ScriptingEditor: reads `editor._lineDecos`
+	// (Map of MODEL row -> color class), `editor.highlight`, `editor.textarea`. `bandClass` is the host's
+	// structural class ("cerb-ui-<ns>--line-deco"); `modelRowToViewRow` maps a MODEL row to a VIEW row (omit for
+	// linear editors; fold-aware for KataEditor, where a view row < 0 is hidden and skipped). Re-run on every
+	// repaint — renderTokens wipes the mirror.
+	renderLineDecorations: function(editor, bandClass, modelRowToViewRow) {
+		const hl = editor.highlight;
+		if(!hl) return;
+		hl.querySelectorAll('.' + bandClass).forEach((n) => n.remove());
+		const decos = editor._lineDecos;
+		if(!decos || !decos.size) return;
+		const cs = window.getComputedStyle(editor.textarea);
+		const lh = parseFloat(cs.lineHeight) || (parseFloat(cs.fontSize) * 1.5);
+		const padTop = parseFloat(cs.paddingTop) || 0;
+		const width = 'max(100%, ' + editor.textarea.scrollWidth + 'px)';   // full content width, not just the client width
+		const toView = (typeof modelRowToViewRow === 'function') ? modelRowToViewRow : ((r) => r);
+		for(const [mr, cls] of decos) {
+			const vr = toView(mr);
+			if(vr < 0) continue;
+			const band = document.createElement('div');
+			band.className = bandClass + (cls ? (' ' + cls) : '');
+			band.style.top = (padTop + vr * lh) + 'px';
+			band.style.height = lh + 'px';
+			band.style.width = width;
+			hl.appendChild(band);
+		}
+	},
+
 	// Pure viewport math for row virtualization: given the textarea's scroll position + height and the line
 	// height, return the clamped [first,last] VIEW-row range to paint (plus `overscan` buffer rows each side).
 	// Node-testable (no DOM). `viewRowCount` is the projection's line count.
