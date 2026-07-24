@@ -172,6 +172,7 @@ CerbUI.TextChooser = class {
 	// ── Public API ──
 	getValue() { return this.input.value; }
 	setValue(text) { this.input.value = (text == null ? '' : String(text)); }
+	open() { if(this.core) this.core.open(); }        // pop the suggestion dropdown (e.g. after a Refresh fetch)
 	close() { if(this.core) this.core.close(); }      // dismiss the suggestion dropdown
 	isOpen() { return !!(this.core && this.core.isOpen()); }
 
