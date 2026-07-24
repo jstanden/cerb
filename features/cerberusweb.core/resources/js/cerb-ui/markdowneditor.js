@@ -106,6 +106,9 @@ CerbUI.MarkdownEditor = class {
 		if(this.opts.readOnly) this.textarea.readOnly = true;
 
 		this.el.classList.toggle('cerb-ui-markdowneditor--plaintext', !this._markdown);
+		// diffGutter reserves a left gutter strip (no line numbers) via CSS; the diff bands render as thin change
+		// bars in it (renderBodyBands draws them into the scroll-synced overlay at the strip's left edge).
+		this.el.classList.toggle('cerb-ui-markdowneditor--diffgutter', !!this.opts.diffGutter);
 
 		this._ac = new CerbUI.editorCore.Autocomplete({
 			textarea: this.textarea,
