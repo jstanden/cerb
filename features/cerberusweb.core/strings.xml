@@ -1898,6 +1898,11 @@
 				<seg>move to</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.models">
+			<tuv xml:lang="en_US">
+				<seg>Models</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.name">
 			<tuv xml:lang="en_US">
 				<seg>Name</seg>
@@ -5735,6 +5740,62 @@ For example: *receipt*</seg>
 		<tu tuid="preferences.account.mail.no_discard_warning">
 			<tuv xml:lang="en_US">
 				<seg>Don't warn me about losing unsaved changes if I click links while composing mail</seg>
+			</tuv>
+		</tu>
+		<!-- Agent Model -->
+		<tu tuid="dao.agent_model.api_endpoint_url">
+			<tuv xml:lang="en_US">
+				<seg>API endpoint URL</seg>
+			</tuv>
+		</tu>
+		<tu tuid="dao.agent_model.connected_account_id">
+			<tuv xml:lang="en_US">
+				<seg>Authentication</seg>
+			</tuv>
+		</tu>
+		<tu tuid="dao.agent_model.context_window">
+			<tuv xml:lang="en_US">
+				<seg>Context Window</seg>
+			</tuv>
+		</tu>
+		<tu tuid="dao.agent_model.has_vision">
+			<tuv xml:lang="en_US">
+				<seg>Vision</seg>
+			</tuv>
+		</tu>
+		<tu tuid="dao.agent_model.icon">
+			<tuv xml:lang="en_US">
+				<seg>Icon</seg>
+			</tuv>
+		</tu>
+		<tu tuid="dao.agent_model.icon_color">
+			<tuv xml:lang="en_US">
+				<seg>Icon color</seg>
+			</tuv>
+		</tu>
+		<tu tuid="dao.agent_model.is_disabled">
+			<tuv xml:lang="en_US">
+				<seg>Disabled</seg>
+			</tuv>
+		</tu>
+		<tu tuid="dao.agent_model.label">
+			<tuv xml:lang="en_US">
+				<seg>Label</seg>
+			</tuv>
+		</tu>
+		<tu tuid="dao.agent_model.model">
+			<tuv xml:lang="en_US">
+				<seg>Model</seg>
+			</tuv>
+		</tu>
+		<tu tuid="dao.agent_model.params_kata">
+			<tuv xml:lang="en_US">
+				<seg>Parameters</seg>
+			</tuv>
+		</tu>
+		<tu tuid="dao.agent_model.provider">
+			<tuv xml:lang="en_US">
+				<seg>Provider</seg>
 			</tuv>
 		</tu>
 	</body>
