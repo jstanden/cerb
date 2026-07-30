@@ -49,7 +49,32 @@ class _DevblocksTwigSecurityPolicy implements SecurityPolicyInterface {
 	public function setAllowedFunctions(array $functions): void {
 		$this->allowedFunctions = $functions;
 	}
-	
+
+	// Readers so a caller can DERIVE a stricter policy from the standard one (start from what's allowed here,
+	// subtract) instead of duplicating these lists and silently drifting from them. Used by the agent
+	// filesystem's `|` pipelines, which evaluate model-authored templates and drop the `cerb_*`/`dns_*`
+	// functions. See Cerb\Agent\Filesystem::_scriptPolicy().
+
+	public function getAllowedTags(): array {
+		return $this->allowedTags;
+	}
+
+	public function getAllowedFilters(): array {
+		return $this->allowedFilters;
+	}
+
+	public function getAllowedMethods(): array {
+		return $this->allowedMethods;
+	}
+
+	public function getAllowedProperties(): array {
+		return $this->allowedProperties;
+	}
+
+	public function getAllowedFunctions(): array {
+		return $this->allowedFunctions;
+	}
+
 	public function checkSecurity($tags, $filters, $functions): void {
 		foreach ($tags as $tag) {
 			if (!\in_array($tag, $this->allowedTags)) {

@@ -90,6 +90,7 @@
 	<!-- Exported Classes -->
 	
 	<class_loader>
+		<dir path="api/Agent/" namespace="Cerb\Agent\" />
 		<dir path="api/Automation/Builder/" namespace="Cerb\Automation\Builder\" />
 		<dir path="api/Charts/" namespace="Cerb\Charts\" />
 		<dir path="api/Email/" namespace="Cerb\Email\" />
