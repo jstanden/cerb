@@ -12,6 +12,82 @@ class _DevblocksSearchService {
 		return self::$instance;
 	}
 	
+	private bool $_defer_index_queue = false;
+
+	/** [record_type => [record_id => true]] collected while deferred */
+	private array $_deferred_index_ids = [];
+
+	/**
+	 * Collect `queueIndexRecords()` calls instead of enqueueing them, until `flushIndexQueue()`.
+	 *
+	 * For a bulk writer whose records go in one at a time (the agent-filesystem ZIP importer writes a row per
+	 * archive entry): without this each row would enqueue its own single-id message. ALWAYS flush in a
+	 * `finally` — a window abandoned on an exception just leaves those records to the next cron sweep.
+	 */
+	public function deferIndexQueue() : void {
+		$this->_defer_index_queue = true;
+	}
+
+	public function flushIndexQueue() : int {
+		$this->_defer_index_queue = false;
+
+		$deferred = $this->_deferred_index_ids;
+		$this->_deferred_index_ids = [];
+
+		$queued = 0;
+
+		foreach($deferred as $record_type => $record_ids)
+			$queued += $this->queueIndexRecords(strval($record_type), array_keys($record_ids));
+
+		return $queued;
+	}
+
+	/**
+	 * Queue an immediate re-index of specific records, for every index built on that record type.
+	 *
+	 * The `search` cron already sweeps each index incrementally by `updated_at`, so this is about LATENCY, not
+	 * coverage: a caller that writes a record and expects to search it moments later (an agent editing a file,
+	 * then grepping for what it wrote) can't wait for the next cron tick. Messages carry the same
+	 * `{index_id, ids}` shape a full reindex emits, so `processQueue()` handles them unchanged.
+	 *
+	 * Fire-and-forget: no queue job, so these don't show up as progress bars in the Queue Job Monitor — they
+	 * ride along with whatever consumer run drains the queue next.
+	 */
+	public function queueIndexRecords(string $record_type, array $record_ids, int $batch_size=100) : int {
+		if(!($record_ids = DevblocksPlatform::sanitizeArray($record_ids, 'int', ['unique', 'nonzero'])))
+			return 0;
+
+		// Inside a defer window a bulk writer's per-record calls pile up here instead, so one import writes a
+		// few 100-id messages rather than one message per file.
+		if($this->_defer_index_queue) {
+			foreach($record_ids as $record_id)
+				$this->_deferred_index_ids[$record_type][$record_id] = true;
+
+			return 0;
+		}
+
+		if(!($search_indexes = DAO_SearchIndex::getByRecordType($record_type)))
+			return 0;
+
+		$queue_service = DevblocksPlatform::services()->queue();
+		$queued = 0;
+
+		foreach($search_indexes as $search_index) {
+			if(!$search_index->getExtension()?->hasOption('index'))
+				continue;
+
+			foreach(array_chunk($record_ids, $batch_size) as $chunk) {
+				$message = ['index_id' => $search_index->id, 'ids' => array_values($chunk)];
+
+				// cardinality = work units, so a jobless message still reports honest throughput
+				if($queue_service->enqueue('cerb.search.index', [$message], $error, cardinality: count($chunk)))
+					$queued++;
+			}
+		}
+
+		return $queued;
+	}
+
 	public function processQueue(Model_Queue $queue, int $stop_time, int $count_hint, ?Model_QueueJob $queue_job) {
 		$queue_service = DevblocksPlatform::services()->queue();
 
