@@ -359,4 +359,216 @@ class _DevblocksLlmService {
 		
 		return $tool_schema;
 	}
+
+	/**
+	 * The provider tool schemas for a session, built from its stored `tools` (the authored map) + `mounts`
+	 * (resolved agent-filesystem specs → the synthesized `agent_fs` tool). Session-only: `llm.agent` persists
+	 * both onto the session before a turn, so this matches what the node used to build inline from `inputs`.
+	 */
+	function getSessionToolSchemas(Model_LlmAgentSession $session) : array {
+		$schemas = [];
+
+		foreach($this->_sessionToolMap($session) as $tool_name => $tool) {
+			$schema = match($tool['type'] ?? null) {
+				'automation' => $this->getToolSchemaForAutomation($tool_name, $tool),
+				'tool' => $this->_toolSchemaCustom($tool_name, $tool),
+				'agent_fs' => $this->_toolSchemaAgentFs($tool_name, $tool),
+				default => null,
+			};
+
+			if($schema)
+				$schemas[$tool_name] = $schema;
+		}
+
+		return $schemas;
+	}
+
+	// Normalize the session's stored `tools` (`<type>/<name>` keys, skip disabled) into a name→descriptor map,
+	// then synthesize the shared `agent_fs` tool from the stored mounts (an author tool of that name wins).
+	private function _sessionToolMap(Model_LlmAgentSession $session) : array {
+		$tools = [];
+
+		foreach(($session->tools ?? []) as $tool_key => $tool) {
+			if(!is_array($tool))
+				continue;
+
+			list($tool_type, $tool_name) = array_pad(explode('/', strval($tool_key)), 2, null);
+
+			if(empty($tool_name))
+				$tool_name = $tool_type;
+
+			if(array_key_exists('disabled', $tool) && $tool['disabled'])
+				continue;
+
+			$tool['type'] = $tool_type;
+			$tools[$tool_name] = $tool;
+		}
+
+		$fs_name = \Cerb\AutomationBuilder\Node\LlmAgentNode::TOOL_FS;
+
+		// `[]` is enabled-with-no-volumes (a /tmp-only filesystem); only NULL means the session never had one.
+		if(!is_null($session->mounts) && !array_key_exists($fs_name, $tools)) {
+			$tools[$fs_name] = [
+				'type' => 'agent_fs',
+				'mounts' => $session->mounts,
+			];
+		}
+
+		return $tools;
+	}
+
+	// A custom (`tool/`) tool's schema — one object of `string` params. Ported verbatim from LlmAgentNode.
+	private function _toolSchemaCustom(string $tool_name, array $tool) : ?array {
+		$tool_schema = [
+			'type' => 'function',
+			'function' => [
+				'name' => $tool_name,
+				'description' => $tool['description'] ?? '',
+				'parameters' => [
+					'type' => 'object',
+					'properties' => (object)[],
+				],
+			]
+		];
+
+		if(array_key_exists('parameters', $tool) && is_array($tool['parameters'])) {
+			$tool_schema['function']['parameters']['properties'] = [];
+			$tool_schema['function']['parameters']['required'] = [];
+
+			foreach($tool['parameters'] as $param_key => $parameter) {
+				list($param_type, $param_name) = array_pad(explode('/', $param_key, 2), 2, null);
+
+				if(!$param_name)
+					$param_name = $param_type;
+
+				// The provider echoes arguments back keyed by this name, and the tool's `labels:` are rendered
+				// against them (`DevblocksLlmToolCall::getLabels()` — `{{query}}` reflects what the agent asked
+				// for). A dash is wire-legal for both Anthropic and OpenAI but unlexable in Twig, so drop the
+				// parameter rather than ship one whose label can never read it.
+				if(!_DevblocksKataService::isVariableName($param_name))
+					continue;
+
+				if('string' == $param_type) {
+					$tool_schema['function']['parameters']['properties'][$param_name] = [
+						'type' => 'string',
+						'description' => $parameter['description'] ?? '',
+					];
+
+					if(array_key_exists('enum', $parameter) && is_array($parameter['enum']))
+						$tool_schema['function']['parameters']['properties'][$param_name]['enum'] = $parameter['enum'];
+
+					if($parameter['required'] ?? false)
+						$tool_schema['function']['parameters']['required'][] = $param_name;
+				}
+			}
+		}
+
+		return $tool_schema;
+	}
+
+	/**
+	 * The synthesized agent-filesystem tool: a `command` line + an optional out-of-band `script`. The
+	 * description carries the command vocabulary + the mount overview (a shallow `ls` per volume), so it is
+	 * BUILT ONCE PER TURN and must be byte-identical across turns for a fixed mount set (or the cached prompt
+	 * prefix breaks). Lists only the mounted VOLUMES — never `/tmp`, whose contents change. Ported verbatim
+	 * from LlmAgentNode.
+	 */
+	private function _toolSchemaAgentFs(string $tool_name, array $tool) : ?array {
+		$mounts = $tool['mounts'] ?? [];
+
+		if(!is_array($mounts))
+			return null;
+
+		// No `tmp` store here: the overview is the CACHED description, and /tmp is dynamic. The runtime call
+		// supplies the store so /tmp exists when a command actually runs.
+		$fs = \Cerb\Agent\Filesystem::fromSpecs($mounts);
+		$resolved = $fs->getMounts();
+
+		if($resolved) {
+			$overview = ["Mounted filesystems:"];
+
+			foreach($resolved as $mount) {
+				// The mode belongs here as much as the name: it's what says whether you can write to this volume,
+				// and a failed write is a wasted turn.
+				$overview[] = sprintf("\n%s  (%s, %s)%s",
+					$mount['at'],
+					$mount['fs']->name,
+					$mount['mode'],
+					$mount['fs']->description ? ' -- ' . $mount['fs']->description : ''
+				);
+
+				$listing = $fs->exec(sprintf('ls "%s"', $mount['at']));
+				$overview[] = rtrim($listing['output'] ?? '');
+			}
+
+			$lead = [
+				"Browse the agent filesystems mounted below. Give one command line exactly as you would type it in a terminal.",
+				"There is no working directory: use absolute paths (`/skills/cerb-dev/SKILL.md`) or `@<filesystem>/path`.",
+				"Prefer `search`/`find` to locate a file, then `read` only what you need. `/tmp` is a scratch area you",
+				"can write to; a command whose output is too large to return is saved there and referenced by path.",
+			];
+
+		} else {
+			// No volumes: `/tmp` alone, which is still worth having — it's a scratch pad plus the `|` pipeline,
+			// so the agent can hold and transform arbitrary text without spending context on it.
+			$overview = ["No volumes are mounted. `/tmp` is your whole filesystem: write text there, then read,"
+				. "\nlist, or transform it with a `|` pipeline."];
+
+			$lead = [
+				"A scratch filesystem. Give one command line exactly as you would type it in a terminal.",
+				"There is no working directory: use absolute paths (`/tmp/notes.md`).",
+				"Write text to `/tmp` and it stays out of this conversation until you read it back — so it's the place",
+				"to park a long intermediate result, then narrow it with a `|` pipeline instead of re-reading the whole",
+				"thing. A command whose output is too large to return is saved there and referenced by path.",
+			];
+		}
+
+		// `search` needs a fulltext index, which only a volume has — don't advertise it over /tmp alone.
+		$verbs = $resolved
+			? ['ls', 'find', 'search', 'read', 'write', 'append', 'edit', 'copy', 'rm', '|', '/tmp']
+			: ['ls', 'find', 'read', 'write', 'append', 'edit', 'copy', 'rm', '|', '/tmp'];
+
+		$description = implode("\n", [
+			...$lead,
+			"For a longer transform than fits on one line, put a Twig template in `script` instead of a trailing `|`.",
+			'',
+			\Cerb\Agent\Filesystem::help(null, $verbs),
+			'',
+			implode("\n", $overview),
+		]);
+
+		return [
+			'type' => 'function',
+			'function' => [
+				'name' => $tool_name,
+				'description' => $description,
+				'parameters' => [
+					'type' => 'object',
+					'properties' => [
+						'command' => [
+							'type' => 'string',
+							'description' => "The command line to run, e.g. `ls /skills`, `search prompt caching --ext md`, `find *.md --fields title`, `read @cerb-dev/SKILL.md --offset 40 --limit 60`, `write /me/notes.md`, or `edit /me/notes.md`. May end with a `| <twig filters>` pipeline.",
+						],
+						'script' => [
+							'type' => 'string',
+							'description' => "Optional. A Twig template applied to the command's output instead of a trailing `|` pipeline — use it for a multi-line transform. Sees `output`, `lines`, and (for search/ls/find) `results`/`files`. Don't also use a `|` in the command.",
+						],
+						'content' => [
+							'type' => 'string',
+							'description' => "The file body for a `write` or `append` command (read-write mounts only). The WHOLE file — use `edit` to change part of an existing file.",
+						],
+						'find' => [
+							'type' => 'string',
+							'description' => "For `edit`: the exact snippet to locate. It must match EXACTLY ONE place in the file (whitespace matters) — if it's ambiguous, include more surrounding lines until it's unique.",
+						],
+						'replace' => [
+							'type' => 'string',
+							'description' => "For `edit`: the text that replaces `find`. Empty to delete the snippet.",
+						],
+					],
+					'required' => ['command'],
+				],
+			],
+		];
+	}
 }

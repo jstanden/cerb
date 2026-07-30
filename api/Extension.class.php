@@ -1446,9 +1446,10 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 						'score' => 1997,
 					],
 					[
-						'caption' => 'thinking_include:',
-						'snippet' => "thinking_include@bool: yes",
-						'docHTML' => '<b>thinking_include:</b>Include thoughts in the chat completion output.',
+						'caption' => 'mounts:',
+						'snippet' => "mounts:",
+						'score' => 1996,
+						'docHTML' => 'Mount agent filesystems and give the agent an <code>agent_fs</code> tool to browse them. Each key is a filesystem name. Leave the block <b>empty</b> to mount nothing but <code>/tmp</code> — a scratch pad plus the <code>|</code> scripting pipeline, so the agent can park and transform text without spending context on it.',
 					],
 					[
 						'caption' => 'thinking_level:',
@@ -1506,6 +1507,63 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'(.*):llm.agent:inputs:messages:message:role:' => [
 					'assistant',
 					'user',
+				],
+				// Each key IS a filesystem name, so the whole list is baked in here. A volume set is small and
+				// `getAll()` is cached — an AJAX suggestion type would be overkill.
+				'(.*):llm.agent:inputs:mounts:' => array_values(
+					array_map(
+						function($filesystem) { /* @var $filesystem Model_AgentFilesystem */
+							$doc = array_filter([
+								$filesystem->is_disabled ? '(disabled)' : '',
+								$filesystem->description,
+								sprintf('%d file%s, %s',
+									$filesystem->file_count,
+									(1 == $filesystem->file_count) ? '' : 's',
+									DevblocksPlatform::strPrettyBytes($filesystem->total_bytes)
+								),
+							]);
+
+							return [
+								'caption' => $filesystem->name . ':',
+								'snippet' => $filesystem->name . ":\n",
+								'docHTML' => '<b>' . DevblocksPlatform::strEscapeHtml($filesystem->name) . '</b><br>'
+									. DevblocksPlatform::strEscapeHtml(implode(' — ', $doc)),
+							];
+						},
+						DAO_AgentFilesystem::getAll()
+					)
+				),
+				// One path segment (`[^:]+`), NOT a greedy `(.*)` — that would also match the deeper `…:at:`
+				// value scope and offer these key completions while typing a mountpoint.
+				'(.*):llm.agent:inputs:mounts:[^:]+:' => [
+					[
+						'caption' => 'at:',
+						'snippet' => "at: /\${1:mountpoint}",
+						'docHTML' => 'Where to mount this filesystem. Defaults to <code>/&lt;name&gt;</code>.',
+					],
+					[
+						'caption' => 'filesystem:',
+						'snippet' => "filesystem: \${1:name}",
+						'docHTML' => '<b>filesystem:</b> The SOURCE volume — a name, an id, or a <code>cerb:agent_filesystem:&lt;name&gt;</code> URI. Omitted, the key itself names the source; give it to decouple the two (mount a per-chat volume at a fixed mountpoint).',
+					],
+					[
+						'caption' => 'mode:',
+						'snippet' => "mode: \${1:read-write}",
+						'docHTML' => '<b>mode:</b> <code>read-only</code> (default) or <code>read-write</code>. Writes (<code>write</code>/<code>append</code>/<code>edit</code>/<code>copy</code>/<code>rm</code>) are refused on a read-only mount.',
+					],
+					[
+						'caption' => 'create@bool:',
+						'snippet' => "create@bool: \${1:yes}",
+						'docHTML' => '<b>create:</b> Provision the volume by name if it doesn\'t exist yet (skipped while simulating). A name must start with a letter and contain only letters, digits, and dashes.',
+					],
+				],
+				'(.*):llm.agent:inputs:mounts:[^:]+:mode:' => [
+					'read-only',
+					'read-write',
+				],
+				'(.*):llm.agent:inputs:mounts:[^:]+:create:' => [
+					'yes',
+					'no',
 				],
 				'(.*):llm.agent:inputs:tools:' => [
 					[

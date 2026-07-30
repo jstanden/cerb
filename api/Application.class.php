@@ -5469,6 +5469,28 @@ class _CerbApplication_KataSchemas {
                                               role:
                                                 types:
                                                   string:
+                              mounts:
+                                types:
+                                  object:
+                                    attributePatterns:
+                                      pattern/filesystem:
+                                        match: *
+                                        attributes:
+                                          types:
+                                            object:
+                                              attributes:
+                                                at:
+                                                  types:
+                                                    string:
+                                                create:
+                                                  types:
+                                                    bool:
+                                                filesystem:
+                                                  types:
+                                                    string:
+                                                mode:
+                                                  types:
+                                                    string:
                               system_prompt:
                                 types:
                                   string:

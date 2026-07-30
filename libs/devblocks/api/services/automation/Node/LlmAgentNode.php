@@ -11,7 +11,11 @@ use Model_Automation;
 
 class LlmAgentNode extends AbstractNode {
 	const ID = 'llm.agent';
-	
+
+	// The synthesized agent-filesystem tool. ONE tool regardless of how many volumes are mounted, under a
+	// fixed name, so the tool schema (and therefore the cached prompt prefix) is constant.
+	const TOOL_FS = 'agent_fs';
+
 	private array $_inputs = [];
 	private string $_output = '';
 	private DevblocksDictionaryDelegate $_dict;
@@ -67,6 +71,9 @@ class LlmAgentNode extends AbstractNode {
 				
 				$validation->addField('tools', 'tools:')
 					->array();
+
+				$validation->addField('mounts', 'mounts:')
+					->array();
 				
 				if (false === ($validation->validateAll($this->_inputs, $error)))
 					throw new Exception_DevblocksAutomationError($error);
@@ -94,6 +101,11 @@ class LlmAgentNode extends AbstractNode {
 				];
 			}
 		
+
+				// Provision any `mounts:` volumes flagged `create@bool: yes` before they're resolved to records
+				// (by _persistSessionConfig / _getTools below). Runs once per authoring turn; a resume replays
+				// the stored specs and skips this.
+				$this->_provisionMounts();
 			$llm_provider = $this->_getLlmProvider();
 			$session_key = $this->_getSessionKey($llm_provider);
 			
@@ -178,8 +190,21 @@ class LlmAgentNode extends AbstractNode {
 						
 						$llm_provider->returnTool($tool_spec, $tool_response['content'] ?? '', $memory_store);
 						
-					} elseif('tool' == $tool['type']) {
-						$llm_provider->returnTool($tool_spec, $tool['content'] ?? '', $memory_store);
+					} elseif(in_array($tool_dict['type'] ?? '', ['tool', 'agent_fs'])) {
+						// A custom tool's result: prefer a value set dynamically by `tool.return:` in the on_tool
+						// branch (stored on `__tool.content` by ToolReturnAction); else the tool's static `content:`
+						// from its definition. Without this the dynamic `tool.return` value is silently discarded and
+						// the model only ever sees the static content (empty for a browser-round-trip tool).
+						// `agent_fs` rides the same slot: _activateTool() ran the command and stashed its output
+						// there before the branch, so an author who doesn't call `tool.return:` still returns it.
+						$content = array_key_exists('content', $tool_dict)
+							? $tool_dict['content']
+							: (is_array($tool) ? ($tool['content'] ?? '') : '');
+
+						// `content@key:` can resolve to null (an empty/absent editor value, an unset var) — `array_key_exists`
+						// keeps the explicit null, but the provider's returnTool() requires a string. Coerce to '' like the
+						// `automation` branch does, so a null tool result is an empty result, not a fatal.
+						$llm_provider->returnTool($tool_spec, $content ?? '', $memory_store);
 					}
 					
 					$this->_dict->unset('__tool');
@@ -258,7 +283,16 @@ class LlmAgentNode extends AbstractNode {
 			$tool['type'] = $tool_type;
 			$tools[$tool_name] = $tool;
 		}
-		
+
+		// Mounting a filesystem provisions the one shared `agent_fs` tool over the composed VFS. An author tool
+		// already using that name wins (we never silently replace it).
+		if($this->_isFilesystemEnabled($session_id) && !array_key_exists(self::TOOL_FS, $tools)) {
+			$tools[self::TOOL_FS] = [
+				'type' => 'agent_fs',
+				'mounts' => $this->_getMountSpecs($session_id),
+			];
+		}
+
 		return $tools;
 	}
 	
@@ -327,11 +361,185 @@ class LlmAgentNode extends AbstractNode {
 			
 			if($tool_schema)
 				$tools[$tool_name] = $tool_schema;
+
+	/**
+	 * Is the agent filesystem enabled for this turn? Authoring `mounts:` AT ALL enables it — an EMPTY block
+	 * is a real configuration, not an absence: it mounts nothing but `/tmp`, which gives the agent a scratch
+	 * pad plus the `|` scripting pipeline over arbitrary text. So this asks whether the key was written, not
+	 * whether it resolved to any volumes.
+	 *
+	 * On resume the session answers, where `null` (never enabled) and `[]` (enabled, /tmp only) differ.
+	 */
+	private function _isFilesystemEnabled(?string $session_id = null) : bool {
+		if(array_key_exists('mounts', $this->_inputs))
+			return true;
+
+		if($session_id && ($session = \DAO_LlmAgentSession::get($session_id)))
+			return !is_null($session->mounts);
+
+		return false;
+	}
+	
+	/**
+	 * The resolved `mounts:` specs for this turn, in the shape `Cerb\Agent\Filesystem::fromSpecs()` takes.
+	 *
+	 * Mirrors `_getTools()`: the inbound `mounts:` wins, and on a pure resume (a turn that omits the block)
+	 * we fall back to the session's stored mounts — the session is the source of truth, so a resume inherits
+	 * its volumes instead of losing them.
+	 *
+	 * Mounts are SERVER-resolved from the node config and never model-controlled: the model can only name
+	 * paths inside what's already mounted.
+	 *
+	 * Per entry `<mountpoint-key>: { … }`:
+	 *   - the KEY is the mountpoint label (so `at:` defaults to `/<key>`);
+	 *   - `filesystem:` names the SOURCE volume (a name, id, or `cerb:agent_filesystem:<name>` URI) and, when
+	 *     given, decouples the source from the key — memory mounts a per-chat volume at a fixed `/memory-user`.
+	 *     Omitted, the key doubles as the source (the common one-line-per-volume case, back-compatible);
+	 *   - `mode:` is `read-only` (default) or `read-write` — writes stay gated to rw mounts in the VFS.
+	 * Provisioning (`create@bool`) is handled separately in _provisionMounts() before this resolver runs.
+	 */
+	private function _getMountSpecs(?string $session_id = null) : array {
+		$mounts_config = $this->_inputs['mounts'] ?? [];
+
+		// Pure resume: the session stores the RESOLVED specs (an indexed list, not the authored map), so
+		// they're already in fromSpecs() shape — return them verbatim rather than re-normalizing. They carry the
+		// resolved `mode`, so a rw mount stays rw across the async await/resume.
+		if(!is_array($mounts_config) || !$mounts_config) {
+			if($session_id && ($session = \DAO_LlmAgentSession::get($session_id)))
+				return $session->mounts ?? [];
+
+			return [];
+		}
+
+		$specs = [];
+
+		foreach($mounts_config as $key => $mount) {
+			$key = DevblocksPlatform::services()->string()->strBefore(strval($key), '@');
+
+			if('' === $key)
+				continue;
+
+			if(!is_array($mount))
+				$mount = [];
+
+			// Source: an explicit `filesystem:` (name/id/URI) wins; otherwise the mountpoint key is the source
+			// too (a `cerb:` URI for the wrong context resolves to '' and falls back to the key).
+			$source = '';
+
+			if('' !== ($fs_ref = trim(strval($mount['filesystem'] ?? ''))))
+				$source = self::_resolveFilesystemRef($fs_ref);
+
+			if('' === $source)
+				$source = $key;
+
+			$mode_raw = DevblocksPlatform::strLower(trim(strval($mount['mode'] ?? '')));
+			$mode = in_array($mode_raw, ['rw', 'read-write', 'readwrite'], true)
+				? \Cerb\Agent\Filesystem::MODE_RW
+				: \Cerb\Agent\Filesystem::MODE_RO;
+
+			$specs[] = [
+				'filesystem' => $source,
+				'mode' => $mode,
+				'at' => ('' !== ($at = strval($mount['at'] ?? ''))) ? $at : ('/' . $key),
+			];
 		}
 		
 		return $tools;
+
+		return $specs;
 	}
-	
+
+	/**
+	 * Normalize a `filesystem:` value to the bare identifier fromSpecs() resolves (a name or id). Accepts a
+	 * `cerb:agent_filesystem:<id-or-name>` URI and strips it to the trailing identifier; a bare name/id passes
+	 * through. A `cerb:` URI for a DIFFERENT context returns '' (the caller then falls back / errors). Pure
+	 * string work — no context registry — so it stays headless-testable.
+	 */
+	private static function _resolveFilesystemRef(string $value) : string {
+		$value = trim($value);
+
+		if(!str_starts_with($value, 'cerb:'))
+			return $value;
+
+		$parts = explode(':', $value);
+
+		// cerb:agent_filesystem:<identifier> — the middle segment is Context_AgentFilesystem::URI (the context
+		// alias, kept as a literal so this helper carries no class dependency and stays pure/testable).
+		if(3 !== count($parts) || 'agent_filesystem' !== ($parts[1] ?? ''))
+			return '';
+
+		return trim(strval($parts[2] ?? ''));
+	}
+
+	/**
+	 * Opt-in provisioning: for each `mounts:` entry with `create@bool: yes` whose SOURCE volume doesn't exist
+	 * yet, create it (by name) so a per-user/per-agent memory volume is minted on first mount. Idempotent
+	 * (create-if-missing). Runs ONCE on a fresh authoring turn, before the mounts are resolved to real records —
+	 * never on resume (already provisioned + stored) and never while simulating (a sim must not create real
+	 * volumes; an unresolved mount simply doesn't mount there).
+	 */
+	private function _provisionMounts() : void {
+		$mounts_config = $this->_inputs['mounts'] ?? [];
+
+		if(!is_array($mounts_config) || !$mounts_config)
+			return;
+
+		if($this->_dict->get('__simulate', false))
+			return;
+
+		$strings = DevblocksPlatform::services()->string();
+
+		foreach($mounts_config as $key => $mount) {
+			if(!is_array($mount))
+				continue;
+
+			if(!$strings->toBool($mount['create'] ?? false))
+				continue;
+
+			$key = $strings->strBefore(strval($key), '@');
+
+			$source = '';
+			if('' !== ($fs_ref = trim(strval($mount['filesystem'] ?? ''))))
+				$source = self::_resolveFilesystemRef($fs_ref);
+			if('' === $source)
+				$source = $key;
+
+			if('' === $source)
+				continue;
+
+			// A numeric ref is an id — you can't create a volume by id (there's no name to mint it with).
+			if(ctype_digit($source)) {
+				if(\DAO_AgentFilesystem::get(intval($source)))
+					continue;
+
+				throw new Exception_DevblocksAutomationError(sprintf("Cannot create the agent filesystem `%s` — a numeric id references an existing volume; give a name to create one.", $source));
+			}
+
+			// Already exists? (Case-insensitive name match, mirroring Filesystem::fromSpecs().)
+			foreach(\DAO_AgentFilesystem::getAll() as $fs) {
+				if(0 == strcasecmp($fs->name, $source))
+					continue 2;
+			}
+
+			// Create by name. The DAO's name rule is: start with a letter, then letters/digits/dashes — surface
+			// a clear error rather than inserting an invalid handle. (A leading-letter rule also means a name can
+			// never collide with the numeric-id lookup handled above.)
+			if(!preg_match('/^[A-Za-z][A-Za-z0-9-]*$/', $source))
+				throw new Exception_DevblocksAutomationError(sprintf("Cannot create the agent filesystem `%s` — a name must start with a letter and contain only letters (A-Z, a-z), digits (0-9), and dashes.", $source));
+
+			\DAO_AgentFilesystem::create([
+				\DAO_AgentFilesystem::NAME => $source,
+			]);
+		}
+	}
+
+	// The continuation-scoped /tmp scratch store for this node's agent_fs tool. Keyed like the session slot
+	// (`::` delimiter keeps a dotted node id whole) so two llm.agent nodes don't share a scratch area. It rides
+	// the automation dict, so it survives awaits + the tool loop within a run; a fresh run starts empty.
+	private function _getTmpKey() : string {
+		return sprintf('__agent_fs_tmp::%s', $this->node->getId());
+	}
+
 	/**
 	 * @param string $state
 	 * @param string|null $error
@@ -417,20 +625,72 @@ class LlmAgentNode extends AbstractNode {
 				'parameters' => $tool_spec->getParameters(),
 				'type' => $tool_type,
 			]);
-			
+
 			if(in_array($tool_type, ['automation', 'tool'])) {
 				// Run the custom `on_tool:` branch
 				if (null != ($this->node->getChild($this->node->getId() . ':on_tool'))) {
 					$this->_node_memory['stack'][] = ['tool_branch', []];
 					return true;
 				}
-			
-			} else {
-				$tool_response = [
-					'content' => 'ERROR: Unknown tool type.'
-				];
+
+			} elseif('agent_fs' == $tool_type) {
+				// The filesystem command itself runs server-side, right here — there's no browser round trip to
+				// produce a result, so a transcript replay never re-runs it. There's no working directory (see
+				// the tool description): every command evaluates from the root, so `search` spans all mounts and
+				// paths must be absolute.
+				$params = $tool_spec->getParameters();
+
+				// The scratch /tmp store rides the automation dict, so it survives awaits and the tool loop
+				// across this run (a fresh run starts clean). Passing it in is also what makes `/tmp` exist as a
+				// writable mount, and gives large output somewhere to spill instead of being truncated away.
+				$tmp_key = $this->_getTmpKey();
+				$tmp_store = $this->_dict->getKeyPath($tmp_key, [], '::');
+
+				if(!is_array($tmp_store))
+					$tmp_store = [];
+
+				// A `script` is the multi-line alternative to a trailing `|`; the interpreter rejects both at once.
+				$script = strlen(strval($params['script'] ?? '')) ? strval($params['script']) : null;
+
+				// Out-of-band write bodies, kept off the command line. `content` (write/append) and `replace`
+				// (edit) are the same channel -- both are "the text going into the file" -- so they share the
+				// $payload slot; `edit`'s search needle rides its own arg. All writes stay rw-mount gated below.
+				$content = strlen(strval($params['content'] ?? '')) ? strval($params['content']) : null;
+				$find = array_key_exists('find', $params) ? strval($params['find']) : null;
+				$replace = array_key_exists('replace', $params) ? strval($params['replace']) : null;
+				$payload = $content ?? $replace;
+
+				$result = \Cerb\Agent\Filesystem::fromSpecs($tool['mounts'] ?? [], ['tmp' => $tmp_store])
+					->exec(strval($params['command'] ?? ''), '/', $payload, $script, $find);
+
+				// Persist the store only when a command changed it (write/append/rm, or a spill).
+				if(array_key_exists('tmp', $result))
+					$this->_dict->setKeyPath($tmp_key, $result['tmp'], '::');
+
+				// Some commands legitimately produce no output; providers reject an empty tool result.
+				$content = strval($result['output'] ?? '') ?: '(no output)';
+
+				// Hand the output to the `on_tool:` branch on `__tool.content` (the same slot `tool.return:`
+				// writes), so the branch can render a status from `{{__tool.parameters.command}}` +
+				// `{{__tool.content}}` — and can still override the result if it wants to.
+				$tool_dict = $this->_dict->get('__tool', []);
+				$tool_dict['content'] = $content;
+				$this->_dict->set('__tool', $tool_dict);
+
+				// Then run `on_tool:` like any other tool type. This is what lets the automation BREATHE: an
+				// agent that fires five commands in one turn otherwise does it all in a single request and hits
+				// the time limit. The branch's await ends the request (re-rendering the transcript for a status
+				// update) and the continuation resumes at `tool_return`.
+				if(null != ($this->node->getChild($this->node->getId() . ':on_tool'))) {
+					$this->_node_memory['stack'][] = ['tool_branch', []];
+					return true;
+				}
+
+				// No branch to run — return to the model immediately.
+				$tool_response = ['content' => $content];
+				$this->_dict->unset('__tool');
 			}
-			
+
 		} else {
 			$tool_response = [
 				'content' => 'ERROR: This tool does not exist.'
