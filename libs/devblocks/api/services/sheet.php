@@ -1347,7 +1347,7 @@ class _DevblocksSheetServiceTypes {
 			}
 			
 			return '<div data-cerb-sheet-column-toolbar>'
-				. DevblocksPlatform::services()->ui()->toolbar()->fetch($toolbar_kata, 'cerb-sheet-toolbar--interaction')
+				. DevblocksPlatform::services()->ui()->toolbar()->fetch($toolbar_kata)
 				. '</div>'
 			;
 		};

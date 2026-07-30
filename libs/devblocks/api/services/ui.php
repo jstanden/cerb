@@ -891,9 +891,14 @@ class DevblocksUiToolbar {
 					return;
 				}
 				
-				// If no automation
+				// No automation? A `cerb:behavior:` uri binds a legacy behavior instead (consistent with
+				// automation-event bindings); leave it visible — behavior readability is enforced at launch,
+				// not by an automation caller policy. Anything else is unresolved and hidden.
 				if(!($automation = ($automations[$node['uri']] ?? null))) {
-					$node['hidden'] = true;
+					if(!$this->_uriIsBehavior($node['uri'])) {
+						$node['hidden'] = true;
+						return;
+					}
 					return;
 				}
 				
@@ -922,27 +927,44 @@ class DevblocksUiToolbar {
 		}
 	}
 	
-	function fetch($toolbar, $interaction_class='cerb-bot-trigger') {
+	// A toolbar interaction `uri:` (prefix already stripped by parse()) that isn't an automation may bind a
+	// legacy behavior by uri or numeric id. True when such a behavior exists, so the item stays visible.
+	private function _uriIsBehavior($uri) {
+		if(!$uri || !class_exists('DAO_TriggerEvent'))
+			return false;
+
+		if(is_numeric($uri))
+			return (bool) DAO_TriggerEvent::get((int) $uri);
+
+		return (bool) DAO_TriggerEvent::getByUri($uri);
+	}
+
+	// Render a parsed toolbar as CerbUI.Toolbar markup (nested ul/li) enhanced by `new CerbUI.Toolbar(...)`.
+	// $opts: ['class' => extra wrapper classes, 'attr' => raw wrapper attrs]. For back-compat the legacy
+	// signature was fetch($toolbar, $interaction_class) — CerbUI finds interactions by data-* attribute, so
+	// a string 2nd arg is obsolete and ignored.
+	function fetch($toolbar, $opts=[]) {
 		if(!is_array($toolbar))
 			return null;
-		
+
+		if(!is_array($opts))
+			$opts = [];
+
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('toolbar', $toolbar);
-		$tpl->assign('interaction_class', $interaction_class);
-		
+		$tpl->assign('wrapper_class', $opts['class'] ?? '');
+		$tpl->assign('wrapper_attr', $opts['attr'] ?? '');
+
 		return $tpl->fetch('devblocks:devblocks.core::ui/toolbar/render.tpl');
 	}
-	
-	function render($toolbar) {
+
+	function render($toolbar, $opts=[]) {
 		if(!is_array($toolbar))
 			return null;
-		
-		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('toolbar', $toolbar);
-		
-		echo $this->fetch($toolbar);
+
+		echo $this->fetch($toolbar, $opts);
 	}
-	
+
 	public function extractKeyboardShortcuts(array $toolbar, array &$toolbar_keyboard_shortcuts) {
 		array_walk_recursive(
 			$toolbar,

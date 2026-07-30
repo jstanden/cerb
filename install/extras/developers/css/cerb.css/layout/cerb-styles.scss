@@ -1287,6 +1287,12 @@ DIV.cerb-profile-toolbar {
 		font-size: 90%;
 		color: var(--cerb-color-background-contrast-100);
 	}
+
+	// Hybrid toolbar: the built-in buttons (card/edit/comment/…) and the injected CerbUI.Toolbar strip
+	// read as one unified rail. (Shared recipe — see cerb-ui-toolbar-hybrid in cerb-ui/_toolbar.scss.)
+	form.toolbar {
+		@include cerb-ui-toolbar-hybrid;
+	}
 }
 
 // Popup menu

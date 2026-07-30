@@ -1,57 +1,35 @@
-<fieldset style="margin-top:10px;position:relative;">
-	<span class="cerb-icons cerb-icon-circle-remove"></span>
-	<legend>{'common.preview'|devblocks_translate|capitalize}</legend>
+<div class="cerb-ui-panel cerb-ui-panel--spaced" data-cerb-toolbar-preview style="margin-top:10px;">
+	<div class="cerb-ui-header cerb-ui-header--tight cerb-ui-header--center">
+		<div class="cerb-ui-header--title-sm">{'common.preview'|devblocks_translate|capitalize}</div>
+		<div class="cerb-ui-header--right">
+			<button type="button" class="cerb-ui-button cerb-ui-button--transparent" data-cerb-preview-remove title="{'common.remove'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-circle-remove"></span></button>
+		</div>
+	</div>
 
 	<div>
 		{if !$toolbar}
-			No interactions are available.
+			<span class="cerb-u-text-muted">No interactions are available.</span>
 		{else}
 			{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
 		{/if}
 	</div>
-</fieldset>
+</div>
 
 {$script_uid = uniqid('script')}
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" id="{$script_uid}">
 $(function() {
 	let $script = $('#{$script_uid}');
-	let $fieldset = $script.prev('fieldset');
+	let $panel = $script.prev('[data-cerb-toolbar-preview]');
 
 	// Remove
-	$fieldset.find('.cerb-icon-circle-remove')
-		.css('position','absolute')
-		.css('right','-5px')
-		.css('top','-10px')
-		.css('cursor','pointer')
-		.css('color','rgb(80,80,80)')
-		.css('zoom','1.5')
-		.on('click', function(e) {
-			e.stopPropagation();
-			$(this).closest('fieldset').remove();
-		})
-	;
+	$panel.find('[data-cerb-preview-remove]').on('click', function(e) {
+		e.stopPropagation();
+		$(this).closest('[data-cerb-toolbar-preview]').remove();
+	});
 
-	// Menus
-	$fieldset
-		.find('button[data-cerb-toolbar-menu]')
-		.on('click', function() {
-			var $this = $(this);
-			var $ul = $(this).next('ul').toggle();
-
-			$ul.position({
-				my: 'left top',
-				at: 'left bottom',
-				of: $this,
-				collision: 'fit'
-			});
-		})
-		.next('ul.cerb-float')
-		.menu()
-		.find('li.cerb-bot-trigger')
-		.on('click', function(e) {
-			e.stopPropagation();
-			$(this).closest('ul.cerb-float').hide();
-		})
-	;
+	// Toolbar preview (menus only — no interactions are fired from the preview)
+	let toolbar_ul = $panel.find('ul.cerb-ui-toolbar')[0];
+	if(toolbar_ul && window.CerbUI && CerbUI.Toolbar)
+		new CerbUI.Toolbar(toolbar_ul);
 });
 </script>
