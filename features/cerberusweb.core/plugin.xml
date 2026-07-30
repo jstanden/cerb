@@ -831,6 +831,15 @@
 			<class name="SearchFields_AgentModelRouter" />
 			<class name="View_AgentModelRouter" />
 		</file>
+
+		<file path="api/dao/agent_file.php">
+			<class name="Context_AgentFile" />
+			<class name="DAO_AgentFile" />
+			<class name="Model_AgentFile" />
+			<class name="SearchFields_AgentFile" />
+			<class name="View_AgentFile" />
+		</file>
+
 	</class_loader>
 	
 	<!-- Activity Points -->
@@ -1253,6 +1262,52 @@
 				</param>
 			</params>
 		</extension>
+
+		<extension point="devblocks.context">
+			<id>cerb.contexts.agent.file</id>
+			<name>Agent File</name>
+			<class>
+				<file>api/dao/agent_file.php</file>
+				<name>Context_AgentFile</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="agent file" value="singular" />
+						<data key="agent files" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="agent_file" />
+				<param key="icon" value="file-document" />
+				<param key="dao_class" value="DAO_AgentFile" />
+				<param key="view_class" value="View_AgentFile" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="comments" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="records" />
+						<data key="search" />
+						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="watchers" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="broadcast" />
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
 		<extension point="devblocks.context">
 			<id>cerberusweb.contexts.app</id>
 			<name>Application</name>

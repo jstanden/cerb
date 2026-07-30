@@ -5823,5 +5823,36 @@ For example: *receipt*</seg>
 				<seg>Model Router</seg>
 			</tuv>
 		</tu>
+		<!-- Agent File -->
+		<tu tuid="dao.agent_file.content">
+			<tuv xml:lang="en_US">
+				<seg>Content</seg>
+			</tuv>
+		</tu>
+		<tu tuid="dao.agent_file.file_extension">
+			<tuv xml:lang="en_US">
+				<seg>Extension</seg>
+			</tuv>
+		</tu>
+		<tu tuid="dao.agent_file.filesystem_id">
+			<tuv xml:lang="en_US">
+				<seg>Filesystem</seg>
+			</tuv>
+		</tu>
+		<tu tuid="dao.agent_file.frontmatter_json">
+			<tuv xml:lang="en_US">
+				<seg>Frontmatter</seg>
+			</tuv>
+		</tu>
+		<tu tuid="dao.agent_file.sha1">
+			<tuv xml:lang="en_US">
+				<seg>SHA1</seg>
+			</tuv>
+		</tu>
+		<tu tuid="dao.agent_file.size">
+			<tuv xml:lang="en_US">
+				<seg>Size</seg>
+			</tuv>
+		</tu>
 	</body>
 </tmx>
