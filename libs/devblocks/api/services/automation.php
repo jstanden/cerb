@@ -1405,7 +1405,9 @@ class CerbAutomationAstNode implements JsonSerializable {
 						break;
 						
 					case 'optional':
-						if(is_null($value) || (is_string($value) && 0 == strlen($value))) {
+						// Omit the key when the (already-resolved, e.g. via a preceding `@key`) value is empty:
+						// null, an empty string, or an empty array. Falsy scalars (0, '0', false) are NOT empty.
+						if(is_null($value) || (is_string($value) && 0 == strlen($value)) || (is_array($value) && !$value)) {
 							$k = null;
 							return true;
 						}
