@@ -614,9 +614,23 @@ TABLE.worklistBody {
 	tbody {
 		&.disabled {
 			color: var(--cerb-color-background-contrast-160);
-			
+
 			A {
 				color: var(--cerb-color-background-contrast-160);
+			}
+		}
+
+		// A switched-OFF record (is_disabled) still belongs in the list, but must never read as live. The
+		// whole row recedes -- brand mark included, which is what makes it scan as inactive in a list read
+		// by logo. Deliberately quiet: a filled badge on every disabled row competes with the record names
+		// beside it. Pair with a bare glyph in the name cell so the state isn't carried by dimming alone
+		// (opacity is not an accessible signal on its own).
+		&.cerb-worklist-row--disabled {
+			opacity: 0.55;
+
+			// Restore full strength on hover so the row is fully legible when it's the one being read
+			&:hover {
+				opacity: 1;
 			}
 		}
 	}
