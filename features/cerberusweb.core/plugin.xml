@@ -812,6 +812,10 @@
 		</file>
 		
 
+		<file path="api/dao/agent.php">
+			<class name="DAO_Agent" />
+		</file>
+
 		<file path="api/dao/agent_model.php">
 			<class name="Context_AgentModel" />
 			<class name="DAO_AgentModel" />

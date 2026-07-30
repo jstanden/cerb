@@ -93,6 +93,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 				'email_id' => DAO_Worker::EMAIL_ID,
 				'first_name' => DAO_Worker::FIRST_NAME,
 				'gender' => DAO_Worker::GENDER,
+				'is_ai' => DAO_Worker::IS_AI,
 				'is_disabled' => DAO_Worker::IS_DISABLED,
 				'is_password_disabled' => DAO_Worker::IS_PASSWORD_DISABLED,
 				'is_mfa_required' => DAO_Worker::IS_MFA_REQUIRED,
@@ -332,6 +333,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			'email_id' => 'integer',
 			'first_name' => 'string',
 			'gender' => 'string',
+			'is_ai' => 'bit',
 			'is_disabled' => 'bit',
 			'is_superuser' => 'bit',
 			'language' => 'string',
@@ -395,6 +397,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			'email_id' => 'integer',
 			'first_name' => 'string',
 			'gender' => 'string',
+			'is_ai' => 'bit',
 			'is_disabled' => 'bit',
 			'is_superuser' => 'bit',
 			'language' => 'string',
@@ -437,14 +440,19 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			$fields[$field] = $value;
 		}
 		
-		if(false == (DAO_Address::get($fields['email_id'])))
-			$this->error(self::ERRNO_CUSTOM, "'email_id' is an invalid value.");
+		// An AI worker has no mailbox (it can't log in), so `email_id` is required only for a human.
+		$is_ai = !empty($fields[DAO_Worker::IS_AI] ?? null);
+
+		if(array_key_exists(DAO_Worker::EMAIL_ID, $fields) && $fields[DAO_Worker::EMAIL_ID]) {
+			if(false == (DAO_Address::get($fields[DAO_Worker::EMAIL_ID])))
+				$this->error(self::ERRNO_CUSTOM, "'email_id' is an invalid value.");
+		}
 		
 		// Check required fields
-		$reqfields = array(
-			'email_id',
-			'first_name',
-		);
+		$reqfields = $is_ai
+			? ['first_name']
+			: ['email_id', 'first_name']
+			;
 		$this->_handleRequiredFields($reqfields, $fields);
 		
 		// Validate $fields

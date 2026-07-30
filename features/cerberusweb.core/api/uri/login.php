@@ -277,6 +277,16 @@ class Page_Login extends CerberusPageExtension {
 		) {
 			DevblocksPlatform::redirect(new DevblocksHttpRequest(['login']), 1);
 		}
+
+		// An AI worker can never hold an interactive session. This is the single funnel every path reaches --
+		// password, MFA, SSO (SAML/OIDC) -- so the refusal lives here rather than being repeated per provider.
+		// Deliberately its OWN check, not folded into is_password_disabled: clearing that flag must never be
+		// enough to turn an agent into a login.
+		if($authenticated_worker->is_ai) {
+			$login_state->destroy();
+			$query = ['error' => 'account.disabled'];
+			DevblocksPlatform::redirect(new DevblocksHttpRequest(['login'], $query), 1);
+		}
 		
 		// If we're doing a non-SSO login, check MFA
 		if(!$login_state->isSSOAuthenticated()) {

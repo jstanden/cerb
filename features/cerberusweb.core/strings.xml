@@ -5511,6 +5511,11 @@ For example: *receipt*</seg>
 				<seg>@Mention</seg>
 			</tuv>
 		</tu>
+		<tu tuid="worker.is_ai">
+			<tuv xml:lang="en_US">
+				<seg>AI</seg>
+			</tuv>
+		</tu>
 		<tu tuid="worker.is_mfa_required">
 			<tuv xml:lang="en_US">
 				<seg>MFA Required</seg>
@@ -5524,6 +5529,21 @@ For example: *receipt*</seg>
 		<tu tuid="worker.is_superuser">
 			<tuv xml:lang="en_US">
 				<seg>Administrator</seg>
+			</tuv>
+		</tu>
+		<tu tuid="worker.role">
+			<tuv xml:lang="en_US">
+				<seg>Role</seg>
+			</tuv>
+		</tu>
+		<tu tuid="worker.type">
+			<tuv xml:lang="en_US">
+				<seg>Type</seg>
+			</tuv>
+		</tu>
+		<tu tuid="worker.type.human">
+			<tuv xml:lang="en_US">
+				<seg>Human</seg>
 			</tuv>
 		</tu>
 		<tu tuid="worker.time_format">
@@ -5796,6 +5816,11 @@ For example: *receipt*</seg>
 		<tu tuid="dao.agent_model.provider">
 			<tuv xml:lang="en_US">
 				<seg>Provider</seg>
+			</tuv>
+		</tu>
+		<tu tuid="dao.agent.model_router_id">
+			<tuv xml:lang="en_US">
+				<seg>Model Router</seg>
 			</tuv>
 		</tu>
 	</body>

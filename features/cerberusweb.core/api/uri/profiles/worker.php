@@ -124,6 +124,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				$calendar_id = DevblocksPlatform::importGPC($_POST['calendar_id'] ?? null, 'string');
 				$is_superuser = DevblocksPlatform::importGPC($_POST['is_superuser'] ?? null, 'bit', 0);
 				$disabled = DevblocksPlatform::importGPC($_POST['is_disabled'] ?? null, 'bit',0);
+				$is_ai = DevblocksPlatform::importGPC($_POST['is_ai'] ?? null, 'bit', 0);
 				$is_password_disabled = DevblocksPlatform::importGPC($_POST['is_password_disabled'] ?? null, 'bit',0);
 				$is_mfa_required = DevblocksPlatform::importGPC($_POST['is_mfa_required'] ?? null, 'bit',0);
 				$group_memberships = DevblocksPlatform::importGPC($_POST['group_memberships'] ?? null, 'array');
@@ -156,6 +157,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 						DAO_Worker::AT_MENTION_NAME => $at_mention_name,
 						DAO_Worker::DOB => (null == $dob_ts) ? null : gmdate('Y-m-d', $dob_ts),
 						DAO_Worker::EMAIL_ID => $email_id,
+						DAO_Worker::IS_AI => $is_ai,
 						DAO_Worker::FIRST_NAME => trim($first_name),
 						DAO_Worker::GENDER => $gender,
 						DAO_Worker::IS_DISABLED => $disabled,
@@ -173,8 +175,9 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 						DAO_Worker::TITLE => $title,
 					];
 					
-					// Update alternate email addresses
-					$fields[DAO_Worker::_EMAIL_IDS] = array_unique(array_merge($email_ids, [$email_id]));
+					// Update alternate email addresses. Filter empties: an AI has no primary address, and a
+					// literal 0 in the list is meaningless.
+					$fields[DAO_Worker::_EMAIL_IDS] = array_values(array_filter(array_unique(array_merge($email_ids, [$email_id]))));
 					
 					if(!DAO_Worker::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
@@ -201,6 +204,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 						DAO_Worker::AT_MENTION_NAME => $at_mention_name,
 						DAO_Worker::DOB => (null == $dob_ts) ? null : gmdate('Y-m-d', $dob_ts),
 						DAO_Worker::EMAIL_ID => $email_id,
+						DAO_Worker::IS_AI => $is_ai,
 						DAO_Worker::FIRST_NAME => $first_name,
 						DAO_Worker::GENDER => $gender,
 						DAO_Worker::IS_DISABLED => $disabled,
@@ -218,8 +222,9 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 						DAO_Worker::TITLE => $title,
 					];
 					
-					// Update alternate email addresses
-					$fields[DAO_Worker::_EMAIL_IDS] = array_unique(array_merge($email_ids, [$email_id]));
+					// Update alternate email addresses. Filter empties: an AI has no primary address, and a
+					// literal 0 in the list is meaningless.
+					$fields[DAO_Worker::_EMAIL_IDS] = array_values(array_filter(array_unique(array_merge($email_ids, [$email_id]))));
 					
 					if(!DAO_Worker::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
@@ -278,12 +283,15 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 						DAO_Worker::setAuth($id, null);
 					}
 					
-					// Are we sending an invite?
+					// Are we sending an invite? Never for an AI -- it has no mailbox and can't log in anyway.
 					if(
-						// Are they a new record?
-						!$existing_worker 
-						// Or are we re-enabling passwords on an existing worker?
-						|| (!$is_password_disabled && $existing_worker->is_password_disabled && !DAO_Worker::hasAuth($updated_worker->id))
+						!$is_ai
+						&& (
+							// Are they a new record?
+							!$existing_worker
+							// Or are we re-enabling passwords on an existing worker?
+							|| (!$is_password_disabled && $existing_worker->is_password_disabled && !DAO_Worker::hasAuth($updated_worker->id))
+						)
 					) {
 						$url = DevblocksPlatform::services()->url();
 						
@@ -308,6 +316,18 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 						CerberusApplication::sendEmailTemplate($updated_worker->getEmailString(), 'worker_invite', $values);
 					}
 					
+					// The AI tab's model router. Upserted into the `agent` satellite rather than a worker column:
+					// an agent row exists only for workers that have AI config, and `worker` is cached whole.
+					// Written for AI workers only -- flipping a worker back to human shouldn't silently keep a
+					// routing override that would apply again if it were ever flipped back.
+					if($is_ai) {
+						DAO_Agent::upsert($updated_worker->id, [
+							DAO_Agent::MODEL_ROUTER_ID => DevblocksPlatform::importGPC($_POST['model_router_id'] ?? null, 'integer', 0),
+						]);
+					} else {
+						DAO_Agent::deleteByWorkerIds([$updated_worker->id]);
+					}
+
 					// Custom field saves
 					$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 					if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_WORKER, $updated_worker->id, $field_ids, $error))

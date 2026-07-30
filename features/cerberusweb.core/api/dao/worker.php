@@ -24,6 +24,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	const FIRST_NAME = 'first_name';
 	const GENDER = 'gender';
 	const ID = 'id';
+	const IS_AI = 'is_ai';
 	const IS_DISABLED = 'is_disabled';
 	const IS_MFA_REQUIRED = 'is_mfa_required';
 	const IS_PASSWORD_DISABLED = 'is_password_disabled';
@@ -98,12 +99,18 @@ class DAO_Worker extends Cerb_ORMHelper {
 			})
 			;
 		// int(10) unsigned
+		// Not required here: an AI worker never logs in and needs no mailbox, so the requirement is
+		// conditional and lives in onBeforeUpdateByActor() (the seam every writer passes through).
+		// `setNotEmpty(false)` MUST follow `setUnique()` -- setUnique() sets not-empty itself, and the
+		// uniqueness check only skips an empty value when the field may be empty. Without this the SECOND
+		// worker with no email fails as a duplicate of `0`. Real ids still collide, which is the point:
+		// two workers sharing an address would break SSO and notification routing.
 		$validation
 			->addField(self::EMAIL_ID, DevblocksPlatform::translateCapitalized('common.email'))
 			->id()
-			->setRequired(true)
 			->setUnique(__CLASS__)
-			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_ADDRESS))
+			->setNotEmpty(false)
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_ADDRESS, true))
 			->addValidator(function($value, &$error=null) {
 				if(DAO_Address::isLocalAddressId($value)) {
 					$error = "You can not assign an email address to a worker that is already assigned to a group or bucket.";
@@ -132,6 +139,11 @@ class DAO_Worker extends Cerb_ORMHelper {
 			->addField(self::ID)
 			->id()
 			->setEditable(false)
+			;
+		// tinyint(1) unsigned
+		$validation
+			->addField(self::IS_AI)
+			->bit()
 			;
 		// tinyint(1) unsigned
 		$validation
@@ -453,7 +465,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
-		$sql = "SELECT id, first_name, last_name, email_id, title, is_superuser, is_disabled, is_password_disabled, is_mfa_required, at_mention_name, timezone, time_format, timeout_idle_secs, language, calendar_id, gender, dob, location, phone, mobile, created_at, updated ".
+		$sql = "SELECT id, first_name, last_name, email_id, title, is_ai, is_superuser, is_disabled, is_password_disabled, is_mfa_required, at_mention_name, timezone, time_format, timeout_idle_secs, language, calendar_id, gender, dob, location, phone, mobile, created_at, updated ".
 			"FROM worker ".
 			$where_sql.
 			$sort_sql.
@@ -603,6 +615,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			$object->first_name = trim($row['first_name']);
 			$object->gender = $row['gender'];
 			$object->id = intval($row['id']);
+			$object->is_ai = intval($row['is_ai'] ?? 0);
 			$object->is_disabled = intval($row['is_disabled']);
 			$object->is_mfa_required = intval($row['is_mfa_required']);
 			$object->is_password_disabled = intval($row['is_password_disabled']);
@@ -830,12 +843,51 @@ class DAO_Worker extends Cerb_ORMHelper {
 			$error = DevblocksPlatform::translate('error.core.no_acl.admin');
 			return false;
 		}
-		
+
 		$context = CerberusContexts::CONTEXT_WORKER;
-		
+
 		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
 			return false;
-		
+
+		// An admin can't lock themselves out or drop their own privileges. The peek hides both controls when
+		// you're editing yourself, but that's presentation -- this is the guarantee, and it covers every
+		// writer (peek, REST, automations) since they all pass through here.
+		$actor_dict = CerberusContexts::polymorphActorToDictionary($actor);
+
+		if($id && $actor_dict
+			&& CerberusContexts::isSameContext($actor_dict->get('_context'), $context)
+			&& $actor_dict->get('id') == $id
+		) {
+			if(array_key_exists(self::IS_DISABLED, $fields) && $fields[self::IS_DISABLED]) {
+				$error = "You can't deactivate yourself.";
+				return false;
+			}
+
+			if(array_key_exists(self::IS_SUPERUSER, $fields) && !$fields[self::IS_SUPERUSER]) {
+				$error = "You can't remove your own administrator privileges.";
+				return false;
+			}
+		}
+
+		// An email address is required for a human worker (it's their login identity) but never for an AI,
+		// which can't log in at all. On an update the flag may not be in $fields, so fall back to the record.
+		$is_ai = array_key_exists(self::IS_AI, $fields)
+			? !empty($fields[self::IS_AI])
+			: ($id && ($model = self::get($id)) && $model->is_ai)
+			;
+
+		if(!$is_ai) {
+			$has_email = $id
+				? (array_key_exists(self::EMAIL_ID, $fields) ? !empty($fields[self::EMAIL_ID]) : !empty(self::get($id)?->email_id))
+				: !empty($fields[self::EMAIL_ID] ?? null)
+				;
+
+			if(!$has_email) {
+				$error = "'Email' is required for a worker. (AI workers don't need one.)";
+				return false;
+			}
+		}
+
 		return true;
 	}
 	
@@ -1086,7 +1138,10 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$sql = sprintf("DELETE FROM worker_auth_hash WHERE worker_id = %d", $id);
 		if(!($db->ExecuteMaster($sql)))
 			return false;
-		
+
+		// The AI config satellite has no meaning without its worker (1:1 on worker_id, no id of its own)
+		DAO_Agent::deleteByWorkerIds([$id]);
+
 		// Clear worker addresses
 		$sql = sprintf("UPDATE address SET worker_id = 0 WHERE worker_id = %d", $id);
 		if(!($db->ExecuteMaster($sql)))
@@ -1154,11 +1209,16 @@ class DAO_Worker extends Cerb_ORMHelper {
 
 		if(null == ($worker = DAO_Worker::getByEmail($email)) || $worker->is_disabled)
 			return null;
-		
+
 		if($worker->is_disabled)
 			return null;
-		
+
 		if($worker->is_password_disabled)
+			return null;
+
+		// An AI worker has no interactive session, ever. Page_Login::_routeAuthenticated() is the funnel that
+		// covers SSO too; this is the password path's own refusal.
+		if($worker->is_ai)
 			return null;
 		
 		$worker_auth = $db->GetRowReader(sprintf("SELECT pass_hash, pass_salt, method FROM worker_auth_hash WHERE worker_id = %d", $worker->id));
@@ -1244,7 +1304,10 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$join_sql = "FROM worker ".
 
 		// Dynamic joins
-		(isset($tables['address']) ? "INNER JOIN address ON (worker.email_id = address.id) " : " ")
+		// LEFT, not INNER: `address` joins in whenever the email column is SELECTED or sorted (not just
+		// filtered), and an AI worker has no address -- an inner join would silently drop it from the
+		// default worklist, which shows the email column.
+		(isset($tables['address']) ? "LEFT JOIN address ON (worker.email_id = address.id) " : " ")
 		;
 		
 		$where_sql = "".
@@ -1360,6 +1423,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 				$result[SearchFields_Worker::FIRST_NAME] = $model->first_name;
 				$result[SearchFields_Worker::GENDER] = $model->gender;
 				$result[SearchFields_Worker::ID] = $model->id;
+				$result[SearchFields_Worker::IS_AI] = $model->is_ai;
 				$result[SearchFields_Worker::IS_DISABLED] = $model->is_disabled;
 				$result[SearchFields_Worker::IS_MFA_REQUIRED] = $model->is_mfa_required;
 				$result[SearchFields_Worker::IS_PASSWORD_DISABLED] = $model->is_password_disabled;
@@ -1413,6 +1477,7 @@ class SearchFields_Worker extends DevblocksSearchFields {
 	const EMAIL_ID = 'w_email_id';
 	const FIRST_NAME = 'w_first_name';
 	const GENDER = 'w_gender';
+	const IS_AI = 'w_is_ai';
 	const IS_DISABLED = 'w_is_disabled';
 	const IS_MFA_REQUIRED = 'w_is_mfa_required';
 	const IS_PASSWORD_DISABLED = 'w_is_password_disabled';
@@ -1675,6 +1740,7 @@ class SearchFields_Worker extends DevblocksSearchFields {
 			self::EMAIL_ID => new DevblocksSearchField(self::EMAIL_ID, 'worker', 'email_id', ucwords($translate->_('common.email')), null, true),
 			self::FIRST_NAME => new DevblocksSearchField(self::FIRST_NAME, 'worker', 'first_name', $translate->_('common.name.first'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::GENDER => new DevblocksSearchField(self::GENDER, 'worker', 'gender', $translate->_('common.gender'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::IS_AI => new DevblocksSearchField(self::IS_AI, 'worker', 'is_ai', ucwords($translate->_('worker.is_ai')), Model_CustomField::TYPE_CHECKBOX, true),
 			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'worker', 'is_disabled', ucwords($translate->_('common.disabled')), Model_CustomField::TYPE_CHECKBOX, true),
 			self::IS_MFA_REQUIRED => new DevblocksSearchField(self::IS_MFA_REQUIRED, 'worker', 'is_mfa_required', ucwords($translate->_('worker.is_mfa_required')), Model_CustomField::TYPE_CHECKBOX, true),
 			self::IS_PASSWORD_DISABLED => new DevblocksSearchField(self::IS_PASSWORD_DISABLED, 'worker', 'is_password_disabled', ucwords($translate->_('worker.is_password_disabled')), Model_CustomField::TYPE_CHECKBOX, true),
@@ -1732,6 +1798,7 @@ class Model_Worker extends DevblocksRecordModel {
 	public $first_name;
 	public $gender;
 	public $id;
+	public $is_ai = 0;
 	public $is_disabled = 0;
 	public $is_mfa_required = 0;
 	public $is_password_disabled = 0;
@@ -2419,6 +2486,11 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 						'"now to +15 mins"',
 					),
 				),
+			'isAi' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_BOOL,
+					'options' => array('param_key' => SearchFields_Worker::IS_AI),
+				),
 			'isDisabled' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_BOOL,
@@ -3067,6 +3139,12 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			'value' => $model->is_mfa_required,
 		);
 		
+		$properties['is_ai'] = array(
+			'label' => mb_ucfirst($translate->_('worker.is_ai')),
+			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'value' => $model->is_ai,
+		);
+		
 		$properties['is_superuser'] = array(
 			'label' => mb_ucfirst($translate->_('worker.is_superuser')),
 			'type' => Model_CustomField::TYPE_CHECKBOX,
@@ -3262,6 +3340,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			'full_name' => $prefix.$translate->_('common.name.full'),
 			'gender' => $prefix.$translate->_('common.gender'),
 			'id' => $prefix.$translate->_('common.id'),
+			'is_ai' => $prefix.$translate->_('worker.is_ai'),
 			'is_disabled' => $prefix.$translate->_('common.disabled'),
 			'is_superuser' => $prefix.$translate->_('worker.is_superuser'),
 			'language' => $prefix.$translate->_('common.language'),
@@ -3288,6 +3367,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			'full_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'gender' => Model_CustomField::TYPE_SINGLE_LINE,
 			'id' => Model_CustomField::TYPE_WORKER,
+			'is_ai' => Model_CustomField::TYPE_CHECKBOX,
 			'is_disabled' => Model_CustomField::TYPE_CHECKBOX,
 			'is_superuser' => Model_CustomField::TYPE_CHECKBOX,
 			'language' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -3333,6 +3413,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			$token_values['first_name'] = $worker->first_name;
 			$token_values['full_name'] = $worker->getName();
 			$token_values['gender'] = $worker->gender;
+			$token_values['is_ai'] = $worker->is_ai;
 			$token_values['is_disabled'] = $worker->is_disabled;
 			$token_values['is_superuser'] = $worker->is_superuser;
 			$token_values['language'] = $worker->language;
@@ -3401,6 +3482,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			'email_id' => DAO_Worker::EMAIL_ID,
 			'id' => DAO_Worker::ID,
 			'image' => '_image',
+			'is_ai' => DAO_Worker::IS_AI,
 			'is_disabled' => DAO_Worker::IS_DISABLED,
 			'is_mfa_required' => DAO_Worker::IS_MFA_REQUIRED,
 			'is_password_disabled' => DAO_Worker::IS_PASSWORD_DISABLED,
@@ -3428,6 +3510,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		$keys['email_id']['notes'] = "The ID of the primary [email address](/docs/records/types/address/); alternative to `email`";
 		$keys['first_name']['notes'] = "Given name";
 		$keys['gender']['notes'] = "`F` (female), `M` (male), or blank or unknown";
+		$keys['is_ai']['notes'] = "Is this an AI worker? (an automated identity that can never log in)";
 		$keys['is_disabled']['notes'] = "Is this worker deactivated and prevented from logging in?";
 		$keys['is_mfa_required']['notes'] = "Is this worker required to use multi-factor authentication?";
 		$keys['is_password_disabled']['notes'] = "Is this worker allowed to log in with a password?";
@@ -3696,11 +3779,17 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			
 			// Time Format
 			$tpl->assign('time_format', DevblocksPlatform::getDateTimeFormat());
-			
+
+			// The AI tab's model router chooser seeds its chip from the assigned router. The chooser's own
+			// autocomplete supplies the rest (and omits disabled routers -- they can't be resolved).
+			if($worker && ($router_id = DAO_Agent::getModelRouterId($worker->id)))
+				$tpl->assign('agent_model_router', DAO_AgentModelRouter::get($router_id));
+
 			$tpl->display('devblocks:cerberusweb.core::workers/peek_edit.tpl');
-			
+
 		} else {
 			Page_Profiles::renderCard($context, $context_id, $worker);
 		}
 	}
+
 };
