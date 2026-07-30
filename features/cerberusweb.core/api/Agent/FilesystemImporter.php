@@ -1,0 +1,498 @@
+<?php
+namespace Cerb\Agent;
+
+use Cerb_ORMHelper;
+use CerberusApplication;
+use DAO_AgentFile;
+use DAO_AgentFilesystem;
+use DAO_AutomationResource;
+use DAO_Queue;
+use DAO_QueueJob;
+use DevblocksPlatform;
+use Model_Queue;
+use Model_QueueJob;
+use QueueJobStatus;
+use Throwable;
+use ZipArchive;
+
+/**
+ * Imports a ZIP archive into an `agent_filesystem` as `agent_file` records.
+ *
+ * Rides the existing `cerb.records.import` queue rather than defining its own: the job carries
+ * `metadata['format'] = 'zip'`, and `_DevblocksRecordsService::processImportQueue()` hands off here.
+ * That inherits the queue-job fan-out, concurrency, retry, and the Queue Job Monitor UI for free while
+ * skipping `Cerb\Records\FileImporter` entirely (it wants a column mapping and an `IDevblocksContextImport`
+ * context, neither of which applies to a directory of files).
+ *
+ * The unit of work is a ZIP entry INDEX. A central directory is randomly addressable via statIndex()/
+ * getFromIndex(), so each queue_message carries a batch of indexes the same way the CSV/JSONL importer
+ * carries byte offsets — no path strings are duplicated into the queue.
+ */
+class FilesystemImporter {
+	// Bodies land in a MEDIUMTEXT column; this is about content an agent can actually read, not storage.
+	const MAX_FILE_BYTES = 1_048_576;
+
+	// The unique key is `(filesystem_id, name(700))`, so anything longer can collide silently. One rule for
+	// every writer -- the VFS enforces the same ceiling on `write` and `copy`.
+	const MAX_PATH_LENGTH = Filesystem::MAX_PATH_LENGTH;
+
+	const BATCH_SIZE = 25;
+
+	/**
+	 * Extensions taken as text without reading the body. Anything else (including extensionless files
+	 * like LICENSE or Makefile) falls through to a UTF-8 check, which is what actually rejects binaries.
+	 */
+	const TEXT_EXTENSIONS = [
+		'conf', 'css', 'csv', 'htm', 'html', 'ini', 'js', 'json', 'log', 'markdown', 'md', 'php',
+		'py', 'sh', 'sql', 'toml', 'ts', 'tsv', 'txt', 'xml', 'yaml', 'yml',
+	];
+
+	/**
+	 * Open the archive behind an automation resource token into a temp file.
+	 * Returns [ZipArchive, $fp] so the caller can hold the handle open, or null.
+	 */
+	private static function _openArchive(string $import_token, &$error=null) : ?array {
+		if(!extension_loaded('zip')) {
+			$error = 'The `zip` PHP extension is not loaded.';
+			return null;
+		}
+
+		if(!($resource = DAO_AutomationResource::getByToken($import_token))) {
+			$error = 'The import file no longer exists.';
+			return null;
+		}
+
+		$fp = DevblocksPlatform::getTempFile();
+		$fp_info = DevblocksPlatform::getTempFileInfo($fp);
+
+		if(false === $resource->getFileContents($fp)) {
+			$error = 'The import file could not be read.';
+			return null;
+		}
+
+		$zip = new ZipArchive();
+
+		if(true !== $zip->open($fp_info)) {
+			$error = 'The file is not a valid ZIP archive.';
+			return null;
+		}
+
+		return [$zip, $fp];
+	}
+
+	/**
+	 * Normalize a ZIP entry name into a virtual filesystem path, or '' if it isn't importable.
+	 * Rejects anything that escapes the archive root or hides from a `ls` (dotfiles, __MACOSX).
+	 */
+	public static function normalizePath(string $name, string $strip_prefix='') : string {
+		$name = str_replace('\\', '/', $name);
+
+		if($strip_prefix !== '' && str_starts_with($name, $strip_prefix))
+			$name = substr($name, strlen($strip_prefix));
+
+		$name = ltrim(preg_replace('#/+#', '/', $name), '/');
+
+		if('' === $name || str_ends_with($name, '/'))
+			return '';
+
+		foreach(explode('/', $name) as $segment) {
+			// '..' escapes the root; a leading dot is editor/VCS noise (.git, .DS_Store, .gitignore)
+			if('' === $segment || '.' === $segment || '..' === $segment || str_starts_with($segment, '.'))
+				return '';
+		}
+
+		if(str_starts_with($name, '__MACOSX/'))
+			return '';
+
+		if(strlen($name) > self::MAX_PATH_LENGTH)
+			return '';
+
+		return $name;
+	}
+
+	/**
+	 * Enumerate the archive and return the entry indexes worth importing.
+	 *
+	 * Extension-allowlisted entries are accepted without a read (the fast path for a docs/skill tree);
+	 * everything else is read once, bounded by the size cap, and kept only if it's valid UTF-8.
+	 */
+	private static function _collectEntries(ZipArchive $zip, string $strip_prefix, int &$skipped=0) : array {
+		$indexes = [];
+		$skipped = 0;
+
+		for($i = 0; $i < $zip->numFiles; $i++) {
+			if(false === ($fstat = $zip->statIndex($i)))
+				continue;
+
+			$raw_name = $fstat['name'] ?? '';
+
+			// Directory entries aren't records; the tree is derived from file paths.
+			if(str_ends_with($raw_name, '/'))
+				continue;
+
+			if('' === self::normalizePath($raw_name, $strip_prefix)) {
+				$skipped++;
+				continue;
+			}
+
+			if(($fstat['size'] ?? 0) > self::MAX_FILE_BYTES) {
+				$skipped++;
+				continue;
+			}
+
+			$extension = strtolower(pathinfo($raw_name, PATHINFO_EXTENSION));
+
+			if(!in_array($extension, self::TEXT_EXTENSIONS, true)) {
+				$bytes = $zip->getFromIndex($i, self::MAX_FILE_BYTES);
+
+				if(false === $bytes || !mb_check_encoding($bytes, 'UTF-8')) {
+					$skipped++;
+					continue;
+				}
+			}
+
+			$indexes[] = $i;
+		}
+
+		return $indexes;
+	}
+
+	/**
+	 * The single leading directory every entry shares, e.g. 'cerb-dev/', or '' when there isn't one.
+	 * A ZIP of a skill directory almost always has one, and it's noise inside the volume.
+	 */
+	public static function detectCommonPrefix(ZipArchive $zip) : string {
+		$prefix = null;
+
+		for($i = 0; $i < $zip->numFiles; $i++) {
+			if(false === ($fstat = $zip->statIndex($i)))
+				continue;
+
+			$name = str_replace('\\', '/', $fstat['name'] ?? '');
+
+			if('' === $name || str_starts_with($name, '__MACOSX/'))
+				continue;
+
+			if(false === ($slash_at = strpos($name, '/')))
+				return ''; // A file at the root means there's no single wrapper directory
+
+			$segment = substr($name, 0, $slash_at + 1);
+
+			if(is_null($prefix))
+				$prefix = $segment;
+			elseif($prefix !== $segment)
+				return '';
+		}
+
+		return $prefix ?? '';
+	}
+
+	/**
+	 * Inspect an uploaded archive for the import options step (file count + wrapper directory).
+	 */
+	public static function inspect(string $import_token, &$error=null) : ?array {
+		if(!($opened = self::_openArchive($import_token, $error)))
+			return null;
+
+		list($zip, ) = $opened;
+
+		$common_prefix = self::detectCommonPrefix($zip);
+		$skipped = 0;
+		$indexes = self::_collectEntries($zip, $common_prefix, $skipped);
+
+		$zip->close();
+
+		return [
+			'num_files' => count($indexes),
+			'num_skipped' => $skipped,
+			'common_prefix' => $common_prefix,
+		];
+	}
+
+	public static function getSingletonKey(int $filesystem_id) : string {
+		return sprintf('agent_filesystem:%d:import', $filesystem_id);
+	}
+
+	/**
+	 * Producer. Enumerates the archive, creates the queue job, and fans the entry indexes out as
+	 * queue messages. Runs inside the upload request, so the enumerate pass is the only synchronous cost.
+	 *
+	 * @param array $opts strip_prefix (string), prune_missing (bool)
+	 */
+	public static function createJob(int $filesystem_id, string $import_token, array $opts=[], &$error=null) : ?Model_QueueJob {
+		$queue_service = DevblocksPlatform::services()->queue();
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if(!($filesystem = DAO_AgentFilesystem::get($filesystem_id))) {
+			$error = 'Invalid agent filesystem.';
+			return null;
+		}
+
+		if(!($queue = DAO_Queue::getByName('cerb.records.import'))) {
+			$error = 'The import queue is not configured.';
+			return null;
+		}
+
+		if(!($opened = self::_openArchive($import_token, $error)))
+			return null;
+
+		list($zip, ) = $opened;
+
+		$strip_prefix = strval($opts['strip_prefix'] ?? '');
+
+		// Only honor a prefix the archive actually has, so a stale/forged value can't mangle every path
+		if($strip_prefix !== '' && $strip_prefix !== self::detectCommonPrefix($zip))
+			$strip_prefix = '';
+
+		$skipped = 0;
+		$indexes = self::_collectEntries($zip, $strip_prefix, $skipped);
+
+		$zip->close();
+
+		if(!$indexes) {
+			$error = 'The archive contains no importable files.';
+			return null;
+		}
+
+		$queue_job = new Model_QueueJob();
+		$queue_job->queue_id = $queue->id;
+		$queue_job->name = sprintf('Import agent files: %s', $filesystem->name);
+		$queue_job->singleton_key = self::getSingletonKey($filesystem_id); // One import per filesystem at a time
+		$queue_job->status_id = QueueJobStatus::RUNNING->value;
+		$queue_job->count_total = count($indexes);
+		$queue_job->worker_id = $active_worker->id ?? 0;
+		$queue_job->metadata = [
+			'format' => 'zip',
+			'filesystem_id' => $filesystem_id,
+			'import_token' => $import_token,
+			'import_uuid' => DevblocksPlatform::services()->string()->uuid(),
+			'strip_prefix' => $strip_prefix,
+			'prune_missing' => !empty($opts['prune_missing']),
+			'num_skipped' => $skipped,
+		];
+
+		if(!($queue_job = DAO_QueueJob::create($queue_job))) {
+			$error = 'Failed to create the import job.';
+			return null;
+		}
+
+		// `cardinality` applies to every message in an enqueue() call, so the uniform batches and the
+		// short remainder go out separately to keep the job's progress counts honest.
+		$batches = array_chunk($indexes, self::BATCH_SIZE);
+		$remainder = (count(end($batches)) < self::BATCH_SIZE) ? array_pop($batches) : null;
+
+		$to_message = fn($batch) => ['indexes' => array_values($batch)];
+
+		if($batches)
+			$queue_service->enqueue($queue->name, array_map($to_message, $batches), job_id: $queue_job->id, cardinality: self::BATCH_SIZE);
+
+		if($remainder)
+			$queue_service->enqueue($queue->name, [$to_message($remainder)], job_id: $queue_job->id, cardinality: count($remainder));
+
+		return $queue_job;
+	}
+
+	/**
+	 * Consumer. Opens the archive once per invocation and drains messages until the time budget runs out,
+	 * so the storage fetch is amortized across many batches.
+	 */
+	public static function processQueue(Model_Queue $queue, int $stop_time, int $count_hint, ?Model_QueueJob $queue_job=null) : int {
+		$queue_service = DevblocksPlatform::services()->queue();
+
+		if(!$queue_job)
+			return 0;
+
+		$filesystem_id = intval($queue_job->metadata['filesystem_id'] ?? 0);
+		$import_token = strval($queue_job->metadata['import_token'] ?? '');
+		$import_uuid = strval($queue_job->metadata['import_uuid'] ?? '');
+		$strip_prefix = strval($queue_job->metadata['strip_prefix'] ?? '');
+
+		$claim_id = null;
+		$error = null;
+
+		// A bad job can't make progress, but it still has to report failure against a real message or
+		// the monitor sits at 0% forever.
+		if(!$filesystem_id || !($opened = self::_openArchive($import_token, $error))) {
+			if(!($queue_messages = $queue_service->dequeue($queue->name, 1, $claim_id, $queue_job->id)))
+				return 0;
+
+			$queue_service->reportFailure($queue_messages, $error ?: 'Invalid import job.');
+			return count($queue_messages);
+		}
+
+		list($zip, ) = $opened;
+
+		$processed = 0;
+
+		while($stop_time > time()) {
+			if(!($queue_messages = $queue_service->dequeue($queue->name, 1, $claim_id, $queue_job->id)))
+				break;
+
+			foreach($queue_messages as $queue_message) {
+				$indexes = array_map('intval', $queue_message->message['indexes'] ?? []);
+
+				try {
+					$count = self::_importEntries($zip, $indexes, $filesystem_id, $strip_prefix, $import_uuid);
+
+					$queue_service->reportSuccess(
+						[$queue_message],
+						sprintf('Imported %d file%s', $count, 1 == $count ? '' : 's')
+					);
+
+				} catch(Throwable $e) {
+					DevblocksPlatform::logException($e);
+					$queue_service->reportFailure([$queue_message], $e->getMessage());
+				}
+			}
+
+			$processed += count($queue_messages);
+		}
+
+		$zip->close();
+
+		return $processed;
+	}
+
+	/**
+	 * Upsert one batch of archive entries. Returns how many files were written or confirmed.
+	 */
+	private static function _importEntries(ZipArchive $zip, array $indexes, int $filesystem_id, string $strip_prefix, string $import_uuid) : int {
+		$db = DevblocksPlatform::services()->database();
+
+		$entries = [];
+
+		foreach($indexes as $index) {
+			if(false === ($fstat = $zip->statIndex($index)))
+				continue;
+
+			if('' === ($name = self::normalizePath($fstat['name'] ?? '', $strip_prefix)))
+				continue;
+
+			if(false === ($content = $zip->getFromIndex($index, self::MAX_FILE_BYTES)))
+				continue;
+
+			// A binary that slipped past the producer's extension fast path would corrupt the row
+			if(!mb_check_encoding($content, 'UTF-8'))
+				continue;
+
+			$entries[$name] = $content;
+		}
+
+		if(!$entries)
+			return 0;
+
+		// One lookup for the whole batch; the unique key on (filesystem_id, name(700)) makes this exact.
+		$existing = $db->GetArrayReader(sprintf(
+			"SELECT id, name, sha1 FROM agent_file WHERE filesystem_id = %d AND name IN (%s)",
+			$filesystem_id,
+			implode(',', array_map(fn($name) => Cerb_ORMHelper::qstr($name), array_keys($entries)))
+		));
+
+		$existing_by_name = array_column($existing, null, 'name');
+
+		$unchanged_ids = [];
+		$count = 0;
+
+		// The DAO queues a re-index per write; batch them so an archive of N files sends a few 100-id messages
+		// instead of N single-id ones. `finally` because an abandoned window would silently index nothing (the
+		// cron sweep would still catch up, but much later).
+		$search = DevblocksPlatform::services()->search();
+		$search->deferIndexQueue();
+
+		try {
+			foreach($entries as $name => $content) {
+				$sha1 = sha1($content);
+				$row = $existing_by_name[$name] ?? null;
+
+				// Unchanged bodies only get the import stamp — no DAO write, so nothing re-indexes.
+				if($row && ($row['sha1'] ?? '') === $sha1) {
+					$unchanged_ids[] = intval($row['id']);
+					$count++;
+					continue;
+				}
+
+				// file_extension/frontmatter_json/size are derived by the DAO from the content + name. `sha1` is
+				// passed because it's already computed above for the unchanged-body check.
+				$fields = [
+					DAO_AgentFile::FILESYSTEM_ID => $filesystem_id,
+					DAO_AgentFile::NAME => $name,
+					DAO_AgentFile::CONTENT => $content,
+					DAO_AgentFile::SHA1 => $sha1,
+					DAO_AgentFile::IMPORT_UUID => $import_uuid,
+					DAO_AgentFile::UPDATED_AT => time(),
+				];
+
+				// Through the DAO so markContextChanged() fires and the fulltext index picks these up
+				if($row) {
+					DAO_AgentFile::update(intval($row['id']), $fields);
+				} else {
+					DAO_AgentFile::create($fields);
+				}
+
+				$count++;
+			}
+
+			if($unchanged_ids) {
+				DAO_AgentFile::updateWhere(
+					[DAO_AgentFile::IMPORT_UUID => $import_uuid],
+					sprintf('id IN (%s)', implode(',', $unchanged_ids))
+				);
+			}
+
+		} finally {
+			$search->flushIndexQueue();
+		}
+
+		return $count;
+	}
+
+	/**
+	 * @deprecated The record owns its derived columns — `DAO_AgentFile::update()` fills `frontmatter_json`
+	 * from the content on every write. Kept as a delegating alias for existing callers.
+	 */
+	public static function parseFrontmatterJson(string $name, string $content) : ?string {
+		return DAO_AgentFile::parseFrontmatterJson($name, $content);
+	}
+
+	/**
+	 * Completion hook. Prunes whatever the archive no longer contains (opt-in), then refreshes the
+	 * filesystem's cached counters and clears the import stamps.
+	 */
+	public static function onJobComplete(Model_QueueJob $queue_job) : void {
+		$db = DevblocksPlatform::services()->database();
+
+		$filesystem_id = intval($queue_job->metadata['filesystem_id'] ?? 0);
+		$import_uuid = strval($queue_job->metadata['import_uuid'] ?? '');
+
+		if(!$filesystem_id || !$import_uuid)
+			return;
+
+		if($queue_job->metadata['prune_missing'] ?? false) {
+			$prune_ids = $db->GetArrayReader(sprintf(
+				"SELECT id FROM agent_file WHERE filesystem_id = %d AND import_uuid != %s",
+				$filesystem_id,
+				Cerb_ORMHelper::qstr($import_uuid)
+			));
+
+			// Through the DAO in chunks so links, comments, and custom field values are cleaned up too
+			foreach(array_chunk(array_column($prune_ids, 'id'), 100) as $chunk)
+				DAO_AgentFile::delete(array_map('intval', $chunk));
+		}
+
+		$stats = $db->GetRowReader(sprintf(
+			"SELECT COUNT(1) AS file_count, COALESCE(SUM(size),0) AS total_bytes FROM agent_file WHERE filesystem_id = %d",
+			$filesystem_id
+		));
+
+		DAO_AgentFilesystem::update($filesystem_id, [
+			DAO_AgentFilesystem::FILE_COUNT => intval($stats['file_count'] ?? 0),
+			DAO_AgentFilesystem::TOTAL_BYTES => intval($stats['total_bytes'] ?? 0),
+		]);
+
+		// Bookkeeping only — cleared without events so it never triggers a reindex
+		DAO_AgentFile::updateWhere(
+			[DAO_AgentFile::IMPORT_UUID => ''],
+			sprintf('filesystem_id = %d', $filesystem_id)
+		);
+	}
+}

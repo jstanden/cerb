@@ -54,7 +54,12 @@ class QueueConsumer_Internal extends Extension_QueueConsumer {
 		if(!($queue = \DAO_Queue::get($queue_job->queue_id)))
 			return;
 
-		if($queue->name == 'cerb.records.export') {
+		if($queue->name == 'cerb.records.import') {
+			// Only the ZIP bundle format has a completion step (prune + refresh the volume's counters)
+			if('zip' === ($queue_job->metadata['format'] ?? ''))
+				\Cerb\Agent\FilesystemImporter::onJobComplete($queue_job);
+
+		} elseif($queue->name == 'cerb.records.export') {
 			$records = DevblocksPlatform::services()->records();
 			$records->onExportJobComplete($queue_job);
 

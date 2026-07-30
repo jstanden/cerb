@@ -54,10 +54,16 @@ class _DevblocksRecordsService {
 			}
 		}
 		
+		// A ZIP bundle imports files into an agent filesystem rather than rows into a record type. It
+		// shares this queue (and its monitor UI) but none of the CSV/JSONL mapping machinery, and it
+		// owns its own batching, so hand off before we dequeue.
+		if('zip' === ($queue_job->metadata['format'] ?? ''))
+			return \Cerb\Agent\FilesystemImporter::processQueue($queue, $stop_time, $count_hint, $queue_job);
+
 		$processed = 0;
 		$claim_id = null;
 		$batch_size = 100;
-		
+
 		if(!($queue_messages = $queue_service->dequeue($queue->name, $batch_size, $claim_id, $job_id)))
 			return 0;
 
