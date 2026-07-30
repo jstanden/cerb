@@ -466,9 +466,34 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return $results;
 	}
 
-	// The `cerb-icons` glyph name for this record type (from the `icon` manifest param); `circle` when unset.
-	function getIcon() : string {
+	/**
+	 * The `cerb-icons` glyph for this record type (from the `icon` manifest param; `circle` when unset).
+	 *
+	 * Pass a record's dictionary to get a PER-RECORD glyph where that's meaningful — an `agent_model` reads
+	 * as its vendor, not as "agent model". A context opts in by setting `_icon` in getContext() (alongside
+	 * `_image_url`), or by overriding this method for situational logic and deferring to parent::getIcon().
+	 * Precedence in the shared card/profile chrome is: a context avatar image, then `_icon`, then this.
+	 *
+	 * Gated on exists() — a plain array_key_exists — so a type that sets no `_icon` never pays the
+	 * dictionary's lazy-load path just for being asked.
+	 */
+	function getIcon($dict = null) : string {
+		if($dict instanceof DevblocksDictionaryDelegate && $dict->exists('_icon')
+			&& ($icon = trim(strval($dict->get('_icon')))))
+			return $icon;
+
 		return $this->manifest->params['icon'] ?? 'circle';
+	}
+
+	/**
+	 * A brand background for this record's glyph (white on top), from `_icon_color`. Empty = no brand color,
+	 * and callers keep their own neutral default — so this changes nothing for a type that doesn't set it.
+	 */
+	function getIconColor($dict = null) : string {
+		if($dict instanceof DevblocksDictionaryDelegate && $dict->exists('_icon_color'))
+			return trim(strval($dict->get('_icon_color')));
+
+		return '';
 	}
 
 	/**

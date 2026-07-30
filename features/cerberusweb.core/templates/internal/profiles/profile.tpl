@@ -13,15 +13,19 @@
 </div>
 {/if}
 
+{* A context avatar outranks everything; otherwise the record's own glyph (`_icon`, for a type whose mark
+   varies per record) and then the static record-type mark. A brand color only when the record supplies one —
+   every other type keeps the neutral tile. *}
+{$record_icon_color = $context_ext->getIconColor($dict)}
 <div style="float:left;margin-right:10px;">
 
 	<span data-cerb-profile-avatar
 		class="cerb-ui-avatar cerb-ui-avatar--tile"
-		data-avatar="{$dict->_label|escape}"
+		data-avatar="{$dict->_label}"
 		{* data-avatar-seed="{$page_context}:{$page_context_id}" *}
-	  	data-avatar-color="var(--cerb-color-background-contrast-180)"
+	  data-avatar-color="{if $record_icon_color}{$record_icon_color}{else}var(--cerb-color-background-contrast-180){/if}"
 		data-avatar-size="75"
-		{if $context_ext->hasOption('avatars')}data-avatar-image="{devblocks_url}c=avatars&context={$page_record_uri}&context_id={$page_context_id}{/devblocks_url}?v={$dict->updated_at|default:$dict->updated|default:$dict->updated_date}"{else}data-avatar-icon="{$context_ext->getIcon()}"{/if}
+		{if $context_ext->hasOption('avatars')}data-avatar-image="{devblocks_url}c=avatars&context={$page_record_uri}&context_id={$page_context_id}{/devblocks_url}?v={$dict->updated_at|default:$dict->updated|default:$dict->updated_date}"{else}data-avatar-icon="{$context_ext->getIcon($dict)}"{/if}
 	></span>
 </div>
 

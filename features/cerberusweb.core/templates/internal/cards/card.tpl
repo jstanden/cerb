@@ -4,14 +4,18 @@
 {if !isset($toolbar_card)}{$toolbar_card = null}{/if}
 
 <div id="{$div_id}" class="cerb-u-flex cerb-u-items-start cerb-u-gap-3" data-cerb-dialog-title="{$context_ext->manifest->name}: {$dict->_label}">
+    {* A context avatar outranks everything; otherwise the record's own glyph (`_icon`, for a type whose mark
+       varies per record) and then the static record-type mark. A brand color only when the record supplies
+       one — every other type keeps the neutral tile. *}
+    {$record_icon_color = $context_ext->getIconColor($dict)}
     <div data-cerb-card-record-image class="cerb-u-flex-shrink-0">
         <span data-cerb-card-avatar
             class="cerb-ui-avatar cerb-ui-avatar--tile"
-            data-avatar="{$dict->_label|escape}"
+            data-avatar="{$dict->_label}"
             {* data-avatar-seed="{$peek_context}:{$dict->id}" *}
-            data-avatar-color="var(--cerb-color-background-contrast-180)"
+            data-avatar-color="{if $record_icon_color}{$record_icon_color}{else}var(--cerb-color-background-contrast-180){/if}"
             data-avatar-size="75"
-            {if $context_ext->hasOption('avatars')}data-avatar-image="{devblocks_url}c=avatars&context={$peek_context}&context_id={$dict->id}{/devblocks_url}?v={$dict->updated_at|default:$dict->updated}"{else}data-avatar-icon="{$context_ext->getIcon()}"{/if}
+            {if $context_ext->hasOption('avatars')}data-avatar-image="{devblocks_url}c=avatars&context={$peek_context}&context_id={$dict->id}{/devblocks_url}?v={$dict->updated_at|default:$dict->updated}"{else}data-avatar-icon="{$context_ext->getIcon($dict)}"{/if}
         ></span>
     </div>
 
