@@ -810,7 +810,14 @@
 		<file path="api/uri/profiles/abstract_custom_record.php">
 			<class name="PageSection_ProfilesAbstractCustomRecord" />
 		</file>
-		
+
+		<file path="api/dao/agent_filesystem.php">
+			<class name="Context_AgentFilesystem" />
+			<class name="DAO_AgentFilesystem" />
+			<class name="Model_AgentFilesystem" />
+			<class name="SearchFields_AgentFilesystem" />
+			<class name="View_AgentFilesystem" />
+		</file>
 
 		<file path="api/dao/agent.php">
 			<class name="DAO_Agent" />
@@ -1257,6 +1264,52 @@
 						<data key="create" />
 						<data key="delete" />
 						<data key="export" />
+						<data key="update" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<extension point="devblocks.context">
+			<id>cerb.contexts.agent.filesystem</id>
+			<name>Agent Filesystem</name>
+			<class>
+				<file>api/dao/agent_filesystem.php</file>
+				<name>Context_AgentFilesystem</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="agent filesystem" value="singular" />
+						<data key="agent filesystems" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="agent_filesystem" />
+				<param key="icon" value="folder" />
+				<param key="dao_class" value="DAO_AgentFilesystem" />
+				<param key="view_class" value="View_AgentFilesystem" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="comments" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="records" />
+						<data key="search" />
+						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="watchers" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="broadcast" />
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="import" />
 						<data key="update" />
 					</value>
 				</param>

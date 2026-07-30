@@ -5854,5 +5854,26 @@ For example: *receipt*</seg>
 				<seg>Size</seg>
 			</tuv>
 		</tu>
+		<!-- Agent Filesystem -->
+		<tu tuid="dao.agent_filesystem.file_count">
+			<tuv xml:lang="en_US">
+				<seg>File Count</seg>
+			</tuv>
+		</tu>
+		<tu tuid="dao.agent_filesystem.is_disabled">
+			<tuv xml:lang="en_US">
+				<seg>Disabled</seg>
+			</tuv>
+		</tu>
+		<tu tuid="dao.agent_filesystem.total_bytes">
+			<tuv xml:lang="en_US">
+				<seg>Total Bytes</seg>
+			</tuv>
+		</tu>
+		<tu tuid="dao.agent_filesystem.type">
+			<tuv xml:lang="en_US">
+				<seg>Type</seg>
+			</tuv>
+		</tu>
 	</body>
 </tmx>
