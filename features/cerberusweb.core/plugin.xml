@@ -811,6 +811,22 @@
 			<class name="PageSection_ProfilesAbstractCustomRecord" />
 		</file>
 		
+
+		<file path="api/dao/agent_model.php">
+			<class name="Context_AgentModel" />
+			<class name="DAO_AgentModel" />
+			<class name="Model_AgentModel" />
+			<class name="SearchFields_AgentModel" />
+			<class name="View_AgentModel" />
+		</file>
+
+		<file path="api/dao/agent_model_router.php">
+			<class name="Context_AgentModelRouter" />
+			<class name="DAO_AgentModelRouter" />
+			<class name="Model_AgentModelRouter" />
+			<class name="SearchFields_AgentModelRouter" />
+			<class name="View_AgentModelRouter" />
+		</file>
 	</class_loader>
 	
 	<!-- Activity Points -->
@@ -1144,7 +1160,6 @@
 		</extension>
 
 		<!-- Contexts -->
-		
 
 		<extension point="devblocks.context">
 			<id>cerb.contexts.agent.model</id>
@@ -1185,10 +1200,51 @@
 						<data key="create" />
 						<data key="delete" />
 						<data key="export" />
-						<data key="import" />
-						<data key="merge" />
 						<data key="update" />
-						<data key="update.bulk" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<extension point="devblocks.context">
+			<id>cerb.contexts.agent.model.router</id>
+			<name>Agent Model Router</name>
+			<class>
+				<file>api/dao/agent_model_router.php</file>
+				<name>Context_AgentModelRouter</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="agent model router" value="singular" />
+						<data key="agent model routers" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="agent_model_router" />
+				<param key="icon" value="bot-route" />
+				<param key="dao_class" value="DAO_AgentModelRouter" />
+				<param key="view_class" value="View_AgentModelRouter" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="comments" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="records" />
+						<data key="search" />
+						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="watchers" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
 					</value>
 				</param>
 			</params>
