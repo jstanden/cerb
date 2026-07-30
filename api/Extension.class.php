@@ -956,6 +956,12 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'description' => "Generate text vector embeddings using a large language model",
 			],
 			[
+				'caption' => 'llm.router:',
+				'snippet' => "llm.router:\n\tinputs:\n\t\t\${1:}\n\toutput: routed\n\t#on_success:\n\t#on_error:\n",
+				'description' => "Resolve an agent model router to a `models:` list",
+				'docHTML' => 'Resolve an <b>agent model router</b> to the <code>models:</code> map that <code>llm.agent:</code>, <code>llm.chat:</code>, and <code>agentPrompt</code> consume &mdash; then feed it with <code>model@key: routed:models</code>.<br><br>Use this only when the list needs <b>handling before it\'s consumed</b> (filtering, round-robin, feeding two commands from one resolution). To simply USE the models, name an <code>agent:</code> or omit the config entirely and the default router supplies them.<br><br>Omitting <code>router:</code> resolves the default router &mdash; which is what portable automations should do, since a hardcoded router name is yours, not the customer\'s.',
+			],
+			[
 				'caption' => 'log:',
 				'snippet' => "log: \${1:This is a debug message}",
 				'description' => "Log a message with debug severity",

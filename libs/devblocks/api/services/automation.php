@@ -561,6 +561,7 @@ class _DevblocksAutomationService {
 			'kata.parse',
 			'llm.chat',
 			'llm.embed',
+			'llm.router',
 			'log',
 			'log.alert',
 			'log.error',

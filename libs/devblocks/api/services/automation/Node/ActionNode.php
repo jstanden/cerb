@@ -21,6 +21,7 @@ class ActionNode extends AbstractNode {
 			'http.request' => '\Cerb\AutomationBuilder\Action\HttpRequestAction',
 			'kata.parse' => '\Cerb\AutomationBuilder\Action\KataParseAction',
 			'llm.chat' => '\Cerb\AutomationBuilder\Action\LlmChatAction',
+			'llm.router' => '\Cerb\AutomationBuilder\Action\LlmRouterAction',
 			'llm.embed' => '\Cerb\AutomationBuilder\Action\LlmEmbedAction',
 			'log' => '\Cerb\AutomationBuilder\Action\LogAction',
 			'log.alert' => '\Cerb\AutomationBuilder\Action\LogAction',

@@ -250,6 +250,7 @@ let cerbAutocompleteSuggestions = {
 			'llm.agent:',
 			'llm.chat:',
 			'llm.embed:',
+			'llm.router:',
 			'metric.increment:',
 			'queue.pop:',
 			'queue.push:',
@@ -338,6 +339,10 @@ let cerbAutocompleteSuggestions = {
 			'allow@bool: yes'
 		],
 		'commands:llm.embed:': [
+			'deny@bool: yes',
+			'allow@bool: yes'
+		],
+		'commands:llm.router:': [
 			'deny@bool: yes',
 			'allow@bool: yes'
 		],

@@ -5553,6 +5553,26 @@ class _CerbApplication_KataSchemas {
                         types:
                           string:
 
+              llm.router:
+                multiple@bool: yes
+                types:
+                  object:
+                    attributes:
+                      inputs:
+                        types:
+                          object:
+                            attributes:
+                              router:
+                                types:
+                                  string:
+                      output:
+                        types:
+                          string:
+                      on_error:
+                        ref: commands
+                      on_success:
+                        ref: commands
+
               llm.chat:
                 multiple@bool: yes
                 types:
@@ -6323,6 +6343,7 @@ class _CerbApplication_KataSchemas {
                 llm.agent@ref: policyRule
                 llm.chat@ref: policyRule
                 llm.embed@ref: policyRule
+                llm.router@ref: policyRule
                 metric.increment@ref: policyRule
                 queue.pop@ref: policyRule
                 queue.push@ref: policyRule
