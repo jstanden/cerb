@@ -16,6 +16,16 @@ interface Chat {
 	 */
 	function convertToGenericMessage(array $message, ?string $message_uuid=null) : DevblocksLlmChatResponse;
 
+	/**
+	 * Reverse of convertToGenericMessage(): render a neutral message back into this
+	 * provider's native wire format for cross-provider replay. Returns a LIST of native
+	 * messages (a neutral tool-result can fan out to several). Satisfied by the default
+	 * on Extension_DevblocksLlmProvider unless a provider overrides it.
+	 *
+	 * @return array List of provider-native message arrays.
+	 */
+	function toNativeMessage(DevblocksLlmChatResponse $message) : array;
+
 	// The known chat model ids (KATA `model:` value autocompletion; not authoritative — a model is only
 	// usable if auth is set up).
 	function getChatModels() : array;

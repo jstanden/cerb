@@ -84,6 +84,52 @@ class Anthropic extends Extension_DevblocksLlmProvider implements Chat {
 		return $chat_response;
 	}
 	
+	function toNativeMessage(DevblocksLlmChatResponse $message) : array {
+		$tool_results = $message->getToolResults();
+
+		// Anthropic tool results are user-role messages of tool_result content blocks.
+		if($tool_results) {
+			$blocks = [];
+
+			foreach($tool_results as $tool_id => $content) {
+				$blocks[] = [
+					'type' => 'tool_result',
+					'tool_use_id' => $tool_id,
+					'content' => is_array($content) ? json_encode($content) : strval($content),
+				];
+			}
+
+			return [[
+				'role' => 'user',
+				'content' => $blocks,
+			]];
+		}
+
+		$blocks = [];
+
+		foreach($message->getMessages() as $block) {
+			if('' !== ($block['content'] ?? ''))
+				$blocks[] = ['type' => 'text', 'text' => $block['content']];
+		}
+
+		foreach($message->getToolCalls() as $tool) {
+			$blocks[] = [
+				'type' => 'tool_use',
+				'id' => $tool->getId(),
+				'name' => $tool->getName(),
+				'input' => $tool->getParameters() ?: (object)[],
+			];
+		}
+
+		$role = $message->getRole();
+		$role = ('' === $role || 'tool' === $role) ? 'assistant' : $role;
+
+		return [[
+			'role' => $role,
+			'content' => $blocks,
+		]];
+	}
+
 	/**
 	 * @throws Exception_DevblocksAutomationError
 	 */

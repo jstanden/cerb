@@ -142,7 +142,68 @@ abstract class Extension_DevblocksLlmProvider {
 	function setParam(string $key, mixed $value) : void {
 		$this->_params[$key] = $value;
 	}
-	
+
+	/**
+	 * Reverse of a provider's convertToGenericMessage(): render a neutral message back
+	 * into native wire format for cross-provider replay. The base emits the OpenAI chat
+	 * shape (most providers are OpenAI-compatible); Anthropic-family providers override
+	 * with the content-block shape. Returns a LIST of native messages — a neutral
+	 * tool-result message fans out to one native `tool` message per result. Provider-
+	 * specific extras (reasoning blocks, cache_control, citations) have no neutral
+	 * equivalent and are intentionally dropped on conversion.
+	 *
+	 * @return array List of provider-native message arrays.
+	 */
+	function toNativeMessage(DevblocksLlmChatResponse $message) : array {
+		$tool_results = $message->getToolResults();
+
+		// Each tool result becomes its own OpenAI `tool` message.
+		if($tool_results) {
+			$out = [];
+
+			foreach($tool_results as $tool_id => $content) {
+				$out[] = [
+					'role' => 'tool',
+					'tool_call_id' => $tool_id,
+					'content' => is_array($content) ? json_encode($content) : strval($content),
+				];
+			}
+
+			return $out;
+		}
+
+		$text = '';
+		foreach($message->getMessages() as $block)
+			$text .= ($block['content'] ?? '');
+
+		$tool_calls = $message->getToolCalls();
+
+		if($tool_calls) {
+			$native = [
+				'role' => 'assistant',
+				'content' => ('' !== $text) ? $text : null,
+				'tool_calls' => [],
+			];
+
+			foreach($tool_calls as $tool) {
+				$native['tool_calls'][] = [
+					'id' => $tool->getId(),
+					'type' => 'function',
+					'function' => [
+						'name' => $tool->getName(),
+						'arguments' => json_encode($tool->getParameters()),
+					],
+				];
+			}
+
+			return [$native];
+		}
+
+		return [[
+			'role' => $message->getRole() ?: 'user',
+			'content' => $text,
+		]];
+	}
 
 	// The cerb-icons name for this provider's mark; concrete providers with a brand logo override it.
 	function getIcon() : string {
