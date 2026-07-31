@@ -63,7 +63,10 @@ class TogetherAI extends Extension_DevblocksLlmProvider implements Chat, Embeddi
 				}
 			}
 		}
-		
+
+		// Reasoning models return their chain of thought in a sibling key, often with an empty `content`.
+		$this->_pushMessageReasoning($message, $chat_response);
+
 		return $chat_response;
 	}
 	

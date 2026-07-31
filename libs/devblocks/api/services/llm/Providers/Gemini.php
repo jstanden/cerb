@@ -40,11 +40,13 @@ class Gemini extends OpenAI {
 			$params['extra_body']['google']['thinking_config']['include_thoughts'] = true;
 		}
 		
-		// minimal, low, medium, high
-		if(($thinking_level = $this->getParam('thinking_level'))) {
-			$params['reasoning_effort'] = $thinking_level;
+		// Canonical `effort:` → the OpenAI-compat `reasoning_effort` wire param. minimal, low, medium, high
+		// (verbatim — validated by the API, not here). The legacy `thinking_level:` authoring key was removed
+		// in 11.2 (standardized on `effort:`).
+		if(($effort = $this->getEffort())) {
+			$params['reasoning_effort'] = $effort;
 		}
-		
+
 		return $params;
 	}
 	
@@ -71,13 +73,13 @@ class Gemini extends OpenAI {
 				'api_endpoint_url:',
 				'authentication:',
 				['caption' => 'thinking_include:', 'snippet' => "thinking_include@bool: yes", 'docHTML' => '<b>thinking_include:</b>Include thoughts in the chat completion output.'],
-				['caption' => 'thinking_level:', 'snippet' => "thinking_level: low", 'docHTML' => '<b>thinking_level:</b>Adjust the reasoning effort based on the complexity of a request.<br><code>low</code> or <code>high</code> for Gemini 3 Pro, any setting for Gemini 3 Flash. Not supported for Gemini 2.5.'],
+				['caption' => 'effort:', 'snippet' => "effort: low", 'docHTML' => '<b>effort:</b>Reasoning effort (empty = provider default).<br><code>low</code> or <code>high</code> for Gemini 3 Pro, any of <code>minimal|low|medium|high</code> for Gemini 3 Flash. Not supported for Gemini 2.5.'],
 			],
 			'values' => [
 				'model:' => $this->getChatModels(),
 				'authentication:' => ['type' => 'cerb-uri', 'params' => ['connected_account' => null]],
 				'api_endpoint_url:' => ['https://generativelanguage.googleapis.com/v1beta/openai'],
-				'thinking_level:' => ['minimal', 'low', 'medium', 'high'],
+				'effort:' => ['minimal', 'low', 'medium', 'high'],
 			],
 		];
 	}

@@ -61,7 +61,11 @@ class Anthropic extends Extension_DevblocksLlmProvider implements Chat {
 		foreach($message['content'] ?? [] as $message_content) {
 			if ('text' == ($message_content['type'] ?? null))
 				$chat_response->pushMessage($message_content['text']);
-			
+
+			// Extended-thinking summary blocks (empty text when display:omitted or redacted_thinking).
+			if ('thinking' == ($message_content['type'] ?? null))
+				$chat_response->pushThinking(strval($message_content['thinking'] ?? ''));
+
 			if ('tool_use' == $message_content['type'] ?? null) {
 				if (!($message_content['id'] ?? null) || !($message_content['name'] ?? null))
 					continue;
@@ -165,7 +169,15 @@ class Anthropic extends Extension_DevblocksLlmProvider implements Chat {
 			
 			$body_payload['tools'] = $tools;
 		}
-		
+
+		// Extended thinking: translate the grouped `thinking:` block → native `thinking` + `output_config.effort`.
+		$this->_applyThinking($body_payload);
+
+		// Neutral top-level `effort` (the agentPrompt's per-model selection / a fixed catalog `effort:`) →
+		// output_config.effort. Applied independently of the `thinking:` block (which _applyThinking skips when
+		// absent), and takes precedence over any `thinking.effort`.
+		$this->_applyEffort($body_payload);
+
 		$verb = 'POST';
 		$url = $base_url . '/v1/messages';
 		$headers = [
@@ -274,6 +286,76 @@ class Anthropic extends Extension_DevblocksLlmProvider implements Chat {
 		$memory->appendMessage($tool_message);
 	}
 
+	// Translate the grouped `thinking:` param block into Anthropic's native request shape (`type`/`display`
+	// only). Author-declared: we form valid JSON for the chosen `type` and DON'T classify the model (a wrong
+	// pairing surfaces as the API's own 400 — model ids are free-text). Effort is NOT authored here anymore —
+	// it's the canonical top-level `effort:` key (see _applyEffort); the legacy `enabled` budget derives from
+	// it too. No `thinking:` block → no change.
+	private function _applyThinking(array &$body_payload) : void {
+		$thinking = $this->getParam('thinking');
+
+		if(!is_array($thinking) || !$thinking)
+			return;
+
+		$type = DevblocksPlatform::strLower(trim(strval($thinking['type'] ?? '')));
+		$display = DevblocksPlatform::strLower(trim(strval($thinking['display'] ?? '')));
+
+		if('enabled' === $type) {
+			// Legacy models: `budget_tokens` is required and `output_config`/`effort` is rejected. Derive the
+			// budget from the canonical top-level `effort:` (falls back to the default when unset).
+			$budget = $this->_effortToBudget($this->getEffort() ?? '', intval($this->getParam('max_tokens', 2048)));
+
+			if(!is_null($budget))
+				$body_payload['thinking'] = ['type' => 'enabled', 'budget_tokens' => $budget];
+
+			return;
+		}
+
+		if('disabled' === $type) {
+			$body_payload['thinking'] = ['type' => 'disabled'];
+		} elseif('adaptive' === $type) {
+			$body_payload['thinking'] = ['type' => 'adaptive'];
+
+			if('' !== $display)
+				$body_payload['thinking']['display'] = $display;
+		}
+	}
+
+	// Route the canonical top-level `effort:` (provider_params['effort']) to `output_config.effort`. Verbatim —
+	// the API validates the level for the model (low|medium|high|xhigh|max on current models); we don't clamp or
+	// whitelist. Skipped for legacy `thinking: {type: enabled}`, which rejects output_config and instead maps
+	// effort → budget_tokens in _applyThinking. No effort → no change.
+	private function _applyEffort(array &$body_payload) : void {
+		if(null === ($effort = $this->getEffort()))
+			return;
+
+		$thinking = $this->getParam('thinking');
+		$type = is_array($thinking) ? DevblocksPlatform::strLower(trim(strval($thinking['type'] ?? ''))) : '';
+		if('enabled' === $type)
+			return;
+
+		$body_payload['output_config'] = array_merge($body_payload['output_config'] ?? [], ['effort' => $effort]);
+	}
+
+	// Map a grouped effort level → a legacy `budget_tokens` value, clamped so it's ≥1024 and < max_tokens.
+	// Returns null when max_tokens can't fit a valid budget (skip legacy thinking rather than send a 400).
+	private function _effortToBudget(string $effort, int $max_tokens) : ?int {
+		$budget = [
+			'low' => 4096,
+			'medium' => 8192,
+			'high' => 16384,
+			'xhigh' => 24576,
+			'max' => 32768,
+		][$effort] ?? 8192;
+
+		$ceiling = $max_tokens - 1;
+
+		if($ceiling < 1024)
+			return null;
+
+		return max(1024, min($budget, $ceiling));
+	}
+
 	function getChatModels() : array {
 		return [
 			'claude-opus-4-8',
@@ -289,15 +371,16 @@ class Anthropic extends Extension_DevblocksLlmProvider implements Chat {
 				['caption' => 'model:', 'snippet' => 'model:', 'score' => 2000],
 				'authentication:',
 				'max_tokens@int: 2048',
-				['caption' => 'thinking:', 'snippet' => "thinking:\n\ttype: adaptive\n\teffort: high", 'docHTML' => '<b>thinking:</b>Extended thinking. <code>type</code>: adaptive|enabled|disabled &middot; <code>display</code>: summarized|omitted &middot; <code>effort</code>: low|medium|high|xhigh|max. Modern models use <code>adaptive</code>; older models use <code>enabled</code>.'],
+				['caption' => 'thinking:', 'snippet' => "thinking:\n\ttype: adaptive", 'docHTML' => '<b>thinking:</b>Extended thinking. <code>type</code>: adaptive|enabled|disabled &middot; <code>display</code>: summarized|omitted. Modern models use <code>adaptive</code>; older models use <code>enabled</code>. Reasoning depth is the top-level <code>effort:</code> key.'],
+				['caption' => 'effort:', 'snippet' => "effort: high", 'docHTML' => '<b>effort:</b>Reasoning effort (empty = provider default). Values: <code>low|medium|high|xhigh|max</code>. On legacy <code>thinking: {type: enabled}</code> models it maps to a thinking budget instead.'],
 			],
 			'values' => [
 				'model:' => $this->getChatModels(),
 				'authentication:' => ['type' => 'cerb-uri', 'params' => ['connected_account' => null]],
-				'thinking:' => ['type:', 'display:', 'effort:'],
+				'thinking:' => ['type:', 'display:'],
 				'thinking:type:' => ['adaptive', 'enabled', 'disabled'],
 				'thinking:display:' => ['summarized', 'omitted'],
-				'thinking:effort:' => ['low', 'medium', 'high', 'xhigh', 'max'],
+				'effort:' => ['low', 'medium', 'high', 'xhigh', 'max'],
 			],
 		];
 	}

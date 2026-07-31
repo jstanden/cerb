@@ -67,6 +67,9 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 					$chat_response->pushTool($tool);
 				}
 			}
+
+			// Reasoning models return their chain of thought in a sibling key, often with an empty `content`.
+			$this->_pushMessageReasoning($message, $chat_response);
 		}
 		
 		return $chat_response;
@@ -137,15 +140,61 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 	
 	function getChatCompletionsParams() : array {
 		$params = [];
-		
-		// low, medium, high
-		if(($reasoning_effort = $this->getParam('reasoning_effort'))) {
-			$params['reasoning_effort'] = $reasoning_effort;
+
+		// Canonical `effort:` → OpenAI's `reasoning_effort` wire param. Verbatim — levels are version-dependent
+		// (GPT-5: minimal|low|medium|high; GPT-5.4 adds none|xhigh; GPT-5.6 adds max) and validated by the API,
+		// not here. The legacy `reasoning_effort:` authoring key was removed in 11.2 (standardized on `effort:`).
+		if(($effort = $this->getEffort())) {
+			$params['reasoning_effort'] = $effort;
 		}
-		
+
 		return $params;
 	}
 	
+	/**
+	 * Does this model know `none` as a reasoning level? GPT-5 shipped minimal|low|medium|high; `none` arrived
+	 * in GPT-5.4. Parsed out of the id rather than whitelisted — free-text model ids are deliberate here, so a
+	 * new release works the day it ships. An id we can't parse returns FALSE: sending an invalid level is a
+	 * 400, while not sending one is at worst the status quo.
+	 */
+	protected function _supportsReasoningEffortNone(string $model) : bool {
+		if(!preg_match('/^gpt-(\d+)(?:\.(\d+))?/', DevblocksPlatform::strLower(trim($model)), $matches))
+			return false;
+
+		$major = intval($matches[1]);
+		$minor = intval($matches[2] ?? 0);
+
+		return $major > 5 || (5 === $major && $minor >= 4);
+	}
+
+	/**
+	 * OpenAI's /v1/chat/completions refuses function tools on a REASONING turn for the gpt-5.x family and
+	 * directs you to /v1/responses. Its own stated remedy is an explicit `reasoning_effort: none`.
+	 *
+	 * Omitting the param is NOT equivalent — the model then falls back to its own non-none default and the
+	 * call fails identically ("Function tools with reasoning_effort are not supported for gpt-5.6-terra in
+	 * /v1/chat/completions"). That was the original guardrail's mistaken premise.
+	 *
+	 * So force `none` whenever we're sending tools to a model that knows the level. This overrides an
+	 * author's `effort:` ON PURPOSE: on this endpoint the choice is a tool-using agent with no reasoning or
+	 * no agent at all. Models predating the `none` level keep the omit behavior — there's nothing better to
+	 * send them, and their turn may well work.
+	 *
+	 * Split out of chatCompletion so the rule is testable without a live call; it has been wrong once.
+	 */
+	protected function _applyToolReasoningGuardrail(array $params, array $tools, string $model) : array {
+		if(!$tools)
+			return $params;
+
+		if($this->_supportsReasoningEffortNone($model)) {
+			$params['reasoning_effort'] = 'none';
+		} else {
+			unset($params['reasoning_effort']);
+		}
+
+		return $params;
+	}
+
 	/**
 	 * @throws Exception_DevblocksAutomationError
 	 */
@@ -180,9 +229,15 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 		
 		if($tools)
 			$body_payload['tools'] = $tools;
-		
-		// Add provider-specific body params
-		if(($provider_params = $this->getChatCompletionsParams())) {
+
+		// Add provider-specific body params, then reconcile reasoning effort with tools (see the guardrail)
+		$provider_params = $this->_applyToolReasoningGuardrail(
+			$this->getChatCompletionsParams(),
+			$tools,
+			$this->getParam('model', '')
+		);
+
+		if($provider_params) {
 			$body_payload = array_merge($body_payload, $provider_params);
 		}
 		
@@ -282,13 +337,13 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 				['caption' => 'model:', 'snippet' => 'model:', 'score' => 2000],
 				'api_endpoint_url:',
 				'authentication:',
-				['caption' => 'reasoning_effort:', 'snippet' => "reasoning_effort: medium"],
+				['caption' => 'effort:', 'snippet' => "effort: medium", 'docHTML' => '<b>effort:</b>Reasoning effort (empty = provider default). Version-dependent values, e.g. <code>none|minimal|low|medium|high|xhigh|max</code>.'],
 			],
 			'values' => [
 				'model:' => $this->getChatModels(),
 				'authentication:' => ['type' => 'cerb-uri', 'params' => ['connected_account' => null]],
-				'api_endpoint_url:' => ['https://api.openai.com'],
-				'reasoning_effort:' => ['none', 'low', 'medium', 'high', 'xhigh'],
+				'api_endpoint_url:' => ['https://api.openai.com', 'http://host.docker.internal:8080'],
+				'effort:' => ['none', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max'],
 			],
 		];
 	}

@@ -73,6 +73,7 @@ class DevblocksLlmChatResponse {
 	private array $_tool_calls = [];
 	private array $_tool_results = [];
 	private array $_usage = [];
+	private array $_thinking = [];
 	function __construct(string $role = 'assistant', ?string $uuid = null) {
 		$this->setRole($role);
 		$this->setUuid($uuid);
@@ -115,6 +116,17 @@ class DevblocksLlmChatResponse {
 		$this->_usage = $usage;
 	}
 
+	// Reasoning summary blocks (Anthropic `thinking` content when display:summarized) — surfaced for the
+	// transcript viewer's collapsed "Thinking" section. Empty when thinking is off or display:omitted.
+	function pushThinking(string $thinking) : void {
+		if('' !== trim($thinking))
+			$this->_thinking[] = $thinking;
+	}
+
+	function getThinking() : array {
+		return $this->_thinking;
+	}
+
 	function pushTool(DevblocksLlmChatResponse_Tool $tool) : void {
 		$this->_tool_calls[] = $tool;
 	}
@@ -151,6 +163,15 @@ abstract class Extension_DevblocksLlmProvider {
 	
 	function setParam(string $key, mixed $value) : void {
 		$this->_params[$key] = $value;
+	}
+
+	// The chosen reasoning-effort level from provider_params (e.g. low|medium|high|xhigh|max), normalized, or
+	// null when unset. Reasoning-capable providers translate this to their native request param (Anthropic →
+	// output_config.effort, OpenAI/Gemini → reasoning_effort). Passed through verbatim — the provider API
+	// validates the level for its model; we don't clamp or whitelist (levels vary per model/version).
+	function getEffort() : ?string {
+		$e = $this->getParam('effort');
+		return (is_string($e) && '' !== trim($e)) ? DevblocksPlatform::strLower(trim($e)) : null;
 	}
 
 	/**
@@ -224,6 +245,39 @@ abstract class Extension_DevblocksLlmProvider {
 	// means "no brand color" — callers fall back to a hashed/seeded color. Branded providers override.
 	function getIconColor() : string {
 		return '';
+	}
+
+	// Surface an OpenAI-shaped message's reasoning as neutral thinking blocks. Unlike Anthropic (where thinking
+	// is a `content` block), the OpenAI-compatible family carries it in a SIBLING key that varies by vendor:
+	// `reasoning_content` (DeepSeek/Qwen via vLLM, llama.cpp, SGLang), `reasoning` (OpenRouter, Groq), or
+	// `thinking` (Ollama). A reasoning model routinely returns an EMPTY `content` alongside it, so dropping the
+	// key doesn't just lose the reasoning — it makes the whole turn render as nothing.
+	protected function _pushMessageReasoning(array $message, DevblocksLlmChatResponse $response) : void {
+		foreach(['reasoning_content', 'reasoning', 'thinking'] as $key) {
+			if(!array_key_exists($key, $message))
+				continue;
+
+			$reasoning = $message[$key];
+
+			// OpenRouter returns an array of reasoning blocks rather than a string.
+			if(is_array($reasoning)) {
+				$text = '';
+
+				foreach($reasoning as $block) {
+					if(is_string($block))
+						$text .= $block;
+					elseif(is_array($block))
+						$text .= strval($block['text'] ?? $block['summary'] ?? $block['content'] ?? '');
+				}
+
+				$reasoning = $text;
+			}
+
+			if(!is_string($reasoning))
+				continue;
+
+			$response->pushThinking($reasoning);
+		}
 	}
 	protected function _authenticateRequest(mixed $authentication_uri, Request &$request, array &$request_options, &$error=null) : bool {
 		$actor = [CerberusContexts::CONTEXT_APPLICATION, 0];
