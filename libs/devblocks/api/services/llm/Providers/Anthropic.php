@@ -200,14 +200,27 @@ class Anthropic extends Extension_DevblocksLlmProvider implements Chat {
 		}
 		
 		// Add to the memory
+
+		// Neutral token usage for the turn. Anthropic maps directly: input_tokens (fresh),
+		// cache_read/cache_creation_input_tokens (read/write), output_tokens.
+		$native_usage = $response_json['usage'] ?? [];
+		$usage = [
+			'input' => intval($native_usage['input_tokens'] ?? 0),
+			'output' => intval($native_usage['output_tokens'] ?? 0),
+			'cache_read' => intval($native_usage['cache_read_input_tokens'] ?? 0),
+			'cache_write' => intval($native_usage['cache_creation_input_tokens'] ?? 0),
+		];
+
+		// Add to the memory (usage rides the assistant turn — usage_json column, not the replayed data_json)
 		if($response_json['content'] ?? null) {
 			$memory->appendMessage([
 				'role' => $response_json['role'],
 				'content' => $response_json['content'],
-			]);
+			], usage: $usage, finish_reason: $finish_reason);
 		}
 		
 		return $this->convertToGenericMessage($response_json);
+		$response->setUsage($usage);
 	}
 	
 	function sanitizeMessages(array $messages) : array {

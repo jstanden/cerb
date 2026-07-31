@@ -212,14 +212,26 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 			
 			throw new Exception_DevblocksAutomationError('HTTP status code: ' . $response->getStatusCode());
 		}
-		
+
+		// Neutral token usage. OpenAI's prompt_tokens INCLUDES cached, so fresh input = prompt − cached;
+		// cache_read = cached_tokens; OpenAI doesn't report cache writes (0).
+		$native_usage = $response_json['usage'] ?? [];
+		$cached = intval($native_usage['prompt_tokens_details']['cached_tokens'] ?? 0);
+		$usage = [
+			'input' => max(0, intval($native_usage['prompt_tokens'] ?? 0) - $cached),
+			'output' => intval($native_usage['completion_tokens'] ?? 0),
+			'cache_read' => $cached,
+			'cache_write' => 0,
+		];
+
 		$message = $response_json['choices'][0]['message'] ?? null;
-		
-		// Add to the memory
+
+		// Add to the memory (usage rides the assistant turn — usage_json column, not the replayed data_json)
 		if($message)
-			$memory->appendMessage($message);
 		
 		return $this->convertToGenericMessage($message);
+			$memory->appendMessage($message, usage: $usage, finish_reason: $finish_reason);
+		$response->setUsage($usage);
 	}
 	
 	function sanitizeMessages(array $messages) : array {

@@ -72,7 +72,7 @@ class DevblocksLlmChatResponse {
 	private array $_messages = [];
 	private array $_tool_calls = [];
 	private array $_tool_results = [];
-	
+	private array $_usage = [];
 	function __construct(string $role = 'assistant', ?string $uuid = null) {
 		$this->setRole($role);
 		$this->setUuid($uuid);
@@ -104,7 +104,17 @@ class DevblocksLlmChatResponse {
 	function getMessages() : array {
 		return $this->_messages;
 	}
+	function getUsage() : array {
+		return $this->_usage;
+	}
 	
+	// Provider-neutral token usage for the turn: {input, output, cache_read, cache_write} (input = fresh/uncached
+	// prompt tokens; cache_write is 0 on providers that don't report it). Set by each provider's chatCompletion
+	// from its native `usage` block; persisted on the assistant message (usage_json).
+	function setUsage(array $usage) : void {
+		$this->_usage = $usage;
+	}
+
 	function pushTool(DevblocksLlmChatResponse_Tool $tool) : void {
 		$this->_tool_calls[] = $tool;
 	}

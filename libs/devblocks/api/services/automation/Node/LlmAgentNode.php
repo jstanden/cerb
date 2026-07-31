@@ -589,7 +589,27 @@ class LlmAgentNode extends AbstractNode {
 				$this->_node_memory['stack'][] = ['tool', $tool_call->serialize()];
 			}
 		}
-		
+
+		// Durable running count of the active context window (post-response, post any fold this turn). Cheap for
+		// callers to read (e.g. the AgentPrompt progress bar) without re-summing. Prefer the provider's EXACT
+		// numbers for this turn: input + cache_read is the whole prompt just sent (system + tools + history, post
+		// any compaction), and output is the answer — together, the true current context size. Fall back to the
+		// token_est-sum estimate only when the provider reported no usage.
+		// Prompt = ALL input components: fresh `input` + `cache_read` + `cache_write` (Anthropic splits the prompt
+		// across these three; with our rolling cache breakpoint `input` is ~2 and the bulk is read/write). Context
+		// total = prompt + output. Omitting cache_write undercounts by the freshly-cached delta each turn.
+		$usage = $llm_response->getUsage();
+		$prompt_tokens = intval($usage['input'] ?? 0) + intval($usage['cache_read'] ?? 0) + intval($usage['cache_write'] ?? 0);
+		$token_usage = $prompt_tokens > 0
+			? $prompt_tokens + intval($usage['output'] ?? 0)
+			: $this->_getCompaction()->estimateContextTokens($memory_store, $llm_provider);
+		$this->_dict->set('__llm_token_usage', $token_usage);
+
+		// Denormalize the active-branch estimate onto the session so the GUI (transcript list / dev page)
+		// shows context usage without re-summing the tree; also stamps last activity for recency sorting.
+		if($session_id)
+			\DAO_LlmAgentSession::setTokenUsage($session_id, $token_usage);
+
 		// Return an abstract list of messages
 		$this->_dict->set($this->_output, [
 			'session_id' => $session_id,
@@ -599,6 +619,7 @@ class LlmAgentNode extends AbstractNode {
 		return true;
 	}
 	
+		$llm_response->setUsage(is_array($head->usage) ? $head->usage : []);
 	/**
 	 * @param DevblocksLlmChatResponse_Tool $tool_spec
 	 * @param string|null $error

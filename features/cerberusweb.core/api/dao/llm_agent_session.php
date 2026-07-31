@@ -8,6 +8,7 @@ class DAO_LlmAgentSession {
 			$db->qstr($model->uuid),
 			$db->qstr($model->provider),
 			$model->created_at,
+			$model->token_usage,
 			$model->automation_id,
 			$db->qstr($model->automation_node),
 			$db->qstr($model->user_type),
@@ -57,6 +58,22 @@ class DAO_LlmAgentSession {
 		return boolval($result);
 	}
 	
+
+	// Denormalize the active-branch context token estimate onto the session (the LLM node writes this once
+	// per turn, right after computing it) so the GUI can display it without re-summing the tree. Also stamps
+	// last activity.
+	public static function setTokenUsage(string $uuid, int $token_usage) : bool {
+		$db = DevblocksPlatform::services()->database();
+
+		$result = $db->ExecuteWriter(sprintf(
+			"UPDATE llm_agent_session SET `token_usage` = %d, `updated_at` = %d WHERE `uuid` = UUID_TO_BIN(%s)",
+			max(0, $token_usage),
+			time(),
+			$db->qstr($uuid)
+		));
+
+		return boolval($result);
+	}
 	public static function delete(string $uuid) : bool {
 		$db = DevblocksPlatform::services()->database();
 		
@@ -110,6 +127,7 @@ class DAO_LlmAgentSession {
 		$llm_session = new Model_LlmAgentSession($row['uuid']);
 		$llm_session->provider = $row['provider'];
 		$llm_session->created_at = intval($row['created_at']);
+		$llm_session->token_usage = intval($row['token_usage'] ?? 0);
 		$llm_session->automation_id = intval($row['automation_id']);
 		$llm_session->automation_node = $row['automation_node'];
 		$llm_session->user_type = $row['user_type'];
@@ -124,6 +142,7 @@ class Model_LlmAgentSession {
 	public string $uuid = '';
 	public string $provider = '';
 	public int $created_at = 0;
+	public int $token_usage = 0;
 	public int $automation_id = 0;
 	public string $automation_node = '';
 	public string $user_type = '';
