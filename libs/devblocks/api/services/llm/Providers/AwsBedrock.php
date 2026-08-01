@@ -82,6 +82,9 @@ class AwsBedrock extends Extension_DevblocksLlmProvider implements Chat, Embeddi
 			}
 		}
 		
+		// Surface any neutral `images:` (resource uris) for the transcript viewer.
+		$this->_pushMessageImages($message, $chat_response);
+
 		return $chat_response;
 	}
 	
@@ -303,7 +306,23 @@ class AwsBedrock extends Extension_DevblocksLlmProvider implements Chat, Embeddi
 			);
 		}
 		
-		return array_values($messages);
+		// Expand any neutral `images:` into native content parts (images before text).
+		return array_map(fn($m) => $this->expandMessageImages($m), array_values($messages));
+	}
+
+	// Bedrock runs Anthropic models — native `image` source blocks (base64), like Anthropic.
+	protected function _nativeImagePart(string $mime_type, string $data) : ?array {
+		if('' === $mime_type || '' === $data)
+			return null;
+
+		return [
+			'type' => 'image',
+			'source' => [
+				'type' => 'base64',
+				'media_type' => $mime_type,
+				'data' => $data,
+			],
+		];
 	}
 	
 	function returnTool(DevblocksLlmChatResponse_Tool $tool, string $content, Extension_DevblocksLlmMemoryStore $memory): void {

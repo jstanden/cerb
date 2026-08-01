@@ -5466,6 +5466,24 @@ class _CerbApplication_KataSchemas {
                                               content:
                                                 types:
                                                   string:
+                                              images:
+                                                types:
+                                                  object:
+                                                    attributes:
+                                                      image:
+                                                        multiple@bool: yes
+                                                        types:
+                                                          object:
+                                                            attributes:
+                                                              data:
+                                                                types:
+                                                                  string:
+                                                              mime_type:
+                                                                types:
+                                                                  string:
+                                                              uri:
+                                                                types:
+                                                                  string:
                                               role:
                                                 types:
                                                   string:
@@ -5625,6 +5643,24 @@ class _CerbApplication_KataSchemas {
                                               content:
                                                 types:
                                                   string:
+                                              images:
+                                                types:
+                                                  object:
+                                                    attributes:
+                                                      image:
+                                                        multiple@bool: yes
+                                                        types:
+                                                          object:
+                                                            attributes:
+                                                              data:
+                                                                types:
+                                                                  string:
+                                                              mime_type:
+                                                                types:
+                                                                  string:
+                                                              uri:
+                                                                types:
+                                                                  string:
                                               role:
                                                 types:
                                                   string:

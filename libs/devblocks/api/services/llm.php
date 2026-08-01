@@ -70,6 +70,7 @@ class DevblocksLlmChatResponse {
 	private string $_role = '';
 	private ?string $_uuid = '';
 	private array $_messages = [];
+	private array $_images = [];
 	private array $_tool_calls = [];
 	private array $_tool_results = [];
 	private array $_usage = [];
@@ -105,6 +106,21 @@ class DevblocksLlmChatResponse {
 	function getMessages() : array {
 		return $this->_messages;
 	}
+
+	// Neutral image content block for DISPLAY (the transcript viewer): mime_type + a render URL. The SEND path
+	// builds native image parts from the message's raw `images:` resource uris (expandMessageImages), NOT from
+	// here — so this carries a lazy URL, never a base64 blob in the rendered HTML.
+	function pushImage(string $mime_type, string $url) : void {
+		$this->_images[] = [
+			'mime_type' => $mime_type,
+			'url' => $url,
+		];
+	}
+
+	function getImages() : array {
+		return $this->_images;
+	}
+	
 	function getUsage() : array {
 		return $this->_usage;
 	}
@@ -246,6 +262,19 @@ abstract class Extension_DevblocksLlmProvider {
 	function getIconColor() : string {
 		return '';
 	}
+	// Does the configured model accept image input? Mirrors AgentPromptAwait::_buildModelEntry: explicit
+	// `vision@bool` param → provider getModelDefaults() → false. The params bag rides on the provider instance
+	// (constructed from provider_params), so a primed session resolves this directly off its provider.
+	function supportsVision() : bool {
+		$strings = DevblocksPlatform::services()->string();
+
+		if(null !== ($v = $this->getParam('vision', null)))
+			return $strings->toBool($v);
+
+		$defaults = $this->getModelDefaults(strval($this->getParam('model', '')));
+		return (bool) ($defaults['vision'] ?? false);
+	}
+
 
 	// Surface an OpenAI-shaped message's reasoning as neutral thinking blocks. Unlike Anthropic (where thinking
 	// is a `content` block), the OpenAI-compatible family carries it in a SIBLING key that varies by vendor:
@@ -413,6 +442,98 @@ class _DevblocksLlmService {
 
 		return $out;
 	}
+	// Resolve a message's `images:` descriptors into neutral image blocks [{mime_type, data(base64)}]. Each
+	// descriptor is {mime_type?, data?, uri?}: an inline base64 `data` is used verbatim; a `cerb:attachment:<id>`
+	// (durable, transcript-owned) or `cerb:automation_resource:<token>` (short TTL; bare token accepted) `uri` is
+	// expanded to base64 NOW (+ mime_type from the record). Non-image / unresolvable / empty entries are skipped.
+	// Accepts a map (image/0, image/1, …) or a list.
+	function resolveImageDescriptors(array $images) : array {
+		$out = [];
+
+		foreach($images as $image) {
+			// Accept a bare uri/token string (agentPrompt posts these — mime + validation come from the
+			// resource, not the client) or a descriptor {mime_type?, data?, uri?} (hand-authored KATA).
+			if(is_string($image)) {
+				$mime_type = '';
+				$data = '';
+				$uri = $image;
+			} elseif(is_array($image)) {
+				$mime_type = strval($image['mime_type'] ?? '');
+				$data = strval($image['data'] ?? '');
+				$uri = strval($image['uri'] ?? '');
+			} else {
+				continue;
+			}
+
+			// Expand a cerb: uri → base64 (+ mime_type from the record). Two schemes: a durable
+			// `cerb:attachment:<id>` (agentPrompt uploads — transcript-owned, no TTL) or a legacy/hand-authored
+			// `cerb:automation_resource:<token>` (short TTL). A bare string is treated as a resource token.
+			if('' === $data && '' !== $uri) {
+				$bytes = null;
+				$resolved_mime = '';
+
+				if(DevblocksPlatform::strStartsWith($uri, 'cerb:attachment:')) {
+					if(($attachment = \DAO_Attachment::get(intval(substr($uri, strlen('cerb:attachment:')))))) {
+						$bytes = $attachment->getFileContents();
+						$resolved_mime = strval($attachment->mime_type);
+					}
+				} else {
+					$token = DevblocksPlatform::strStartsWith($uri, 'cerb:automation_resource:')
+						? substr($uri, strlen('cerb:automation_resource:'))
+						: $uri;
+
+					if(($resource = \DAO_AutomationResource::getByToken($token))) {
+						$bytes = $resource->getFileContents();
+						$resolved_mime = strval($resource->mime_type);
+					}
+				}
+
+				if(is_resource($bytes)) {
+					$buf = '';
+					while(!feof($bytes))
+						$buf .= fread($bytes, 8192);
+					$bytes = $buf;
+				}
+
+				if(is_string($bytes) && '' !== $bytes) {
+					$data = base64_encode($bytes);
+
+					if('' === $mime_type)
+						$mime_type = $resolved_mime;
+				}
+			}
+
+			// Only accept image mime types that resolved to data
+			if('' === $data || !DevblocksPlatform::strStartsWith(DevblocksPlatform::strLower($mime_type), 'image/'))
+				continue;
+
+			$out[] = ['mime_type' => $mime_type, 'data' => $data];
+		}
+
+		return $out;
+	}
+
+	// Prepare one inbound message for storage/send: DROP its `images:` when the provider's model lacks vision,
+	// else keep the descriptors AS-IS — cerb: resource uris, NOT base64 (we store uris in history/continuations
+	// and expand to base64 only at send, in expandMessageImages). Normalizes a map (image/0, …) to a list.
+	// Shared by `llm.agent` (before appendMessage) and `llm.chat` (before chatCompletion).
+	function normalizeMessageImages(array $message, Extension_DevblocksLlmProvider $provider) : array {
+		// Empty/invalid `images` → strip the key (a stray `images: []` must never reach the provider API).
+		if(!is_array($message['images'] ?? null) || !$message['images']) {
+			unset($message['images']);
+			return $message;
+		}
+
+		if(!$provider->supportsVision()) {
+			unset($message['images']);
+			return $message;
+		}
+
+		$message['images'] = array_values($message['images']);
+
+		return $message;
+	}
+
 	function getProvider(string $provider_id, array $params=[], bool $validate=true) : ?Extension_DevblocksLlmProvider {
 		return match($provider_id) {
 			'anthropic' => new Cerb\LLM\Providers\Anthropic($params, $validate),
@@ -484,6 +605,15 @@ class _DevblocksLlmService {
 		
 		return $tool_schema;
 	}
+		// Append the inbound messages to the managed history first, so the send-list build sees them. Resolve/drop
+		// `images:` per the model's vision support so the STORED message carries only supportable blocks.
+		foreach($messages as $new_message) {
+			if(is_array($new_message))
+				$new_message = $this->normalizeMessageImages($new_message, $provider);
+
+			$memory_store->appendMessage($new_message);
+		}
+
 
 	/**
 	 * The provider tool schemas for a session, built from its stored `tools` (the authored map) + `mounts`

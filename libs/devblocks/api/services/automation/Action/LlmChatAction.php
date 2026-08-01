@@ -125,10 +125,17 @@ class LlmChatAction extends AbstractAction {
 	 */
 	private function _activateLLM(?string &$error=null) : bool {
 		$llm_provider = $this->_getLlmProvider(); /* @var $llm_provider Chat */
-		
+		$llm = DevblocksPlatform::services()->llm();
+
+		// Resolve any per-message `images:` (resource uris → base64) + drop them if the model lacks vision.
+		$messages = [];
+		foreach($this->_inputs['messages'] ?? [] as $message) {
+			$messages[] = is_array($message) ? $llm->normalizeMessageImages($message, $llm_provider) : $message;
+		}
+
 		// LLM
 		$llm_response = $llm_provider->chatCompletion(
-			$this->_inputs['messages'] ?? [],
+			$messages,
 			$this->_inputs['system_prompt'] ?? '',
 			[],
 			new NoHistory()

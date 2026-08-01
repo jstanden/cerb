@@ -1503,7 +1503,25 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		foreach($approved_files as $approved_file) {
 			$results[$approved_file['attachment_id']] = true;
 		}
-		
+
+		// Approve attachments owned by an LLM agent transcript (session) the worker started. The session isn't a
+		// registered context (its link context_id is the session's int id), so it's approved here explicitly.
+		$sql_approve_by_llm_session = sprintf("SELECT DISTINCT al.attachment_id ".
+			"FROM attachment_link al ".
+			"INNER JOIN llm_agent_session s ON (s.id = al.context_id) ".
+			"WHERE al.attachment_id IN (%s) ".
+			"AND al.context = %s ".
+			"AND s.user_type = 'worker' ".
+			"AND s.user_id = %d",
+			implode(',', DevblocksPlatform::sanitizeArray(array_keys($dicts), 'int')),
+			$db->qstr(DAO_LlmAgentSession::CONTEXT),
+			$actor->id
+		);
+
+		foreach($db->GetArrayReader($sql_approve_by_llm_session) as $approved_file) {
+			$results[$approved_file['attachment_id']] = true;
+		}
+
 		// Determine which context_ids still aren't approved yet.
 		
 		$remaining = array_filter($results, function($bool) {

@@ -71,6 +71,9 @@ class Groq extends Extension_DevblocksLlmProvider implements Chat {
 		// Reasoning models return their chain of thought in a sibling key, often with an empty `content`.
 		$this->_pushMessageReasoning($message, $chat_response);
 
+		// Surface any neutral `images:` (resource uris) for the transcript viewer.
+		$this->_pushMessageImages($message, $chat_response);
+
 		return $chat_response;
 	}
 	
@@ -155,7 +158,8 @@ class Groq extends Extension_DevblocksLlmProvider implements Chat {
 			unset($messages[$key]);
 		}
 		
-		return array_values($messages);
+		// Expand any neutral `images:` into native content parts (images before text).
+		return array_map(fn($m) => $this->expandMessageImages($m), array_values($messages));
 	}
 	
 	function returnTool(DevblocksLlmChatResponse_Tool $tool, string $content, Extension_DevblocksLlmMemoryStore $memory): void {

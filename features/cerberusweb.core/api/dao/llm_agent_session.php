@@ -1,5 +1,24 @@
 <?php
 class DAO_LlmAgentSession {
+	// The `attachment_link.context` tag used to own a transcript's pasted images by the session's int `id`
+	// (the UUID PK can't key the int `context_id`). Shared by the link/unlink, fork/delete, and download-ACL
+	// paths. Doubles as the record-context id when the session is registered as a full context later.
+	const CONTEXT = 'cerb.contexts.llm.agent.session';
+
+	// Resolve a session UUID to its surrogate int `id` (for attachment ownership). Master read — the session
+	// may have just been created this request, so a replica could lag.
+	public static function getIdByUuid(string $uuid) : int {
+		if('' === $uuid)
+			return 0;
+
+		$db = DevblocksPlatform::services()->database();
+
+		return intval($db->GetOneMaster(sprintf(
+			"SELECT id FROM llm_agent_session WHERE uuid = UUID_TO_BIN(%s)",
+			$db->qstr($uuid)
+		)));
+	}
+
 	public static function create(Model_LlmAgentSession $model) : ?Model_LlmAgentSession {
 		$db = DevblocksPlatform::services()->database();
 		
@@ -25,6 +44,21 @@ class DAO_LlmAgentSession {
 		return $model;
 	}
 	
+		// Copy the source's image ownership links onto the fork so its attachments aren't orphan-reaped when the
+		// origin is deleted. Session-level: a partial fork (at_seq) may over-retain links to attachments past the
+		// branch point — harmless, they reap once the fork itself is deleted.
+		$source_id = self::getIdByUuid($session_uuid);
+		$fork_id = self::getIdByUuid($model->uuid);
+
+		if($source_id && $fork_id) {
+			$db->ExecuteMaster(sprintf(
+				"INSERT IGNORE INTO attachment_link (attachment_id, context, context_id) ".
+				"SELECT attachment_id, context, %d FROM attachment_link WHERE context = %s AND context_id = %d",
+				$fork_id,
+				$db->qstr(self::CONTEXT),
+				$source_id
+			));
+		}
 	public static function get(string $session_uuid) : ?Model_LlmAgentSession {
 		$db = DevblocksPlatform::services()->database();
 		
@@ -76,9 +110,14 @@ class DAO_LlmAgentSession {
 	}
 	public static function delete(string $uuid) : bool {
 		$db = DevblocksPlatform::services()->database();
-		
+
 		DAO_LlmAgentMessage::deleteBySession($uuid);
-		
+
+		// Drop image ownership links so the transcript's attachments orphan-reap (the 24h sweep). Resolve the
+		// int id before the row is gone.
+		if(($id = self::getIdByUuid($uuid)))
+			DAO_Attachment::deleteLinks(self::CONTEXT, [$id]);
+
 		$result = $db->ExecuteWriter(sprintf(
 			"DELETE FROM llm_agent_session ".
 			"WHERE `uuid` = UUID_TO_BIN(%s)",

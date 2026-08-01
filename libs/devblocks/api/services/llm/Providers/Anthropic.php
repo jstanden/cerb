@@ -84,7 +84,10 @@ class Anthropic extends Extension_DevblocksLlmProvider implements Chat {
 				$chat_response->pushToolResult($message_content['tool_use_id'] ?? '', $message_content['content']);
 			}
 		}
-		
+
+		// Surface any neutral `images:` (resource uris) for the transcript viewer.
+		$this->_pushMessageImages($message, $chat_response);
+
 		return $chat_response;
 	}
 	
@@ -267,8 +270,23 @@ class Anthropic extends Extension_DevblocksLlmProvider implements Chat {
 				$message['content']
 			);
 		}
-		
-		return array_values($messages);
+
+		// Expand any neutral `images:` into native `image` source blocks (images before text).
+		return array_map(fn($m) => $this->expandMessageImages($m), array_values($messages));
+
+	// Anthropic image content block (base64 source; `media_type` is Anthropic's native key for the mime type).
+	protected function _nativeImagePart(string $mime_type, string $data) : ?array {
+		if('' === $mime_type || '' === $data)
+			return null;
+
+		return [
+			'type' => 'image',
+			'source' => [
+				'type' => 'base64',
+				'media_type' => $mime_type,
+				'data' => $data,
+			],
+		];
 	}
 	
 	function returnTool(DevblocksLlmChatResponse_Tool $tool, string $content, Extension_DevblocksLlmMemoryStore $memory): void {

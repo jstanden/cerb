@@ -1509,10 +1509,34 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'(.*):llm.agent:inputs:messages:message:' => [
 					'role: user',
 					'content@text:',
+					[
+						'caption' => 'images:',
+						'snippet' => "images:\n\timage/\${1:0}:\n\t\turi: cerb:automation_resource:\${2:token}",
+						'description' => "Image inputs (vision models only). Each is a mime-typed resource: a cerb:automation_resource: uri (resolved to base64 at send) or inline base64 data:.",
+					],
 				],
 				'(.*):llm.agent:inputs:messages:message:role:' => [
 					'assistant',
 					'user',
+				],
+				'(.*):llm.agent:inputs:messages:message:images:' => [
+					[
+						'caption' => 'image:',
+						'snippet' => "image/\${1:0}:\n\turi: cerb:automation_resource:\${2:token}",
+					],
+				],
+				'(.*):llm.agent:inputs:messages:message:images:image:' => [
+					[
+						'caption' => 'uri:',
+						'snippet' => "uri: cerb:automation_resource:\${1:token}",
+						'description' => "A cerb:automation_resource: uri (or bare token) — resolved to base64 at send; mime type comes from the resource.",
+					],
+					[
+						'caption' => 'data:',
+						'snippet' => "data@text:\n\t\${1:<base64>}",
+						'description' => "Inline base64 image data (requires mime_type:).",
+					],
+					'mime_type: image/png',
 				],
 				// Each key IS a filesystem name, so the whole list is baked in here. A volume set is small and
 				// `getAll()` is cached — an AJAX suggestion type would be overkill.
@@ -1668,10 +1692,34 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'(.*):llm.chat:inputs:messages:message:' => [
 					'role: user',
 					'content@text:',
+					[
+						'caption' => 'images:',
+						'snippet' => "images:\n\timage/\${1:0}:\n\t\turi: cerb:automation_resource:\${2:token}",
+						'description' => "Image inputs (vision models only). Each is a mime-typed resource: a cerb:automation_resource: uri (resolved to base64 at send) or inline base64 data:.",
+					],
 				],
 				'(.*):llm.chat:inputs:messages:message:role:' => [
 					'assistant',
 					'user',
+				],
+				'(.*):llm.chat:inputs:messages:message:images:' => [
+					[
+						'caption' => 'image:',
+						'snippet' => "image/\${1:0}:\n\turi: cerb:automation_resource:\${2:token}",
+					],
+				],
+				'(.*):llm.chat:inputs:messages:message:images:image:' => [
+					[
+						'caption' => 'uri:',
+						'snippet' => "uri: cerb:automation_resource:\${1:token}",
+						'description' => "A cerb:automation_resource: uri (or bare token) — resolved to base64 at send; mime type comes from the resource.",
+					],
+					[
+						'caption' => 'data:',
+						'snippet' => "data@text:\n\t\${1:<base64>}",
+						'description' => "Inline base64 image data (requires mime_type:).",
+					],
+					'mime_type: image/png',
 				],
 				
 				'(.*):llm.embed:' => $action_base,
