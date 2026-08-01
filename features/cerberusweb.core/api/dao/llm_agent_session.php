@@ -92,6 +92,22 @@ class DAO_LlmAgentSession {
 		return boolval($result);
 	}
 	
+	// Advance the session's active-branch leaf (the single implicit cursor). Called on every append
+	// and when a provider switch plants a new summary root. `null` clears it (legacy/empty session).
+	public static function setHead(string $uuid, ?string $head_uuid) : bool {
+		$db = DevblocksPlatform::services()->database();
+
+		// Every append advances the head — the natural place to also stamp last activity, so the transcript
+		// list can sort by recency (and retention key on activity) across all append paths for free.
+		$result = $db->ExecuteWriter(sprintf(
+			"UPDATE llm_agent_session SET `head_uuid` = %s, `updated_at` = %d WHERE `uuid` = UUID_TO_BIN(%s)",
+			$head_uuid ? sprintf('UUID_TO_BIN(%s)', $db->qstr($head_uuid)) : 'NULL',
+			time(),
+			$db->qstr($uuid)
+		));
+
+		return boolval($result);
+	}
 
 	// Denormalize the active-branch context token estimate onto the session (the LLM node writes this once
 	// per turn, right after computing it) so the GUI can display it without re-summing the tree. Also stamps

@@ -15,7 +15,25 @@ abstract class Extension_DevblocksLlmMemoryStore {
 	}
 	
 	abstract function getMessages(int $limit=10) : array;
-	abstract function appendMessage(array $message) : bool;
+
+	/**
+	 * Append a message as a child of the current cursor leaf and advance the leaf onto it
+	 * (append-only tree). $kind overrides the structural classifier (e.g. 'summary'). Returns
+	 * the persisted model, or null for stores without a backing table (e.g. NoHistory).
+	 */
+	abstract function appendMessage(array $message, ?string $kind=null, ?array $usage=null, ?string $finish_reason=null) : ?\Model_LlmAgentMessage;
+
+	/**
+	 * Return the ACTIVE-PATH message models (leaf→nearest-summary) so a history strategy can
+	 * budget and compact the send-list. Stores without a backing table (e.g. NoHistory) return [].
+	 * $limit 0 = the whole bounded path.
+	 *
+	 * @return Model_LlmAgentMessage[]
+	 */
+	function getMessageModels(int $limit=0) : array {
+		return [];
+	}
+
 }
 
 class DevblocksLlmChatResponse_Tool {

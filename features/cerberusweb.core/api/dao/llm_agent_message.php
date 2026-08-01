@@ -58,35 +58,107 @@ class DAO_LlmAgentMessage {
 		return $usage;
 	}
 
-	public static function create(string $session_uuid, array $message) : ?Model_LlmAgentMessage {
+	public static function create(string $session_uuid, array $message, ?string $parent_uuid = null, ?string $kind = null, ?array $usage = null, ?string $finish_reason = null, bool $is_streaming = false) : ?Model_LlmAgentMessage {
 		$db = DevblocksPlatform::services()->database();
-		
+
+		$data_json = json_encode($message);
+
 		$model = new Model_LlmAgentMessage();
+		$model->uuid = DevblocksPlatform::services()->string()->uuid();
 		$model->session_uuid = $session_uuid;
-		$model->created_at = time();
+		$model->parent_uuid = $parent_uuid ?? '';
+		$model->role = strval($message['role'] ?? '');
+		$model->kind = $kind ?? self::_classifyKind($message);
+		// Prefer the provider's exact output-token count when it reported usage (assistant turns); else a coarse
+		// bytes÷4 estimate (user/tool turns have no usage). This is the message's own size for budgeting/compaction.
+		$model->token_est = (is_array($usage) && intval($usage['output'] ?? 0) > 0)
+			? intval($usage['output'])
+			: intval(ceil(strlen($data_json) / 4));
+		// ONE clock read, split into whole seconds + the microseconds elapsed within them. Reading time() and
+		// microtime() separately can straddle a tick and pair a second with an offset from the next one.
+		// microtime()'s string form (not the float) sidesteps float64's ~0.2us slop at epoch magnitudes, and
+		// truncating (not rounding) keeps the offset inside its own second — .9999999 must not become 1000000.
+		list($created_frac, $created_sec) = explode(' ', microtime());
+		$model->created_at = intval($created_sec);
+		$model->created_at_usec = intval($created_frac * 1000000);
 		$model->data = $message;
-		
+		// Provider-reported neutral usage ({input,output,cache_read,cache_write}) — assistant turns only. Stored
+		// in its own column (never in data_json, which is replayed to the API), so summing is a PHP concern.
+		$model->usage = is_array($usage) ? $usage : [];
+		// Why the provider stopped generating, already normalized by the provider ('' when unreported). Same
+		// rationale as usage: its own column, never data_json, so it can't be replayed back into a request.
+		$model->finish_reason = strval($finish_reason);
+		// A streamed turn opens its row before it has any content and rewrites it as deltas arrive. See
+		// beginStreaming()/updateStreaming()/finalizeStreaming() below.
+		$model->is_streaming = $is_streaming;
+
 		$result = $db->ExecuteWriter(sprintf(
-			"INSERT INTO llm_agent_message (`uuid`,`session_uuid`,`created_at`,`data_json`) ".
-			"VALUES (UUID_TO_BIN(%s), UUID_TO_BIN(%s), %d, %s)",
-			$db->qstr(DevblocksPlatform::services()->string()->uuid()),
+			"INSERT INTO llm_agent_message (`uuid`,`session_uuid`,`parent_uuid`,`role`,`kind`,`token_est`,`created_at`,`created_at_usec`,`data_json`,`usage_json`,`finish_reason`,`is_streaming`) ".
+			"VALUES (UUID_TO_BIN(%s), UUID_TO_BIN(%s), %s, %s, %s, %d, %d, %d, %s, %s, %s, %d)",
+			$db->qstr($model->uuid),
 			$db->qstr($model->session_uuid),
+			$model->parent_uuid ? sprintf('UUID_TO_BIN(%s)', $db->qstr($model->parent_uuid)) : 'NULL',
+			$db->qstr($model->role),
+			$db->qstr($model->kind),
+			$model->token_est,
 			$model->created_at,
-			$db->qstr(json_encode($model->data)),
+			$model->created_at_usec,
+			$db->qstr($data_json),
+			$model->usage ? $db->qstr(json_encode($model->usage)) : 'NULL',
+			$db->qstr($model->finish_reason),
+			$model->is_streaming ? 1 : 0,
 		));
-		
+
 		if(!$result)
 			return null;
-		
+
 		return $model;
 	}
-	
+
+	/**
+	 * Classify a provider-native message into a coarse, provider-agnostic kind
+	 * (`text`, `tool_use`, `tool_result`) off structural markers common to the
+	 * Anthropic content-block and OpenAI chat shapes. `summary` is set explicitly
+	 * by the compaction strategy, never inferred here.
+	 */
+	static private function _classifyKind(array $message) : string {
+		// OpenAI tool-result envelope
+		if('tool' === ($message['role'] ?? ''))
+			return 'tool_result';
+
+		// OpenAI assistant tool call
+		if(!empty($message['tool_calls']))
+			return 'tool_use';
+
+		// Anthropic content blocks
+		if(is_array($message['content'] ?? null)) {
+			foreach($message['content'] as $block) {
+				$type = is_array($block) ? ($block['type'] ?? '') : '';
+				if('tool_result' === $type)
+					return 'tool_result';
+				if('tool_use' === $type)
+					return 'tool_use';
+			}
+		}
+
+		return 'text';
+	}
+
 	static private function _getRowAsModel(array $row) : Model_LlmAgentMessage {
 		$msg = new Model_LlmAgentMessage();
 		$msg->uuid = $row['uuid'] ?? '';
+		$msg->seq = intval($row['seq'] ?? 0);
 		$msg->session_uuid = $row['session_uuid'] ?? '';
+		$msg->parent_uuid = $row['parent_uuid'] ?? '';
+		$msg->role = $row['role'] ?? '';
+		$msg->kind = $row['kind'] ?? '';
+		$msg->token_est = intval($row['token_est'] ?? 0);
 		$msg->created_at = intval($row['created_at'] ?? 0);
+		$msg->created_at_usec = intval($row['created_at_usec'] ?? 0);
 		$msg->data = @json_decode($row['data_json'] ?? '', true) ?: [];
+		$msg->usage = @json_decode($row['usage_json'] ?? '', true) ?: [];
+		$msg->finish_reason = strval($row['finish_reason'] ?? '');
+		$msg->is_streaming = boolval($row['is_streaming'] ?? 0);
 		return $msg;
 	}
 	
@@ -95,11 +167,11 @@ class DAO_LlmAgentMessage {
 		
 		try {
 			$sql =
-				"SELECT BIN_TO_UUID(`uuid`) as `uuid`, BIN_TO_UUID(`session_uuid`) as `session_uuid`, `created_at`, `data_json` ".
+				"SELECT BIN_TO_UUID(`uuid`) as `uuid`, `seq`, BIN_TO_UUID(`session_uuid`) as `session_uuid`, BIN_TO_UUID(`parent_uuid`) as `parent_uuid`, `role`, `kind`, `token_est`, `created_at`, `created_at_usec`, `data_json`, `usage_json`, `finish_reason`, `is_streaming` ".
 				"FROM llm_agent_message ".
 				"WHERE uuid = UUID_TO_BIN(%s)"
 			;
-			
+
 			$row = $db->GetRowReader(sprintf($sql, $db->qstr($uuid)));
 			
 			if(!$row) return null;
@@ -123,7 +195,7 @@ class DAO_LlmAgentMessage {
 		
 		try {
 			$sql =
-				"SELECT BIN_TO_UUID(`uuid`) as `uuid`, BIN_TO_UUID(`session_uuid`) as `session_uuid`, `created_at`, `data_json` ".
+				"SELECT BIN_TO_UUID(`uuid`) as `uuid`, `seq`, BIN_TO_UUID(`session_uuid`) as `session_uuid`, BIN_TO_UUID(`parent_uuid`) as `parent_uuid`, `role`, `kind`, `token_est`, `created_at`, `created_at_usec`, `data_json`, `usage_json`, `finish_reason`, `is_streaming` ".
 				"FROM llm_agent_message ".
 				"WHERE session_uuid = UUID_TO_BIN(%s) ".
 				"ORDER BY seq DESC"
@@ -150,6 +222,56 @@ class DAO_LlmAgentMessage {
 		return [];
 	}
 	
+	/**
+	 * The active-context path for a cursor: walk from the leaf ($head_uuid) up the `parent_uuid`
+	 * tree edges, INCLUDING the nearest ancestor summary node but stopping there — a summary root is
+	 * the compaction/switch boundary, so nothing older than it participates in the send. Scoped to the
+	 * session so a stray edge can't cross into another. Returns chronological models (like
+	 * getMessagesBySession); $last_n 0 = the whole bounded path.
+	 *
+	 * @return Model_LlmAgentMessage[]
+	 */
+	static function getActivePath(string $session_uuid, string $head_uuid, int $last_n=0) : array {
+		if('' === $head_uuid)
+			return [];
+
+		$db = DevblocksPlatform::services()->database();
+
+		try {
+			$sql = sprintf(
+				"WITH RECURSIVE path AS ( ".
+					"SELECT `uuid`, `seq`, `session_uuid`, `parent_uuid`, `role`, `kind`, `token_est`, `created_at`, `created_at_usec`, `data_json`, `usage_json`, `finish_reason`, `is_streaming` ".
+					"FROM llm_agent_message WHERE `uuid` = UUID_TO_BIN(%s) ".
+					"UNION ALL ".
+					"SELECT m.`uuid`, m.`seq`, m.`session_uuid`, m.`parent_uuid`, m.`role`, m.`kind`, m.`token_est`, m.`created_at`, m.`created_at_usec`, m.`data_json`, m.`usage_json`, m.`finish_reason`, m.`is_streaming` ".
+					"FROM llm_agent_message m ".
+					"JOIN path p ON m.`uuid` = p.`parent_uuid` AND p.`kind` <> 'summary' AND m.`session_uuid` = UUID_TO_BIN(%s) ".
+				") ".
+				"SELECT BIN_TO_UUID(`uuid`) as `uuid`, `seq`, BIN_TO_UUID(`session_uuid`) as `session_uuid`, BIN_TO_UUID(`parent_uuid`) as `parent_uuid`, `role`, `kind`, `token_est`, `created_at`, `created_at_usec`, `data_json`, `usage_json`, `finish_reason`, `is_streaming` ".
+				"FROM path ORDER BY seq DESC",
+				$db->qstr($head_uuid),
+				$db->qstr($session_uuid)
+			);
+
+			if($last_n)
+				$sql .= sprintf(" LIMIT %d", $last_n);
+
+			$rows = $db->GetArrayReader($sql);
+
+			if(!$rows) return [];
+
+			return array_map(
+				fn($row) => self::_getRowAsModel($row),
+				array_reverse($rows),
+			);
+
+		} catch (Throwable $e) {
+			DevblocksPlatform::logException($e);
+		}
+
+		return [];
+	}
+
 	public static function deleteBySession(string $uuid) : bool {
 		$db = DevblocksPlatform::services()->database();
 		
@@ -163,8 +285,18 @@ class DAO_LlmAgentMessage {
 }
 
 class Model_LlmAgentMessage {
-	public string $uuid;
-	public string $session_uuid;
-	public int $created_at;
-	public array $data;
+	public string $uuid = '';
+	public int $seq = 0;
+	public string $session_uuid = '';
+	public string $parent_uuid = '';
+	public string $role = '';
+	public string $kind = '';
+	public int $token_est = 0;
+	public int $created_at = 0;
+	public int $created_at_usec = 0;
+	public array $data = [];
+	public array $usage = [];
+	public string $finish_reason = '';
+	// True only while a streamed turn is still being written to this row.
+	public bool $is_streaming = false;
 }

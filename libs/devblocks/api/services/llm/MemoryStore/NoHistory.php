@@ -11,8 +11,8 @@ class NoHistory extends Extension_DevblocksLlmMemoryStore {
 	function getMessages(int $limit=10) : array {
 		return [];
 	}
-	
-	function appendMessage(array $message) : bool {
-		return true;
+
+	function appendMessage(array $message, ?string $kind=null, ?array $usage=null, ?string $finish_reason=null) : ?\Model_LlmAgentMessage {
+		return null;
 	}
 }
