@@ -732,6 +732,54 @@ class _DevblocksLlmService {
 		return $out;
 	}
 
+
+	/**
+	 * The DEFAULT router's model map — the implicit fall-through when a command names no models and no agent.
+	 *
+	 * This is what makes the 90% case zero-config: one model + an API key, and every `llm.agent:` /
+	 * `llm.chat:` / `agentPrompt` in the environment finds it without naming anything. Without it, portable
+	 * automations would each need an `llm.router:` node just to say "use this environment's models."
+	 *
+	 * Returns `{}` (never throws) when there's no default router or it resolves nothing — the CALLER decides
+	 * whether that's an error, because each surface already has its own "nothing to run" message.
+	 *
+	 * @param DevblocksDictionaryDelegate|null $dict evaluates `disabled@bool: {{…}}` in the router's document
+	 * @return array `{<key> => <overrides>}` in the shape `model:` / `models:` accept
+	 */
+	function getDefaultRouterModels(?DevblocksDictionaryDelegate $dict=null, ?string &$error=null) : array {
+		if(!($router = \DAO_AgentModelRouter::getDefault()))
+			return [];
+
+		return $router->getModels($dict, $error);
+	}
+
+	/**
+	 * The models an AGENT offers — its own router, else the default. The middle rung of the precedence chain:
+	 *
+	 *     explicit `models:`/`model:`  →  agent's router  →  the default router  →  error
+	 *
+	 * Naming an agent is what makes a SHIPPED automation portable: the agent is the customer's record, so it
+	 * carries the customer's router, which carries the customer's models. Nothing in the script names any of them.
+	 *
+	 * An agent with no router configured falls through to the default rather than erroring — an agent is a
+	 * persona first, and not every one needs its own model policy.
+	 *
+	 * @param int $worker_id an AI worker (`worker.is_ai`); 0 → the default router
+	 * @return array `{<key> => <overrides>}`; empty when nothing resolves
+	 */
+	function getAgentRouterModels(int $worker_id, ?DevblocksDictionaryDelegate $dict=null, ?string &$error=null) : array {
+		if($worker_id && ($router_id = \DAO_Agent::getModelRouterId($worker_id))) {
+			if(($router = \DAO_AgentModelRouter::get($router_id)) && !$router->is_disabled)
+				return $router->getModels($dict, $error);
+
+			// A router that's been deleted or disabled since it was assigned: fall through to the default
+			// rather than failing. The alternative is an agent that silently stops working when an admin
+			// retires a router it happened to point at.
+		}
+
+		return $this->getDefaultRouterModels($dict, $error);
+	}
+
 	/**
 	 * KATA autocomplete for an `agent:` reference — the AI workers, by `@mention`.
 	 *
@@ -770,6 +818,19 @@ class _DevblocksLlmService {
 		}
 
 		return $out;
+	}
+
+	/**
+	 * Which router `getAgentRouterModels()` would use — for reporting only (the `router` key in a node's
+	 * output). Same fall-through, so what's reported is what ran.
+	 */
+	function getResolvedRouterName(int $worker_id) : string {
+		if($worker_id && ($router_id = \DAO_Agent::getModelRouterId($worker_id))) {
+			if(($router = \DAO_AgentModelRouter::get($router_id)) && !$router->is_disabled)
+				return strval($router->name);
+		}
+
+		return ($router = \DAO_AgentModelRouter::getDefault()) ? strval($router->name) : '';
 	}
 
 	// Resolve a message's `images:` descriptors into neutral image blocks [{mime_type, data(base64)}]. Each
