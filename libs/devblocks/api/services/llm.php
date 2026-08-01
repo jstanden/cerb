@@ -510,6 +510,47 @@ class _DevblocksLlmService {
 
 		return $out;
 	}
+
+	/**
+	 * KATA autocomplete for an `agent:` reference — the AI workers, by `@mention`.
+	 *
+	 * Only `is_ai` and enabled workers: a human is refused at resolve time anyway (running as one would
+	 * misattribute memory), so offering them would suggest something that can't work.
+	 *
+	 * Suggests the `@mention` form because that's the portable one — a worker id differs per environment. All
+	 * the accepted shapes (`@mention` | bare handle | id | `cerb:worker:<id|mention>`) still resolve; this is
+	 * just what we put in front of an author.
+	 *
+	 * @return array a flat list of suggestion items (assign it to the `…:agent:` path)
+	 */
+	function getKataAgentWorkerAutocomplete() : array {
+		$out = [];
+
+		foreach(\DAO_Worker::getAllActive() as $worker) {
+			if(!$worker->is_ai)
+				continue;
+
+			if('' === ($mention = trim(strval($worker->at_mention_name))))
+				continue;
+
+			$router_name = $this->getResolvedRouterName(intval($worker->id));
+
+			$out[] = [
+				'caption' => '@' . $mention,
+				'snippet' => '@' . $mention,
+				'score' => 1000,
+				'docHTML' => sprintf('<b>%s</b>%s',
+					htmlspecialchars($worker->getName()),
+					$router_name
+						? sprintf(' &mdash; models via the <code>%s</code> router.', htmlspecialchars($router_name))
+						: ' &mdash; no model router resolves; this agent would have no models.'
+				),
+			];
+		}
+
+		return $out;
+	}
+
 	// Resolve a message's `images:` descriptors into neutral image blocks [{mime_type, data(base64)}]. Each
 	// descriptor is {mime_type?, data?, uri?}: an inline base64 `data` is used verbatim; a `cerb:attachment:<id>`
 	// (durable, transcript-owned) or `cerb:automation_resource:<token>` (short TTL; bare token accepted) `uri` is

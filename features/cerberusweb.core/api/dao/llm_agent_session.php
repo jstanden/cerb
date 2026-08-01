@@ -55,6 +55,7 @@ class DAO_LlmAgentSession {
 			$model->token_usage,
 			$model->automation_id,
 			$db->qstr($model->automation_node),
+			$model->agent_id,
 			$db->qstr($model->user_type),
 			$model->user_id,
 			$db->qstr($model->user_ip),
@@ -72,6 +73,7 @@ class DAO_LlmAgentSession {
 		return $model;
 	}
 	
+		$model->agent_id = $source->agent_id;
 		// Copy the source's image ownership links onto the fork so its attachments aren't orphan-reaped when the
 		// origin is deleted. Session-level: a partial fork (at_seq) may over-retain links to attachments past the
 		// branch point — harmless, they reap once the fork itself is deleted.
@@ -218,6 +220,28 @@ class DAO_LlmAgentSession {
 		return true;
 	}
 
+	// Stamp the owning automation + node onto a session, but ONLY when it's not already set. A session minted by
+	// an agentPrompt submit (or with a caller-supplied `uuid()`) is created without lineage; the first
+	// `llm.agent` turn backfills it here (that node has the automation + node id). The WHERE guard means ongoing
+	// turns, forks, and provider-switches (which copy lineage) don't churn or clobber it.
+	// Backfill the acting agent. A session minted by an agentPrompt starts without one (its creator has no
+	// `agent:` context); the llm.agent node is the first place that knows. Never overwrites.
+	public static function setAgentIfEmpty(string $uuid, int $agent_id) : bool {
+		if(!$agent_id)
+			return false;
+
+		$db = DevblocksPlatform::services()->database();
+
+		$db->ExecuteWriter(sprintf(
+			"UPDATE llm_agent_session SET `agent_id` = %d ".
+			"WHERE `uuid` = UUID_TO_BIN(%s) AND (`agent_id` = 0 OR `agent_id` IS NULL)",
+			$agent_id,
+			$db->qstr($uuid)
+		));
+
+		return true;
+	}
+
 	public static function delete(string $uuid) : bool {
 		$db = DevblocksPlatform::services()->database();
 
@@ -282,6 +306,7 @@ class DAO_LlmAgentSession {
 		$llm_session->token_usage = intval($row['token_usage'] ?? 0);
 		$llm_session->automation_id = intval($row['automation_id']);
 		$llm_session->automation_node = $row['automation_node'];
+		$llm_session->agent_id = intval($row['agent_id'] ?? 0);
 		$llm_session->user_type = $row['user_type'];
 		$llm_session->user_id = intval($row['user_id']);
 		$llm_session->user_ip = $row['user_ip'];
@@ -306,6 +331,9 @@ class Model_LlmAgentSession {
 	public int $token_usage = 0;
 	public int $automation_id = 0;
 	public string $automation_node = '';
+
+	/** The AI worker this session runs AS (`worker.is_ai`); 0 = anonymous. The memory layer's `actor`. */
+	public int $agent_id = 0;
 	public string $user_type = '';
 	public int $user_id = 0;
 	public string $user_ip = '';

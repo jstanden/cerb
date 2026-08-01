@@ -20,9 +20,14 @@ class LlmAgentNode extends AbstractNode {
 	private string $_output = '';
 	private DevblocksDictionaryDelegate $_dict;
 	private array $_node_memory = [];
+
+	// The AI worker this turn runs AS, from `agent:`. 0 = anonymous (no agent named).
+	private int $_agent_worker_id = 0;
 	
-	private function _getSessionKey(\Extension_DevblocksLlmProvider $provider) : string {
-		return sprintf('__session::%s::%s', $this->node->getId(), $provider::ID);
+	// One slot per node. The provider is NOT part of the key anymore — the session id is stable across
+	// provider switches (they rewrite in place), so a single slot holds the active session for this node.
+	private function _getSessionKey() : string {
+		return sprintf('__session::%s', $this->node->getId());
 	}
 	
 	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, ?string &$error=null) : string|false {
@@ -38,6 +43,12 @@ class LlmAgentNode extends AbstractNode {
 			
 			// If this is a new activation, invoke the LLM first
 			if(!array_key_exists('stack', $this->_node_memory)) {
+
+			// `agent:` names an AI worker whose record supplies the provider/model/auth defaults. Resolved
+			// BEFORE validation because it can satisfy the `llm:` requirement, and re-resolved every turn so a
+			// resume still knows which agent it's running as.
+			$this->_applyAgentDefaults();
+			
 				$validation = DevblocksPlatform::services()->validation();
 				
 				// Params validation

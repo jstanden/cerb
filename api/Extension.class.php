@@ -1432,6 +1432,12 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				),
 				'(.*):llm.agent:inputs:' => [
 					[
+						'caption' => 'agent:',
+						'snippet' => "agent: @\${1:mention}",
+						'score' => 2001,
+						'docHTML' => 'Run as an <b>AI worker</b> &mdash; whom the turn is attributed to, AND (via that agent\'s <b>model router</b>) where its models come from. Takes an <code>@mention</code>, a bare handle, a worker id, or a <code>cerb:worker:&lt;id|mention&gt;</code> URI.<br><br>An explicit <code>model:</code> or <code>llm:</code> still wins; naming an agent is what lets a <b>portable</b> automation avoid naming models at all. Omit everything and the system default router is used.',
+					],
+					[
 						'caption' => 'llm:',
 						'snippet' => "llm:",
 						'score' => 2000,
@@ -1660,6 +1666,9 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'no',
 				],
 				
+				// The AI workers, by @mention. Looped over the records, so a new agent shows up on reload.
+				'(.*):llm.agent:inputs:agent:' => DevblocksPlatform::services()->llm()->getKataAgentWorkerAutocomplete(),
+
 				'(.*):llm.chat:' => $action_base,
 				'(.*):llm.chat:inputs:' => [
 					[
