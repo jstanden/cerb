@@ -316,6 +316,52 @@ abstract class Extension_DevblocksLlmProvider {
 		return (bool) ($defaults['vision'] ?? false);
 	}
 
+	// Neutral prompt-cache INTENT, translated per provider (Anthropic sends explicit cache_control; OpenAI-family
+	// auto-caches and ignores it). `enabled` is the on/off (LlmAgentNode::_defaultCache: agent-on, chat-off).
+	// `ttl` is the ROLLING TAIL lifetime the author opts into — `5m` (default: a lapsed tail just re-parses the
+	// last turns) or `1h` (editor/coding-agent sessions with long think/test pauses). The STABLE prefix
+	// (tools+system) is always cached at the longest supported TTL regardless — it's written once and its bytes
+	// never change, so a provider that honors TTL keeps it warm across pauses; that policy lives in the provider,
+	// not here (only the tail is author-controlled).
+	protected function _getCacheIntent() : array {
+		$strings = DevblocksPlatform::services()->string();
+		$ttl = strtolower(trim(strval($this->getParam('cache_ttl', '5m'))));
+
+		return [
+			'enabled' => $strings->toBool($this->getParam('cache', false)),
+			'ttl' => in_array($ttl, ['5m', '1h'], true) ? $ttl : '5m',
+			// Place a MESSAGE-level breakpoint at all. Off = the stable tools+system marker only, which reads but
+			// can never mint a message entry. Only worth turning off when a read is implausible: on a session
+			// whose cache has certainly lapsed, a message breakpoint buys nothing and costs a full-window write
+			// (measured: 28,023 tokens at 1h TTL on a >1h-old transcript).
+			'tail' => $strings->toBool($this->getParam('cache_tail', true)),
+
+			// How many TRAILING messages to leave OUTSIDE the cached region — i.e. move the rolling breakpoint
+			// back N messages instead of putting it on the last one. 0 (default) = today's behavior.
+			//
+			// For a summarize sidecar this is 1: its appended instruction turn must not be cached. Caching
+			// through it mints an entry covering `tools + system + whole conversation + instruction` that
+			// nothing can ever reuse (compaction replaces the history; the dev preview is one-shot), and a
+			// write bills ~1.25x — measured as a 32K 1h write on a cold-cache run.
+			//
+			// ⚠ Moving it, NOT dropping it. Dropping the message breakpoint entirely was tried and measured at
+			// **14% cached**: hit lookback runs BACKWARD from a breakpoint, so the system-block marker (which
+			// renders before every message) can't reach a message-level entry at all — only tools+system read.
+			// One message back is exactly the position an ordinary agent turn caches, so the read is the same
+			// mechanism that already works turn to turn.
+			'tail_skip' => max(0, intval($this->getParam('cache_tail_skip', 0))),
+		];
+	}
+
+	// How long (seconds) this provider's prompt cache stays warm between turns for the given params — the
+	// rolling-tail lifetime that lapses first, ASSUMING caching is on (the caller decides on/off; agent turns
+	// default it ON). Powers the agentPrompt composer's cache TimeRing. Base returns null = this provider does
+	// no prompt caching we can hint about; caching providers override. Param-taking (like getModelDefaults) so
+	// the caller needn't reconstruct the provider with the model's params.
+	function getCacheHintSeconds(array $params) : ?int {
+		return null;
+	}
+
 	// Map a provider's native "why generation stopped" token onto a neutral one. Normalized at WRITE time, by the
 	// provider that knows its own vocabulary, because a) consumers must not carry a per-provider mapping table, and
 	// b) cross-provider replay means one session can hold messages written by different providers — a native value

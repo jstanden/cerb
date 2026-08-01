@@ -66,6 +66,17 @@ class Gemini extends OpenAI {
 		];
 	}
 
+
+	// Hosted Gemini implicit caching is automatic with a short reuse window (no author-set TTL) → a soft 5m ring
+	// hint. A self-hosted / proxied endpoint (`api_endpoint_url`) has no wall-clock TTL we can predict, so no
+	// time ring there (same reasoning as OpenAI).
+	function getCacheHintSeconds(array $params) : ?int {
+		if('' !== trim(strval($params['api_endpoint_url'] ?? '')))
+			return null;
+
+		return 300;
+	}
+
 	function getChatKataAutocomplete() : array {
 		return [
 			'keys' => [

@@ -340,6 +340,18 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 		];
 	}
 
+
+	// The HOSTED OpenAI API auto-caches with a documented ~5-minute reuse window → a soft 5m ring hint. A
+	// self-hosted OpenAI-compatible endpoint (llama.cpp / vLLM / unsloth via `api_endpoint_url`) also caches —
+	// you'll see `cache_read` — but as an in-memory KV/prefix cache with NO wall-clock TTL we can predict (it
+	// holds until the server evicts the prefix), so a time countdown would lie: return null (no ring) there.
+	function getCacheHintSeconds(array $params) : ?int {
+		if('' !== trim(strval($params['api_endpoint_url'] ?? '')))
+			return null;
+
+		return 300;
+	}
+
 	function getChatKataAutocomplete() : array {
 		return [
 			'keys' => [

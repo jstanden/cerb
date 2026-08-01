@@ -173,6 +173,12 @@ class Anthropic extends Extension_DevblocksLlmProvider implements Chat {
 			$body_payload['tools'] = $tools;
 		}
 
+		// Prompt caching: two ephemeral breakpoints — a STABLE prefix (tools+system) at 1h and a ROLLING tail at
+		// the author's `cache_ttl` (5m default). Enabled by Cerb-primitive intent, which the provider API can't
+		// infer — `llm.agent` defaults ON (prefix re-sent + read next turn), `llm.chat` OFF (one-shot).
+		if($this->_getCacheIntent()['enabled'])
+			$this->_applyPromptCache($body_payload);
+
 		// Extended thinking: translate the grouped `thinking:` block → native `thinking` + `output_config.effort`.
 		$this->_applyThinking($body_payload);
 
@@ -277,6 +283,76 @@ class Anthropic extends Extension_DevblocksLlmProvider implements Chat {
 
 		// Expand any neutral `images:` into native `image` source blocks (images before text).
 		return array_map(fn($m) => $this->expandMessageImages($m), array_values($messages));
+	}
+
+	// Two ephemeral breakpoints (of the 4 allowed), ordered longest-TTL-first per the render order
+	// tools -> system -> messages:
+	//   1. PREFIX — the last `system` block, ALWAYS 1h. Caches tools+system together (they render before it),
+	//      written once with byte-stable content, so 1h keeps the expensive prefix (tool schemas, agent_fs
+	//      overview, skill summaries) warm across a coding-agent's think/test pauses. This anchor also survives
+	//      the 20-block lookback that a rolling tail alone can lose on a >20-block turn. 1h is GA (no beta header)
+	//      and supported on Anthropic + Bedrock + Vertex, so it's unconditional here.
+	//   2. TAIL — the last content block of the last message, at the author's `cache_ttl` (5m default, 1h opt-in).
+	//      Advances each turn; a lapsed 5m tail just re-parses the last turns. Its TTL is <= the 1h prefix, so
+	//      system(1h)->messages(<=1h) keeps the longest TTL first.
+	// A scalar `system`/`content` is wrapped into a single text block so the marker has somewhere to live.
+	private function _applyPromptCache(array &$body_payload) : void {
+		$intent = $this->_getCacheIntent();
+		$prefix_cc = $this->_cacheControl('1h');
+		$tail_cc = $this->_cacheControl($intent['ttl']);
+
+		if(is_string($body_payload['system'] ?? null) && '' !== $body_payload['system']) {
+			$body_payload['system'] = [
+				['type' => 'text', 'text' => $body_payload['system'], 'cache_control' => $prefix_cc],
+			];
+		} elseif(is_array($body_payload['system'] ?? null) && $body_payload['system']) {
+			$sys_key = array_key_last($body_payload['system']);
+
+			if(is_array($body_payload['system'][$sys_key] ?? null))
+				$body_payload['system'][$sys_key]['cache_control'] = $prefix_cc;
+		}
+
+		// `cache_tail_skip` moves the rolling breakpoint back N messages so a trailing turn stays OUTSIDE the
+		// cached region (a summarize sidecar's instruction). See _getCacheIntent(); N=0 is the normal turn.
+		if($intent['tail'] && is_array($body_payload['messages'] ?? null) && $body_payload['messages']) {
+			$keys = array_keys($body_payload['messages']);
+			$last = $keys[count($keys) - 1 - $intent['tail_skip']] ?? null;
+
+			if(is_null($last))
+				return;
+
+			$content = $body_payload['messages'][$last]['content'] ?? null;
+
+			if(is_string($content)) {
+				$body_payload['messages'][$last]['content'] = [
+					['type' => 'text', 'text' => $content, 'cache_control' => $tail_cc],
+				];
+			} elseif(is_array($content) && $content) {
+				$block_key = array_key_last($content);
+
+				if(is_array($body_payload['messages'][$last]['content'][$block_key] ?? null))
+					$body_payload['messages'][$last]['content'][$block_key]['cache_control'] = $tail_cc;
+			}
+		}
+	}
+
+	// The rolling-tail cache lifetime this model uses — the window that lapses first (the tools+system prefix is
+	// always cached at 1h). `cache_ttl` is 5m (default) or 1h; that's the real "getting close" signal for the
+	// composer's cache ring. (Caller gates on cache being on.)
+	function getCacheHintSeconds(array $params) : ?int {
+		$ttl = strtolower(trim(strval($params['cache_ttl'] ?? '5m')));
+		return ('1h' === $ttl) ? 3600 : 300;
+	}
+
+	// Build a cache_control marker; 5m is the API default (no `ttl` field), 1h is opt-in.
+	private function _cacheControl(string $ttl) : array {
+		$cc = ['type' => 'ephemeral'];
+
+		if('1h' === $ttl)
+			$cc['ttl'] = '1h';
+
+		return $cc;
+	}
 
 	// Anthropic image content block (base64 source; `media_type` is Anthropic's native key for the mime type).
 	protected function _nativeImagePart(string $mime_type, string $data) : ?array {
@@ -395,6 +471,8 @@ class Anthropic extends Extension_DevblocksLlmProvider implements Chat {
 				'max_tokens@int: 2048',
 				['caption' => 'thinking:', 'snippet' => "thinking:\n\ttype: adaptive", 'docHTML' => '<b>thinking:</b>Extended thinking. <code>type</code>: adaptive|enabled|disabled &middot; <code>display</code>: summarized|omitted. Modern models use <code>adaptive</code>; older models use <code>enabled</code>. Reasoning depth is the top-level <code>effort:</code> key.'],
 				['caption' => 'effort:', 'snippet' => "effort: high", 'docHTML' => '<b>effort:</b>Reasoning effort (empty = provider default). Values: <code>low|medium|high|xhigh|max</code>. On legacy <code>thinking: {type: enabled}</code> models it maps to a thinking budget instead.'],
+				['caption' => 'cache@bool:', 'snippet' => 'cache@bool: yes', 'docHTML' => '<b>cache@bool:</b>Prompt caching. Defaults ON for <code>llm.agent</code> (multi-turn), OFF for <code>llm.chat</code> (one-shot). The stable prefix (tools+system) is always cached at 1h; the rolling tail uses <code>cache_ttl</code>.'],
+				['caption' => 'cache_ttl:', 'snippet' => 'cache_ttl: 1h', 'docHTML' => '<b>cache_ttl:</b>Rolling-tail cache lifetime. <code>5m</code> (default — a lapsed tail just re-parses the last turns) or <code>1h</code> (editor/coding-agent sessions with long pauses between turns). The prefix is always 1h regardless.'],
 			],
 			'values' => [
 				'model:' => $this->getChatModels(),
@@ -403,6 +481,7 @@ class Anthropic extends Extension_DevblocksLlmProvider implements Chat {
 				'thinking:type:' => ['adaptive', 'enabled', 'disabled'],
 				'thinking:display:' => ['summarized', 'omitted'],
 				'effort:' => ['low', 'medium', 'high', 'xhigh', 'max'],
+				'cache_ttl:' => ['5m', '1h'],
 			],
 		];
 	}

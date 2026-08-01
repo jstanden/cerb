@@ -275,12 +275,26 @@ class LlmAgentNode extends AbstractNode {
 	}
 	
 	private function _getLlmProvider() : \Extension_DevblocksLlmProvider {
-		$llm_id = array_key_first($this->_inputs['llm']);
-		$llm_params = $this->_inputs['llm'][$llm_id] ?? [];
-		return DevblocksPlatform::services()->llm()->getProvider($llm_id, $llm_params);
-	}
-	
 	private function _getTools() : array {
+		$llm = DevblocksPlatform::services()->llm();
+		$llm_id = strval(array_key_first($this->_inputs['llm'] ?? []));
+		$llm_params = is_array($this->_inputs['llm'][$llm_id] ?? null) ? $this->_inputs['llm'][$llm_id] : [];
+
+		if($llm_id && ($provider = $llm->getProvider($llm_id, $this->_defaultCache($llm_params))))
+			return $provider;
+	}
+
+	// `llm.agent` is multi-turn — the prompt prefix is re-sent and read back next turn — so default prompt
+	// caching ON (Anthropic only reads a cache when we send `cache_control`; OpenAI-family auto-caches and
+	// ignores this). The author can force it off with `cache@bool: no` in the `llm:` block. `llm.chat` never
+	// sets this (one-shot, never re-read → no wasted cache write).
+	private function _defaultCache(array $params) : array {
+		if(!array_key_exists('cache', $params))
+			$params['cache'] = true;
+
+		return $params;
+	}
+
 		$tools = [];
 		
 		foreach(($this->_inputs['tools'] ?? []) as $tool_key => $tool) {
