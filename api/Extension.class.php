@@ -1669,6 +1669,19 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				// The AI workers, by @mention. Looped over the records, so a new agent shows up on reload.
 				'(.*):llm.agent:inputs:agent:' => DevblocksPlatform::services()->llm()->getKataAgentWorkerAutocomplete(),
 
+				'(.*):llm.router:' => $action_base,
+				'(.*):llm.router:inputs:' => [
+					[
+						'caption' => 'router:',
+						'snippet' => "router: \${1}",
+						'score' => 2000,
+						'docHTML' => 'The agent model router to resolve, by name. <b>Omit it</b> to use the system default &mdash; which is what portable automations should do, since a hardcoded router name is yours and not the customer\'s.',
+					],
+				],
+				// Plain names, not `cerb:` URIs: `router:` only ever points at one record type, so a URI prefix
+				// disambiguates nothing. Looped over the records, so a new router shows up on reload.
+				'(.*):llm.router:inputs:router:' => DevblocksPlatform::services()->llm()->getKataAgentModelRouterAutocomplete(),
+
 				'(.*):llm.chat:' => $action_base,
 				'(.*):llm.chat:inputs:' => [
 					[

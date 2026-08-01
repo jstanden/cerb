@@ -696,6 +696,43 @@ class _DevblocksLlmService {
 	}
 
 	/**
+	 * KATA autocomplete for `llm.router:inputs:router:` — the configured router NAMES, as plain values.
+	 *
+	 * Bare names rather than `cerb:agent_model_router:<name>` URIs on purpose: `router:` only ever points at
+	 * one record type, so the URI prefix disambiguates nothing and is pure ceremony to type. (The command
+	 * still ACCEPTS a URI — see LlmRouterAction::_resolveRouter — it just isn't what we suggest.)
+	 *
+	 * The default router is listed first and labelled, since omitting `router:` entirely resolves to it — which
+	 * is what portable automations should do.
+	 *
+	 * Rebuilt server-side per editor load, so a newly created router shows up on reload. Disabled routers are
+	 * omitted: they can't be resolved.
+	 *
+	 * @return array a flat list of suggestion items (assign it to the `…:router:` path)
+	 */
+	function getKataAgentModelRouterAutocomplete() : array {
+		$out = [];
+
+		foreach(\DAO_AgentModelRouter::getAll() as $router) {
+			if($router->is_disabled)
+				continue;
+
+			$out[] = [
+				'caption' => $router->name,
+				'snippet' => $router->name,
+				'score' => $router->is_default ? 2000 : 1000,
+				'docHTML' => sprintf('<b>%s</b>%s%s',
+					htmlspecialchars($router->getDisplayName()),
+					$router->is_default ? ' &mdash; <b>the default</b>. Omit <code>router:</code> entirely to use it.' : '',
+					('' !== trim(strval($router->description))) ? '<br>' . htmlspecialchars($router->description) : ''
+				),
+			];
+		}
+
+		return $out;
+	}
+
+	/**
 	 * KATA autocomplete for an `agent:` reference — the AI workers, by `@mention`.
 	 *
 	 * Only `is_ai` and enabled workers: a human is refused at resolve time anyway (running as one would
