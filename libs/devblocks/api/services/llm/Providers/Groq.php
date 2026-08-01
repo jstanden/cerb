@@ -140,11 +140,17 @@ class Groq extends Extension_DevblocksLlmProvider implements Chat {
 		}
 		
 		$message = $response_json['choices'][0]['message'] ?? null;
-		
+
+		// Why generation stopped. A SIBLING of `message`, so it must ride along explicitly.
+		$finish_reason = self::normalizeFinishReason($response_json['choices'][0]['finish_reason'] ?? null);
+
 		// Add to the memory
-		$memory->appendMessage($message);
-		
-		return $this->convertToGenericMessage($message);
+		$memory->appendMessage($message, finish_reason: $finish_reason);
+
+		$response = $this->convertToGenericMessage($message);
+		$response->setFinishReason($finish_reason);
+
+		return $response;
 	}
 	
 	function sanitizeMessages(array $messages) : array {

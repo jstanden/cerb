@@ -189,11 +189,17 @@ class Ollama extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 			throw new Exception_DevblocksAutomationError('HTTP status code: ' . $response->getStatusCode());
 		}
 		
+		// Why generation stopped. Ollama reports it top-level, OUTSIDE the `message` the converter sees.
+		$finish_reason = self::normalizeFinishReason($response_json['done_reason'] ?? null);
+
 		// Add to the memory
 		if($response_json['message'] ?? null)
-			$memory->appendMessage($response_json['message']);
-		
-		return $this->convertToGenericMessage($response_json['message']);
+			$memory->appendMessage($response_json['message'], finish_reason: $finish_reason);
+
+		$response = $this->convertToGenericMessage($response_json['message']);
+		$response->setFinishReason($finish_reason);
+
+		return $response;
 	}
 	
 	function sanitizeMessages(array $messages) : array {

@@ -614,12 +614,50 @@ class LlmAgentNode extends AbstractNode {
 		$this->_dict->set($this->_output, [
 			'session_id' => $session_id,
 			'messages' => $llm_response->getMessages(),
+			'finish_reason' => $llm_response->getFinishReason(),
+
+		// A turn that stopped abnormally AND produced nothing usable has no path forward: today it completes
+		// silently with `messages: []`, so the automation continues as if the agent had answered with nothing.
+		// Report it instead. Deliberately narrow:
+		//   - '' (unreported — legacy rows, NoHistory, providers that don't say) keeps today's behavior.
+		//   - 'stop' is excluded: a model may legitimately answer with nothing, and that isn't an error.
+		//   - a truncated turn WITH text or tool calls still flows; only the empty case is fatal.
+		// Known limitation: `length` WITH tool calls means the arguments JSON was cut mid-token, so the tool runs
+		// with garbage params. Erroring there is riskier than the bug it would fix, so it's left alone.
+		//
+		// This runs AFTER the token accounting above on purpose — the truncated turn was billed, and it's usually
+		// the largest one in the session.
+		$finish_reason = $llm_response->getFinishReason();
+
+		$has_text = false;
+
+		foreach($llm_response->getMessages() as $block)
+			if('' !== trim(strval($block['content'] ?? '')))
+				$has_text = true;
+
+		if(!$has_text && !$tool_calls && !in_array($finish_reason, ['', 'stop', 'tool_calls'], true)) {
+			// The reason has to be in the MESSAGE: the catch in activate() replaces the output var wholesale with
+			// ['error' => ...], so an author on the `on_error:` branch can't read `finish_reason` from the output.
+			throw new Exception_DevblocksAutomationError(match($finish_reason) {
+				'length' => 'The LLM turn was truncated at its output limit (finish_reason: length) before producing a response. Raise `max_tokens:` on the model, or the model may be looping.',
+				// Deliberately still an error rather than an allowlisted silent completion. A user-initiated Stop
+				// does not arrive here — that's honored at the node's own boundary, which hands control back
+				// without an empty turn to apply — so reaching this point means the stream DIED before producing
+				// anything, and completing silently would report success for a turn that never happened.
+				\Extension_DevblocksLlmProvider::FINISH_REASON_INTERRUPTED => 'The LLM turn was interrupted before producing a response. Nothing was salvageable from the partial stream.',
+				default => sprintf('The LLM turn ended without producing a response (finish_reason: %s).', $finish_reason),
+			});
+		}
+			'finish_reason' => '',
 		]);
 		
 		return true;
 	}
 	
 		$llm_response->setUsage(is_array($head->usage) ? $head->usage : []);
+		// Neither usage nor the finish reason is recoverable from data_json — both live in their own columns, so
+		// the async path has to re-read them here or the turn looks unreported.
+		$llm_response->setFinishReason($head->finish_reason);
 	/**
 	 * @param DevblocksLlmChatResponse_Tool $tool_spec
 	 * @param string|null $error

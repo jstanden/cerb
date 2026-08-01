@@ -93,6 +93,8 @@ class DevblocksLlmChatResponse {
 	private array $_tool_results = [];
 	private array $_usage = [];
 	private array $_thinking = [];
+	private string $_finish_reason = '';
+
 	function __construct(string $role = 'assistant', ?string $uuid = null) {
 		$this->setRole($role);
 		$this->setUuid($uuid);
@@ -161,6 +163,18 @@ class DevblocksLlmChatResponse {
 		return $this->_thinking;
 	}
 
+	// Why generation stopped, normalized across providers (see Extension_DevblocksLlmProvider::normalizeFinishReason).
+	// '' when the provider didn't report one. `length` is the load-bearing value: the turn hit its output ceiling
+	// and whatever it produced is truncated — routinely with EMPTY content, which is otherwise indistinguishable
+	// from a model that had nothing to say.
+	function setFinishReason(?string $finish_reason) : void {
+		$this->_finish_reason = strval($finish_reason);
+	}
+
+	function getFinishReason() : string {
+		return $this->_finish_reason;
+	}
+
 	function pushTool(DevblocksLlmChatResponse_Tool $tool) : void {
 		$this->_tool_calls[] = $tool;
 	}
@@ -182,6 +196,15 @@ class DevblocksLlmChatResponse {
 }
 
 abstract class Extension_DevblocksLlmProvider {
+	/**
+	 * A finish reason no provider reports: the turn was cut short on OUR side — a user pressed Stop, or the
+	 * stream died — rather than by the model deciding to end. It sits alongside the normalized vocabulary
+	 * `normalizeFinishReason()` produces (`length`/`stop`/`tool_calls`/`filter`) and matters because the
+	 * difference is not cosmetic: a turn that ended this way may hold structurally incomplete blocks, so its
+	 * tool calls must be ANSWERED rather than executed, and its content must be sanitized before replay.
+	 */
+	const FINISH_REASON_INTERRUPTED = 'interrupted';
+
 	protected array $_params = [];
 	
 	function __construct(array $params, bool $validate=true) {
@@ -293,6 +316,33 @@ abstract class Extension_DevblocksLlmProvider {
 		return (bool) ($defaults['vision'] ?? false);
 	}
 
+	// Map a provider's native "why generation stopped" token onto a neutral one. Normalized at WRITE time, by the
+	// provider that knows its own vocabulary, because a) consumers must not carry a per-provider mapping table, and
+	// b) cross-provider replay means one session can hold messages written by different providers — a native value
+	// read back through a DIFFERENT provider would be misread. The vocabularies don't collide, so one map serves all.
+	//
+	// Anything unrecognized passes through lowercased rather than being clamped to an `other` bucket: it keeps
+	// debugging detail (Anthropic `pause_turn`, Ollama `load`/`unload`) while `length` stays a reliable signal.
+	static function normalizeFinishReason(mixed $native) : string {
+		// Not a string (absent, or an endpoint returning something structured) → unreported.
+		if(!is_string($native))
+			return '';
+
+		$native = DevblocksPlatform::strLower(trim($native));
+
+		if('' === $native)
+			return '';
+
+		return match($native) {
+			'length', 'max_tokens', 'model_length' => 'length',
+			'stop', 'end_turn', 'stop_sequence', 'eos' => 'stop',
+			'tool_calls', 'tool_use', 'function_call' => 'tool_calls',
+			'content_filter', 'content_filtered', 'refusal', 'safety', 'recitation', 'guardrail_intervened' => 'filter',
+			// Passthrough is SANITIZED: this is unvalidated third-party text (the same class of self-hosted
+			// endpoint that motivated all this) landing in a varchar(32).
+			default => substr(strval(preg_replace('/[^a-z0-9_.-]/', '', $native)), 0, 32),
+		};
+	}
 
 	// Surface an OpenAI-shaped message's reasoning as neutral thinking blocks. Unlike Anthropic (where thinking
 	// is a `content` block), the OpenAI-compatible family carries it in a SIBLING key that varies by vendor:

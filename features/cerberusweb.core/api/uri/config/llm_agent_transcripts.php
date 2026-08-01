@@ -125,6 +125,13 @@ class PageSection_SetupDevelopersLlmAgentTranscripts extends Extension_PageSecti
 			
 			$tpl->assign('filter_links', new \Cerb_HTMLPurifier_URIFilter_Extract());
 			
+				// Why the LAST reporting round-trip in this turn stopped. Last-non-empty-wins: an agent turn is
+				// several round-trips (the tool loop) and it's the final one that says how the turn ended.
+				if('' !== $model->finish_reason)
+					$turns[$idx]['finish_reason'] = $model->finish_reason;
+				// The turn ended abnormally — its content is cut off (`length`) or was withheld (`filter`). Flagged
+				// so a reader isn't left guessing why an answer stops mid-sentence.
+				$turns[$i]['is_truncated'] = in_array($turn['finish_reason'] ?? '', ['length', 'filter'], true);
 			$tpl->assign('llm_session', $llm_session);
 			$tpl->assign('llm_session_automation', $llm_session->getAutomation());
 			$tpl->assign('llm_session_user', $llm_session->getUser());

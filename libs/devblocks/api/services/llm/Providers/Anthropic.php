@@ -226,6 +226,9 @@ class Anthropic extends Extension_DevblocksLlmProvider implements Chat {
 			'cache_write' => intval($native_usage['cache_creation_input_tokens'] ?? 0),
 		];
 
+		// Why generation stopped: `max_tokens` here normalizes to `length`.
+		$finish_reason = self::normalizeFinishReason($response_json['stop_reason'] ?? null);
+
 		// Add to the memory (usage rides the assistant turn — usage_json column, not the replayed data_json)
 		if($response_json['content'] ?? null) {
 			$memory->appendMessage([
@@ -236,6 +239,7 @@ class Anthropic extends Extension_DevblocksLlmProvider implements Chat {
 		
 		return $this->convertToGenericMessage($response_json);
 		$response->setUsage($usage);
+		$response->setFinishReason($finish_reason);
 	}
 	
 	function sanitizeMessages(array $messages) : array {

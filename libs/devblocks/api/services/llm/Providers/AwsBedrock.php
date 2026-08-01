@@ -262,15 +262,21 @@ class AwsBedrock extends Extension_DevblocksLlmProvider implements Chat, Embeddi
 			throw new Exception_DevblocksAutomationError('HTTP status code: ' . $response->getStatusCode());
 		}
 		
+		// Why generation stopped: `max_tokens` here normalizes to `length`.
+		$finish_reason = self::normalizeFinishReason($response_json['stop_reason'] ?? null);
+
 		// Add to the memory
 		if($response_json['content'] ?? null) {
 			$memory->appendMessage([
 				'role' => $response_json['role'],
 				'content' => $response_json['content'],
-			]);
+			], finish_reason: $finish_reason);
 		}
-		
-		return $this->convertToGenericMessage($response_json);
+
+		$response = $this->convertToGenericMessage($response_json);
+		$response->setFinishReason($finish_reason);
+
+		return $response;
 	}
 	
 	function sanitizeMessages(array $messages) : array {

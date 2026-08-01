@@ -284,12 +284,17 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 
 		$message = $response_json['choices'][0]['message'] ?? null;
 
+		// Why generation stopped. A SIBLING of `message`, so convertToGenericMessage() never sees it — it has to
+		// ride along explicitly, exactly like usage. `length` = hit the output ceiling, routinely with empty content.
+		$finish_reason = self::normalizeFinishReason($response_json['choices'][0]['finish_reason'] ?? null);
+
 		// Add to the memory (usage rides the assistant turn — usage_json column, not the replayed data_json)
 		if($message)
 		
 		return $this->convertToGenericMessage($message);
 			$memory->appendMessage($message, usage: $usage, finish_reason: $finish_reason);
 		$response->setUsage($usage);
+		$response->setFinishReason($finish_reason);
 	}
 	
 	function sanitizeMessages(array $messages) : array {

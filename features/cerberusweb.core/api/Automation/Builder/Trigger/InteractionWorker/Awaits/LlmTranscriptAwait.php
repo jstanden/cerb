@@ -51,6 +51,13 @@ class LlmTranscriptAwait extends AbstractAwait {
 		
 		$tpl->assign('tool_labels', $tool_labels);
 		
+			// Why the LAST reporting round-trip in this turn stopped. Last-non-empty-wins: an agent turn is several
+			// round-trips (the tool loop) and it's the final one that says how the turn ended.
+			if('' !== $model->finish_reason)
+				$turns[$idx]['finish_reason'] = $model->finish_reason;
+			// The turn ended abnormally — its content is cut off (`length`) or was withheld (`filter`). Flagged so a
+			// worker isn't left guessing why an answer stops mid-sentence. Same rule as Setup→Developers.
+			$turns[$i]['is_truncated'] = in_array($turn['finish_reason'] ?? '', ['length', 'filter'], true);
 		$tpl->assign('continuation_token', $continuation->token);
 		$tpl->assign('session', $session);
 		$tpl->assign('label', $label);
