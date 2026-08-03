@@ -34,6 +34,47 @@ abstract class Extension_DevblocksLlmMemoryStore {
 		return [];
 	}
 
+	/**
+	 * Open an assistant turn that is still being generated, and make it the cursor leaf immediately.
+	 *
+	 * A streamed turn is persisted WHILE it runs rather than once at the end, because the process producing
+	 * it and the process displaying it are different ones — the only way a poller can watch a ten-minute turn
+	 * progress is if the partial is durable. Getting a real uuid up front is the other half: the client
+	 * addresses that one message by id instead of re-rendering the whole transcript on every tick.
+	 *
+	 * Returns the new message uuid, or null for stores with no backing table (they simply don't persist, and
+	 * every method below tolerates that).
+	 */
+	function beginStreamingMessage() : ?string {
+		return null;
+	}
+
+	/** Rewrite an open streamed turn's content. Callers MUST throttle; deltas arrive far faster than any reader. */
+	function updateStreamingMessage(string $uuid, array $message, ?array $usage=null) : void {}
+
+	/**
+	 * Close an open streamed turn — final content, usage, finish reason, flag cleared. After this it's
+	 * ordinary immutable history.
+	 */
+	function finalizeStreamingMessage(string $uuid, array $message, ?array $usage=null, ?string $finish_reason=null) : void {}
+
+	/**
+	 * Drop an open streamed turn that has nothing worth keeping. An EMPTY assistant head is worse than none:
+	 * downstream guards read the head's role and would treat it as a real turn that simply said nothing.
+	 */
+	function discardStreamingMessage(string $uuid) : void {}
+
+	/** The uuid of the streamed turn currently open on this store, or null. */
+	function getOpenStreamingMessage() : ?string {
+		return null;
+	}
+
+	/**
+	 * Resolve a turn left open by a process that died mid-stream (a killed worker, a fatal). Called at the
+	 * START of the next turn rather than from a reaper: the next turn is exactly the moment a stale head would
+	 * do damage, and it needs no scheduling to be correct.
+	 */
+	function resolveDanglingStream() : void {}
 }
 
 class DevblocksLlmChatResponse_Tool {
@@ -204,6 +245,29 @@ abstract class Extension_DevblocksLlmProvider {
 	 * tool calls must be ANSWERED rather than executed, and its content must be sanitized before replay.
 	 */
 	const FINISH_REASON_INTERRUPTED = 'interrupted';
+
+	/**
+	 * Does this provider-native message carry anything worth keeping? Asked of a salvaged partial to decide
+	 * "finalize it" vs "drop the row" — and an empty assistant head is worse than none, because the guards
+	 * downstream read the head's role and would treat it as a real turn that said nothing.
+	 *
+	 * Shape-tolerant ON PURPOSE. `data_json` is provider-NATIVE (it's replayed to the API verbatim), and the
+	 * families disagree: Anthropic content is a list of blocks; the OpenAI family's is a plain STRING, or NULL
+	 * when the turn is nothing but `tool_calls`. Assuming the Anthropic shape here fatals on the first
+	 * (`array_filter()` on a string) and silently deletes a tool-call turn on the second.
+	 */
+	static function hasReplayableContent(array $message) : bool {
+		$content = $message['content'] ?? null;
+
+		if(is_string($content))
+			return '' !== trim($content);
+
+		if(is_array($content))
+			return (bool) array_filter($content);
+
+		// OpenAI-family: a turn that is purely tool calls carries no content at all.
+		return !empty($message['tool_calls']);
+	}
 
 	protected array $_params = [];
 	
@@ -1004,6 +1068,62 @@ class _DevblocksLlmService {
 
 			$memory_store->appendMessage($new_message);
 		}
+
+
+	/**
+	 * Close out a streamed turn whose call didn't return: sanitize what arrived, then either keep it as a
+	 * truncated turn or drop it entirely.
+	 *
+	 * Salvage matters because the failure modes here are expensive — a ten-minute generation cut at the last
+	 * second was still billed in full — and because a row left open would be read as an in-flight turn forever.
+	 * Sanitizing is not optional politeness: an unsignatured thinking block or an argument-less tool call left
+	 * in the history gets the NEXT request rejected, turning one lost turn into a permanently stranded session.
+	 */
+	/**
+	 * Has a Stop been raised for this session? Read on every throttled flush, which is the only moment we
+	 * reliably hold control during a call that may run for minutes — before streaming, a Stop could only be
+	 * honored between turns.
+	 *
+	 * DELIBERATELY NON-DESTRUCTIVE. `LlmAgentNode::_consumeInterrupt()` CONSUMES this flag (it removes the key)
+	 * at its own tree-safe boundary, where it unwinds the node's stack and hands control back to the
+	 * automation. If this read consumed it too, whichever ran first would silently rob the other: the stream
+	 * would abort but the node would never learn a Stop happened, and the loop would just start another turn.
+	 */
+	private function _isTurnInterrupted(string $session_id) : bool {
+		if('' === $session_id)
+			return false;
+
+		return boolval(DevblocksPlatform::services()->cache()->load(
+			\Cerb\AutomationBuilder\Node\LlmAgentNode::interruptCacheKey($session_id),
+			true
+		));
+	}
+
+	private function _salvageStreamedTurn(Extension_DevblocksLlmProvider $provider, Extension_DevblocksLlmMemoryStore $memory_store) : void {
+		if(null === ($uuid = $memory_store->getOpenStreamingMessage()))
+			return;
+
+		if(!($provider instanceof \Cerb\LLM\Providers\Interfaces\ChatStreaming)) {
+			$memory_store->discardStreamingMessage($uuid);
+			return;
+		}
+
+		$partial = $provider->sanitizePartialContent($provider->getStreamedPartial() ?? []);
+
+		// An EMPTY assistant head is worse than none — the guards downstream read the head's role and would
+		// treat it as a real turn that simply said nothing.
+		if(!Extension_DevblocksLlmProvider::hasReplayableContent($partial)) {
+			$memory_store->discardStreamingMessage($uuid);
+			return;
+		}
+
+		$memory_store->finalizeStreamingMessage(
+			$uuid,
+			$partial,
+			null,
+			Extension_DevblocksLlmProvider::FINISH_REASON_INTERRUPTED
+		);
+	}
 
 
 	/**

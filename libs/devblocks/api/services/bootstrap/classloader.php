@@ -212,6 +212,7 @@ class _DevblocksClassLoadManager {
 		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/http.php', array(
 			'_DevblocksHttpService',
+			'DevblocksHttpSseSink',
 		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/gpg.php', array(
 			'_DevblocksGPGService',

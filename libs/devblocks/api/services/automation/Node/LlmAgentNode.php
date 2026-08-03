@@ -156,6 +156,50 @@ class LlmAgentNode extends AbstractNode {
 					if(!$this->_activateLLM($state, $error))
 						return false;
 					
+					// A fresh user turn means "go": clear any stale interrupt left from a prior turn that finished
+					// before its Stop was consumed, so it can't kill THIS turn at the first tools_done. Only a Stop
+					// raised DURING this run (after this point) should count.
+					if('llm' == $state)
+						$this->_consumeInterrupt();
+
+					// User interrupt (Stop): honored HERE because it's tree-safe — reaching `tools_done` means the
+					// prior turn's tool_use blocks all have their tool_results appended (a complete tuple), so the
+					// history is valid to leave. We DON'T start the next turn; we yield control back to the
+					// interaction like a normal completion, with the last turn's output intact. Only `tools_done`
+					// (a continuation turn) is interruptible — the first `llm` turn is the direct answer to the
+					// user's message and always runs once.
+					if('tools_done' == $state && $this->_consumeInterrupt()) {
+						unset($this->_node_memory['stack']);
+
+						if(null != ($event_success = $this->node->getChild($this->node->getId() . ':on_success'))) {
+							$this->_node_memory['completed'] = true;
+							return $event_success->getId();
+						}
+
+						return $this->node->getParent()->getId();
+					}
+
+					// A Stop raised while the turn was STREAMING, where nothing survived to consume. This is the
+					// ordinary case, not an exotic one: a turn can spend minutes thinking, and a thinking block cut
+					// before its signature can't be replayed — so the most likely moment to press Stop is also the
+					// one that leaves nothing behind. Treat it as a clean stop, exactly as the `tools_done`
+					// boundary does; letting a turn the user deliberately cancelled surface as "produced no
+					// assistant response" would report their own click back to them as a failure.
+					//
+					// Checked ONLY when there's no assistant head. With a salvaged partial we fall through, apply
+					// it (so its content and tool calls are handled), and the interrupt is honored a beat later at
+					// `tools_done` — which keeps the partial in the node's output instead of discarding it here.
+					if(!$this->_hasAssistantHead() && $this->_consumeInterrupt()) {
+						unset($this->_node_memory['stack']);
+
+						if(null != ($event_success = $this->node->getChild($this->node->getId() . ':on_success'))) {
+							$this->_node_memory['completed'] = true;
+							return $event_success->getId();
+						}
+
+						return $this->node->getParent()->getId();
+					}
+
 					return $this->node->getId();
 				
 				} else if('tool_branch' == $state) {
@@ -225,18 +269,47 @@ class LlmAgentNode extends AbstractNode {
 					
 				} else if('tool' == $state) {
 					// [TODO] We can be given hallucinated tools
-					
+
 					$tool_use = new DevblocksLlmChatResponse_Tool(
 						$state_params['name'] ?? '',
 							$state_params['parameters'] ?? [],
 							$state_params['id'] ?? ''
 					);
-					
+
 					if(!$this->_activateTool($tool_use, $error))
 						return false;
-					
+
 					return $this->node->getId();
-					
+
+				} else if('tool_truncated' == $state) {
+					// The turn hit its output ceiling mid-call (marked in _applyTurnResponse). Answer the tool_use so
+					// the tuple stays paired, but do NOT execute it — the arguments were cut mid-JSON and can't be
+					// trusted. No `on_tool:` branch either: there's nothing to approve, display, or return, and
+					// running the branch would let an author's `tool.return:` fabricate a result for a call that
+					// never happened.
+					$session_key = $this->_getSessionKey();
+					$session_id = $this->_dict->getKeyPath($session_key, null, '::');
+					$memory_store = DevblocksPlatform::services()->llm()->getMemoryStore($session_id);
+
+					$tool_use = new DevblocksLlmChatResponse_Tool(
+						$state_params['name'] ?? '',
+						$state_params['parameters'] ?? [],
+						$state_params['id'] ?? ''
+					);
+
+					// Addressed to the MODEL, not a human — it's read as a tool result on the next turn, so it says
+					// what happened and what to do about it.
+					$llm_provider->returnTool(
+						$tool_use,
+						'ERROR: This tool call was not executed. The response reached its output token limit and this '
+							. "call's arguments were truncated before they were complete, so they could not be trusted. "
+							. 'Reissue the call with complete arguments. If the arguments are large, split the work '
+							. 'into several smaller calls.',
+						$memory_store
+					);
+
+					return $this->node->getId();
+
 				} else {
 					// [TODO] Unknown state
 					return false;
@@ -608,10 +681,31 @@ class LlmAgentNode extends AbstractNode {
 		if(($tool_calls = $llm_response->getToolCalls())) {
 			// After the tools finish we need to invoke the LLM again
 			$this->_node_memory['stack'][] = ['tools_done', []];
-			
-			// Push into the stack in reverse
-			foreach(array_reverse($tool_calls) as $tool_call) { /* @var $tool_call DevblocksLlmChatResponse_Tool */
-				$this->_node_memory['stack'][] = ['tool', $tool_call->serialize()];
+
+			// A `length` finish means generation was severed at the output ceiling, so the LAST tool_use block's
+			// arguments JSON was very likely cut mid-token — executing it would run a real tool with garbage params
+			// (and on an `rw` mount that reaches `write`/`rm`). We can't just DROP it: the assistant message is
+			// already persisted, and every tool_use in it must get a matching tool_result or the next request 400s
+			// on the unpaired block — which would brick the session, a worse bug than the one being fixed. So it's
+			// ANSWERED with an error result instead of executed; the model sees an ordinary tool failure and can
+			// reissue the call. Only the final block can be truncated — earlier ones completed and run normally.
+			$truncated_at = ('length' === $llm_response->getFinishReason()) ? array_key_last($tool_calls) : null;
+
+			// An INTERRUPTED turn is a different shape of the same problem, and it can't use `$truncated_at`:
+			// that logic assumes only the final block was damaged, which holds for an output-ceiling cut but not
+			// for a stream stopped at an arbitrary moment. More importantly, the model never finished DECIDING —
+			// a user pressed Stop, or the connection died — so even a syntactically complete call is a call it
+			// may not have meant to make yet. Running any of them would take a real action nobody asked for, on
+			// a turn that was explicitly cancelled. So they're ALL answered with an error instead of executed,
+			// which keeps every tool_use paired (the next request 400s on an unpaired block) while doing nothing.
+			$is_interrupted = \Extension_DevblocksLlmProvider::FINISH_REASON_INTERRUPTED === $llm_response->getFinishReason();
+
+			// Push into the stack in reverse (so they pop in the order the model emitted them)
+			foreach(array_reverse($tool_calls, true) as $idx => $tool_call) { /* @var $tool_call DevblocksLlmChatResponse_Tool */
+				$this->_node_memory['stack'][] = [
+					($is_interrupted || $idx === $truncated_at) ? 'tool_truncated' : 'tool',
+					$tool_call->serialize(),
+				];
 			}
 		}
 
@@ -674,6 +768,31 @@ class LlmAgentNode extends AbstractNode {
 			});
 		}
 			'finish_reason' => '',
+
+	// The shared-cache key for a pending user interrupt of a given agent session. Cache (not the continuation
+	// dict) so the `interruptAgent` action can raise it out-of-band while the agent runs, with no read-modify-write
+	// race against the gate poll's continuation writes. Public so that action can key the same slot.
+	static function interruptCacheKey(string $session_id) : string {
+		return 'llm_agent_interrupt_' . $session_id;
+	}
+
+	// Is a user interrupt pending for THIS node's session? Consumed (cleared) on read so it fires exactly once —
+	// the caller yields control this turn; a later turn starts clean. `nocache:true` reads the shared store, not a
+	// stale per-request copy (the flag was set in a different request).
+	private function _consumeInterrupt() : bool {
+		$session_id = strval($this->_dict->getKeyPath($this->_getSessionKey(), '', '::'));
+
+		if('' === $session_id)
+			return false;
+
+		$cache = DevblocksPlatform::services()->cache();
+		$key = self::interruptCacheKey($session_id);
+
+		if(!$cache->load($key, true))
+			return false;
+
+		$cache->remove($key);
+		return true;
 		]);
 		
 		return true;

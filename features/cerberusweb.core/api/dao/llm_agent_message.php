@@ -116,6 +116,85 @@ class DAO_LlmAgentMessage {
 	}
 
 	/**
+	 * Rewrite an in-flight streamed row's content. THE ONLY per-row mutation on this table, and deliberately
+	 * narrow: content and its size estimate, nothing else. The tree edges (`parent_uuid`), the identity
+	 * (`uuid`, `seq`), and the timestamps are all fixed at insert and must stay that way — a reader walking
+	 * the active path mid-stream has to see a stable tree.
+	 *
+	 * Guarded on `is_streaming` so a finalized turn can never be rewritten: once the flag is cleared the row
+	 * is back to being immutable history, which is the invariant the rest of the table depends on.
+	 *
+	 * The CALLER decides how often to call this. Deltas arrive many times per second; a write per delta would
+	 * be pointless load, since nothing reads faster than the transcript poll.
+	 */
+	public static function updateStreaming(string $uuid, array $message, ?array $usage = null) : bool {
+		$db = DevblocksPlatform::services()->database();
+
+		$data_json = json_encode($message);
+
+		$token_est = (is_array($usage) && intval($usage['output'] ?? 0) > 0)
+			? intval($usage['output'])
+			: intval(ceil(strlen($data_json) / 4));
+
+		return boolval($db->ExecuteWriter(sprintf(
+			"UPDATE llm_agent_message SET `data_json` = %s, `token_est` = %d ".
+			"WHERE `uuid` = UUID_TO_BIN(%s) AND `is_streaming` = 1",
+			$db->qstr($data_json),
+			$token_est,
+			$db->qstr($uuid)
+		)));
+	}
+
+	/**
+	 * Close out a streamed row: write the final content, the provider's usage and finish reason, and CLEAR the
+	 * streaming flag. After this the row is ordinary immutable history and every guard that asks "is the head a
+	 * finished assistant turn?" starts answering yes.
+	 *
+	 * Also the landing point for a turn that ended EARLY (interrupted, or the stream died) — the caller
+	 * sanitizes the content first and supplies a finish reason saying so, so a truncated turn is recorded as a
+	 * truncated turn rather than being lost or mistaken for a complete one.
+	 */
+	public static function finalizeStreaming(string $uuid, array $message, ?array $usage = null, ?string $finish_reason = null) : bool {
+		$db = DevblocksPlatform::services()->database();
+
+		$data_json = json_encode($message);
+
+		$token_est = (is_array($usage) && intval($usage['output'] ?? 0) > 0)
+			? intval($usage['output'])
+			: intval(ceil(strlen($data_json) / 4));
+
+		return boolval($db->ExecuteWriter(sprintf(
+			"UPDATE llm_agent_message SET `data_json` = %s, `token_est` = %d, `kind` = %s, `usage_json` = %s, ".
+			"`finish_reason` = %s, `is_streaming` = 0 ".
+			"WHERE `uuid` = UUID_TO_BIN(%s) AND `is_streaming` = 1",
+			$db->qstr($data_json),
+			$token_est,
+			// Re-classify: the row was opened before any content existed, so its kind was necessarily a guess.
+			// Whether the turn ended up being text or a tool call is only knowable now.
+			$db->qstr(self::_classifyKind($message)),
+			(is_array($usage) && $usage) ? $db->qstr(json_encode($usage)) : 'NULL',
+			$db->qstr(strval($finish_reason)),
+			$db->qstr($uuid)
+		)));
+	}
+
+	/**
+	 * Drop an in-flight row outright. Used when a stream died with nothing worth keeping: an EMPTY assistant
+	 * head is worse than no head at all, because `_consumeLLMAsync()` and the retry guards read the head's role
+	 * and would treat it as a real (but contentless) turn.
+	 *
+	 * Guarded on `is_streaming` so this can never delete finalized history.
+	 */
+	public static function deleteStreaming(string $uuid) : bool {
+		$db = DevblocksPlatform::services()->database();
+
+		return boolval($db->ExecuteWriter(sprintf(
+			"DELETE FROM llm_agent_message WHERE `uuid` = UUID_TO_BIN(%s) AND `is_streaming` = 1",
+			$db->qstr($uuid)
+		)));
+	}
+
+	/**
 	 * Classify a provider-native message into a coarse, provider-agnostic kind
 	 * (`text`, `tool_use`, `tool_result`) off structural markers common to the
 	 * Anthropic content-block and OpenAI chat shapes. `summary` is set explicitly
