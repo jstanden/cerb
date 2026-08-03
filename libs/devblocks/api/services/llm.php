@@ -1060,6 +1060,65 @@ class _DevblocksLlmService {
 		return new \Cerb\LLM\History\Compaction(max(1, $threshold), max(0, $keep_tail), $summarize);
 	}
 	
+	/**
+	 * Branch a session, optionally onto a different provider. Same-provider forks copy
+	 * the message prefix verbatim (DAO fork). A cross-provider fork rewrites every
+	 * message from the source's native format into the target's via the neutral
+	 * projection (convertToGenericMessage -> toNativeMessage), yielding a homogeneous
+	 * target-format session so later turns replay without further conversion.
+	 */
+	function forkSession(string $session_uuid, ?string $target_provider_id=null, array $target_params=[], ?string $into_uuid=null) : ?\Model_LlmAgentSession {
+		if(!($source = \DAO_LlmAgentSession::get($session_uuid)))
+			return null;
+
+		$target_provider_id = $target_provider_id ?: $source->provider;
+
+		// Same provider: verbatim copy-on-fork, no message rewriting needed. `$target_params` is the
+		// whole provider bag (model, authentication, knobs); empty keeps the source's.
+		if($target_provider_id === $source->provider) {
+			$overrides = $target_params ? ['provider_params' => $target_params] : [];
+			return \DAO_LlmAgentSession::fork($session_uuid, 0, $overrides, $into_uuid);
+		}
+
+		$source_provider = $this->getProvider($source->provider, [], false);
+		$target_provider = $this->getProvider($target_provider_id, $target_params, false);
+
+		if(
+			!($source_provider instanceof \Cerb\LLM\Providers\Interfaces\Chat)
+			|| !($target_provider instanceof \Cerb\LLM\Providers\Interfaces\Chat)
+		)
+			return null;
+
+		$models = \DAO_LlmAgentMessage::getMessagesBySession($session_uuid, last_n: 0);
+
+		$fork = new \Model_LlmAgentSession($into_uuid);
+		$fork->provider = $target_provider_id;
+		$fork->provider_params = $target_params;
+		$fork->automation_id = $source->automation_id;
+		$fork->automation_node = $source->automation_node;
+		$fork->user_type = $source->user_type;
+		$fork->user_id = $source->user_id;
+		$fork->user_ip = $source->user_ip;
+
+		if(!($fork = \DAO_LlmAgentSession::create($fork)))
+			return null;
+
+		$store = $this->getMemoryStore($fork->uuid);
+
+		foreach($models as $model) {
+			// Prior summaries are provider-agnostic text but re-derive under the new
+			// provider's budget; skip them and let compaction rebuild as needed.
+			if('summary' === $model->kind)
+				continue;
+
+			$canonical = $source_provider->convertToGenericMessage($model->data, $model->uuid);
+
+			foreach($target_provider->toNativeMessage($canonical) as $native)
+				$store->appendMessage($native);
+		}
+
+		return $fork;
+	}
 
 	/**
 	 * Compact a session NOW, regardless of how full its context is — what `/compact` runs.
@@ -1320,6 +1379,115 @@ class _DevblocksLlmService {
 		}
 
 		return mb_substr($transcript, 0, 4000);
+	}
+
+	/**
+	 * Switch a session to a new provider IN PLACE, keeping the SAME `$session_id` (so every reference to it
+	 * stays valid — the foolproof-resume design). Same provider → just refresh `provider_params`. Different
+	 * provider → mint a provider-NEUTRAL summary node as a new branch root on the append-only tree (the old
+	 * provider summarizes its own active path), advance the cursor onto it, and set the new provider. NO
+	 * clone/rename/rewrite: the old-format branch stays in the tree (off the active path) for audit/resume,
+	 * and the new provider resumes from the summary — it never has to consume the old native format.
+	 */
+	// A deterministic fingerprint of the capability-relevant params. Two sessions with the same signature
+	// reason identically over the same native transcript, so a change between them is a plain param refresh;
+	// a different signature is a capability boundary (plant a summary head). Non-capability knobs
+	// (authentication, context_window, compaction, vision, cache) are deliberately excluded — they don't
+	// change how the model handles history.
+	private function _capabilitySignature(string $provider, array $params) : string {
+		$thinking = $params['thinking'] ?? null;
+		if(is_array($thinking))
+			$thinking = $this->_ksortRecursive($thinking);
+
+		return json_encode([
+			'provider' => $provider,
+			'model' => strval($params['model'] ?? ''),
+			'effort' => DevblocksPlatform::strLower(trim(strval($params['effort'] ?? ''))),
+			'thinking' => $thinking,
+		]);
+	}
+
+	// Recursively key-sort an array so json_encode is order-independent (for a stable capability signature).
+	private function _ksortRecursive(array $arr) : array {
+		ksort($arr);
+		foreach($arr as $k => $v) {
+			if(is_array($v))
+				$arr[$k] = $this->_ksortRecursive($v);
+		}
+		return $arr;
+	}
+
+	function switchSessionProvider(string $session_id, string $new_provider_id, array $new_params=[]) : ?\Model_LlmAgentSession {
+		if(!($source = \DAO_LlmAgentSession::get($session_id)))
+			return null;
+
+		// Same capability signature (provider + model + effort + thinking) → messages already in this format
+		// and the target reasons the same way; just refresh the params bag (auth/context_window/compaction).
+		if($this->_capabilitySignature($source->provider, $source->provider_params) === $this->_capabilitySignature($new_provider_id, $new_params)) {
+			\DAO_LlmAgentSession::setProviderParams($session_id, $new_provider_id, $new_params);
+			return \DAO_LlmAgentSession::get($session_id);
+		}
+
+		$store = $this->getMemoryStore($session_id);
+		$active_path = $store->getMessageModels();
+
+		if($active_path) {
+			$old_provider = $this->getProvider($source->provider, $source->provider_params, false);
+
+			$summary_text = ($old_provider instanceof \Cerb\LLM\Providers\Interfaces\Chat)
+				? $this->summarizeMessages($old_provider, $active_path)
+				: '';
+
+			if('' !== trim($summary_text)) {
+				// A boundary EXCHANGE, not a lone user turn: a synthetic user instruction (terminal ancestor)
+				// + the assistant's summary. A single user node isn't resumable — the new provider's first
+				// real user turn would be two consecutive user messages (Anthropic 400). keep_tail=0 here, so
+				// no verbatim tail; the new provider resumes cleanly from the exchange.
+				$store->appendMessage(['role' => 'user', 'content' => \Cerb\LLM\History\Compaction::SUMMARY_PROMPT], 'summary');
+				$store->appendMessage(['role' => 'assistant', 'content' => $summary_text]);
+			}
+		}
+
+		\DAO_LlmAgentSession::setProviderParams($session_id, $new_provider_id, $new_params);
+
+		return \DAO_LlmAgentSession::get($session_id);
+	}
+
+	/**
+	 * Prime/reconcile a session's LLM block against a selection, keeping a stable id. Missing → create it
+	 * (adopting `$session_id`, `$create_fields` = ownership/automation columns). Exists, same capability
+	 * signature (provider+model+effort+thinking) → refresh params. Exists, changed signature → in-place
+	 * `switchSessionProvider` (plant a summary head). This is the ONE place a session's provider block is
+	 * set — called by the agentPrompt (on submit) and by `llm.agent` (when given `inputs.llm`).
+	 */
+	function reconcileSession(string $session_id, string $provider, array $params, array $create_fields=[]) : ?\Model_LlmAgentSession {
+		if('' === $provider)
+			return null;
+
+		$session = ('' !== $session_id) ? \DAO_LlmAgentSession::get($session_id) : null;
+
+		if($session) {
+			// A boundary (summarize → new head) fires on ANY capability change — provider, model, effort, or
+			// thinking — since a mid-conversation reasoning-config change can make prior native blocks
+			// unreplayable. Same signature → a plain param refresh (auth/context_window/compaction knobs).
+			if($this->_capabilitySignature($session->provider, $session->provider_params) === $this->_capabilitySignature($provider, $params)) {
+				\DAO_LlmAgentSession::setProviderParams($session->uuid, $provider, $params);
+			} elseif(!$this->switchSessionProvider($session->uuid, $provider, $params)) {
+				return null;
+			}
+			return \DAO_LlmAgentSession::get($session->uuid);
+		}
+
+		$new = new \Model_LlmAgentSession($session_id ?: null);
+		$new->provider = $provider;
+		$new->provider_params = $params;
+
+		foreach($create_fields as $k => $v) {
+			if(property_exists($new, $k))
+				$new->$k = $v;
+		}
+
+		return \DAO_LlmAgentSession::create($new);
 	}
 
 	function getToolSchemaForAutomation(string $tool_name, array $tool, string $schema_key='parameters') : ?array {

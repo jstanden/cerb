@@ -73,7 +73,54 @@ class DAO_LlmAgentSession {
 		return $model;
 	}
 	
+	/**
+	 * Branch a session by copying its message prefix into a fresh session (copy-on-fork).
+	 * The copy is verbatim provider-native `data_json`, so the fork stays on the source
+	 * provider; `$overrides` may set same-provider fields like `model`. Cross-provider
+	 * forks (rewriting each message to the target format) are layered in Phase C.
+	 *
+	 * @param int $at_seq Copy messages with seq <= this branch point; 0 = fork at the tip.
+	 * @param array $overrides Optional session-field overrides (e.g. ['provider' => ..., 'provider_params' => [...]]).
+	 * @param string|null $into_uuid Fork INTO this specific (non-existent) uuid instead of a fresh one.
+	 */
+	public static function fork(string $session_uuid, int $at_seq = 0, array $overrides = [], ?string $into_uuid = null) : ?Model_LlmAgentSession {
+		$db = DevblocksPlatform::services()->database();
+
+		if(!($source = self::get($session_uuid)))
+			return null;
+
+		$model = new Model_LlmAgentSession($into_uuid);
+		$model->provider = $overrides['provider'] ?? $source->provider;
+		$model->provider_params = $overrides['provider_params'] ?? $source->provider_params;
+		$model->automation_id = $source->automation_id;
+		$model->automation_node = $source->automation_node;
+		$model->user_type = $source->user_type;
+		$model->user_id = $source->user_id;
+		$model->user_ip = $source->user_ip;
+		$model->system_prompt = $source->system_prompt;
+		$model->tools = $source->tools;
+		$model->mounts = $source->mounts;
 		$model->agent_id = $source->agent_id;
+
+		if(!($model = self::create($model)))
+			return null;
+
+		// Copy the prefix verbatim; ORDER BY seq keeps the fresh auto-increment seqs in the source order.
+		// (The copied messages' parent_uuid points at their ORIGIN message; the fork has no head_uuid, so
+		// its reads fall back to the seq-linear path — making a fork tree-native is a separate follow-up.)
+		$where_seq = $at_seq > 0 ? sprintf(' AND seq <= %d', $at_seq) : '';
+
+		$db->ExecuteMaster(sprintf(
+			"INSERT INTO llm_agent_message (`uuid`,`session_uuid`,`parent_uuid`,`role`,`kind`,`token_est`,`created_at`,`created_at_usec`,`data_json`,`usage_json`,`finish_reason`) ".
+			"SELECT UUID_TO_BIN(UUID()), UUID_TO_BIN(%s), `uuid`, `role`, `kind`, `token_est`, `created_at`, `created_at_usec`, `data_json`, `usage_json`, `finish_reason` ".
+			"FROM llm_agent_message ".
+			"WHERE session_uuid = UUID_TO_BIN(%s)%s ".
+			"ORDER BY seq ASC",
+			$db->qstr($model->uuid),
+			$db->qstr($session_uuid),
+			$where_seq
+		));
+
 		// Copy the source's image ownership links onto the fork so its attachments aren't orphan-reaped when the
 		// origin is deleted. Session-level: a partial fork (at_seq) may over-retain links to attachments past the
 		// branch point — harmless, they reap once the fork itself is deleted.
@@ -89,6 +136,10 @@ class DAO_LlmAgentSession {
 				$source_id
 			));
 		}
+
+		return $model;
+	}
+
 	public static function get(string $session_uuid) : ?Model_LlmAgentSession {
 		$db = DevblocksPlatform::services()->database();
 		
@@ -242,6 +293,37 @@ class DAO_LlmAgentSession {
 		return true;
 	}
 
+	public static function setAutomationIfEmpty(string $uuid, int $automation_id, string $automation_node) : bool {
+		if(!$automation_id)
+			return false;
+
+		$db = DevblocksPlatform::services()->database();
+
+		$db->ExecuteWriter(sprintf(
+			"UPDATE llm_agent_session SET `automation_id` = %d, `automation_node` = %s ".
+			"WHERE `uuid` = UUID_TO_BIN(%s) AND (`automation_id` = 0 OR `automation_id` IS NULL)",
+			$automation_id,
+			$db->qstr($automation_node),
+			$db->qstr($uuid)
+		));
+
+		return true;
+	}
+
+	// Prime/update a session's LLM block (provider column for the cheap change-check, params bag as JSON).
+	public static function setProviderParams(string $uuid, string $provider, array $provider_params) : bool {
+		$db = DevblocksPlatform::services()->database();
+
+		$result = $db->ExecuteWriter(sprintf(
+			"UPDATE llm_agent_session SET `provider` = %s, `provider_params` = %s WHERE `uuid` = UUID_TO_BIN(%s)",
+			$db->qstr($provider),
+			$provider_params ? $db->qstr(json_encode($provider_params)) : 'NULL',
+			$db->qstr($uuid)
+		));
+
+		return boolval($result);
+	}
+
 	public static function delete(string $uuid) : bool {
 		$db = DevblocksPlatform::services()->database();
 
@@ -302,7 +384,12 @@ class DAO_LlmAgentSession {
 	private static function _getResultsAsModel(array $row) : Model_LlmAgentSession {
 		$llm_session = new Model_LlmAgentSession($row['uuid']);
 		$llm_session->provider = $row['provider'];
+		$llm_session->provider_params = (($row['provider_params'] ?? null) !== null)
+			? (json_decode($row['provider_params'], true) ?: [])
+			: [];
+		$llm_session->head_uuid = $row['head_uuid'] ?? '';
 		$llm_session->created_at = intval($row['created_at']);
+		$llm_session->updated_at = intval($row['updated_at'] ?? 0);
 		$llm_session->token_usage = intval($row['token_usage'] ?? 0);
 		$llm_session->automation_id = intval($row['automation_id']);
 		$llm_session->automation_node = $row['automation_node'];

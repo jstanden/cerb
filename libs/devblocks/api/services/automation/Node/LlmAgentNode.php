@@ -120,40 +120,19 @@ class LlmAgentNode extends AbstractNode {
 				];
 			}
 		
+			// Reconcile the session on each fresh turn (create/prime, update the provider block, or switch
+			// providers in place — always keeping the same stable id). Skipped on tool-loop re-entries.
+			if($is_new_turn) {
+				$this->_reconcileSession($automation);
 
 				// Provision any `mounts:` volumes flagged `create@bool: yes` before they're resolved to records
 				// (by _persistSessionConfig / _getTools below). Runs once per authoring turn; a resume replays
 				// the stored specs and skips this.
 				$this->_provisionMounts();
-			$llm_provider = $this->_getLlmProvider();
-			$session_key = $this->_getSessionKey($llm_provider);
-			
-			if(!($this->_dict->getKeyPath($session_key, null, '::'))) {
-				$llm_session = new \Model_LlmAgentSession();
-				$llm_session->provider = $llm_provider::ID;
-				$llm_session->automation_id = $automation->id ?? 0;
-				$llm_session->automation_node = $this->node->getId();
-				
-				if(in_array($automation->extension_id, [
-					\AutomationTrigger_InteractionInternal::ID,
-					\AutomationTrigger_InteractionWorker::ID,
-					\AutomationTrigger_MailDraftValidate::ID,
-					\AutomationTrigger_MailReplyValidate::ID,
-				])) {
-					$llm_session->user_type = 'worker';
-					$llm_session->user_id = $this->_dict->get('worker_id', 0);
-					
-				} elseif($automation->extension_id == \AutomationTrigger_InteractionWebsite::ID) {
-					$llm_session->user_type = 'portal_visitor';
-					$llm_session->user_ip = $this->_dict->get('client_ip', '');
-				}
-				
-				if(!($llm_session = \DAO_LlmAgentSession::create($llm_session)))
-					throw new Exception_DevblocksAutomationError("Failed to create an LLM session");
-				
-				$this->_dict->setKeyPath($session_key, $llm_session->uuid, '::');
 			}
-			
+
+			$llm_provider = $this->_getLlmProvider();
+
 			$state = array_pop($this->_node_memory['stack']);
 			
 			// Run our next state
@@ -395,6 +374,83 @@ class LlmAgentNode extends AbstractNode {
 		$config = is_array($params['compaction'] ?? null) ? $params['compaction'] : [];
 
 		return $llm->getCompaction($config, intval($params['context_window'] ?? 0));
+	}
+
+	// Resolve the node's session on a fresh turn, keeping a stable id. In the agentPrompt flow the session is
+	// already primed on submit (`AgentPromptAwait::formatValue`), so `llm.agent` usually just pure-resumes with
+	// `session_id:` and no `inputs.llm`. When `inputs.llm` IS given (legacy/standalone, or a redundant belt),
+	// reconcile via the shared `llm()->reconcileSession` (create/refresh/in-place-switch) — idempotent.
+	private function _reconcileSession(Model_Automation $automation) : void {
+		$llm = DevblocksPlatform::services()->llm();
+		$session_key = $this->_getSessionKey();
+
+		// The cached slot (within a continuation) wins; otherwise the caller-supplied `session_id:`.
+		$session_id = strval($this->_dict->getKeyPath($session_key, null, '::') ?: ($this->_inputs['session_id'] ?? ''));
+
+		// Incoming selection (optional). `inputs.llm` = {<provider>: <params>} is the manual block and always
+		// WINS; a `model:` reference to an `agent_model` record is consulted only when `llm:` is omitted — so
+		// they never merge (no provider mismatch to reconcile). Either resolves to the same [provider, params].
+		$incoming_provider = '';
+		$incoming_params = [];
+
+		if(is_array($this->_inputs['llm'] ?? null) && $this->_inputs['llm']) {
+			$incoming_provider = strval(array_key_first($this->_inputs['llm']));
+			$incoming_params = is_array($this->_inputs['llm'][$incoming_provider] ?? null) ? $this->_inputs['llm'][$incoming_provider] : [];
+
+		} else {
+			$model_error = null;
+
+			if(null !== ($resolved = $llm->resolveModelInput($this->_inputs['model'] ?? null, $model_error)))
+				list($incoming_provider, $incoming_params) = $resolved;
+			elseif($model_error)
+				throw new Exception_DevblocksAutomationError($model_error);
+		}
+
+		if('' !== $incoming_provider) {
+			if(!($reconciled = $llm->reconcileSession($session_id, $incoming_provider, $incoming_params, $this->_sessionCreateFields($automation))))
+				throw new Exception_DevblocksAutomationError("Failed to prime the LLM session.");
+			$this->_dict->setKeyPath($session_key, $reconciled->uuid, '::');
+			\DAO_LlmAgentSession::setAutomationIfEmpty($reconciled->uuid, $automation->id ?? 0, $this->node->getId());
+			\DAO_LlmAgentSession::setAgentIfEmpty($reconciled->uuid, $this->_agent_worker_id);
+			return;
+		}
+
+		// No `inputs.llm` → pure resume; the session must already exist (primed by the agentPrompt / prior turn).
+		// Backfill the owning automation + node — an agentPrompt-created or caller-minted session starts without
+		// lineage (its creator lacks this context); this is the first place that has it.
+		if('' !== $session_id && ($session = \DAO_LlmAgentSession::get($session_id))) {
+			$this->_dict->setKeyPath($session_key, $session->uuid, '::');
+			\DAO_LlmAgentSession::setAutomationIfEmpty($session->uuid, $automation->id ?? 0, $this->node->getId());
+			\DAO_LlmAgentSession::setAgentIfEmpty($session->uuid, $this->_agent_worker_id);
+			return;
+		}
+
+		// Nothing named ANYWHERE and no session to resume → the AGENT's router if `agent:` named one, else the
+		// default. This is the zero-config path: an `llm.agent:` that says nothing about models runs on whatever
+		// the environment prefers, so a shipped automation never has to name one.
+		//
+		// ⚠ ORDER IS LOAD-BEARING: this sits AFTER the pure-resume branch. If it ran first, every turn of an
+		// agentPrompt-driven conversation would re-prime to the router's first model and silently override the
+		// model a human actually picked.
+		if(($default_models = $llm->getAgentRouterModels($this->_agent_worker_id, $this->_dict))) {
+			$router_error = null;
+
+			if(null !== ($resolved = $llm->resolveModelInput($default_models, $router_error))) {
+				list($incoming_provider, $incoming_params) = $resolved;
+
+				$this->_router_name = $llm->getResolvedRouterName($this->_agent_worker_id);
+
+				if(!($reconciled = $llm->reconcileSession($session_id, $incoming_provider, $incoming_params, $this->_sessionCreateFields($automation))))
+					throw new Exception_DevblocksAutomationError("Failed to prime the LLM session.");
+
+				$this->_dict->setKeyPath($session_key, $reconciled->uuid, '::');
+				\DAO_LlmAgentSession::setAutomationIfEmpty($reconciled->uuid, $automation->id ?? 0, $this->node->getId());
+				\DAO_LlmAgentSession::setAgentIfEmpty($reconciled->uuid, $this->_agent_worker_id);
+				return;
+			}
+		}
+
+		throw new Exception_DevblocksAutomationError("`llm.agent` has no models. Give it a `session_id:` (primed by an agentPrompt or a prior turn), an `llm:` block, or a `model:` reference — or configure a default agent model router.");
 	}
 
 		$tools = [];

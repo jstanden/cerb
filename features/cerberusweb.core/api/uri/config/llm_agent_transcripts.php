@@ -50,6 +50,12 @@ class PageSection_SetupDevelopersLlmAgentTranscripts extends Extension_PageSecti
 					return $this->_configAction_compactPreviewForm();
 				case 'deleteTranscript':
 					return $this->_configAction_deleteTranscript();
+				case 'forkFromHere':
+					return $this->_configAction_forkFromHere();
+				case 'forkTranscript':
+					return $this->_configAction_forkTranscript();
+				case 'forkTranscriptForm':
+					return $this->_configAction_forkTranscriptForm();
 				case 'getTranscript':
 					return $this->_configAction_getTranscript();
 				case 'loadTranscripts':
@@ -377,6 +383,135 @@ class PageSection_SetupDevelopersLlmAgentTranscripts extends Extension_PageSecti
 			'placeholder' => false,
 		];
 	}
+
+	private function _configAction_forkFromHere() : void {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+
+		$transcript_id = DevblocksPlatform::importGPC($_POST['transcript_id'] ?? null, 'string', '');
+		$at_seq = DevblocksPlatform::importGPC($_POST['at_seq'] ?? null, 'integer', 0);
+
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+
+		try {
+			if(!DAO_LlmAgentSession::get($transcript_id))
+				throw new Exception_DevblocksAjaxValidationError('Invalid transcript ID.');
+
+			// Always fork EXCLUSIVE of the target user message: copy the prefix strictly before it so the
+			// branch ends on the preceding assistant turn — a clean, appendable transcript that never ends
+			// on a user turn. (A chat `/rewind` that edits/regenerates a user turn lives elsewhere, in
+			// `AgentPromptAwait::_promptAction_rewind`, not this dev tool.)
+			$fork_seq = $at_seq - 1;
+
+			// `fork($id, $seq)` treats `$seq <= 0` as "fork at the tip" (copies EVERYTHING), so never pass
+			// 0 — there's simply nothing before the first message to branch.
+			if($fork_seq < 1)
+				throw new Exception_DevblocksAjaxValidationError('There\'s nothing before the first message to fork.');
+
+			// Same provider, original left intact.
+			if(!($fork = DAO_LlmAgentSession::fork($transcript_id, $fork_seq)))
+				throw new Exception_DevblocksAjaxValidationError('Failed to fork the transcript.');
+
+			echo json_encode([
+				'status' => true,
+				'transcript_id' => $fork->uuid,
+			]);
+
+		} catch(Exception_DevblocksAjaxValidationError $e) {
+			echo json_encode([
+				'status' => false,
+				'error' => $e->getMessage(),
+			]);
+
+		} catch(Throwable $e) {
+			DevblocksPlatform::logException($e);
+
+			echo json_encode([
+				'status' => false,
+				'error' => 'An unknown error occurred.',
+			]);
+		}
+	}
+
+	private function _configAction_forkTranscriptForm() : void {
+		$tpl = DevblocksPlatform::services()->template();
+		$llm = DevblocksPlatform::services()->llm();
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+
+		$transcript_id = DevblocksPlatform::importGPC($_POST['transcript_id'] ?? null, 'string', '');
+
+		if(!($llm_session = DAO_LlmAgentSession::get($transcript_id))) {
+			echo 'Invalid transcript ID.';
+			return;
+		}
+
+		$tpl->assign('llm_session', $llm_session);
+		$tpl->assign('chat_providers', $llm->getChatProviders());
+		$tpl->display('devblocks:cerberusweb.core::configuration/section/developers/llm-agent-transcripts/fork.tpl');
+	}
+
+	private function _configAction_forkTranscript() : void {
+		$llm = DevblocksPlatform::services()->llm();
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+
+		$transcript_id = DevblocksPlatform::importGPC($_POST['transcript_id'] ?? null, 'string', '');
+		$target_provider = DevblocksPlatform::importGPC($_POST['target_provider'] ?? null, 'string', '');
+		$model = DevblocksPlatform::importGPC($_POST['model'] ?? null, 'string', '');
+
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+
+		try {
+			if(!DAO_LlmAgentSession::get($transcript_id))
+				throw new Exception_DevblocksAjaxValidationError('Invalid transcript ID.');
+
+			if(!array_key_exists($target_provider, $llm->getChatProviders()))
+				throw new Exception_DevblocksAjaxValidationError('Invalid target provider.');
+
+			$params = [];
+			if('' !== $model)
+				$params['model'] = $model;
+
+			if(!($fork = $llm->forkSession($transcript_id, $target_provider, $params)))
+				throw new Exception_DevblocksAjaxValidationError('Failed to fork the transcript.');
+
+			echo json_encode([
+				'status' => true,
+				'transcript_id' => $fork->uuid,
+			]);
+
+		} catch(Exception_DevblocksAjaxValidationError $e) {
+			echo json_encode([
+				'status' => false,
+				'error' => $e->getMessage(),
+			]);
+
+		} catch(Throwable $e) {
+			DevblocksPlatform::logException($e);
+
+			echo json_encode([
+				'status' => false,
+				'error' => 'An unknown error occurred.',
+			]);
+		}
+	}
+
 	private function _configAction_deleteTranscript() : void {
 		$active_worker = CerberusApplication::getActiveWorker();
 		

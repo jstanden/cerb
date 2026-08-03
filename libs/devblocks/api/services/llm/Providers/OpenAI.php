@@ -46,8 +46,28 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 			if (array_key_exists('role', $message))
 				$chat_response->setRole($message['role']);
 			
-			if ($message['content'] ?? null)
-				$chat_response->pushMessage($message['content']);
+			if ($message['content'] ?? null) {
+				$content = $message['content'];
+
+				// Cross-provider replay: an Anthropic-stored message keeps `content` as an array of blocks. Flatten
+				// to text (a provider switch degrades to text — image/tool_use blocks drop) so the OpenAI converter
+				// and the transcript viewer don't choke on a non-string (a fatal TypeError before this).
+				if(is_array($content)) {
+					$text = '';
+
+					foreach($content as $block) {
+						if(is_string($block))
+							$text .= $block;
+						elseif(is_array($block))
+							$text .= strval($block['text'] ?? $block['content'] ?? '');
+					}
+
+					$content = $text;
+				}
+
+				if('' !== $content)
+					$chat_response->pushMessage($content);
+			}
 			
 			if ($message['tool_calls'] ?? null) {
 				foreach ($message['tool_calls'] as $tool_call) {
