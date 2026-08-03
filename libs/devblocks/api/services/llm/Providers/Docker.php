@@ -29,6 +29,11 @@ class Docker extends OpenAI {
 			throw new Exception_DevblocksAutomationError('llm:inputs:llm:docker:model: is required.');
 	}
 
+	// OpenAI's `developer` role is an OpenAI-ism; a local runner's chat template only knows `system`.
+	function getSystemPromptRole() : string {
+		return 'system';
+	}
+
 	function getChatModels() : array {
 		return [
 			'ai/llama3.2',

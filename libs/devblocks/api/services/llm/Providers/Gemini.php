@@ -32,6 +32,11 @@ class Gemini extends OpenAI {
 	function getChatCompletionEndpointUrl(string $base_url) : string {
 		return $base_url . '/chat/completions';
 	}
+
+	// OpenAI's `developer` role is an OpenAI-ism; compatible endpoints only know `system`.
+	function getSystemPromptRole() : string {
+		return 'system';
+	}
 	
 	function getChatCompletionsParams() : array {
 		$params = [];

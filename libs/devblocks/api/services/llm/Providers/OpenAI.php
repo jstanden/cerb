@@ -199,6 +199,16 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 	}
 
 	/**
+	 * The role that carries the system prompt. OpenAI renamed `system` to `developer` for the reasoning-model
+	 * era, but that rename is OpenAI's alone — the OpenAI-COMPATIBLE endpoints validate against a fixed role
+	 * enum and hard-reject `developer` with a 400 ("developer is not one of [...]"). Any subclass pointed at a
+	 * compatible endpoint rather than at OpenAI itself MUST override this to `system`.
+	 */
+	function getSystemPromptRole() : string {
+		return 'developer';
+	}
+
+	/**
 	 * @throws Exception_DevblocksAutomationError
 	 */
 	function chatCompletion(array $messages, string $system_prompt, array $tools, Extension_DevblocksLlmMemoryStore $memory) : DevblocksLlmChatResponse {
@@ -213,7 +223,7 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 		if($system_prompt) {
 			array_unshift($model_messages,
 				[
-					'role' => 'developer',
+					'role' => $this->getSystemPromptRole(),
 					'content' => $system_prompt,
 				]
 			);

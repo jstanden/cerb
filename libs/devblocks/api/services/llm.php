@@ -676,8 +676,19 @@ class _DevblocksLlmService {
 	 */
 	function getProviderIds() : array {
 		return [
-			'anthropic', 'aws_bedrock', 'docker', 'gemini', 'groq', 'huggingface',
-			'ollama', 'openai', 'pinecone', 'together', 'voyage',
+			'anthropic',
+			'aws_bedrock',
+			'docker',
+			'gemini',
+			'groq',
+			'huggingface',
+			'ollama',
+			'openai',
+			'pinecone',
+			'qwen',
+			'together',
+			'voyage',
+			'zai',
 		];
 	}
 
@@ -1002,6 +1013,8 @@ class _DevblocksLlmService {
 			'pinecone' => new Cerb\LLM\Providers\Pinecone($params, $validate),
 			'together' => new Cerb\LLM\Providers\TogetherAI($params, $validate),
 			'voyage' => new Cerb\LLM\Providers\VoyageAI($params, $validate),
+			'qwen' => new Cerb\LLM\Providers\Qwen($params, $validate),
+			'zai' => new Cerb\LLM\Providers\ZAi($params, $validate),
 			default => null,
 		};
 	}
