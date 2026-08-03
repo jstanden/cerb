@@ -85,6 +85,14 @@ class LlmAgentNode extends AbstractNode {
 
 				$validation->addField('mounts', 'mounts:')
 					->array();
+
+				// `commands:` — the built-in `/commands` this agent honors, opted in by bare key
+				// (`command/compact:`). OFF by default and per-node, so nothing is exposed that an author
+				// didn't ask for — notably `interaction.website` (anonymous visitors) simply never declares
+				// any, rather than having to opt OUT of something.
+				$validation->addField('commands', 'commands:')
+					->array();
+
 				
 				if (false === ($validation->validateAll($this->_inputs, $error)))
 					throw new Exception_DevblocksAutomationError($error);
@@ -366,6 +374,27 @@ class LlmAgentNode extends AbstractNode {
 			$params['cache'] = true;
 
 		return $params;
+	}
+
+	// Compaction policy is per target-model, so it lives in the `llm:<provider>:compaction:` block and
+	// rides the session's provider_params (carried on resume — no re-passing per turn). The threshold
+	// defaults to a fraction of the model's `context_window` (same source). Mirrors _getLlmProvider()'s
+	// sourcing: session first, then `inputs.llm.<provider>` before the session exists.
+	private function _getCompaction() : \Cerb\LLM\History\Compaction {
+		$llm = DevblocksPlatform::services()->llm();
+		$session_id = $this->_dict->getKeyPath($this->_getSessionKey(), null, '::');
+
+		$params = [];
+		if($session_id && ($session = \DAO_LlmAgentSession::get($session_id)) && is_array($session->provider_params) && $session->provider_params) {
+			$params = $session->provider_params;
+		} elseif(is_array($this->_inputs['llm'] ?? null) && $this->_inputs['llm']) {
+			$llm_id = strval(array_key_first($this->_inputs['llm']));
+			$params = is_array($this->_inputs['llm'][$llm_id] ?? null) ? $this->_inputs['llm'][$llm_id] : [];
+		}
+
+		$config = is_array($params['compaction'] ?? null) ? $params['compaction'] : [];
+
+		return $llm->getCompaction($config, intval($params['context_window'] ?? 0));
 	}
 
 		$tools = [];
@@ -767,7 +796,175 @@ class LlmAgentNode extends AbstractNode {
 				default => sprintf('The LLM turn ended without producing a response (finish_reason: %s).', $finish_reason),
 			});
 		}
+	}
+
+	/**
+	 * The built-in `/commands` this node honors, keyed by name. Shape mirrors `tools:` — `<type>/<name>:` —
+	 * but the body is optional, because opting in IS the configuration:
+	 *
+	 *   commands:
+	 *     command/compact:
+	 *
+	 * Deliberately NOT linked to the `agentPrompt` element's own `commands:` block. That one is a client-side
+	 * concern (what to OFFER, plus text aliases it expands before submitting); this one is what the node will
+	 * ACT on. An author can hint a command in the composer without the node honoring it, or honor one without
+	 * hinting it. Same intentional decoupling as `references:` vs `mounts:`.
+	 *
+	 * @return string[] Enabled command names.
+	 */
+	private function _getCommands() : array {
+		$commands = $this->_inputs['commands'] ?? [];
+
+		if(!is_array($commands))
+			return [];
+
+		$names = [];
+
+		foreach(array_keys($commands) as $key) {
+			list($type, $name) = array_pad(explode('/', strval($key), 2), 2, null);
+
+			// A bare `compact:` is as good as `command/compact:` — the type prefix exists for symmetry with
+			// `tools:`, not because there's a second type yet.
+			if(!$name) $name = $type;
+
+			$name = trim(strval($name));
+
+			if('' !== $name && in_array($name, self::getBuiltInCommands(), true))
+				$names[] = $name;
+		}
+
+		return $names;
+	}
+
+	// The commands the node itself implements. An author's arbitrary `/text` is NOT one of these — it stays in
+	// the message and reaches the model as ordinary prose, which is what makes an un-declared `/whatever` safe.
+	static function getBuiltInCommands() : array {
+		return ['compact'];
+	}
+
+	/**
+	 * `/compact` argument → how much verbatim tail to keep.
+	 *
+	 * HARD (the default, and any unrecognized argument) keeps NONE: everything folds into one summary. That's
+	 * what reaching for this deliberately means, and it's the only setting that reliably moves the number —
+	 * tool_use + tool_result routinely dominate a conversation (93% of one measured session), so "keep the last
+	 * few turns" keeps the bulk.
+	 *
+	 * SOFT applies the session's own automatic policy on demand.
+	 */
+	static function compactModeFor(string $args) : string {
+		return DevblocksPlatform::strLower(trim($args)) === 'soft' ? 'soft' : 'hard';
+	}
+
+	/**
+	 * The built-in command a fresh turn's inbound message is invoking, or ''. A command must be the LEADING
+	 * token of the message — `/compact` is an instruction to us, whereas "explain /compact" is conversation.
+	 *
+	 * Only consulted on a fresh `llm` turn, so a mid-tool-loop message can't trigger one.
+	 */
+	private function _detectCommand(?string &$args=null) : string {
+		$args = '';
+
+		if(!($enabled = $this->_getCommands()))
+			return '';
+
+		$messages = $this->_inputs['messages'] ?? [];
+
+		if(!is_array($messages) || !$messages)
+			return '';
+
+		$last = $messages[array_key_last($messages)];
+		$content = is_array($last) ? ($last['content'] ?? '') : $last;
+
+		// Content blocks (Anthropic shape) → the first text block carries the leading token.
+		if(is_array($content)) {
+			$text = '';
+
+			foreach($content as $block) {
+				if(is_array($block) && 'text' === ($block['type'] ?? '')) {
+					$text = strval($block['text'] ?? '');
+					break;
+				}
+			}
+
+			$content = $text;
+		}
+
+		if(!preg_match('/^\s*\/([a-z][a-z0-9_-]*)\b(.*)$/is', strval($content), $matches))
+			return '';
+
+		$name = DevblocksPlatform::strLower($matches[1]);
+
+		if(!in_array($name, $enabled, true))
+			return '';
+
+		// Everything after the command word is its argument line (`/compact soft`).
+		$args = trim(strval($matches[2] ?? ''));
+
+		return $name;
+	}
+
+	/**
+	 * Run a built-in command INSTEAD of a provider turn. It replaces the user/assistant exchange rather than
+	 * adding one: the `/compact` message is never appended to the history (it's an instruction to us, not
+	 * conversation), and no answer is generated.
+	 *
+	 * Routed through the same queue as a turn wherever the caller can await, because it mutates the session and
+	 * calls a provider — so it must not interleave with a real turn. Falls back to running inline where there's
+	 * no continuation to resume (the simulator, headless).
+	 */
+	private function _activateCommand(string $command, string $args, Model_Automation $automation, ?string &$error=null) : bool {
+		$session_id = $this->_dict->getKeyPath($this->_getSessionKey(), null, '::');
+
+		$this->_persistSessionConfig($session_id);
+
+		if($this->_shouldRunAsync($automation)) {
+			$queue = DevblocksPlatform::services()->queue();
+
+			if(!($uuids = $queue->enqueue('cerb.llm.agent.requests', [
+				['session_id' => $session_id, 'command' => $command, 'args' => $args],
+			], $error)))
+				throw new Exception_DevblocksAutomationError($error ?: 'Failed to enqueue the command.');
+
+			// Remember the head so the resume can tell a real fold from a no-op. The worker knows, but its
+			// result isn't readable from here — and a command that silently does nothing is exactly what a
+			// roomy context window produces (the tail budget can cover the whole conversation).
+			$head_before = ($session = \DAO_LlmAgentSession::get($session_id)) ? strval($session->head_uuid) : '';
+
+			$this->_node_memory['stack'][] = ['command_done', ['command' => $command, 'head' => $head_before]];
+
+			$this->_dict->set('__exit', 'await');
+			$this->_dict->set('__return', [
+				'queue' => [
+					'messages' => $uuids,
+				],
+			]);
+
+			return true;
+		}
+
+		$compacted = false;
+
+		if('compact' === $command && !DevblocksPlatform::services()->llm()->compactSession($session_id, $error, $compacted, self::compactModeFor($args)))
+			throw new Exception_DevblocksAutomationError($error ?: 'The compaction failed.');
+
+		$this->_applyCommandResult($command, $session_id, $compacted);
+
+		return true;
+	}
+
+
+	// A command's node output. Deliberately the same envelope a turn produces (so an author's `on_success:`
+	// doesn't branch on shape) with `messages: []` — a command generates no answer — plus what ran.
+	private function _applyCommandResult(string $command, ?string $session_id, bool $compacted) : void {
+		$this->_dict->set($this->_output, array_merge([
+			'session_id' => $session_id,
+			'messages' => [],
 			'finish_reason' => '',
+			'command' => $command,
+			'compacted' => $compacted,
+		], $this->_resolvedModelInfo($session_id)));
+	}
 
 	// The shared-cache key for a pending user interrupt of a given agent session. Cache (not the continuation
 	// dict) so the `interruptAgent` action can raise it out-of-band while the agent runs, with no read-modify-write

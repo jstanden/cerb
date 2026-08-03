@@ -1022,7 +1022,306 @@ class _DevblocksLlmService {
 	function getMemoryStore(string $session_id) : Extension_DevblocksLlmMemoryStore {
 		return new DatabaseHistory($session_id);
 	}
+
+	/**
+	 * Build the (one) context-management strategy from a model's `compaction:` config. Compaction is
+	 * per target-model, so this config lives inside the `llm:<provider>:` block (carried on the session's
+	 * provider_params and resumed with it), not as a sibling input. The ONLY knobs are RATIOS — fractions
+	 * of the model's `context_window` — so a config is turnkey across models and never needs absolute
+	 * token math (that's what a from-scratch harness is for). Omitted entirely → summarize at 90%, keep a
+	 * ~5% verbatim tail.
+	 *
+	 *   llm:
+	 *     anthropic:
+	 *       model: claude-sonnet-5
+	 *       context_window: 200000
+	 *       compaction:
+	 *         summarize@bool: yes      # no → truncate to the tail instead of summarizing
+	 *         context_ratio: 0.9       # summarize when the window passes 90% of context_window
+	 *         tail_ratio: 0.05         # keep the last ~5% of context_window verbatim after the summary (0 = none)
+	 */
+	function getCompaction(array $config, int $context_window=0) : \Cerb\LLM\History\Compaction {
+		$summarize = !array_key_exists('summarize', $config) || !empty($config['summarize']);
+
+		$context_window = $context_window > 0 ? $context_window : 150000;
+
+		// context_ratio in [0,1]; 0 = always compact (threshold floored to 1 token below). Omitted or
+		// out-of-range → the 0.9 default.
+		$context_ratio = isset($config['context_ratio']) ? floatval($config['context_ratio']) : 0.9;
+		if($context_ratio < 0 || $context_ratio > 1) $context_ratio = 0.9;
+
+		// tail_ratio in [0,1]; 0 = no verbatim tail (pure summary handoff).
+		$tail_ratio = isset($config['tail_ratio']) ? floatval($config['tail_ratio']) : 0.05;
+		if($tail_ratio < 0 || $tail_ratio > 1) $tail_ratio = 0.05;
+
+		$threshold = intval(round($context_ratio * $context_window));
+		$keep_tail = intval(round($tail_ratio * $context_window));
+
+		return new \Cerb\LLM\History\Compaction(max(1, $threshold), max(0, $keep_tail), $summarize);
+	}
 	
+
+	/**
+	 * Compact a session NOW, regardless of how full its context is — what `/compact` runs.
+	 *
+	 * Not a new mechanism: auto-compaction already happens at a turn boundary, so this is the same
+	 * `Compaction::selectMessages()` with the threshold forced to 0 (always over budget). It mints the WORM
+	 * boundary exchange, re-appends the verbatim tail, and advances the head — so the session keeps the same
+	 * model/system_prompt/tools (and their cached prefix) and only its MESSAGES are replaced by the summary.
+	 *
+	 * Returns false with `$error` when it can't run; `$compacted` reports whether anything actually folded (a
+	 * conversation whose tail already covers the whole window has nothing older to fold — a no-op, not a
+	 * failure).
+	 */
+	function compactSession(string $session_id, ?string &$error=null, ?bool &$compacted=null, string $mode='hard') : bool {
+		$compacted = false;
+
+		if(!($session = DAO_LlmAgentSession::get($session_id)) || !$session->provider) {
+			$error = 'The LLM session is unknown or has no provider.';
+			return false;
+		}
+
+		$params = is_array($session->provider_params) ? $session->provider_params : [];
+
+		if(!array_key_exists('cache', $params))
+			$params['cache'] = true;
+
+		if(!($provider = $this->getProvider($session->provider, $params, false))) {
+			$error = 'The LLM session has no usable provider.';
+			return false;
+		}
+
+		// The session's OWN compaction policy (summarize on/off), with the WHEN forced — and, for `hard`, the
+		// verbatim tail dropped too.
+		//
+		// HARD is the default because that's what reaching for this on purpose means. A verbatim tail keeps
+		// exactly what makes a conversation expensive: in a measured session, tool_use + tool_result were
+		// **93%** of 20,783 tokens (text was 1,381). Keeping "the last few turns" therefore keeps the bulk, and
+		// the fold barely moves the number. `keep_tail=0` is an established mode, not a special case — a
+		// provider switch is the same primitive with no tail.
+		//
+		// SOFT is the automatic policy applied on demand: the session's configured `tail_ratio`. But that ratio
+		// is a fraction of the MODEL's window, not the conversation's, so on a roomy model it routinely swallows
+		// the whole chat (0.05 × 500K = a 25K tail vs a 20.7K conversation → nothing is "older"). Right for
+		// automatic compaction, which only fires near the ceiling; useless as an answer to an explicit request.
+		// So `soft` falls back to a tail sized to the CURRENT window — keep the most recent quarter.
+		$context_window = intval($params['context_window'] ?? 0);
+		$config = is_array($params['compaction'] ?? null) ? $params['compaction'] : [];
+		$config['context_ratio'] = 0;
+
+		if('soft' !== $mode)
+			$config['tail_ratio'] = 0;
+
+		$compaction = $this->getCompaction($config, $context_window);
+		$memory_store = $this->getMemoryStore($session_id);
+
+		// Ask first so we can report a no-op honestly rather than claiming a compaction that didn't happen.
+		$plan = $compaction->plan($memory_store);
+
+		if('soft' === $mode && empty($plan['compacted']) && 'tail_covers_all' === ($plan['reason'] ?? '')) {
+			$tokens = intval($plan['tokens'] ?? 0);
+			$window = $context_window > 0 ? $context_window : 150000;
+
+			if($tokens > 0) {
+				$config['tail_ratio'] = max(0.0, min(1.0, ($tokens / 4) / $window));
+
+				$compaction = $this->getCompaction($config, $window);
+				$plan = $compaction->plan($memory_store);
+			}
+		}
+
+		if(empty($plan['compacted']))
+			return true;
+
+		$compaction->selectMessages($memory_store, $provider);
+		$compacted = true;
+
+		return true;
+	}
+
+	// The live-compaction directive. "Do not use tools" is load-bearing: the tool schemas MUST stay in the
+	// request (they're part of the cached prefix — removing them is what would force a full-price miss), so the
+	// model is told not to call them rather than having them taken away.
+	const SUMMARIZE_INLINE_PROMPT = "Summarize this conversation so far into a compact briefing that preserves: the user's goals and constraints, key decisions and their rationale, established facts, tool results that still matter, and any open threads or next steps.\nOmit greetings and redundant chatter. Write in the third person. Do not invent information.\nDo not use tools. Reply with the briefing text and nothing else.";
+
+	/**
+	 * LIVE compaction: summarize a session's active window through its OWN WARM PREFIX — same system prompt,
+	 * same tool schemas, same native messages — plus one appended instruction turn, run through `NoHistory` so
+	 * it persists nothing.
+	 *
+	 * Why not summarizeMessages() here: that one FLATTENS the span to text under its own system prompt with no
+	 * tools, so the serialized prefix matches nothing the agent sent and the provider cache cannot hit. Live
+	 * compaction fires at ~90% of the context window — the moment the conversation is longest — so a miss there
+	 * re-reads the whole thing at full input price. Sending the real prefix bills the bulk at the cache-read
+	 * rate instead. (summarizeMessages() remains correct for the ARCHIVE path — a provider/model switch, where
+	 * the cache is cold anyway and the point is a neutral briefing that outlives the native format.)
+	 *
+	 * Returns '' when it can't run or produced nothing, so the caller can fall back.
+	 *
+	 * @param array $native_messages The window in provider-native shape — exactly what the agent sends.
+	 * @param array|null $usage Out-param: the turn's neutral usage vector, so a caller can SHOW whether the
+	 *                          cache actually hit (`cache_read` carrying the bulk vs a fat `input`). A prefix
+	 *                          mismatch is otherwise silent and expensive.
+	 */
+	function summarizeSessionWindow(Extension_DevblocksLlmProvider $provider, string $session_id, array $native_messages, string $instructions='', ?array &$usage=null) : string {
+		$usage = null;
+
+		if('' === $session_id || !$native_messages || !($session = DAO_LlmAgentSession::get($session_id)))
+			return '';
+
+		// `cerb_*` markers are ours, not the provider's — they'd be unknown fields on the wire. The live
+		// compaction caller already strips them; do it here too so every caller is safe.
+		$native_messages = array_map(
+			fn($m) => is_array($m) ? array_filter($m, fn($k) => !str_starts_with($k, 'cerb_'), ARRAY_FILTER_USE_KEY) : $m,
+			$native_messages
+		);
+
+		// Trim back to the last ASSISTANT turn. Two reasons, one mechanism: the cached prefix ends at the last
+		// assistant turn (the rolling breakpoint is written there), and appending our user instruction after a
+		// trailing user message would put two user turns back to back — which Anthropic rejects with a 400.
+		while($native_messages && 'assistant' !== ($native_messages[array_key_last($native_messages)]['role'] ?? ''))
+			array_pop($native_messages);
+
+		if(!$native_messages)
+			return '';
+
+		$native_messages[] = [
+			'role' => 'user',
+			'content' => ('' !== trim($instructions)) ? $instructions : self::SUMMARIZE_INLINE_PROMPT,
+		];
+
+		// Re-resolve the provider with the rolling cache breakpoint moved back ONE message, so our appended
+		// instruction stays outside the cached region. Same credentials and knobs otherwise.
+		//
+		// Why one and not zero: caching THROUGH the instruction mints `tools + system + conversation +
+		// instruction`, which nothing can reuse (compaction replaces the history; the preview is one-shot) —
+		// measured as a 32K 1h write. Why not drop the breakpoint entirely: measured at **14% cached**, because
+		// hit lookback runs backward from a breakpoint and the system marker renders before every message, so it
+		// can't reach a message-level entry.
+		//
+		// One back lands on the window's last real message — the same position an ordinary agent turn caches, so
+		// the read uses the mechanism that already works turn to turn. On a warm session that's a read plus a
+		// small delta; on a cold one it writes the window, which the next real turn can still read.
+		//
+		// Falls back to the passed-in provider if re-resolution fails, so a summary is never lost to this.
+		$sidecar_params = is_array($session->provider_params) ? $session->provider_params : [];
+		$sidecar_params['cache'] = true;
+		$sidecar_params['cache_tail_skip'] = 1;
+
+		// ...and place that message breakpoint ONLY when a read is plausible. On a session whose cache has
+		// certainly lapsed there is nothing to read, so a breakpoint buys nothing and costs a full-window write
+		// (measured: 28,023 tokens at 1h on a >1h-old transcript — pure waste, since compaction is about to
+		// replace this history anyway). The stable tools+system marker still reads either way.
+		//
+		// `updated_at` is stamped every turn, so elapsed-since-last-turn vs the model's own cache TTL is the
+		// cheapest honest predictor we have. Erring toward OFF is the right bias: a missed read costs one
+		// full-price prompt we were going to pay on a cold session regardless, while a needless write is a
+		// strict surcharge on top of it.
+		// Gate on the SESSION's own TTL — that's the lifetime the agent's entry was written at, so it decides
+		// whether there's anything left to read. Must be read before the write-TTL override below.
+		$cache_ttl_secs = intval($provider->getCacheHintSeconds($sidecar_params) ?? 0);
+		$idle_secs = max(0, time() - intval($session->updated_at));
+
+		$sidecar_params['cache_tail'] = ($cache_ttl_secs > 0 && $idle_secs < $cache_ttl_secs);
+
+		// Whatever we DO write, write it cheap. A 1h write bills ~2x base vs ~1.25x for 5m, and neither caller
+		// needs an hour:
+		//   - true compaction ORPHANS it immediately — the next turn sends `[summary exchange] + tail`, so the
+		//     prefix diverges at the first message and nothing ever reads this entry;
+		//   - the dev preview persists nothing, so the session continues and the NEXT real turn can read it —
+		//     but that turn is minutes away, not an hour.
+		// Reading a 1h entry while writing a 5m one is fine, and already how this provider behaves: the stable
+		// tools+system breakpoint is hardcoded 1h while the rolling tail follows `cache_ttl`.
+		$sidecar_params['cache_ttl'] = '5m';
+
+		$provider = $this->getProvider($session->provider, $sidecar_params, false) ?: $provider;
+
+		try {
+			$response = $provider->chatCompletion(
+				$native_messages,
+				strval($session->system_prompt),
+				array_values($this->getSessionToolSchemas($session)),
+				new \Cerb\LLM\MemoryStore\NoHistory()
+			);
+
+			// A tool call in the reply is ignored on purpose — the schemas are only present to keep the prefix
+			// identical, and we asked for text. No text at all → let the caller fall back.
+			$summary = '';
+			foreach($response->getMessages() as $block)
+				$summary .= ($block['content'] ?? '');
+
+			if('' !== trim($summary))
+				$usage = $response->getUsage();
+
+			return trim($summary);
+
+		} catch(\Throwable $e) {
+			return '';
+		}
+	}
+
+	/**
+	 * ARCHIVE summarization: flatten a span of native messages into provider-NEUTRAL briefing text via an
+	 * isolated NoHistory sub-call (so the summarization turn doesn't pollute the session). Renders through the
+	 * provider's neutral projection first so tool-call/result pairing can't break the sub-call; falls
+	 * back to a truncated raw transcript if the call fails. Used to mint summary roots on a provider
+	 * switch — where the cache is cold regardless and a NEUTRAL briefing is the point, because it has to
+	 * outlive the native format. `$instructions` overrides the default summarization directive (per-workflow
+	 * steering / the dev preview's editable prompt).
+	 *
+	 * For live/chat-time compaction use summarizeSessionWindow() instead — see the note there.
+	 *
+	 * @param Model_LlmAgentMessage[] $models
+	 */
+	function summarizeMessages(Extension_DevblocksLlmProvider $provider, array $models, string $instructions='') : string {
+		if(!$models)
+			return '';
+
+		$lines = [];
+		foreach($models as $model) {
+			$response = $provider->convertToGenericMessage($model->data, $model->uuid);
+			$role = $response->getRole() ?: ($model->role ?: 'message');
+
+			foreach($response->getMessages() as $block) {
+				if('' !== trim($block['content'] ?? ''))
+					$lines[] = sprintf('[%s] %s', $role, $block['content']);
+			}
+			foreach($response->getToolCalls() as $tool)
+				$lines[] = sprintf('[tool_call] %s(%s)', $tool->getName(), json_encode($tool->getParameters()));
+			foreach($response->getToolResults() as $tool_id => $result) {
+				$result = is_array($result) ? json_encode($result) : strval($result);
+				$lines[] = sprintf('[tool_result:%s] %s', $tool_id, $result);
+			}
+		}
+		$transcript = implode("\n", $lines);
+
+		$system_prompt = ('' !== trim($instructions)) ? $instructions : implode("\n", [
+			"You compact a conversation transcript to preserve context across a long agent session.",
+			"Summarize the transcript below into a compact briefing that retains: the user's goals and constraints, key decisions and their rationale, established facts, tool results that still matter, and any open threads or next steps.",
+			"Omit greetings and redundant chatter. Write in the third person. Do not invent information.",
+		]);
+
+		try {
+			$response = $provider->chatCompletion(
+				[['role' => 'user', 'content' => "Transcript to summarize:\n\n" . $transcript]],
+				$system_prompt,
+				[],
+				new \Cerb\LLM\MemoryStore\NoHistory()
+			);
+
+			$summary = '';
+			foreach($response->getMessages() as $block)
+				$summary .= ($block['content'] ?? '');
+
+			if('' !== trim($summary))
+				return $summary;
+		} catch(\Throwable $e) {
+			// fall through to the truncated transcript
+		}
+
+		return mb_substr($transcript, 0, 4000);
+	}
+
 	function getToolSchemaForAutomation(string $tool_name, array $tool, string $schema_key='parameters') : ?array {
 		if(!array_key_exists('uri', $tool))
 			return null;

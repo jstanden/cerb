@@ -1443,6 +1443,12 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 						'score' => 2000,
 					],
 					[
+						'caption' => 'commands:',
+						'snippet' => "commands:\n\tcommand/\${1:compact}:",
+						'score' => 1996,
+						'docHTML' => 'Built-in <b>/commands</b> this agent honors, opted in by bare key (<code>command/compact:</code>). A command is only acted on when it LEADS the user\'s message, and it replaces that turn rather than preceding it &mdash; the message is never added to the conversation and no answer is generated. Off by default and per-node: an undeclared <code>/whatever</code> just reaches the model as ordinary text. Unrelated to the <code>agentPrompt</code> element\'s own <code>commands:</code>, which only decides what the composer OFFERS.',
+					],
+					[
 						'caption' => 'system_prompt:',
 						'snippet' => "system_prompt@text:\n\t\${1:You are a helpful AI assistant.}",
 						'score' => 1999,
@@ -1504,7 +1510,20 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				// Per-provider `llm:<provider>:` params autocomplete (model lists + knobs) — sourced from the
 				// LLM provider extensions and looped by prefix, so it isn't duplicated here.
 				...DevblocksPlatform::services()->llm()->getKataProviderAutocomplete('(.*):llm.agent:inputs:llm:'),
+
+					// `model:` reference grammar — the configured `agent_model` names, and under each name that
+					// record's OWN provider knobs. Looped over the records, so a new model shows up on reload.
+					...DevblocksPlatform::services()->llm()->getKataAgentModelAutocomplete('(.*):llm.agent:inputs:model:'),
 				
+				'(.*):llm.agent:inputs:commands:' => [
+					[
+						'caption' => 'command/compact:',
+						'snippet' => "command/compact:",
+						'score' => 2000,
+						'docHTML' => '<b>/compact</b> &mdash; fold the conversation into a summary NOW, instead of waiting for the context threshold. Runs the session\'s own compaction policy with only the WHEN forced, so the model, system prompt and tools (and their cached prefix) are untouched &mdash; only the messages are replaced. Mostly useful for testing compaction on demand.',
+					],
+				],
+
 				'(.*):llm.agent:inputs:messages:' => [
 					[
 						'caption' => 'message:',
