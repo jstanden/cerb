@@ -717,6 +717,28 @@ class _DevblocksLlmService {
 	}
 
 	/**
+	 * The `display:` sub-block — the model's brand mark and friendly name for transcripts and pickers. It's a
+	 * CERB-side concern rather than a provider knob (providers read `$_params` by key and never see it), so
+	 * it's advertised HERE for every provider instead of being repeated in each getChatKataAutocomplete().
+	 * Chat only: it exists to label a conversation, and an embedding call has none.
+	 */
+	private function _getDisplayKataAutocomplete() : array {
+		return [
+			'keys' => [
+				[
+					'caption' => 'display:',
+					'snippet' => "display:\n\ticon: \${1:bot}",
+					'docHTML' => '<b>display:</b> Override the brand mark and name this model reads as in transcripts and pickers. Useful when an OpenAI-compatible endpoint (llama.cpp, z.ai, Qwen) serves another vendor\'s model, so the provider id can\'t name it. Never sent to the provider.',
+				],
+			],
+			'values' => [
+				'display:' => ['name:', 'icon:', 'icon_color:'],
+				'display:icon:' => ['type' => 'icon'],
+			],
+		];
+	}
+	
+	/**
 	 * Build the KATA autocomplete for an `llm:<provider>:` params block, looped over the chat providers
 	 * and re-keyed under $prefix (which must end in `:` — e.g. `(.*):llm.agent:inputs:llm:` or
 	 * `(.*):await:form:elements:agentPrompt:models:(.*?):`). Each provider's block (model/auth/knobs +
@@ -733,6 +755,13 @@ class _DevblocksLlmService {
 	 */
 	function getKataProviderAutocomplete(string $prefix, string $mode = 'chat', array $extra_keys = [], array $extra_values = []) : array {
 		$is_embedding = ('embedding' === $mode);
+
+		if(!$is_embedding) {
+			$display = $this->_getDisplayKataAutocomplete();
+			$extra_keys = array_merge($extra_keys, $display['keys']);
+			$extra_values = array_merge($extra_values, $display['values']);
+		}
+
 		$interface = $is_embedding
 			? \Cerb\LLM\Providers\Interfaces\Embedding::class
 			: \Cerb\LLM\Providers\Interfaces\Chat::class;

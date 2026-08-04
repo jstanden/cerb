@@ -33,7 +33,8 @@ class PageSection_SetupDevelopersLlmAgentTranscripts extends Extension_PageSecti
 		$visit->set(ChConfigurationPage::ID, 'llm_agent_transcripts');
 		
 		$limit = 100;
-		$transcripts = DAO_LlmAgentSession::search($limit);
+		// Default to active (unarchived) transcripts only — a small, auditable list, not everything.
+		$transcripts = DAO_LlmAgentSession::search($limit, false);
 		
 		$tpl->assign('limit', $limit);
 		$tpl->assign('transcripts', $transcripts);
@@ -79,12 +80,14 @@ class PageSection_SetupDevelopersLlmAgentTranscripts extends Extension_PageSecti
 		
 		$before_id = DevblocksPlatform::importGPC($_POST['before_id'] ?? null, 'string', '');
 		$limit = DevblocksPlatform::importGPC($_POST['limit'] ?? null, 'integer', 0);
-		$is_unread = DevblocksPlatform::importGPC($_POST['is_unread'] ?? null, 'bool', false);
-		
+		// 'active' (default) = unarchived only, 'archived' = archived only.
+		$filter = DevblocksPlatform::importGPC($_POST['filter'] ?? null, 'string', 'active');
+		$is_read = ('archived' == $filter);
+
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
-		
+
 		try {
-			$transcripts = DAO_LlmAgentSession::search($limit ?: 100, $is_unread, $before_id);
+			$transcripts = DAO_LlmAgentSession::search($limit ?: 100, $is_read, $before_id);
 			
 			$tpl->assign('limit', $limit);
 			$tpl->assign('transcripts', $transcripts);
@@ -127,25 +130,191 @@ class PageSection_SetupDevelopersLlmAgentTranscripts extends Extension_PageSecti
 			if(!($llm_provider = $llm->getProvider($llm_session->provider, [], validate: false)))
 				throw new Exception_DevblocksAjaxValidationError('Invalid LLM provider.');
 			
-			if(!($messages = DAO_LlmAgentMessage::getMessagesBySession($transcript_id, 250)))
-				$messages = [];
-			
-			// Convert the messages into a neutral format using providers
-			$messages = array_map(fn($message) => $llm_provider->convertToGenericMessage($message->data, $message->uuid), $messages);
-			
-			$tpl->assign('filter_links', new \Cerb_HTMLPurifier_URIFilter_Extract());
-			
+			if(!($raw_messages = DAO_LlmAgentMessage::getMessagesBySession($transcript_id, 250)))
+				$raw_messages = [];
+
+			// Group messages into turns for display: each user message is its own panel; a run of
+			// agent/tool messages (one prompt's worth of LLM round-trips) collapses into a single
+			// agent panel. Tool-result messages render inline under their originating tool call, and
+			// each turn keeps first/last timestamps so the viewer can show idle gaps (e.g. resumes).
+			$tool_results = [];
+			$turns = [];
+
+			// Neutral usage accumulates per turn (over each turn's assistant round-trips) and per session.
+			$zero_usage = DAO_LlmAgentMessage::USAGE_ZERO;
+			$session_usage = $zero_usage;
+			$add_usage = static fn(array $a, array $b) : array => DAO_LlmAgentMessage::addUsage($a, $b);
+
+			// A tool's elapsed time is the gap between the message carrying its CALL and the one carrying its
+			// RESULT — both insert times, so it's the round trip as the session experienced it.
+			$tool_call_at = [];
+			$tool_result_at = [];
+
+			foreach($raw_messages as $model) {
+				$neutral = $llm_provider->convertToGenericMessage($model->data, $model->uuid);
+
+				$model_at = ($model->created_at * 1000000) + $model->created_at_usec;
+
+				foreach($neutral->getToolResults() as $tool_id => $tool_result) {
+					$tool_results[$tool_id] = $tool_result;
+					$tool_result_at[$tool_id] = $model_at;
+				}
+
+				foreach($neutral->getToolCalls() as $tool_call)
+					$tool_call_at[$tool_call->getId()] = $model_at;
+
+				if('tool' === $neutral->getRole())
+					continue;
+
+				// The boundary node (role=user, kind=summary) is a real user turn — SHOWN — but flagged as a
+				// compaction checkpoint so the viewer marks where earlier turns were folded (the terminal
+				// ancestor). Its assistant answer (kind=text) follows as a normal agent turn.
+				if('summary' === $model->kind) {
+					$turns[] = [
+						'role' => 'user',
+						'is_checkpoint' => true,
+						'messages' => [$neutral],
+						'ts_first' => $model->created_at,
+						'ts_last' => $model->created_at,
+						'seq_last' => $model->seq,
+						'usage' => $zero_usage,
+					];
+					continue;
+				}
+
+				$group_role = ('user' === $neutral->getRole()) ? 'user' : 'agent';
+				$last = count($turns) - 1;
+
+				// A user message always opens a new panel; agent messages accrete into the open one.
+				if($last < 0 || 'user' === $group_role || 'agent' !== $turns[$last]['role']) {
+					$turns[] = [
+						'role' => $group_role,
+						'messages' => [$neutral],
+						'ts_first' => $model->created_at,
+						'ts_last' => $model->created_at,
+						'seq_last' => $model->seq,
+						'usage' => $zero_usage,
+					];
+					$idx = count($turns) - 1;
+				} else {
+					$turns[$last]['messages'][] = $neutral;
+					$turns[$last]['ts_last'] = $model->created_at;
+					$turns[$last]['seq_last'] = $model->seq;
+					$idx = $last;
+				}
+
+				// Real API usage rides assistant turns (user/tool/summary carry none → these are no-op adds).
+				// Per-turn: FOLD (output sums, prompt side = the turn's final round-trip) so a multi-tool turn
+				// shows its real context, not the sum of every re-sent (cached) prompt. Session: a true cumulative
+				// total of every billed token.
+				$turns[$idx]['usage'] = DAO_LlmAgentMessage::foldTurnUsage($turns[$idx]['usage'], $model->usage);
+				$session_usage = $add_usage($session_usage, $model->usage);
+
 				// Why the LAST reporting round-trip in this turn stopped. Last-non-empty-wins: an agent turn is
 				// several round-trips (the tool loop) and it's the final one that says how the turn ended.
 				if('' !== $model->finish_reason)
 					$turns[$idx]['finish_reason'] = $model->finish_reason;
+			}
+
+			// Detect tool results that are valid JSON objects/arrays and pre-format them (pretty-print) so
+			// the template can promote them to a read-only CerbUI.JsonEditor (folding + highlighting). Scalars
+			// and plain-text results are skipped — they stay as a <pre> (with the collapsible for long ones).
+			$tool_results_json = [];
+			foreach($tool_results as $tool_id => $result_text) {
+				$decoded = json_decode($result_text, true);
+				if(is_array($decoded) && json_last_error() === JSON_ERROR_NONE)
+					$tool_results_json[$tool_id] = json_encode($decoded, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+			}
+
+			// Idle gap between consecutive turns (surfaces resume switchovers).
+			$prev_last_ts = null;
+			foreach($turns as $i => $turn) {
+				$gap = ($prev_last_ts !== null) ? max(0, $turn['ts_first'] - $prev_last_ts) : 0;
+				$turns[$i]['gap'] = $gap;
+				$turns[$i]['gap_label'] = $this->_transcriptGapLabel($gap);
+				$prev_last_ts = $turn['ts_last'];
+			}
+
+			// Derive prompt total + cache-coverage % in PHP (keep the template dumb).
+			$session_usage = DAO_LlmAgentMessage::deriveUsage($session_usage);
+			foreach($turns as $i => $turn) {
+				$turns[$i]['usage'] = DAO_LlmAgentMessage::deriveUsage($turn['usage'] ?? $zero_usage);
 				// The turn ended abnormally — its content is cut off (`length`) or was withheld (`filter`). Flagged
 				// so a reader isn't left guessing why an answer stops mid-sentence.
 				$turns[$i]['is_truncated'] = in_array($turn['finish_reason'] ?? '', ['length', 'filter'], true);
+			}
+
+			// Message counts by KIND (provider-agnostic — Anthropic tool results are role=user, so count on kind):
+			// tool_result → tools; real user text → user; assistant → agent (the synthetic summary boundary is
+			// excluded from all).
+			$message_counts = ['user' => 0, 'agent' => 0, 'tools' => 0];
+			foreach($raw_messages as $model) {
+				if('tool_result' === $model->kind)
+					$message_counts['tools']++;
+				elseif('user' === $model->role && 'summary' !== $model->kind)
+					$message_counts['user']++;
+				elseif('assistant' === $model->role)
+					$message_counts['agent']++;
+			}
+
+			// Sanitize links to the `#cerb-external-link` + click-to-confirm popup (matches email display /
+			// sheets). NOT URIFilter_Extract — that rewrites links to dead `#uri-<code>` anchors.
+			$tpl->assign('filter_links', new \Cerb_HTMLPurifier_URIFilter_Email(true));
+
+			// Resolve the model + authentication connected account for the header (primed sessions only —
+			// a not-yet-primed/migrated one has NULL provider_params, so we simply omit these fields).
+			$auth_account = null;
+			if($llm_session->isPrimed() && ($auth_uri = strval($llm_session->provider_params['authentication'] ?? ''))) {
+				$uri_parts = DevblocksPlatform::services()->ui()->parseURI($auth_uri);
+				$auth_cid = $uri_parts['context_id'] ?? '';
+				$auth_account = is_numeric($auth_cid) ? DAO_ConnectedAccount::get($auth_cid) : DAO_ConnectedAccount::getByUri($auth_cid);
+			}
+
+			// Resolve `automation` tools' `cerb:automation:<name>` URIs to their records so the transcript's Tools
+			// section can peek them (keyed by tool alias, e.g. `tool96`). Batched to one query via getByUris.
+			$tool_map = $llm_session->getToolMap();
+			$tool_automations = [];
+
+			$tool_uris = array_filter(array_map(
+				fn($tool) => ('automation' == $tool['type'] && $tool['uri']) ? $tool['uri'] : null,
+				$tool_map
+			));
+
+			if($tool_uris) {
+				$by_uri = DAO_Automation::getByUris(array_values($tool_uris));
+				$resolved = [];
+				foreach($by_uri as $automation) /* @var $automation Model_Automation */
+					$resolved['cerb:automation:' . $automation->name] = $automation;
+
+				foreach($tool_uris as $tool_name => $uri)
+					if(isset($resolved[$uri]))
+						$tool_automations[$tool_name] = $resolved[$uri];
+			}
+
+			$tpl->assign('tool_map', $tool_map);
+			$tpl->assign('tool_automations', $tool_automations);
+
 			$tpl->assign('llm_session', $llm_session);
 			$tpl->assign('llm_session_automation', $llm_session->getAutomation());
 			$tpl->assign('llm_session_user', $llm_session->getUser());
-			$tpl->assign('messages', $messages);
+			$tpl->assign('llm_session_auth', $auth_account);
+			$tpl->assign('turns', $turns);
+			// Milliseconds per tool call. Only where BOTH ends are known — a call with no result yet has no
+			// duration to report.
+			$tool_durations = [];
+
+			foreach($tool_result_at as $tool_id => $ended_at) {
+				if(!array_key_exists($tool_id, $tool_call_at))
+					continue;
+
+				$tool_durations[$tool_id] = intdiv(max(0, $ended_at - $tool_call_at[$tool_id]), 1000);
+			}
+
+			$tpl->assign('tool_results', $tool_results);
+			$tpl->assign('tool_durations', $tool_durations);
+			$tpl->assign('tool_results_json', $tool_results_json);
+			$tpl->assign('session_usage', $session_usage);
+			$tpl->assign('message_counts', $message_counts);
 			$html = $tpl->fetch('devblocks:cerberusweb.core::configuration/section/developers/llm-agent-transcripts/transcript.tpl');
 			
 			echo json_encode([

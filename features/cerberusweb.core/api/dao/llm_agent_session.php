@@ -39,9 +39,6 @@ class DAO_LlmAgentSession {
 
 	public static function create(Model_LlmAgentSession $model) : ?Model_LlmAgentSession {
 		$db = DevblocksPlatform::services()->database();
-		
-		$sql = sprintf("INSERT INTO llm_agent_session (`uuid`,`provider`,`created_at`,`automation_id`,`automation_node`,`user_type`,`user_id`,`user_ip`,`is_read`) ".
-			"VALUES (UUID_TO_BIN(%s), %s, %d, %d, %s, %s, %d, %s, %d)",
 
 		// Denormalized config goes to the content-addressed store; the session holds only the hash reference.
 		// NULL preserves today's "absent" semantics: no prompt / no tools, and — for mounts — a filesystem that
@@ -49,9 +46,15 @@ class DAO_LlmAgentSession {
 		$system_prompt_hash = ('' !== $model->system_prompt) ? self::_storeProperty($model->system_prompt) : null;
 		$tools_hash = $model->tools ? self::_storeProperty(json_encode($model->tools)) : null;
 		$mounts_hash = is_null($model->mounts) ? null : self::_storeProperty(json_encode($model->mounts));
+
+		$sql = sprintf("INSERT INTO llm_agent_session (`uuid`,`provider`,`provider_params`,`head_uuid`,`created_at`,`updated_at`,`token_usage`,`automation_id`,`automation_node`,`agent_id`,`user_type`,`user_id`,`user_ip`,`is_read`,`system_prompt_hash`,`tools_hash`,`mounts_hash`) ".
+			"VALUES (UUID_TO_BIN(%s), %s, %s, %s, %d, %d, %d, %d, %s, %d, %s, %d, %s, %d, %s, %s, %s)",
 			$db->qstr($model->uuid),
 			$db->qstr($model->provider),
+			$model->provider_params ? $db->qstr(json_encode($model->provider_params)) : 'NULL',
+			$model->head_uuid ? sprintf('UUID_TO_BIN(%s)', $db->qstr($model->head_uuid)) : 'NULL',
 			$model->created_at,
+			$model->updated_at ?: $model->created_at,
 			$model->token_usage,
 			$model->automation_id,
 			$db->qstr($model->automation_node),
@@ -346,9 +349,11 @@ class DAO_LlmAgentSession {
 	/**
 	 * @return Model_LlmAgentSession[]
 	 */
-	public static function search(int $limit=25, bool $is_unread=false, string $before_id='') : array {
+	// $is_read: false = active/unarchived only (is_read=0, default), true = archived only (is_read=1),
+	// null = both.
+	public static function search(int $limit=25, ?bool $is_read=false, string $before_id='') : array {
 		$db = DevblocksPlatform::services()->database();
-		
+
 		if($before_id) {
 			$before_session = DAO_LlmAgentSession::get($before_id);
 		} else {
@@ -363,10 +368,10 @@ class DAO_LlmAgentSession {
 			"WHERE 1 ".
 			"%s ".
 			"%s ".
-			"ORDER BY created_at DESC ".
+			"ORDER BY s.updated_at DESC ".
 			"LIMIT %d",
-			($is_unread ? 'AND is_read = 0' : ''),
-			($before_session ? sprintf('AND created_at < %d', $before_session->created_at) : ''),
+			(is_null($is_read) ? '' : sprintf('AND s.is_read = %d', $is_read ? 1 : 0)),
+			($before_session ? sprintf('AND s.updated_at < %d', $before_session->updated_at) : ''),
 			$limit
 		);
 		
@@ -414,7 +419,10 @@ class DAO_LlmAgentSession {
 class Model_LlmAgentSession {
 	public string $uuid = '';
 	public string $provider = '';
+	public array $provider_params = [];
+	public string $head_uuid = '';
 	public int $created_at = 0;
+	public int $updated_at = 0;
 	public int $token_usage = 0;
 	public int $automation_id = 0;
 	public string $automation_node = '';
@@ -435,6 +443,43 @@ class Model_LlmAgentSession {
 		$this->uuid = $uuid ?: DevblocksPlatform::services()->string()->uuid();
 		$this->created_at = time();
 		$this->user_ip = DevblocksPlatform::getClientIp();
+		$this->updated_at = $this->created_at;
+	}
+	
+	// The model id lives inside provider_params now (no dedicated column); this is the display/worklist accessor.
+	public function getModel() : string {
+		return strval($this->provider_params['model'] ?? '');
+	}
+
+	/**
+	 * Display identity, read from the `display:` block STAMPED into provider_params when the session was
+	 * primed — never from the `agent_model` record, which may since have been renamed, re-pointed, or deleted.
+	 * That's the point: a transcript is a history, so it keeps showing the vendor it actually ran as.
+	 *
+	 * Falls back to the provider's own brand mark, so a session primed from an inline `llm:` block (which has
+	 * no record behind it) still reads as its vendor.
+	 */
+	public function getDisplayIcon() : string {
+		return trim(strval($this->provider_params['display']['icon'] ?? ''))
+			?: DevblocksPlatform::services()->llm()->getProviderIcon($this->provider);
+	}
+
+	public function getDisplayIconColor() : string {
+		return trim(strval($this->provider_params['display']['icon_color'] ?? ''))
+			?: DevblocksPlatform::services()->llm()->getProviderIconColor($this->provider);
+	}
+
+	// Empty when nothing was stamped — the caller picks the fallback, since a transcript ("Agent") and a
+	// picker (the model handle) want different ones.
+	public function getDisplayName() : string {
+		return trim(strval($this->provider_params['display']['name'] ?? ''));
+	}
+
+	// A session is runnable/resumable only once primed with a provider block.
+	public function isPrimed() : bool {
+		return $this->provider && $this->provider_params;
+	}
+
 	}
 	
 	public function getAutomation() : ?Model_Automation {
