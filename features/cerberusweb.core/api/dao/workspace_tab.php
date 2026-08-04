@@ -648,10 +648,16 @@ class Model_WorkspaceTab extends DevblocksRecordModel {
 		$prompts = [];
 
 		foreach($placeholder_prompts as $prompt_key => $prompt) {
-			list($prompt_type, $prompt_placeholder) = explode('/', $prompt_key, 2);
+			list($prompt_type, $prompt_placeholder) = array_pad(explode('/', $prompt_key, 2), 2, null);
+
+			// The name IS the placeholder the dashboard reads back as `{{<name>}}`, so skip one Twig can't lex
+			// — `{{a-b}}` is the subtraction `a - b` and renders 0 with no error.
+			if(!_DevblocksKataService::isVariableName($prompt_placeholder))
+				continue;
+
 			$prompt['placeholder'] = $prompt_placeholder;
 			$prompt['type'] = $prompt_type;
-			
+
 			switch($prompt_type) {
 				case 'date_range':
 					if(!array_key_exists('params', $prompt))

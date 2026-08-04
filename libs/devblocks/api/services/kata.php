@@ -56,7 +56,24 @@ class _DevblocksKataService {
 	function isStrictMode() : bool {
 		return $this->_strict_mode;
 	}
-	
+
+	/**
+	 * True when a `type/name:` name is safe to use as a DICTIONARY KEY — i.e. one Twig can lex as a bare
+	 * variable. `{{a-b}}` is the subtraction `a - b`, which renders 0 with no error, so a name that lands in a
+	 * dict has to be checked by whoever writes it there. The parser deliberately allows a wider charset,
+	 * because most names are labels/ids/handles that are never read back as a placeholder.
+	 *
+	 * Callers: `inputs:`, `await:form:elements:`, snippet + dashboard prompts, worklist export columns, and
+	 * llm tool `parameters:`. Also available declaratively as a schema `nameFormat: variable`.
+	 *
+	 * NOTE: a leading digit passes (`2fa_code`), even though Twig can't lex that either. That matches the rule
+	 * the parser enforced before dashes were allowed, so this stays a strict no-op for existing content —
+	 * tightening it would reject already-shipped automations at runtime. Fix that separately, if ever.
+	 */
+	static function isVariableName(?string $name) : bool {
+		return '' !== strval($name) && $name === DevblocksPlatform::strAlphaNum($name, '_');
+	}
+
 	function parse($kata_string, &$error=null, $dereference=true, &$symbol_meta=[], $keep_comments=false) {
 		$error = null;
 		
@@ -85,9 +102,12 @@ class _DevblocksKataService {
 			if(empty($field_name))
 				return true;
 			
-			// Validate field name
-			if($field_name != DevblocksPlatform::strAlphaNum($field_name, '_')) {
-				$error = sprintf("`%s:` name `%s` must only contain letters, numbers, and underscores (line %d)", $field_type, $field_name, $line_number+1);
+			// Validate field name. Dashes are allowed HERE because most `type/name:` names are labels, ids, or
+			// handles that never touch a dictionary. The narrower rule — a name Twig can lex as a bare variable —
+			// belongs to the handful of consumers that turn a name into a dict key, and they enforce it with
+			// `isVariableName()` (or a schema `nameFormat: variable`). The lexer can't know which is which.
+			if($field_name != DevblocksPlatform::strAlphaNum($field_name, '-_')) {
+				$error = sprintf("`%s:` name `%s` must only contain letters, numbers, dashes, and underscores (line %d)", $field_type, $field_name, $line_number+1);
 				return false;
 			}
 			
@@ -835,9 +855,31 @@ class _DevblocksKataService {
 							array_map(fn($k) => $string->strBefore($string->strBefore($k, '/'), '@'), array_keys($value))
 						)
 					;
-					
+
+					// `nameFormat: variable` — every child key's `<type>/<name>` name must be one Twig can lex as
+					// a bare variable, because this node's names become dictionary keys read back as `{{name}}`.
+					// Declared on the node so it covers all its types at once. The parser itself allows a wider
+					// charset (see $funcValidateKeyName); this is the authoring-time half of the check, and the
+					// consumers hold the runtime half for content that never passes through a save.
+					if('variable' == ($node_type_params['nameFormat'] ?? null)) {
+						foreach($node_attributes as $node_key => $node_attribute) {
+							$node_name = $string->strAfter($string->strBefore($node_key, '@'), '/');
+
+							if('' === $node_name || _DevblocksKataService::isVariableName($node_name))
+								continue;
+
+							$error = sprintf(
+								'Key `%s%s:` name `%s` must only contain letters, numbers, and underscores',
+								$key_path ? (implode(':', $key_path) . ':') : '',
+								$node_key,
+								$node_name
+							);
+							return false;
+						}
+					}
+
 					// Handle unknown attributes
-					
+
 					$unknown_attributes = array_diff(
 						array_unique(array_values($node_attributes)),
 						array_keys($type_attributes)

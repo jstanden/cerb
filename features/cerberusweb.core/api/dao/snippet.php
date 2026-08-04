@@ -769,15 +769,25 @@ class Model_Snippet extends DevblocksRecordModel {
 		
 		$prompts = $kata->formatTree($tree);
 		
+		$drop_keys = [];
+
 		foreach($prompts as $prompt_key => &$prompt) {
 			list($prompt_type, $prompt_name) = array_pad(explode('/', $prompt_key, 2), 2, null);
-			
+
 			if(!is_array($prompt))
 				$prompt = [];
-			
+
 			$prompt['type'] = $prompt_type;
 			$prompt['name'] = $prompt_name ?: $prompt_type;
-			
+
+			// The name is substituted into the snippet as `{{<name>}}`, so drop one Twig can't lex —
+			// `{{a-b}}` is the subtraction `a - b` and renders 0 with no error. (Collected and unset after the
+			// loop; this iterates by reference.)
+			if(!_DevblocksKataService::isVariableName($prompt['name'])) {
+				$drop_keys[] = $prompt_key;
+				continue;
+			}
+
 			// Sanitize
 			if(array_key_exists('default', $prompt) && !is_scalar($prompt['default'])) {
 				$prompt['default'] = '';
@@ -789,10 +799,15 @@ class Model_Snippet extends DevblocksRecordModel {
 				$prompt['required'] = true;
 			}
 		}
-		
+
+		unset($prompt);
+
+		foreach($drop_keys as $drop_key)
+			unset($prompts[$drop_key]);
+
 		return $prompts;
 	}
-	
+
 	public function getContextLabel() {
 		if(empty($this->context))
 			return DevblocksPlatform::translateCapitalized('common.text.plain');

@@ -492,10 +492,12 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 			
 			foreach ($last_prompts as $last_prompt_key => $last_prompt) {
 				list($last_prompt_type, $prompt_set_key) = array_pad(explode('/', $last_prompt_key, 2), 2, null);
-				
-				if (!$prompt_set_key)
+
+				// The name becomes a dict key the script reads back as `{{<name>}}`, so skip one Twig can't lex
+				// — `{{a-b}}` is the subtraction `a - b` and renders 0 with no error.
+				if (!$prompt_set_key || !_DevblocksKataService::isVariableName($prompt_set_key))
 					continue;
-				
+
 				if (array_key_exists($last_prompt_type, $form_components)) {
 					if(in_array($last_prompt_type, $prompts_without_output))
 						continue;
@@ -586,8 +588,14 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 				// Format dictionary keys
 				foreach($last_prompts as $last_prompt_key => $last_prompt) {
 					list($last_prompt_type, $prompt_set_key) = array_pad(explode('/', $last_prompt_key, 2), 2, null);
-					$prompt_value = $prompts[$prompt_set_key ?? ''] ?? null;
-					
+
+					// The name becomes a dict key the script reads back as `{{<name>}}`, so skip one Twig can't
+					// lex — `{{a-b}}` is the subtraction `a - b` and renders 0 with no error.
+					if(!_DevblocksKataService::isVariableName($prompt_set_key))
+						continue;
+
+					$prompt_value = $prompts[$prompt_set_key] ?? null;
+
 					if(array_key_exists($last_prompt_type, $form_components)) {
 						if(in_array($last_prompt_type, $prompts_without_output))
 							continue;

@@ -163,6 +163,11 @@ class WorklistExporter {
 			if('column' != $column_type || !$column_name)
 				continue;
 
+			// The name defaults the column's value to the literal placeholder `{{<name>}}` below, so skip one
+			// Twig can't lex — `{{a-b}}` is the subtraction `a - b` and exports 0 for every row, silently.
+			if(!\_DevblocksKataService::isVariableName($column_name))
+				continue;
+
 			$annotations = '';
 			foreach($column_data as $k => $v) {
 				[$k, $k_annotations] = array_pad(explode('@', $k, 2), 2, null);

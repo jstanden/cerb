@@ -2,6 +2,70 @@
 use PHPUnit\Framework\TestCase;
 
 class DevblocksKataTest extends TestCase {
+	// The parser allows `-` in a `type/name:` name, because most such names are labels/ids/handles that never
+	// reach a dictionary. The narrower Twig-identifier rule lives in isVariableName(), enforced by the handful
+	// of consumers that turn a name into a dict key.
+	function testKataKeyNameAllowsDashes() {
+		$kata = DevblocksPlatform::services()->kata();
+
+		foreach(['rewrite/cerb-dev', 'filesystem/cerb-docs', 'text/foo_bar', 'command/a-b-c'] as $key) {
+			$error = null;
+			$this->assertIsArray($kata->parse("block:\n  $key:\n    x: 1\n", $error), $key);
+			$this->assertNull($error, $key);
+		}
+	}
+
+	function testKataKeyNameRejectsOtherPunctuation() {
+		$kata = DevblocksPlatform::services()->kata();
+
+		// Lexable (the key pattern admits `.` and `*`) but rejected by the name validator.
+		foreach(['text/foo.bar', 'text/foo*bar'] as $key) {
+			$error = null;
+			$this->assertFalse($kata->parse("block:\n  $key:\n    x: 1\n", $error), $key);
+			$this->assertStringContainsString('must only contain', strval($error), $key);
+		}
+
+		// Not even lexable as a key — rejected earlier, by the key pattern.
+		foreach(['text/foo+bar', 'text/foo!'] as $key) {
+			$error = null;
+			$this->assertFalse($kata->parse("block:\n  $key:\n    x: 1\n", $error), $key);
+			$this->assertStringContainsString('Unexpected syntax', strval($error), $key);
+		}
+	}
+
+	function testKataIsVariableName() {
+		foreach(['foo', 'foo_bar', 'foo2', '_foo'] as $name)
+			$this->assertTrue(_DevblocksKataService::isVariableName($name), $name);
+
+		foreach(['foo-bar', 'foo.bar', 'foo bar', '', null] as $name)
+			$this->assertFalse(_DevblocksKataService::isVariableName($name), var_export($name, true));
+
+		// A leading digit passes even though Twig can't lex it either. Deliberate: this reproduces the rule the
+		// parser enforced before dashes were allowed, so the consumer guards stay a no-op for existing content.
+		// Tightening it would reject already-shipped automations at runtime.
+		$this->assertTrue(_DevblocksKataService::isVariableName('2fa_code'));
+	}
+
+	// `nameFormat: variable` on a schema node requires every child key's `<type>/<name>` name to be Twig-safe,
+	// so a bad name is an error at authoring time rather than a silent `{{a-b}}` subtraction at runtime.
+	function testKataSchemaNameFormatVariable() {
+		$kata = DevblocksPlatform::services()->kata();
+
+		$schema = "schema:\n  nameFormat: variable\n  attributes:\n    text:\n      multiple@bool: yes\n      types:\n        object:\n          attributes:\n            label:\n              types:\n                string:\n";
+
+		$error = null;
+		$this->assertNotFalse($kata->validate("text/foo_bar:\n  label: Hi\n", $schema, $error));
+		$this->assertNull($error);
+
+		$error = null;
+		$this->assertFalse($kata->validate("text/foo-bar:\n  label: Hi\n", $schema, $error));
+		$this->assertStringContainsString('foo-bar', strval($error));
+
+		// Without the marker the same document is fine.
+		$error = null;
+		$this->assertNotFalse($kata->validate("text/foo-bar:\n  label: Hi\n", str_replace("  nameFormat: variable\n", '', $schema), $error));
+	}
+
 	function testKataTabIndents() {
 		$error = null;
 		

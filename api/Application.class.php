@@ -4950,6 +4950,9 @@ class _CerbApplication_KataSchemas {
       inputs:
         types:
           object:
+            # Each name becomes `inputs.<name>`, read back as `{{inputs.<name>}}` — so it has to be a name
+            # Twig can lex. `{{inputs.a-b}}` is the subtraction `inputs.a - b` and renders 0 with no error.
+            nameFormat: variable
             attributes:
               array:
                 multiple@bool: yes
@@ -6518,6 +6521,7 @@ class _CerbApplication_KataSchemas {
         string:
     
     schema:
+      nameFormat: variable
       attributes:
         chooser:
           multiple@bool: yes
@@ -7767,6 +7771,7 @@ class _CerbApplication_KataSchemas {
 	function snippetPrompts() : string {
 		return <<< EOD
     schema:
+      nameFormat: variable
       attributes:
         checkbox:
           multiple@bool: yes
@@ -8061,6 +8066,7 @@ class _CerbApplication_KataSchemas {
 	function worklistExport() : string {
 		return <<< EOD
     schema:
+      nameFormat: variable
       attributes:
         column:
           required@bool: yes

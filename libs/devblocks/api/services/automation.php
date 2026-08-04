@@ -74,7 +74,16 @@ class _DevblocksAutomationService {
 				$error = sprintf("Missing input name `%s:`", $input_type);
 				return false;
 			}
-			
+
+			// The name becomes `inputs.<name>`, so it has to be something Twig can lex — `{{inputs.a-b}}` is the
+			// subtraction `inputs.a - b` and renders 0 with no error. Fail loudly instead. Checked here rather
+			// than at parse time because most `type/name:` names never reach a dictionary, and here rather than
+			// at save time because `DAO_Automation::importFromJson()` writes raw SQL past every save hook.
+			if(!_DevblocksKataService::isVariableName($input_key)) {
+				$error = sprintf("Input name `%s:` must only contain letters, numbers, and underscores", $input_idx);
+				return false;
+			}
+
 			$input_value = $dict->getKeyPath('inputs.' . $input_key, null);
 			$is_required = array_key_exists('required', $input_data) && $input_data['required'];
 			
