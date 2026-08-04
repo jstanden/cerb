@@ -5524,6 +5524,19 @@ class _CerbApplication_KataSchemas {
                                               disabled:
                                                 types:
                                                   bool:
+                                              icon:
+                                                types:
+                                                  string:
+                                              labels:
+                                                types:
+                                                  object:
+                                                    attributes:
+                                                      active:
+                                                        types:
+                                                          string:
+                                                      summary:
+                                                        types:
+                                                          string:
                                               params:
                                                 types:
                                                   list:
@@ -5541,6 +5554,19 @@ class _CerbApplication_KataSchemas {
                                               disabled:
                                                 types:
                                                   bool:
+                                              icon:
+                                                types:
+                                                  string:
+                                              labels:
+                                                types:
+                                                  object:
+                                                    attributes:
+                                                      active:
+                                                        types:
+                                                          string:
+                                                      summary:
+                                                        types:
+                                                          string:
                                               parameters:
                                                 types:
                                                   object:

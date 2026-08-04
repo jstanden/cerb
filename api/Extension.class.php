@@ -1636,11 +1636,28 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				],
 				'(.*):llm.agent:inputs:tools:automation:' => [
 					'disabled@bool:',
+					[
+						'caption' => 'icon:',
+						'snippet' => "icon: \${1:search}",
+						'docHTML' => '<b>icon:</b> A cerb-icons name shown beside this tool in a transcript. The agent never sees it. Defaults to <code>hammer</code>.',
+					],
+					[
+						'caption' => 'labels:',
+						'snippet' => "labels:\n\tsummary: \${1:Did the thing}\n\tactive: \${2:Doing the thing}",
+						'docHTML' => '<b>labels:</b> Display phrasings for transcripts. The agent never sees these.',
+					],
 					'uri:',
+				],
+				'(.*):llm.agent:inputs:tools:automation:labels:' => [
+					'summary:',
+					'active:',
 				],
 				'(.*):llm.agent:inputs:tools:automation:disabled:' => [
 					'yes',
 					'no',
+				],
+				'(.*):llm.agent:inputs:tools:automation:icon:' => [
+					'type' => 'icon',
 				],
 				'(.*):llm.agent:inputs:tools:automation:uri:' => [
 					'type' => 'cerb-uri',
@@ -1659,14 +1676,31 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					],
 					'disabled@bool:',
 					[
+						'caption' => 'icon:',
+						'snippet' => "icon: \${1:search}",
+						'docHTML' => '<b>icon:</b> A cerb-icons name shown beside this tool in a transcript. The agent never sees it. Defaults to <code>hammer</code>.',
+					],
+					[
+						'caption' => 'labels:',
+						'snippet' => "labels:\n\tsummary: \${1:Did the thing}\n\tactive: \${2:Doing the thing}",
+						'docHTML' => '<b>labels:</b> Display phrasings for transcripts. The agent never sees these.',
+					],
+					[
 						'caption' => 'parameters:',
 						'snippet' => "parameters:",
 						'docHTML' => '<b>parameters:</b> Optional parameters passed to the tool.',
 					]
 				],
+				'(.*):llm.agent:inputs:tools:tool:labels:' => [
+					'summary:',
+					'active:',
+				],
 				'(.*):llm.agent:inputs:tools:tool:disabled:' => [
 					'yes',
 					'no',
+				],
+				'(.*):llm.agent:inputs:tools:tool:icon:' => [
+					'type' => 'icon',
 				],
 				'(.*):llm.agent:inputs:tools:tool:parameters:' => [
 					[

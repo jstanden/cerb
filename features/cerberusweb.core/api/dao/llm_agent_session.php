@@ -480,8 +480,68 @@ class Model_LlmAgentSession {
 		return $this->provider && $this->provider_params;
 	}
 
+	// Normalize the stored `tools:` config into a tool-name → descriptor map. The key mirrors
+	// LlmAgentNode::_getTools() (`<type>/<name>` split, annotations stripped) so the tool_name matches what a
+	// transcript tool call reports via getName(). `uri` is the `cerb:automation:` target for automation tools
+	// (empty for inline `tool/` types, which can't be reproduced).
+	//
+	// `icon` and `labels` are display-only metadata for a transcript — the agent never sees them (LlmAgentNode
+	// rebuilds each provider schema field-by-field, so unknown keys are dropped before the wire). Because the
+	// session stores the authored `tools:` block verbatim, they render retroactively wherever the session is
+	// read. The tool's own name comes from the KATA key, so it isn't repeated here.
+	//   icon    — a cerb-icons name ('search'); the transcript falls back to 'hammer'
+	//   labels.summary — a one-line note; also the fallback for `active`
+	//   labels.active  — optional present-tense phrasing, while the call has no result yet
+	// Either label may contain {{placeholders}}, built against the tool CALL's own parameters at render time.
+	public function getToolMap() : array {
+		$map = [];
+
+		foreach($this->tools as $tool_key => $tool) {
+			if(!is_array($tool))
+				continue;
+
+			$clean_key = explode('@', strval($tool_key), 2)[0];
+			list($tool_type, $tool_name) = array_pad(explode('/', $clean_key, 2), 2, null);
+
+			if(!$tool_name)
+				$tool_name = $tool_type;
+
+			$labels = $tool['labels'] ?? [];
+
+			if(!is_array($labels))
+				$labels = [];
+
+			$map[$tool_name] = [
+				'type' => $tool_type,
+				'uri' => strval($tool['uri'] ?? ''),
+				'description' => strval($tool['description'] ?? ''),
+				'icon' => strval($tool['icon'] ?? ''),
+				'labels' => [
+					'summary' => strval($labels['summary'] ?? ''),
+					'active' => strval($labels['active'] ?? ''),
+				],
+			];
+		}
+
+		// The agent filesystem tool isn't authored in `tools:` — the node synthesizes it from `mounts:` — so
+		// give the transcript its display metadata here rather than falling back to the generic `hammer`.
+		// Not `if($this->mounts)`: an enabled-but-volumeless filesystem is `[]`, and it still has the tool.
+		if(!is_null($this->mounts)) {
+			$map[\Cerb\AutomationBuilder\Node\LlmAgentNode::TOOL_FS] = [
+				'type' => 'agent_fs',
+				'uri' => '',
+				'description' => 'Browse the mounted agent filesystems',
+				'icon' => 'folder',
+				'labels' => [
+					'summary' => 'Filesystem: {{command}}',
+					'active' => 'Running `{{command}}`',
+				],
+			];
+		}
+
+		return $map;
 	}
-	
+
 	public function getAutomation() : ?Model_Automation {
 		if($this->automation_id)
 			return DAO_Automation::get($this->automation_id);
