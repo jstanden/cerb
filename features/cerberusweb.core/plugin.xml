@@ -97,6 +97,10 @@
 		<dir path="api/Extensions/" namespace="Cerb\Extensions\" />
 		<dir path="api/Records/" namespace="Cerb\Records\" />
 
+		<file path="api/widgets/automation_graph_helper.php">
+			<class name="WidgetHelper_AutomationGraph" />
+		</file>
+
 		<file path="api/packages.php">
 			<class name="Cerb_Packages" />
 		</file>
@@ -5116,6 +5120,18 @@
 		</extension>
 
 		<extension point="cerb.card.widget">
+			<id>cerb.card.widget.automation.graph</id>
+			<name>Automation: Graph</name>
+			<class>
+				<file>api/cards/widgets/automation_graph.php</file>
+				<name>CardWidget_AutomationGraph</name>
+			</class>
+			<params>
+				<param key="icon" value="nodes" />
+			</params>
+		</extension>
+
+		<extension point="cerb.card.widget">
 			<id>cerb.card.widget.calendar</id>
 			<name>Calendar</name>
 			<class>
@@ -7192,6 +7208,18 @@
 		</extension>
 
 		<extension point="cerb.profile.tab.widget">
+			<id>cerb.profile.tab.widget.automation.graph</id>
+			<name>Automation: Graph</name>
+			<class>
+				<file>api/profiles/widgets/automation_graph.php</file>
+				<name>ProfileWidget_AutomationGraph</name>
+			</class>
+			<params>
+				<param key="icon" value="nodes" />
+			</params>
+		</extension>
+
+		<extension point="cerb.profile.tab.widget">
 			<id>cerb.profile.tab.widget.calendar</id>
 			<name>Calendar</name>
 			<class>
@@ -7522,6 +7550,18 @@
 			</class>
 			<params>
 				<param key="icon" value="zap" />
+			</params>
+		</extension>
+
+		<extension point="cerberusweb.ui.workspace.widget">
+			<id>core.workspace.widget.automation.graph</id>
+			<name>Automation: Graph</name>
+			<class>
+				<file>api/workspaces/widgets/automation_graph.php</file>
+				<name>WorkspaceWidget_AutomationGraph</name>
+			</class>
+			<params>
+				<param key="icon" value="nodes" />
 			</params>
 		</extension>
 

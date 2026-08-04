@@ -498,13 +498,15 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 
 	private function _profileAction_editorVisualize() {
 		$tpl = DevblocksPlatform::services()->template();
-		
+
 		$script = DevblocksPlatform::importGPC($_POST['script'] ?? null, 'string');
-		
+		$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? null, 'string', '');
+
 		$automation = new Model_Automation();
 		$automation->script = $script;
-		
-		if(!($graph = $automation->getSyntaxGraph($error))) {
+		$automation->extension_id = $extension_id;
+
+		if(!($graph = $automation->getSyntaxGraphForViewer($error))) {
 			echo DevblocksPlatform::strEscapeHtml($error);
 			return;
 		}

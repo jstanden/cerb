@@ -195,6 +195,7 @@ $(function() {
 					formData.set('module', 'automation');
 					formData.set('action', 'editorVisualize');
 					formData.set('script', editor_automation.getValue());
+					formData.set('extension_id', $frm.find('input:hidden[name=extension_id]').val() || '');
 
 					genericAjaxPost(formData, null, null, function (html) {
 						ui.newPanel.html(html);

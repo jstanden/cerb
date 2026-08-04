@@ -713,6 +713,8 @@ class Model_Automation extends DevblocksRecordModel {
 
 	private $_ast = null;
 	private $_ast_symbols = null;
+	private $_ast_inputs = [];
+	private $_ast_docs = null;
 	
 	/**
 	 * @return Extension_AutomationTrigger
@@ -803,15 +805,77 @@ class Model_Automation extends DevblocksRecordModel {
 		if(!is_array($tree))
 			return false;
 		
+		// Kept for the viewer to preview `start:` node inputs (unset here so they don't become AST nodes).
+		$this->_ast_inputs = $tree['inputs'] ?? [];
 		unset($tree['inputs']);
-		
+
 		$this->_ast = $automator->buildAstFromKata($tree, $error);
 		
 		$symbol_meta = $this->_ast_symbols;
-		
+
 		return $this->_ast;
 	}
-	
+
+	/**
+	 * Author-supplied node decorators from `# @name value` comments (viewer-only — the execution parse in
+	 * getSyntaxTree() stays comment-free). A decorator comment decorates the NEXT non-comment sibling key;
+	 * a run of decorators chains onto the same key. Returns a map of node-path => ['node' => "...", ...].
+	 */
+	public function getSyntaxDocs() : array {
+		if(!is_null($this->_ast_docs))
+			return $this->_ast_docs;
+
+		$this->_ast_docs = [];
+
+		$error = null;
+		$symbols = [];
+
+		// Second parse WITH comments retained (keep_comments=true).
+		$tree = DevblocksPlatform::services()->kata()->parse($this->script, $error, true, $symbols, true);
+
+		if(!is_array($tree))
+			return $this->_ast_docs;
+
+		$docs = [];
+
+		$walk = function($node, $path) use (&$walk, &$docs) {
+			if(!is_array($node))
+				return;
+
+			$pending = [];
+
+			foreach($node as $k => $v) {
+				$k = strval($k);
+
+				// Comment nodes (incl. blank lines) are ordered siblings. Accumulate `# @name value` decorators;
+				// skip plain comments/blanks without breaking the run.
+				if(str_starts_with($k, '#comment_')) {
+					if(is_string($v) && preg_match('/^#\s*@([\w.]+)\s+(.*)$/', $v, $m)) {
+						$name = $m[1];
+						$value = trim($m[2]);
+						$pending[$name] = array_key_exists($name, $pending) ? $pending[$name] . "\n" . $value : $value;
+					}
+					continue;
+				}
+
+				// A real key — flush any pending decorators onto it (its colon-path == the graph node id).
+				$child_path = ($path === '' ? '' : $path . ':') . preg_replace('/@.*$/', '', $k);
+
+				if($pending) {
+					$docs[$child_path] = $pending;
+					$pending = [];
+				}
+
+				if(is_array($v))
+					$walk($v, $child_path);
+			}
+		};
+
+		$walk($tree, '');
+
+		return $this->_ast_docs = $docs;
+	}
+
 	public function getSyntaxGraph(&$error=null) : ?array {
 		$error = null;
 		$symbol_meta = [];
@@ -831,6 +895,20 @@ class Model_Automation extends DevblocksRecordModel {
 					'type' => $visitor->node->getType(),
 					'name_type' => $visitor->node->getNameType(),
 				];
+				if(in_array($visitor->node->getNameType(), ['await','set','return','error']))
+					$nodes[$visitor->node->getId()]['params'] = $visitor->node->getParams();
+
+				// Action commands that write their result to an output placeholder (e.g. http.request output: response).
+				// The set/await/return/error family is excluded: they're type 'action' too and can carry an `output`
+				// key (e.g. `return: output@text:` whose value is a text body, not a placeholder name) — those are
+				// previewed from their params above, not as a result placeholder.
+				if($visitor->node->getType() == 'action'
+						&& !in_array($visitor->node->getNameType(), ['await','set','return','error'])
+						&& $visitor->node->hasParam('output')) {
+					$output_name = $visitor->node->getParam('output');
+					if(is_string($output_name) && $output_name !== '')
+						$nodes[$visitor->node->getId()]['output'] = $output_name;
+				}
 			}
 			
 			if (
@@ -851,14 +929,22 @@ class Model_Automation extends DevblocksRecordModel {
 					$label = '';
 					
 					// Collapse success/error nodes into edge labels
-					if(str_ends_with($next, ':on_success')) {
+					$event_labels = [
+						'on_success' => 'success',
+						'on_error' => 'error',
+						'on_simulate' => 'simulate',
+						'on_tool' => 'tool',
+					];
+					$event_key = null;
+					foreach(array_keys($event_labels) as $key)
+						if(str_ends_with($next, ':' . $key)) {
+							$event_key = $key;
+							break;
+						}
+					if($event_key) {
 						array_shift($path);
 						$next = current($path);
-						$label = 'success';
-					} else if(str_ends_with($next, ':on_error')) {
-						array_shift($path);
-						$next = current($path);
-						$label = 'error';
+						$label = $event_labels[$event_key];
 						// Label independent outcome edges 
 					} elseif(preg_match('#.*?:outcome[^:]*$#', $current, $matches)) {
 						$parts = explode(':', $matches[0]);
@@ -926,11 +1012,14 @@ class Model_Automation extends DevblocksRecordModel {
 
 			if($visitor->state[$visitor->node->getId()]) {
 				// Fork on decision outcomes + action events
-				if(in_array($visitor->node->getType(), ['decision','action'])) {
+				if(in_array($visitor->node->getType(), ['decision','action','llm.agent'])) {
 					$children = $visitor->state[$visitor->node->getId()];
 					$visitor->state[$visitor->node->getId()] = [];
 					
 					foreach ($children as $child) {
+						// Omit empty event wrappers (including the implicit llm.agent `on_tool` and action `on_success`).
+						if($child->getType() == 'event' && !$child->getChildren())
+							continue;
 						$next = clone $visitor;
 						$next->setNode($child);
 						$next->depth++;
@@ -960,8 +1049,29 @@ class Model_Automation extends DevblocksRecordModel {
 							$next->depth--;
 							$recurseAst($next);
 						}
+					} elseif(in_array($visitor->node->getType(), ['action', 'llm.agent'])) {
+						// The node's main outlet always continues to its next sibling/ancestor. Event bodies are branches.
+						$next = clone $visitor;
+						$next->setNode($visitor->node->getParent());
+						$next->depth--;
+						$recurseAst($next);
 					}
 					
+				} elseif(in_array($visitor->node->getType(), ['repeat', 'while'])) {
+					// loop body
+					if($visitor->state[$visitor->node->getId()]) {
+						$next = clone $visitor;
+						$next->setNode(array_shift($next->state[$visitor->node->getId()]));
+						$next->depth++;
+						$recurseAst($next);
+					}
+
+					// loop done
+					$next = clone $visitor;
+					$next->setNode($visitor->node->getParent());
+					$next->depth--;
+					$recurseAst($next);
+
 				} elseif($visitor->node->getType() == 'outcome' && $visitor->node->getParent()->getType() != 'decision') {
 					// outcome true
 					$next = clone $visitor;
@@ -998,7 +1108,7 @@ class Model_Automation extends DevblocksRecordModel {
 		
 		$nodes = array_filter(
 			$nodes,
-			fn($node_id) => !DevblocksPlatform::strEndsWith($node_id,[':on_success',':on_error']),
+			fn($node_id) => !DevblocksPlatform::strEndsWith($node_id,[':on_success',':on_error',':on_simulate',':on_tool']),
 			ARRAY_FILTER_USE_KEY
 		);
 		
@@ -1039,36 +1149,369 @@ class Model_Automation extends DevblocksRecordModel {
 		];
 	}
 	
-	public function getSyntaxGraphAsDot(&$error=null) : ?string {
+	// Re-shape getSyntaxGraph()'s control-flow output into the CerbUI.NodeGraph document the Visualize tab renders
+	// (read-only). The AST walk stays the source of truth; we only remap: control-flow node type/name_type → an
+	// abstract block-type id (matching NODE_TYPES in tab_visualize.tpl), labeled divergent edges → branch outlets
+	// (CerbUI.NodeEdge can't draw edge labels), and a `tier` per node so NodeGraph's tiered layout columns the
+	// happy-path spine vs. its fan-out branches. symbol_meta (node id → editor line) is carried through unchanged.
+	public function getSyntaxGraphForViewer(&$error=null) : ?array {
 		if(!($graph = $this->getSyntaxGraph($error)))
 			return null;
-		
-		$dot = <<< EOD
-    digraph automation {
-      rankdir=TB;
-      node [shape=box];
-    
-    EOD;
-		
-		foreach($graph['nodes'] as $node_id => $node) {
-			$dot .= sprintf('  "%s" [label="%s"%s]' . "\n",
-				$node_id,
-				$node['label'] ?? $node_id,
-				($node['shape'] ?? null) ? (' shape=' . $node['shape']) : '',
-			);
+
+		$src_nodes = $graph['nodes'];
+		$src_edges = $graph['edges'];
+
+		// Map a control-flow node to an abstract block type (ids match NODE_TYPES in tab_visualize.tpl).
+		$blockType = function(array $n) : string {
+			$type = $n['type'] ?? '';
+			$name_type = $n['name_type'] ?? '';
+
+			if($type == 'start')
+				return 'start';
+			if($name_type == 'return')
+				return 'return';
+			if(in_array($name_type, ['error','exit']))
+				return 'exit';
+			if(in_array($name_type, ['repeat','while']))
+				return 'loop';
+			if($name_type == 'await')
+				return 'await';
+			if($type == 'decision')
+				return 'decision';
+			if($type == 'outcome')
+				return 'outcome';
+			return 'action';
+		};
+
+		$isLoop = fn($node_id) => in_array($src_nodes[$node_id]['name_type'] ?? '', ['repeat', 'while']);
+		$isLoopBodyEdge = fn(array $edge) => $isLoop($edge['from']) && str_starts_with($edge['to'], $edge['from'] . ':do:');
+
+		// The path walker may emit multiple loop-exit shortcuts for nested loops. Keep the structurally nearest
+		// post-loop sibling (the target sharing the longest AST id prefix with the loop) and discard farther skips.
+		$loop_exit_best = [];
+		foreach($src_edges as $i => $edge) {
+			if(!$isLoop($edge['from']) || $isLoopBodyEdge($edge))
+				continue;
+			$from_parts = explode(':', $edge['from']);
+			$to_parts = explode(':', $edge['to']);
+			$score = 0;
+			while(isset($from_parts[$score], $to_parts[$score]) && $from_parts[$score] === $to_parts[$score])
+				$score++;
+			if(!isset($loop_exit_best[$edge['from']]) || $score > $loop_exit_best[$edge['from']]['score'])
+				$loop_exit_best[$edge['from']] = ['index' => $i, 'score' => $score];
 		}
-		
-		foreach($graph['edges'] as $edge) {
-			$dot .= '  ' . sprintf('"%s" -> "%s"%s',
-					$edge['from'],
-					$edge['to'],
-					$edge['label'] ? sprintf(' [label=" %s "]', $edge['label']) : '',
-				) . "\n";
+		$src_edges = array_values(array_filter($src_edges, function($edge, $i) use ($isLoop, $isLoopBodyEdge, $loop_exit_best) {
+			return !$isLoop($edge['from'])
+				|| $isLoopBodyEdge($edge)
+				|| ($loop_exit_best[$edge['from']]['index'] ?? $i) === $i;
+		}, ARRAY_FILTER_USE_BOTH));
+
+		// A "divergent" edge fans out to its own column (tier+1) and gets a labeled branch outlet: error/true,
+		// loop `do` edges, plus every edge leaving a decision (its outcomes). Success/unlabeled/false edges are the
+		// happy-path spine — they stay on the source's main outlet and flow straight down, same tier.
+		$isDivergent = function(array $edge) use ($src_nodes, $isLoopBodyEdge) : bool {
+			if($isLoopBodyEdge($edge))
+				return true;
+			if(in_array($edge['label'] ?? '', ['error','simulate','success','tool','true']))
+				return true;
+			// A decision's real outcomes are its CHILDREN (id path under the decision). A decision→sibling edge
+			// (the fall-through when no outcome matches, whose intermediate spine node array_unique collapsed) is
+			// NOT a branch — treat it as spine continuation, else it's mistaken for an outcome and its own forward
+			// continuation is suppressed as a merge-back, orphaning the node that follows it.
+			$from = $src_nodes[$edge['from']] ?? null;
+			return $from && ($from['type'] ?? '') == 'decision' && str_starts_with($edge['to'], $edge['from'] . ':');
+		};
+
+		// A safe branch-outlet handle token ([a-z0-9_]) derived from a label.
+		$slug = fn($label) => trim(strtolower(preg_replace('/[^a-z0-9]+/i', '_', (string) $label)), '_') ?: 'branch';
+
+		// Per-source branch routing: give each divergent edge a unique labeled outlet on its source node (success vs
+		// error on an action, the condition on each decision outcome). Decision outcomes are unlabeled here, so name
+		// them after the target outcome's label.
+		$branches = [];      // node_id => [ ['name'=>…, 'label'=>…], … ]
+		$edge_handle = [];   // edge index => branch name (divergent edges only)
+		$edge_scope = [];    // edge index => scope prefix the divergent edge opens
+		$used_names = [];    // node_id => [ name => true ]
+		$branch_scopes = []; // subtree prefixes whose outbound continuation is implied by the parent node
+
+		foreach($src_edges as $i => $edge) {
+			if(!$isDivergent($edge))
+				continue;
+
+			$from_id = $edge['from'];
+			$label = $edge['label'] ?? '';
+
+			if($isLoopBodyEdge($edge))
+				$label = 'do';
+			elseif($label === 'true')
+				$label = 'then';
+			elseif($label === 'error')
+				$label = 'on_error';
+			elseif($label === 'success')
+				$label = 'on_success';
+			elseif($label === 'simulate')
+				$label = 'on_simulate';
+			elseif($label === 'tool')
+				$label = 'on_tool';
+			elseif($label === '')
+				$label = $src_nodes[$edge['to']]['label'] ?? 'else';
+
+			$name = $base = $slug($label);
+			$n = 1;
+			while(isset($used_names[$from_id][$name]))
+				$name = $base . '_' . (++$n);
+			$used_names[$from_id][$name] = true;
+
+			$line_key = null;
+			if($isLoopBodyEdge($edge))
+				$line_key = $from_id . ':do';
+			elseif(($edge['label'] ?? '') == 'true')
+				$line_key = $from_id . ':then';
+			elseif(in_array($edge['label'] ?? '', ['error', 'simulate', 'success', 'tool']))
+				$line_key = $from_id . ':on_' . ($edge['label'] == 'tool' ? 'tool' : $edge['label']);
+			elseif(($src_nodes[$from_id]['type'] ?? '') == 'decision')
+				$line_key = $edge['to'];
+
+			$branch = ['name' => $name, 'label' => $label];
+			if($line_key !== null && isset($graph['symbol_meta'][$line_key]))
+				$branch['line'] = $graph['symbol_meta'][$line_key];
+			$branches[$from_id][] = $branch;
+			$edge_handle[$i] = $name;
+
+			if($isLoopBodyEdge($edge))
+				$scope_prefix = $from_id . ':do:';
+			elseif(($edge['label'] ?? '') == 'true')
+				$scope_prefix = $from_id . ':then:';
+			elseif(in_array($edge['label'] ?? '', ['error', 'simulate', 'success', 'tool']))
+				$scope_prefix = $from_id . ':on_' . $edge['label'] . ':';
+			else
+				$scope_prefix = $edge['to'] . ':';
+			$branch_scopes[] = ['prefix' => $scope_prefix, 'root' => $edge['to']];
+			$edge_scope[$i] = $scope_prefix;
 		}
-		
-		$dot .= '}';
-		
-		return $dot;
+
+		// Tier (column) per node: a divergent edge steps to tier+1, while the spine keeps the tier. Relax to the
+		// lowest reachable tier so an earlier branch traversal can't pull a shared continuation off the main spine.
+		$incoming = array_fill_keys(array_keys($src_nodes), 0);
+		$out = [];
+		foreach($src_edges as $i => $edge) {
+			if(isset($incoming[$edge['to']]))
+				$incoming[$edge['to']]++;
+			$out[$edge['from']][] = $i;
+		}
+
+		$tier = [];
+		$queue = [];
+		foreach($src_nodes as $id => $n) {
+			if(($incoming[$id] ?? 0) == 0) {
+				$tier[$id] = 0;
+				$queue[] = $id;
+			}
+		}
+		// Fallback for a cycle-only graph (no zero-incoming root): seed the first node.
+		if(!$queue && $src_nodes) {
+			$first = array_key_first($src_nodes);
+			$tier[$first] = 0;
+			$queue[] = $first;
+		}
+
+		while($queue) {
+			$id = array_shift($queue);
+			foreach($out[$id] ?? [] as $i) {
+				$to = $src_edges[$i]['to'];
+				$next_tier = $tier[$id] + ($isDivergent($src_edges[$i]) ? 1 : 0);
+				if(!array_key_exists($to, $tier) || $next_tier < $tier[$to]) {
+					$tier[$to] = $next_tier;
+					$queue[] = $to;
+				}
+			}
+		}
+
+		// Nodes fed by a branch (off to the side) pin their inlet to the top-left corner so the curved edge lands clean.
+		$branch_targets = [];
+		foreach($edge_handle as $i => $name)
+			$branch_targets[$src_edges[$i]['to']] = true;
+
+		$nodes = [];
+		$form_component_meta = [];
+		if(($trigger_extension = $this->getTriggerExtension()) && method_exists($trigger_extension, 'getFormComponentMeta'))
+			$form_component_meta = $trigger_extension::getFormComponentMeta();
+
+		// Icon for a `start:` input preview row: record inputs use their record type's icon; others get a type icon.
+		$inputIcon = function($input_type, $input_data) {
+			switch($input_type) {
+				case 'record':
+				case 'records':
+					$alias = $input_data['record_type'] ?? '';
+					if($alias && (($ctx = Extension_DevblocksContext::getByAlias($alias, false)) || ($ctx = Extension_DevblocksContext::get($alias, false))))
+						return $ctx->params['icon'] ?? 'collection';
+					return 'collection';
+				case 'number':
+					return 'hash';
+				case 'array':
+					return 'list';
+				case 'text':
+				default:
+					return 'text';
+			}
+		};
+
+		// Author-supplied `# @node` decorators, keyed by node path (== node id).
+		$docs = $this->getSyntaxDocs();
+
+		foreach($src_nodes as $id => $n) {
+			$node_label = $n['label'] ?? $id;
+			$preview_rows = [];
+			$name_type = $n['name_type'] ?? '';
+
+			// Icon overrides beyond the abstract block-type default (error → square, set → placeholders, llm → bot).
+			$node_icon = null;
+			if($name_type === 'error') $node_icon = 'shield';
+			elseif($name_type === 'set') $node_icon = 'placeholders';
+			elseif(in_array($name_type, ['llm.agent','llm.chat'])) $node_icon = 'bot';
+			if(($n['name_type'] ?? '') == 'await' && ($params = $n['params'] ?? [])) {
+				$subtype_key = array_key_first($params);
+				$subtype = preg_replace('/@.*$/', '', strval($subtype_key));
+				if($subtype === 'form') $node_icon = 'todo';
+				elseif($subtype === 'explore') $node_icon = 'compass';
+				$label_parts = explode('/', $node_label, 2);
+				$node_label = $subtype . (isset($label_parts[1]) ? '/' . $label_parts[1] : '');
+				if($subtype == 'form' && is_array($params[$subtype_key]['elements'] ?? null)) {
+					foreach(array_keys($params[$subtype_key]['elements']) as $element_key) {
+						$element_path = preg_replace('/@.*$/', '', strval($element_key));
+						[$element_type, $prompt_name] = array_pad(explode('/', $element_path, 2), 2, null);
+						$row = [
+							'label' => $prompt_name ?: $element_type,
+							'icon' => $form_component_meta[$element_type]['icon'] ?? 'form',
+							'tooltip' => $element_type,
+						];
+						$line_key = $id . ':' . $subtype . ':elements:' . $element_path;
+						if(isset($graph['symbol_meta'][$line_key]))
+							$row['line'] = $graph['symbol_meta'][$line_key];
+						$preview_rows[] = $row;
+					}
+				}
+			} elseif(in_array($n['name_type'] ?? '', ['set','return','error']) && ($params = $n['params'] ?? [])) {
+				// Surface the placeholder keys these blocks assign to the working dictionary — what `set:` stores and
+				// what `return:`/`error:` hand back (keys only, not values — like an await form's fields).
+				foreach(array_keys($params) as $set_key) {
+					$key_path = preg_replace('/@.*$/', '', strval($set_key));
+					if($key_path === '')
+						continue;
+					$row = [
+						'label' => $key_path,
+						'icon' => 'placeholders',
+						'tooltip' => $key_path,
+					];
+					$line_key = $id . ':' . $key_path;
+					if(isset($graph['symbol_meta'][$line_key]))
+						$row['line'] = $graph['symbol_meta'][$line_key];
+					$preview_rows[] = $row;
+				}
+			} elseif($id === 'start' && ($inputs = $this->_ast_inputs ?? [])) {
+				// Surface the automation's declared `inputs:` on the start node — name + type icon only.
+				foreach($inputs as $input_idx => $input_data) {
+					if(!is_array($input_data))
+						$input_data = [];
+					[$input_type, $input_name] = array_pad(explode('/', strval($input_idx), 2), 2, null);
+					if(!$input_name)
+						continue;
+					$row = [
+						'label' => $input_name,
+						'icon' => $inputIcon($input_type, $input_data),
+						'tooltip' => $input_idx,
+					];
+					$line_key = 'inputs:' . $input_idx;
+					if(isset($graph['symbol_meta'][$line_key]))
+						$row['line'] = $graph['symbol_meta'][$line_key];
+					$preview_rows[] = $row;
+				}
+			}
+
+			// An action command's output placeholder (what it writes its result to, e.g. http.request → response).
+			if(!empty($n['output'])) {
+				$out_row = [
+					'label' => $n['output'],
+					'icon' => 'placeholders',
+					'tooltip' => 'output',
+					'variant' => 'output',
+				];
+				$line_key = $id . ':output';
+				if(isset($graph['symbol_meta'][$line_key]))
+					$out_row['line'] = $graph['symbol_meta'][$line_key];
+				$preview_rows[] = $out_row;
+			}
+
+			$node = [
+				'id' => $id,
+				'type' => $blockType($n),
+				'label' => $node_label,
+				'tier' => $tier[$id] ?? 0,
+			];
+			if($node_icon)
+				$node['icon'] = $node_icon;
+			// Author-supplied `# @node <text>` summary → node description (shown at the top of the node body).
+			if(isset($docs[$id]['node']) && $docs[$id]['node'] !== '')
+				$node['description'] = $docs[$id]['node'];
+			if($preview_rows)
+				$node['previewRows'] = $preview_rows;
+			if(!empty($branches[$id]))
+				$node['branches'] = $branches[$id];
+			if(isset($branch_targets[$id]))
+				$node['inletCorner'] = true;
+			$nodes[] = $node;
+		}
+
+		usort($branch_scopes, fn($a, $b) => strlen($b['prefix']) <=> strlen($a['prefix']));
+		$scopeForNode = function($node_id) use ($branch_scopes) {
+			foreach($branch_scopes as $scope)
+				if($node_id === $scope['root'] || str_starts_with($node_id, $scope['prefix']))
+					return $scope;
+			return null;
+		};
+
+		// A branch scope loops back to its parent iff an edge leaves it (the same edges suppressed below).
+		// Terminal branches (ending in return/exit/error) have none → their outlet draws unidirectional.
+		$scope_returns = [];
+		foreach($src_edges as $edge) {
+			if(($scope = $scopeForNode($edge['from']))
+				&& $edge['to'] !== $scope['root']
+				&& !str_starts_with($edge['to'], $scope['prefix']))
+				$scope_returns[$scope['prefix']] = true;
+		}
+
+		$edges = [];
+		$used_edges = [];
+		foreach($src_edges as $i => $edge) {
+			// Branch completion returns to its parent implicitly. Only internal branch edges are drawn.
+			if(($scope = $scopeForNode($edge['from']))
+				&& $edge['to'] !== $scope['root']
+				&& !str_starts_with($edge['to'], $scope['prefix']))
+				continue;
+
+			$e = [
+				'source' => $edge['from'],
+				'target' => $edge['to'],
+			];
+			if(isset($edge_handle[$i])) {
+				$e['sourceHandle'] = 'branch:' . $edge_handle[$i];
+				$e['curve'] = true;
+				// Only imply a return arrow when the branch actually flows back; terminal chains stay one-way.
+				if(!empty($scope_returns[$edge_scope[$i] ?? '']))
+					$e['bidirectional'] = true;
+			}
+			$edge_key = sha1(json_encode($e));
+			if(!isset($used_edges[$edge_key])) {
+				$edges[] = $e;
+				$used_edges[$edge_key] = true;
+			}
+		}
+
+		return [
+			'nodes' => $nodes,
+			'edges' => $edges,
+			'symbol_meta' => $graph['symbol_meta'],
+		];
 	}
 	
 	/**
