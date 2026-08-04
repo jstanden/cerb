@@ -375,7 +375,11 @@ class _DevblocksAutomationService {
 						DAO_AutomationLog::LOG_LEVEL => 3,
 						DAO_AutomationLog::CREATED_AT => time(),
 						DAO_AutomationLog::AUTOMATION_NAME => $automation->name ?? '',
-						DAO_AutomationLog::AUTOMATION_NODE => $dict->getKeyPath('__error.at'),
+						// `automation_node` is NOT NULL, and not every error is attributable to a node: a GATED await
+						// error (`_resumeAwaitGate` — a failed/absent queued LLM turn) sets only `__error.message`, so
+						// `__error.at` is null and the INSERT dies with 1048. Default to '' exactly as the exception
+						// path below already does.
+						DAO_AutomationLog::AUTOMATION_NODE => $dict->getKeyPath('__error.at') ?? '',
 					]);
 				}
 			}
@@ -438,6 +442,28 @@ class _DevblocksAutomationService {
 		$is_timed_out = false;
 		$exit_code = '';
 		
+		// Intrinsic await gate. An `await:` does not advance until its gate CONDITION clears — the author writes
+		// it once, never a loop. When we're RESUMING into a gated await whose condition isn't satisfied yet, we
+		// re-emit the SAME await state (leave __exit=await + __return intact) instead of advancing. Because this
+		// lives in the engine, it holds for EVERY resume driver — the live interaction poll, the simulator, a
+		// background runner — not just the live resume handler. (A form's gate — is the input valid? — is
+		// enforced by its submit handler, so only EXTERNAL-state gates re-check here; today that's `queue:`.)
+		if('await' === $dict->get('__exit', null) && is_array($dict->getKeyPath('__return', null))) {
+			$gate = $this->_resumeAwaitGate($dict);
+
+			// Still waiting → re-emit the await verbatim (don't advance).
+			if('pending' === $gate)
+				return true;
+
+			// A definitive failure (e.g. a queued turn errored, or a message vanished). Surface it; don't advance.
+			if('error' === $gate) {
+				$dict->set('__exit', 'error');
+				$dict->unset('__return');
+				return true;
+			}
+			// 'clear' → fall through and advance past the await.
+		}
+
 		// [TODO] Check if we're given an exit/return/error/await status
 		$dict->unset('__exit');
 		$dict->unset('__return');
@@ -504,10 +530,34 @@ class _DevblocksAutomationService {
 			$metrics->increment('cerb.automation.invocations', 1, ['automation_id'=>$automation->id, 'trigger'=>$automation->extension_id, 'exit_state'=>$exit_code]);
 			$metrics->increment('cerb.automation.duration', $elapsed_ms, ['automation_id'=>$automation->id, 'trigger'=>$automation->extension_id]);
 		}
-		
+
 		return true;
 	}
-	
+
+	/**
+	 * Evaluate a gated await's CONDITION on resume: 'clear' | 'pending' | 'error'. Only awaits gated on
+	 * EXTERNAL state re-check here. Extensible per `__return.<type>`; today the one external gate is `queue:`
+	 * (async LLM turns) — delegated to the queue service, which sets an `__error.message` for the error case.
+	 */
+	private function _resumeAwaitGate(DevblocksDictionaryDelegate $dict) : string {
+		$return = $dict->getKeyPath('__return', null);
+
+		if(!is_array($return))
+			return 'clear';
+
+		if(array_key_exists('queue', $return)) {
+			$uuids = (array)($return['queue']['messages'] ?? []);
+			$gate = DevblocksPlatform::services()->queue()->awaitGate($uuids);
+
+			if('error' === $gate && !$dict->getKeyPath('__error.message'))
+				$dict->setKeyPath('__error.message', 'A queued agent turn failed or is no longer available. Please try again.');
+
+			return $gate;
+		}
+
+		return 'clear';
+	}
+
 	private function _recurseFindNodeId(CerbAutomationAstNode $node, $id) {
 		if($node->getId() == $id)
 			return $node;

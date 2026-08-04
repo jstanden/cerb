@@ -207,6 +207,50 @@ class DAO_QueueMessage {
 	}
 	
 	/**
+	 * Current status of specific messages by uuid, keyed by lowercase 32-char hex uuid → status_id
+	 * (QueueMessageStatus). A uuid ABSENT from the result no longer exists (purged after DONE, or never
+	 * created) — callers that need a definitive terminal AND presence must treat absence distinctly.
+	 * Master read: a caller gating on a just-reported status can't tolerate replica lag.
+	 *
+	 * @param string[] $uuids 32-hex (or dashed) message uuids
+	 * @return array<string,int> [uuid_hex => status_id]
+	 */
+	static function getStatusesByUuids(array $uuids) : array {
+		$db = DevblocksPlatform::services()->database();
+
+		if(!$uuids)
+			return [];
+
+		// Same raw-hex `0x…` literal idiom the DAO uses everywhere for `binary(16)` uuid comparisons.
+		$literals = array_map(fn($uuid) => '0x' . str_replace('-', '', $db->escape($uuid)), $uuids);
+
+		$rows = $db->GetArrayMaster(sprintf(
+			"SELECT LOWER(HEX(uuid)) AS uuid, status_id FROM queue_message WHERE uuid IN (%s)",
+			implode(',', $literals)
+		));
+
+		$out = [];
+
+		foreach($rows as $row)
+			$out[$row['uuid']] = intval($row['status_id']);
+
+		return $out;
+	}
+
+	// Count messages a worker could claim RIGHT NOW (AVAILABLE + past their available_at). Lets a two-loop
+	// client pace how many worker requests to spawn.
+	static function countAvailable(int $queue_id) : int {
+		$db = DevblocksPlatform::services()->database();
+
+		return intval($db->GetOneReader(sprintf(
+			"SELECT COUNT(*) FROM queue_message WHERE queue_id = %d AND status_id = %d AND claim_id IS NULL AND available_at <= %d",
+			$queue_id,
+			QueueMessageStatus::AVAILABLE->value,
+			time()
+		)));
+	}
+
+	/**
 	 * Find in-flight messages whose claim outlived their queue's `claim_window_secs`
 	 * (abandoned by a crashed/stalled consumer). Queues with a zero window never reap.
 	 *

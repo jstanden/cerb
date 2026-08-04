@@ -38,6 +38,12 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 	function handleActionForPage(string $action, ?string $scope=null) {
 		if('profileAction' == $scope) {
 			switch ($action) {
+				case 'awaitQueueWork':
+					return $this->_profileAction_awaitQueueWork();
+				case 'interruptAgent':
+					return $this->_profileAction_interruptAgent();
+				case 'pollAgentTurn':
+					return $this->_profileAction_pollAgentTurn();
 				case 'editorLog':
 					return $this->_profileAction_editorLog();
 				case 'editorLogRefresh':
@@ -1104,22 +1110,42 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 				$this->_handleAutomationAwaitDraft($continuation);
 			} else if(array_key_exists('record', $return)) {
 				$this->_handleAutomationAwaitRecord($continuation);
+			} else if(array_key_exists('queue', $return)) {
+				$this->_handleAutomationAwaitQueue($continuation);
 			}
 		}
 	}
 	
 	private function _respondAutomationAwait(Model_AutomationContinuation $continuation, DevblocksDictionaryDelegate $automation_results) {
-		if($automation_results->getKeyPath('__return.interaction')) {
-			$this->_respondAutomationAwaitInteraction($automation_results, $continuation);
-		} else if($automation_results->getKeyPath('__return.duration')) {
-			$this->_respondAutomationAwaitDuration($automation_results, $continuation);
-		} else if($automation_results->getKeyPath('__return.draft')) {
-			$this->_respondAutomationAwaitDraft($automation_results, $continuation);
-		} else if($automation_results->getKeyPath('__return.record')) {
-			$this->_respondAutomationAwaitRecord($automation_results, $continuation);
-		} else {
-			$this->_respondAutomationAwaitForm($automation_results, $continuation);
+		// Only re-enter a non-form await responder while GENUINELY awaiting. A terminal exit (error/return/exit)
+		// can still carry a stale `__return.<type>` — e.g. a queued turn that FAILED during the advance leaves
+		// `__exit=error` beside a live `__return.queue`. Routing on that key would re-poll forever, because the
+		// queue/duration/draft/record responders (unlike the form one) never check `__exit`: the gated queue poll
+		// would re-render its marker and the browser would loop, unrecoverable, with 'stop' unable to break it.
+		// On any terminal exit, fall through to the form responder, which renders the end/error panel and clears
+		// the await. This enforces the engine-gate invariant (automation.php `_resumeAwaitGate`, which unsets
+		// `__return` on a gate error) at the response layer, covering every await type and the hard-error path.
+		if('await' === $automation_results->get('__exit')) {
+			if($automation_results->getKeyPath('__return.interaction')) {
+				$this->_respondAutomationAwaitInteraction($automation_results, $continuation);
+				return;
+			} else if($automation_results->getKeyPath('__return.duration')) {
+				$this->_respondAutomationAwaitDuration($automation_results, $continuation);
+				return;
+			} else if($automation_results->getKeyPath('__return.draft')) {
+				$this->_respondAutomationAwaitDraft($automation_results, $continuation);
+				return;
+			} else if($automation_results->getKeyPath('__return.record')) {
+				$this->_respondAutomationAwaitRecord($automation_results, $continuation);
+				return;
+			} else if($automation_results->getKeyPath('__return.queue')) {
+				$this->_respondAutomationAwaitQueue($automation_results, $continuation);
+				return;
+			}
 		}
+
+		// A plain form await, OR any terminal exit — the form responder renders the form / the end+error panel.
+		$this->_respondAutomationAwaitForm($automation_results, $continuation);
 	}
 	
 	private function _handleAutomationAwaitDuration(Model_AutomationContinuation $continuation) {
@@ -1168,11 +1194,214 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 			$this->_respondAutomationAwaitDuration($automation_results, $continuation);
 		}
 	}
-	
+
+	/**
+	 * `await:queue:` — the GATED POLL half of the two-loop (its sidecar is `awaitQueueWork`, below).
+	 *
+	 * READ-ONLY while pending. The marker render carries no status (the client keeps the last transcript + its
+	 * dots spinner), so a poll that finds the turn still cooking has nothing to persist — it re-renders the marker
+	 * and touches NOTHING. Only when the gate CLEARS (or errors) do we `executeScript` to advance and persist.
+	 * That keeps every ~poll_ms poll a single read (no row churn), and — importantly — means an out-of-band flag
+	 * written onto the continuation (e.g. an interrupt request) can't be clobbered by a pending poll's writeback.
+	 * When we do advance, the engine's intrinsic gate re-checks and finalizes (advance / `__exit=error`).
+	 */
+	private function _handleAutomationAwaitQueue(Model_AutomationContinuation $continuation) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		$automator = DevblocksPlatform::services()->automation();
+
+		unset($_POST);
+
+		if(!($automation = $continuation->getAutomation()))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+
+		if(!in_array($automation->extension_id, $this->_interaction_extensions))
+			DevblocksPlatform::dieWithHttpError(null, 405);
+
+		if(!Context_Automation::isReadableByActor($automation, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
+		$initial_state = $continuation->state_data['dict'] ?? [];
+
+		$queue_state = $initial_state['__return']['queue'] ?? [];
+		$uuids = is_array($queue_state['messages'] ?? null) ? $queue_state['messages'] : [];
+
+		// PENDING → pure read: re-render the marker, no write. (CLEAR/ERROR fall through to advance.)
+		if('pending' === DevblocksPlatform::services()->queue()->awaitGate($uuids)) {
+			$this->_renderAwaitQueueMarker($queue_state, $continuation->token);
+			return;
+		}
+
+		$error = null;
+
+		if(false === ($automation_results = $automator->executeScript($automation, $initial_state, $error))) {
+			// A hard node error (uncaught exception) makes executeScript return false, but it mutated only a COPY —
+			// our `$initial_state` still carries the `__return.queue` await. Clear it so the terminal error can't
+			// re-enter the poll (mirrors the engine's own gate-error path, automation.php `_resumeAwaitGate` →
+			// unset __return). Without this, `state_await` stays `queue` and the poll loops on the error forever.
+			unset($initial_state['__return']);
+			$initial_state['__exit'] = 'error';
+			$initial_state['__error'] = $error;
+			$automation_results = DevblocksDictionaryDelegate::instance($initial_state);
+		}
+
+		$exit_code = $automation_results->get('__exit');
+		$continuation->state_data['dict'] = $automation_results->getDictionary();
+
+		DAO_AutomationContinuation::update($continuation->token, [
+			DAO_AutomationContinuation::STATE => $exit_code,
+			DAO_AutomationContinuation::STATE_DATA => json_encode($continuation->state_data),
+			DAO_AutomationContinuation::EXPIRES_AT => $continuation->expires_at,
+			DAO_AutomationContinuation::UPDATED_AT => time(),
+		]);
+
+		$this->_respondAutomationAwait($continuation, $automation_results);
+	}
+
+	/**
+	 * `awaitQueueWork` — the WORKER half of the two-loop: a sidecar request that advances the shared LLM queue
+	 * by exactly ONE turn (whoever's next — single-claim) and returns only STATS, never continuation info. The
+	 * client runs one or more of these in parallel while the gated poll (above) waits, so a turn that takes 15s
+	 * to process never blocks the ~`poll_ms` gate check. Scoped to a live interaction continuation for auth.
+	 */
+	private function _profileAction_awaitQueueWork() : void {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+
+		$continuation_token = DevblocksPlatform::importGPC($_POST['continuation_token'] ?? null, 'string', '');
+
+		if(!($continuation = DAO_AutomationContinuation::getByToken($continuation_token))) {
+			echo json_encode(['error' => 'Unknown interaction.']);
+			return;
+		}
+
+		if(!($automation = $continuation->getAutomation()) || !Context_Automation::isReadableByActor($automation, $active_worker)) {
+			echo json_encode(['error' => 'Access denied.']);
+			return;
+		}
+
+		$processed = 0;
+		$ready = 0;
+
+		if(($queue = DAO_Queue::getByName('cerb.llm.agent.requests'))) {
+			// One turn, published so the gated poll sees the result.
+			$processed = DevblocksPlatform::services()->llm()->processQueue($queue, time() + 25, 1, null, 1);
+			DevblocksPlatform::services()->queue()->publish();
+
+			$ready = DAO_QueueMessage::countAvailable($queue->id);
+		}
+
+		echo json_encode(['processed' => $processed, 'ready' => $ready]);
+	}
+
+	/**
+	 * `interruptAgent` — raise a user Stop for a running `llm.agent` turn. Its natural home CAN'T be `invokePrompt`
+	 * (that requires the agentPrompt to be the CURRENT await; during a run the continuation is in `await:queue:` /
+	 * on_tool, so the prompt isn't in `__return.form`). Instead we set a short-lived shared-cache flag keyed by the
+	 * agent SESSION; the running node consumes it at its next tree-safe boundary (after a complete tool tuple,
+	 * before the next turn) and yields control back to the interaction. Cache — not the continuation dict — so a
+	 * gate poll's writeback can't clobber it and there's no read-modify-write race.
+	 */
+	private function _profileAction_interruptAgent() : void {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+
+		$continuation_token = DevblocksPlatform::importGPC($_POST['continuation_token'] ?? null, 'string', '');
+		$session_id = DevblocksPlatform::importGPC($_POST['session_id'] ?? null, 'string', '');
+
+		if(!($continuation = DAO_AutomationContinuation::getByToken($continuation_token))) {
+			echo json_encode(['error' => 'Unknown interaction.']);
+			return;
+		}
+
+		if(!($automation = $continuation->getAutomation()) || !Context_Automation::isReadableByActor($automation, $active_worker)) {
+			echo json_encode(['error' => 'Access denied.']);
+			return;
+		}
+
+		// The session must exist and belong to this worker — you can only stop your own agent.
+		if('' === $session_id
+			|| !($session = DAO_LlmAgentSession::get($session_id))
+			|| 'worker' !== $session->user_type
+			|| intval($session->user_id) !== intval($active_worker->id ?? 0)) {
+			echo json_encode(['error' => 'No agent session.']);
+			return;
+		}
+
+		DevblocksPlatform::services()->cache()->save(true, \Cerb\AutomationBuilder\Node\LlmAgentNode::interruptCacheKey($session_id), [], 600);
+
+		echo json_encode(['ok' => true]);
+	}
+
+	/**
+	 * `pollAgentTurn` — hand back the newest transcript turn while a streamed answer is being written, so the
+	 * client can watch a long turn fill in instead of staring at a frozen transcript.
+	 *
+	 * Its home CAN'T be `invokePrompt`, for exactly the reason `interruptAgent` above can't be either — and
+	 * this is the whole reason the first attempt failed. `invokePrompt` requires the prompt key to exist in the
+	 * CURRENT await's `__return.form.elements`, but a turn only streams while the continuation is parked on
+	 * `await:queue:`, whose `__return` holds `{queue: …}` and NO form at all. So every poll 404'd, hit the
+	 * failure cutoff, and the elapsed clock froze a couple of seconds in. (`echoTurn` gets away with
+	 * `invokePrompt` only because it fires CONCURRENTLY with the interaction POST, before the queue await has
+	 * been persisted — it is not a precedent for anything that polls.)
+	 *
+	 * Display options ride the request because they lived on that same unreachable form element. They're
+	 * cosmetic, and the session is authorized independently below, so nothing is trusted here that matters.
+	 */
+	private function _profileAction_pollAgentTurn() : void {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+
+		$continuation_token = DevblocksPlatform::importGPC($_POST['continuation_token'] ?? null, 'string', '');
+		$session_id = DevblocksPlatform::importGPC($_POST['session_id'] ?? null, 'string', '');
+
+		if(!($continuation = DAO_AutomationContinuation::getByToken($continuation_token))) {
+			echo json_encode(['error' => 'Unknown interaction.']);
+			return;
+		}
+
+		if(!($automation = $continuation->getAutomation()) || !Context_Automation::isReadableByActor($automation, $active_worker)) {
+			echo json_encode(['error' => 'Access denied.']);
+			return;
+		}
+
+		// Same ownership test as interruptAgent: you can only watch your own agent's turn.
+		if('' === $session_id
+			|| !($session = DAO_LlmAgentSession::get($session_id))
+			|| 'worker' !== $session->user_type
+			|| intval($session->user_id) !== intval($active_worker->id ?? 0)) {
+			echo json_encode(['error' => 'No agent session.']);
+			return;
+		}
+
+		$data = ['session_id' => $session_id];
+
+		foreach(['view', 'layout', 'thinking', 'tools', 'expand'] as $key) {
+			if(($value = DevblocksPlatform::importGPC($_POST[$key] ?? null, 'string', '')))
+				$data[$key] = $value;
+		}
+
+		$data['tokens'] = DevblocksPlatform::importGPC($_POST['tokens'] ?? null, 'bit', 0);
+
+		$await = new \Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\LlmTranscriptAwait('', '', $data);
+		$await->invoke('', 'pollTurn', $continuation);
+	}
+
 	private function _handleAutomationAwaitDraft(Model_AutomationContinuation $continuation) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$automator = DevblocksPlatform::services()->automation();
-		
+
 		$prompts = DevblocksPlatform::importGPC($_POST['prompts'] ?? [], 'array', []);
 		
 		unset($_POST);
@@ -1359,6 +1588,38 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		$tpl->assign('wait_message', $message);
 		$tpl->assign('wait_ms', $wait_ms);
 		$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.worker/_await_duration.tpl');
+	}
+
+	// Render the `await:queue:` poll: a spinner + a client timer that re-submits after `poll_ms`. Each poll
+	// re-enters _handleAutomationAwaitQueue, which advances the queue and re-checks the gate. Unlike duration
+	// (a client-owned timer that resumes once), this loops until the server sees the messages finish.
+	private function _respondAutomationAwaitQueue(DevblocksDictionaryDelegate $automation_results, Model_AutomationContinuation $continuation) {
+		// First emission of a NEW queue await (the node just enqueued a turn) → persist the state, then render.
+		// The subsequent gate polls are read-only (see _handleAutomationAwaitQueue) and render via the same marker.
+		$continuation->state_data['dict'] = $automation_results->getDictionary();
+
+		DAO_AutomationContinuation::update($continuation->token, [
+			DAO_AutomationContinuation::STATE_DATA => json_encode($continuation->state_data),
+			DAO_AutomationContinuation::EXPIRES_AT => $continuation->expires_at,
+			DAO_AutomationContinuation::UPDATED_AT => time(),
+			DAO_AutomationContinuation::STATE_AWAIT => DAO_AutomationContinuation::stateAwaitFor($automation_results->getKeyPath('__return', [])),
+		]);
+
+		$this->_renderAwaitQueueMarker($automation_results->getKeyPath('__return.queue', []), $continuation->token);
+	}
+
+	// Render the invisible `data-cerb-await-queue` marker (no "waiting" screen — the panel keeps the last
+	// transcript + its dots spinner and polls in the background). Write-free, so the read-only gate poll re-emits
+	// with it too. `workers` = parallel sidecars (default 1, capped so one interaction can't monopolize the pool).
+	private function _renderAwaitQueueMarker(array $queue_state, string $continuation_token) : void {
+		$poll_ms = max(500, intval($queue_state['poll_ms'] ?? 2000));
+		$workers = DevblocksPlatform::intClamp($queue_state['workers'] ?? 1, 1, 4);
+
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('poll_ms', $poll_ms);
+		$tpl->assign('workers', $workers);
+		$tpl->assign('continuation_token', $continuation_token);
+		$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.worker/_await_queue.tpl');
 	}
 	
 	private function _respondAutomationAwaitDraft(DevblocksDictionaryDelegate $automation_results, Model_AutomationContinuation $continuation) {

@@ -166,6 +166,49 @@ class LlmAgentNode extends AbstractNode {
 						return $this->node->getParent()->getId();
 					}
 
+					// A built-in `/command` REPLACES this turn rather than preceding it — the message is an
+					// instruction to us, never appended to the history, and no answer is generated. Checked only
+					// on a fresh `llm` turn, so a mid-tool-loop message can't trigger one, and only for commands
+					// the author opted into via `commands:` (an undeclared `/whatever` stays ordinary prose and
+					// reaches the model unchanged).
+					if('llm' == $state && ($command = $this->_detectCommand($command_args))) {
+						if(!$this->_activateCommand($command, strval($command_args), $automation, $error))
+							return false;
+
+						// The async path parked on `await:queue:` and will resume into `command_done`; the inline
+						// path is already finished. Either way, re-enter rather than starting a provider turn.
+						return $this->node->getId();
+					}
+
+					// A provider turn can exceed the FPM terminate window, so in a resumable interaction we run it
+					// OFF-request: enqueue the turn, `await:queue:` until a worker lands the assistant response on
+					// the session, then resume into `llm_consume`. The simulator (no workers to drain the queue) and
+					// headless/one-off runs (no continuation to resume an await) fall back to the inline turn.
+					if($this->_shouldRunAsync($automation)) {
+						if(!$this->_startLLMAsync($state, $error))
+							return false;
+					} else {
+						if(!$this->_activateLLM($state, $error))
+							return false;
+					}
+
+					return $this->node->getId();
+
+				} else if('command_done' == $state) {
+					// The awaited command finished in a worker (the queue gate confirmed DONE). Nothing to
+					// reconstitute — a command produces no assistant turn. A moved head means the fold really
+					// happened; unchanged means it was a legitimate no-op, and the author's `on_success:` can
+					// tell the difference via `{{<output>.compacted}}` instead of showing nothing at all.
+					$session_id = $this->_dict->getKeyPath($this->_getSessionKey(), null, '::');
+					$session = $session_id ? \DAO_LlmAgentSession::get($session_id) : null;
+
+					$changed = $session && strval($session->head_uuid) !== strval($state_params['head'] ?? '');
+
+					$this->_applyCommandResult(strval($state_params['command'] ?? ''), $session_id, $changed);
+
+					return $this->node->getId();
+
+				} else if('llm_consume' == $state) {
 					// A Stop raised while the turn was STREAMING, where nothing survived to consume. This is the
 					// ordinary case, not an exotic one: a turn can spend minutes thinking, and a thinking block cut
 					// before its signature can't be replayed — so the most likely moment to press Stop is also the
@@ -187,8 +230,13 @@ class LlmAgentNode extends AbstractNode {
 						return $this->node->getParent()->getId();
 					}
 
+					// The awaited queue turn landed on the session (the engine's queue gate confirmed DONE before
+					// resuming here). Reconstitute the response from the session head and run the shared back half.
+					if(!$this->_consumeLLMAsync($state_params ?? [], $error))
+						return false;
+
 					return $this->node->getId();
-				
+
 				} else if('tool_branch' == $state) {
 					$this->_node_memory['stack'][] = ['tool_return', []];
 					
@@ -730,39 +778,82 @@ class LlmAgentNode extends AbstractNode {
 	 */
 	private function _activateLLM(string $state, ?string &$error=null) : bool {
 		$llm = DevblocksPlatform::services()->llm();
-		
+
 		$llm_provider = $this->_getLlmProvider();
-		
+
 		// Memory
-		
-		$session_key = $this->_getSessionKey($llm_provider);
+
+		$session_key = $this->_getSessionKey();
 		$session_id = $this->_dict->getKeyPath($session_key, null, '::');
 		$memory_store = $llm->getMemoryStore($session_id);
-		
-		// Messages
-		
-		// [TODO] Configurable history length/strategy
-		$memory_messages = $memory_store->getMessages(limit: 10);
-		
-		// If we're not running after tools, add the next message
-		if('llm' == $state) {
-			foreach($this->_inputs['messages'] ?? [] as $new_message) {
-				$memory_messages[] = $new_message;
-				$memory_store->appendMessage($new_message);
-			}
-		}
-		
-		// LLM
-		
-		$llm_response = $llm_provider->chatCompletion(
-			$memory_messages,
-			$this->_inputs['system_prompt'] ?? '',
-			array_values($this->_getToolSchemas()),
-			$memory_store
-		);
-		
+
+		$this->_persistSessionConfig($session_id);
+
+		// LLM — advance the session by one provider turn. On a fresh turn (`llm`) the inbound user messages are
+		// appended to the managed history; a tool-loop re-entry (`tools_done`) appends nothing (the tool results
+		// are already in the store). History-append + compaction + the provider call all happen inside
+		// nextSessionTurn, which appends the assistant turn back onto the session.
+		$new_messages = ('llm' == $state) ? ($this->_inputs['messages'] ?? []) : [];
+
+		if(!($llm_response = $llm->nextSessionTurn($session_id, $new_messages, $error)))
+			throw new Exception_DevblocksAutomationError($error ?: 'The LLM turn could not run.');
+
+		$this->_applyTurnResponse($llm_response, $session_id, $memory_store, $llm_provider);
+
+		return true;
+	}
+
+	/**
+	 * Persist this turn's config onto the SESSION *before* the turn runs — `nextSessionTurn()` (and the async
+	 * worker) rebuild the send-list (system prompt, tools, mounts, compaction, history) purely from the session,
+	 * so the session must be the source of truth by the time it's called. (This is also what lets the turn run
+	 * headless from just a session_id.) Shared by the sync (_activateLLM) and async (_startLLMAsync) paths.
+	 */
+	private function _persistSessionConfig(?string $session_id) : void {
+		if(!$session_id)
+			return;
+
+		// System prompt: use the inbound one; on a pure-resume (no `inputs.system_prompt`) fall back to the
+		// session's stored prompt. Persist on-change so a later resume can re-source it and the dev transcript
+		// can show it.
+		$system_prompt = strval($this->_inputs['system_prompt'] ?? '');
+
+		if('' === $system_prompt && ($session = \DAO_LlmAgentSession::get($session_id)))
+			$system_prompt = $session->system_prompt;
+
+		if('' !== $system_prompt)
+			\DAO_LlmAgentSession::setSystemPrompt($session_id, $system_prompt);
+
+		// Tools: persist the EVALUATED `tools:` config — the same map `_getTools()` runs, so it holds the real
+		// resolved keys + static `cerb:automation:` URIs regardless of how the block was authored. This matters
+		// because the common pattern builds the tools map dynamically (`tools@key: <var>` fed by a `@kata` loop
+		// over a tool chooser) — pre-evaluation there is just a variable name, useless. The URIs stay stable
+		// even when built from `{{tool.name}}`; only `{{placeholder}}` INPUTS (a tool's description/params) bake
+		// in this-turn's value (accepted — dynamic inputs aren't reproducible anyway). Session is the source of
+		// truth for the name→URI map the dev transcript uses to trace a tool call back to its `llm.tool`.
+		// On-change write.
+		$tools_config = $this->_inputs['tools'] ?? [];
+
+		if(is_array($tools_config) && $tools_config)
+			\DAO_LlmAgentSession::setTools($session_id, $tools_config);
+
+		// Same on-change persistence for `mounts:` — but the RESOLVED specs (the shape fromSpecs() takes),
+		// since that's what a resume replays. Only when this turn actually authored them; otherwise
+		// _getMountSpecs() would just write back what it read.
+		// An EMPTY authored block persists `[]`, which is how a /tmp-only filesystem survives a resume — the
+		// column being NULL is what means "never enabled".
+		if(array_key_exists('mounts', $this->_inputs))
+			\DAO_LlmAgentSession::setMounts($session_id, $this->_getMountSpecs());
+	}
+
+	/**
+	 * The back half of a provider turn, shared by the sync path (_activateLLM, response in hand) and the async
+	 * path (_consumeLLMAsync, response reconstituted from the landed session head): stack any tool calls,
+	 * denormalize the running context-window estimate, and set the node's abstract-message output.
+	 */
+	private function _applyTurnResponse(DevblocksLlmChatResponse $llm_response, ?string $session_id, $memory_store, \Extension_DevblocksLlmProvider $llm_provider) : void {
 		// Tools
-		
+
 		if(($tool_calls = $llm_response->getToolCalls())) {
 			// After the tools finish we need to invoke the LLM again
 			$this->_node_memory['stack'][] = ['tools_done', []];
@@ -1046,15 +1137,117 @@ class LlmAgentNode extends AbstractNode {
 
 		$cache->remove($key);
 		return true;
+	}
+
+	/**
+	 * Whether this turn runs OFF-request (enqueue + `await:queue:`) rather than inline. Only a continuation-backed
+	 * interaction can suspend on an await and be resumed by the client's poll/worker, and only there is the >30s
+	 * FPM terminate a real risk. The simulator (no real workers to drain the queue) and headless/one-off runs
+	 * (`llm.tool` sub-automations, functions, tests — no continuation to resume) stay synchronous.
+	 */
+	private function _shouldRunAsync(Model_Automation $automation) : bool {
+		if($this->_dict->get('__simulate', false))
+			return false;
+
+		return in_array($automation->extension_id, [
+			\AutomationTrigger_InteractionWorker::ID,
+			\AutomationTrigger_InteractionInternal::ID,
+		], true);
+	}
+
+	/**
+	 * Start half of an async turn: persist the config onto the session, enqueue the provider turn as a
+	 * `cerb.llm.agent.requests` message `{session_id, messages}`, push an `llm_consume` resume state, and suspend
+	 * on `await:queue:` for the enqueued uuid. A worker (the client's poll sidecar, or the cron) runs
+	 * nextSessionTurn() off-request and appends the assistant turn to the session; the engine's queue gate then
+	 * clears and resumes into `llm_consume`.
+	 */
+	private function _startLLMAsync(string $state, ?string &$error=null) : bool {
+		$session_key = $this->_getSessionKey();
+		$session_id = $this->_dict->getKeyPath($session_key, null, '::');
+
+		$this->_persistSessionConfig($session_id);
+
+		// The inbound user messages ride in the queue payload rather than being pre-written to the transcript, so
+		// an abandoned turn leaves no orphaned message; the worker appends them to the managed history when it runs.
+		$new_messages = ('llm' == $state) ? ($this->_inputs['messages'] ?? []) : [];
+
+		$queue = DevblocksPlatform::services()->queue();
+
+		if(!($uuids = $queue->enqueue('cerb.llm.agent.requests', [
+			['session_id' => $session_id, 'messages' => $new_messages],
+		], $error)))
+			throw new Exception_DevblocksAutomationError($error ?: 'Failed to enqueue the LLM turn.');
+
+		// Resume into the consume half once the turn lands. The uuids ride the resume state for tracing; the gate
+		// on __return.queue.messages is what actually clears the await.
+		$this->_node_memory['stack'][] = ['llm_consume', ['queue_uuids' => $uuids]];
+
+		// Suspend on the queue gate: the engine re-emits this await until every uuid is terminal-DONE, then
+		// resumes into `llm_consume`. The client keeps the transcript + its dots spinner up and polls in the
+		// background (no "waiting" screen); an author `on_wait:` branch could customize the UX later.
+		$this->_dict->set('__exit', 'await');
+		$this->_dict->set('__return', [
+			'queue' => [
+				'messages' => $uuids,
+			],
 		]);
-		
+
 		return true;
 	}
-	
+
+	/**
+	 * Consume half of an async turn: the worker appended the assistant turn to the session and the engine's queue
+	 * gate confirmed it's DONE, so reconstitute the response from the session's now-current head message — the
+	 * provider's convertToGenericMessage() is the exact inverse of the chatCompletion parse (tool_use → tool
+	 * calls, text blocks → messages), and usage_json carries the token vector — then run the shared back half.
+	 */
+	/**
+	 * Did the awaited turn actually leave an assistant message on the session? False means the turn produced
+	 * nothing usable — either it failed, or it was stopped and its partial was too incomplete to keep.
+	 */
+	private function _hasAssistantHead() : bool {
+		$session_id = strval($this->_dict->getKeyPath($this->_getSessionKey(), '', '::'));
+
+		if('' === $session_id)
+			return false;
+
+		if(!($session = \DAO_LlmAgentSession::get($session_id)) || !$session->head_uuid)
+			return false;
+
+		$head = \DAO_LlmAgentMessage::get(strval($session->head_uuid));
+
+		return $head && 'assistant' === $head->role;
+	}
+
+	private function _consumeLLMAsync(array $state_params, ?string &$error=null) : bool {
+		$llm = DevblocksPlatform::services()->llm();
+
+		$session_key = $this->_getSessionKey();
+		$session_id = $this->_dict->getKeyPath($session_key, null, '::');
+		$memory_store = $llm->getMemoryStore($session_id);
+
+		$llm_provider = $this->_getLlmProvider();
+
+		if(!($session = \DAO_LlmAgentSession::get($session_id)) || !$session->provider)
+			throw new Exception_DevblocksAutomationError('The LLM session vanished before its turn could be consumed.');
+
+		$head = strval($session->head_uuid) ? \DAO_LlmAgentMessage::get($session->head_uuid) : null;
+
+		if(!$head || 'assistant' !== $head->role)
+			throw new Exception_DevblocksAutomationError('The LLM turn produced no assistant response.');
+
+		$llm_response = $llm_provider->convertToGenericMessage($head->data, $head->uuid);
 		$llm_response->setUsage(is_array($head->usage) ? $head->usage : []);
 		// Neither usage nor the finish reason is recoverable from data_json — both live in their own columns, so
 		// the async path has to re-read them here or the turn looks unreported.
 		$llm_response->setFinishReason($head->finish_reason);
+
+		$this->_applyTurnResponse($llm_response, $session_id, $memory_store, $llm_provider);
+
+		return true;
+	}
+
 	/**
 	 * @param DevblocksLlmChatResponse_Tool $tool_spec
 	 * @param string|null $error

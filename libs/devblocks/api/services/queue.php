@@ -113,6 +113,42 @@ class _DevblocksQueueService {
 
 		return DAO_QueueMessage::dequeue($queue, $limit, $claim_id, $job_id);
 	}
+
+	/**
+	 * The DEFINITIVE await-gate state for a set of message uuids: 'clear' | 'pending' | 'error'.
+	 * We require every message to be PRESENT and terminal-DONE to clear — an AVAILABLE/IN_FLIGHT message is
+	 * pending, and a FAILED or ABSENT (vanished/never-created) one is an error (absence must not read as done).
+	 * Backs the automation engine's intrinsic `await:queue:` gate; master read (a gate can't tolerate lag).
+	 *
+	 * @param string[] $uuids
+	 */
+	public function awaitGate(array $uuids) : string {
+		$uuids = array_values(array_filter(array_map('strval', $uuids)));
+
+		if(!$uuids)
+			return 'clear';
+
+		$statuses = DAO_QueueMessage::getStatusesByUuids($uuids);
+		$any_error = false;
+
+		foreach($uuids as $uuid) {
+			$key = strtolower(str_replace('-', '', $uuid));
+			$status = $statuses[$key] ?? null;
+
+			if(is_null($status)) {          // absent — vanished (never a normal state mid-await)
+				$any_error = true;
+				continue;
+			}
+
+			if(in_array($status, [QueueMessageStatus::AVAILABLE->value, QueueMessageStatus::IN_FLIGHT->value], true))
+				return 'pending';           // definitively still working
+
+			if(QueueMessageStatus::FAILED->value === $status)
+				$any_error = true;
+		}
+
+		return $any_error ? 'error' : 'clear';
+	}
 	
 	public function reportSuccess(array $messages, string $message='', array $metadata=[]) : void {
 		$metrics = DevblocksPlatform::services()->metrics();

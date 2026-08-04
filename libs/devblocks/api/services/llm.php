@@ -1566,9 +1566,70 @@ class _DevblocksLlmService {
 					$tool_schema['function'][$schema_key]['required'][] = $automation_input['key'];
 			}
 		}
-		
+
 		return $tool_schema;
 	}
+
+	/**
+	 * Advance an LLM agent session by ONE provider turn: append `$messages` to the managed history, run
+	 * compaction, and call the provider — which appends the assistant turn back to the session. Everything is
+	 * reconstructed from the SESSION (provider, params, system_prompt, tools, mounts, compaction), so a caller
+	 * needs only a `session_id` + the new messages. This is the session-managed wrapper `llm.agent` uses (and,
+	 * later, what a queue worker runs headless); one-off callers (summarization, classification) still call a
+	 * provider's chatCompletion() directly. Errors are returned via `$error`, never thrown.
+	 *
+	 * @param array $messages neutral message dicts to append before the turn (e.g. the user's message)
+	 * @return DevblocksLlmChatResponse|null null on an unknown/unprimed session or unknown provider
+	 */
+	function nextSessionTurn(string $session_id, array $messages = [], ?string &$error = null, int $request_timeout = 0, bool $stream = false, int $stall_secs = 0, ?bool &$was_interrupted = null) : ?DevblocksLlmChatResponse {
+		if(!($session = DAO_LlmAgentSession::get($session_id)) || !$session->provider) {
+			$error = 'The LLM session is unknown or has no provider.';
+			return null;
+		}
+
+		// Provider from the session. Default prompt caching ON for the multi-turn agent (mirrors
+		// LlmAgentNode::_defaultCache — Anthropic reads a cache only when we send cache_control; OpenAI-family
+		// auto-caches and ignores it).
+		$params = is_array($session->provider_params) ? $session->provider_params : [];
+
+		if(!array_key_exists('cache', $params))
+			$params['cache'] = true;
+
+		// Agentic turns need real output headroom. Anthropic REQUIRES `max_tokens` and defaults it low (2048),
+		// which truncates long agent replies / tool-call JSON mid-stream (`stop_reason: max_tokens`). `max_tokens`
+		// is a hard CEILING, not a target — it's not sent to the model and you bill only on tokens generated — so
+		// a high cap costs nothing on a normal turn. Default it high HERE (the agent seam) so `llm.chat` one-offs
+		// keep the provider's conservative default. No-op for OpenAI-family (it omits max_tokens and uses the
+		// model's own max); a model whose output ceiling is below this needs an explicit `max_tokens:` in its
+		// `models:` block, the same per-model override as `context_window`.
+		if(!array_key_exists('max_tokens', $params))
+			$params['max_tokens'] = 32000;
+
+		// A big-context / extended-thinking turn (esp. with 32000 max_tokens, non-streamed) can exceed the HTTP
+		// service's default 30s. The ASYNC WORKER isn't request-bound (its FPM pool has request_terminate_timeout=0
+		// and finishes even if the client hangs up), so it passes a longer per-turn timeout the provider maps onto
+		// the request. 0 (the default, used by the synchronous simulator / one-off callers) leaves the 30s default,
+		// keeping those bounded.
+		if($request_timeout > 0)
+			$params['request_timeout'] = $request_timeout;
+
+		// Read by the provider when it streams, so it has to be in place before construction.
+		if($stall_secs > 0)
+			$params['stream_stall_secs'] = $stall_secs;
+
+		if(!($provider = $this->getProvider($session->provider, $params))) {
+			$error = sprintf("Unknown LLM provider `%s`.", $session->provider);
+			return null;
+		}
+
+		$memory_store = $this->getMemoryStore($session_id);
+
+		// FIRST, before anything is appended: a previous attempt may have died mid-stream and left a half-written
+		// head. It has to be resolved while it's still the newest thing in the session — append first and the new
+		// user message becomes its CHILD, so discarding the dangling row would orphan the message that was just
+		// added, and finalizing it would bury a truncated turn under a newer one.
+		$memory_store->resolveDanglingStream();
+
 		// Append the inbound messages to the managed history first, so the send-list build sees them. Resolve/drop
 		// `images:` per the model's vision support so the STORED message carries only supportable blocks.
 		foreach($messages as $new_message) {
@@ -1578,6 +1639,62 @@ class _DevblocksLlmService {
 			$memory_store->appendMessage($new_message);
 		}
 
+		// Context management (sliding window by default); compaction may summarize + persist a summary here.
+		$compaction_config = is_array($params['compaction'] ?? null) ? $params['compaction'] : [];
+		$history = $this->getCompaction($compaction_config, intval($params['context_window'] ?? 0));
+		$memory_messages = $history->selectMessages($memory_store, $provider);
+
+		$was_interrupted = false;
+
+		// Stream when the caller asked AND this provider can. A provider that doesn't implement ChatStreaming
+		// simply takes the blocking path — no branch anywhere else, and no provider has to be changed to keep
+		// working.
+		if($stream && $provider instanceof \Cerb\LLM\Providers\Interfaces\ChatStreaming) {
+			// Opened AFTER the inbound messages so the user turn is its parent, and BEFORE the call so it has a
+			// real uuid from the first delta — that uuid is what a reader addresses while the turn is running.
+			if(null !== ($streaming_uuid = $memory_store->beginStreamingMessage())) {
+				$last_flush = 0.0;
+
+				$provider->enableStreaming(function(array $message, array $usage) use ($memory_store, $streaming_uuid, $session_id, &$last_flush, &$was_interrupted) : bool {
+					// Deltas arrive many times per second; nothing reads faster than the poll. Throttling is the
+					// caller's job precisely because the provider has no idea who's watching or how often — and
+					// the same tick is the natural place to notice a Stop, since it's the only moment we're
+					// guaranteed to hold control during a call that may run for minutes.
+					$now = microtime(true);
+
+					if(($now - $last_flush) < 0.5)
+						return true;
+
+					$last_flush = $now;
+					$memory_store->updateStreamingMessage($streaming_uuid, $message, $usage);
+
+					if($this->_isTurnInterrupted($session_id)) {
+						$was_interrupted = true;
+						return false;
+					}
+
+					return true;
+				});
+			}
+		}
+
+		try {
+			// The call appends the assistant turn to the session store — which, when a streamed row is open,
+			// CLOSES that row instead of inserting a second one.
+			return $provider->chatCompletion(
+				$memory_messages,
+				strval($session->system_prompt),
+				array_values($this->getSessionToolSchemas($session)),
+				$memory_store
+			);
+
+		} catch (\Throwable $e) {
+			// The turn died after we'd already been billed for whatever it generated. Keep what's usable rather
+			// than discarding it, and leave nothing half-written for the next turn to trip over.
+			$this->_salvageStreamedTurn($provider, $memory_store);
+			throw $e;
+		}
+	}
 
 	/**
 	 * Close out a streamed turn whose call didn't return: sanitize what arrived, then either keep it as a
@@ -1634,6 +1751,267 @@ class _DevblocksLlmService {
 		);
 	}
 
+	/**
+	 * Drain the `cerb.llm.agent.requests` queue: each message is ONE agent turn `{session_id, messages}`, run
+	 * via nextSessionTurn() (which appends the assistant turn back onto the session). Messages only — no jobs.
+	 *
+	 * Same consumer signature as the other platform services (search/metrics/records), so QueueConsumer_Internal
+	 * delegates here. It's ALSO what the interactive `await:queue:` poll calls with its remaining request budget,
+	 * so a watching client advances the queue itself (single-claim keeps two workers off the same turn).
+	 *
+	 * `$max_messages` caps how many messages ONE call processes (0 = unlimited within the budget). The cron
+	 * drains fully (0); the interactive `await:queue:` poll passes 1 so it can re-check its own gate after each
+	 * turn and stop the moment its work is done, rather than draining the whole queue on someone's request.
+	 *
+	 * @return int turns advanced this pass
+	 */
+	function processQueue(Model_Queue $queue, int $stop_time, int $count_hint, ?Model_QueueJob $queue_job = null, int $max_messages = 0) : int {
+		$queue_service = DevblocksPlatform::services()->queue();
+
+		$processed = 0;
+		$count = 0;
+		$claim_id = null;
+
+		// TWO budgets, because a single total timeout can't tell a LONG turn from a STUCK one — and getting that
+		// wrong is what killed healthy 5-minute generations after we'd already paid for their tokens.
+		//
+		//   $turn_stall_secs — the real control. Abort only when the stream goes QUIET. A measured worst-case gap
+		//     between chunks during extended thinking is ~6.5s, so this leaves a wide margin. (curl treats it as
+		//     an average-speed window rather than a silence timer, so the effective cutoff lands somewhat later —
+		//     it's a floor, not a deadline.)
+		//   $turn_timeout — an absolute backstop for the pathological case of a stream that drips forever, and
+		//     the only budget a non-streaming provider gets. Also caps PHP itself via set_time_limit().
+		//
+		// This worker isn't request-bound (its FPM pool has request_terminate_timeout=0 and finishes even if the
+		// client hangs up), so the ceiling can be generous where a web request's couldn't be.
+		$turn_stall_secs = 60;
+		$turn_timeout = 900;
+
+		// One turn per message; loop so concurrent workers interleave within the $stop_time budget.
+		while($stop_time > time()) {
+			if($max_messages > 0 && $count >= $max_messages)
+				break;
+
+			if(!($messages = $queue_service->dequeue($queue->name, 1, $claim_id)))
+				break;
+
+			foreach($messages as $queue_message) { /* @var $queue_message Model_QueueMessage */
+				$session_id = strval($queue_message->message['session_id'] ?? '');
+				$new_messages = is_array($queue_message->message['messages'] ?? null) ? $queue_message->message['messages'] : [];
+				// A control command (`/compact`) rides the SAME queue as a turn: it mutates the session, calls a
+				// provider, and must not interleave with a real turn — exactly what the queue already guarantees.
+				$command = strval($queue_message->message['command'] ?? '');
+
+				if('' === $session_id) {
+					// A malformed payload will never succeed → force terminal (don't burn retries on it).
+					$queue_message->retry_count = self::RETRY_COUNT_TERMINAL;
+					$queue_message->reportStatus(QueueMessageStatus::FAILED, 'The queue message has no session_id.');
+					continue;
+				}
+
+				// `/compact` replaces the turn rather than preceding it — no provider ANSWER, just the fold. It's
+				// naturally idempotent on retry: a second run finds the tail already covering the window and no-ops,
+				// so it needs none of the already-landed guards below.
+				if('compact' === $command) {
+					@set_time_limit($turn_timeout + 30);
+
+					$error = null;
+					$compacted = false;
+					$mode = \Cerb\AutomationBuilder\Node\LlmAgentNode::compactModeFor(strval($queue_message->message['args'] ?? ''));
+
+					if($this->compactSession($session_id, $error, $compacted, $mode)) {
+						$queue_message->reportStatus(QueueMessageStatus::DONE, $compacted ? 'Compacted.' : 'Nothing to compact.', [
+							'command' => 'compact',
+							'compacted' => $compacted,
+						]);
+					} else {
+						$queue_message->retry_count = self::RETRY_COUNT_TERMINAL;
+						$queue_message->reportStatus(QueueMessageStatus::FAILED, $error ?: 'The compaction failed.');
+					}
+
+					$processed += $queue_message->cardinality;
+					$count++;
+					continue;
+				}
+
+				// IDEMPOTENCY on retry: the inbound user messages were already appended to the history on the FIRST
+				// attempt (nextSessionTurn appends BEFORE the provider call, so even a failed attempt persisted them).
+				// Re-appending on a retry would DUPLICATE the user turn — so a retry sends NO new messages and just
+				// re-attempts the provider call against the existing history.
+				$turn_messages = ($queue_message->retry_count > 0) ? [] : $new_messages;
+
+				// Fresh PHP budget for THIS turn (the loop may run several within $stop_time).
+				@set_time_limit($turn_timeout + 30);
+
+				$error = null;
+
+				// CHECK BEFORE CALL — the assistant turn is persisted (inside chatCompletion, via the memory store)
+				// BEFORE this message is acked, so a failure anywhere in that window leaves the session ADVANCED with
+				// the message un-acked. Calling the provider again would append a SECOND assistant turn to a history
+				// that already has one — a duplicate turn, billed twice, on top of a session the gate can never clear.
+				// Observed live (session e49f40ba…, seq 2691: 19,881 output tokens landed; queue_message still
+				// retry_count=4/AVAILABLE). Only meaningful on a RETRY: at retry_count 0 this attempt hasn't run yet,
+				// so an assistant head can't be ours.
+				if($queue_message->retry_count > 0 && $this->_sessionTurnAlreadyLanded($session_id)) {
+					$queue_message->reportStatus(QueueMessageStatus::DONE, 'A prior attempt already advanced the session; acked without re-calling the provider.', [
+						'already_landed' => true,
+						'retry_count' => $queue_message->retry_count,
+					]);
+					$processed += $queue_message->cardinality;
+					$count++;
+					continue;
+				}
+
+				// INSTRUMENTATION: the provider call is unbounded from our side until $turn_timeout fires, and the
+				// Anthropic Console reports no duration — so this is the only place a turn's real wall-clock exists.
+				// Recorded on the queue log entry (success AND failure) so the timeout can be sized from a real
+				// distribution instead of a guess, and so a slow-but-succeeding turn is distinguishable from a stall.
+				$turn_started_at = microtime(true);
+				$elapsed_ms = fn() => intval(round((microtime(true) - $turn_started_at) * 1000));
+
+				// A provider call can THROW — a network/timeout/HTTP failure surfaces as Exception_DevblocksLlmApiError
+				// (carrying the status), any other Throwable is possible. CATCH it so the message is always finalized:
+				// an uncaught throw would leave it CLAIMED/IN_FLIGHT and the interaction's gate would poll forever.
+				// ERROR-CLASS aware: a transient failure (network/timeout, 429/503, 5xx) is left to the queue's retry
+				// policy (same-uuid re-enqueue with backoff, so the interaction's gate keeps waiting); a futile one
+				// (401/400/bad payload) is forced terminal so it surfaces at once instead of burning retries.
+				$was_interrupted = false;
+
+				try {
+					// STREAM the turn. This is the queue worker — the one place a turn runs off-request with
+					// somewhere to park — so it's exactly where the inactivity budget and the observable partial
+					// are worth having. A provider without streaming support falls back to the blocking call.
+					if(!($response = $this->nextSessionTurn($session_id, $turn_messages, $error, $turn_timeout, stream: true, stall_secs: $turn_stall_secs, was_interrupted: $was_interrupted))) {
+						// A null return is a setup/config failure (unknown session/provider), never transient.
+						$queue_message->retry_count = self::RETRY_COUNT_TERMINAL;
+						$queue_message->reportStatus(QueueMessageStatus::FAILED, $error ?: 'The LLM turn could not run.', [
+							'duration_ms' => $elapsed_ms(),
+						]);
+						continue;
+					}
+				} catch (\Throwable $e) {
+					// A turn WE stopped is not a failure — it did exactly what was asked. Reporting FAILED here
+					// would be actively harmful: awaitGate() turns a failed message into an interaction-level
+					// error, so pressing Stop would blow up the very interaction the user was steering. The
+					// partial has already been salvaged onto the session, so the turn is genuinely complete.
+					if($was_interrupted) {
+						$queue_message->reportStatus(QueueMessageStatus::DONE, 'The turn was stopped; the partial response was kept.', [
+							'duration_ms' => $elapsed_ms(),
+							'interrupted' => true,
+						]);
+
+						$processed += $queue_message->cardinality;
+						$count++;
+						continue;
+					}
+
+					// retry_count MUST be set before reportStatus() — reportFailure() buffers a clone of this model to
+					// make the retry decision, so a terminal flag set afterwards is never seen.
+					if(!$this->_isRetryableLlmError($e))
+						$queue_message->retry_count = self::RETRY_COUNT_TERMINAL;
+
+					// `landed_despite_error` is the forensic signal for the class of bug the check above now absorbs:
+					// the turn reached the session but this attempt still reported failure. If it shows up, the throw is
+					// happening AFTER the provider call returned — not a provider timeout at all.
+					// Snapshot the elapsed time once so `timed_out` can't disagree with `duration_ms`.
+					$failed_after_ms = $elapsed_ms();
+					$timed_out = $failed_after_ms >= ($turn_timeout * 1000);
+					// A STALL and a ceiling overrun both surface as cURL 28, so elapsed time alone can no longer
+					// tell them apart now that the two budgets differ by an order of magnitude. The distinction is
+					// the whole point of the split — "went quiet" is a provider/network problem, "ran the full
+					// ceiling while still producing" means the ceiling is too low — so record it explicitly rather
+					// than leaving it to be inferred from a duration.
+					$stalled = !$timed_out && str_contains($e->getMessage(), 'Operation too slow');
+					$landed = $this->_sessionTurnAlreadyLanded($session_id);
+
+					// Straight to the error log, NOT just reportStatus() metadata: `_bufferLogEntry()` drops anything on
+					// a job-less message ("fire-and-forget messages (job_id=0) skip logging"), and every LLM turn is
+					// job-less — so the metadata alone would silently go nowhere. A failed turn is rare and expensive
+					// enough to deserve a line; this is the only durable record of how long we actually waited.
+					DevblocksPlatform::logError(sprintf(
+						'[llm.turn] session=%s failed after %dms (timed_out=%s, stalled=%s, landed_despite_error=%s, retry_count=%d): %s',
+						$session_id,
+						$failed_after_ms,
+						$timed_out ? 'yes' : 'no',
+						$stalled ? 'yes' : 'no',
+						$landed ? 'yes' : 'no',
+						$queue_message->retry_count,
+						$e->getMessage()
+					));
+
+					$queue_message->reportStatus(QueueMessageStatus::FAILED, $e->getMessage(), [
+						'duration_ms' => $failed_after_ms,
+						'timed_out' => $timed_out,
+						'stalled' => $stalled,
+						'landed_despite_error' => $landed,
+					]);
+
+					continue;
+				}
+
+				$queue_message->reportStatus(QueueMessageStatus::DONE, 'Advanced the session by one turn.', [
+					'duration_ms' => $elapsed_ms(),
+					'usage' => $response->getUsage(),
+				]);
+				$processed += $queue_message->cardinality;
+				$count++;
+			}
+		}
+
+		return $processed;
+	}
+
+	// A retry_count set at/above any sane retry_max, so DAO_QueueMessage::reportFailure()'s getRetryDisposition()
+	// returns "no retry" and the message goes terminal at once — used to force-fail an error class that can never
+	// succeed on retry (auth/bad-request/malformed payload), independent of the queue's retry_max. Never persisted
+	// (the terminal path writes status only, not retry_count); it only drives the disposition.
+	const RETRY_COUNT_TERMINAL = 255;
+
+	// Classify a thrown provider error: worth retrying? Only a structured Exception_DevblocksLlmApiError with a
+	// TRANSIENT status — 0 (network/timeout, no response), 408/425/429, or 5xx (incl. Anthropic 529 Overloaded).
+	// Everything else (401/403/400/404/413/422, a bad-JSON automation error, or any other Throwable = a bug) is
+	// futile → surface, don't loop.
+	private function _isRetryableLlmError(\Throwable $e) : bool {
+		if(!($e instanceof \Exception_DevblocksLlmApiError))
+			return false;
+
+		return 0 === $e->statusCode
+			|| in_array($e->statusCode, [408, 425, 429, 500, 502, 503, 504, 529], true);
+	}
+
+	/**
+	 * Has this session's turn ALREADY been produced? True when the session's active head is an `assistant`
+	 * message — i.e. the provider replied and the memory store appended it (which also moved the head, see
+	 * MemoryStore\DatabaseHistory::appendMessage → DAO_LlmAgentSession::setHead).
+	 *
+	 * A queue message's unit of work is "advance this session by one assistant turn", and every enqueue happens
+	 * with the head on a `user` row (the user's message, or the tool results the node just appended). So an
+	 * assistant head means the work is done — whoever did it — and re-calling the provider would append a
+	 * DUPLICATE assistant turn. Reads the session fresh (never a cached model): the whole point is to observe a
+	 * write made by a previous, failed attempt.
+	 *
+	 * Uses the session HEAD rather than MAX(seq) so a branched/forked session can't be judged by a message that
+	 * isn't on the active path.
+	 *
+	 * ⚠️ Both DAO reads go through `GetRowReader` (a replica, where one is configured). This guard exists to
+	 * observe a write made by a PREVIOUS attempt, so replica lag would produce a FALSE NEGATIVE — we'd miss the
+	 * landed turn and duplicate it, i.e. degrade to today's behavior rather than break anything new. The gap only
+	 * matters on a replicated install with lag exceeding the retry backoff; the durable fix is the request-uuid
+	 * stamp (which can be read from master on the message's own row) rather than a role check on the head.
+	 */
+	private function _sessionTurnAlreadyLanded(string $session_id) : bool {
+		if(!($session = DAO_LlmAgentSession::get($session_id)) || !$session->head_uuid)
+			return false;
+
+		if(!($head = DAO_LlmAgentMessage::get($session->head_uuid)))
+			return false;
+
+		// A STREAMING head is a turn still being written, not one that landed. Counting it as landed would
+		// invert this guard's meaning: an attempt that died mid-stream would look like a completed turn, so the
+		// retry would ack without ever calling the provider and the session would sit on a truncated answer
+		// forever. The half-written row is resolved separately (resolveDanglingStream), not treated as done.
+		return 'assistant' === $head->role && !$head->is_streaming;
+	}
 
 	/**
 	 * The provider tool schemas for a session, built from its stored `tools` (the authored map) + `mounts`

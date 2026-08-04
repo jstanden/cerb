@@ -45,6 +45,10 @@ class QueueConsumer_Internal extends Extension_QueueConsumer {
 
 		} elseif($queue->name == 'cerb.storage.migrations') {
 			return \Cerb\Records\StorageMigration::processQueue($queue, $stop_time, $count_hint, $queue_job);
+
+		} elseif($queue->name == 'cerb.llm.agent.requests') {
+			$llm = DevblocksPlatform::services()->llm();
+			return $llm->processQueue($queue, $stop_time, $count_hint, $queue_job);
 		}
 
 		return 0;

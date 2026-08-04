@@ -1140,7 +1140,10 @@ class Model_Automation extends DevblocksRecordModel {
 			DAO_AutomationLog::LOG_LEVEL => $log_level,
 			DAO_AutomationLog::CREATED_AT => time(),
 			DAO_AutomationLog::AUTOMATION_NAME => $this->name ?? '',
-			DAO_AutomationLog::AUTOMATION_NODE => $node_path,
+			// `automation_node` is NOT NULL. Not every error is attributable to a node (a gated await failure has
+			// no node path), and create() INSERTs then UPDATEs — so a null here doesn't just lose the log entry,
+			// it leaves an orphan row behind with column defaults. Coerce, as the callers in automation.php do.
+			DAO_AutomationLog::AUTOMATION_NODE => $node_path ?? '',
 		];
 		
 		return DAO_AutomationLog::create($fields);
