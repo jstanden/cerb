@@ -107,6 +107,8 @@ $(function() {
     });
     {/if}
 
+    {if !$is_automation_simulated|default:false}
     editor.focus();
+    {/if}
 });
 </script>

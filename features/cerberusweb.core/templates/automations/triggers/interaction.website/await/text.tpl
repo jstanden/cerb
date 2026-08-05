@@ -4,6 +4,7 @@
 	<input name="prompts[{$var}]" type="text" placeholder="{$placeholder}" value="{$value|default:$default}" autocomplete="off">
 </div>
 
+{if !($is_automation_simulated|default:false)}
 <script type="text/javascript" nonce="{$session->nonce}">
 {
 	let $prompt = document.querySelector('#{$element_id}');
@@ -27,3 +28,4 @@
 	});
 }
 </script>
+{/if}

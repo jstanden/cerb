@@ -52,6 +52,8 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 					return $this->_profileAction_editorUsage();
 				case 'editorVisualize':
 					return $this->_profileAction_editorVisualize();
+				case 'formBuilderPreview':
+					return $this->_profileAction_formBuilderPreview();
 				case 'getAutocompleteJson':
 					return $this->_profileAction_getAutocompleteJson();
 				case 'getExtensionConfig':
@@ -76,6 +78,12 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 					return $this->_profileAction_sendMessage();
 				case 'showExportPopup':
 					return $this->_profileAction_showExportPopup();
+				case 'showFormBuilderPopup':
+					return $this->_profileAction_showFormBuilderPopup();
+				case 'showFormStatePreviewPopup':
+					return $this->_profileAction_showFormStatePreviewPopup();
+				case 'submitFormStatePreview':
+					return $this->_profileAction_submitFormStatePreview();
 				case 'showPrimeStatePopup':
 					return $this->_profileAction_showPrimeStatePopup();
 				case 'showStateDiffPopup':
@@ -659,8 +667,14 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		$toolbar = $trigger_ext->getEditorToolbar();
 
 		$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar, $toolbar_dict);
-		
+
 		DevblocksPlatform::services()->ui()->toolbar()->render($toolbar);
+
+		// Flag whether this trigger supports the visual Form Builder (worker family + interaction.website). The
+		// editor's Form Builder button is a static toolbar item, so the client toggles its visibility from this
+		// marker on trigger change.
+		if($this->_supportsFormComponents($trigger_ext))
+			echo '<span data-cerb-supports-form-builder hidden></span>';
 	}
 
 	// Automation Builder — render a picked candidate's code-driven CerbUI wizard (the config slide-in). Empty
@@ -1251,14 +1265,11 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 	
 	private function _handleAutomationAwaitForm(Model_AutomationContinuation $continuation) {
 		$automator = DevblocksPlatform::services()->automation();
-		$validation = DevblocksPlatform::services()->validation();
-		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$prompts = DevblocksPlatform::importGPC($_POST['prompts'] ?? null, 'array', []);
 		$reset = DevblocksPlatform::importGPC($_POST['reset'] ?? null, 'integer', 0);
 		
-		$prompts_without_output = ['say'];
 		
 		unset($_POST);
 		
@@ -1300,81 +1311,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		if($is_submit) {
 			$last_prompts = ($initial_state['__return']['form']['elements'] ?? null) ?: [];
 			$validation_errors = [];
-			$validation_values = [];
-			
-			foreach ($last_prompts as $last_prompt_key => $last_prompt) {
-				list($last_prompt_type, $prompt_set_key) = array_pad(explode('/', $last_prompt_key, 2), 2, null);
-				
-				if (!$prompt_set_key)
-					continue;
-				
-				if (array_key_exists($last_prompt_type, $form_components)) {
-					if(in_array($last_prompt_type, $prompts_without_output))
-						continue;
-					
-					$prompt_value = $prompts[$prompt_set_key] ?? null;
-					
-					$is_required = array_key_exists('required', $last_prompt) && $last_prompt['required'];
-					
-					$is_set = (is_string($prompt_value) && strlen($prompt_value))
-						|| (is_array($prompt_value) && count($prompt_value));
-					
-					$component = new $form_components[$last_prompt_type]($prompt_set_key, $prompt_value, $last_prompt);
-					
-					if ($is_required || $is_set) {
-						$component->validate($validation);
-						
-						$validation_values[$prompt_set_key] = $prompt_value;
-						
-						// Run custom validation if it exists
-						if(array_key_exists('validation', $last_prompt)) {
-							$validation_set_key = $prompt_set_key . '__custom';
-							$validation_dict = DevblocksDictionaryDelegate::instance($initial_state);
-							$component->setValue($prompt_set_key, $prompt_value, $validation_dict);
-							
-							// The validation template must be a string
-							if(is_string($last_prompt['validation'])) {
-								$validation_error = trim($tpl_builder->build($last_prompt['validation'], $validation_dict));
-								
-								if($validation_error) {
-									$validation_values[$validation_set_key] = $prompt_value;
-									
-									$validation
-										->addField($validation_set_key, $last_prompt['label'] ?? $prompt_set_key)
-										->error()
-										->setError($validation_error)
-									;
-								}
-								
-							} else {
-								$validation_values[$validation_set_key] = false;
-								
-								$error_message = sprintf("`%s:validation:` must be a string.", $last_prompt_key);
-								
-								$validation
-									->addField($validation_set_key, $last_prompt['label'] ?? $prompt_set_key)
-									->error()
-									->setError($error_message)
-								;
-								
-								$automation->logError(
-									$error_message,
-									''
-								);
-							}
-						}
-					}
-					
-					$initial_state = $component->setValue($prompt_set_key, $prompt_value, $initial_state);
-				}
-			}
-			
-			if ($validation_values) {
-				if (false === $validation->validateAll($validation_values, $error))
-					$validation_errors[] = $error;
-				
-				$initial_state = array_merge($initial_state, $validation_values);
-			}
+			$initial_state = $this->_applyAwaitFormPromptValues($initial_state, $last_prompts, $prompts, $trigger_extension, $validation_errors, $automation);
 			
 			// Verify permissions
 			$policy = $automation->getPolicy();
@@ -1417,20 +1354,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 				$automation_results = DevblocksDictionaryDelegate::instance($initial_state);
 				
 			} else {
-				// Format dictionary keys
-				foreach ($last_prompts as $last_prompt_key => $last_prompt) {
-					list($last_prompt_type, $prompt_set_key) = array_pad(explode('/', $last_prompt_key, 2), 2, null);
-					$prompt_set_key = strval($prompt_set_key);
-					$prompt_value = $prompts[$prompt_set_key] ?? null;
-					
-					if (array_key_exists($last_prompt_type, $form_components)) {
-						if(in_array($last_prompt_type, $prompts_without_output))
-							continue;
-						
-						$component = new $form_components[$last_prompt_type]($prompt_set_key, $prompt_value, $last_prompt);
-						$initial_state[$prompt_set_key] = $component->formatValue();
-					}
-				}
+				$initial_state = $this->_formatAwaitFormPromptValues($initial_state, $last_prompts, $prompts, $trigger_extension);
 				
 				if (false === ($automation_results = $automator->executeScript($automation, $initial_state, $error))) {
 					$initial_state['__exit'] = 'await';
@@ -1454,6 +1378,135 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		$this->_respondAutomationAwait($continuation, $automation_results);
 	}
 	
+	/**
+	 * Apply a submitted form's `prompts[<var>]` to a state dict exactly as the live interaction runtime does:
+	 * per element, validate (+ optional per-field `validation:` template) then `setValue()` — which writes EVERY
+	 * derived key (e.g. agentPrompt's `_mentions`/`__model`/`__llm`/`__images`). Runs `validateAll()` and merges
+	 * the validation markers. On failure it fills `$validation_errors` and the caller decides how to surface it
+	 * (re-render the form / prepend a `say/__validation`); `formatValue()` is a SEPARATE pass
+	 * (`_formatAwaitFormPromptValues`) the caller runs only once validation (and policy) pass. Shared by the
+	 * runtime (`_handleAutomationAwaitForm`) and the automation editor's form-state writeback so there's ONE path.
+	 */
+	private function _applyAwaitFormPromptValues(array $initial_state, array $last_prompts, array $prompts, Extension_AutomationTrigger $trigger_extension, array &$validation_errors, ?Model_Automation $automation = null) : array {
+		$validation = DevblocksPlatform::services()->validation();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$form_components = $trigger_extension::getFormComponentMeta();
+		$prompts_without_output = ['say'];
+
+		$validation_errors = [];
+		$validation_values = [];
+
+		foreach ($last_prompts as $last_prompt_key => $last_prompt) {
+			list($last_prompt_type, $prompt_set_key) = array_pad(explode('/', $last_prompt_key, 2), 2, null);
+
+			// An element name becomes a top-level dict key the script reads back as `{{<name>}}` (plus derived
+			// siblings like `<name>__model`), so it has to be a name Twig can lex — `{{a-b}}` is the subtraction
+			// `a - b` and renders 0 with no error. Skip the element rather than aborting the turn: one bad name
+			// is one broken variable, not a broken interaction.
+			if (!$prompt_set_key || !_DevblocksKataService::isVariableName($prompt_set_key))
+				continue;
+
+			if (array_key_exists($last_prompt_type, $form_components)) {
+				if(in_array($last_prompt_type, $prompts_without_output))
+					continue;
+
+				$prompt_value = $prompts[$prompt_set_key] ?? null;
+
+				$is_required = is_array($last_prompt) && array_key_exists('required', $last_prompt) && $last_prompt['required'];
+
+				$is_set = (is_string($prompt_value) && strlen($prompt_value))
+					|| (is_array($prompt_value) && count($prompt_value));
+
+				if(!($component = $trigger_extension::newFormComponent($last_prompt_type, $prompt_set_key, $prompt_value, $last_prompt)))
+					continue;
+
+				if ($is_required || $is_set) {
+					$component->validate($validation);
+
+					$validation_values[$prompt_set_key] = $prompt_value;
+
+					// Run custom validation if it exists
+					if(is_array($last_prompt) && array_key_exists('validation', $last_prompt)) {
+						$validation_set_key = $prompt_set_key . '__custom';
+						$validation_dict = DevblocksDictionaryDelegate::instance($initial_state);
+						$component->setValue($prompt_set_key, $prompt_value, $validation_dict);
+
+						// The validation template must be a string
+						if(is_string($last_prompt['validation'])) {
+							$validation_error = trim($tpl_builder->build($last_prompt['validation'], $validation_dict));
+
+							if($validation_error) {
+								$validation_values[$validation_set_key] = $prompt_value;
+
+								$validation
+									->addField($validation_set_key, $last_prompt['label'] ?? $prompt_set_key)
+									->error()
+									->setError($validation_error)
+								;
+							}
+
+						} else {
+							$validation_values[$validation_set_key] = false;
+
+							$error_message = sprintf("`%s:validation:` must be a string.", $last_prompt_key);
+
+							$validation
+								->addField($validation_set_key, $last_prompt['label'] ?? $prompt_set_key)
+								->error()
+								->setError($error_message)
+							;
+
+							if($automation)
+								$automation->logError($error_message, '');
+						}
+					}
+				}
+
+				$initial_state = $component->setValue($prompt_set_key, $prompt_value, $initial_state);
+			}
+		}
+
+		$error = null;
+		if ($validation_values) {
+			if (false === $validation->validateAll($validation_values, $error))
+				$validation_errors[] = $error;
+
+			$initial_state = array_merge($initial_state, $validation_values);
+		}
+
+		return $initial_state;
+	}
+
+	// The runtime's post-validation format pass: normalize each element's primary key via `formatValue()` — the
+	// one place agentPrompt actually mints/primes its session and links pasted attachments. Run ONLY after
+	// validation (and, in the runtime, policy) pass. Shared by the runtime + the form-state writeback.
+	private function _formatAwaitFormPromptValues(array $initial_state, array $last_prompts, array $prompts, Extension_AutomationTrigger $trigger_extension) : array {
+		$form_components = $trigger_extension::getFormComponentMeta();
+		$prompts_without_output = ['say'];
+
+		foreach ($last_prompts as $last_prompt_key => $last_prompt) {
+			list($last_prompt_type, $prompt_set_key) = array_pad(explode('/', $last_prompt_key, 2), 2, null);
+
+			// No output binding (e.g. a bare `submit:`) → don't write a "" key. A name the script couldn't read
+			// back as `{{<name>}}` is skipped for the same reason (see _applyAwaitFormPromptValues).
+			if(!$prompt_set_key || !_DevblocksKataService::isVariableName($prompt_set_key))
+				continue;
+
+			$prompt_value = $prompts[$prompt_set_key] ?? null;
+
+			if (array_key_exists($last_prompt_type, $form_components)) {
+				if(in_array($last_prompt_type, $prompts_without_output))
+					continue;
+
+				if(!($component = $trigger_extension::newFormComponent($last_prompt_type, $prompt_set_key, $prompt_value, $last_prompt)))
+					continue;
+				$initial_state[$prompt_set_key] = $component->formatValue();
+			}
+		}
+
+		return $initial_state;
+	}
+
 	private function _handleAutomationAwait(Model_AutomationContinuation $continuation) {
 		$initial_state = $continuation->state_data['dict'] ?? [];
 		$return = $initial_state['__return'] ?? [];
@@ -2015,8 +2068,6 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 	}
 	
 	private function _respondAutomationAwaitForm(DevblocksDictionaryDelegate $automation_results, Model_AutomationContinuation $continuation) {
-		$form_components = AutomationTrigger_InteractionWorker::getFormComponentMeta();
-		
 		$exit_code = $automation_results->get('__exit');
 		
 		$form_title = $automation_results->getKeyPath('__return.form.title', null);
@@ -2093,24 +2144,10 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		}
 		
 		$continuation->state_data['dict'] = $automation_results->getDictionary();
-		
-		foreach($elements as $element_key => $element_data) {
-			list($action_key_type, $var) = array_pad(explode('/', $element_key, 2), 2, null);
-			
-			if(is_array($element_data) && array_key_exists('hidden', $element_data) && $element_data['hidden'])
-				continue;
-			
-			if(array_key_exists($action_key_type, $form_components)) {
-				$value = $automation_results->get($var, null);
-				
-				if(!array_key_exists($action_key_type, $form_components))
-					continue;
-				
-				$component = new $form_components[$action_key_type]($var, $value, $element_data);
-				$component->render($continuation);
-			}
-		}
-		
+
+		$trigger_extension = $continuation->getAutomation()?->getTriggerExtension();
+		$this->_renderFormElements($elements, $automation_results, $continuation, $trigger_extension);
+
 		// Save session scope
 		DAO_AutomationContinuation::update($continuation->token, [
 			DAO_AutomationContinuation::STATE => $exit_code,
@@ -2119,6 +2156,395 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 			DAO_AutomationContinuation::UPDATED_AT => time(),
 			DAO_AutomationContinuation::STATE_AWAIT => $state_await,
 		]);
+	}
+
+	/**
+	 * A trigger supports the visual form builder / form-state preview if it exposes BOTH the component registry
+	 * (getFormComponentMeta) and the inspector descriptors (getFormComponentSchema). Covers the worker family
+	 * (interaction.worker/internal/explore) and interaction.website; mail.* and others don't qualify.
+	 */
+	private function _supportsFormComponents($trigger_extension) : bool {
+		return $trigger_extension instanceof Extension_AutomationTrigger
+			&& method_exists($trigger_extension, 'getFormComponentMeta')
+			&& method_exists($trigger_extension, 'getFormComponentSchema');
+	}
+
+	/**
+	 * Render an `await:form:` element set to HTML. Shared by the live interaction runtime
+	 * (`_respondAutomationAwaitForm`), the design-time form-builder preview, and the simulator's read-only
+	 * form preview. `$is_simulated` sets the `is_automation_simulated` template flag so each `await/<type>.tpl`
+	 * skips its live scripting (submit AJAX, autofocus, streaming, paging) — an inert render. `$wrap_for_builder`
+	 * is the SEPARATE builder concern: wrap each element in a selectable `.cerb-fb-element` handle and KEEP
+	 * `hidden` elements (dimmed) so they stay editable. A read-only preview (simulator/graph) is simulated but
+	 * NOT builder-wrapped, so it skips hidden elements like the runtime and emits clean component markup.
+	 */
+	private function _renderFormElements(array $elements, DevblocksDictionaryDelegate $results, Model_AutomationContinuation $continuation, ?Extension_AutomationTrigger $trigger_extension, bool $is_simulated=false, ?int $only_index=null, bool $wrap_for_builder=false, bool $is_form_fill=false) {
+		if(!$trigger_extension || !method_exists($trigger_extension, 'getFormComponentMeta'))
+			return;
+
+		$tpl = DevblocksPlatform::services()->template();
+		// Website Awaits render through the sandboxed Smarty (a distinct singleton), so the flags must be assigned
+		// on BOTH instances or the sandbox-rendered templates (`{$is_automation_simulated}`) won't see them.
+		$tpl_sandbox = DevblocksPlatform::services()->templateSandbox();
+		$form_components = $trigger_extension::getFormComponentMeta();
+
+		// The simulator form-fill renders inert (no live streaming/paging AJAX) like the builder preview, but its
+		// submit must FUNCTION (fire cerb-form-builder-submit so the popup can collect values + write them back).
+		$tpl->assign('is_automation_simulated', $is_simulated);
+		$tpl->assign('is_automation_form_fill', $is_form_fill);
+		$tpl_sandbox->assign('is_automation_simulated', $is_simulated);
+		$tpl_sandbox->assign('is_automation_form_fill', $is_form_fill);
+
+		// A form re-rendered because of a validation / access-denied error carries a `say/__validation` (or
+		// `say/__accessDenied`). Auto-submitting elements (`submit: is_automatic`, `uiCommand`) must NOT re-fire in
+		// that state — they'd re-trigger the same error forever. This render-time flag lets those templates fall
+		// back to a manual Continue / render inert.
+		$is_form_error = array_key_exists('say/__validation', $elements) || array_key_exists('say/__accessDenied', $elements);
+		$tpl->assign('is_automation_form_error', $is_form_error);
+		$tpl_sandbox->assign('is_automation_form_error', $is_form_error);
+
+		$index = -1;
+
+		foreach($elements as $element_key => $element_data) {
+			$index++;
+
+			// Builder single-element refresh: mock the whole form (siblings feed the continuation) but emit only this one.
+			if($wrap_for_builder && $only_index !== null && $index !== $only_index)
+				continue;
+
+			list($action_key_type, $var) = array_pad(explode('/', preg_replace('/@.*$/', '', strval($element_key)), 2), 2, null);
+
+			$is_hidden = is_array($element_data) && array_key_exists('hidden', $element_data) && $element_data['hidden'];
+
+			// Only the builder keeps hidden elements (dimmed, still selectable); the runtime + read-only previews skip them.
+			if($is_hidden && !$wrap_for_builder)
+				continue;
+
+			if(!array_key_exists($action_key_type, $form_components))
+				continue;
+
+			$value = $results->get($var, null);
+			if(!($component = $trigger_extension::newFormComponent($action_key_type, $var, $value, $element_data)))
+				continue;
+
+			if($wrap_for_builder) {
+				// Wrap each rendered element so the builder can select / reorder / delete it by model index.
+				ob_start();
+				$component->render($continuation);
+				$html = ob_get_clean();
+
+				printf(
+					'<div class="cerb-fb-element%s" data-cerb-fb-index="%d">%s</div>',
+					$is_hidden ? ' cerb-fb-element--hidden' : '',
+					$index,
+					$html
+				);
+			} else {
+				$component->render($continuation);
+			}
+		}
+
+		$tpl->clearAssign('is_automation_simulated');
+		$tpl->clearAssign('is_automation_form_fill');
+		$tpl->clearAssign('is_automation_form_error');
+		$tpl_sandbox->clearAssign('is_automation_simulated');
+		$tpl_sandbox->clearAssign('is_automation_form_fill');
+		$tpl_sandbox->clearAssign('is_automation_form_error');
+	}
+
+	// Serve the form-builder popup: a palette of the trigger's form components + a live simulated preview.
+	private function _profileAction_showFormBuilderPopup() {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
+		$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? '', 'string', '');
+
+		if(!($trigger_extension = Extension_AutomationTrigger::get($extension_id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+
+		// Worker family + interaction.website (both expose getFormComponentMeta + getFormComponentSchema). The
+		// website Awaits render inert in simulated mode (mock portal schema + mock session), so no live portal.
+		if(!$this->_supportsFormComponents($trigger_extension))
+			DevblocksPlatform::dieWithHttpError(null, 405);
+
+		$form_components = $trigger_extension::getFormComponentMeta();
+
+		// The client only needs each component's icon (its render class stays server-side).
+		$components_client = [];
+		foreach($form_components as $type => $meta)
+			$components_client[$type] = ['icon' => $meta['icon'] ?? 'form'];
+
+		$schema = method_exists($trigger_extension, 'getFormComponentSchema')
+			? $trigger_extension::getFormComponentSchema()
+			: [];
+
+		// Record types (aliased contexts) for the chooser inspector's type picker + query scoping.
+		$record_types = [];
+		foreach(Extension_DevblocksContext::getAll(false) as $context_id => $mft) {
+			$alias = $mft->params['alias'] ?? '';
+			if(!$alias)
+				continue;
+			$record_types[] = [
+				'context' => $context_id,
+				'alias' => $alias,
+				'label' => $mft->name,
+				'icon' => $mft->params['icon'] ?? 'collection',
+			];
+		}
+		usort($record_types, fn($a, $b) => strcasecmp($a['label'], $b['label']));
+
+		$map_resources = method_exists($trigger_extension, 'getMapResources') ? $trigger_extension::getMapResources() : [];
+		$model_presets = method_exists($trigger_extension, 'getAgentModelPresets') ? $trigger_extension::getAgentModelPresets() : [];
+		$agent_providers = method_exists($trigger_extension, 'getAgentProviders') ? $trigger_extension::getAgentProviders() : [];
+		$agent_models = method_exists($trigger_extension, 'getAgentModelChoices') ? $trigger_extension::getAgentModelChoices() : [];
+
+		// id → uri for connected accounts (agentPrompt auth): the KATA cerb-uri prefers the readable uri over the id.
+		$account_uris = [];
+		foreach(DAO_ConnectedAccount::getAll() as $account) {
+			if($account->uri)
+				$account_uris[$account->id] = $account->uri;
+		}
+
+		// Preview presentation (faux window chrome + any stylesheets to load so components render at fidelity).
+		$preview = $trigger_extension::getFormPreviewPresentation();
+
+		$tpl->assign('extension_id', $extension_id);
+		$tpl->assign('form_components_json', json_encode($components_client));
+		$tpl->assign('form_schema_json', json_encode($schema));
+		$tpl->assign('record_types_json', json_encode($record_types));
+		$tpl->assign('map_resources_json', json_encode($map_resources));
+		$tpl->assign('model_presets_json', json_encode($model_presets));
+		$tpl->assign('agent_providers_json', json_encode($agent_providers));
+		$tpl->assign('agent_models_json', json_encode($agent_models));
+		$tpl->assign('account_uris_json', json_encode((object) $account_uris));
+		$tpl->assign('preview_chrome', $preview['chrome'] ?? 'dialog');
+		$tpl->assign('preview_stylesheets', $preview['stylesheets'] ?? []);
+		$tpl->display('devblocks:cerberusweb.core::internal/automation/editor/popup_form_builder.tpl');
+	}
+
+	// Render an `await:form:` KATA fragment to inert preview HTML for the form builder (no session, mock data).
+	private function _profileAction_formBuilderPreview() {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
+		$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? '', 'string', '');
+		$form_kata = DevblocksPlatform::importGPC($_POST['kata'] ?? '', 'string', '');
+
+		// Optional: render only the element at this model index (single-component live refresh; preserves scroll).
+		$only_index = null;
+		if(array_key_exists('only_index', $_POST) && $_POST['only_index'] !== '')
+			$only_index = DevblocksPlatform::importGPC($_POST['only_index'], 'integer', 0);
+
+		if(!($trigger_extension = Extension_AutomationTrigger::get($extension_id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+
+		if(!$this->_supportsFormComponents($trigger_extension))
+			DevblocksPlatform::dieWithHttpError(null, 405);
+
+		$elements = [];
+
+		// The builder posts an `await:form:` block (or a bare `elements:` map). Parse to a tree, then formatTree()
+		// to apply `@bool`/`@int`/… annotations and interpolate `{{placeholders}}` against a mock dict — this is
+		// the same clean, typed element config the runtime hands each component.
+		if($form_kata) {
+			$kata = DevblocksPlatform::services()->kata();
+			$error = null;
+
+			if(false !== ($tree = $kata->parse($form_kata, $error)) && is_array($tree)) {
+				$preview_dict = DevblocksDictionaryDelegate::instance([]);
+				$formatted = $kata->formatTree($tree, $preview_dict, $error);
+
+				if(is_array($formatted)) {
+					$elements = $formatted['await']['form']['elements']
+						?? $formatted['form']['elements']
+						?? $formatted['elements']
+						?? [];
+				}
+			}
+		}
+
+		$mock = $this->_formBuilderMockContinuation($elements);
+		$results = DevblocksDictionaryDelegate::instance($mock->state_data['dict'] ?? []);
+
+		$this->_renderFormElements($elements, $results, $mock, $trigger_extension, true, $only_index, true);
+	}
+
+	// A throwaway in-memory continuation with mock values so dynamic components render at design time.
+	private function _formBuilderMockContinuation(array $elements) : Model_AutomationContinuation {
+		$continuation = new Model_AutomationContinuation();
+		$continuation->token = '';
+
+		$dict = [];
+
+		// Seed each element's output variable with a type-appropriate mock value so data-driven
+		// components (sheet, chart, transcript) have something to render at design time.
+		foreach($elements as $element_key => $element_data) {
+			list($type, $var) = array_pad(explode('/', preg_replace('/@.*$/', '', strval($element_key)), 2), 2, null);
+
+			if(!$var)
+				continue;
+
+			if(is_array($element_data) && array_key_exists('default', $element_data) && !is_array($element_data['default'])) {
+				$dict[$var] = $element_data['default'];
+				continue;
+			}
+
+			$dict[$var] = $this->_formBuilderMockValue($type);
+		}
+
+		// Some components (sheet) re-read their config from `__return.form.elements` on the continuation, exactly
+		// as the runtime stores it — mirror that so they render.
+		$dict['__return'] = ['form' => ['elements' => $elements]];
+
+		$continuation->state_data = ['dict' => $dict];
+
+		return $continuation;
+	}
+
+	private function _formBuilderMockValue(string $type) {
+		return match($type) {
+			'sheet' => [
+				['name' => 'Sample row 1'],
+				['name' => 'Sample row 2'],
+				['name' => 'Sample row 3'],
+			],
+			default => null,
+		};
+	}
+
+	// Render the `await:form:` from the current simulator state as the ACTUAL interaction popup (not a preview):
+	// the outer popup IS the dialog, titled with the form's title, and Continue functions. Unlike the design-time
+	// builder (which mocks values), this drives off the LIVE, fully-resolved `__return.form` the runtime produced
+	// when it hit the await — placeholders interpolated, `@bool`/`@int` applied, current field values seeded. It's
+	// rendered inert (no live streaming/paging AJAX) but with a FUNCTIONAL submit; the popup collects the filled
+	// `prompts[*]` and posts them back to submitFormStatePreview, which merges them into the Input editor.
+	private function _profileAction_showFormStatePreviewPopup() {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
+		$tpl = DevblocksPlatform::services()->template();
+
+		$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? '', 'string', '');
+		$state_yaml = DevblocksPlatform::importGPC($_POST['state'] ?? '', 'string', '');
+
+		$trigger_extension = $extension_id ? Extension_AutomationTrigger::get($extension_id) : null;
+
+		$state = DevblocksPlatform::services()->string()->yamlParse($state_yaml, 0);
+		if(!is_array($state))
+			$state = [];
+
+		$results = DevblocksDictionaryDelegate::instance($state);
+
+		$exit_code = $results->get('__exit');
+		$form_title = $results->getKeyPath('__return.form.title', '');
+		$elements = $results->getKeyPath('__return.form.elements', []);
+
+		// A form requires an await:form continuation and the worker-family component templates.
+		$has_form = ($exit_code === 'await')
+			&& is_array($elements) && $elements
+			&& $this->_supportsFormComponents($trigger_extension);
+
+		$elements_html = '';
+
+		if($has_form) {
+			// Mirror the runtime (`_respondAutomationAwaitForm`): synthesize a default submit on await when the form
+			// declares none, so a form authored without an explicit submit still gets its Continue/Reset.
+			$has_submit = (bool) array_filter(array_keys($elements), fn($k) =>
+				$k === 'submit' || DevblocksPlatform::strStartsWith($k, 'submit/'));
+
+			if(!$has_submit)
+				$elements['submit/preview'] = ['continue' => true, 'reset' => true];
+
+			// The state already carries the resolved form + current field values, so drive the render off the real
+			// state dict (no mock): `$results->get($var)` returns each element's current value.
+			$continuation = new Model_AutomationContinuation();
+			$continuation->token = '';
+			$continuation->state_data = ['dict' => $state];
+
+			ob_start();
+			$this->_renderFormElements($elements, $results, $continuation, $trigger_extension, true, null, false, true);
+			$elements_html = ob_get_clean();
+		}
+
+		// Preview presentation (portal chrome + stylesheets for the website trigger; Cerb dialog default).
+		$preview = ($trigger_extension && method_exists($trigger_extension, 'getFormPreviewPresentation'))
+			? $trigger_extension::getFormPreviewPresentation()
+			: ['chrome' => 'dialog', 'stylesheets' => []];
+
+		$tpl->assign('has_form', $has_form);
+		$tpl->assign('form_title', $form_title ?: 'Form');
+		$tpl->assign('elements_html', $elements_html);
+		$tpl->assign('preview_chrome', $preview['chrome'] ?? 'dialog');
+		$tpl->assign('preview_stylesheets', $preview['stylesheets'] ?? []);
+		$tpl->display('devblocks:cerberusweb.core::internal/automation/editor/popup_form_state_preview.tpl');
+	}
+
+	// Merge a submitted simulator form back into the Run Input state through the SAME path the live runtime uses
+	// (`_applyAwaitFormPromptValues` + `_formatAwaitFormPromptValues`): per-component validate + setValue (persists
+	// every derived key, e.g. agentPrompt's _mentions/__model/__llm/__images), then formatValue (mints/primes the
+	// agentPrompt session, links attachments) only when validation passes. No executeScript — the user Runs to
+	// advance. On a validation error the values are kept and an error `say/__validation` is prepended (as the
+	// runtime re-renders), so re-opening the form shows it.
+	private function _profileAction_submitFormStatePreview() {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'text/plain; charset=utf-8');
+
+		$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? '', 'string', '');
+		$state_yaml = DevblocksPlatform::importGPC($_POST['state'] ?? '', 'string', '');
+		$prompts = DevblocksPlatform::importGPC($_POST['prompts'] ?? [], 'array', []);
+
+		$trigger_extension = $extension_id ? Extension_AutomationTrigger::get($extension_id) : null;
+
+		$initial_state = DevblocksPlatform::services()->string()->yamlParse($state_yaml, 0);
+		if(!is_array($initial_state))
+			$initial_state = [];
+
+		if($this->_supportsFormComponents($trigger_extension)) {
+			$last_prompts = ($initial_state['__return']['form']['elements'] ?? null) ?: [];
+
+			// Drop any prior validation notice before re-processing.
+			unset($initial_state['__return']['form']['elements']['say/__validation']);
+
+			$validation_errors = [];
+			$initial_state = $this->_applyAwaitFormPromptValues($initial_state, $last_prompts, $prompts, $trigger_extension, $validation_errors);
+
+			if($validation_errors) {
+				$initial_state['__return']['form']['elements'] = [
+					'say/__validation' => [
+						'content' => sprintf("# Correct the following errors to continue:\n%s",
+							implode("\n", array_map(fn($e) => '* ' . rtrim($e), $validation_errors))),
+						'style' => 'error',
+					],
+				] + $last_prompts;
+			} else {
+				$initial_state = $this->_formatAwaitFormPromptValues($initial_state, $last_prompts, $prompts, $trigger_extension);
+			}
+		}
+
+		echo DevblocksPlatform::services()->string()->yamlEmit($initial_state, false);
 	}
 
 	// ── Simulator input priming ──────────────────────────────────────────────────────────────────────────

@@ -37,12 +37,16 @@ class ChartAwait extends AbstractAwait {
 		];
 		$error = null;
 		
-		// Display error
-		if(
-			!($datasets_kata = $dataset->parse($this->_data['datasets'], null, $error))
-			|| !($chart_json = $chart->parse($chart_kata, $datasets_kata, $chart_options, $error))
-		) {
-			$tpl->assign('error', $error);
+		// Parse the data query + schema. Use STRICT false checks so an empty-but-valid dataset (e.g. a query that
+		// currently returns no rows — common in dev) renders an empty chart rather than being treated as an error;
+		// and always surface a NON-EMPTY message on a real failure, so chart.tpl shows the error panel instead of
+		// rendering the chart branch with an undefined `chart_json` (which blanks silently via a JS syntax error).
+		$datasets_kata = $dataset->parse($this->_data['datasets'], null, $error);
+
+		if(false === $datasets_kata) {
+			$tpl->assign('error', $error ?: 'The chart data query could not be parsed.');
+		} else if(false === ($chart_json = $chart->parse($chart_kata, $datasets_kata, $chart_options, $error))) {
+			$tpl->assign('error', $error ?: 'The chart could not be rendered from its schema.');
 		} else {
 			$tpl->assign('chart_json', json_encode($chart_json));
 		}

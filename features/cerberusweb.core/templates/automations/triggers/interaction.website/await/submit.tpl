@@ -19,6 +19,38 @@
 	{/foreach}
 </div>
 
+{if ($is_automation_simulated|default:false) && !($is_automation_form_fill|default:false)}
+{* Design-time builder preview: the buttons are inert (clicking must not hide the form or fire a submit). *}
+<script type="text/javascript" nonce="{$session->nonce}">
+$(function() {
+	$('#{$element_uid}').find('button').on('click', function(e) { e.stopPropagation(); e.preventDefault(); });
+});
+</script>
+{elseif $is_automation_simulated|default:false}
+{* Simulator form-fill: functional, but drive the form-builder popup bridge (jQuery + .cerb-form-builder), not the
+   public portal's $$ helper / cerb-interaction-popup event bus (neither exists in the automation editor). *}
+<script type="text/javascript" nonce="{$session->nonce}">
+$(function() {
+	var $element = $('#{$element_uid}');
+	var $form = $element.closest('.cerb-form-builder');
+	var $hidden = $element.find('input[data-cerb-submit-var]');
+
+	$element.find('.cerb-interaction-popup--form-elements-continue').on('click', function(e) {
+		e.stopPropagation();
+		if($hidden.length)
+			$hidden.val($(this).val());
+		$element.hide();
+		$form.triggerHandler($.Event('cerb-form-builder-submit'));
+	});
+
+	$element.find('.cerb-interaction-popup--form-elements-reset').on('click', function(e) {
+		e.stopPropagation();
+		$element.hide();
+		$form.triggerHandler($.Event('cerb-form-builder-reset'));
+	});
+});
+</script>
+{else}
 <script type="text/javascript" nonce="{$session->nonce}">
 {
 	let $element = document.querySelector('#{$element_uid}');
@@ -55,3 +87,4 @@
 	}
 }
 </script>
+{/if}

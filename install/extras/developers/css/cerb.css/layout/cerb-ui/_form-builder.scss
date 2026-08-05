@@ -1,0 +1,385 @@
+// FormBuilder: visual builder for an interaction `await:form:` block (CerbUI.FormBuilder). A palette (left,
+// CerbUI.Sidebar) + a document column (title, live preview dropzone, generated-KATA pane) and an inspector,
+// split by CerbUI.SplitPane. Structural only — colors are tokens (dark mode auto). The preview elements
+// themselves are the real `await/<type>.tpl` output, so they carry their own styles.
+.cerb-fb {
+	display: flex;
+	flex-direction: row;
+	align-items: stretch;
+	gap: 0;
+	box-sizing: border-box;
+	width: 100%;
+	height: 72vh;
+	max-height: 80vh;
+	min-height: 0;
+
+	// ── Palette ─────────────────────────────────────────────────────────────
+	&--palette {
+		--cerb-ui-sidebar-width: 215px;
+		flex: 0 0 auto;
+		border-right: 1px solid var(--cerb-color-background-contrast-225);
+
+		// Drag-only: no click "selection" affordance on tiles. Reset the color too — the active rule
+		// pairs its accent fill with a light text color that's unreadable once the fill is gone.
+		.cerb-ui-sidebar--item.cerb-ui-sidebar--item-active {
+			background: transparent;
+			color: inherit;
+		}
+	}
+
+	// A singleton tile (submit) already placed — hatched out + not draggable.
+	&--tile-used {
+		opacity: 0.4;
+		pointer-events: none;
+		background-image: repeating-linear-gradient(45deg, transparent, transparent 5px, var(--cerb-color-background-contrast-225) 5px, var(--cerb-color-background-contrast-225) 6px);
+	}
+
+	// ── Main split (document | inspector) ───────────────────────────────────
+	&--main {
+		flex: 1 1 0;
+		min-width: 0;
+	}
+
+	// The document column holds a fixed title bar, a growing preview, and a KATA pane; it manages its own
+	// internal scrolling, so suppress the pane-level scroll SplitPane would otherwise add.
+	&--doc {
+		display: flex;
+		flex-direction: column;
+		min-width: 0;
+		min-height: 0;
+
+		&.cerb-ui-splitpane--pane { overflow: hidden; }
+	}
+
+	// ── Preview (dropzone) ──────────────────────────────────────────────────
+	&--preview {
+		flex: 1 1 auto;
+		overflow: auto;
+		padding: 1em;
+		// Sit the fake popup on a neutral canvas (a hair off the dialog surface) so its border/shadow read.
+		background: var(--cerb-color-background-contrast-245);
+	}
+
+	// The static `.cerb-ui-dialog` facsimile: neutralize the live dialog's absolute positioning / high stacking
+	// / heavy 48px glow (all meaningless inline) so it flows in the scroll area, centered like a real popup.
+	&--preview-dialog {
+		position: static;
+		z-index: auto;
+		width: auto;
+		max-width: 720px;
+		margin: 0 auto;
+		box-shadow: 0 6px 24px var(--cerb-color-dialog-shadow);
+	}
+	// The dialog title, edited in place (contentEditable) — text caret + a subtle hover/focus wash, and a
+	// muted placeholder when empty. Colors inherit the titlebar (white on the accent bar).
+	&--preview-title {
+		cursor: text;
+		outline: none;
+		border-radius: 4px;
+		padding: 0 0.15em;
+		// The titlebar sets `user-select:none`, inherited here — but a contentEditable can't take a caret while
+		// selection is disabled, so it looked editable (hover) yet wouldn't edit. Re-enable text selection.
+		user-select: text;
+		-webkit-user-select: text;
+
+		&:empty::before {
+			content: attr(data-placeholder);
+			opacity: 0.55;
+		}
+		&:hover,
+		&:focus { background: color-mix(in srgb, currentColor 14%, transparent); }
+	}
+	// Decorative-only window controls — look the part, do nothing.
+	&--preview-controls {
+		pointer-events: none;
+		opacity: 0.8;
+	}
+	&--preview-form { margin: 0; }
+	&--preview-body { min-height: 1.5em; }
+
+	// Portal chrome (interaction.website): the preview IS the customer-facing portal popup, skinned by the portal's
+	// own stylesheet (loaded into the popup). Only override needed: cap/centre the embedded window in the scroll
+	// canvas (the portal's `--style-embed` otherwise stretches it to 95vw). Two-class specificity beats it.
+	&--preview--portal {
+		.cerb-fb--preview-dialog {
+			width: auto;
+			max-width: 720px;
+			margin: 1em auto;
+		}
+	}
+
+	// Insertion line shown while dragging a palette tile over the canvas.
+	&--drop-indicator {
+		height: 0;
+		margin: 2px 0;
+		border-top: 2px solid var(--cerb-color-primary, #3182ce);
+		border-radius: 2px;
+		position: relative;
+
+		&::before {
+			content: '';
+			position: absolute;
+			left: -3px;
+			top: -4px;
+			width: 6px;
+			height: 6px;
+			border-radius: 50%;
+			background: var(--cerb-color-primary, #3182ce);
+		}
+	}
+
+	// Placeholder for data-driven components (map / transcript / file download) that have no live data at design time.
+	&--sim-placeholder {
+		display: flex;
+		align-items: center;
+		gap: 0.5em;
+		margin: 0.2em 0 0 10px;
+		padding: 1em;
+		color: var(--cerb-color-text-muted);
+		border: 1px dashed var(--cerb-color-background-contrast-220);
+		border-radius: 0.5em;
+		background: var(--cerb-color-background-contrast-240);
+	}
+
+	&--empty {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		height: 100%;
+		min-height: 6em;
+		padding: 2em;
+		text-align: center;
+		color: var(--cerb-color-text-muted);
+		border: 2px dashed var(--cerb-color-background-contrast-225);
+		border-radius: 0.6em;
+	}
+
+	// ── KATA pane ───────────────────────────────────────────────────────────
+	&--kata {
+		flex: 0 0 auto;   // sizes to the (line-capped) read-only KataEditor; the preview above takes the rest
+		display: flex;
+		flex-direction: column;
+		min-height: 0;
+		border-top: 1px solid var(--cerb-color-background-contrast-225);
+
+		// Collapsed → just the bar; the editor is hidden and the preview above reclaims the space.
+		&--collapsed .cerb-ui-kataeditor { display: none; }
+
+		// The read-only KataEditor (syntax highlighting + folding) fills the pane width.
+		.cerb-ui-kataeditor {
+			width: 100%;
+			box-sizing: border-box;
+			border-top: 1px solid var(--cerb-color-background-contrast-235);
+		}
+	}
+	&--kata-bar {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0.35em 0.7em;
+		background: var(--cerb-color-background-contrast-235);
+	}
+	// Left half of the bar — click to collapse/expand (native button chrome reset).
+	&--kata-toggle {
+		display: flex;
+		align-items: center;
+		gap: 0.4em;
+		flex: 1 1 auto;
+		margin: 0;
+		padding: 0;
+		border: 0;
+		background: none;
+		font: inherit;
+		text-align: left;
+		cursor: pointer;
+	}
+	&--kata-chevron {
+		color: var(--cerb-color-text-muted);
+		font-size: 0.85em;
+	}
+	&--kata-label {
+		font-size: 0.85em;
+		font-weight: 600;
+		color: var(--cerb-color-text-muted);
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+	}
+	// Fallback styling for the raw textarea if the KataEditor enhancement is unavailable.
+	&--kata-text {
+		width: 100%;
+		box-sizing: border-box;
+		border: 0;
+		resize: vertical;
+		min-height: 8em;
+		padding: 0.5em 0.7em;
+		font-family: var(--cerb-font-family-monospace, monospace);
+		font-size: 0.82em;
+		line-height: 1.45;
+		white-space: pre;
+		background: var(--cerb-color-background-contrast-250);
+		color: var(--cerb-color-text);
+	}
+
+	// ── Inspector (cerb-ui-form) ────────────────────────────────────────────
+	&--inspector {
+		box-sizing: border-box;
+		padding: 0.8em 0.9em;
+		// No border-left — the SplitPane divider already separates this pane from the document column.
+
+		// Tighter vertical rhythm than the default cerb-ui-form gap in this narrow rail.
+		&.cerb-ui-form { gap: 0.8em; }
+	}
+	&--inspector-empty {
+		color: var(--cerb-color-text-muted);
+		padding: 1em 0.2em;
+	}
+	&--inspector-head {
+		display: flex;
+		align-items: center;
+		gap: 0.4em;
+		padding-bottom: 0.5em;
+		border-bottom: 1px solid var(--cerb-color-background-contrast-230);
+	}
+
+	// Embedded editors/choosers must fill the field width (cerb-ui-form only stretches inputs/selectmenu by default).
+	.cerb-ui-form--field > .cerb-ui-markdowneditor,
+	.cerb-ui-form--field > .cerb-ui-searchquery,
+	.cerb-ui-form--field > .cerb-ui-record-chooser { width: 100%; box-sizing: border-box; }
+
+	// Toggle + trailing label on one line.
+	&--toggle-row {
+		display: flex;
+		align-items: center;
+		gap: 0.6em;
+	}
+	&--toggle-label {
+		font-size: 0.9em;
+		color: var(--cerb-color-text);
+	}
+
+	&--field-kata {
+		font-family: var(--cerb-font-family-monospace, monospace);
+		font-size: 0.82em;
+		min-height: 8em;
+		white-space: pre;
+		resize: vertical;
+	}
+
+	&--remove {
+		margin-top: 0.5em;
+		align-self: flex-start;
+	}
+
+	// "Design sheet…" launcher in the sheet inspector (opens CerbUI.SheetBuilder in a nested dialog).
+	&--design-sheet {
+		margin-top: 0.6em;
+		align-self: flex-start;
+	}
+
+	// Map inspector: section subheadings (Region/Points Filter) + inline action buttons.
+	&--map-section {
+		margin-top: 0.9em;
+		padding-top: 0.5em;
+		border-top: 1px solid var(--cerb-color-background-contrast-230);
+		font-weight: 600;
+		color: var(--cerb-color-text-muted);
+	}
+	&--map-capture,
+	&--map-add-filter,
+	&--map-remove-filter {
+		margin-top: 0.4em;
+		align-self: flex-start;
+	}
+
+	// color_map value→color row: value input grows, swatch + remove stay compact.
+	&--colormap-rowline {
+		display: flex;
+		align-items: center;
+		gap: 0.4em;
+
+		> input[type="text"] { flex: 1 1 auto; min-width: 0; }
+		> .cerb-fb--colormap-remove { flex: 0 0 auto; }
+	}
+
+	// Repeating sub-item cards (agentPrompt models, submit custom buttons).
+	&--models-head {
+		font-size: 0.9em;
+		font-weight: 600;
+		color: var(--cerb-color-text-muted);
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		margin-top: 0.3em;
+	}
+	&--model-list {
+		display: flex;
+		flex-direction: column;
+		gap: 0.6em;
+	}
+	&--model-card {
+		display: flex;
+		flex-direction: column;
+		gap: 0.6em;
+		padding: 0.6em 0.7em;
+		border: 1px solid var(--cerb-color-background-contrast-225);
+		border-radius: 0.6em;
+		background: var(--cerb-color-background-contrast-245);
+	}
+	&--model-card-head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5em;
+		cursor: grab;   // drag handle for reordering
+
+		&:active { cursor: grabbing; }
+	}
+	// Provider icon + name in a model card's header.
+	&--model-card-title {
+		display: flex;
+		align-items: center;
+		gap: 0.4em;
+		min-width: 0;
+
+		.cerb-icons { color: var(--cerb-color-text-muted); }
+		b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+	}
+	// Leading provider glyph in the "+ Model" menu rows.
+	&--menu-icon { margin-right: 0.4em; }
+	&--add-model {
+		align-self: flex-start;
+	}
+}
+
+// ── Portal preview: force light, regardless of the worker theme ─────────────
+// The interaction.website preview renders the REAL public portal component templates + portal CSS. The
+// portal skin has no dark variant and (a) its raw inputs/textareas set no bg/color, so they fall through
+// to the worker's global INPUT/TEXTAREA rules, and (b) native controls follow the inherited color-scheme.
+// Under the worker's `.dark`, both go dark inside the white portal card. Re-assert the full light theme on
+// the facsimile subtree so those leaks resolve light and the portal reads legibly on either worker canvas.
+.dark .cerb-interaction-popup {
+	@include cerb-theme-light-vars;
+}
+// The worker global BUTTON paints a gradient via the `background` shorthand (background-image); the portal
+// button only sets background-color, so the worker gradient covers it — in BOTH light and dark worker mode.
+// Strip it unconditionally and let the portal's own --cerb-interaction-button-* colors govern (a future
+// portal light/dark/custom button color then shows through).
+.cerb-interaction-popup button { background-image: none; }
+
+// ── Placed elements (in the preview) ────────────────────────────────────────
+// Each `_renderFormElements()` output is wrapped (simulated mode only) so the builder can select / reorder /
+// delete it. A hover outline + a stronger selected outline; hidden elements render dimmed.
+.cerb-fb-element {
+	position: relative;
+	padding: 0.4em 0.5em;
+	margin-bottom: 0.3em;
+	border: 1px solid transparent;
+	border-radius: 0.5em;
+	cursor: pointer;
+
+	&:hover { border-color: var(--cerb-color-background-contrast-215); }
+	&--selected {
+		border-color: var(--cerb-color-primary, #3182ce);
+		box-shadow: 0 0 0 1px var(--cerb-color-primary, #3182ce);
+	}
+	&--hidden { opacity: 0.5; }
+}

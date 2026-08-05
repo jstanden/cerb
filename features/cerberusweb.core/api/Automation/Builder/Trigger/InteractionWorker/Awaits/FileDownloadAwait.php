@@ -97,9 +97,12 @@ class FileDownloadAwait extends AbstractAwait {
 		
 		$label = $this->_data['label'] ?? null;
 		$filename = $this->_data['filename'] ?? null;
-		
-		if(!$filename)
+
+		if(!$filename) {
+			if($this->_isBuilderPreview())
+				$this->_renderSimulatedPlaceholder($label, 'download', 'File download');
 			return;
+		}
 		
 		$tpl->assign('var', $this->_key);
 		$tpl->assign('label', $label);

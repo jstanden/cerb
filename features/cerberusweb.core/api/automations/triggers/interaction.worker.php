@@ -22,7 +22,186 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 			'textarea' => ['class' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\TextareaAwait', 'icon' => 'text'],
 		];
 	}
-	
+
+	/**
+	 * Inspector descriptors for the form builder: per component type, the config fields to edit + a `new`
+	 * starter config used when the component is dropped onto the canvas. Types with no curated field set
+	 * fall back to `raw` (edit the element's KATA body directly). A distilled, inspector-friendly view of
+	 * the `getAutocompleteSuggestions()` config maps — kept in sync by hand.
+	 */
+	public static function getFormComponentSchema() : array {
+		return [
+			'text' => [
+				'title' => 'Text',
+				'has_var' => true,
+				'fields' => [
+					['key' => 'label', 'label' => 'Label', 'input' => 'text'],
+					['key' => 'type', 'label' => 'Type', 'input' => 'select', 'default' => 'freeform', 'options' => ['freeform','bool','date','decimal','email','geopoint','ip','ipv4','ipv6','number','password','record_type','timestamp','uri','url']],
+					['key' => 'placeholder', 'label' => 'Placeholder', 'input' => 'text'],
+					['key' => 'default', 'label' => 'Default', 'input' => 'text'],
+					['key' => 'required', 'label' => 'Required', 'input' => 'bool'],
+					['key' => 'min_length', 'label' => 'Min length', 'input' => 'number'],
+					['key' => 'max_length', 'label' => 'Max length', 'input' => 'number'],
+					['key' => 'hidden', 'label' => 'Hidden', 'input' => 'bool'],
+				],
+				'new' => ['label' => 'Text:'],
+			],
+			'textarea' => [
+				'title' => 'Text area',
+				'has_var' => true,
+				'fields' => [
+					['key' => 'label', 'label' => 'Label', 'input' => 'text'],
+					['key' => 'placeholder', 'label' => 'Placeholder', 'input' => 'text'],
+					['key' => 'default', 'label' => 'Default', 'input' => 'multiline'],
+					['key' => 'required', 'label' => 'Required', 'input' => 'bool'],
+					['key' => 'min_length', 'label' => 'Min length', 'input' => 'number'],
+					['key' => 'max_length', 'label' => 'Max length', 'input' => 'number'],
+					['key' => 'hidden', 'label' => 'Hidden', 'input' => 'bool'],
+				],
+				'new' => ['label' => 'Text:'],
+			],
+			'say' => [
+				'title' => 'Say',
+				'has_var' => false,
+				'fields' => [
+					['key' => 'content', 'label' => 'Content (Markdown)', 'input' => 'multiline'],
+					['key' => 'hidden', 'label' => 'Hidden', 'input' => 'bool'],
+				],
+				'new' => ['content' => 'Sample message text.'],
+			],
+			'chooser' => [
+				'title' => 'Chooser',
+				'has_var' => true,
+				'fields' => [
+					['key' => 'label', 'label' => 'Label', 'input' => 'text'],
+					['key' => 'record_type', 'label' => 'Record type', 'input' => 'text'],
+					['key' => 'query', 'label' => 'Query', 'input' => 'multiline'],
+					['key' => 'default', 'label' => 'Default', 'input' => 'text'],
+					['key' => 'multiple', 'label' => 'Allow multiple', 'input' => 'bool'],
+					['key' => 'autocomplete', 'label' => 'Autocomplete', 'input' => 'bool'],
+					['key' => 'required', 'label' => 'Required', 'input' => 'bool'],
+					['key' => 'hidden', 'label' => 'Hidden', 'input' => 'bool'],
+				],
+				'new' => ['label' => 'Choose:', 'record_type' => 'ticket'],
+			],
+			'sheet' => [
+				'title' => 'Sheet',
+				'has_var' => true,
+				'fields' => [
+					['key' => 'label', 'label' => 'Label', 'input' => 'text'],
+					['key' => 'default', 'label' => 'Default', 'input' => 'text'],
+					['key' => 'limit', 'label' => 'Limit', 'input' => 'number'],
+					['key' => 'required', 'label' => 'Required', 'input' => 'bool'],
+					['key' => 'hidden', 'label' => 'Hidden', 'input' => 'bool'],
+					['key' => 'data', 'label' => 'Data (KATA)', 'input' => 'kata'],
+					['key' => 'schema', 'label' => 'Schema (KATA)', 'input' => 'kata'],
+				],
+				// No placeholder data/schema — a blank element opens the Sheet Builder in its default state
+				// (Records→Ticket, a card/_label column, table layout), matching the standalone tool.
+				'new' => [
+					'label' => 'Select:',
+				],
+			],
+			'fileUpload' => [
+				'title' => 'File upload',
+				'has_var' => true,
+				'fields' => [
+					['key' => 'label', 'label' => 'Label', 'input' => 'text'],
+					['key' => 'placeholder', 'label' => 'Placeholder', 'input' => 'text'],
+					['key' => 'as', 'label' => 'Store as', 'input' => 'select', 'default' => 'attachment', 'options' => ['attachment','automation_resource']],
+					['key' => 'required', 'label' => 'Required', 'input' => 'bool'],
+					['key' => 'hidden', 'label' => 'Hidden', 'input' => 'bool'],
+				],
+				'new' => ['label' => 'Upload:'],
+			],
+			'submit' => [
+				'title' => 'Submit',
+				'has_var' => false,
+				// Rendered as a mutually-exclusive Visible/Hidden/Automatic mode in the builder inspector.
+				'fields' => [
+					['key' => 'continue', 'label' => 'Continue button', 'input' => 'bool', 'default' => true],
+					['key' => 'reset', 'label' => 'Reset button', 'input' => 'bool', 'default' => true],
+					['key' => 'is_automatic', 'label' => 'Automatic submit', 'input' => 'bool'],
+					['key' => 'hidden', 'label' => 'Hidden', 'input' => 'bool'],
+				],
+				'new' => ['continue' => true, 'reset' => true],
+			],
+			'query' => [
+				'title' => 'Query',
+				'has_var' => true,
+				// record_type is rendered as a record-type SelectMenu by the builder inspector.
+				'fields' => [
+					['key' => 'label', 'label' => 'Label', 'input' => 'text'],
+					['key' => 'record_type', 'label' => 'Record type', 'input' => 'text'],
+					['key' => 'default', 'label' => 'Default', 'input' => 'multiline'],
+					['key' => 'required', 'label' => 'Required', 'input' => 'bool'],
+					['key' => 'hidden', 'label' => 'Hidden', 'input' => 'bool'],
+				],
+				'new' => ['label' => 'Search:', 'record_type' => 'ticket'],
+			],
+			'chart' => [
+				'title' => 'Chart',
+				'has_var' => true,
+				'fields' => [
+					['key' => 'label', 'label' => 'Label', 'input' => 'text'],
+					['key' => 'datasets', 'label' => 'Datasets (KATA)', 'input' => 'kata'],
+					['key' => 'schema', 'label' => 'Schema (KATA)', 'input' => 'kata'],
+				],
+				'new' => [
+					'label' => 'Chart:',
+					'datasets' => "manual/series0:\n  data:\n    series_name@csv: 1,2,3",
+					'schema' => "data:\n  series:\n    series0:",
+				],
+			],
+			'map' => [
+				'title' => 'Map',
+				'has_var' => true,
+				// resource is rendered as a SelectMenu of map resources by the builder inspector.
+				'fields' => [
+					['key' => 'label', 'label' => 'Label', 'input' => 'text'],
+				],
+				'new' => ['resource_uri' => 'cerb:resource:map.world.countries'],
+			],
+			'llmTranscript' => [
+				'title' => 'Transcript',
+				'has_var' => true,
+				'fields' => [
+					['key' => 'label', 'label' => 'Label', 'input' => 'text'],
+					['key' => 'session_id', 'label' => 'Session ID', 'input' => 'text'],
+					['key' => 'view', 'label' => 'View', 'input' => 'select', 'default' => 'toggle', 'options' => ['toggle','markdown','text']],
+					['key' => 'layout', 'label' => 'Layout', 'input' => 'select', 'default' => 'interleaved', 'options' => ['conversation','interleaved']],
+					['key' => 'thinking', 'label' => 'Thinking', 'input' => 'select', 'default' => 'summary', 'options' => ['summary','raw','hide']],
+					['key' => 'tools', 'label' => 'Tool calls', 'input' => 'select', 'default' => 'summary', 'options' => ['summary','raw','hide']],
+					['key' => 'expand', 'label' => 'Expand raw', 'input' => 'select', 'default' => 'latest', 'options' => ['latest','all','none']],
+					['key' => 'tokens', 'label' => 'Token counts', 'input' => 'bool'],
+				],
+				'new' => [],   // no default label (transcripts rarely show one); session_id seeded with a sample UUID client-side
+			],
+			'agentPrompt' => [
+				'title' => 'Agent prompt',
+				'has_var' => true,
+				// models are rendered as a guided list (presets + per-model props) by the builder inspector.
+				// `references:` (what `@` completes — `workers:` / `filesystems:`) is authored as raw KATA for
+				// now; it's an open map keyed by volume handle, so it needs the same guided-list treatment as
+				// `models:` rather than a flat field.
+				'fields' => [
+					['key' => 'label', 'label' => 'Label', 'input' => 'text'],
+					['key' => 'placeholder', 'label' => 'Placeholder', 'input' => 'text'],
+				],
+				'new' => [],   // no default label (agent prompts rarely show one); session_id + a default model seeded client-side
+			],
+		];
+	}
+
+	// Map resources offered in the builder's map inspector (uri + label).
+	public static function getMapResources() : array {
+		return [
+			['uri' => 'cerb:resource:map.world.countries', 'label' => 'World — countries'],
+			['uri' => 'cerb:resource:map.country.usa.states', 'label' => 'USA — states'],
+			['uri' => 'cerb:resource:map.country.usa.counties', 'label' => 'USA — counties'],
+		];
+	}
+
 	// Model presets for the agentPrompt builder — working defaults per model.
 	public static function getAgentModelPresets() : array {
 		return [

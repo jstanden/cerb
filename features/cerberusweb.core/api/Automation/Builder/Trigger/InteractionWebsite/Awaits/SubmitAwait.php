@@ -30,7 +30,12 @@ class SubmitAwait extends AbstractAwait {
 		$tpl->assign('session', $session);
 		
 		$is_automatic = $this->_data['is_automatic'] ?? null;
-		
+
+		// The simulator form-fill has no runtime to auto-fire the submit, so an automatic submit would leave the
+		// form with no way to advance. Fall back to the manual branch (a functional Continue button).
+		if($tpl->getTemplateVars('is_automation_form_fill'))
+			$is_automatic = false;
+
 		if($is_automatic) {
 			$tpl->assign('auto_submit', true);
 			$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.website/await/submit_auto.tpl');

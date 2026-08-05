@@ -763,6 +763,24 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 		return is_string($class) && strlen($class) && class_exists($class) ? $class : null;
 	}
 
+	// Construction seam for form-builder/preview Awaits. The worker family is 3-arg; a trigger whose Awaits need
+	// more (e.g. interaction.website, which injects a portal schema) overrides this. Late static binding selects
+	// the right override off the trigger instance/class.
+	public static function newFormComponent(string $type, $var, $value, $data) : ?object {
+		if(!($class = static::getFormComponentClass($type)))
+			return null;
+		return new $class($var, $value, $data);
+	}
+
+	// Front-end presentation for the design-time form preview (form builder + form-state "Open form"): a `chrome`
+	// hint for the faux window (default 'dialog' = the Cerb dialog facsimile) and any `stylesheets` to load so the
+	// components render with their real front-end styling. Each stylesheet is ['p' => plugin_id, 'f' => file].
+	// interaction.website overrides this to render as the customer-facing portal popup with its portal CSS.
+	public static function getFormPreviewPresentation() : array {
+		return ['chrome' => 'dialog', 'stylesheets' => []];
+	}
+
+
 	// ── Simulator priming ────────────────────────────────────────────────────
 	// The superuser-only "Simulate initial state" popup lets an author prime an event's scope before a test run.
 	// Two overridable seams so a trigger can offer a friendlier priming UX than its raw runtime scope — neither

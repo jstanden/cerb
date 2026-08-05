@@ -8,6 +8,13 @@
     --cerb-interaction-button-outline-text-color: rgb(100, 100, 100);
     --cerb-interaction-button-bg-color: rgb(70, 150, 250);
     --cerb-interaction-button-text-color: white;
+    --cerb-interaction-chat-border: rgb(220, 220, 220);
+    --cerb-interaction-chat-code-bg-color: rgb(32, 32, 32);
+    --cerb-interaction-chat-code-text-color: rgb(255, 255, 255);
+    --cerb-interaction-chat-role-text-color: rgb(120, 120, 120);
+    --cerb-interaction-chat-tool-bg-color: rgb(32, 32, 32);
+    --cerb-interaction-chat-tool-text-color: rgb(255, 255, 255);
+    --cerb-interaction-chat-user-bg-color: rgb(240, 240, 240);
     --cerb-interaction-form-element-border: 1px solid rgb(220,220,220);
     --cerb-interaction-sheet-cell-bg-color: white;
     --cerb-interaction-sheet-cell-border: 1px solid rgb(200,200,200);
@@ -348,34 +355,99 @@
     font-size: 1em;
 }
 
-.cerb-interaction-popup--form-elements-llm-transcript [data-cerb-transcript-role] pre:has(> code) {
-    background-color: rgb(32, 32, 32);
-    color: rgb(255, 255, 255);
+/* Chat: a full-width transcript of conversational turns (user / assistant) for rendering an AI/LLM session.
+   Turns are full-width rows with a role eyebrow (icon + uppercase label) above the body; USER turns are
+   filled (a subtle gray band) and ASSISTANT turns are left UNFILLED on purpose — agent output is usually
+   Markdown-formatted and a background would clash with it. The flow still reads as alternating bands.
+
+   Scoped under .cerb-interaction-popup: `getFormPreviewPresentation()` loads this stylesheet into the admin
+   form-builder popup, where core's cerb.css defines its own .cerb-ui-chat. Keep the ancestor. */
+
+.cerb-interaction-popup .cerb-ui-chat {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--cerb-interaction-chat-border);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.cerb-interaction-popup .cerb-ui-chat--turn {
+    position: relative;
+    padding: 0.85em 1em;
+    border-top: 1px solid var(--cerb-interaction-chat-border);
+}
+
+.cerb-interaction-popup .cerb-ui-chat--turn:first-child {
+    border-top: 0;
+}
+
+.cerb-interaction-popup .cerb-ui-chat--user {
+    background-color: var(--cerb-interaction-chat-user-bg-color);
+}
+
+/* Role eyebrow: role icon + uppercase muted label. The uppercase eyebrow is the sanctioned exception to the
+   no-font-size-fiddling rule. */
+.cerb-interaction-popup .cerb-ui-chat--role {
+    display: flex;
+    align-items: center;
+    gap: 0.4em;
+    margin-bottom: 0.4em;
+    color: var(--cerb-interaction-chat-role-text-color);
+    font-size: 0.9em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.cerb-interaction-popup .cerb-ui-chat--role > span.cerb-icons {
+    font-size: 1.25em;
+}
+
+.cerb-interaction-popup .cerb-ui-chat--body {
+    word-break: break-word;
+}
+
+/* Trim the markdown body's outer margins so it sits flush in the turn. */
+.cerb-interaction-popup .cerb-ui-chat--body .emailBodyHtml > *:first-child {
+    margin-top: 0;
+}
+
+.cerb-interaction-popup .cerb-ui-chat--body .emailBodyHtml > *:last-child {
+    margin-bottom: 0;
+}
+
+.cerb-interaction-popup .cerb-ui-chat--body pre:has(> code) {
+    background-color: var(--cerb-interaction-chat-code-bg-color);
+    color: var(--cerb-interaction-chat-code-text-color);
     padding: 1em;
     overflow: auto;
 }
 
-.cerb-interaction-popup--form-elements-llm-transcript [data-cerb-transcript-role] ul {
+.cerb-interaction-popup .cerb-ui-chat--body ul,
+.cerb-interaction-popup .cerb-ui-chat--body ol {
     padding-left: 1.5em;
 }
 
-.cerb-interaction-popup--form-elements-llm-transcript [data-cerb-transcript-role] ol {
-    padding-left: 1.5em;
+/* The turn's action strip, at the --right of the role eyebrow. The `hover: hover` gate keeps it visible on
+   touch, where nothing hovers and an unqualified opacity:0 would make copy unreachable. */
+.cerb-interaction-popup--form-elements-llm-transcript [data-cerb-dom=transcript-toolbar] {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.4em;
 }
 
-.cerb-interaction-popup--form-elements-llm-transcript [data-cerb-transcript-role] {
-    margin-bottom: 2em;
-}
+@media (hover: hover) {
+    .cerb-interaction-popup--form-elements-llm-transcript [data-cerb-dom=transcript-toolbar] {
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.1s ease;
+    }
 
-.cerb-interaction-popup--form-elements-llm-transcript [data-cerb-transcript-role=user] {
-    background-color: var(--cerb-interaction-window-bg-alt-color);
-    padding: 0.1em 0.5em;
-    margin-bottom: 1em;
-    border-radius: 10px;
-}
-
-.cerb-interaction-popup--form-elements-llm-transcript [data-cerb-transcript-role=assistant] {
-    padding-left: 1em;
+    .cerb-interaction-popup--form-elements-llm-transcript .cerb-ui-chat--turn:hover [data-cerb-dom=transcript-toolbar] {
+        opacity: 1;
+        pointer-events: auto;
+    }
 }
 
 .cerb-interaction-popup--form-elements-llm-transcript [data-cerb-dom=transcript-toolbar] button {
@@ -383,22 +455,26 @@
     background: none;
     border: 0;
     padding: 0;
+    color: inherit;
 }
 
+/* Rendered once below the whole transcript, not per turn. */
 .cerb-interaction-popup--form-elements-llm-transcript [data-cerb-dom=transcript-disclaimer] {
-    line-height: 32px;
-    vertical-align: top;
-    font-size: 0.8em;
+    margin-top: 0.75em;
+    color: var(--cerb-interaction-chat-role-text-color);
+    font-size: 0.85em;
 }
 
+/* A tool call: a compact chip. The website Await exposes only a name/label — no params, no results. */
 .cerb-interaction-popup--form-elements-llm-transcript [data-cerb-tool] {
     padding: 0.5em 1em;
     border-radius: 1em;
-    background-color: rgb(32, 32, 32);
-    color: white;
+    background-color: var(--cerb-interaction-chat-tool-bg-color);
+    color: var(--cerb-interaction-chat-tool-text-color);
 
     display: inline-block;
     vertical-align: middle;
+    margin-top: 0.5em;
 }
 
 .cerb-interaction-popup--form-elements-llm-transcript [data-cerb-tool] .cerb-icons {
@@ -407,8 +483,9 @@
     vertical-align: middle;
 }
 
+/* Match the role eyebrow's own icon (it sits on that row now, not standalone). */
 .cerb-interaction-popup--form-elements-llm-transcript [data-cerb-dom=transcript-toolbar] button .cerb-icons {
-    font-size: 20px;
+    font-size: 1.25em;
 }
 
 .cerb-interaction-popup--form-elements-sheet a {
@@ -778,6 +855,18 @@ svg.cerb-spinner circle {
     vertical-align: middle;
 }
 
+.cerb-icon-bot {
+    -webkit-mask-image: url(icon-bot.svg);
+    mask-image: url(icon-bot.svg);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    background-color: currentColor;
+}
+
 .cerb-icon-copy {
     -webkit-mask-image: url(icon-copy.svg);
     mask-image: url(icon-copy.svg);
@@ -824,4 +913,28 @@ svg.cerb-spinner circle {
     -webkit-mask-size: contain;
     mask-size: contain;
     background-color: currentColor;
+}
+
+.cerb-icon-user {
+    -webkit-mask-image: url(icon-user.svg);
+    mask-image: url(icon-user.svg);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    background-color: currentColor;
+}
+
+/* Dark theme — inert until something adds `dark` to the popup. Class-driven, not `prefers-color-scheme`:
+   the widget is embedded in someone else's page, so the portal owner decides, not the visitor's OS. */
+.cerb-interaction-popup.dark {
+    --cerb-interaction-chat-border: rgb(70, 70, 70);
+    --cerb-interaction-chat-code-bg-color: rgb(20, 20, 20);
+    --cerb-interaction-chat-code-text-color: rgb(230, 230, 230);
+    --cerb-interaction-chat-role-text-color: rgb(150, 150, 150);
+    --cerb-interaction-chat-tool-bg-color: rgb(60, 60, 60);
+    --cerb-interaction-chat-tool-text-color: rgb(240, 240, 240);
+    --cerb-interaction-chat-user-bg-color: rgb(50, 50, 50);
 }

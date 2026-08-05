@@ -57,8 +57,9 @@ class SayAwait extends AbstractAwait {
 			$format = 'markdown';
 			
 			// If we have references to replace and a secret, extract fragments from
-			// image URLs and generate signatures
-			if(array_key_exists('references', $this->_data)) {
+			// image URLs and generate signatures. Skipped when simulated (no portal to sign against — inline
+			// images just render unsigned in the design-time preview).
+			if(!$this->_isSimulated() && array_key_exists('references', $this->_data)) {
 				$secret = $this->_schema->getImageRequestsSecret() ?? sha1(DevblocksPlatform::services()->encryption()->getSystemKey());
 				$portal_code = \ChPortalHelper::getCode();
 				

@@ -69,6 +69,7 @@
 		<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerb-ui/node-canvas.js{/devblocks_url}?v={$smarty.now}"></script>
 		<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerb-ui/node-editor.js{/devblocks_url}?v={$smarty.now}"></script>
 		<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerb-ui/node-graph.js{/devblocks_url}?v={$smarty.now}"></script>
+		<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerb-ui/form-builder.js{/devblocks_url}?v={$smarty.now}"></script>
 	{else}
 		<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerb-ui.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
 	{/if}

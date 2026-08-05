@@ -14,7 +14,123 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 			'textarea' => ['class' => 'Cerb\Automation\Builder\Trigger\InteractionWebsite\Awaits\TextareaAwait', 'icon' => 'text'],
 		];
 	}
-	
+
+	// The website Awaits take a 4th portal-schema arg (worker Awaits are 3-arg). For the design-time form builder
+	// and the simulator preview a default-styled schema is sufficient (custom per-portal styling is applied at
+	// runtime); an empty array yields all-default accessors.
+	public static function newFormComponent(string $type, $var, $value, $data) : ?object {
+		if(!($class = static::getFormComponentClass($type)))
+			return null;
+		return new $class($var, $value, $data, new CerbPortalWebsiteInteractions_Model([]));
+	}
+
+	// Render the preview as the customer-facing portal popup (portal chrome) with the portal's own stylesheet, so
+	// components (sheet grid, buttons, inputs, transcript) look like they do on the public site.
+	public static function getFormPreviewPresentation() : array {
+		return [
+			'chrome' => 'portal',
+			'stylesheets' => [
+				['p' => 'cerb.website.interactions', 'f' => 'css/cerb.css'],
+			],
+		];
+	}
+
+	// Inspector descriptors for the form builder — the public-safe subset of the worker schema (no chooser/query/
+	// chart/map/agentPrompt/audio/editor/fileDownload). Same shape: title, has_var, fields[], `new` starter config.
+	public static function getFormComponentSchema() : array {
+		return [
+			'text' => [
+				'title' => 'Text',
+				'has_var' => true,
+				'fields' => [
+					['key' => 'label', 'label' => 'Label', 'input' => 'text'],
+					['key' => 'type', 'label' => 'Type', 'input' => 'select', 'default' => 'freeform', 'options' => ['freeform','bool','date','decimal','email','geopoint','ip','ipv4','ipv6','number','password','timestamp','uri','url']],
+					['key' => 'placeholder', 'label' => 'Placeholder', 'input' => 'text'],
+					['key' => 'default', 'label' => 'Default', 'input' => 'text'],
+					['key' => 'required', 'label' => 'Required', 'input' => 'bool'],
+					['key' => 'min_length', 'label' => 'Min length', 'input' => 'number'],
+					['key' => 'max_length', 'label' => 'Max length', 'input' => 'number'],
+					['key' => 'hidden', 'label' => 'Hidden', 'input' => 'bool'],
+				],
+				'new' => ['label' => 'Text:'],
+			],
+			'textarea' => [
+				'title' => 'Text area',
+				'has_var' => true,
+				'fields' => [
+					['key' => 'label', 'label' => 'Label', 'input' => 'text'],
+					['key' => 'placeholder', 'label' => 'Placeholder', 'input' => 'text'],
+					['key' => 'default', 'label' => 'Default', 'input' => 'multiline'],
+					['key' => 'required', 'label' => 'Required', 'input' => 'bool'],
+					['key' => 'min_length', 'label' => 'Min length', 'input' => 'number'],
+					['key' => 'max_length', 'label' => 'Max length', 'input' => 'number'],
+					['key' => 'hidden', 'label' => 'Hidden', 'input' => 'bool'],
+				],
+				'new' => ['label' => 'Text:'],
+			],
+			'say' => [
+				'title' => 'Say',
+				'has_var' => false,
+				'fields' => [
+					['key' => 'content', 'label' => 'Content (Markdown)', 'input' => 'multiline'],
+					['key' => 'hidden', 'label' => 'Hidden', 'input' => 'bool'],
+				],
+				'new' => ['content' => 'Sample message text.'],
+			],
+			'sheet' => [
+				'title' => 'Sheet',
+				'has_var' => true,
+				'fields' => [
+					['key' => 'label', 'label' => 'Label', 'input' => 'text'],
+					['key' => 'default', 'label' => 'Default', 'input' => 'text'],
+					['key' => 'limit', 'label' => 'Limit', 'input' => 'number'],
+					['key' => 'required', 'label' => 'Required', 'input' => 'bool'],
+					['key' => 'hidden', 'label' => 'Hidden', 'input' => 'bool'],
+					['key' => 'data', 'label' => 'Data (KATA)', 'input' => 'kata'],
+					['key' => 'schema', 'label' => 'Schema (KATA)', 'input' => 'kata'],
+				],
+				// No placeholder data/schema — a blank element opens the Sheet Builder in its default state
+				// (Records→Ticket, a card/_label column, table layout), matching the standalone tool.
+				'new' => [
+					'label' => 'Select:',
+				],
+			],
+			'fileUpload' => [
+				'title' => 'File upload',
+				'has_var' => true,
+				'fields' => [
+					['key' => 'label', 'label' => 'Label', 'input' => 'text'],
+					['key' => 'placeholder', 'label' => 'Placeholder', 'input' => 'text'],
+					['key' => 'as', 'label' => 'Store as', 'input' => 'select', 'default' => 'attachment', 'options' => ['attachment','automation_resource']],
+					['key' => 'required', 'label' => 'Required', 'input' => 'bool'],
+					['key' => 'hidden', 'label' => 'Hidden', 'input' => 'bool'],
+				],
+				'new' => ['label' => 'Upload:'],
+			],
+			'llmTranscript' => [
+				'title' => 'Transcript',
+				'has_var' => true,
+				'fields' => [
+					['key' => 'label', 'label' => 'Label', 'input' => 'text'],
+					['key' => 'session_id', 'label' => 'Session ID', 'input' => 'text'],
+				],
+				'new' => [],
+			],
+			'submit' => [
+				'title' => 'Submit',
+				'has_var' => false,
+				'fields' => [
+					['key' => 'continue', 'label' => 'Continue button', 'input' => 'bool', 'default' => true],
+					['key' => 'reset', 'label' => 'Reset button', 'input' => 'bool', 'default' => true],
+					['key' => 'is_automatic', 'label' => 'Automatic submit', 'input' => 'bool'],
+					['key' => 'hidden', 'label' => 'Hidden', 'input' => 'bool'],
+				],
+				'new' => ['continue' => true, 'reset' => true],
+			],
+			// `end` has no curated inspector — like the worker family it falls back to the raw KATA editor.
+		];
+	}
+
 	function renderConfig(Model_Automation $model) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('inputs', $this->getInputsMeta());
@@ -72,7 +188,12 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 			],
 		];
 	}
-	
+
+	// Pre-fill the client_* fields from the current worker's own request (the same signals App.php reads at runtime).
+	function getSimulationInputs() : array {
+		return $this->_mockClientSimulationDefaults(parent::getSimulationInputs());
+	}
+
 	function getOutputsMeta() : array {
 		return [
 			'return' => [
@@ -217,10 +338,6 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 					],
 					'session_id: a1b2c3d4-a1b2-c3d4-e5f6-a1b2c3d4e5f6',
 					'hidden@bool: yes',
-					[
-						'caption' => 'tool_labels:',
-						'snippet' => "tool_labels:\n\t\${1:example_tool}: \${2:Using tool...}",
-					],
 				],
 				
 				'(.*):await:form:elements:say:' => [

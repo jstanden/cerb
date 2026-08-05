@@ -64,6 +64,7 @@
 </div>
 
 {$script_uid = uniqid('script')}
+{if !($is_automation_simulated|default:false)}
 <script type="text/javascript" id="{$script_uid}" nonce="{$session->nonce}">
 {
 	let $script = document.querySelector('#{$script_uid}');
@@ -131,3 +132,4 @@
 	});
 }
 </script>
+{/if}

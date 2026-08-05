@@ -58,6 +58,10 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
+	// Design-time preview: the sheet renders, but interactive refresh/paging/toolbar round-trips are disabled
+	// (there's no live continuation to post against).
+	var _isSimulated = {if $is_automation_simulated|default:false}true{else}false{/if};
+
 	var $prompt = $('#{$element_id}');
 	var $form = $prompt.closest('form');
 	var $sheet = $prompt.find('[data-cerb-sheet-container]');
@@ -103,6 +107,8 @@ $(function() {
 	$prompt.on('cerb-sheet--toolbar-refresh', function(e) {
 		e.stopPropagation();
 
+		if(_isSimulated) return;
+
 		{if isset($has_toolbar) && $has_toolbar}
 		// Update the toolbar
 		var formData = new FormData();
@@ -141,6 +147,8 @@ $(function() {
 	$prompt.on('cerb-sheet--refresh', function(e) {
 		e.stopPropagation();
 
+		if(_isSimulated) return;
+
 		// Update the sheet
 		var formData = new FormData();
 		formData.set('c', 'profiles');
@@ -160,6 +168,8 @@ $(function() {
 
 	$prompt.on('cerb-sheet--page-changed', function(e) {
 		e.stopPropagation();
+
+		if(_isSimulated) return;
 
 		// Update the sheet
 		var formData = new FormData();
@@ -247,7 +257,9 @@ $(function() {
 	{if $layout.filtering}
 	$sheet_query_editor.on('keypress', function(e) {
 		e.stopPropagation();
-		
+
+		if(_isSimulated) return;
+
 		if(e.which === 13) {
 			e.preventDefault();
 

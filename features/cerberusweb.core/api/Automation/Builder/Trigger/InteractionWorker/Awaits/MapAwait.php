@@ -32,10 +32,15 @@ class MapAwait extends AbstractAwait {
 		]);
 		
 		$map_data = ['map' => $this->_data];
-		
-		if(false == ($map = DevblocksPlatform::services()->ui()->map()->parse($map_data, $dict, $error)))
+
+		if(!($map = DevblocksPlatform::services()->ui()->map()->parse($map_data, $dict, $error))) {
+			if($this->_isBuilderPreview()) {
+				$this->_renderSimulatedPlaceholder($this->_data['label'] ?? null, 'map', 'Map preview');
+			}
 			return;
-		
+		}
+
+		$tpl->assign('label', $this->_data['label'] ?? null);
 		$tpl->assign('map', $map);
 		$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.worker/await/map.tpl');
 	}

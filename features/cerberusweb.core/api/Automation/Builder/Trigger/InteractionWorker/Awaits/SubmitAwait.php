@@ -25,9 +25,19 @@ class SubmitAwait extends AbstractAwait {
 	
 	function render(Model_AutomationContinuation $continuation) {
 		$tpl = DevblocksPlatform::services()->template();
-		
+
 		$is_automatic = $this->_data['is_automatic'] ?? null;
-		
+
+		// On an error re-render (a validation / access-denied say is in the form), never auto-submit — it would
+		// re-trigger the same error forever. Fall back to the manual branch (which defaults continue:yes, reset:no).
+		if($tpl->getTemplateVars('is_automation_form_error'))
+			$is_automatic = false;
+
+		// The simulator form-fill has no runtime to auto-fire the submit, so an automatic submit would leave the
+		// form with no way to advance. Fall back to the manual branch (a functional Continue button).
+		if($tpl->getTemplateVars('is_automation_form_fill'))
+			$is_automatic = false;
+
 		if($is_automatic) {
 			$tpl->assign('auto_submit', true);
 			$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.worker/await/submit_auto.tpl');

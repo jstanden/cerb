@@ -39,6 +39,7 @@
 	</div>
 </div>
 
+{if !($is_automation_simulated|default:false)}
 <script type="text/javascript" nonce="{$session->nonce}">
 {
 	let $prompt = document.querySelector('#{$element_id}');
@@ -193,3 +194,4 @@
 	{/if}
 }
 </script>
+{/if}
