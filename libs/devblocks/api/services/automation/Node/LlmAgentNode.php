@@ -18,6 +18,11 @@ class LlmAgentNode extends AbstractNode {
 
 	private array $_inputs = [];
 	private string $_output = '';
+
+	// The router that supplied this turn's model, when one did. Empty on a pure resume (nothing was chosen)
+	// and on an inline `llm:` / explicit `model:` turn. Surfaced in the node output so an implicit default is
+	// traceable -- "why did this run Haiku" has no answer otherwise.
+	private string $_router_name = '';
 	private DevblocksDictionaryDelegate $_dict;
 	private array $_node_memory = [];
 
@@ -906,10 +911,11 @@ class LlmAgentNode extends AbstractNode {
 			\DAO_LlmAgentSession::setTokenUsage($session_id, $token_usage);
 
 		// Return an abstract list of messages
-		$this->_dict->set($this->_output, [
+		$this->_dict->set($this->_output, array_merge([
 			'session_id' => $session_id,
 			'messages' => $llm_response->getMessages(),
 			'finish_reason' => $llm_response->getFinishReason(),
+		], $this->_resolvedModelInfo($session_id)));
 
 		// A turn that stopped abnormally AND produced nothing usable has no path forward: today it completes
 		// silently with `messages: []`, so the automation continues as if the agent had answered with nothing.
@@ -1100,6 +1106,31 @@ class LlmAgentNode extends AbstractNode {
 		return true;
 	}
 
+	/**
+	 * What actually ran, for the node output: `provider`, `model`, and (when this turn chose it) `router`.
+	 *
+	 * Read off the SESSION rather than the inputs, so it's correct however the model was selected -- an inline
+	 * `llm:` block, a `model:` reference, an implicit default router, or a pure resume of a session someone else
+	 * primed. That last case is the reason this exists: with the default router, nothing in the script names a
+	 * model, so without this an author has no way to see which one answered.
+	 *
+	 * `router` is empty unless THIS turn resolved one -- a resumed turn didn't choose anything, and claiming
+	 * otherwise would misreport history.
+	 */
+	private function _resolvedModelInfo(?string $session_id) : array {
+		$out = [
+			'provider' => '',
+			'model' => '',
+			'router' => $this->_router_name,
+		];
+
+		if($session_id && ($session = \DAO_LlmAgentSession::get($session_id))) {
+			$out['provider'] = strval($session->provider);
+			$out['model'] = $session->getModel();
+		}
+
+		return $out;
+	}
 
 	// A command's node output. Deliberately the same envelope a turn produces (so an author's `on_success:`
 	// doesn't branch on shape) with `messages: []` — a command generates no answer — plus what ran.
