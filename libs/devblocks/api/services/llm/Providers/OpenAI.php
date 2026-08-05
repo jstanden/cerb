@@ -320,11 +320,13 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 
 		// Add to the memory (usage rides the assistant turn — usage_json column, not the replayed data_json)
 		if($message)
-		
-		return $this->convertToGenericMessage($message);
 			$memory->appendMessage($message, usage: $usage, finish_reason: $finish_reason);
+
+		$response = $this->convertToGenericMessage($message);
 		$response->setUsage($usage);
 		$response->setFinishReason($finish_reason);
+
+		return $response;
 	}
 	
 	function sanitizeMessages(array $messages) : array {

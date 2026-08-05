@@ -270,10 +270,13 @@ class Anthropic extends Extension_DevblocksLlmProvider implements Chat, ChatStre
 				'content' => $response_json['content'],
 			], usage: $usage, finish_reason: $finish_reason);
 		}
-		
-		return $this->convertToGenericMessage($response_json);
+
+		$response = $this->convertToGenericMessage($response_json);
 		$response->setUsage($usage);
 		$response->setFinishReason($finish_reason);
+
+		return $response;
+	}
 	
 	public function enableStreaming(?callable $on_progress = null) : void {
 		$this->_streaming = true;
