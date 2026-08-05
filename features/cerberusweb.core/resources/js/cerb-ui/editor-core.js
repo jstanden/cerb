@@ -582,6 +582,8 @@ CerbUI.editorCore.Autocomplete = class {
 			}
 			if(it.handle) li.dataset.handle = it.handle;
 			if(it.subtitle) li.dataset.subtitle = it.subtitle;
+			// The trailing run of the caption to PIN against middle-truncation (see _renderItem).
+			if(it.captionTail) li.dataset.captionTail = it.captionTail;
 			ul.appendChild(li);
 		}
 		this._menuUl = ul;
@@ -593,13 +595,19 @@ CerbUI.editorCore.Autocomplete = class {
 		// its description aren't truncated.
 		const richRows = items.some(it => it && (it.avatar || it.subtitle));
 
+		// A source can also ask for the wider panel WITHOUT the taller rows: a long single-line caption (an agent
+		// filesystem path) needs horizontal room, not a second line. Kept separate from richRows because that flag
+		// also sets itemHeight — and row height is load-bearing for the virtualized scroll math, so it must never
+		// change just to win some width.
+		const wideRows = items.some(it => it && it.wide);
+
 		this._menu = new CerbUI.Menu(ul, {
 			// absolute (not fixed) so the dropdown is placed at document coords and scrolls WITH the field/page,
 			// staying glued to the caret instead of locking to the viewport.
 			fixed: false,
 			closeOnSelect: true,
 			itemHeight: richRows ? 40 : 28,
-			panelClass: richRows ? 'cerb-ui-editor-menu--wide' : undefined,
+			panelClass: (richRows || wideRows) ? 'cerb-ui-editor-menu--wide' : undefined,
 			onRenderItem: (li, src) => this._renderItem(li, src),
 			onClose: () => { this.navigated = false; },
 			onSelect: (li, src) => {
@@ -715,6 +723,38 @@ CerbUI.editorCore.Autocomplete = class {
 
 			li.appendChild(text);
 			return;
+		}
+
+		// MIDDLE truncation: a caption that ends in something identifying (a filename at the end of a long path)
+		// splits into a shrinking head + a pinned tail, so the ellipsis eats the middle instead of the part you
+		// were reading. Pure CSS — the head gets `text-overflow` and the tail `flex-shrink:0` — so no width
+		// measurement, and the row keeps the fixed height the virtualized scroll math depends on.
+		// Renders `cerb-docs/references/do…/classifiers.md` rather than `cerb-docs/references/docs/data-qu…`.
+		if(src.dataset.captionTail) {
+			const labelEl = li.querySelector('.cerb-ui-menu--label');
+
+			if(labelEl) {
+				const tail = src.dataset.captionTail;
+				const full = labelEl.textContent;
+				// Only split when the tail really is this caption's suffix; otherwise leave the row alone.
+				const head = full.endsWith(tail) ? full.slice(0, full.length - tail.length) : null;
+
+				if(null !== head) {
+					labelEl.textContent = '';
+					labelEl.classList.add('cerb-ui-editor-menu--split');
+
+					const headEl = document.createElement('span');
+					headEl.className = 'cerb-ui-editor-menu--split-head';
+					headEl.textContent = head;
+
+					const tailEl = document.createElement('span');
+					tailEl.className = 'cerb-ui-editor-menu--split-tail';
+					tailEl.textContent = tail;
+
+					labelEl.appendChild(headEl);
+					labelEl.appendChild(tailEl);
+				}
+			}
 		}
 
 		if(src.dataset.icon) {

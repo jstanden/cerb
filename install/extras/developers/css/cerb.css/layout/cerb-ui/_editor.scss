@@ -25,10 +25,32 @@
 
 // Wider panel for rich / two-line suggestion rows (avatar @mentions, or a #command label + description) so the
 // label and its description have room — overrides the base menu panel's 320px cap. editor-core adds the class
-// (panelClass) only when a row carries an avatar or a subtitle.
+// (panelClass) when a row carries an avatar or a subtitle, or when a source asks for width alone (`wide`).
 .cerb-ui-menu--panel.cerb-ui-editor-menu--wide {
     min-width: 340px;
     max-width: 520px;
+}
+
+// MIDDLE truncation for a caption whose END identifies it (a filename at the tail of a long path). The head
+// shrinks and takes the ellipsis; the tail is pinned, so `…/classifiers.md` survives instead of being the first
+// thing lost. Pure CSS — no width measurement — and the row keeps its fixed height, which the Menu's
+// virtualized-scroll math depends on. editor-core builds the two spans only when an item supplies `captionTail`.
+.cerb-ui-menu--label.cerb-ui-editor-menu--split {
+    display: flex;
+    min-width: 0;
+    // The base --label sets these for the single-span case; the children own them now.
+    overflow: visible;
+    text-overflow: clip;
+}
+.cerb-ui-editor-menu--split-head {
+    min-width: 0;           // lets the flex item shrink below its content width so the ellipsis can engage
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.cerb-ui-editor-menu--split-tail {
+    flex-shrink: 0;         // never truncate the identifying tail
+    white-space: nowrap;
 }
 
 // ── Rich suggestion rows (e.g. @mention: avatar + name/@handle on one line + an optional subtitle line) ──
