@@ -1,3 +1,5 @@
+{$is_writeable = CerberusContexts::isWriteableByActor(CerberusContexts::CONTEXT_WORKSPACE_PAGE, $page, $active_worker)}
+
 {if empty($worklists)}
 <form action="#">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
@@ -19,6 +21,14 @@
 </form>
 {/if}
 
+{if !empty($worklists) && !$is_locked}
+<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-2 cerb-no-print cerb-u-mb-2">
+	{if $is_writeable}
+	<div class="cerb-ui-toolbar-strip">
+		<button id="btnWorklistsTabEdit{$tab->id}" type="button" class="cerb-ui-toolbar-button"><span class="cerb-icons cerb-icon-edit"></span> Edit Worklists</button>
+	</div>
+	{/if}
+
 	<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-2" style="margin-left:auto;">
 		<div id="worklistsTabRefreshRing{$tab->id}" style="display:none;"></div>
 		<span class="cerb-ui-header--label">Auto-refresh</span>
@@ -29,6 +39,8 @@
 			<li data-ms="900000">15 min</li>
 		</ul>
 	</div>
+</div>
+{/if}
 
 <div id="divWorklistsTab{$tab->id}">
 {foreach from=$worklists item=worklist key=worklist_id}
@@ -62,8 +74,14 @@ $(function() {
 		}
 	});
 	
+	// Edit Worklists — a shortcut for this tab's "Edit Tab" (same as the workspace page menu, more obvious)
+	$('#btnWorklistsTabEdit{$tab->id}').on('click', function(e) {
+		e.stopPropagation();
+		$('#frmWorkspacePage{$page->id}').find('a.edit-tab').attr('data-context-id', '{$tab->id}').click();
+	});
+
 	// Worklist loader
-	
+
 	var async_tasks = [];
 	
 	var cerbLoadWorklist = function(worklist_id, callback) {
