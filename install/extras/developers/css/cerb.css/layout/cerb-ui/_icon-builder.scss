@@ -1,0 +1,155 @@
+// IconBuilder (CerbUI.IconBuilder): a vertical SplitPane — a live preview of the current glyph across the UI
+// (top) over a ScriptingEditor holding the inner SVG geometry + a copy-out (bottom). Structural only; colors
+// are theme tokens (dark mode auto). Every preview glyph is a `.cib-glyph` whose mask-image comes from one CSS
+// custom property (--cib-mask) set on the root by the component — mirrors the compiled `.cerb-icon-*` rule.
+.cerb-icon-builder {
+	// Invisible placeholder mask until the component pushes the real geometry (avoids a solid-square flash;
+	// an unset var would resolve mask-image to `none`, which fills the whole box with currentColor).
+	--cib-mask: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'/%3E");
+
+	.cib-glyph {
+		-webkit-mask-image: var(--cib-mask);
+		mask-image: var(--cib-mask);
+		-webkit-mask-repeat: no-repeat;
+		mask-repeat: no-repeat;
+		-webkit-mask-position: center;
+		mask-position: center;
+		-webkit-mask-size: contain;
+		mask-size: contain;
+		background-color: currentColor;
+	}
+
+	// The left (main) pane stacks the preview over the editor as a single scrolling column — no inner split, so
+	// the preview takes its natural height and the editor sits directly below (no negative space between them).
+	// The outer split + agent chat pane come from CerbUI.AgentPane (.cerb-agent-pane, shared partial).
+	&--split {
+		flex: 1 1 auto;
+		min-width: 0;
+		min-height: 0;
+		overflow: auto;
+
+		display: flex;
+		flex-direction: column;
+		gap: 0.6em;
+	}
+
+	// ── Top: preview surfaces (natural height; the whole left pane scrolls) ──
+	&--top {
+		display: flex;
+		flex-direction: column;
+	}
+
+	// Top bar: just the revision nav + agent toggle, pushed to the right (the Start from / Name fields moved down
+	// to sit with the editor). The toggle button (.cerb-agent-pane--toggle) is injected here by CerbUI.AgentPane.
+	&--toolbar {
+		display: flex;
+		align-items: center;
+		gap: 1em;
+		padding: 0.2em 0.2em 0.6em;
+
+		.cib-history { flex: 0 0 auto; margin-left: auto; }
+	}
+
+	// Start from · Name — grouped with the editor (bottom pane). Cap the width so they don't stretch the pane.
+	&--fields {
+		.cerb-ui-form--row { max-width: 34em; }
+	}
+
+	// Revision history nav: flip through geometry snapshots (each set_geometry / picker load); the SVG code +
+	// the whole preview ride along. Typing between snapshots edits the current one in place.
+	.cib-history {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.1em;
+	}
+
+	.cib-history-label {
+		min-width: 3.4em;
+		text-align: center;
+		color: var(--cerb-color-text-muted);
+	}
+
+	.cib-history button[disabled] {
+		opacity: 0.4;
+		cursor: default;
+	}
+
+	// Two-up: Sizes | On buttons, then Card-style | Animation utilities. Panels flow 50/50 and wrap to one
+	// column when the pane is narrow.
+	&--surfaces {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.8em;
+
+		.cerb-ui-panel {
+			margin: 0;
+			flex: 1 1 22em;
+			min-width: 0;
+		}
+	}
+
+	.cib-sizes,
+	.cib-anims,
+	.cib-buttons {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: flex-end;
+		gap: 1.4em;
+	}
+
+	.cib-buttons { align-items: center; }
+
+	.cib-size,
+	.cib-anim {
+		display: inline-flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.4em;
+	}
+
+	.cib-size--label,
+	.cib-anim--label {
+		color: var(--cerb-color-text-muted);
+	}
+
+	// ── Bottom: editor + copy-out ───────────────────────────────────────────
+	&--bottom {
+		display: flex;
+		flex-direction: column;
+		gap: 0.6em;
+	}
+
+	.cib-source { width: 100%; box-sizing: border-box; }
+	.cerb-ui-scriptingeditor { width: 100%; box-sizing: border-box; }
+
+	&--output {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5em;
+		border-top: 1px solid var(--cerb-color-background-contrast-230);
+		padding-top: 0.6em;
+	}
+
+	.cib-out-row {
+		display: flex;
+		align-items: center;
+		gap: 0.8em;
+	}
+
+	.cib-out-label {
+		flex: 0 0 12em;
+		color: var(--cerb-color-text-muted);
+	}
+
+	.cib-out-code {
+		flex: 1 1 auto;
+		min-width: 0;
+		overflow-x: auto;
+		white-space: pre;
+		padding: 0.4em 0.6em;
+		border-radius: 5px;
+		background: var(--cerb-color-background-contrast-235);
+	}
+
+	.cib-copy { flex: 0 0 auto; }
+}
