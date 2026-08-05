@@ -1201,7 +1201,69 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	}
 
 	/**
-	 * 
+	 * Synthetic Search-menu entries over THIS context: a named subset with its own label, icon, and
+	 * locked query. `agents` over `worker` is the reference case -- an AI worker is an ordinary worker
+	 * row (`is_ai`), so it can't be its own record type without fragmenting links/comments/activity
+	 * across two context strings for one thing, but it still deserves to be findable by name.
+	 *
+	 * @return array `{<alias> => {label, icon, query_required}}`
+	 */
+	public function getSearchFacets() : array {
+		return self::getSearchFacetsForContext($this->manifest);
+	}
+
+	/**
+	 * The `search_facets` param off a context MANIFEST -- deliberately not an instance method, because
+	 * the Search menu has to ask every searchable context and instantiating them all would `require`
+	 * every DAO file in the app on each menu open. Same reason getAliasesForContext() reads the manifest.
+	 *
+	 *   <param key="search_facets">
+	 *     <value key="agents">
+	 *       <data key="label" value="Agents" />
+	 *       <data key="icon" value="bot" />
+	 *       <data key="query_required" value="isAi:y" />
+	 *     </value>
+	 *   </param>
+	 *
+	 * ⚠ Each key MUST also be a name the context declares in the `names` param, because that's what makes
+	 * getByAlias() route the facet back here -- a facet has no id space of its own. Toolbar_GlobalSearch
+	 * skips any facet that doesn't resolve back to its own context, so a typo fails visibly instead of
+	 * quietly opening someone else's worklist.
+	 *
+	 * @return array `{<alias> => {label, icon, query_required}}`
+	 */
+	public static function getSearchFacetsForContext(DevblocksExtensionManifest $ctx_manifest) : array {
+		$facets = $ctx_manifest->params['search_facets'] ?? null;
+
+		if(!is_array($facets))
+			return [];
+
+		$results = [];
+
+		foreach($facets as $alias => $facet) {
+			if(!is_string($alias) || !is_array($facet))
+				continue;
+
+			// A facet with no filter is just the record type again, and one with no label has nothing to
+			// render in the menu -- either is an authoring mistake, so drop it rather than show it.
+			if('' === ($label = trim(strval($facet['label'] ?? ''))))
+				continue;
+
+			if('' === ($query_required = trim(strval($facet['query_required'] ?? ''))))
+				continue;
+
+			$results[$alias] = [
+				'label' => $label,
+				'icon' => trim(strval($facet['icon'] ?? '')) ?: 'circle',
+				'query_required' => $query_required,
+			];
+		}
+
+		return $results;
+	}
+
+	/**
+	 *
 	 * @param string $view_id
 	 * @return C4_AbstractView
 	 */

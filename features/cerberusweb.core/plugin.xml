@@ -3571,6 +3571,18 @@
 				<param key="icon" value="user" />
 				<param key="dao_class" value="DAO_Worker" />
 				<param key="view_class" value="View_Worker" />
+				<!--
+					Synthetic Search-menu entries over this context. `agents` is already a `names` alias above,
+					which is what routes it back here through getByAlias(). An AI worker stays a `worker` row
+					with a `worker` profile url, so assignment/@mentions/ownership never split in two.
+				-->
+				<param key="search_facets">
+					<value key="agents">
+						<data key="label" value="Agents" />
+						<data key="icon" value="bot" />
+						<data key="query_required" value="isAi:y" />
+					</value>
+				</param>
 				<param key="options">
 					<value>
 						<data key="autocomplete" />

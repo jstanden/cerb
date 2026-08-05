@@ -77,12 +77,27 @@ class Toolbar_GlobalSearch extends Extension_Toolbar {
 		}, ARRAY_FILTER_USE_KEY);
 		
 		// Load record type metadata
-		$record_types = 
+		$record_types =
 			array_combine(
 				array_keys($results),
 				array_map(
 					function($record_type) {
 						$context_mft = Extension_DevblocksContext::getByAlias($record_type, false);
+
+						// A FACET (e.g. `agents` over `worker`) resolves to its parent context, so without this
+						// it would render as its parent ("Workers", user icon) and, worse, fire the parent's
+						// context id -- silently opening the unfiltered list. The alias we were asked for is
+						// what distinguishes them, so key the metadata off that and pass it through as-is.
+						$facets = Extension_DevblocksContext::getSearchFacetsForContext($context_mft);
+
+						if(array_key_exists($record_type, $facets)) {
+							return [
+								'id' => $record_type,
+								'icon' => $facets[$record_type]['icon'],
+								'label' => $facets[$record_type]['label'],
+							];
+						}
+
 						$context_aliases = Extension_DevblocksContext::getAliasesForContext($context_mft);
 						return [
 							'id' => $context_mft->id,
@@ -128,6 +143,22 @@ class Toolbar_GlobalSearch extends Extension_Toolbar {
 				'icon' => $context_mft->params['icon'] ?? 'circle',
 				'label' => DevblocksPlatform::strTitleCase($context_aliases['plural'] ?? $context_aliases['singular'] ?? $alias),
 			];
+
+			// Facets are peers of the real record types here, not a submenu: someone looking for "Agents"
+			// looks under A. Keyed (and fired) by the facet ALIAS rather than the context id, which is how
+			// openSearchPopup knows which subset was asked for.
+			foreach(Extension_DevblocksContext::getSearchFacetsForContext($context_mft) as $facet_alias => $facet) {
+				// The alias has to route back to THIS context or the row would open someone else's
+				// worklist. Fail visibly (skip) rather than silently mis-target.
+				if(($facet_mft = Extension_DevblocksContext::getByAlias($facet_alias, false))
+					&& $facet_mft->id == $context_mft->id) {
+					$all_record_types[$facet_alias] = [
+						'id' => $facet_alias,
+						'icon' => $facet['icon'],
+						'label' => $facet['label'],
+					];
+				}
+			}
 		}
 
 		DevblocksPlatform::sortObjects($all_record_types, '[label]');

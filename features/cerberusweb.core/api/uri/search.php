@@ -92,15 +92,36 @@ class Page_Search extends CerberusPageExtension {
 		// Verify that this context is publicly searchable
 		if(!$context_ext->hasOption('workspace'))
 			return;
-		
-		if(!($view = $context_ext->getSearchView($id)) || !($view instanceof IAbstractView_QuickSearch))
+
+		// A FACET is a named subset of this context (e.g. `agents` over `worker`) with its own label,
+		// icon, and locked query. Every alias resolves to the same extension, so the alias we were ASKED
+		// for -- which the lookup above would otherwise discard -- is the only thing that distinguishes
+		// them. It's cheap to honor here because a search popup is short-lived and single-purpose: no
+		// profile, no links, no id space to reconcile, just a titled list.
+		$facets = Extension_DevblocksContext::getSearchFacetsForContext($context_ext->manifest);
+		$facet = $facets[$context] ?? null;
+
+		// Its own view, so a facet's columns and sort don't ride on (or clobber) the parent type's search.
+		$view_id = $id;
+
+		if($facet && !$view_id)
+			$view_id = sprintf('search_%s__%s',
+				str_replace('.', '_', DevblocksPlatform::strToPermalink($context_ext->id, '_')),
+				$context
+			);
+
+		if(!($view = $context_ext->getSearchView($view_id)) || !($view instanceof IAbstractView_QuickSearch))
 			return;
-		
+
+		// A CALLER-supplied view id is a one-off (a chooser popup) and mustn't persist; a facet is a
+		// standing entry in the Search menu and should keep its columns like any other search view.
 		if($id)
 			$view->is_ephemeral = true;
-		
-		$view->setParamsRequiredQuery($query_required);
-		
+
+		// A facet's filter is read from the context manifest, never from `qr` -- the lock belongs to the
+		// facet, not to whoever opened it.
+		$view->setParamsRequiredQuery($facet ? $facet['query_required'] : $query_required);
+
 		if('*' == $query) {
 			DevblocksPlatform::noop();
 		} else {
@@ -111,14 +132,15 @@ class Page_Search extends CerberusPageExtension {
 		
 		$aliases = Extension_DevblocksContext::getAliasesForContext($context_ext->manifest);
 		$label = @$aliases['plural'] ?: $context_ext->manifest->name;
-		$popup_title = DevblocksPlatform::translateCapitalized('common.search') . ': ' . mb_convert_case($label, MB_CASE_TITLE);
-		
-		// Immediately increment the search metric
+		$popup_title = DevblocksPlatform::translateCapitalized('common.search') . ': ' . mb_convert_case($facet ? $facet['label'] : $label, MB_CASE_TITLE);
+
+		// Immediately increment the search metric. A facet meters under its own alias so it accrues its
+		// own history and can surface in the menu's suggested types independently of its parent.
 		$metrics->increment(
 			'cerb.record.search',
 			1,
 			[
-				'record_type' => $aliases['uri'],
+				'record_type' => $facet ? $context : $aliases['uri'],
 				'worker_id' => $active_worker->id,
 			],
 			time(),
