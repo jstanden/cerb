@@ -60,8 +60,14 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 					return $this->_profileAction_getInteractionsMenu();
 				case 'invokePrompt':
 					return $this->_profileAction_invokePrompt();
+				case 'listInteractions':
+					return $this->_profileAction_listInteractions();
+				case 'disposeInteraction':
+					return $this->_profileAction_disposeInteraction();
 				case 'renderEditorToolbar':
 					return $this->_profileAction_renderEditorToolbar();
+				case 'resumeInteraction':
+					return $this->_profileAction_resumeInteraction();
 				case 'runAutomationEditor':
 					return $this->_profileAction_runAutomationEditor();
 				case 'savePeekJson':
@@ -665,8 +671,149 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		}
 	}
 
+	// Pause or end an interaction the worker is closing. Pause just stores the given name (the conversation
+	// stays awaiting and resumable); end sets a terminal state so it drops out of the Resume list and ages
+	// out via maint(). The name defaults client-side to the dialog title.
+	private function _profileAction_disposeInteraction() : void {
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+
+		$active_worker = CerberusApplication::getActiveWorker();
+		$continuation_token = DevblocksPlatform::importGPC($_POST['continuation_token'] ?? null, 'string', '');
+		$disposition = DevblocksPlatform::importGPC($_POST['disposition'] ?? null, 'string', 'pause');
+		$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
+
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+
+		if(
+			!$active_worker
+			|| !$continuation_token
+			|| !($continuation = DAO_AutomationContinuation::getByToken($continuation_token))
+			|| $continuation->worker_id != $active_worker->id
+			|| !in_array($continuation->extension_id, DAO_AutomationContinuation::getWorkerResumableExtensionIds())
+			|| '' === strval($continuation->resume_scope)
+		) {
+			echo json_encode(['status' => 'error', 'error' => "You can't modify that conversation."]);
+			return;
+		}
+
+		$state_data = $continuation->state_data;
+		$state_data['name'] = mb_substr($name, 0, 255);
+
+		$fields = [
+			DAO_AutomationContinuation::STATE_DATA => json_encode($state_data),
+			DAO_AutomationContinuation::UPDATED_AT => time(),
+		];
+
+		if('end' == $disposition)
+			$fields[DAO_AutomationContinuation::STATE] = 'exit';
+
+		DAO_AutomationContinuation::update($continuation_token, $fields);
+
+		echo json_encode(['status' => 'ok']);
 	}
-	
+
+	// Reopen a worker's own parked interaction from the command bar. Renders the popup shell seeded with the
+	// continuation token; panel.tpl's auto-submit (no `__submit`) then re-renders the awaiting form without
+	// advancing the automation. Returns the same JSON envelope startInteraction does, so the client's await
+	// popup-open path is reused unchanged.
+	private function _profileAction_resumeInteraction() : void {
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+
+		$active_worker = CerberusApplication::getActiveWorker();
+		$continuation_token = DevblocksPlatform::importGPC($_POST['continuation_token'] ?? null, 'string', '');
+		$layer = DevblocksPlatform::importGPC($_POST['layer'] ?? null, 'string', '');
+		$interaction_style = DevblocksPlatform::importGPC($_POST['interaction_style'] ?? null, 'string', '');
+		$caller = DevblocksPlatform::importGPC($_POST['caller'] ?? null, 'array', []);
+
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+
+		// Three gates, each doing a different job: `worker_id` is SECURITY (the ACL), `extension_id` is a SANITY
+		// check on the trigger family, and `resume_scope` is ROUTING — which surface may reopen this.
+		if(
+			!$active_worker
+			|| !$continuation_token
+			|| !($continuation = DAO_AutomationContinuation::getByToken($continuation_token))
+			|| $continuation->worker_id != $active_worker->id
+			|| !in_array($continuation->extension_id, DAO_AutomationContinuation::getWorkerResumableExtensionIds())
+			|| '' === strval($continuation->resume_scope)
+		) {
+			echo json_encode(['exit' => 'error', 'error' => "You can't resume that conversation."]);
+			return;
+		}
+
+		// Routing, enforced — not merely filtered in the list. Reopening an editor-pane chat somewhere without
+		// that editor's `command` bridge leaves every `uiCommand` await silently returning an empty result, with
+		// no error anywhere; refusing here is what makes that unreachable rather than merely unlikely.
+		if($continuation->resume_scope !== DAO_AutomationContinuation::resumeScopeFor($caller)) {
+			echo json_encode(['exit' => 'error', 'error' => "That conversation belongs to a different workspace."]);
+			return;
+		}
+
+		// Parked somewhere a UI can actually re-enter? `queue` counts — a turn left running finishes server-side
+		// and the poll picks back up on reopen.
+		if(!in_array($continuation->state_await, DAO_AutomationContinuation::getResumableAwaitTypes(), true)) {
+			echo json_encode(['exit' => 'error', 'error' => "That conversation can't be reopened from here."]);
+			return;
+		}
+
+		// Terminal continuations aren't resumable.
+		if('await' != $continuation->state) {
+			echo json_encode(['exit' => 'error', 'error' => 'That conversation has already ended.']);
+			return;
+		}
+
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('layer', $layer);
+		$tpl->assign('continuation_token', $continuation_token);
+
+		ob_start();
+		// Inline hosts (an editor's agent pane) get the bare panel; the command bar gets the popup shell. Same
+		// contract as `startInteraction`, so a resumed chat is indistinguishable from a fresh one.
+		if('inline' == $interaction_style) {
+			$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.worker/panel.tpl');
+		} else {
+			$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.worker/popup.tpl');
+		}
+		$out = ob_get_clean();
+
+		echo json_encode([
+			'exit' => 'await',
+			'html' => $out,
+		]);
+	}
+
+	/**
+	 * The worker's own resumable conversations for ONE launcher — what an editor's agent pane offers in its
+	 * History. Scoped by the posted caller, so the pane only ever sees chats it can actually drive: reopening
+	 * one somewhere without that editor's `command` bridge would leave its `uiCommand` awaits silently empty.
+	 *
+	 * Read-only, and cheap enough to call on every pane open.
+	 */
+	private function _profileAction_listInteractions() : void {
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+
+		$active_worker = CerberusApplication::getActiveWorker();
+		$caller = DevblocksPlatform::importGPC($_POST['caller'] ?? null, 'array', []);
+
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+
+		// No worker, or a caller with no scope (an unrecognized launcher) → nothing is resumable there.
+		if(!$active_worker || '' === ($scope = DAO_AutomationContinuation::resumeScopeFor($caller))) {
+			echo json_encode(['status' => true, 'items' => []]);
+			return;
+		}
+
+		$continuations = DAO_AutomationContinuation::getResumableByWorkerForScopes($active_worker->id, [$scope]);
+
+		echo json_encode([
+			'status' => true,
+			'items' => array_values(DAO_AutomationContinuation::getResumableLabels($continuations)),
+		]);
+	}
+
 	private function _profileAction_sendMessage() : void {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
@@ -953,6 +1100,11 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		if(!$continuation_token) {
 			$continuation_token = DAO_AutomationContinuation::create([
 				DAO_AutomationContinuation::URI => $automation->name,
+				DAO_AutomationContinuation::EXTENSION_ID => $automation->extension_id,
+				DAO_AutomationContinuation::WORKER_ID => $active_worker->id,
+				// WHERE this may later be reopened — and whether at all. The LAUNCHER opts in by having a scope;
+				// a caller we don't recognize resolves to '' and its interactions simply aren't resumable.
+				DAO_AutomationContinuation::RESUME_SCOPE => DAO_AutomationContinuation::resumeScopeFor($caller),
 				DAO_AutomationContinuation::STATE_DATA => json_encode($state_data),
 				DAO_AutomationContinuation::EXPIRES_AT => time()+3600, // 1hr
 				DAO_AutomationContinuation::UPDATED_AT => time(),
@@ -1639,6 +1791,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 			DAO_AutomationContinuation::STATE_DATA => json_encode($continuation->state_data),
 			DAO_AutomationContinuation::EXPIRES_AT => $continuation->expires_at,
 			DAO_AutomationContinuation::UPDATED_AT => time(),
+			DAO_AutomationContinuation::STATE_AWAIT => DAO_AutomationContinuation::stateAwaitFor($automation_results->getKeyPath('__return', [])),
 		]);
 		
 		$tpl = DevblocksPlatform::services()->template();
@@ -1658,6 +1811,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 			DAO_AutomationContinuation::STATE_DATA => json_encode($continuation->state_data),
 			DAO_AutomationContinuation::EXPIRES_AT => $continuation->expires_at,
 			DAO_AutomationContinuation::UPDATED_AT => time(),
+			DAO_AutomationContinuation::STATE_AWAIT => DAO_AutomationContinuation::stateAwaitFor($automation_results->getKeyPath('__return', [])),
 		]);
 		
 		$message = $duration_state['message'] ?? 'Waiting...';
@@ -1726,6 +1880,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 			DAO_AutomationContinuation::STATE_DATA => json_encode($continuation->state_data),
 			DAO_AutomationContinuation::EXPIRES_AT => $continuation->expires_at,
 			DAO_AutomationContinuation::UPDATED_AT => time(),
+			DAO_AutomationContinuation::STATE_AWAIT => DAO_AutomationContinuation::stateAwaitFor($automation_results->getKeyPath('__return', [])),
 		]);
 		
 		$tpl = DevblocksPlatform::services()->template();
@@ -1745,9 +1900,23 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 			$tpl->assign('form_title', $form_title);
 			$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.worker/_set_title.tpl');
 		}
+
+		// `state_await` is the await SUB-STATE (which kind of await this is parked on), derived from the current
+		// `__return`. Decided here at RENDER time and stored on the continuation — never written into automation
+		// state. It answers READINESS; whether this can be reopened at all is the launcher's `resume_scope`.
+		$state_await = DAO_AutomationContinuation::stateAwaitFor($automation_results->getKeyPath('__return', []));
+
+		// The marker that drives the pause/end close menu: a durable interaction parked somewhere a UI can
+		// re-enter. Both halves matter — a scope with no re-entrable await is just as unresumable as no scope.
+		$is_resumable = 'await' == $automation_results->get('__exit')
+			&& '' !== strval($continuation->resume_scope ?? '')
+			&& in_array($state_await, DAO_AutomationContinuation::getResumableAwaitTypes(), true);
+
+		if($is_resumable)
+			echo '<input type="hidden" name="__cerb_interaction_resumable" value="1">';
 		
 		$elements = $automation_results->getKeyPath('__return.form.elements', []);
-		
+
 		// Synthesize a submit button on await
 		if('await' == $exit_code) {
 			if(!array_key_exists('submit', $elements)) {
@@ -1822,6 +1991,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 			DAO_AutomationContinuation::STATE_DATA => json_encode($continuation->state_data),
 			DAO_AutomationContinuation::EXPIRES_AT => $continuation->expires_at,
 			DAO_AutomationContinuation::UPDATED_AT => time(),
+			DAO_AutomationContinuation::STATE_AWAIT => $state_await,
 		]);
 	}
 
@@ -2196,6 +2366,8 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 			DAO_AutomationContinuation::STATE => $delegate_continuation->state,
 			DAO_AutomationContinuation::STATE_DATA => json_encode($delegate_continuation->state_data),
 			DAO_AutomationContinuation::URI => $delegate_continuation->uri,
+			DAO_AutomationContinuation::EXTENSION_ID => $continuation->extension_id,
+			DAO_AutomationContinuation::WORKER_ID => $continuation->worker_id,
 		]);
 		
 		// Update the parent continuation with the delegate token

@@ -563,6 +563,7 @@ class Model_AutomationTimer extends DevblocksRecordModel {
 				DAO_AutomationContinuation::STATE => $exit_code,
 				DAO_AutomationContinuation::STATE_DATA => json_encode($state_data),
 				DAO_AutomationContinuation::URI => $handler->name,
+				DAO_AutomationContinuation::EXTENSION_ID => AutomationTrigger_AutomationTimer::ID,
 			]);
 			
 			// Update record

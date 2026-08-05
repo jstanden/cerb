@@ -1,13 +1,17 @@
 <?php
 class DAO_AutomationContinuation extends Cerb_ORMHelper {
 	const EXPIRES_AT = 'expires_at';
+	const EXTENSION_ID = 'extension_id';
 	const PARENT_TOKEN = 'parent_token';
+	const RESUME_SCOPE = 'resume_scope';
 	const ROOT_TOKEN = 'root_token';
 	const STATE = 'state';
+	const STATE_AWAIT = 'state_await';
 	const STATE_DATA = 'state_data';
 	const TOKEN = 'token';
 	const UPDATED_AT = 'updated_at';
 	const URI = 'uri';
+	const WORKER_ID = 'worker_id';
 	
 	private function __construct() {}
 	
@@ -19,9 +23,24 @@ class DAO_AutomationContinuation extends Cerb_ORMHelper {
 			->timestamp()
 			;
 		$validation
+			->addField(self::EXTENSION_ID)
+			->string()
+			->setMaxLength(255)
+			;
+		$validation
+			->addField(self::STATE_AWAIT)
+			->string()
+			->setMaxLength(32)
+			;
+		$validation
 			->addField(self::PARENT_TOKEN)
 			->string()
 			->setMaxLength(40)
+			;
+		$validation
+			->addField(self::RESUME_SCOPE)
+			->string()
+			->setMaxLength(64)
 			;
 		$validation
 			->addField(self::ROOT_TOKEN)
@@ -58,7 +77,11 @@ class DAO_AutomationContinuation extends Cerb_ORMHelper {
 			->string()
 			->addValidator($validation->validators()->uri())
 			;
-		
+		$validation
+			->addField(self::WORKER_ID)
+			->id()
+			;
+
 		return $validation->getFields();
 	}
 
@@ -121,7 +144,7 @@ class DAO_AutomationContinuation extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT token, uri, state, state_data, parent_token, root_token, expires_at, updated_at ".
+		$sql = "SELECT token, uri, state, state_data, parent_token, root_token, expires_at, updated_at, extension_id, worker_id, state_await, resume_scope ".
 			"FROM automation_continuation ".
 			$where_sql.
 			$sort_sql.
@@ -172,8 +195,154 @@ class DAO_AutomationContinuation extends Cerb_ORMHelper {
 		));
 	}
 	
+	// The await SUB-STATE for a parked continuation, derived from its `__return`: which kind of await it's
+	// parked on. Pure record metadata — computed only when writing the continuation, never fed back into
+	// automation state. It answers READINESS ("is it parked somewhere a UI can re-enter"); WHETHER and WHERE it
+	// may be reopened is `resume_scope`, set by the launcher.
+	static function stateAwaitFor(array $return) : string {
+		foreach(self::getAwaitTypes() as $type) {
+			if(array_key_exists($type, $return))
+				return $type;
+		}
+
+		return '';
+	}
+
+	static function getAwaitTypes() : array {
+		return ['form', 'interaction', 'duration', 'draft', 'record', 'queue'];
+	}
+
+	// The await kinds a UI can drop back into. `form` is the obvious one; `queue` matters because a worker who
+	// navigates away mid-LLM-turn would otherwise have NO way back — the turn finishes server-side, but the row
+	// stayed invisible until it expired. Resuming one re-renders the poll marker, which restarts the two-loop.
+	// The rest (interaction/duration/draft/record) are mid-flow with their own client handling.
+	static function getResumableAwaitTypes() : array {
+		return ['form', 'queue'];
+	}
+
+	// The interaction triggers that render in the worker popup and are therefore resumable. Website/portal
+	// (anon, token-as-cookie) and the headless timer are deliberately excluded; explore renders full-page.
+	// A sanity check on the trigger family — `worker_id` is the security gate, `resume_scope` the routing one.
+	static function getWorkerResumableExtensionIds() : array {
+		return [
+			AutomationTrigger_InteractionWorker::ID,
+			AutomationTrigger_InteractionInternal::ID,
+		];
+	}
+
 	/**
-	 * 
+	 * WHERE a parked interaction may be reopened — and, by being non-empty, whether it may be at all. Derived
+	 * from the launcher's `caller` (recorded in `state_data` at start), NOT from the automation or the record:
+	 * a chat scoped `agent.pane:automation` follows the worker from one automation editor to the next, which is
+	 * the point. A launcher that wants per-record pinning appends its own segment (`agent.pane:icon:123`).
+	 *
+	 * `ui_capabilities` is deliberately excluded — it grows as a host gains commands, and including it would
+	 * orphan every history row on each update.
+	 */
+	static function resumeScopeFor(?array $caller) : string {
+		if(!is_array($caller) || !($name = trim(strval($caller['name'] ?? ''))))
+			return '';
+
+		// The global command bar's own launches read as a plain `commandbar` namespace rather than its toolbar id.
+		if(Toolbar_GlobalMenu::ID === $name)
+			return 'commandbar';
+
+		if(Toolbar_AgentPane::CALLER_NAME === $name) {
+			$component = trim(strval($caller['params']['component'] ?? ''));
+			return $component ? ('agent.pane:' . $component) : '';
+		}
+
+		return '';
+	}
+
+	// The scopes the GLOBAL command bar lists. A positive allowlist, not a `NOT LIKE`: sargable, and it fails
+	// CLOSED, so a future launcher's chats never leak into a surface that can't drive them. (An editor-pane chat
+	// opened from the command bar would render in a popup with no `command` bridge and its `uiCommand` awaits
+	// would silently return empty.) `''` is excluded — unscoped means not resumable anywhere.
+	static function getGlobalResumeScopes() : array {
+		return ['commandbar'];
+	}
+
+	/**
+	 * Display rows for a set of resumable continuations, keyed by token: the name the worker gave it on pause,
+	 * else the automation's description, else its uri — plus how long it's been idle.
+	 *
+	 * Shared by the global command bar and the agent pane's History so the two can't drift into describing the
+	 * same conversation differently. Batches the automation lookup rather than one query per row.
+	 *
+	 * @param Model_AutomationContinuation[] $continuations
+	 */
+	static function getResumableLabels(array $continuations) : array {
+		if(!$continuations)
+			return [];
+
+		$labels = [];
+
+		foreach(DAO_Automation::getByUris(array_values(array_unique(array_map(fn($c) => $c->uri, $continuations)))) as $automation) {
+			if($automation->description)
+				$labels[$automation->name] = $automation->description;
+		}
+
+		$out = [];
+
+		foreach($continuations as $continuation) {
+			$name = $continuation->state_data['name'] ?? '';
+
+			$out[$continuation->token] = [
+				'token' => $continuation->token,
+				'label' => $name ?: ($labels[$continuation->uri] ?? $continuation->uri),
+				'icon' => 'history',
+				'description' => sprintf('Last active %s', DevblocksPlatform::strPrettyTime($continuation->updated_at)),
+				'updated_at' => intval($continuation->updated_at),
+			];
+		}
+
+		return $out;
+	}
+
+	/**
+	 * A worker's own non-terminal continuations that the GLOBAL command bar offers to resume.
+	 * @return Model_AutomationContinuation[]
+	 */
+	static function getResumableByWorker(int $worker_id, int $limit=25) : array {
+		return self::getResumableByWorkerForScopes($worker_id, self::getGlobalResumeScopes(), $limit);
+	}
+
+	/**
+	 * A worker's own non-terminal continuations reopenable from one or more launcher scopes.
+	 * @return Model_AutomationContinuation[]
+	 */
+	static function getResumableByWorkerForScopes(int $worker_id, array $scopes, int $limit=25) : array {
+		if($worker_id < 1 || !($scopes = array_filter(array_map('strval', $scopes), fn($s) => '' !== $s)))
+			return [];
+
+		$db = DevblocksPlatform::services()->database();
+
+		return self::getWhere(
+			sprintf("%s = %d AND %s IN (%s) AND %s IN (%s) AND %s = '' AND %s IN (%s) AND %s = %s AND (%s = 0 OR %s > %d)",
+				self::WORKER_ID,
+				$worker_id,
+				self::RESUME_SCOPE,
+				implode(',', $db->qstrArray(array_values($scopes))),
+				self::STATE_AWAIT,
+				implode(',', $db->qstrArray(self::getResumableAwaitTypes())),
+				self::PARENT_TOKEN,
+				self::EXTENSION_ID,
+				implode(',', $db->qstrArray(self::getWorkerResumableExtensionIds())),
+				self::STATE,
+				$db->qstr('await'),
+				self::EXPIRES_AT,
+				self::EXPIRES_AT,
+				time()
+			),
+			self::UPDATED_AT,
+			false,
+			$limit
+		);
+	}
+
+	/**
+	 *
 	 * @param array $ids
 	 * @return Model_AutomationContinuation[]
 	 */
@@ -225,6 +394,10 @@ class DAO_AutomationContinuation extends Cerb_ORMHelper {
 			$object->state = $row['state'];
 			$object->expires_at = intval($row['expires_at']);
 			$object->updated_at = intval($row['updated_at']);
+			$object->extension_id = $row['extension_id'];
+			$object->worker_id = intval($row['worker_id']);
+			$object->state_await = $row['state_await'];
+			$object->resume_scope = strval($row['resume_scope'] ?? '');
 			
 			@$state_data = json_decode($row['state_data'], true);
 			$object->state_data = $state_data ?: [];
@@ -424,6 +597,7 @@ class SearchFields_AutomationContinuation extends DevblocksSearchFields {
 
 class Model_AutomationContinuation {
 	public $expires_at = 0;
+	public $extension_id = '';
 	public $parent_token = null;
 	public $root_token = null;
 	public $state = null;
@@ -431,6 +605,10 @@ class Model_AutomationContinuation {
 	public $token = null;
 	public $updated_at = 0;
 	public $uri = null;
+	public $worker_id = 0;
+	public $state_await = '';
+	// WHERE this may be reopened; '' = nowhere (not resumable). See DAO_AutomationContinuation::resumeScopeFor().
+	public $resume_scope = '';
 	
 	private ?Model_AutomationContinuation  $_parent = null;
 	private ?Model_AutomationContinuation  $_root = null;

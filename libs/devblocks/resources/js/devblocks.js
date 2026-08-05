@@ -240,6 +240,257 @@ function DevblocksClass() {
 	// hiding a Tooltip keeps its panel in the DOM — a fresh instance each time would leak one.
 	this._tooltip = undefined;
 
+	// Reopen a parked worker interaction by its continuation token (from the command bar's "resume" rows). Mirrors
+	// the await popup-open path in $.fn.cerbBotTrigger, but posts `resumeInteraction` instead of starting anew.
+	this.resumeInteraction = function(token, options) {
+		options = options || {};
+
+		var $trigger = $('<a class="cerb-bot-trigger"/>');
+		var layer = Devblocks.uniqueId();
+
+		var formData = new FormData();
+		formData.set('c', 'profiles');
+		formData.set('a', 'invoke');
+		formData.set('module', 'automation');
+		formData.set('action', 'resumeInteraction');
+		formData.set('continuation_token', token);
+		formData.set('layer', layer);
+
+		// The launcher asking to reopen this. The server requires it to derive the SAME `resume_scope` the
+		// continuation was stamped with at launch, so a chat can only reopen on a surface that can drive it.
+		if(options.caller && options.caller.name) {
+			formData.set('caller[name]', options.caller.name);
+
+			Object.keys(options.caller.params || {}).forEach(function(k) {
+				formData.set('caller[params][' + k + ']', options.caller.params[k]);
+			});
+		}
+
+		// An inline host (an editor's agent pane) renders the bare panel into its own container instead of a
+		// popup — the server branches on this too.
+		var $target = (options.target && options.target.html) ? options.target : null;
+
+		if($target)
+			formData.set('interaction_style', 'inline');
+
+		genericAjaxPost(formData, null, null, function(json) {
+			if('object' != typeof json || !json.hasOwnProperty('exit'))
+				return;
+
+			if('await' === json.exit && $target) {
+				var $html = $('<div/>')
+					.on('cerb-interaction-reset', function(e) {
+						e.stopPropagation();
+						if('function' == typeof options.reset)
+							options.reset($.Event(e));
+					})
+					.on('cerb-interaction-done', function(e) {
+						e.stopPropagation();
+						if('function' == typeof options.done)
+							options.done($.Event('cerb-interaction-done', { trigger: $trigger, eventData: e.eventData }));
+					})
+					.html(json.html)
+				;
+
+				// ⚠ The load-bearing line. A resumed chat's `uiCommand` awaits invoke the host's editor through
+				// this bridge; without it they return an EMPTY result with no error anywhere, so the agent reads
+				// a blank editor and the failure looks like a bad model rather than a missing wire.
+				// Same contract as cerbBotTrigger's inline launch.
+				if('function' == typeof options.command)
+					$html.find('form.cerb-form-builder').each(function() { this._cerbInteractionCommand = options.command; });
+
+				$target.html($html);
+				return;
+			}
+
+			if('await' === json.exit) {
+				var popup_width = options.width || '50%';
+				var $popup = genericAjaxPopup(layer, null, null, options && options.modal, popup_width);
+
+				$popup
+					.on('cerb-interaction-reset', function(e) {
+						e.stopPropagation();
+						if(options && options.reset && 'function' == typeof options.reset)
+							options.reset($.Event(e));
+					})
+					.on('cerb-interaction-done', function(e) {
+						e.stopPropagation();
+						if(options && options.done && 'function' == typeof options.done)
+							options.done($.Event('cerb-interaction-done', { trigger: $trigger, eventData: e.eventData }));
+						genericAjaxPopupClose($popup);
+					})
+					.on('peek_aborted', function(e) {
+						e.stopPropagation();
+						if(options && options.abort && 'function' == typeof options.abort)
+							options.abort($.Event('cerb-interaction-done', { trigger: $trigger, eventData: {} }));
+					})
+				;
+
+				$popup.html(json.html);
+				Devblocks.decorateInteractionDialog($popup, { label: options.label });
+
+				setTimeout(function() {
+					$popup.trigger('popup_open');
+				}, 0);
+
+			} else if('error' === json.exit) {
+				Devblocks.createAlert(json.error || "That conversation can't be resumed.", 'error');
+			}
+		});
+	};
+
+	// Give an interaction popup its conversation affordances: a friendly title from the launcher label, no
+	// dirty-close warning (the pause/end prompt is the second step), and a manual-close interceptor. Closing by
+	// hand (x / Esc) offers pause-vs-end instead of silently abandoning; a programmatic close (the automation
+	// finished, or our own pause/end) passes straight through.
+	this.decorateInteractionDialog = function($popup, options) {
+		options = options || {};
+
+		if(!window.CerbUI || !CerbUI.Dialog)
+			return;
+
+		var dlg = CerbUI.Dialog.from($popup[0]);
+
+		if(!dlg)
+			return;
+
+		dlg.opts.closeWarnOnUnsavedChanges = false;
+
+		if(options.label)
+			dlg.setTitle(options.label);
+
+		var origOnClose = dlg.opts.onClose;
+
+		dlg.opts.onClose = function() {
+			// Only a RESUMABLE interaction closed BY HAND (x / Esc) offers pause-vs-end and vetoes until they pick.
+			// Everything else just closes. Resumability is decided at render time and stored on the continuation —
+			// never enforced at close, since a browser/tab close fires no handler at all. A non-resumable
+			// interaction simply isn't listed and ages out; there's nothing to do on close.
+			if(!dlg._programmaticClose && !dlg._closeMenuOpen
+					&& $popup.find('input[name="__cerb_interaction_resumable"]').length) {
+				Devblocks.promptInteractionClose(dlg, $popup);
+				return false;
+			}
+
+			return origOnClose ? origOnClose.apply(this, arguments) : undefined;
+		};
+	};
+
+	// When a worker closes an interaction by hand, drop a small menu on the (x) button — Pause (keep it in the
+	// Resume list) or End (terminate) — instead of a jarring modal. The dialog's own Esc-close is suppressed while
+	// the menu is up, and a following Esc pauses (the safe default). The saved name defaults to the dialog title
+	// (renaming an interaction is a separate, later affordance).
+	this.promptInteractionClose = function(dlg, $popup) {
+		var token = $popup.find('input[name="continuation_token"]').val() || '';
+
+		// No token or no Menu component -> nothing to persist; just close.
+		if(!token || !window.CerbUI || !CerbUI.Menu) {
+			$popup.dialog('close');
+			return;
+		}
+
+		var anchor = dlg.el.querySelector('.cerb-ui-dialog--btn[aria-label="Close"]') || dlg.el;
+		var settled = false;
+
+		// While the menu is up, Escape pauses (the safe default). Handled in capture so it beats the menu's own
+		// Esc-dismiss and any focused input still in the interaction.
+		var onKeyCapture = function(e) {
+			if('Escape' === e.key) {
+				e.stopImmediatePropagation();
+				e.preventDefault();
+				dispose('pause');
+			}
+		};
+
+		var restore = function() {
+			dlg._closeMenuOpen = false;
+			dlg.opts.closeOnEscape = true;
+			document.removeEventListener('keydown', onKeyCapture, true);
+		};
+
+		var dispose = function(disposition) {
+			if(settled) return;
+			settled = true;
+			restore();
+			try { menu.close(); } catch(e) {}
+
+			var formData = new FormData();
+			formData.set('c', 'profiles');
+			formData.set('a', 'invoke');
+			formData.set('module', 'automation');
+			formData.set('action', 'disposeInteraction');
+			formData.set('continuation_token', token);
+			formData.set('disposition', disposition);
+			formData.set('name', dlg.opts.title || '');
+
+			genericAjaxPost(formData, null, null, function() {
+				$popup.dialog('close'); // programmatic -> the wrapped onClose lets it through
+
+				// Point the eye at where the paused interaction now lives (the command-bar button).
+				if('pause' === disposition)
+					Devblocks.flashInteractionButton();
+			});
+		};
+
+		var ul = document.createElement('ul');
+
+		[
+			{ disposition: 'pause', icon: 'pause', label: 'Pause' },
+			{ disposition: 'end',   icon: 'trash', label: 'End' },
+		].forEach(function(it) {
+			var li = document.createElement('li');
+			li.setAttribute('data-disposition', it.disposition);
+			li.setAttribute('data-icon', it.icon);
+			li.textContent = it.label;
+			ul.appendChild(li);
+		});
+
+		var menu = new CerbUI.Menu(ul, {
+			onSelect: function(renderedLi, sourceLi) {
+				dispose(sourceLi.getAttribute('data-disposition'));
+			},
+			onRenderItem: function(renderedLi, sourceLi) {
+				var icon = document.createElement('span');
+				icon.className = 'cerb-icons cerb-u-mr-1 cerb-icon-' + sourceLi.dataset.icon;
+				icon.setAttribute('aria-hidden', 'true');
+				renderedLi.insertBefore(icon, renderedLi.firstChild);
+			},
+			onClose: function() {
+				// Dismissed without a pick (an outside click) -> leave the interaction as-is.
+				restore();
+			},
+		});
+
+		dlg._closeMenuOpen = true;
+		dlg.opts.closeOnEscape = false; // read live per-keydown, so the dialog stops self-closing on Esc
+		document.addEventListener('keydown', onKeyCapture, true);
+
+		menu.open(anchor);
+
+		// Take focus off any interaction input so the keyboard drives the menu, then pre-highlight the first item.
+		if(document.activeElement && document.activeElement !== document.body && typeof document.activeElement.blur === 'function')
+			document.activeElement.blur();
+
+		menu.moveActive(1);
+	};
+
+	// A quick pulse of the command-bar button, so a just-paused interaction's new home is obvious.
+	this.flashInteractionButton = function() {
+		var btn = document.getElementById('bot-chat-button');
+
+		if(!btn || typeof btn.animate !== 'function')
+			return;
+
+		btn.animate(
+			[
+				{ transform: 'scale(1)' },
+				{ transform: 'scale(1.3)' },
+				{ transform: 'scale(1)' },
+			],
+			{ duration: 450, iterations: 2, easing: 'ease-in-out' }
+		);
+	};
+
 	this.interactionWorkerPostActions = function(eventData, editor) {
 		if('object' != typeof eventData.return)
 			return;

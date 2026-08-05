@@ -140,6 +140,8 @@ class ChExplorerController extends DevblocksControllerExtension {
 							DAO_AutomationContinuation::STATE => $automation_results->getKeyPath('__exit'),
 							DAO_AutomationContinuation::STATE_DATA => json_encode($state_data),
 							DAO_AutomationContinuation::URI => $interaction_uri,
+							DAO_AutomationContinuation::EXTENSION_ID => AutomationTrigger_InteractionWorkerExplore::ID,
+							DAO_AutomationContinuation::WORKER_ID => $active_worker->id,
 						]);
 					}
 					

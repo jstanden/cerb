@@ -360,6 +360,7 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 				DAO_AutomationContinuation::STATE => $automation_results->getKeyPath('__exit'),
 				DAO_AutomationContinuation::STATE_DATA => json_encode($state_data),
 				DAO_AutomationContinuation::URI => $handler->name,
+				DAO_AutomationContinuation::EXTENSION_ID => AutomationTrigger_InteractionWebsite::ID,
 			]);
 		}
 		
@@ -839,6 +840,8 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 			DAO_AutomationContinuation::STATE => $delegate_continuation->state,
 			DAO_AutomationContinuation::STATE_DATA => json_encode($delegate_continuation->state_data),
 			DAO_AutomationContinuation::URI => $delegate_continuation->uri,
+			DAO_AutomationContinuation::EXTENSION_ID => $continuation->extension_id,
+			DAO_AutomationContinuation::WORKER_ID => $continuation->worker_id,
 		]);
 		
 		// Update the parent continuation with the delegate token
