@@ -1,0 +1,26 @@
+records:
+  automation/recordChangedTicket:
+    fields:
+      name: example.ticket.changed
+      extension_id: cerb.trigger.record.changed
+      description: React to a ticket change by comparing its new (record_) vs previous (was_record_) field values.
+      script@raw:
+        # A `record.changed` automation for tickets. `record_*` holds the NEW values; `was_record_*` holds the values
+        # from BEFORE the change. Compare specific FIELDS (not whole record dictionaries) to react to a transition.
+        # Wire it to ticket changes with a record.changed event listener.
+
+        start:
+          # Example: the ticket was moved to a different group. Comparing the two scalar fields is the reliable check —
+          # `{{record_group_id}}` (new) vs `{{was_record_group_id}}` (old).
+          outcome/groupChanged:
+            if@bool: {{record_group_id != was_record_group_id}}
+            then:
+              # [TODO] Do something because the group changed (was #{{was_record_group_id}}, now #{{record_group_id}}):
+              # add a comment, notify a worker, call a reusable function, etc.
+              set:
+                change_note@text:
+                  Ticket group changed from #{{was_record_group_id}} to #{{record_group_id}}.
+      policy_kata@raw:
+        commands:
+          # No privileged commands are used yet. Add a policy for each one you add (comment.create, mail.*,
+          # http.request, function, …) — use Ctrl/⌘+Space for autocompletion.

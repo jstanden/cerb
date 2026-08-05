@@ -70,6 +70,10 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 					return $this->_profileAction_sendMessage();
 				case 'showExportPopup':
 					return $this->_profileAction_showExportPopup();
+				case 'showTemplateWizard':
+					return $this->_profileAction_showTemplateWizard();
+				case 'applyTemplate':
+					return $this->_profileAction_applyTemplate();
 				case 'startInteraction':
 					return $this->_profileAction_startInteraction();
 				case 'stepAutomationEditor':
@@ -586,6 +590,75 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar, $toolbar_dict);
 		
 		DevblocksPlatform::services()->ui()->toolbar()->render($toolbar);
+	}
+
+	// Automation Builder — render a picked candidate's code-driven CerbUI wizard (the config slide-in). Empty
+	// body ⇒ no config step; the client applies the template immediately.
+	private function _profileAction_showTemplateWizard() : void {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+
+		$template_id = DevblocksPlatform::importGPC($_POST['template_id'] ?? null, 'string', '');
+
+		if(!($template_ext = \Cerb\Extensions\Extension_AutomationTemplate::get($template_id)))
+			return;
+
+		/** @var $template_ext \Cerb\Extensions\Extension_AutomationTemplate */
+		echo $template_ext->renderWizard();
+	}
+
+	// Automation Builder — turn a candidate's wizard answers into the editor seed. The client seeds the
+	// ephemeral (id 0) editor from this; nothing is persisted until the author hits Save.
+	private function _profileAction_applyTemplate() : void {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+
+		$template_id = DevblocksPlatform::importGPC($_POST['template_id'] ?? null, 'string', '');
+		$answers = DevblocksPlatform::importGPC($_POST['answers'] ?? null, 'array', []);
+
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+
+		try {
+			if(!($template_ext = \Cerb\Extensions\Extension_AutomationTemplate::get($template_id)))
+				throw new Exception_DevblocksAjaxValidationError('Invalid template.');
+
+			/** @var $template_ext \Cerb\Extensions\Extension_AutomationTemplate */
+			$seed = $template_ext->build($answers);
+
+			if(!$seed || !is_array($seed))
+				throw new Exception_DevblocksAjaxValidationError('Invalid template.');
+
+			// The automation TRIGGER this template targets (for the editor's trigger bubble + autocomplete).
+			$seed_extension_id = strval($seed['extension_id'] ?? '');
+			$seed_trigger = Extension_AutomationTrigger::get($seed_extension_id, false);
+
+			echo json_encode([
+				'status' => true,
+				'extension_id' => $seed_extension_id,
+				'extension_name' => $seed_trigger?->name ?? '',
+				'script' => strval($seed['script'] ?? ''),
+				'policy_kata' => strval($seed['policy_kata'] ?? ''),
+			]);
+
+		} catch(Exception_DevblocksAjaxValidationError $e) {
+			echo json_encode(['status' => false, 'error' => $e->getMessage()]);
+
+		} catch(Throwable $e) {
+			DevblocksPlatform::logException($e);
+			echo json_encode(['status' => false, 'error' => 'An unknown error occurred.']);
+		}
+	}
+
 	}
 	
 	private function _profileAction_sendMessage() : void {

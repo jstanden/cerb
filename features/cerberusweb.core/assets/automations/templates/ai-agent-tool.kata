@@ -1,0 +1,26 @@
+records:
+  automation/aiAgentTool:
+    fields:
+      name: example.agent.tool
+      extension_id: cerb.trigger.llm.tool
+      description: A tool an AI agent can call: it receives arguments, does work, and returns a result.
+      script@raw:
+        # An AI Agent Tool is an automation an AI agent can call. The agent passes arguments (declared below as
+        # inputs), your script does the work, and you `return:` a `content` string the agent reads back.
+
+        inputs:
+          text/query:
+            description: What to look up
+            required@bool: yes
+
+        start:
+          # [TODO] Do the tool's work here. The agent's arguments arrive as `inputs.*`.
+
+          return:
+            # The agent reads this back as the tool result.
+            content@text:
+              You called this tool with: {{inputs.query}}
+      policy_kata@raw:
+        commands:
+          # This tool performs no privileged commands yet. As you add commands (record.*, http.request, etc.),
+          # declare a policy for each here (use Ctrl/⌘+Space for autocompletion).

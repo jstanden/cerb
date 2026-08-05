@@ -4117,6 +4117,91 @@
 
 		<!-- Automation API commands -->
 
+		<extension point="cerb.automation.template">
+			<id>cerb.automation.template.ai.agent_chat</id>
+			<name>AI Agent Chat</name>
+			<class>
+				<file>api/Extensions/AutomationTemplate/AgentChat.php</file>
+				<name>Cerb\Extensions\AutomationTemplate\AgentChat</name>
+			</class>
+			<params>
+				<param key="label" value="AI Agent Chat" />
+				<param key="description" value="An interactive AI agent that chats, uses tools, and can resume prior sessions." />
+				<param key="icon" value="bot-message" />
+				<param key="section" value="AI" />
+				<param key="trigger" value="cerb.trigger.interaction.worker" />
+				<param key="sort" value="10" />
+			</params>
+		</extension>
+
+		<extension point="cerb.automation.template">
+			<id>cerb.automation.template.ai.agent_tool</id>
+			<name>AI Agent Tool</name>
+			<class>
+				<file>api/Extensions/AutomationTemplate/AgentTool.php</file>
+				<name>Cerb\Extensions\AutomationTemplate\AgentTool</name>
+			</class>
+			<params>
+				<param key="label" value="AI Agent Tool" />
+				<param key="description" value="A tool an AI agent can call: it receives arguments, does work, and returns a result." />
+				<param key="icon" value="wrench" />
+				<param key="section" value="AI" />
+				<param key="trigger" value="cerb.trigger.llm.tool" />
+				<param key="sort" value="20" />
+			</params>
+		</extension>
+
+		<extension point="cerb.automation.template">
+			<id>cerb.automation.template.interactions.worker</id>
+			<name>Worker Interaction</name>
+			<class>
+				<file>api/Extensions/AutomationTemplate/WorkerInteraction.php</file>
+				<name>Cerb\Extensions\AutomationTemplate\WorkerInteraction</name>
+			</class>
+			<params>
+				<param key="label" value="Worker Interaction" />
+				<param key="description" value="A simple, linear worker interaction with a form (no chat loop)." />
+				<param key="icon" value="form" />
+				<param key="section" value="Interactions" />
+				<param key="trigger" value="cerb.trigger.interaction.worker" />
+				<param key="sort" value="10" />
+			</params>
+		</extension>
+
+		<extension point="cerb.automation.template">
+			<id>cerb.automation.template.records.ticket_changed</id>
+			<name>Ticket Changed</name>
+			<class>
+				<file>api/Extensions/AutomationTemplate/RecordChangedTicket.php</file>
+				<name>Cerb\Extensions\AutomationTemplate\RecordChangedTicket</name>
+			</class>
+			<params>
+				<param key="label" value="Ticket Changed" />
+				<param key="description" value="React to a ticket change by comparing its new (record_) vs previous (was_record_) field values." />
+				<param key="icon" value="edit" />
+				<param key="section" value="Records" />
+				<param key="trigger" value="cerb.trigger.record.changed" />
+				<param key="sort" value="10" />
+			</params>
+		</extension>
+
+		<extension point="cerb.automation.template">
+			<id>cerb.automation.template.integrations.slack</id>
+			<name>Send a Slack message</name>
+			<class>
+				<file>api/Extensions/AutomationTemplate/SlackFunction.php</file>
+				<name>Cerb\Extensions\AutomationTemplate\SlackFunction</name>
+			</class>
+			<params>
+				<param key="label" value="Send a Slack message" />
+				<param key="description" value="A reusable function that posts a message to a Slack channel (callable via function:)." />
+				<param key="icon" value="comments" />
+				<param key="section" value="Integrations" />
+				<param key="trigger" value="cerb.trigger.automation.function" />
+				<param key="sort" value="10" />
+			</params>
+		</extension>
+
 		<extension point = "cerb.automation.api_command">
 			<id>cerb.commands.activity.log</id>
 			<name>cerb.commands.activity.log</name>

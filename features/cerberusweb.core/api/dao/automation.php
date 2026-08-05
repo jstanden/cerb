@@ -2298,12 +2298,17 @@ class Context_Automation extends Extension_DevblocksContext implements IDevblock
 			} else {
 				$model = new Model_Automation();
 				$model->id = 0;
-				$model->script = "# [TODO] You can optionally declare custom inputs here\n#inputs:\n#  text/name:\n#    required@bool: yes\n#  record/ticket:\n#    required@bool: yes\n#    record_type: ticket\n\nstart:\n  # [TODO] Your logic goes here (use Ctrl+Space for autocompletion)\n  ";
+				$model->script = "# [TODO] You can optionally declare custom inputs here\n#inputs:\n#  text/name:\n#    required@bool: yes\n#  record/ticket:\n#    required@bool: yes\n#    record_type: ticket\n#    expand: customfields,group_,owner_\n\nstart:\n  # [TODO] Your logic goes here (use Ctrl+Space for autocompletion)\n  ";
 				$model->policy_kata = "commands:\n  # [TODO] Specify a command policy here (use Ctrl+Space for autocompletion)\n  ";
-				
-				if(is_string($lookup_id) && $lookup_id)
-					$model->name = $lookup_id;
+
+				// The Automation Builder now opens on a template picker (peek_edit.tpl); a picked template sets
+				// the trigger/script/policy IN the editor, so we no longer seed an example name from $lookup_id
+				// (name stays the author's to fill).
 			}
+
+			// Automation Builder candidates (grouped by section) for the new-record template picker.
+			if(!$model->id)
+				$tpl->assign('automation_templates', \Cerb\Extensions\Extension_AutomationTemplate::getGrouped());
 			
 			// Trigger extensions
 			$extensions = Extension_AutomationTrigger::getAll(false);
