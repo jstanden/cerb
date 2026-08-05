@@ -2582,7 +2582,13 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 			
 			$types = Model_CustomField::getTypes();
 			$tpl->assign('types', $types);
-			
+
+			// Per-type field icon for the type picker (shared [icon,color,label] map)
+			$type_icons = [];
+			foreach(array_keys($types) as $type_key)
+				$type_icons[$type_key] = C4_AbstractView::getColumnDisplayMeta($type_key)[0];
+			$tpl->assign('type_icons', $type_icons);
+
 			$context_mfts = Extension_DevblocksContext::getAll(false);
 			$tpl->assign('context_mfts', $context_mfts);
 			
