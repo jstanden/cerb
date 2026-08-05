@@ -105,6 +105,10 @@ class Controller_UI extends DevblocksControllerExtension {
 				return $this->_uiAction_resource();
 			case 'sheet':
 				return $this->_uiAction_sheet();
+			case 'sheetBuilderData':
+				return $this->_uiAction_sheetBuilderData();
+			case 'sheetBuilderPreview':
+				return $this->_uiAction_sheetBuilderPreview();
 		}
 		return false;
 	}
@@ -1162,6 +1166,194 @@ class Controller_UI extends DevblocksControllerExtension {
 		
 		if($layout['paging'] && array_key_exists('paging', $results['_']))
 			$tpl->assign('paging', $results['_']['paging']);
+		
+		if('fieldsets' == $layout['style']) {
+			$tpl->display('devblocks:cerberusweb.core::ui/sheets/render_fieldsets.tpl');
+		} else if('grid' == $layout['style']) {
+			$tpl->assign('layout_style', 'grid');
+			$tpl->display('devblocks:cerberusweb.core::ui/sheets/render_grid.tpl');
+		} else if('columns' == $layout['style']) {
+			$tpl->assign('layout_style', 'columns');
+			$tpl->display('devblocks:cerberusweb.core::ui/sheets/render_grid.tpl');
+		} else {
+			$tpl->display('devblocks:cerberusweb.core::ui/sheets/render.tpl');
+		}
+	}
+	
+	// Resolve the Sheet Builder's active dataset (mode + config) into rows + paging. Shared by the two
+	// sheet-builder endpoints. dataQuery runs the assembled worklist.records query; automation/manual go
+	// through the shared sheet()->resolveDataSet() resolver.
+	private function _sheetBuilderResolveRows(&$error=null) : ?array {
+		$sheets = DevblocksPlatform::services()->sheet();
+		
+		$mode = DevblocksPlatform::importGPC($_POST['mode'] ?? null, 'string', 'manual');
+		$page = DevblocksPlatform::importGPC($_POST['page'] ?? null, 'integer', 0);
+		$limit = DevblocksPlatform::importGPC($_POST['limit'] ?? null, 'integer', 10);
+		$filter = DevblocksPlatform::importGPC($_POST['filter'] ?? null, 'string', '');
+		
+		// Both the "Records" builder mode and the raw "Data query" mode resolve via a data query.
+		if('dataQuery' == $mode || 'records' == $mode) {
+			$data = DevblocksPlatform::services()->data();
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+			$data_query = DevblocksPlatform::importGPC($_POST['data_query'] ?? null, 'string', '');
+			
+			if(false === ($data_query = $tpl_builder->build($data_query, []))) {
+				$error = implode("\n", $tpl_builder->getErrors());
+				return null;
+			}
+			
+			if(false == ($results = $data->executeQuery($data_query, [], $error)))
+				return null;
+			
+			return ['data' => $results['data'] ?? [], 'paging' => $results['_']['paging'] ?? []];
+		}
+		
+		if('automation' == $mode) {
+			$uri = DevblocksPlatform::importGPC($_POST['automation_uri'] ?? null, 'string', '');
+			$inputs_kata = DevblocksPlatform::importGPC($_POST['automation_inputs'] ?? null, 'string', '');
+			$inputs = [];
+			
+			if($inputs_kata) {
+				if(false === ($inputs = DevblocksPlatform::services()->kata()->parse($inputs_kata, $error)))
+					return null;
+				
+				$inputs = DevblocksPlatform::services()->kata()->formatTree($inputs);
+			}
+			
+			$resolved = $sheets->resolveDataSet(['automation' => ['uri' => $uri, 'inputs' => $inputs]], compact('page', 'limit', 'filter'));
+			return ['data' => $resolved['data'], 'paging' => $resolved['paging']];
+		}
+		
+		// manual
+		$rows_json = DevblocksPlatform::importGPC($_POST['rows'] ?? null, 'string', '');
+		$rows = [];
+		
+		if($rows_json) {
+			$rows = json_decode($rows_json, true);
+			
+			if(!is_array($rows)) {
+				$error = 'Sample rows must be a JSON array of objects.';
+				return null;
+			}
+		}
+		
+		$resolved = $sheets->resolveDataSet($rows, compact('page', 'limit', 'filter'));
+		return ['data' => $resolved['data'], 'paging' => $resolved['paging']];
+	}
+	
+	// Sheet Builder: resolve the dataset → return sample rows + the union of their keys (drives the
+	// column key-pickers). Superuser-only (dev tool).
+	private function _uiAction_sheetBuilderData() {
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		$error = null;
+		
+		if(null === ($resolved = $this->_sheetBuilderResolveRows($error))) {
+			echo json_encode(['error' => $error]);
+			return;
+		}
+		
+		$out_rows = [];
+		$keys = [];
+		
+		foreach($resolved['data'] as $row) {
+			// worklist.records rows are DevblocksDictionaryDelegate objects; literal/automation rows are arrays.
+			$arr = ($row instanceof DevblocksDictionaryDelegate) ? $row->getDictionary() : (is_array($row) ? $row : null);
+			
+			if(!is_array($arr))
+				continue;
+			
+			$out_rows[] = $arr;
+			
+			foreach(array_keys($arr) as $k) {
+				// Skip internal double-underscore keys (e.g. __index)
+				if(is_string($k) && DevblocksPlatform::strStartsWith($k, '__'))
+					continue;
+				
+				$keys[$k] = true;
+			}
+		}
+		
+		ksort($keys);
+		
+		echo DevblocksPlatform::strFormatJson(json_encode([
+			'data' => $out_rows,
+			'keys' => array_keys($keys),
+		]));
+	}
+	
+	// Sheet Builder: resolve the dataset + parse the sheet KATA + register the requested column types →
+	// render the sheet HTML. A dataset-aware sibling of _uiAction_sheet(). Superuser-only.
+	private function _uiAction_sheetBuilderPreview() {
+		$tpl = DevblocksPlatform::services()->template();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		$sheets = DevblocksPlatform::services()->sheet()->newInstance();
+		$sheet_kata = DevblocksPlatform::importGPC($_POST['sheet_kata'] ?? null, 'string', '');
+		$types = DevblocksPlatform::importGPC($_POST['types'] ?? null, 'array', []);
+		
+		$error = null;
+		
+		if(null === ($resolved = $this->_sheetBuilderResolveRows($error))) {
+			$tpl->assign('success', false);
+			$tpl->assign('output', $error);
+			$tpl->display('devblocks:cerberusweb.core::internal/renderers/test_results.tpl');
+			return;
+		}
+		
+		if(!($sheet = $sheets->parse($sheet_kata, $error))) {
+			$tpl->assign('success', false);
+			$tpl->assign('output', $error);
+			$tpl->display('devblocks:cerberusweb.core::internal/renderers/test_results.tpl');
+			return;
+		}
+		
+		// The builder emits a `sheet:` wrapper (data + schema{layout,columns}); the sheet service works on the
+		// schema subtree. Unwrap it here (tolerate a flat layout:/columns: too).
+		if(is_array($sheet['sheet'] ?? null))
+			$sheet = $sheet['sheet']['schema'] ?? $sheet['sheet'];
+		
+		// Register only the requested types (the client passes its allowed set); text is always the fallback.
+		$type_funcs = [
+			'card' => 'card', 'code' => 'code', 'date' => 'date', 'icon' => 'icon',
+			'interaction' => 'interaction', 'link' => 'link', 'markdown' => 'markdown',
+			'search' => 'search', 'search_button' => 'searchButton', 'selection' => 'selection',
+			'slider' => 'slider', 'time_elapsed' => 'timeElapsed', 'toolbar' => 'toolbar',
+		];
+		
+		foreach($type_funcs as $type => $fn) {
+			if(in_array($type, $types))
+				$sheets->addType($type, $sheets->types()->$fn());
+		}
+		
+		$sheets->addType('text', $sheets->types()->text());
+		$sheets->setDefaultType('text');
+		
+		$layout = $sheets->getLayout($sheet);
+		$columns = $sheets->getColumns($sheet);
+		$rows = $sheets->getRows($sheet, $resolved['data']);
+		
+		$tpl->assign('layout', $layout);
+		$tpl->assign('columns', $columns);
+		$tpl->assign('rows', $rows);
+		
+		if($layout['paging'] && $resolved['paging'])
+			$tpl->assign('paging', $resolved['paging']);
 		
 		if('fieldsets' == $layout['style']) {
 			$tpl->display('devblocks:cerberusweb.core::ui/sheets/render_fieldsets.tpl');

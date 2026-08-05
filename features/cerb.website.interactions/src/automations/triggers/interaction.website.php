@@ -15,6 +15,12 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 		];
 	}
 
+	// The public-safe sheet column types allowed when designing an `await:form` sheet in the Sheet Builder —
+	// mirrors the restricted whitelist in InteractionWebsite/Awaits/SheetAwait.php.
+	public static function getSheetColumnTypes() : array {
+		return ['date', 'link', 'markdown', 'selection', 'slider', 'text', 'time_elapsed'];
+	}
+
 	// The website Awaits take a 4th portal-schema arg (worker Awaits are 3-arg). For the design-time form builder
 	// and the simulator preview a default-styled schema is sufficient (custom per-portal styling is applied at
 	// runtime); an empty array yields all-default accessors.

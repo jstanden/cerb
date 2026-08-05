@@ -1,0 +1,334 @@
+// SheetBuilder (CerbUI.SheetBuilder): a column-type palette (left) + a document column [ dataset panel ·
+// column strip (the drag/drop/select/reorder canvas) · live sheet preview · generated-KATA pane ] + an
+// inspector (right), split by CerbUI.SplitPane. Structural only — colors are theme tokens (dark mode auto).
+.cerb-sb {
+	display: flex;
+	flex-direction: row;
+	align-items: stretch;
+	gap: 0;
+	box-sizing: border-box;
+	width: 100%;
+	height: 78vh;
+	min-height: 0;
+
+	// ── Palette ─────────────────────────────────────────────────────────────
+	&--palette {
+		--cerb-ui-sidebar-width: 200px;
+		flex: 0 0 auto;
+		border-right: 1px solid var(--cerb-color-background-contrast-225);
+
+		// Drag-only: no click "selection" affordance on tiles. Reset the color too — the active rule
+		// pairs its accent fill with a light text color that's unreadable once the fill is gone.
+		.cerb-ui-sidebar--item.cerb-ui-sidebar--item-active {
+			background: transparent;
+			color: inherit;
+		}
+	}
+
+	// ── Main split (document | inspector) ───────────────────────────────────
+	&--main { flex: 1 1 0; min-width: 0; }
+
+	&--doc {
+		display: flex;
+		flex-direction: column;
+		min-width: 0;
+		min-height: 0;
+
+		&.cerb-ui-splitpane--pane { overflow: hidden; }
+	}
+
+	// ── Data source (an inspector view, opened from the columns bar) ─────────
+	&--dataset-body {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5em;
+	}
+	&--dataset-query,
+	&--dataset-json { width: 100%; box-sizing: border-box; }
+	&--dataset-loadrow {
+		display: flex;
+		align-items: center;
+		gap: 0.6em;
+		margin-top: 0.4em;
+	}
+	&--dataset-status { font-size: 0.85em; color: var(--cerb-color-text-muted); }
+
+	// The first loaded sample row (key → value), so the available keys + real values are visible.
+	&--sample {
+		margin-top: 0.6em;
+		border-top: 1px solid var(--cerb-color-background-contrast-230);
+		padding-top: 0.5em;
+	}
+	&--sample-head {
+		font-size: 0.8em;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		color: var(--cerb-color-text-muted);
+		margin-bottom: 0.3em;
+	}
+	&--sample-table {
+		max-height: 34vh;
+		overflow: auto;
+		display: flex;
+		flex-direction: column;
+		gap: 0.05em;
+	}
+	&--sample-row {
+		display: flex;
+		gap: 0.5em;
+		padding: 0.1em 0;
+		border-bottom: 1px solid var(--cerb-color-background-contrast-245);
+	}
+	&--sample-key {
+		flex: 0 0 42%;
+		color: var(--cerb-color-text-muted);
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	&--sample-val {
+		flex: 1 1 58%;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	// ── Column strip (canvas) — a cerb-ui-panel; the panel border + margin separate it from the preview ────
+	&--columns-wrap {
+		flex: 0 0 auto;
+		margin: 0.7em;   // float the panel in the pane (no manual divider to the preview)
+	}
+	&--columns {
+		display: flex;
+		flex-direction: column;
+		gap: 0.3em;
+		max-height: 22vh;
+		overflow: auto;
+	}
+	&--columns-empty {
+		padding: 1em;
+		text-align: center;
+		color: var(--cerb-color-text-muted);
+		border: 2px dashed var(--cerb-color-background-contrast-225);
+		border-radius: 0.5em;
+	}
+
+	// ── Preview (live rendered sheet) ────────────────────────────────────────
+	// Use the real page background so the rendered sheet reads at true fidelity (a lighter canvas skewed it).
+	&--preview {
+		flex: 1 1 auto;
+		overflow: auto;
+		padding: 1em;
+		background: var(--cerb-color-background);
+	}
+	&--preview-empty {
+		padding: 2em;
+		text-align: center;
+		color: var(--cerb-color-text-muted);
+	}
+
+	// ── KATA pane ───────────────────────────────────────────────────────────
+	&--kata {
+		flex: 0 0 auto;
+		display: flex;
+		flex-direction: column;
+		min-height: 0;
+		border-top: 1px solid var(--cerb-color-background-contrast-225);
+
+		&--collapsed .cerb-ui-kataeditor,
+		&--collapsed .cerb-sb--kata-text { display: none; }
+
+		.cerb-ui-kataeditor {
+			width: 100%;
+			box-sizing: border-box;
+			border-top: 1px solid var(--cerb-color-background-contrast-235);
+		}
+	}
+	&--kata-bar {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0.35em 0.7em;
+		background: var(--cerb-color-background-contrast-235);
+	}
+	&--kata-toggle {
+		display: flex;
+		align-items: center;
+		gap: 0.4em;
+		flex: 1 1 auto;
+		margin: 0; padding: 0; border: 0;
+		background: none;
+		font: inherit;
+		text-align: left;
+		cursor: pointer;
+	}
+	&--kata-chevron { color: var(--cerb-color-text-muted); font-size: 0.85em; }
+	&--kata-label {
+		font-size: 0.85em;
+		font-weight: 600;
+		color: var(--cerb-color-text-muted);
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+	}
+	&--kata-text {
+		width: 100%;
+		box-sizing: border-box;
+		border: 0;
+		resize: vertical;
+		min-height: 8em;
+		padding: 0.5em 0.7em;
+		font-family: var(--cerb-font-family-monospace, monospace);
+		font-size: 0.82em;
+		line-height: 1.45;
+		white-space: pre;
+		background: var(--cerb-color-background-contrast-250);
+		color: var(--cerb-color-text);
+	}
+
+	// ── Inspector (cerb-ui-form) ────────────────────────────────────────────
+	&--inspector {
+		box-sizing: border-box;
+		padding: 0.8em 0.9em;
+		overflow: auto;
+
+		&.cerb-ui-form { gap: 0.8em; }
+	}
+	&--inspector-head {
+		display: flex;
+		align-items: center;
+		gap: 0.4em;
+		padding-bottom: 0.5em;
+		border-bottom: 1px solid var(--cerb-color-background-contrast-230);
+	}
+
+	.cerb-ui-form--field > .cerb-ui-searchquery,
+	.cerb-ui-form--field > .cerb-ui-record-chooser { width: 100%; box-sizing: border-box; }
+
+	&--toggle-row { display: flex; align-items: center; gap: 0.6em; }
+	&--toggle-label { font-size: 0.9em; color: var(--cerb-color-text); }
+
+	&--field-kata {
+		width: 100%;
+		box-sizing: border-box;
+		font-family: var(--cerb-font-family-monospace, monospace);
+		font-size: 0.82em;
+		min-height: 6em;
+		white-space: pre;
+		resize: vertical;
+	}
+
+	&--remove { margin-top: 0.5em; align-self: flex-start; }
+
+	// Embedded in a dialog (Form Builder "Design sheet…") — shorter than the standalone so the apply bar fits.
+	&-embedded.cerb-sb { height: 68vh; }
+	// Apply/Cancel bar under the embedded builder in the dialog.
+	&--apply-bar {
+		display: flex;
+		justify-content: flex-end;
+		gap: 0.6em;
+		padding: 0.7em 0.2em 0.2em;
+		border-top: 1px solid var(--cerb-color-background-contrast-225);
+		margin-top: 0.6em;
+	}
+
+	// ── Color palette editor ────────────────────────────────────────────────
+	&--palettes { display: flex; flex-direction: column; gap: 0.5em; margin-top: 0.4em; }
+	&--palettes-head {
+		font-size: 0.85em;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		color: var(--cerb-color-text-muted);
+	}
+	&--palette-card {
+		display: flex;
+		flex-direction: column;
+		gap: 0.4em;
+		padding: 0.5em 0.6em;
+		border: 1px solid var(--cerb-color-background-contrast-225);
+		border-radius: 0.5em;
+		background: var(--cerb-color-background-contrast-248, var(--cerb-color-background-contrast-250));
+	}
+	&--palette-top { display: flex; align-items: center; gap: 0.4em; }
+	&--palette-name { flex: 1 1 auto; min-width: 0; }
+	&--palette-dark { flex: 0 0 auto; }
+	// Dark-variants toggle is "on" — tint the moon so the state is legible.
+	&--palette-dark--on .cerb-icons { color: var(--cerb-color-action-primary); }
+	// A wrapping row of wells; each well is a cell with its reference index on top.
+	&--palette-swatches { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 0.5em; }
+	&--swatch-cell {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.1em;
+	}
+	// The reference index (`<name>:<index>`) — also the drag handle for reordering.
+	&--swatch-num {
+		font-size: 0.72em;
+		font-weight: 600;
+		color: var(--cerb-color-text-muted);
+		cursor: grab;
+		user-select: none;
+
+		&:active { cursor: grabbing; }
+	}
+	&--swatch-rm {
+		cursor: pointer;
+		color: var(--cerb-color-text-muted);
+		font-size: 0.85em;
+		opacity: 0;   // reveal on cell hover
+	}
+	&--swatch-cell:hover .cerb-sb--swatch-rm { opacity: 1; }
+	&--palette-addcolor { align-self: flex-start; margin-top: 0.4em; }
+	&--palette-add { align-self: flex-start; }
+
+	// Per-row template editor + the automation record chooser fill the inspector width.
+	&--field-template { width: 100%; box-sizing: border-box; min-height: 5em; }
+	&--auto-chooser { width: 100%; box-sizing: border-box; }
+
+	// A style switcher in the inspector sizes to its content so its trailing whitespace sits OUTSIDE the last
+	// segment (a full-width switcher stretches the final button; not what a segmented control should look like).
+	.cerb-ui-form--field > .cerb-ui-switcher {
+		width: auto;
+		align-self: flex-start;
+		max-width: 100%;
+	}
+
+	// Insertion line shown while dragging a palette tile over the column strip.
+	&--drop-indicator {
+		height: 0;
+		margin: 2px 0;
+		border-top: 2px solid var(--cerb-color-primary, #3182ce);
+		border-radius: 2px;
+	}
+}
+
+// ── Column chips (the strip) ────────────────────────────────────────────────
+.cerb-sb-column {
+	display: flex;
+	align-items: center;
+	gap: 0.5em;
+	padding: 0.4em 0.6em;
+	border: 1px solid var(--cerb-color-background-contrast-225);
+	border-radius: 0.5em;
+	cursor: pointer;
+	background: var(--cerb-color-background);
+
+	&:hover { border-color: var(--cerb-color-background-contrast-200); }
+	&--selected {
+		border-color: var(--cerb-color-primary, #3182ce);
+		box-shadow: 0 0 0 1px var(--cerb-color-primary, #3182ce);
+	}
+	&--icon { color: var(--cerb-color-text-muted); flex: 0 0 auto; }
+	// Left: the column identifier — prominent (bold), the bigger of the two.
+	&--name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+	// Right: the column type — smaller, normal weight, muted.
+	&--key {
+		margin-left: auto;
+		flex: 0 0 auto;
+		font-size: 0.82em;
+		color: var(--cerb-color-text-muted);
+	}
+}

@@ -23,6 +23,12 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 		];
 	}
 
+	// The sheet column types allowed when designing an `await:form` sheet element in the Sheet Builder — the full
+	// set for the worker context (mirrors SheetAwait's withDefaultTypes()).
+	public static function getSheetColumnTypes() : array {
+		return \Cerb\Sheets\SheetBuilder::allowedColumnTypes();
+	}
+
 	/**
 	 * Inspector descriptors for the form builder: per component type, the config fields to edit + a `new`
 	 * starter config used when the component is dropped onto the canvas. Types with no curated field set

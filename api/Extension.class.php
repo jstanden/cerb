@@ -780,6 +780,12 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 		return ['chrome' => 'dialog', 'stylesheets' => []];
 	}
 
+	// The sheet column types a trigger allows when designing an `await:form` sheet element in the Sheet Builder.
+	// Default = the full set; a public/restricted context (e.g. the website interaction) narrows it.
+	public static function getSheetColumnTypes() : array {
+		return \Cerb\Sheets\SheetBuilder::allowedColumnTypes();
+	}
+
 
 	// ── Simulator priming ────────────────────────────────────────────────────
 	// The superuser-only "Simulate initial state" popup lets an author prime an event's scope before a test run.

@@ -77,23 +77,113 @@ class _DevblocksSheetService {
 	
 	private function _prepareData(array $sheet, array $sheet_dicts) : array {
 		$data = [];
-		
+
 		if($sheet_dicts)
 			return $sheet_dicts;
-		
+
 		if(
-			array_key_exists('data', $sheet) 
+			array_key_exists('data', $sheet)
 			&& is_array($sheet['data'])
 		) {
 			foreach($sheet['data'] as $values) {
 				if(!is_array($values))
 					continue;
-				
+
 				$data[] = DevblocksDictionaryDelegate::instance($values);
 			}
 		}
-		
+
 		return $data;
+	}
+
+	/**
+	 * Resolve a sheet `data:` block into rows (+ paging), handling the two sheet-native shapes:
+	 *   - a literal list of row arrays (manual), filtered/sliced/paged per $environment
+	 *   - ['automation' => ['uri' => …, 'inputs' => …]] invoking a `ui.sheet.data` script
+	 * The dataQuery shape (a `worklist.records` query producing rows externally) is resolved by the
+	 * caller via data()->executeQuery() and passed straight to getRows(), so it doesn't come through here.
+	 * @param mixed $sheet_data the raw `data` block
+	 * @param array $environment {page:int, limit:int, filter:?string}
+	 * @return array ['data' => row arrays, 'total' => int, 'paging' => array]
+	 */
+	function resolveDataSet($sheet_data, array $environment=[]) : array {
+		$page = intval($environment['page'] ?? 0);
+		$limit = intval($environment['limit'] ?? 10);
+		$filter = $environment['filter'] ?? null;
+
+		$paging = [];
+		$error = null;
+
+		// Automation: invoke a ui.sheet.data script for server-side paging
+		if(is_array($sheet_data) && array_key_exists('automation', $sheet_data)) {
+			$automation_uri = $sheet_data['automation']['uri'] ?? null;
+			$automation_inputs = $sheet_data['automation']['inputs'] ?? [];
+			$sheet_data = [];
+
+			if(!is_null($automation_uri) && ($callback = DAO_Automation::getByUri($automation_uri))) {
+				if($callback->extension_id != AutomationTrigger_UiSheetData::ID)
+					return ['data' => [], 'total' => 0, 'paging' => []];
+
+				$automator = DevblocksPlatform::services()->automation();
+
+				$callback_init = [
+					'inputs' => $automation_inputs,
+					'sheet_limit' => $limit,
+					'sheet_page' => $page,
+					'sheet_filter' => $filter,
+				];
+
+				$callback_results = $automator->executeScript($callback, $callback_init, $error);
+
+				if(false !== $callback_results) {
+					$callback_return = $callback_results->getKeyPath('__return');
+					$sheet_data = $callback_return['data'] ?? [];
+					$total = $callback_return['total'] ?? count($sheet_data);
+					$paging = $this->getPaging(count($sheet_data), $page, $limit, $total);
+				}
+			}
+
+		// Literal list: filter/slice/page in PHP
+		} else if(is_array($sheet_data)) {
+			if($filter) {
+				$is_indexed = DevblocksPlatform::arrayIsIndexed($sheet_data);
+
+				$sheet_data = array_filter($sheet_data, function($row, $key) use ($filter, $is_indexed) {
+					$text = implode(' ', is_array($row) ? $row : [$row]);
+
+					if(!$is_indexed)
+						$text = $key . ' ' . $text;
+
+					return (bool) stristr($text, $filter);
+				}, ARRAY_FILTER_USE_BOTH);
+			}
+
+			$total = count($sheet_data);
+
+			if($limit)
+				$sheet_data = array_slice($sheet_data, $page * $limit, $limit, true);
+
+			$paging = $this->getPaging(count($sheet_data), $page, $limit, $total);
+
+			// Synthesize a key for empty rows + stash the row index
+			foreach($sheet_data as $k => $v) {
+				if(is_array($v)) {
+					if(empty($v))
+						$sheet_data[$k] = ['key' => $k];
+
+					$sheet_data[$k]['__index'] = $k;
+				}
+			}
+		}
+
+		if(!is_array($sheet_data))
+			$sheet_data = [];
+
+		return [
+			'data' => $sheet_data,
+			'total' => $paging['page']['rows']['of'] ?? count($sheet_data),
+			'paging' => $paging,
+		];
 	}
 	
 	function getLayout(array $sheet) {

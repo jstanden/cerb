@@ -84,6 +84,8 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 					return $this->_profileAction_showFormStatePreviewPopup();
 				case 'submitFormStatePreview':
 					return $this->_profileAction_submitFormStatePreview();
+				case 'showSheetBuilderPopup':
+					return $this->_profileAction_showSheetBuilderPopup();
 				case 'showPrimeStatePopup':
 					return $this->_profileAction_showPrimeStatePopup();
 				case 'showStateDiffPopup':
@@ -2326,6 +2328,58 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		$tpl->assign('preview_chrome', $preview['chrome'] ?? 'dialog');
 		$tpl->assign('preview_stylesheets', $preview['stylesheets'] ?? []);
 		$tpl->display('devblocks:cerberusweb.core::internal/automation/editor/popup_form_builder.tpl');
+	}
+
+	// Open the visual Sheet Builder (CerbUI.SheetBuilder) for an `await:form` sheet element, seeded from the
+	// element's current `data`/`schema` KATA (parsed server-side — the client has no KATA parser). Scoped to the
+	// trigger's allowed sheet column types (worker = all; website = the restricted public-safe set).
+	private function _profileAction_showSheetBuilderPopup() {
+		$tpl = DevblocksPlatform::services()->template();
+		$kata = DevblocksPlatform::services()->kata();
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
+		$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? '', 'string', '');
+
+		if(!($trigger_extension = Extension_AutomationTrigger::get($extension_id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+
+		if(!$this->_supportsFormComponents($trigger_extension))
+			DevblocksPlatform::dieWithHttpError(null, 405);
+
+		// Seed: the element's current data + schema KATA (the inner blocks under `data:` / `schema:`).
+		$seed_data_kata = DevblocksPlatform::importGPC($_POST['data'] ?? '', 'string', '');
+		$seed_schema_kata = DevblocksPlatform::importGPC($_POST['schema'] ?? '', 'string', '');
+
+		$error = null;
+		$initial_schema = null;
+		$initial_data = null;
+
+		if($seed_schema_kata !== '' && false !== ($tree = $kata->parse($seed_schema_kata, $error)))
+			$initial_schema = $kata->formatTree($tree);
+		if($seed_data_kata !== '' && false !== ($tree = $kata->parse($seed_data_kata, $error)))
+			$initial_data = $kata->formatTree($tree);
+
+		$allowed_column_types = $trigger_extension::getSheetColumnTypes();
+		$cfg = \Cerb\Sheets\SheetBuilder::getClientConfig($allowed_column_types);
+
+		$tpl->assign('extension_id', $extension_id);
+		$tpl->assign('column_schema_json', json_encode($cfg['columnSchema']));
+		$tpl->assign('layout_schema_json', json_encode($cfg['layoutSchema']));
+		$tpl->assign('datasource_schema_json', json_encode($cfg['dataSourceSchema']));
+		$tpl->assign('allowed_column_types_json', json_encode($cfg['allowedColumnTypes']));
+		$tpl->assign('allowed_datasource_types_json', json_encode($cfg['allowedDataSourceTypes']));
+		$tpl->assign('record_types_json', json_encode($cfg['recordTypes']));
+		$tpl->assign('sheet_data_automations_json', json_encode($cfg['sheetDataAutomations']));
+		// The seed for the KATA→model import (null when starting from a blank element).
+		$tpl->assign('initial_json', json_encode(['schema' => $initial_schema, 'data' => $initial_data]));
+
+		$tpl->display('devblocks:cerberusweb.core::internal/automation/editor/popup_sheet_builder.tpl');
 	}
 
 	// Render an `await:form:` KATA fragment to inert preview HTML for the form builder (no session, mock data).
