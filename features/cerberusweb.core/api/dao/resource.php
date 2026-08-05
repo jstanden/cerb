@@ -1126,7 +1126,7 @@ class Storage_Resource extends Extension_DevblocksStorageSchema {
 	}
 };
 
-class Context_Resource extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextUri, IDevblocksContextWorkflow {
+class Context_Resource extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextUri, IDevblocksContextWorkflow, IDevblocksContextAutocomplete {
 	const ID = CerberusContexts::CONTEXT_RESOURCE;
 	const URI = 'resource';
 	
@@ -1178,12 +1178,75 @@ class Context_Resource extends Extension_DevblocksContext implements IDevblocksC
 		);
 	}	
 	
+	function autocomplete($term, $query=null) {
+		$db = DevblocksPlatform::services()->database();
+		$list = [];
+
+		$context_ext = Extension_DevblocksContext::get(self::ID);
+
+		$view = $context_ext->getSearchView('autocomplete_resource');
+		$view->is_ephemeral = true;
+		$view->renderPage = 0;
+
+		// This view id is cached/persisted across requests — start from a clean param set so a prior call's
+		// scope can't leak in (else e.g. two different `type:` scopes AND together and match nothing).
+		$view->removeAllParams();
+		$view->removeAllParamsRequired();
+
+		// Honor a scope query (e.g. `type:cerb.resource.map` to only offer map geometry resources). A bare
+		// `type:<extension_id>` token matches the type EXACTLY here — the quick-search `type:` field is partial,
+		// which would over-match prefix-sharing types (cerb.resource.map vs cerb.resource.map.points). Any other
+		// query terms still pass through quick-search.
+		if($query && preg_match('/(?:^|\s)type:(\S+)/', $query, $m)) {
+			$view->addParam(new DevblocksSearchCriteria(SearchFields_Resource::EXTENSION_ID, DevblocksSearchCriteria::OPER_EQ, $m[1]));
+			$query = trim(preg_replace('/(?:^|\s)type:\S+/', '', $query));
+		}
+
+		if($query)
+			$view->addParamsWithQuickSearch($query, true);
+
+		$view->addParam(new DevblocksSearchCriteria(SearchFields_Resource::NAME, DevblocksSearchCriteria::OPER_LIKE, '%' . $term . '%'));
+
+		$query_parts = DAO_Resource::getSearchQueryComponents([], $view->getParams(), $view->renderSortBy, $view->renderSortAsc);
+
+		$sql = "SELECT resource.id " .
+			$query_parts['join'] .
+			$query_parts['where'] .
+			"ORDER BY resource.name ASC " .
+			"LIMIT 25 "
+			;
+
+		$results = $db->GetArrayReader($sql);
+
+		if(is_array($results)) {
+			$ids = array_column($results, 'id');
+			$resources = DAO_Resource::getIds($ids);
+
+			foreach($ids as $id) {
+				if(!($resource = ($resources[$id] ?? null)))
+					continue;
+
+				$entry = new stdClass();
+				$entry->label = $resource->name;
+				// Resource URIs are name-based (cerb:resource:<name>), so the chosen value IS the name
+				$entry->value = $resource->name;
+
+				if($resource->extension_id)
+					$entry->meta = ['type' => $resource->extension_id];
+
+				$list[] = $entry;
+			}
+		}
+
+		return $list;
+	}
+
 	function profileGetUrl($context_id) {
 		$url_writer = DevblocksPlatform::services()->url();
-		
+
 		if(empty($context_id))
 			return '';
-		
+
 		return $url_writer->writeNoProxy('c=profiles&type=resource&id='.$context_id, true);
 	}
 	
