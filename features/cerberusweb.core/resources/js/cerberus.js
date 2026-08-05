@@ -3008,6 +3008,13 @@ var ajax = new cAjaxCalls();
 										.html(json.html)
 									;
 
+									// Expose the host's `command` callback ON the interaction form so a `uiCommand` await can
+									// invoke it SYNCHRONOUSLY (filling its hidden field before the sibling submit fires). The form
+									// persists across the inner loop re-renders, so set it once here. uiCommand never submits —
+									// only `submit` does.
+									if(options && 'function' == typeof options.command)
+										$html.find('form.cerb-form-builder').each(function() { this._cerbInteractionCommand = options.command; });
+
 									if(options.target.html) {
 										options.target.html($html);
 									}

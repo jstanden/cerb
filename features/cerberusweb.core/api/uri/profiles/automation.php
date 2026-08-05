@@ -137,6 +137,41 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		echo json_encode((object) $out);
 	}
 	
+	// Collect the `<type>` of every `await:form:elements:<type>/<var>` element in a script (element keys carry a
+	// `/`). Used to validate authored form elements against the trigger's advertised getFormComponentMeta() — a
+	// type the trigger doesn't advertise is silently dropped at render, so we reject it at save time.
+	private function _collectAwaitFormElementTypes(string $script) : array {
+		$error = null;
+		$tree = DevblocksPlatform::services()->kata()->parse($script, $error, true);
+
+		// A genuine syntax error is reported by the schema validation elsewhere — don't double-report here.
+		if(!is_array($tree))
+			return [];
+
+		$types = [];
+
+		$walk = function($node) use (&$walk, &$types) {
+			if(!is_array($node))
+				return;
+
+			foreach($node as $key => $value) {
+				if($key === 'elements' && is_array($value)) {
+					foreach(array_keys($value) as $el_key) {
+						if(is_string($el_key) && str_contains($el_key, '/'))
+							$types[] = substr($el_key, 0, strpos($el_key, '/'));
+					}
+				}
+
+				if(is_array($value))
+					$walk($value);
+			}
+		};
+
+		$walk($tree);
+
+		return array_values(array_unique($types));
+	}
+
 	private function _profileAction_savePeekJson() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -212,6 +247,30 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 				}
 				
 				$fields[DAO_Automation::EXTENSION_PARAMS_JSON] = json_encode($params);
+
+				// Guard: an `await:form:` element whose `<type>` the trigger doesn't advertise renders as NOTHING
+				// at runtime (newFormComponent() returns null → the element is silently skipped, so a
+				// uiCommand/agentPrompt/etc. never fires and its result comes back empty). Reject the save with an
+				// actionable message instead of leaving the author to debug empty results. `uiCommand`, for example,
+				// is only on `interaction.internal` — not the generic `interaction.worker`.
+				if(method_exists($trigger_ext, 'getFormComponentMeta')) {
+					$advertised = array_keys($trigger_ext::getFormComponentMeta());
+					$unsupported = array_values(array_unique(array_diff(
+						$this->_collectAwaitFormElementTypes($script), $advertised
+					)));
+
+					if($unsupported) {
+						$hint = in_array('uiCommand', $unsupported)
+							? ' The `uiCommand` element requires the “Interaction (Internal)” trigger.' : '';
+						throw new Exception_DevblocksAjaxValidationError(sprintf(
+							'The “%s” trigger does not support the `await:form:` element type%s: %s. They render as nothing at runtime.%s',
+							$trigger_ext->manifest->name,
+							count($unsupported) === 1 ? '' : 's',
+							implode(', ', array_map(fn($t) => '`' . $t . '`', $unsupported)),
+							$hint
+						));
+					}
+				}
 
 				// Validate policy KATA
 				

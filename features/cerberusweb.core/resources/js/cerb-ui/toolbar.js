@@ -82,6 +82,7 @@ CerbUI.Toolbar = class {
 		done: null,         // (event) interaction finished
 		error: null,        // (event) interaction errored
 		reset: null,        // (event) interaction reset
+		command: null,      // (name, params) → value|Promise — the UI-command bridge for `uiCommand` awaits
 		selectableParents: false, // menu items with a submenu are ALSO selectable (click = onSelect; hover = expand)
 		sections: null,     // additional source <ul>s (elements or selectors) to MERGE into this one strip, each
 		                    //   preceded by a divider — build a hybrid toolbar from several authored/record-rendered
@@ -543,6 +544,7 @@ CerbUI.Toolbar = class {
 			done: this.opts.done || undefined,
 			error: this.opts.error || undefined,
 			reset: this.opts.reset || undefined,
+			command: this.opts.command || undefined,
 		};
 
 		ul.querySelectorAll('li[data-interaction-uri], li[data-behavior-id]').forEach(li => {
