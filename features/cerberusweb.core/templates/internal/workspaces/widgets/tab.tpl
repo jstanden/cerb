@@ -6,6 +6,16 @@
 		{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}.create")}<button id="btnWorkspaceTabAddWidget{$model->id}" type="button" class="cerb-peek-trigger cerb-ui-toolbar-button" data-context="{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}" data-context-id="0" data-edit="tab:{$model->id}" data-width="75%"><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.widget.add'|devblocks_translate|capitalize}</button>{/if}
 		<button id="btnWorkspaceTabEditDashboard{$model->id}" type="button" class="cerb-ui-toolbar-button"><span class="cerb-icons cerb-icon-edit"></span> {'common.dashboard.edit'|devblocks_translate|capitalize}</button>
 		<button id="btnWorkspaceTabToggleWidgets{$model->id}" type="button" class="cerb-ui-toolbar-button" style="display:none;" aria-pressed="false" title="Hidden widgets"><span class="cerb-icons cerb-icon-eye-close"></span> Hidden Widgets <span class="cerb-ui-toolbar--badge cerb-ui-toolbar--badge-neutral badge-count">0</span></button>
+		<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-2 cerb-no-print" style="margin-left:auto;">
+			<div id="workspaceTabRefreshRing{$model->id}" style="display:none;"></div>
+			<span class="cerb-ui-header--label">Auto-refresh</span>
+			<label class="cerb-ui-toggle"><input type="checkbox" id="btnWorkspaceTabAutoRefresh{$model->id}"><span class="cerb-ui-toggle--slider"></span></label>
+			<ul id="workspaceTabRefreshMenu{$model->id}" hidden>
+				<li data-ms="60000">1 min</li>
+				<li data-ms="300000">5 min</li>
+				<li data-ms="900000">15 min</li>
+			</ul>
+		</div>
 	</div>
 	{/if}
 
@@ -437,7 +447,111 @@ $(function() {
 	};
 	
 	window.dashboardTimer{$model->id} = setInterval(tick, 1000);
-	
+
+	// Auto-refresh: a viewer toggle (projectors/wall displays) that reloads the tab's widgets on a fixed
+	// cadence — the widgets, not the page. A CerbUI.TimeRing counts down; click it for the interval menu.
+	let autoRefresh = {
+		INTERVAL_MS: 5 * 60 * 1000, // 5 min default (ring menu offers 1 / 5 / 15)
+		on: false,
+		cycleStart: 0,
+		pausedAt: 0,
+		ringEl: document.getElementById('workspaceTabRefreshRing{$model->id}'),
+		ring: null,
+		intervalLabel: function(ms) { return Math.round(ms / 60000) + 'm'; },
+		applyInterval: function(ms) {
+			this.INTERVAL_MS = ms;
+			this.cycleStart = Date.now();
+			if(this.ring) this.ring.setKey(this.intervalLabel(ms));
+		},
+		start: function() {
+			if(this.on) return;
+			this.on = true;
+			if(this.ringEl) this.ringEl.style.display = '';
+			if(this.ring) this.ring.setKey(this.intervalLabel(this.INTERVAL_MS));
+			this.cycleStart = Date.now();
+			this.pausedAt = 0;
+		},
+		stop: function() {
+			this.on = false;
+			if(this.ringEl) this.ringEl.style.display = 'none';
+			if(this.ring) this.ring.setFraction(0);
+		},
+	};
+
+	if(autoRefresh.ringEl && window.CerbUI && CerbUI.TimeRing)
+		autoRefresh.ring = new CerbUI.TimeRing(autoRefresh.ringEl, { size: 34, key: autoRefresh.intervalLabel(autoRefresh.INTERVAL_MS) });
+
+	// The ring doubles as the interval picker: click it for a 1 / 5 / 15-min menu
+	let autoRefreshMenuUl = document.getElementById('workspaceTabRefreshMenu{$model->id}');
+	if(autoRefresh.ringEl && autoRefreshMenuUl && window.CerbUI && CerbUI.Menu) {
+		autoRefresh.ringEl.style.cursor = 'pointer';
+		autoRefresh.ringEl.setAttribute('title', 'Change refresh interval');
+		new CerbUI.Menu(autoRefreshMenuUl, {
+			clickTrigger: autoRefresh.ringEl,
+			onSelect: function(li, src) {
+				let ms = parseInt($(src).attr('data-ms'), 10);
+				if(ms > 0) autoRefresh.applyInterval(ms);
+			}
+		});
+	}
+
+	let autoRefreshToggle = document.getElementById('btnWorkspaceTabAutoRefresh{$model->id}');
+	if(autoRefreshToggle && window.CerbUI && CerbUI.Toggle)
+		new CerbUI.Toggle(autoRefreshToggle, { onChange: function(checked) { checked ? autoRefresh.start() : autoRefresh.stop(); } });
+
+	// True while a peek/dialog is open ON SCREEN (minimized/docked ones don't count, so a parked popup doesn't
+	// freeze auto-refresh). Peeks (genericAjaxPopup) are CerbUI.Dialogs tracked in _openDialogs.
+	let autoRefreshPopupOpen = function() {
+		if(window.CerbUI && CerbUI.Dialog && CerbUI.Dialog._openDialogs) {
+			for(const d of CerbUI.Dialog._openDialogs) {
+				if(d && d._open && !d.minimized) return true;
+			}
+		}
+		if(window.jQuery && $('.ui-dialog:visible').length) return true; // legacy jQuery-UI popups
+		return false;
+	};
+
+	let autoRefreshTimer = setInterval(function() {
+		// Self-clear once this tab's container leaves the document (page/tab navigation)
+		if(!$container[0] || !document.body.contains($container[0])) { clearInterval(autoRefreshTimer); return; }
+		if(!autoRefresh.on) return;
+
+		// Freeze the countdown (hold, don't drain, don't fire) while the tab is hidden, a popup is open in front
+		// of the user, OR the ring itself is scrolled out of view — the timer only runs while you can see it, so
+		// a refresh only ever happens at the top-of-tab glance view and never yanks a mid-read reader upward.
+		let paused = !$container.is(':visible') || autoRefreshPopupOpen();
+		if(!paused && autoRefresh.ringEl) {
+			let r = autoRefresh.ringEl.getBoundingClientRect();
+			if(r.bottom <= 0 || r.top >= (window.innerHeight || document.documentElement.clientHeight)) paused = true;
+		}
+		if(paused) {
+			if(!autoRefresh.pausedAt) autoRefresh.pausedAt = Date.now();
+			return;
+		}
+
+		// Resuming: shift the cycle forward by however long we were paused so the countdown held where it was,
+		// then guarantee a short grace (≥10s) so it never fires the instant they return or dismiss a dialog.
+		if(autoRefresh.pausedAt) {
+			autoRefresh.cycleStart += Date.now() - autoRefresh.pausedAt;
+			autoRefresh.pausedAt = 0;
+			if(autoRefresh.INTERVAL_MS - (Date.now() - autoRefresh.cycleStart) < 10000)
+				autoRefresh.cycleStart = Date.now() - (autoRefresh.INTERVAL_MS - 10000);
+		}
+
+		let elapsed = Date.now() - autoRefresh.cycleStart;
+
+		if(elapsed >= autoRefresh.INTERVAL_MS) {
+			autoRefresh.cycleStart = Date.now();
+			$container.triggerHandler('cerb-widgets-refresh');
+			return;
+		}
+
+		if(autoRefresh.ring) {
+			autoRefresh.ring.setFraction(Math.min(1, elapsed / autoRefresh.INTERVAL_MS));
+			autoRefresh.ring.setValue(CerbUI.date.remain(Math.max(0, Math.round((autoRefresh.INTERVAL_MS - elapsed) / 1000))));
+		}
+	}, 1000);
+
 	$container.triggerHandler('cerb-widgets-refresh');
 });
 </script>

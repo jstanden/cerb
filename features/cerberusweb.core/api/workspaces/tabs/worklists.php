@@ -4,13 +4,21 @@ class WorkspaceTab_Worklists extends Extension_WorkspaceTab {
 	
 	public function renderTab(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
 		$tpl = DevblocksPlatform::services()->template();
-		
+		$active_worker = CerberusApplication::getActiveWorker();
+
 		$tpl->assign('workspace_page', $page);
 		$tpl->assign('workspace_tab', $tab);
-		
+
 		$worklists = $tab->getWorklists();
 		$tpl->assign('worklists', $worklists);
-		
+
+		// Same tab dict the dashboard builds, so isLocked() can resolve the `locked` option (tutorial tabs set it)
+		$workspace_tab_dict = DevblocksDictionaryDelegate::instance([
+			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'current_worker_id' => $active_worker->id ?? 0,
+		]);
+		$tpl->assign('is_locked', $tab->isLocked($workspace_tab_dict));
+
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/tabs/worklists/tab.tpl');
 	}
 	
