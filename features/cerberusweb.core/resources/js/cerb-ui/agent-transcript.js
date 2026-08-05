@@ -103,6 +103,12 @@ CerbUI.AgentTranscript = class {
 		// work is visible, everything older stays folded behind its summary.
 		expand: 'latest',        // 'latest' | 'all' | 'none'
 
+		// How a turn's content is laid out. 'interleaved' (default) keeps bodies and bubbles in author order, so
+		// each preamble ("let me search…") sits directly above the tool it prompted — reads like an agent's
+		// step-by-step work log. 'conversation' pools the agent's text as one flowing message with all its
+		// thinking/tool work in a single sub-thread below — reads like a chat answer.
+		layout: 'interleaved',   // 'interleaved' | 'conversation'
+
 		json: true,
 		jsonSniff: true,
 		jsonMaxBytes: 262144,
@@ -202,6 +208,119 @@ CerbUI.AgentTranscript = class {
 		return node;
 	}
 
+	// Replace every turn with freshly-rendered markup, keeping the instance (and therefore the view mode, the
+	// Markdown/Text switcher, and any host handlers bound to this element) alive. The controls row lives INSIDE
+	// this element, so a naive `innerHTML = html` would destroy it and orphan every per-turn toolbar — hence the
+	// explicit teardown here.
+	setTurns(html) {
+		this._toolbars.forEach(tb => { if(tb && tb.destroy) tb.destroy(); });
+		this._toolbars = [];
+
+		// Enhanced-ness is tracked per node; the nodes are all about to be replaced.
+		this._enhanced = new WeakSet();
+
+		this._turnEls().forEach(t => t.remove());
+		this.el.querySelectorAll('.cerb-ui-agent-transcript--checkpoint').forEach(t => t.remove());
+
+		const tmp = document.createElement('div');
+		tmp.innerHTML = (html == null) ? '' : html;
+		while(tmp.firstChild) this.el.appendChild(tmp.firstChild);
+
+		this.refresh();
+		this.setView(this.getView(), true);
+		this._emit('turns-replaced', { transcript: this });
+		return this;
+	}
+
+	// Replace ONE turn, addressed by its STABLE `data-turn-seq`, appending it if it isn't on screen yet.
+	// Returns the node.
+	//
+	// Addressed by `data-turn-seq` and NOT `data-seq`: the latter is the turn's newest message, which advances
+	// every time an agent turn accretes another message in its tool loop. Keying on it means a growing turn
+	// stops matching the node already on screen, so every tick appends another copy of the same turn.
+	//
+	// This exists because setTurns() is a full teardown — it destroys every per-turn toolbar, drops the
+	// enhanced-node set, and rebuilds the lot. That's the right call for a re-sync, and completely wrong for a
+	// turn that updates several times a second while an answer streams in: the toolbars would churn, and any
+	// selection or scroll anchoring inside untouched turns would be lost on every tick.
+	updateTurn(seq, html) {
+		if(seq == null || seq === '') return null;
+
+		let node = html;
+
+		if(typeof html === 'string') {
+			const tmp = document.createElement('div');
+			tmp.innerHTML = html;
+			node = tmp.firstElementChild;
+		}
+
+		if(!node) return null;
+
+		const existing = this.el.querySelector('[data-cerb-transcript-turn][data-turn-seq="' + String(seq).replace(/"/g, '') + '"]');
+
+		// Which bubbles the reader has opened or closed. Replacing the node rebuilds them from server markup,
+		// which knows only the `expand:` default — so without this, expanding a Thought to read it snaps shut
+		// on the next tick, roughly once a second, and the content is unreadable while it streams.
+		const openState = existing ? this._captureBubbleState(existing) : null;
+
+		if(existing) {
+			existing.replaceWith(node);
+		} else {
+			// Appending a USER turn that we couldn't match means the reader's own optimistic echo is standing in
+			// for it: the echo has no seq (the message wasn't stored yet), so it can never match by key, and
+			// appending on top of it shows the same message twice. The real turn supersedes the placeholder.
+			//
+			// Only for a user turn. An agent turn appended while a placeholder is up is the ordinary case — the
+			// poll sends the newest turn only, so the reader's message exists ON SCREEN solely as that
+			// placeholder, and clearing it there would erase the message from the conversation.
+			if('user' === node.getAttribute('data-role'))
+				this.el.querySelectorAll('[data-cerb-transcript-turn][data-cerb-transcript-pending]').forEach(p => p.remove());
+
+			this.el.appendChild(node);
+		}
+
+		// Toolbars are tracked in one flat list, so a targeted replace can't know which entries belonged to the
+		// node just swapped out. Sweep the ones whose element has left the document instead — self-correcting,
+		// and it also collects anything an earlier partial update orphaned.
+		this._toolbars = this._toolbars.filter(tb => {
+			const el = tb && (tb.el || tb.element);
+
+			if(el && !document.contains(el)) {
+				if(tb.destroy) tb.destroy();
+				return false;
+			}
+
+			return true;
+		});
+
+		this._enhanceTurn(node);
+
+		if(openState) this._restoreBubbleState(node, openState);
+
+		// Re-apply the view mode so a turn arriving mid-stream matches the Markdown/Text state the reader chose,
+		// rather than reverting to the server default on every patch.
+		this.setView(this.getView(), true);
+		this._emit('turn-updated', { turn: node, seq: seq });
+
+		return node;
+	}
+
+	// Bubble open/closed state, in DOM order. Index-keyed rather than id-keyed because a thinking bubble has
+	// no id — and it holds up in practice: bubbles only ever APPEND as a turn runs (a new tool call), so the
+	// ones the reader already touched keep their positions. A bubble that appears later simply keeps the
+	// server's `expand:` default, which is the right answer for something they haven't seen yet.
+	_captureBubbleState(turnEl) {
+		return Array.from(turnEl.querySelectorAll('.cerb-ui-agent-transcript--bubble'))
+			.map(b => b.classList.contains('cerb-ui-agent-transcript--bubble-collapsed'));
+	}
+
+	_restoreBubbleState(turnEl, state) {
+		Array.from(turnEl.querySelectorAll('.cerb-ui-agent-transcript--bubble')).forEach((b, i) => {
+			if(i < state.length)
+				b.classList.toggle('cerb-ui-agent-transcript--bubble-collapsed', state[i]);
+		});
+	}
+
 	// Idempotent: already-enhanced turns are skipped, so this is safe to call after appending markup.
 	refresh() {
 		this._turnEls().forEach(t => this._enhanceTurn(t));
@@ -266,16 +385,27 @@ CerbUI.AgentTranscript = class {
 		const sourceEl = q('[data-cerb-transcript-source]');
 		const toolbarUl = q('[data-cerb-transcript-turn-toolbar]');
 
-		// A turn groups several messages, so bodies and images repeat; keep them in author order.
-		const flowNodes = Array.from(turnEl.querySelectorAll('[data-cerb-transcript-body], [data-cerb-transcript-images]'));
+		// A turn groups several messages, so bodies/images and thinking/tool bubbles repeat. Collect ALL of them
+		// in author (document) order; 'hide' bubbles are dropped here so neither layout renders them. The layout
+		// below decides whether bodies pool above one sub-thread (conversation) or interleave with it (steps).
+		const isBubbleNode = n => n.hasAttribute('data-cerb-transcript-thinking') || n.hasAttribute('data-cerb-transcript-tool');
+		const contentNodes = Array.from(turnEl.querySelectorAll(
+			'[data-cerb-transcript-body], [data-cerb-transcript-images], [data-cerb-transcript-thinking], [data-cerb-transcript-tool]'
+		)).filter(n => {
+			if(isBubbleNode(n) && 'hide' === this._displayMode(n)) { n.remove(); return false; }
+			return true;
+		});
 
-		// Author order is the sub-thread's order — thinking and tool calls interleave meaningfully.
-		const subNodes = Array.from(turnEl.querySelectorAll('[data-cerb-transcript-thinking], [data-cerb-transcript-tool]'))
-			.filter(n => {
-				if('hide' !== this._displayMode(n)) return true;
-				n.remove();
-				return false;
-			});
+		// On a turn still being written, the LAST bubble is the one being written — mark it so _isActive()
+		// doesn't have to guess from emptiness (see there). Stamped HERE, before the layout loop moves these
+		// nodes into sub-threads: afterwards they're no longer reachable from turnEl in document order, so
+		// "which one is last" stops being answerable.
+		if(turnEl.hasAttribute('data-cerb-transcript-streaming')) {
+			const bubbles = contentNodes.filter(isBubbleNode);
+
+			if(bubbles.length)
+				bubbles[bubbles.length - 1].setAttribute('data-cerb-transcript-active', '');
+		}
 
 		// ── Avatar column ──
 		if(avatarEl && this.opts.avatars) {
@@ -349,22 +479,47 @@ CerbUI.AgentTranscript = class {
 			turnEl.classList.add('cerb-ui-agent-transcript--has-source');
 		}
 
-		flowNodes.forEach(n => {
+		const appendFlow = n => {
 			n.classList.add(n.hasAttribute('data-cerb-transcript-images')
 				? 'cerb-ui-agent-transcript--images'
 				: 'cerb-ui-agent-transcript--body');
 			main.appendChild(n);
-		});
+		};
 
-		if(subNodes.length) {
-			const sub = document.createElement('div');
-			sub.className = 'cerb-ui-agent-transcript--subthread';
-			subNodes.forEach(n => {
-				// Build first — that moves the label/payload out of `n` — then drop the spent wrapper.
-				sub.appendChild(this._buildBubble(n, this._displayMode(n)));
-				n.remove();
+		if('interleaved' === this.opts.layout) {
+			// Keep bodies and bubbles in author order so each preamble sits with the tool it prompted.
+			// Contiguous bubbles still group into one indented sub-thread; a body/images between them breaks
+			// the run into a new one — the avatar/header stays a single stamp at the top of the turn.
+			let sub = null;
+			contentNodes.forEach(n => {
+				if(isBubbleNode(n)) {
+					if(!sub) {
+						sub = document.createElement('div');
+						sub.className = 'cerb-ui-agent-transcript--subthread';
+						main.appendChild(sub);
+					}
+					// Build first — that moves the label/payload out of `n` — then drop the spent wrapper.
+					sub.appendChild(this._buildBubble(n, this._displayMode(n)));
+					n.remove();
+				} else {
+					sub = null;
+					appendFlow(n);
+				}
 			});
-			main.appendChild(sub);
+		} else {
+			// Conversation (default): pool the bodies as one flowing message, then all work in one sub-thread.
+			contentNodes.filter(n => !isBubbleNode(n)).forEach(appendFlow);
+
+			const subNodes = contentNodes.filter(isBubbleNode);
+			if(subNodes.length) {
+				const sub = document.createElement('div');
+				sub.className = 'cerb-ui-agent-transcript--subthread';
+				subNodes.forEach(n => {
+					sub.appendChild(this._buildBubble(n, this._displayMode(n)));
+					n.remove();
+				});
+				main.appendChild(sub);
+			}
 		}
 
 		turnEl.appendChild(main);
@@ -459,8 +614,17 @@ CerbUI.AgentTranscript = class {
 
 	// Still running: a tool until its result arrives, a thinking block until it has anything to show.
 	_isActive(node) {
+		// An explicit mark wins. A STREAMED thinking block breaks the emptiness heuristic below: it used to be
+		// safe because a thinking block only appeared once complete, so empty could only mean "not done yet".
+		// Now it accumulates text as it's written, so the moment the first token lands it would read as
+		// finished — labelled "Thought" while visibly still being thought. _enhanceTurn stamps this on the
+		// last bubble of a turn the server says is still streaming.
+		if(node.hasAttribute('data-cerb-transcript-active'))
+			return true;
+
 		if(node.hasAttribute('data-cerb-transcript-tool'))
 			return !node.querySelector('[data-cerb-transcript-tool-result]');
+
 		return !(node.textContent || '').trim();
 	}
 
@@ -593,11 +757,18 @@ CerbUI.AgentTranscript = class {
 		toggle.className = 'cerb-ui-agent-transcript--bubble-toggle cerb-ui-toolbar-button';
 		toggle.innerHTML = '<span class="cerb-icons cerb-icon-chevron-right"></span>';
 		toggle.setAttribute('title', 'Details');
-		toggle.addEventListener('click', e => {
+		toggle.setAttribute('aria-label', 'Toggle details');
+		header.appendChild(toggle);
+
+		// Expand/collapse on a click ANYWHERE in the header (summary label + chevron), not only the chevron. The
+		// header holds just the plain summary and this button — the tool's peek link lives in the body — so the
+		// whole strip is a safe hit target. The <button> stays the keyboard control: its Enter/Space fires a
+		// click that bubbles here. Only reached for a 'raw' (expandable) bubble; summaries returned above.
+		header.style.cursor = 'pointer';
+		header.addEventListener('click', e => {
 			e.stopPropagation();
 			note.classList.toggle('cerb-ui-agent-transcript--bubble-collapsed');
 		});
-		header.appendChild(toggle);
 
 		main.appendChild(body);
 		note.appendChild(main);

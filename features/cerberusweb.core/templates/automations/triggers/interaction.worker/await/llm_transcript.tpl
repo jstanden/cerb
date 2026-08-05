@@ -1,89 +1,358 @@
 {$element_id = uniqid('response_')}
-<div class="cerb-form-builder-prompt cerb-form-builder-response-llm-transcript" id="{$element_id}">
-    <h6>{$label}</h6>
+{* An empty transcript renders HIDDEN rather than not at all, so the optimistic echo has a target on the very
+   first submit of a conversation (see `is_empty` in LlmTranscriptAwait). It reveals itself when filled. *}
+<div class="cerb-form-builder-prompt cerb-form-builder-response-llm-transcript" id="{$element_id}"{if $is_empty} style="display:none;"{/if}>
+    {if $label}<h6>{$label}</h6>{/if}
 
-    {foreach from=$transcript_messages item=message}
-        {strip}
-            {capture name=message_content}
-                {foreach from=$message->getMessages() item=content}
-                    {if 'text' == $content.type}
-                        {$content.content nofilter}
-                    {/if}
-                {/foreach}
-            {/capture}
-        {/strip}
+    {* Bare markup — CerbUI.AgentTranscript.enhance() below builds the chrome.
+       The echo attrs let the ONE form-level submitted-handler address whichever transcripts are live at fire
+       time, without every render binding another handler to the persistent form. *}
+    <div class="cerb-ui-agent-transcript" data-cerb-agent-transcript
+        data-cerb-transcript-echo-key="llmTranscript/{$var}"
+        data-cerb-transcript-echo-token="{$continuation_token}">
+        {include file="devblocks:cerberusweb.core::automations/triggers/interaction.worker/await/_transcript_turns.tpl"}
+    </div>
 
-        {if $smarty.capture.message_content}
-            <div data-cerb-dom="transcript-message" data-cerb-transcript-role="{$message->getRole()}" data-cerb-message-uuid="{$message->getUuid()}">
-                <pre data-cerb-dom="transcript-message-markdown" class="cerb-hidden">{$smarty.capture.message_content}</pre>
-                <div class="emailBodyHtml">
-                    {$smarty.capture.message_content|devblocks_markdown_to_html nofilter}
-                </div>
+    {* While the agent is mid-action (a tool call awaiting its result) the composer is gone — offer a brake here so
+       a runaway agent can be stopped without closing the tab. It flags the running llm.agent node (interruptAgent),
+       which yields at its next tree-safe boundary. Live only (a real continuation + session). *}
+    {* Emitted whenever there's a live continuation, not only when the server already knows a turn is running.
+       A turn usually STARTS after this render (submit → `await:queue:` → no re-render until it ends), so the
+       row has to exist for the poll to reveal. Hidden until then so an idle transcript looks idle. *}
+    {if $continuation_token && !($is_automation_simulated|default:false)}
+        <div data-cerb-transcript-stop class="cerb-u-flex cerb-u-items-center cerb-u-gap-2" style="margin-top:0.75em;{if !$is_in_progress}display:none;{/if}">
+            {* The Stop button is server-rendered only when the server knows a turn is live. In the submit
+               window the brake lives on the agentPrompt's own busy block instead, so there's always one. *}
+            {if $is_in_progress}
+            {if $interrupt_pending}
+                {* Stop already requested — persist the feedback across the frequent re-renders until the agent yields. *}
+                <button type="button" class="cerb-ui-button cerb-ui-button--subtle" data-cerb-transcript-stop-btn disabled title="Stopping the agent at the next safe point…">
+                    <span class="cerb-icons cerb-icon-square"></span> Stopping…
+                </button>
+            {else}
+                <button type="button" class="cerb-ui-button cerb-ui-button--subtle" data-cerb-transcript-stop-btn title="Stop the agent">
+                    <span class="cerb-icons cerb-icon-square"></span> Stop
+                </button>
+            {/if}
+            {/if}
 
-                {$tools = $message->getToolCalls()}
-                {if $tools}
-                    {foreach from=$tools item=tool}
-                        <div class="emailBodyHtml" data-cerb-tool="{$tool->getName()}">
-                            <span class="cerb-icons cerb-icon-hammer"></span>&nbsp;
-                            {$tool->getLabel($tool_labels)}
-                        </div>
-                    {/foreach}
-                {/if}
-
-                {if 'assistant' == $message->getRole() && !$message->getToolCalls()}
-                    <div data-cerb-dom="transcript-toolbar">
-                        <button type="button" data-cerb-button="copy-markdown" title="Copy to clipboard" tabindex="-1">
-                            <span class="cerb-icons cerb-icon-copy"></span>
-                        </button>
-
-                        {*
-                        <button type="button" data-cerb-button="rating-good" data-cerb-rating="1" title="Give positive feedback">
-                            <span class="cerb-icons cerb-icon-thumbs-up"></span>
-                        </button>
-                        *}
-
-                        {*
-                        <button type="button" data-cerb-button="rating-bad" data-cerb-rating="2" title="Give negative feedback">
-                            <span class="cerb-icons cerb-icon-thumbs-down"></span>
-                        </button>
-                        *}
-
-                        <span data-cerb-dom="transcript-disclaimer">
-						    (This answer is machine generated and may not be accurate.)
-					    </span>
-                    </div>
-                {/if}
+            {* Liveness, beside the brake it belongs with. Deliberately an ELAPSED CLOCK rather than a token
+               count: a turn can spend minutes in extended thinking, whose blocks stream with empty text
+               unless the author asked for `display: summarized`, so anything derived from content would sit
+               at zero and read as hung. The clock is always true, and the answer streams in above as soon as
+               there is any. Revealed by the poll, so it can't claim work is happening when nothing is. *}
+            <div data-cerb-transcript-activity class="cerb-ui-chip" title="The agent is still working" style="display:none;">
+                <div class="cerb-ui-chip--head"><span class="cerb-icons cerb-icon-stopwatch"></span></div>
+                <div class="cerb-ui-chip--value" data-cerb-transcript-activity-elapsed>0s</div>
             </div>
-        {/if}
-    {/foreach}
+        </div>
+    {/if}
+
+    {if $has_agent_turn}
+        <div data-cerb-dom="transcript-disclaimer" class="cerb-u-text-muted" style="margin-top:0.75em;font-size:0.85em;">
+            (This conversation contains machine-generated answers and may have inaccuracies.)
+        </div>
+    {/if}
 </div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
     const $prompt = $('#{$element_id}');
 
-    // Scroll down
-    $prompt.scrollTop($prompt.get(0).scrollHeight);
+    // Stop the running agent (shown only while in-progress). Raises the out-of-band interrupt flag; the node
+    // yields at its next tree-safe boundary and control returns here. Disable on click so a double-tap doesn't
+    // spam the endpoint — the next render (the yield) restores the composer.
+    $prompt.find('[data-cerb-transcript-stop-btn]').on('click', function() {
+        const $b = $(this);
+        if($b.prop('disabled')) return;
+        // Immediate, VISIBLE feedback (before the next render lands): swap the label to "Stopping…" and disable.
+        // The next transcript render (which reads the pending flag server-side) keeps this state until the yield.
+        $b.prop('disabled', true).attr('title', 'Stopping the agent at the next safe point…')
+            .html('<span class="cerb-icons cerb-icon-square"></span> Stopping…');
 
-    $prompt.on('click', 'button', function(e) {
-        e.stopPropagation();
+        const fd = new FormData();
+        fd.set('c', 'profiles');
+        fd.set('a', 'invoke');
+        fd.set('module', 'automation');
+        fd.set('action', 'interruptAgent');
+        fd.set('continuation_token', '{$continuation_token|escape:'javascript'}');
+        fd.set('session_id', '{$session_id|escape:'javascript'}');
+        genericAjaxPost(fd, null, null, function() { });
+    });
 
-        const $button = $(this);
+    // Echo a just-submitted prompt into the transcript right away. A sibling agentPrompt announces what it
+    // posted; we re-render the turns region with that message appended (server-rendered from the same partial
+    // as the real turns, so the sync that replaces it doesn't visibly reflow).
+    //
+    // Bound ONCE per form, not once per render: the form outlives every transcript render (`$data.html()`
+    // replaces us, never it), so re-binding here would stack a handler — and therefore an extra POST — per
+    // render. Instead the single handler re-discovers whichever transcripts are live when it fires.
+    const $form = $prompt.closest('form.cerb-form-builder');
 
-        if($button) {
-            if('copy-markdown' === $button.attr('data-cerb-button')) {
-                const $message = $button.closest('[data-cerb-dom=transcript-message]');
-                const $message_markdown = $message.find('[data-cerb-dom=transcript-message-markdown]');
+    if($form.length && !$form.data('cerbTranscriptEchoBound')) {
+        $form.data('cerbTranscriptEchoBound', true);
 
-                if ($message_markdown) {
-                    const $div = $('<div/>');
-                   $div.html($message_markdown.html());
-                    navigator.clipboard.writeText($div.text());
-                    $div.remove();
-                    Devblocks.createAlert('Copied to clipboard!');
+        $form.on('cerb-agentprompt-submitted', function(e, data) {
+            data = data || { };
+
+            $form.find('[data-cerb-transcript-echo-key]').each(function() {
+                const container = this;
+                const inst = (window.CerbUI && CerbUI.AgentTranscript) ? CerbUI.AgentTranscript.from(container) : null;
+
+                if(!inst)
+                    return;
+
+                const fd = new FormData();
+                fd.set('c', 'profiles');
+                fd.set('a', 'invoke');
+                fd.set('module', 'automation');
+                fd.set('action', 'invokePrompt');
+                fd.set('prompt_key', container.getAttribute('data-cerb-transcript-echo-key') || '');
+                fd.set('prompt_action', 'echoTurn');
+                fd.set('continuation_token', container.getAttribute('data-cerb-transcript-echo-token') || '');
+                fd.set('text', data.text || '');
+                (data.images || []).forEach(function(uri) { if(uri) fd.append('images[]', uri); });
+
+                genericAjaxPost(fd, null, null, function(html) {
+                    // The container we posted for: a real render replaces this node wholesale, so a response
+                    // that lands late finds it detached and drops. Without this a slow echo would REVERT the
+                    // transcript to a state predating the agent's reply.
+                    if(!html || !document.contains(container))
+                        return;
+
+                    CerbUI.AgentTranscript.from(container).setTurns(html);
+
+                    // The scroll box is the OUTER prompt div, resolved from the container at fire time — this
+                    // handler outlives the render that bound it, so it can't close over that render's element.
+                    const box = container.closest('.cerb-form-builder-response-llm-transcript');
+
+                    // A first-message transcript rendered hidden and empty (nothing to show, but something had
+                    // to exist for this response to land in). It has turns now.
+                    if(box)
+                        box.style.display = '';
+
+                    // Land on the new turn, deferred a frame so it measures the rebuilt (and now visible) turns.
+                    requestAnimationFrame(function() {
+                        if(box && box.scrollHeight > box.clientHeight)
+                            box.scrollTop = box.scrollHeight;
+                    });
+                });
+            });
+        });
+    }
+
+    {* Watch a turn being written. The provider persists its partial answer as it streams, so this reads that
+       row and swaps ONE turn per tick — the transcript fills in instead of sitting frozen for minutes.
+
+       THE POLL MUST BE STARTABLE ON SUBMIT, not only when a render happens to catch a turn already running.
+       The first version only emitted this block under `$is_in_progress`, which sounds right and is wrong in
+       the most common case: when you submit, the transcript ON SCREEN is the one rendered BEFORE the submit,
+       back when the conversation was idle — and during `await:queue:` the panel deliberately never re-renders.
+       So the whole first stretch of a turn (often the longest, all thinking) had no poll at all, and updates
+       only appeared once an `on_tool:` render incidentally produced a transcript that WAS in progress.
+
+       So: the machinery is emitted whenever there's a live continuation, and started from two places —
+       here if the server already knows a turn is running (resuming a parked interaction), and from the
+       form-level submit handler below for the ordinary case. `startPoll` is idempotent. *}
+    {if $continuation_token && !($is_automation_simulated|default:false)}
+    (function() {
+        const container = $prompt.find('[data-cerb-transcript-echo-key]')[0];
+
+        if(!container || !(window.CerbUI && CerbUI.AgentTranscript))
+            return;
+
+        const activity = $prompt.find('[data-cerb-transcript-activity]')[0];
+        const stopRow = $prompt.find('[data-cerb-transcript-stop]')[0];
+        let startedAt = 0;
+        let inflight = false;
+        let failures = 0;
+        let timer = null;
+        let lastHtml = '';
+        let idle = 0;
+
+        const stop = function() {
+            if(timer) { clearInterval(timer); timer = null; }
+            container._cerbTranscriptPolling = false;
+            if(activity) activity.style.display = 'none';
+        };
+
+        // Elapsed time is the honest liveness signal. During an extended-thinking phase there is genuinely
+        // nothing to show — thinking blocks stream with EMPTY text unless the author opted into
+        // `display: summarized` — so a token counter would sit at zero and read as "stuck". A ticking clock
+        // says what's actually true: still working, this long so far.
+        const tick = function() {
+            if(!activity) return;
+            const s = Math.floor((Date.now() - startedAt) / 1000);
+            const label = activity.querySelector('[data-cerb-transcript-activity-elapsed]');
+            if(label) label.textContent = (s < 60) ? (s + 's') : (Math.floor(s / 60) + 'm ' + (s % 60) + 's');
+        };
+
+        const poll = function() {
+            // The render that owned us has been replaced — a newer transcript is on screen with its own poll.
+            if(!document.contains(container))
+                return stop();
+
+            tick();
+
+            if(inflight) return;
+            inflight = true;
+
+            // A dedicated profileAction, NOT invokePrompt: a turn only streams while the continuation is
+            // parked on `await:queue:`, whose `__return` carries no form — so invokePrompt's
+            // element-must-be-in-the-current-form check 404s every time. Same reason interruptAgent has its
+            // own action. Display options ride along because they lived on that unreachable form element.
+            const fd = new FormData();
+            fd.set('c', 'profiles');
+            fd.set('a', 'invoke');
+            fd.set('module', 'automation');
+            fd.set('action', 'pollAgentTurn');
+            fd.set('continuation_token', container.getAttribute('data-cerb-transcript-echo-token') || '');
+            fd.set('session_id', '{$session_id|escape:'javascript'}');
+            fd.set('view', '{$view|escape:'javascript'}');
+            fd.set('layout', '{$layout|default:'interleaved'|escape:'javascript'}');
+            fd.set('thinking', '{$thinking|default:'summary'|escape:'javascript'}');
+            fd.set('tools', '{$tools|default:'summary'|escape:'javascript'}');
+            fd.set('expand', '{$expand|default:'latest'|escape:'javascript'}');
+            fd.set('tokens', '{if $show_tokens}1{else}0{/if}');
+
+            genericAjaxPost(fd, null, null, function(json) {
+                inflight = false;
+                failures = 0;
+
+                if(!document.contains(container))
+                    return stop();
+
+                // Only touch the DOM when the markup actually changed. A turn spends long stretches producing
+                // content the transcript can't show (thinking blocks stream with EMPTY text under
+                // `display: omitted`), and rebuilding an identical turn every second would churn its bubbles
+                // and wreck text selection for a reader who is mid-sentence.
+                if(json && json.seq && json.html && json.html !== lastHtml) {
+                    lastHtml = json.html;
+
+                    // NO auto-scroll while streaming, deliberately. An "only follow if they're already at the
+                    // bottom" rule isn't enough here: updateTurn REPLACES the turn node, which destroys the
+                    // element the browser was scroll-anchored to, so a turn that grows — a new tool bubble,
+                    // say — shifts content under the reader on its own. Forcing the tail on top of that moved
+                    // text out from under someone mid-sentence. Letting it grow below the viewport is
+                    // predictable and never fights a reader; the cost is that following along is manual.
+                    CerbUI.AgentTranscript.from(container).updateTurn(json.seq, json.html);
                 }
-            }
-        }
-    })
+
+                // The clock asserts that work is happening, so it follows `working` (a turn being written or
+                // queued) — NOT `in_progress`, which stays true after a Stop is honored mid-tool-loop because
+                // the newest message is a tool_result. A clock still counting then is a lie.
+                if(activity)
+                    activity.style.display = (json && json.working) ? '' : 'none';
+
+                // Keep watching across the gap while a tool runs (nothing is streaming, but the next turn is
+                // coming and no render will happen to restart us). Bounded, though: after a Stop the
+                // interaction can sit indefinitely with `in_progress` true and nothing ever arriving, and
+                // polling forever for a view nobody is waiting on is just noise. A real render detaches the
+                // container and ends it sooner anyway.
+                idle = (json && (json.working || json.html)) ? 0 : (idle + 1);
+
+                // The turn is done. The interaction's own gate poll owns what happens next — this only ever
+                // watches; it never advances the interaction.
+                if(json && !json.in_progress)
+                    stop();
+                else if(idle >= 30)
+                    stop();
+
+            }, {
+                // A failed WATCH must stay silent. This runs alongside the interaction's own gate poll and the
+                // queue sidecars, all sharing this endpoint, and the default handler calls clearAlerts() —
+                // a blip here would wipe unrelated banners and alarm the reader about a request that only
+                // affects a cosmetic refresh. Give up after a few in a row rather than hammering a dead
+                // endpoint; the gate poll is what actually advances the interaction, and it reports for itself.
+                fail: function() {
+                    inflight = false;
+
+                    if(++failures >= 5)
+                        stop();
+                }
+            });
+        };
+
+        // Idempotent, and flagged on the CONTAINER rather than in this closure — the submit handler below
+        // lives on the persistent form and re-discovers whichever transcript is live at fire time, so the
+        // guard has to be readable from outside here. The container dies with each render, which resets it.
+        const startPoll = function() {
+            if(container._cerbTranscriptPolling) return;
+            container._cerbTranscriptPolling = true;
+
+            startedAt = Date.now();
+            idle = 0;
+            lastHtml = '';
+
+            if(stopRow) stopRow.style.display = '';
+            if(activity) { activity.style.display = ''; tick(); }
+
+            // No immediate tick: a submit fires the optimistic echo at the same moment, and that does a FULL
+            // setTurns() replace. Polling in the same beat would race it — we'd patch a turn the echo is
+            // about to wipe. One second late costs nothing and removes the race entirely.
+            timer = setInterval(poll, 1000);
+        };
+
+        container._cerbTranscriptStartPoll = startPoll;
+
+        {* The server already knows a turn is running: a re-render that landed mid-turn, or a parked
+           interaction being resumed. Start straight away rather than waiting for a submit that won't come. *}
+        {if $is_in_progress}startPoll();{/if}
+    })();
+
+    {* The ordinary path: a turn begins when the reader submits, and nothing re-renders after that until it
+       ends. The agentPrompt already announces the submit for the optimistic echo — reuse that signal to
+       start watching. Bound ONCE per form for the same reason the echo handler is: the form outlives every
+       render, so binding per render would stack a handler (and an extra poll) for each one. *}
+    if($form.length && !$form.data('cerbTranscriptPollBound')) {
+        $form.data('cerbTranscriptPollBound', true);
+
+        $form.on('cerb-agentprompt-submitted', function() {
+            $form.find('[data-cerb-transcript-echo-key]').each(function() {
+                if('function' === typeof this._cerbTranscriptStartPoll)
+                    this._cerbTranscriptStartPoll();
+            });
+        });
+    }
+    {/if}
+
+    if(window.CerbUI && CerbUI.AgentTranscript)
+        CerbUI.AgentTranscript.enhance($prompt[0], undefined, {
+            controls: {if 'toggle' == $view}true{else}false{/if},
+            view: '{$view|escape:'javascript'}',
+            layout: '{$layout|default:'interleaved'|escape:'javascript'}',
+            thinking: '{$thinking|escape:'javascript'}',
+            tools: '{$tools|escape:'javascript'}',
+            expand: '{$expand|escape:'javascript'}'
+        });
+
+    // Land at the BOTTOM, not at the start of the newest turn. An agent running tools re-renders this on every
+    // `on_tool:` call, and each new tool row appends below the fold — pinning to the top of the turn leaves the
+    // view frozen while the most is happening, so it reads as stalled. (Scroll back up manually to re-read a
+    // long reply; a Slack-style "jump to first unread" banner is the eventual answer.)
+    //
+    // Deferred a frame: enhance() rebuilds every turn (and defers its JSON editors), so measuring any sooner
+    // measures a layout that no longer exists. The frame also puts us after panel.tpl's focus-first-focusable,
+    // which scrolls its target into view — on an `on_tool:` re-render there's no prompt to focus, so that
+    // target is a per-turn copy button near the top and we must have the last word.
+    const pinToBottom = function() {
+        const el = $prompt.get(0);
+
+        if(!el)
+            return;
+
+        // The transcript container is its own scroll box (max-height:75vh; overflow:auto). Scroll ONLY inside
+        // it, and only when its content actually overflows — never nudge the browser page. Inside an AgentPane
+        // that cap is dropped, so this no-ops and the pane's own bottom-pin does the work.
+        if(el.scrollHeight <= el.clientHeight)
+            return;
+
+        el.scrollTop = el.scrollHeight;
+    };
+
+    // Twice: once after layout, and again shortly after to catch late height changes (the deferred JSON
+    // editors), which would otherwise leave us short of the bottom. Same reason CerbUI.AgentPane does it.
+    requestAnimationFrame(pinToBottom);
+    setTimeout(pinToBottom, 150);
 });
 </script>

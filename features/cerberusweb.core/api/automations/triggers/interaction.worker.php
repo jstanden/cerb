@@ -856,9 +856,59 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'session_id: a1b2c3d4-a1b2-c3d4-e5f6-a1b2c3d4e5f6',
 					'hidden@bool: yes',
 					[
-						'caption' => 'tool_labels:',
-						'snippet' => "tool_labels:\n\t\${1:example_tool}: \${2:Using tool...}",
+						'caption' => 'view:',
+						'snippet' => "view: \${1:toggle}",
+						'docHTML' => '<b>view:</b> <code>toggle</code> (offer Markdown/Text), <code>markdown</code>, or <code>text</code>.',
 					],
+					[
+						'caption' => 'layout:',
+						'snippet' => "layout: \${1:conversation}",
+						'docHTML' => '<b>layout:</b> <code>interleaved</code> (default &mdash; a step log; each preamble sits directly above the tool it prompted) or <code>conversation</code> (the agent\'s text pools as one flowing answer with its work in a sub-thread below).',
+					],
+					[
+						'caption' => 'thinking:',
+						'snippet' => "thinking: \${1:summary}",
+						'docHTML' => '<b>thinking:</b> <code>summary</code> (default), <code>raw</code> (the full reasoning), or <code>hide</code>.',
+					],
+					[
+						'caption' => 'expand:',
+						'snippet' => "expand: \${1:latest}",
+						'docHTML' => '<b>expand:</b> Which <code>raw</code> tool/thinking bubbles start open: <code>latest</code> (the newest agent turn only), <code>all</code>, or <code>none</code>.',
+					],
+					[
+						'caption' => 'tools:',
+						'snippet' => "tools: \${1:summary}",
+						'docHTML' => '<b>tools:</b> <code>summary</code> (default), <code>raw</code> (the ACTUAL request/response payloads &mdash; often data the reader isn\'t cleared for), or <code>hide</code>. Summaries come from the session\'s <code>llm.agent:inputs:tools:…:labels:</code>.',
+					],
+					[
+						'caption' => 'tokens@bool:',
+						'snippet' => "tokens@bool: \${1:yes}",
+						'docHTML' => '<b>tokens@bool:</b> Show a per-turn In/Out/Cached token chip on agent turns. Off by default.',
+					],
+				],
+				'(.*):await:form:elements:llmTranscript:view:' => [
+					'toggle',
+					'markdown',
+					'text',
+				],
+				'(.*):await:form:elements:llmTranscript:layout:' => [
+					'conversation',
+					'interleaved',
+				],
+				'(.*):await:form:elements:llmTranscript:thinking:' => [
+					'summary',
+					'raw',
+					'hide',
+				],
+				'(.*):await:form:elements:llmTranscript:tools:' => [
+					'summary',
+					'raw',
+					'hide',
+				],
+				'(.*):await:form:elements:llmTranscript:expand:' => [
+					'latest',
+					'all',
+					'none',
 				],
 				
 				'(.*):await:form:elements:map:' => [

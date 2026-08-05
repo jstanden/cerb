@@ -94,7 +94,9 @@
 	// Message body — reuse the shared markdown-body rules; trim outer margins so it sits flush in the turn.
 	&--body {
 		word-break: break-word;
-		line-height: 1.5em;
+		// Unitless: each descendant computes its line-height from its OWN font-size. `1.5em` resolves to a
+		// fixed value off the body's font-size, so larger Markdown headings inherit a too-tight line box.
+		line-height: 1.5;
 
 		// Plain-text bodies render as <pre class="emailbody"> — normalize to wrapped body text.
 		pre.emailbody {
@@ -118,6 +120,14 @@
 	// trim the last child's margin, so without this they'd butt together and read as one block.
 	&--body + &--body,
 	&--images + &--body {
+		margin-top: 1em;
+	}
+
+	// Interleaved layout only: a body/images that FOLLOWS a tool-run sub-thread needs the same separation, so
+	// the agent's next remark doesn't butt against the bubble above it. (In conversation layout the sub-thread
+	// is always last, so this never matches.)
+	.cerb-ui-agent-transcript--subthread + &--body,
+	.cerb-ui-agent-transcript--subthread + &--images {
 		margin-top: 1em;
 	}
 

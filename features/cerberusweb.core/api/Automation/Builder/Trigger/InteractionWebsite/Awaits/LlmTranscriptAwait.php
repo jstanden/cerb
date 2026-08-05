@@ -24,24 +24,44 @@ class LlmTranscriptAwait extends AbstractAwait {
 
 		$label = $this->_data['label'] ?? null;
 		$transcript_id = $this->_data['session_id'] ?? null;
-		$tool_labels = $this->_data['tool_labels'] ?? null;
 		$limit = 250; // [TODO] Configurable
-		
+
+		// No session_id → render nothing at all (no wrapper, no empty transcript). In the design-time builder
+		// preview (no real state) show a labeled placeholder so the field stays visible/selectable.
+		if(!$transcript_id) {
+			if($this->_isBuilderPreview())
+				$this->_renderSimulatedPlaceholder($label, 'conversation', 'Transcript preview');
+			return;
+		}
+
 		$transcript = \DAO_LlmAgentSession::get($transcript_id);
 		$tpl->assign('transcript', $transcript);
-		
-		if(!($llm_provider = $llm->getProvider($transcript->provider, [], validate: false)))
+
+		// Tolerate a not-yet-created (`{{uuid()}}`) or unprimed session — no provider means no messages;
+		// degrade to an empty transcript instead of fataling on getProvider(null).
+		$messages = [];
+
+		if($transcript && $transcript->provider && ($llm_provider = $llm->getProvider($transcript->provider, [], validate: false))) {
+			if(!($raw_messages = \DAO_LlmAgentMessage::getMessagesBySession($transcript_id, $limit)))
+				$raw_messages = [];
+
+			// Convert the messages into a neutral format using providers
+			$messages = array_map(fn($message) => $llm_provider->convertToGenericMessage($message->data, $message->uuid), $raw_messages);
+		}
+
+		// Nothing to show yet (new/empty session, or no messages) → render no wrapper/transcript at all. In the
+		// design-time builder preview show a placeholder; the simulator form-fill mirrors the runtime (blank).
+		if(!$messages) {
+			if($this->_isBuilderPreview())
+				$this->_renderSimulatedPlaceholder($label, 'conversation', 'Transcript preview');
 			return;
-		
-		if(!($messages = \DAO_LlmAgentMessage::getMessagesBySession($transcript_id, $limit)))
-			$messages = [];
-		
-		// Convert the messages into a neutral format using providers
-		$messages = array_map(fn($message) => $llm_provider->convertToGenericMessage($message->data, $message->uuid), $messages);
+		}
+
 		$tpl->assign('transcript_messages', $messages);
-		
-		$tpl->assign('tool_labels', $tool_labels);
-		
+
+		// Display labels come from the session's persisted `tools:` block, not this component.
+		$tpl->assign('tool_map', $transcript->getToolMap());
+
 		$tpl->assign('continuation_token', $continuation->token);
 		$tpl->assign('session', $session);
 		$tpl->assign('label', $label);
