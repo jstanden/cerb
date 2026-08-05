@@ -845,6 +845,73 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		$this->_handleAutomationAwait($continuation);
 	}
 	
+	/**
+	 * The canonical key order for a simulator state: alphabetical, with the runtime's bookkeeping pushed to the
+	 * bottom where it's out of the way. This is what the Output pane has always been emitted in.
+	 *
+	 * It's factored out because the state DIFF depends on both sides being ordered by the same rule. The two are
+	 * authored differently — the prime flow leads with `inputs:` then the trigger's scope keys, while a run's
+	 * output lands here — so comparing them as authored reports identical data at different positions as a
+	 * rewrite. Canonicalizing an already-canonical Output is a no-op, so the diff's right side still matches the
+	 * Output pane line-for-line; only the Input side gets reordered.
+	 */
+	private function _canonicalizeState(array $state) : array {
+		// An editor-only flag injected before the run; never part of either pane, and it would read as removed.
+		unset($state['__simulate']);
+
+		ksort($state);
+
+		// Move the state info to the end
+		if(array_key_exists('__state', $state)) {
+			$runtime_state = $state['__state'];
+			unset($state['__state']);
+			$state['__state'] = $runtime_state;
+		}
+
+		// Move expandable to the end
+		if(array_key_exists('__expandable', $state)) {
+			$expandable = $state['__expandable'];
+			unset($state['__expandable']);
+			$state['__expandable'] = $expandable;
+		}
+
+		return $state;
+	}
+
+	/**
+	 * Side-by-side diff of the Run tab's Input against its Output, so an author can see what the automation
+	 * actually did rather than eyeballing two YAML docs. Takes the LIVE pane contents (not the last run's
+	 * result), so it stays honest after a hand-edit or a Step.
+	 */
+	private function _profileAction_showStateDiffPopup() {
+		$tpl = DevblocksPlatform::services()->template();
+		$strings = DevblocksPlatform::services()->string();
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
+		if(!$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
+		$input_yaml = DevblocksPlatform::importGPC($_POST['input'] ?? null, 'string', '');
+		$output_yaml = DevblocksPlatform::importGPC($_POST['output'] ?? null, 'string', '');
+
+		$error = null;
+
+		// Say which side failed rather than diffing garbage — an unparseable pane means the comparison is a lie.
+		if(false === ($input_state = $strings->yamlParse($input_yaml, 0, $error))) {
+			$tpl->assign('error', 'The Input state is not valid YAML: ' . $error);
+		} else if(false === ($output_state = $strings->yamlParse($output_yaml, 0, $error))) {
+			$tpl->assign('error', 'The Output state is not valid YAML: ' . $error);
+		} else {
+			$tpl->assign('diff_before', $strings->yamlEmit($this->_canonicalizeState($input_state ?: []), false));
+			$tpl->assign('diff_after', $strings->yamlEmit($this->_canonicalizeState($output_state ?: []), false));
+		}
+
+		$tpl->display('devblocks:cerberusweb.core::internal/automation/editor/popup_state_diff.tpl');
+	}
+
 	private function _profileAction_showExportPopup() {
 		$tpl = DevblocksPlatform::services()->template();
 		$kata = DevblocksPlatform::services()->kata();
@@ -2568,25 +2635,8 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		$exit_code = $automation_result->get('__exit');
 		$exit_state = $automation_result->getKeyPath('__state.next', null);
 		
-		$end_state = $automation_result->getDictionary();
-		ksort($end_state);
-		
-		// Move the state info to the end
-		$state = $end_state['__state'];
-		unset($end_state['__state']);
-		$end_state['__state'] = $state;
-		unset($state);
-		
-		// Move expandable to the end
-		if(array_key_exists('__expandable', $end_state)) {
-			$expandable = $end_state['__expandable'];
-			unset($end_state['__expandable']);
-			$end_state['__expandable'] = $expandable;
-			unset($expandable);
-		}
-		
-		unset($end_state['__simulate']);
-		
+		$end_state = $this->_canonicalizeState($automation_result->getDictionary());
+
 		$yaml_out = DevblocksPlatform::services()->string()->yamlEmit($end_state, false);
 		
 		echo json_encode([
