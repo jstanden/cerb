@@ -45,6 +45,11 @@ class AutomationTrigger_WorkerAuthenticateFailed extends Extension_AutomationTri
 			],
 		];
 	}
+
+	// Pre-fill the client_* fields from the current worker's own request (worker_* already defaults to you).
+	function getSimulationInputs() : array {
+		return $this->_mockClientSimulationDefaults(parent::getSimulationInputs());
+	}
 	
 	function getOutputsMeta() {
 		return [];

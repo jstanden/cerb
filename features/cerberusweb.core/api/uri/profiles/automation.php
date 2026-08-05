@@ -70,10 +70,16 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 					return $this->_profileAction_sendMessage();
 				case 'showExportPopup':
 					return $this->_profileAction_showExportPopup();
+				case 'showPrimeStatePopup':
+					return $this->_profileAction_showPrimeStatePopup();
+				case 'showStateDiffPopup':
+					return $this->_profileAction_showStateDiffPopup();
 				case 'showTemplateWizard':
 					return $this->_profileAction_showTemplateWizard();
 				case 'applyTemplate':
 					return $this->_profileAction_applyTemplate();
+				case 'submitPrimeState':
+					return $this->_profileAction_submitPrimeState();
 				case 'startInteraction':
 					return $this->_profileAction_startInteraction();
 				case 'stepAutomationEditor':
@@ -1818,7 +1824,255 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 			DAO_AutomationContinuation::UPDATED_AT => time(),
 		]);
 	}
-	
+
+	// ── Simulator input priming ──────────────────────────────────────────────────────────────────────────
+
+	// Derive a normalized list of "primeable" inputs for an automation: its trigger scope (from the enriched
+	// getInputsMeta — TYPED entries only; untyped caller_/client_ are skipped) + the automation's own declared
+	// `#inputs:` block. Shared by the prime popup (renders a form) and the writeback (maps values → initial
+	// state). Each entry: { origin:'scope'|'input', key, component:'chooser'|'text'|'textarea',
+	//   emit:'record'|'records'|'bool'|'scalar'|'array', label, record_type?, context?, text_type?, multiple?, default? }
+	private function _getSimulationPrimeInputs(Model_Automation $automation, $trigger_extension) : array {
+		$out = [];
+
+		// 1) Event scope — the trigger declares which inputs to prompt for (default = typed getInputsMeta entries,
+		//    but a trigger may substitute a friendlier set, e.g. one "example message" for many pre-parser keys).
+		if($trigger_extension && method_exists($trigger_extension, 'getSimulationInputs')) {
+			foreach($trigger_extension->getSimulationInputs() as $d) {
+				$d['origin'] = 'scope';
+				$out[] = $d;
+			}
+		}
+
+		// 2) Automation-declared `#inputs:` — handled abstractly here (uniform across all triggers), fully typed
+		//    (text w/ sub-type, record, records, array). Merged after the trigger's scope inputs.
+		$kata = DevblocksPlatform::services()->kata();
+		$error = null;
+		$automation_kata = $kata->parse($automation->script ?? '', $error, true);
+
+		if(is_array($automation_kata) && array_key_exists('inputs', $automation_kata)) {
+			$declared = $kata->formatTree($automation_kata['inputs'], DevblocksDictionaryDelegate::instance([]), $error);
+
+			if(is_array($declared)) {
+				foreach($declared as $k => $input) {
+					if(!is_array($input))
+						continue;
+
+					list($input_type, $input_key) = array_pad(explode('/', $k, 2), 2, '');
+					if($input_key === '')
+						continue;
+
+					$label = strval($input['description'] ?? DevblocksPlatform::strTitleCase(str_replace('_', ' ', $input_key)));
+					$required = !empty($input['required']);
+
+					if($input_type === 'record' && ($input['record_type'] ?? '') === '') {
+						// Polymorphic single record input (no fixed type) → a ContextChooser across all contexts.
+						$out[] = ['origin' => 'input', 'emit' => 'record_context', 'key' => $input_key, 'component' => 'context_chooser',
+							'label' => $label, 'required' => $required,
+							'contexts_json' => json_encode(Extension_AutomationTrigger::getSimulationChooserContexts())];
+
+					} elseif($input_type === 'record' || $input_type === 'records') {
+						$record_type = $input['record_type'] ?? '';
+						$ext = $record_type ? Extension_DevblocksContext::getByAlias($record_type, true) : null;
+						$d = ['origin' => 'input', 'emit' => $input_type, 'key' => $input_key, 'component' => 'chooser',
+							'label' => $label, 'required' => $required, 'record_type' => $record_type, 'context' => ($ext ? $ext->id : '')];
+						if($input_type === 'records')
+							$d['multiple'] = true;
+						if(array_key_exists('default', $input) && !is_array($input['default'])) {
+							$d['default'] = $input['default'];
+						} elseif($input_type === 'record' && $ext && ($dao = $ext->getDaoClass()) && method_exists($dao, 'random')) {
+							$d['default'] = $dao::random();
+						}
+						$out[] = $d;
+
+					} elseif($input_type === 'array') {
+						$default = $input['default'] ?? '';
+						$out[] = ['origin' => 'input', 'emit' => 'array', 'key' => $input_key, 'component' => 'textarea',
+							'label' => $label, 'required' => $required, 'default' => (is_array($default) ? implode("\n", $default) : strval($default))];
+
+					} else {   // text
+						$out[] = ['origin' => 'input', 'emit' => 'scalar', 'key' => $input_key, 'component' => 'text',
+							'text_type' => strval($input['type'] ?? 'freeform'), 'label' => $label, 'required' => $required,
+							'default' => strval($input['default'] ?? '')];
+					}
+				}
+			}
+		}
+
+		return $out;
+	}
+
+	// Serve the "Simulate initial state" popup — a generated form (trigger scope + automation inputs), pre-filled
+	// with sane defaults (worker = you, sample record ids). The descriptors render directly as cerb-ui-form controls
+	// in the template (the simulator owns this UI; no fidelity to a trigger's runtime input surface is needed).
+	// Continue posts back to submitPrimeState, which emits the initial-state YAML for the Run Input editor.
+	private function _profileAction_showPrimeStatePopup() {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
+		$tpl = DevblocksPlatform::services()->template();
+
+		$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? '', 'string', '');
+		$automation_script = DevblocksPlatform::importGPC($_POST['automation_script'] ?? '', 'string', '');
+
+		$trigger_extension = $extension_id ? Extension_AutomationTrigger::get($extension_id) : null;
+
+		$automation = new Model_Automation();
+		$automation->script = $automation_script;
+		if($extension_id)
+			$automation->extension_id = $extension_id;
+
+		$prime_inputs = $this->_getSimulationPrimeInputs($automation, $trigger_extension);
+
+		// Split the descriptors by origin so the popup can group them: trigger scope → "Event inputs" panel,
+		// automation `#inputs:` → "Automation inputs" panel. The template renders each descriptor directly with
+		// cerb-ui-form controls — the simulator owns this UI, so it needs no fidelity to how a trigger surfaces
+		// its inputs at runtime (the trigger only tells us WHICH inputs exist and, later, how to map the answers).
+		$scope_inputs = [];
+		$automation_inputs = [];
+
+		foreach($prime_inputs as $d) {
+			// Pre-resolve chooser defaults to seed tiles (id → label/image); rendered inert as [data-context-id].
+			if(($d['component'] ?? '') === 'chooser') {
+				$d['selected'] = [];
+				$record_type = $d['record_type'] ?? '';
+
+				if($record_type && isset($d['default']) && $d['default'] !== '' && $d['default'] !== null) {
+					$ids = is_array($d['default']) ? $d['default'] : [$d['default']];
+					$models = CerberusContexts::getModels($record_type, $ids);
+					$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $record_type);
+
+					foreach($ids as $id) {
+						if(array_key_exists($id, $dicts)) {
+							$d['selected'][] = [
+								'id' => $id,
+								'label' => $dicts[$id]->get('_label'),
+								'image' => $dicts[$id]->get('_image_url'),
+							];
+						}
+					}
+				}
+
+			// A context chooser's default carries its own context (e.g. actor → the current worker); seed the tile
+			// with the FULL context id so ContextChooser reads it back as `<context>:<id>`.
+			} elseif(($d['component'] ?? '') === 'context_chooser') {
+				$d['selected'] = [];
+				$default_context = $d['default_context'] ?? '';
+
+				if($default_context && !empty($d['default'])) {
+					$id = intval($d['default']);
+					$models = CerberusContexts::getModels($default_context, [$id]);
+					$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $default_context);
+
+					if(array_key_exists($id, $dicts) && ($ctx_ext = Extension_DevblocksContext::getByAlias($default_context, false))) {
+						$d['selected'][] = [
+							'context' => $ctx_ext->id,
+							'id' => $id,
+							'label' => $dicts[$id]->get('_label'),
+							'image' => $dicts[$id]->get('_image_url'),
+						];
+					}
+				}
+			}
+
+			if(($d['origin'] ?? '') === 'scope')
+				$scope_inputs[] = $d;
+			else
+				$automation_inputs[] = $d;
+		}
+
+		$tpl->assign('scope_inputs', $scope_inputs);
+		$tpl->assign('automation_inputs', $automation_inputs);
+		$tpl->display('devblocks:cerberusweb.core::internal/automation/editor/popup_prime_state.tpl');
+	}
+
+	// Merge a submitted priming form into an initial simulator state and emit it as YAML for the Run Input editor.
+	// The event scope is delegated to the trigger (`getSimulationState()` — default = 1:1, but a trigger may expand
+	// one answer into many keys); the automation `#inputs:` are mapped abstractly here to `inputs.<name>` (raw id
+	// for records — `_validateInputs` expands them at run time). The two fragments are merged.
+	private function _profileAction_submitPrimeState() {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
+		$strings = DevblocksPlatform::services()->string();
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'text/plain; charset=utf-8');
+
+		$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? '', 'string', '');
+		$automation_script = DevblocksPlatform::importGPC($_POST['automation_script'] ?? '', 'string', '');
+		$prompts = DevblocksPlatform::importGPC($_POST['prompts'] ?? [], 'array', []);
+
+		$trigger_extension = $extension_id ? Extension_AutomationTrigger::get($extension_id) : null;
+
+		$automation = new Model_Automation();
+		$automation->script = $automation_script;
+		if($extension_id)
+			$automation->extension_id = $extension_id;
+
+		$prime_inputs = $this->_getSimulationPrimeInputs($automation, $trigger_extension);
+
+		// Automation `#inputs:` → `inputs.<name>`, mapped abstractly (uniform across triggers). Built first so
+		// `inputs:` leads the emitted dict when present, ahead of the event scope keys.
+		$inputs = [];
+		foreach($prime_inputs as $d) {
+			if(($d['origin'] ?? '') !== 'input')
+				continue;
+
+			$key = $d['key'];
+			$val = $prompts[$key] ?? null;
+
+			switch($d['emit']) {
+				case 'record':
+					if($val !== null && $val !== '')
+						$inputs[$key] = intval($val);
+					break;
+
+				case 'record_context':   // polymorphic input value is "context:id" → emit the raw id like a record
+					if($val !== null && $val !== '' && false !== ($sep = strrpos($val, ':')))
+						$inputs[$key] = intval(substr($val, $sep + 1));
+					break;
+
+				case 'records':
+					$inputs[$key] = is_array($val) ? array_values(array_map('intval', $val)) : [];
+					break;
+
+				case 'array':
+					$inputs[$key] = (is_string($val) && strlen(trim($val)))
+						? preg_split('/\r?\n/', trim($val))
+						: [];
+					break;
+
+				default:   // scalar (automation inputs carry no boolean type)
+					if($val !== null && $val !== '')
+						$inputs[$key] = $val;
+			}
+		}
+
+		// Event scope: the trigger turns its own answers into dict key/values (and may validate).
+		$error = null;
+		$scope = $trigger_extension ? $trigger_extension->getSimulationState($prompts, $error) : [];
+
+		if($error) {
+			echo '# ' . str_replace("\n", ' ', $error);
+			return;
+		}
+
+		// `inputs:` first (when present), then the event scope keys.
+		$state = ($inputs ? ['inputs' => $inputs] : []) + $scope;
+
+		// Empty → emit nothing (avoid a bare `--- []`); the run proceeds with an empty state.
+		echo $state ? $strings->yamlEmit($state, false) : '';
+	}
+
 	private function _handleAutomationAwaitInteraction(Model_AutomationContinuation $continuation) {
 		$delegate_token = $continuation->state_data['dict']['__return']['interaction']['token'] ?? null;
 		
@@ -2045,7 +2299,8 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		$automation_policy = DevblocksPlatform::importGPC($_POST['automation_policy_kata'] ?? null, 'string');
 		$start_state = DevblocksPlatform::importGPC($_POST['start_state_yaml'] ?? null, 'string');
 		$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? null, 'string');
-		
+		$skip_prime = DevblocksPlatform::importGPC($_POST['skip_prime'] ?? null, 'integer', 0);
+
 		$error = null;
 		
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -2086,8 +2341,21 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 			return;
 		}
 		
+		// Simulate with an EMPTY initial state → if the trigger scope or the automation's `#inputs:` declare anything
+		// primeable, tell the client to prime it first (an empty state would just fail scope/policy gates). Nothing
+		// to prime (e.g. a bare `start: return: output: {{1+2}}` function, or a blank no-trigger script) → run
+		// immediately, no extra step. `skip_prime` = the client already ran the prime flow, so honor its result.
+		if($is_simulator && !$skip_prime && empty($initial_state)) {
+			$prime_trigger = $extension_id ? Extension_AutomationTrigger::get($extension_id) : null;
+
+			if($this->_getSimulationPrimeInputs($automation, $prime_trigger)) {
+				echo json_encode(['exit' => 'prime']);
+				return;
+			}
+		}
+
 		$initial_state['__simulate'] = $is_simulator;
-		
+
 		// Schema validation on script + policy before running
 		if(false === $kata->validate($automation->script, CerberusApplication::kataSchemas()->automation(), $error)) {
 			echo json_encode([

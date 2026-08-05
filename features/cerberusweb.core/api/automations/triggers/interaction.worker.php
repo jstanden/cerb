@@ -83,7 +83,12 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 			],
 		];
 	}
-	
+
+	// Pre-fill the client_* fields from the current worker's own request (worker_* already defaults to you).
+	function getSimulationInputs() : array {
+		return $this->_mockClientSimulationDefaults(parent::getSimulationInputs());
+	}
+
 	function getOutputsMeta() : array {
 		return [
 			'return' => [

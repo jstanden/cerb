@@ -46,6 +46,68 @@ class AutomationTrigger_WebhookRespond extends Extension_AutomationTrigger {
 		];
 	}
 
+	// Friendlier priming: method as an HTTP-verb picklist, a sample path, the current worker's IP, one optional
+	// example header (Content-Type), and the request body as a ScriptingEditor moved to the end. (The full
+	// request_headers/request_params objects stay on Save-to-input.)
+	function getSimulationInputs() : array {
+		$body = null;
+		$out = [];
+
+		foreach(parent::getSimulationInputs() as $d) {
+			switch($d['key'] ?? '') {
+				case 'request_body':
+					$d['component'] = 'scripting_editor';
+					$body = $d;   // defer to the end
+					continue 2;
+
+				case 'request_client_ip':
+					$d['default'] = DevblocksPlatform::getClientIp();
+					break;
+
+				case 'request_method':
+					$d['component'] = 'select';
+					$d['options'] = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'];
+					$d['default'] = 'GET';
+					break;
+
+				case 'request_path':
+					$d['default'] = '/example/path';
+					break;
+			}
+
+			$out[] = $d;
+		}
+
+		// One common example header (freeform, suggest-only). `emit:none` = rendered but mapped by
+		// getSimulationState() below into request_headers.content_type when the author leaves a value.
+		$out[] = [
+			'key' => 'example_content_type',
+			'label' => 'Content-Type header',
+			'component' => 'text_chooser',
+			'emit' => 'none',
+			'options_json' => json_encode([
+				'text/plain', 'text/html', 'application/json',
+				'application/x-www-form-urlencoded', 'multipart/form-data', 'application/octet-stream',
+			]),
+		];
+
+		if($body)
+			$out[] = $body;
+
+		return $out;
+	}
+
+	function getSimulationState(array $answers, &$error = null) : array {
+		$state = parent::getSimulationState($answers, $error);
+
+		// Optional single example header, seeded only when the author left a value.
+		$content_type = trim(strval($answers['example_content_type'] ?? ''));
+		if($content_type !== '')
+			$state['request_headers'] = ['content_type' => $content_type];
+
+		return $state;
+	}
+
 	public function getOutputsMeta() {
 		return [
 			'return' => [

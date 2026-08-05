@@ -762,6 +762,199 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 		$class = $meta[$type]['class'] ?? null;
 		return is_string($class) && strlen($class) && class_exists($class) ? $class : null;
 	}
+
+	// ── Simulator priming ────────────────────────────────────────────────────
+	// The superuser-only "Simulate initial state" popup lets an author prime an event's scope before a test run.
+	// Two overridable seams so a trigger can offer a friendlier priming UX than its raw runtime scope — neither
+	// needs to be 1:1 with that scope:
+	//   1) getSimulationInputs() — WHICH inputs to prompt for (e.g. mail.filter could offer one "example message"
+	//      instead of the individual sender/subject/headers/body keys).
+	//   2) getSimulationState() — turn the author's answers into the dict key/values to seed (the example message
+	//      then parses into email_subject/email_headers/email_body/… pre-parser keys).
+	// The defaults implement the generic 1:1 behavior off getInputsMeta(), which is correct for most triggers.
+
+	// Prime-input descriptors for the event scope. Each descriptor:
+	//   key         (string)  answer key — posted as prompts[<key>], and the default state key
+	//   label       (string)  field label
+	//   component   (string)  'chooser' | 'textarea' | 'text' — how it renders in the popup
+	//   emit        (string)  'record'|'records'|'bool'|'array'|'scalar' — how getSimulationState()'s default maps it
+	//   record_type (string)  chooser: context alias
+	//   context     (string)  chooser: resolved context id (for the default record → <key>__context mapping)
+	//   multiple    (bool)    chooser: multi-select
+	//   text_type   (string)  text: subtype ('password','date',…)
+	//   default     (mixed)   prefill value
+	// A trigger overriding both seams may use any descriptor shape it understands in its own getSimulationState().
+	function getSimulationInputs() : array {
+		$active_worker = CerberusApplication::getActiveWorker();
+		$out = [];
+
+		// Only TYPED getInputsMeta entries become prime fields (untyped scope keys have no editable control).
+		foreach((array) $this->getInputsMeta() as $meta) {
+			if(!is_array($meta) || !($type = $meta['type'] ?? null))
+				continue;
+
+			$key = preg_replace('/_\*?$/', '', strval($meta['key'] ?? ''));   // 'worker_*'/'record_' → 'worker'/'record'
+			if($key === '')
+				continue;
+			$label = DevblocksPlatform::strTitleCase(str_replace('_', ' ', $key));
+
+			if($type === 'record') {
+				$record_type = $meta['params']['record_type'] ?? '';
+
+				// Polymorphic record (no fixed type, e.g. `actor_*`): a ContextChooser across the declared
+				// `record_types` subset, or every aliased context when unspecified. Posts as `<context>:<id>`.
+				if($record_type === '') {
+					$only = $meta['params']['record_types'] ?? [];
+					$d = ['emit' => 'record_context', 'key' => $key, 'component' => 'context_chooser', 'label' => $label];
+
+					// A bare `actor_*` defaults to the actor context set (keeps the unfilterable type menu short)
+					// and pre-selects the current worker so the author can just hit Run.
+					if(!$only && $key === 'actor') {
+						$only = CerberusContexts::getActorContexts();
+						if($active_worker) {
+							$d['default_context'] = 'worker';
+							$d['default'] = $active_worker->id;
+						}
+					}
+
+					$queries = $meta['params']['record_type_queries'] ?? [];
+					$d['contexts_json'] = json_encode(self::getSimulationChooserContexts(is_array($only) ? $only : [], is_array($queries) ? $queries : []));
+					$out[] = $d;
+					continue;
+				}
+
+				$ext = Extension_DevblocksContext::getByAlias($record_type, true);
+				$d = ['emit' => 'record', 'key' => $key, 'component' => 'chooser',
+					'label' => $label, 'record_type' => $record_type, 'context' => ($ext ? $ext->id : '')];
+
+				// Pre-fill: worker → the active worker; other records → a random sample id.
+				if($record_type === 'worker' && $active_worker) {
+					$d['default'] = $active_worker->id;
+				} elseif($ext && ($dao = $ext->getDaoClass()) && method_exists($dao, 'random')) {
+					$d['default'] = $dao::random();
+				}
+				$out[] = $d;
+
+			} elseif($type === 'boolean' || $type === 'bool') {
+				$out[] = ['emit' => 'bool', 'key' => $key, 'component' => 'text',
+					'text_type' => 'bool', 'label' => $label, 'default' => (bool)($meta['default'] ?? false)];
+
+			} else {
+				$out[] = ['emit' => 'scalar', 'key' => $key, 'component' => 'text',
+					'label' => $label, 'default' => strval($meta['default'] ?? '')];
+			}
+		}
+
+		return $out;
+	}
+
+	// Turn the author's answers (the raw `prompts` map, keyed by descriptor `key`) into the flat dict fragment
+	// that seeds the event scope. Return e.g. ['ticket__context'=>…, 'ticket_id'=>…]. Set $error to reject.
+	function getSimulationState(array $answers, &$error = null) : array {
+		$strings = DevblocksPlatform::services()->string();
+		$state = [];
+
+		foreach($this->getSimulationInputs() as $d) {
+			if(!($key = $d['key'] ?? ''))
+				continue;
+			$val = $answers[$key] ?? null;
+
+			switch($d['emit'] ?? 'scalar') {
+				case 'record':
+					if($val === null || $val === '')
+						break;
+					$state[$key . '__context'] = $d['context'] ?? '';
+					$state[$key . '_id'] = intval($val);
+					break;
+
+				case 'record_context':   // polymorphic: value is "<context>:<id>"
+					if($val === null || $val === '' || false === ($sep = strrpos($val, ':')))
+						break;
+					$state[$key . '__context'] = substr($val, 0, $sep);
+					$state[$key . '_id'] = intval(substr($val, $sep + 1));
+					break;
+
+				case 'none':   // rendered-only field; the trigger maps it in its own getSimulationState() override
+					break;
+
+				case 'records':
+					$state[$key] = is_array($val) ? array_values(array_map('intval', $val)) : [];
+					break;
+
+				case 'bool':
+					$state[$key] = $strings->toBool($val);
+					break;
+
+				case 'array':
+					$state[$key] = (is_string($val) && strlen(trim($val))) ? preg_split('/\r?\n/', trim($val)) : [];
+					break;
+
+				default:   // scalar
+					if($val !== null && $val !== '')
+						$state[$key] = $val;
+			}
+		}
+
+		return $state;
+	}
+
+	// Aliased-context list for a polymorphic (Context) chooser: `[{alias:<full context id>, label, icon}]`, sorted
+	// by label. `$only_aliases` (short aliases) narrows it; empty = every aliased context. ContextChooser wants the
+	// FULL context id in its `alias` field.
+	public static function getSimulationChooserContexts(array $only_aliases = [], array $queries = []) : array {
+		$only = $only_aliases ? array_flip($only_aliases) : null;
+		$url_writer = DevblocksPlatform::services()->url();
+		$out = [];
+
+		foreach(Extension_DevblocksContext::getAll(false) as $context_id => $mft) {
+			$alias = $mft->params['alias'] ?? '';
+			if($alias === '' || ($only !== null && !isset($only[$alias])))
+				continue;
+			$entry = [
+				'alias' => $context_id,
+				'label' => $mft->name,
+				'icon' => $mft->params['icon'] ?? 'collection',
+			];
+			// The application context has no searchable records — it's the singleton `app:0`, so make it a
+			// direct-pick preset (like the "Global"/"Everyone" owner option) rather than a dead search type.
+			if($alias === 'app') {
+				$entry['fixedId'] = 0;
+				$entry['image_url'] = $url_writer->write('c=avatars&context=app&context_id=0', true);
+			}
+			// A per-alias scope query narrows the record search within that type (e.g. only chart-kata widgets).
+			if(!empty($queries[$alias]))
+				$entry['query'] = strval($queries[$alias]);
+			$out[] = $entry;
+		}
+
+		usort($out, fn($a, $b) => strcasecmp($a['label'], $b['label']));
+		return $out;
+	}
+
+	// Fill simulator defaults for the standard `client_*` scope fields from the CURRENT worker's request — the same
+	// signals the runtime reads. A trigger's getSimulationInputs() override can pipe its descriptors through this to
+	// pre-fill whichever of client_ip / client_browser_name / client_browser_platform / client_browser_version it
+	// exposes (only when the descriptor has no default yet). Interaction triggers (worker/website) share this.
+	protected function _mockClientSimulationDefaults(array $inputs) : array {
+		$user_agent = DevblocksPlatform::getClientUserAgent() ?: [];
+
+		$mocked = [
+			'client_ip' => DevblocksPlatform::getClientIp(),
+			'client_browser_name' => $user_agent['browser'] ?? '',
+			'client_browser_platform' => $user_agent['platform'] ?? '',
+			'client_browser_version' => $user_agent['version'] ?? '',
+		];
+
+		foreach($inputs as &$d) {
+			$key = $d['key'] ?? '';
+			if($key !== '' && array_key_exists($key, $mocked) && ($d['default'] ?? '') === '')
+				$d['default'] = $mocked[$key];
+		}
+		unset($d);
+
+		return $inputs;
+	}
+
 	protected function _getRecordTypeSuggestions() : array {
 		if(self::$_cache_record_types)
 			return self::$_cache_record_types;

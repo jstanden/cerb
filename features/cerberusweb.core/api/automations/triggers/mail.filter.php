@@ -1,5 +1,7 @@
 <?php
 class AutomationTrigger_MailFilter extends Extension_AutomationTrigger {
+	use \Cerb\Email\MailScopeSimulation;   // getSimulationInputs() / getSimulationState()
+
 	const ID = 'cerb.trigger.mail.filter';
 	
 	function renderConfig(Model_Automation $model) {

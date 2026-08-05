@@ -1,5 +1,7 @@
 <?php
 class AutomationTrigger_MailRoute extends Extension_AutomationTrigger {
+	use \Cerb\Email\MailScopeSimulation;   // getSimulationInputs() / getSimulationState()
+
 	const ID = 'cerb.trigger.mail.route';
 	
 	function renderConfig(Model_Automation $model) {
