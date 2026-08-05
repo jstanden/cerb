@@ -717,6 +717,50 @@ class _DevblocksLlmService {
 	}
 
 	/**
+	 * The chat providers as the model-card picker (`CerbUI.AgentPrompt.ModelPicker`) needs them:
+	 * `[{id, label, icon, models, endpoint_default}]`. Shared by the form builder's `agentPrompt` inspector and
+	 * the worker profile's AI tab, so both offer the same providers, icons, and model suggestions.
+	 */
+	function getAgentProviders() : array {
+		$labels = [
+			'openai' => 'OpenAI',
+			'anthropic' => 'Anthropic',
+			'gemini' => 'Google Gemini',
+			'groq' => 'Groq',
+			'ollama' => 'Ollama',
+			'aws_bedrock' => 'AWS Bedrock',
+			'huggingface' => 'Hugging Face',
+			'together' => 'Together AI',
+			'docker' => 'Docker',
+			'zai' => 'z.ai',
+			'qwen' => 'Qwen Cloud',
+		];
+
+		$out = [];
+
+		foreach(array_keys($this->getChatProviders()) as $id) {
+			try {
+				$provider = $this->getProvider($id, [], false);
+			} catch(\Throwable $e) {
+				continue;
+			}
+
+			if(!$provider)
+				continue;
+
+			$out[] = [
+				'id' => $id,
+				'label' => $labels[$id] ?? ucfirst($id),
+				'icon' => $provider->getIcon(),
+				'models' => method_exists($provider, 'getChatModels') ? $provider->getChatModels() : [],
+				'endpoint_default' => (string) ($provider->getParam('api_endpoint_url') ?? ''),
+			];
+		}
+
+		return $out;
+	}
+
+	/**
 	 * The `display:` sub-block — the model's brand mark and friendly name for transcripts and pickers. It's a
 	 * CERB-side concern rather than a provider knob (providers read `$_params` by key and never see it), so
 	 * it's advertised HERE for every provider instead of being repeated in each getChatKataAutocomplete().

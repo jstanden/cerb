@@ -4,6 +4,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 	
 	public static function getFormComponentMeta() {
 		return [
+			'agentPrompt' => ['class' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\AgentPromptAwait', 'icon' => 'bot-message'],
 			'audio' => ['class' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\AudioAwait', 'icon' => 'speaker'],
 			'chart' => ['class' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\ChartAwait', 'icon' => 'chart-line'],
 			'chooser' => ['class' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\ChooserAwait', 'icon' => 'search'],
@@ -22,6 +23,50 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 		];
 	}
 	
+	// Model presets for the agentPrompt builder — working defaults per model.
+	public static function getAgentModelPresets() : array {
+		return [
+			['id' => 'claude_fable', 'label' => 'Claude Fable 5', 'provider' => 'anthropic', 'model' => 'claude-fable-5', 'vision' => true, 'context_window' => 1000000],
+			['id' => 'claude_opus', 'label' => 'Claude Opus 4.8', 'provider' => 'anthropic', 'model' => 'claude-opus-4-8', 'vision' => true, 'context_window' => 1000000],
+			['id' => 'claude_sonnet', 'label' => 'Claude Sonnet 5', 'provider' => 'anthropic', 'model' => 'claude-sonnet-5', 'vision' => true, 'context_window' => 200000],
+			['id' => 'claude_haiku', 'label' => 'Claude Haiku 4.5', 'provider' => 'anthropic', 'model' => 'claude-haiku-4-5-20251001', 'vision' => true, 'context_window' => 200000],
+			['id' => 'gpt', 'label' => 'GPT-5.6 Sol', 'provider' => 'openai', 'model' => 'gpt-5.6-sol', 'vision' => true, 'context_window' => 400000],
+			['id' => 'gemini_flash', 'label' => 'Gemini Flash', 'provider' => 'gemini', 'model' => 'gemini-2.5-flash', 'vision' => true, 'context_window' => 1000000],
+		];
+	}
+
+	// Every chat-capable LLM provider, for the agentPrompt "+ Model" menu + per-model config: icon, friendly
+	// label, known model ids (TextChooser suggestions), and the default API endpoint (placeholder for overrides).
+	// Delegates to the LLM service, which is the shared source for every model-card host (this trigger's
+	// `agentPrompt` inspector and the worker profile's AI tab).
+	public static function getAgentProviders() : array {
+		return DevblocksPlatform::services()->llm()->getAgentProviders();
+	}
+
+	// The enabled `agent_model` records the agentPrompt design-time pickers offer (Automation Builder wizard +
+	// Form Builder inspector): a model row REFERENCES one by name, and the record supplies provider/model/auth/
+	// vision/context window. Disabled (retired) records are excluded — they can't be referenced.
+	public static function getAgentModelChoices() : array {
+		$out = [];
+
+		foreach(\DAO_AgentModel::getAll() as $model) {
+			if($model->is_disabled)
+				continue;
+
+			$out[] = [
+				'name' => $model->name,
+				'provider' => $model->provider,
+				'model' => $model->model,
+				'icon' => $model->getDisplayIcon(),
+				'vision' => (bool) $model->has_vision,
+				'context_window' => intval($model->context_window),
+				'description' => $model->description,
+			];
+		}
+
+		return $out;
+	}
+
 	function renderConfig(Model_Automation $model) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('inputs', $this->getInputsMeta());
@@ -431,6 +476,11 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 				],
 				'(.*):await:form:elements:' => [
 					[
+						'caption' => 'agentPrompt:',
+						'snippet' => "agentPrompt/\${1:prompt_agent}:\n\t\${2:}",
+						'description' => "An agentic chat input (model picker, @-mentions, /-commands, image paste)",
+					],
+					[
 						'caption' => 'audio:',
 						'snippet' => "audio/\${1:prompt_audio}:\n\t\${2:}",
 						'description' => "Play an audio file",
@@ -507,7 +557,151 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					],
 				],
 				
-				'(.*):await:form:elements:audio:' => [
+				'(.*):await:form:elements:agentPrompt:' => [
+						[
+							'caption' => 'label:',
+							'snippet' => "label: \${1:Label:}",
+							'score' => 2000,
+						],
+						'placeholder: Message the agent…',
+						'session_id: a1b2c3d4-a1b2-c3d4-e5f6-a1b2c3d4e5f6',
+						'default:',
+						'required@bool: no',
+						'hidden@bool: no',
+						[
+							'caption' => 'agent:',
+							'snippet' => "agent: \${1:@cerb}",
+							'score' => 1990,
+							'docHTML' => 'The AI worker this prompt is for &mdash; an <code>@mention</code>, a bare handle, an id, or <code>cerb:worker:&lt;id|mention&gt;</code> (the same shapes <code>llm.agent:</code> accepts).<br><br>Supplies the model catalog via the agent\'s <b>model router</b>, so a portable interaction can name an agent instead of naming models. <b>Omit both this and <code>models:</code></b> and the system default router is used.',
+						],
+						[
+							'caption' => 'models:',
+							'snippet' => "models:",
+							'description' => "The model catalog offered in the chat picker: each key is an agent_model record NAME (the same reference grammar as llm.agent:/llm.chat: model:); the first enabled one is the default. Overrides ride under each name in that model's provider grammar. Omit it to use the agent's router, or the system default.",
+						],
+						[
+							'caption' => 'commands:',
+							'snippet' => "commands:\n\trewrite/\${1:flatten}:\n\t\tdescription: \${2:Aggressively compact the thread}\n\t\ttext@text: \${3:/compact hard}",
+							'docHTML' => 'The <code>/slash</code> commands this composer OFFERS. A <b>bare key</b> opts into a built-in by naming it (<code>compact:</code>); <code>rewrite/&lt;name&gt;:</code> defines a NEW command that <b>expands to text in the browser before submit</b>, so <code>llm.agent</code> only ever sees the expansion. Independent of the <code>llm.agent</code> node\'s own <code>commands:</code>, which decides what the agent ACTS on &mdash; an alias can shadow a built-in, and expanding to one the node didn\'t opt into just reaches the model as prose.',
+						],
+						[
+							'caption' => 'references:',
+							'snippet' => "references:",
+							'docHTML' => 'What <code>@</code> autocompletes, <b>opt-in</b> — with no <code>references:</code> block <code>@</code> completes nothing. Add <code>workers:</code> for <code>@handle</code> mentions and <code>filesystems:</code> (keyed by volume name) for <code>@&lt;volume&gt;/&lt;path&gt;</code> file references. Independent of what <code>llm.agent</code> actually mounts: declaring a volume here only offers its paths for completion, and a reference that doesn\'t resolve is just text the agent says it can\'t find.',
+						],
+						'validation@raw:',
+					],
+					// The AI workers, by @mention -- same list `llm.agent:inputs:agent:` offers.
+					'(.*):await:form:elements:agentPrompt:agent:' =>
+						DevblocksPlatform::services()->llm()->getKataAgentWorkerAutocomplete(),
+
+					'(.*):await:form:elements:agentPrompt:references:' => [
+						[
+							'caption' => 'workers:',
+							'snippet' => "workers:",
+							'docHTML' => 'Complete worker <code>@handle</code> mentions — what every agentPrompt did implicitly before <code>references:</code> existed.',
+						],
+						[
+							'caption' => 'filesystems:',
+							'snippet' => "filesystems:",
+							'docHTML' => 'Complete <code>@&lt;volume&gt;/&lt;path&gt;</code> file references. Each key is an agent filesystem name; typing matches the volume and path together as a subsequence, so <code>mountpatexa</code> finds <code>mount/path/example.md</code>.',
+						],
+					],
+					// The real volume names, same static list `llm.agent:inputs:mounts:` uses — the set is small
+					// and cached, so an AJAX suggestion type would be overkill.
+					'(.*):await:form:elements:agentPrompt:references:filesystems:' => array_values(
+						array_map(
+							function($filesystem) { /* @var $filesystem Model_AgentFilesystem */
+								$doc = array_filter([
+									$filesystem->is_disabled ? '(disabled)' : '',
+									$filesystem->description,
+									sprintf('%d file%s, %s',
+										$filesystem->file_count,
+										(1 == $filesystem->file_count) ? '' : 's',
+										DevblocksPlatform::strPrettyBytes($filesystem->total_bytes)
+									),
+								]);
+
+								return [
+									'caption' => $filesystem->name . ':',
+									'snippet' => $filesystem->name . ":\n",
+									'docHTML' => '<b>' . DevblocksPlatform::strEscapeHtml($filesystem->name) . '</b><br>'
+										. DevblocksPlatform::strEscapeHtml(implode(' — ', $doc)),
+								];
+							},
+							DAO_AgentFilesystem::getAll()
+						)
+					),
+					// The models catalog autocompletes agent_model record NAMES, and under each name that record's
+					// OWN provider knobs — the same helper `llm.agent:`/`llm.chat: model:` use — plus the
+					// agentPrompt-only per-model knobs (effort_choices / disabled / compaction).
+					...DevblocksPlatform::services()->llm()->getKataAgentModelAutocomplete(
+						'(.*):await:form:elements:agentPrompt:models:',
+						[ // extra block keys (appended to every model — overrides of record capabilities + agentPrompt-only knobs)
+							'context_window: 200000',
+							'vision@bool: yes',
+							[
+								'caption' => 'effort_choices:',
+								'snippet' => "effort_choices: \${1:medium,high,xhigh,max}",
+								'description' => "Reasoning-effort levels to offer for this model as a submenu in the chat picker (comma-separated or a @list). The fixed `effort:` is the default (pre-selected / used when the model is picked without a submenu choice). agentPrompt-only.",
+							],
+							'disabled@bool: no',
+							[
+								'caption' => 'disabled@bool: {{…}}',
+								'snippet' => 'disabled@bool: {{${1:worker_over_budget}}}',
+								'description' => "Conditionally hide this model from the picker (resolved per turn). A disabled model drops out and the first remaining model (definition order) becomes the default — the rate-limit/budget fallback.",
+							],
+							[
+								'caption' => 'compaction:',
+								'snippet' => "compaction:\n\t\tsummarize@bool: yes\n\t\tcontext_ratio: \${1:0.9}\n\t\ttail_ratio: \${2:0.05}",
+								'description' => "Per-model compaction: at context_ratio of the model's context_window, summarize the window into a new root node and keep a tail_ratio verbatim tail. summarize@bool:no truncates instead. Rides the session on resume.",
+							],
+						],
+						[ // extra value sub-paths (per provider)
+							'vision:' => ['yes', 'no'],
+							'context_window:' => ['128000', '200000', '1000000'],
+							'effort_choices:' => ['low,medium,high', 'medium,high,xhigh,max', 'minimal,low,medium,high'],
+							'disabled:' => [
+								'yes',
+								'no',
+								['caption' => '{{…}}', 'snippet' => '{{${1:worker_over_budget}}}'],
+							],
+							'compaction:' => [
+								'summarize@bool: yes',
+								'context_ratio: 0.9',
+								'tail_ratio: 0.05',
+							],
+						]
+					),
+					'(.*):await:form:elements:agentPrompt:commands:' => [
+						[
+							'caption' => 'rewrite/',
+							'snippet' => "rewrite/\${1:flatten}:\n\tdescription: \${2:Aggressively compact the thread}\n\ttext@text: \${3:/compact hard}",
+							'score' => 2000,
+							'docHTML' => 'A command this element DEFINES: typing <code>/&lt;name&gt;</code> is replaced by its <code>text:</code> before the message is sent, with anything typed after the command left intact (<code>/flatten now</code> &rarr; <code>/compact hard now</code>). A bare key instead (<code>compact:</code>) opts into a built-in by naming it.',
+						],
+					],
+					// A `rewrite/flatten:` key normalizes to the path segment `rewrite:` (CerbUI.KataEditor
+					// truncates each segment at `/`), so the typed form gets its own sub-key set.
+					'(.*):await:form:elements:agentPrompt:commands:rewrite:' => [
+						[
+							'caption' => 'text@text:',
+							'snippet' => "text@text: \${1:/compact hard}",
+							'score' => 2000,
+							'docHTML' => 'What <code>/&lt;name&gt;</code> expands to. A one-liner splices in place; a multi-line block is followed by a blank line before whatever the worker typed after the command.',
+						],
+						'description:',
+					],
+					'(.*):await:form:elements:agentPrompt:commands:(.*):' => [
+						[
+							'caption' => 'label:',
+							'snippet' => "label: /\${1:summarize}",
+							'score' => 2000,
+						],
+						'description:',
+					],
+
+					'(.*):await:form:elements:audio:' => [
 					[
 						'caption' => 'label:',
 						'snippet' => "label: \${1:Label:}",
