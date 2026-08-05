@@ -1,3 +1,5 @@
+{$uniqid = uniqid('dataQueryBuilder')}
+<div id="{$uniqid}">
 <div class="cerb-ui-header">
 	<div>
 		<div class="cerb-ui-header--title">Data Query Tester</div>
@@ -22,6 +24,7 @@
 	</div>
 </fieldset>
 </form>
+</div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
@@ -58,10 +61,10 @@ $(function() {
 			genericAjaxPost(formData, null, null, function(json) {
 				$button.fadeIn();
 				$spinner.detach();
-				
+
 				if(null == json || false == json.status) {
 					Devblocks.createAlertError(json.error);
-					
+
 				} else {
 					// Reveal the results panel BEFORE setValue so the editor autosizes against a laid-out
 					// element — a display:none textarea reports scrollHeight 0 and would clamp to minLines.
@@ -71,5 +74,43 @@ $(function() {
 			});
 		})
 	;
+
+	// The collapsible agent chat sidebar. AgentPane wraps this page's content in an outer split and hosts the
+	// agent.pane toolbar as "New Agent Chat" tiles; each launches an interaction inline, carrying a command
+	// bridge into the live query editor (getEditorValue / setEditorValue). The interaction runs / syntax-tests
+	// queries server-side (non-DML) via its own tools. No toolbar authored → the pane hides its toggle.
+	const agentToolbarHtml = {$agent_toolbar_html_json|default:'""' nofilter};
+	new CerbUI.AgentPane(document.getElementById('{$uniqid}'), {
+		component: 'data_query',
+		capabilities: 'getEditorValue,setEditorValue,editField,grepField,highlightLine',
+		mutatingCommands: 'setEditorValue,editField',   // write the editor → guard against accidental navigation loss
+		toolbarHtml: agentToolbarHtml,
+		storageKey: 'cerb-data-query-builder-chat',
+		runCommand: function(name, params) {
+			params = params || {};
+			switch(name) {
+				case 'getEditorValue': return dq.getValue();
+				case 'setEditorValue': dq.setValue(params.value || ''); return 'ok';
+				// Surgical single-editor edits (setEditorValue stays for a wholesale replace/reset). editField =
+				// undo-safe exactly-once search/replace; grepField locates a query → line numbers (no KATA path here).
+				case 'editField': return CerbUI.editorCore.applyUniqueEdit(dq, (params.old == null) ? '' : String(params.old), (params.new == null) ? '' : String(params.new));
+				case 'grepField': {
+					const query = (params.query == null) ? '' : String(params.query);
+					if(query === '') return 'error: grepField needs a non-empty query.';
+					return CerbUI.editorCore.grepEditor(dq, query, parseInt(params.limit, 10));
+				}
+				// Jump to + flash a 1-based line (pairs with grepField's line numbers for "where is X" nav).
+				case 'highlightLine': {
+					const line = parseInt(params.line, 10);
+					if(isNaN(line) || line < 1) return 'invalid line: ' + params.line;
+					const row = line - 1;
+					dq.gotoLine(line);
+					dq.flashLine(row, {});
+					return 'ok';
+				}
+			}
+			return '';
+		},
+	});
 });
 </script>

@@ -843,11 +843,28 @@ EOD;
 		
 		$tpl->assign('draft', $draft);
 		$tpl->assign('toolbar_keyboard_shortcuts', $toolbar_keyboard_shortcuts);
-		
+
+		// The agent.pane toolbar, scoped to this editor via {{component}} = 'mail_reply'. Its items launch an
+		// interaction inline into the reply's agent pane; the caller name must match a caller the launched
+		// automation's policy allows. Empty until a toolbar section is authored (the pane hides its toggle).
+		$agent_toolbar_html = '';
+
+		$agent_toolbar_dict = DevblocksDictionaryDelegate::instance([
+			'component' => 'mail_reply',
+			'caller_name' => 'agent.pane',
+			'worker_id' => $active_worker->id,
+			'worker__context' => CerberusContexts::CONTEXT_WORKER,
+		]);
+
+		if(($agent_toolbar = DAO_Toolbar::getKataByName('agent.pane', $agent_toolbar_dict)))
+			$agent_toolbar_html = DevblocksPlatform::services()->ui()->toolbar()->fetch($agent_toolbar);
+
+		$tpl->assign('agent_toolbar_html_json', json_encode($agent_toolbar_html));
+
 		// Display template
 		$tpl->display('devblocks:cerberusweb.core::display/rpc/reply.tpl');
 	}
-	
+
 	private function _profileAction_validateReplyJson() {
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		

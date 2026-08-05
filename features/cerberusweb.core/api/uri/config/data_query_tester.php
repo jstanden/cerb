@@ -30,7 +30,24 @@ class PageSection_SetupDevelopersDataQueryTester extends Extension_PageSection {
 		@array_shift($stack); // data_queries
 		
 		$visit->set(ChConfigurationPage::ID, 'data_query_tester');
-		
+
+		// The agent.pane toolbar, scoped to this editor via {{component}} = 'data_query'. Its items launch
+		// interactions inline into the agent pane; the caller name must match a caller the launched automation's
+		// policy allows. Empty until a toolbar section is authored (the pane hides its toggle).
+		$agent_toolbar_html = '';
+
+		$toolbar_dict = DevblocksDictionaryDelegate::instance([
+			'component' => 'data_query',
+			'caller_name' => 'agent.pane',
+			'worker_id' => $active_worker->id,
+			'worker__context' => CerberusContexts::CONTEXT_WORKER,
+		]);
+
+		if(($toolbar = DAO_Toolbar::getKataByName('agent.pane', $toolbar_dict)))
+			$agent_toolbar_html = DevblocksPlatform::services()->ui()->toolbar()->fetch($toolbar);
+
+		$tpl->assign('agent_toolbar_html_json', json_encode($agent_toolbar_html));
+
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/developers/data-query-tester/index.tpl');
 	}
 	

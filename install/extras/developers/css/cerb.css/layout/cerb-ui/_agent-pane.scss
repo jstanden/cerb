@@ -1,0 +1,137 @@
+// AgentPane (CerbUI.AgentPane): a collapsible LLM-agent chat sidebar mounted by an editor host. An outer
+// horizontal SplitPane wraps the host's content (main pane) beside the chat pane; the chat body owns the
+// scroll. Structural only; colors are theme tokens (dark mode auto). Shared by the icon / data-query / …
+// builders and draft composers — the host keeps its own main-pane markup.
+.cerb-agent-pane {
+	// Outer horizontal SplitPane: the host content (main) beside the collapsible agent chat pane. Hosts can
+	// override the height via --cerb-agent-pane-height. Default (builders): a fixed height fills the workspace.
+	&--outer {
+		width: 100%;
+		height: var(--cerb-agent-pane-height, 74vh);
+		min-height: 0;
+	}
+
+	// Fit-content mode (popup hosts, opt-in via `fit:true`): the host content (e.g. the reply form) keeps its
+	// NATURAL height — no forced height, no artificial cap/scrollbar, chat open or closed. SplitPane only governs
+	// width here; the fixed --cerb-agent-pane-height (which the builders want) is dropped so the popup sizes to
+	// content exactly like it did before the pane was added.
+	&--fit > &--outer {
+		position: relative; // anchor the floating toggle
+		height: auto;
+	}
+
+	// The auto toggle-strip floats in the top-right corner instead of taking a full row atop the form (which,
+	// with the global BUTTON height, read as a big top margin) — so the form starts flush at the top.
+	&--fit &--toggle-strip {
+		position: absolute;
+		top: 0.2em;
+		right: 0.2em;
+		z-index: 2;
+		padding: 0;
+	}
+
+	// The chat keeps its OWN bounded transcript scroll in fit mode (the shared --chat-body rule drops it) so a
+	// long conversation scrolls internally + the composer stays reachable, rather than dragging the popup taller.
+	&--fit &--chat-body .cerb-form-builder .cerb-form-builder-response-llm-transcript {
+		max-height: 60vh;
+	}
+
+	// The host's content lives here; it scrolls as one column if it overflows (the chat pane scrolls separately).
+	&--main {
+		display: flex;
+		flex-direction: column;
+		min-width: 0;
+		min-height: 0;
+
+		&.cerb-ui-splitpane--pane { overflow: auto; }
+	}
+
+	// A right-aligned strip holding the Agent toggle when the host doesn't supply its own anchor (toggleInto).
+	&--toggle-strip {
+		display: flex;
+		justify-content: flex-end;
+		padding: 0.2em 0.2em 0.4em;
+	}
+
+	&--toggle { flex: 0 0 auto; }
+
+	// ── Agent chat pane (second pane of the outer split, collapsed until summoned) ──
+	&--chat {
+		display: flex;
+		flex-direction: column;
+		min-width: 0;
+		min-height: 0;
+
+		&.cerb-ui-splitpane--pane { overflow: hidden; }
+	}
+
+	&--chat-head {
+		display: flex;
+		align-items: center;
+		gap: 0.5em;
+		padding: 0.4em 0.5em;
+		border-bottom: 1px solid var(--cerb-color-background-contrast-230);
+	}
+
+	&--chat-title {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4em;
+		font-weight: 600;
+		flex: 1 1 auto;
+		min-width: 0;
+	}
+
+	&--chat-close { flex: 0 0 auto; }
+
+	// The "New Agent Chat" empty state: the interaction picker as cerb-ui tiles (colored avatar + label) in the
+	// chat body. Starting an interaction replaces the body; closing restores this. Tiles size to content.
+	&--select {
+		padding: 0.5em;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0.5em;
+	}
+
+	&--tile {
+		cursor: pointer;
+
+		&:hover {
+			border-color: var(--cerb-color-background-contrast-200);
+			background: var(--cerb-color-background-contrast-235);
+		}
+	}
+
+	// Separates the launcher tiles above from resumable past conversations below. An eyebrow label — the one
+	// sanctioned reason to set a font-size — so it reads as a section marker rather than another tile.
+	&--history-head {
+		margin-top: 0.5em;
+		font-size: 0.78em;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: var(--cerb-color-background-contrast-150);
+	}
+
+	&--chat-body {
+		flex: 1 1 auto;
+		min-height: 0;
+		overflow: auto; // the single scroll container for the whole interaction panel
+		padding: 0.5em;
+
+		// The llmTranscript is globally its OWN scroll box (`overflow:auto; max-height:75vh`); inside this bounded
+		// pane that's a SECOND scrollbar competing with the chat body. Drop its cap here so it flows naturally and
+		// the chat body does the scrolling.
+		.cerb-form-builder .cerb-form-builder-response-llm-transcript {
+			max-height: none;
+		}
+	}
+}
+
+// When a host drops the toggle into its editor toolbar strip (via `toggleInto` — the mail reply editor's
+// `.cerb-ui-editor-toolbar`, or the automation editor's script toolbar), push it to the right end of the flex
+// bar so it reads as a trailing "‹ Agent" control.
+.cerb-ui-editor-toolbar > .cerb-agent-pane--toggle,
+[data-cerb-automation-script-toolbar] > .cerb-agent-pane--toggle {
+	margin-left: auto;
+}
