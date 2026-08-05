@@ -1,0 +1,184 @@
+// AgentPrompt: an agentic chat input (fourth editor-core-family member). Same textarea-over-mirror overlay
+// as MarkdownEditor/SearchQuery (transparent textarea, colored --highlight mirror; the two layers MUST share
+// identical box metrics), plus a chat footer (model selector, context progress bar, Send) and attachment
+// chips. Prose input — no particular syntax; the mirror only tints inserted reference/command tokens.
+// CerbUI.AgentPrompt wires behavior.
+.cerb-ui-agentprompt {
+    --cerb-ui-agentprompt-pad-y: 0.5em;
+    --cerb-ui-agentprompt-pad-x: 0.7em;
+
+    border: 1px solid var(--cerb-color-background-contrast-200);
+    border-radius: 10px;
+    background: var(--cerb-editor-background);
+    font-size: var(--cerb-font-size);
+    line-height: 1.5;
+    display: flex;
+    flex-direction: column;
+
+    &:focus-within {
+        border-color: var(--cerb-color-background-contrast-250);
+    }
+
+    &--field {
+        position: relative;
+    }
+
+    &--highlight,
+    &--input {
+        box-sizing: border-box;
+        width: 100%;
+        margin: 0;
+        padding: var(--cerb-ui-agentprompt-pad-y) var(--cerb-ui-agentprompt-pad-x);
+        border: 0;
+        font-family: inherit;
+        font-size: var(--cerb-font-size);
+        line-height: 1.5;
+        letter-spacing: normal;
+        tab-size: 4;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    &--highlight {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        overflow: hidden;
+        color: var(--cerb-color-text);
+        pointer-events: none;
+        user-select: none;
+    }
+
+    &--input {
+        position: relative;
+        z-index: 1;
+        display: block;
+        min-height: calc(1.5em + (var(--cerb-ui-agentprompt-pad-y) * 2));
+        background: transparent;
+        color: transparent;
+        caret-color: var(--cerb-color-text);
+        resize: none;
+        overflow-y: hidden;
+        appearance: none;
+        -webkit-appearance: none;
+        border: none;
+        outline: none;
+
+        &:focus,
+        &:focus-visible {
+            border: none;
+            outline: none;
+            box-shadow: none;
+        }
+
+        &::placeholder {
+            color: var(--cerb-color-background-contrast-150);
+            opacity: 1;
+        }
+    }
+
+    &--caret-anchor {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 0;
+        height: 1.5em;
+        pointer-events: none;
+    }
+
+    // Inserted-token tints (metric-safe: color only).
+    &--tok-mention  { color: var(--cerb-editor-syntax-tag); }
+    &--tok-command  { color: var(--cerb-editor-syntax-tag); font-weight: inherit; }
+
+    // ── Attachment chips (above the footer) ──
+    // Attachment chips are cerb-ui-pill; this is just the wrapping row.
+    &--attachments {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4em;
+        padding: 0 var(--cerb-ui-agentprompt-pad-x) 0.4em;
+    }
+
+    // ── Footer: model selector (CerbUI.SelectMenu) · progress · attach/send (cerb-ui-button) ──
+    &--footer {
+        display: flex;
+        align-items: center;
+        gap: 0.6em;
+        padding: 0.4em var(--cerb-ui-agentprompt-pad-x);
+    }
+
+    // The progress bar is a CerbUI.Distbar; just take the remaining width + keep it narrow (colors set in JS).
+    &--progress.cerb-ui-distbar {
+        position: relative; // anchor the auto-compaction threshold marker overlay
+        flex: 1 1 auto;
+        min-width: 40px;
+        height: 6px;
+        border-radius: 999px;
+    }
+
+    // A tick marking where auto-compaction triggers (context_ratio of the window); positioned in JS.
+    // Poke above/below the bar and use the accent hue so it reads clearly over both the used + track fills.
+    &--threshold {
+        position: absolute;
+        top: -3px;
+        bottom: -3px;
+        width: 2px;
+        margin-left: -1px;
+        background: var(--cerb-color-accent-orange, var(--cerb-color-background-contrast-250));
+        border-radius: 1px;
+        pointer-events: none;
+    }
+
+    // Prompt-cache countdown ring (CerbUI.TimeRing) — after the context bar; fixed size, JS toggles display.
+    &--cache-ring {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+    }
+}
+
+// ── AgentPrompt.ModelPicker / .ToolPicker — design-time model/tool card editors ──────────────────
+// Shared by the Form Builder's agentPrompt inspector and the Automation Builder's Agent Chat wizard.
+.cerb-ui-agent-model-picker--head,
+.cerb-ui-agent-tool-picker--head { margin-bottom: 0.4em; }
+
+.cerb-ui-agent-model-picker--card,
+.cerb-ui-agent-tool-picker--card {
+    border: 1px solid var(--cerb-color-background-contrast-200);
+    border-radius: 6px;
+    padding: 0.6em;
+    background: var(--cerb-color-background); // opaque so the Sortable drag helper isn't transparent
+}
+
+.cerb-ui-agent-model-picker--card { margin-bottom: 0.6em; }
+
+.cerb-ui-agent-model-picker--card-head,
+.cerb-ui-agent-tool-picker--card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5em;
+    margin-bottom: 0.4em;
+}
+
+.cerb-ui-agent-model-picker--card-head { cursor: grab; }
+
+.cerb-ui-agent-model-picker--card-title,
+.cerb-ui-agent-tool-picker--card-title {
+    display: flex;
+    align-items: center;
+    gap: 0.4em;
+    min-width: 0;
+}
+
+.cerb-ui-agent-model-picker--auth { min-width: 0; }
+
+.cerb-ui-agent-tool-picker--adder { margin-top: 0.6em; }
+
+// Tool order doesn't matter — let the cards flow inline.
+.cerb-ui-agent-tool-picker--list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 0.6em;
+}

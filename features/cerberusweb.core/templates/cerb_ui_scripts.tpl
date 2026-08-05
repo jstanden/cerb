@@ -33,6 +33,7 @@
 		<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerb-ui/searchquery.js{/devblocks_url}?v={$smarty.now}"></script>
 		<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerb-ui/kataeditor.js{/devblocks_url}?v={$smarty.now}"></script>
 		<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerb-ui/markdowneditor.js{/devblocks_url}?v={$smarty.now}"></script>
+		<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerb-ui/agentprompt.js{/devblocks_url}?v={$smarty.now}"></script>
 		<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerb-ui/jsoneditor.js{/devblocks_url}?v={$smarty.now}"></script>
 		<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerb-ui/agent-transcript.js{/devblocks_url}?v={$smarty.now}"></script>
 		<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerb-ui/syntax.js{/devblocks_url}?v={$smarty.now}"></script>
