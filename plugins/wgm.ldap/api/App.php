@@ -92,42 +92,25 @@ class ScLdapLoginAuthenticator extends Extension_ScLoginAuthenticator {
 				'host' => @$service_params['host'],
 				'port' => @$service_params['port'] ?: 389,
 				'encryption' => @$service_params['encryption'] ?? '',
+				'cert_verify' => @$service_params['cert_verify'] ?? '',
+				'ca_cert' => @$service_params['ca_cert'] ?? '',
 				'username' => @$service_params['bind_dn'],
 				'password' => @$service_params['bind_password'],
-				
+
 				'context_search' => @$service_params['context_search'],
 				'field_email' => @$service_params['field_email'],
 				'field_firstname' => @$service_params['field_firstname'],
 				'field_lastname' => @$service_params['field_lastname'],
 			];
-			
-			$ldap_encryption = $ldap_settings['encryption'] ?? '';
-			
-			if(
-				(636 == $ldap_settings['port'] || 'ssl' == $ldap_encryption)
-				&& !DevblocksPlatform::strStartsWith($ldap_settings['host'], 'ldaps://')
-			) {
-				$ldap_settings['host'] = 'ldaps://' . $ldap_settings['host'];
+
+			[$ldap, $error] = ServiceProvider_Ldap::establishConnection($ldap_settings);
+
+			if(!$ldap) {
+				if('Failed to Start TLS' == $error)
+					throw new Exception("Failed to Start TLS.");
+				throw new Exception("The authentication server is offline. Please try again later.");
 			}
 
-			@$ldap = ldap_connect($ldap_settings['host'] ?? '', $ldap_settings['port']);
-			
-			if(!$ldap)
-				throw new Exception("The authentication server is offline. Please try again later.");
-			
-			ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
-			ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
-			
-			if(
-				(
-					(389 == $ldap_settings['port'] && '' == $ldap_encryption)
-					|| 'tls' == $ldap_encryption
-				)
-				&& !ldap_start_tls($ldap)
-			) {
-				throw new Exception("Failed to Start TLS.");
-			}
-			
 			@$login = ldap_bind($ldap, $ldap_settings['username'], $ldap_settings['password']);
 			
 			if(!$login)
