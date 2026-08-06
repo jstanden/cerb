@@ -13,7 +13,7 @@
       "uri": "cerb_bot_behavior_switch__cases",
       "description": "A decision with multiple outcomes",
       "point": "behavior_switch",
-      "image": ""
+      "image": "hierarchy"
     },
     "configure": {
       "placeholders": [

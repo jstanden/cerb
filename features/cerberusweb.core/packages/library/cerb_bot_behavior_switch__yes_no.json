@@ -13,7 +13,7 @@
       "uri": "cerb_bot_behavior_switch__yes_no",
       "description": "A binary decision with 'yes' and 'no' outcomes",
       "point": "behavior_switch",
-      "image": ""
+      "image": "toggle"
     },
     "configure": {
       "placeholders": [

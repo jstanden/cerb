@@ -13,7 +13,7 @@
       "uri": "cerb_profile_tab__log",
       "description": "A log of activity on this record",
       "point": "profile_tab",
-      "image": ""
+      "image": "edit"
     },
     "configure": {
       "placeholders": [

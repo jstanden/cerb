@@ -1816,7 +1816,11 @@ div.cerb-uploads {
 .package-library--container {
 	display:grid;
 	overflow-x:hidden;
-	
+
+	// Corner radius shared by the 16:9 art tiles and their framing containers below. Set here (a common
+	// ancestor) so the container's own border-radius and the nested .cerb-ui-avatar--art inherit one value.
+	--cerb-ui-avatar-art-radius: 10px;
+
 	.package-library--package-chooser {
 		grid-column:1;
 		grid-row:1;
@@ -1849,9 +1853,14 @@ div.cerb-uploads {
 			.package-library--package-image {
 				height:135px;
 				width:240px;
-				background-color: white;
 				border:1px solid var(--cerb-color-background-contrast-200);
+				border-radius: var(--cerb-ui-avatar-art-radius);
 				margin-bottom:5px;
+				overflow: hidden;
+
+				// A stored image may be a transparent PNG/SVG logo — give it a white backdrop. The
+				// client-rendered icon tiles (no stored image) fill their own hash color, so they don't get one.
+				&--filled { background-color: white; }
 			}
 			
 			.package-library--package-title {
@@ -1898,9 +1907,12 @@ div.cerb-uploads {
 		.package-library--package {
 			.package-library--package-image {
 				float:left;
-				background-color: var(--cerb-color-background);
 				border: 1px solid var(--cerb-color-background-contrast-200);
+				border-radius: var(--cerb-ui-avatar-art-radius);
 				margin: 0 10px 10px 0;
+				overflow: hidden;
+
+				&--filled { background-color: white; }
 			}
 			
 			.package-library--package-title {

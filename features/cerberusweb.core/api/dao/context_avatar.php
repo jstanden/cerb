@@ -124,14 +124,21 @@ class DAO_ContextAvatar extends Cerb_ORMHelper {
 			// Is it a base64-encoded png?
 			} else if(DevblocksPlatform::strStartsWith($imagedata,'image/png;base64,')) {
 				$content_type = 'image/png';
-				
+
 				// Decode it to binary
 				if(false == ($imagedata = base64_decode(substr($imagedata, 17))))
 					return false;
-				
+
 				// [TODO] Verify the "magic bytes"
 				// [TODO] 89 50 4E 47 0D 0A 1A 0A
-				
+
+			// Is it a base64-encoded SVG? (e.g. a provider logo baked into a package)
+			} else if(DevblocksPlatform::strStartsWith($imagedata,'image/svg+xml;base64,')) {
+				$content_type = 'image/svg+xml';
+
+				if(!($imagedata = base64_decode(substr($imagedata, strlen('image/svg+xml;base64,')))))
+					return false;
+
 			// If we don't know what it is, fail.
 			} else {
 				return false;

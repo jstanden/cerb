@@ -66,6 +66,7 @@ $package_chooser.on('click', function(e) {
 	
 	if(package_name) {
 		genericAjaxGet($package_info, 'c=profiles&a=invoke&module=package&action=showPackagePrompts&package=' + encodeURIComponent(package_name), function() {
+			CerbUI.Avatar.enhance($package_info[0]);
 			$package_info.triggerHandler('cerb-enable');
 			$package_info_submit = $package_info.find('[data-cerb-action="submit"]');
 		});
@@ -100,3 +101,6 @@ $package_info.on('click', function(e) {
 if($package_chooser_search.is(':visible')) {
 	$package_chooser_search.focus().select();
 }
+
+// Paint the client-side 16:9 package art (hash bg + type icon), swapping in a stored image when present
+CerbUI.Avatar.enhance($package_chooser[0]);

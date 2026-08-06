@@ -13,7 +13,7 @@
       "uri": "cerb_bot_behavior_loop__records",
       "description": "Loop through results from a record search query",
       "point": "behavior_loop",
-      "image": ""
+      "image": "repeat"
     },
     "configure": {
       "placeholders": [

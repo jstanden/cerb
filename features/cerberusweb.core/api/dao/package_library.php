@@ -1,6 +1,7 @@
 <?php
 class DAO_PackageLibrary extends Cerb_ORMHelper {
 	const DESCRIPTION = 'description';
+	const ICON = 'icon';
 	const ID = 'id';
 	const NAME = 'name';
 	const INSTRUCTIONS = 'instructions';
@@ -8,7 +9,7 @@ class DAO_PackageLibrary extends Cerb_ORMHelper {
 	const POINT = 'point';
 	const URI = 'uri';
 	const UPDATED_AT = 'updated_at';
-	
+
 	const _IMAGE = '_image';
 	
 	private function __construct() {}
@@ -46,6 +47,12 @@ class DAO_PackageLibrary extends Cerb_ORMHelper {
 			->setRequired(true)
 			;
 		
+		$validation
+			->addField(self::ICON)
+			->string()
+			->setMaxLength(255)
+			;
+
 		$validation
 			->addField(self::POINT)
 			->string()
@@ -183,7 +190,7 @@ class DAO_PackageLibrary extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, uri, name, description, point, updated_at ".
+		$sql = "SELECT id, uri, name, description, point, icon, updated_at ".
 			"FROM package_library ".
 			$where_sql.
 			$sort_sql.
@@ -275,8 +282,39 @@ class DAO_PackageLibrary extends Cerb_ORMHelper {
 				return true;
 			return false;
 		});
-		
+
+		self::_setHasImage(array_merge(...array_values($results) ?: [[]]));
+
 		return $results;
+	}
+
+	/**
+	 * Flag which of the given package models have a stored avatar image, so the UI only loads the
+	 * backend image URL when one actually exists (otherwise it renders the client-side icon default).
+	 *
+	 * @param Model_PackageLibrary[] $packages
+	 */
+	static function _setHasImage(array $packages) : void {
+		if(!$packages)
+			return;
+
+		$db = DevblocksPlatform::services()->database();
+		$by_id = [];
+
+		foreach($packages as $package) {
+			$package->has_image = false;
+			$by_id[$package->id] = $package;
+		}
+
+		$rows = $db->GetArrayReader(sprintf("SELECT context_id FROM context_avatar WHERE context = %s AND context_id IN (%s)",
+			$db->qstr(CerberusContexts::CONTEXT_PACKAGE),
+			implode(',', array_keys($by_id))
+		));
+
+		foreach($rows as $row) {
+			if(array_key_exists($row['context_id'], $by_id))
+				$by_id[$row['context_id']]->has_image = true;
+		}
 	}
 	
 	/**
@@ -302,8 +340,12 @@ class DAO_PackageLibrary extends Cerb_ORMHelper {
 		
 		if(empty($results))
 			return null;
-		
-		return array_shift($results);
+
+		$result = array_shift($results);
+
+		self::_setHasImage([$result]);
+
+		return $result;
 	}
 	
 	/**
@@ -332,6 +374,7 @@ class DAO_PackageLibrary extends Cerb_ORMHelper {
 			$object->name = $row['name'];
 			$object->description = $row['description'];
 			$object->point = $row['point'];
+			$object->icon = $row['icon'] ?? '';
 			$object->updated_at = $row['updated_at'];
 			$objects[$object->id] = $object;
 		}
@@ -543,8 +586,48 @@ class Model_PackageLibrary extends DevblocksRecordModel {
 	public $name;
 	public $description;
 	public $point;
+	public $icon = '';
 	public $updated_at;
-	
+
+	// Populated by DAO_PackageLibrary::_setHasImage() in list contexts: true when a stored avatar image
+	// exists (so the UI loads the backend image URL rather than the client-rendered icon default).
+	public $has_image = false;
+
+	// Default cerb-icon per package `point` base type (the part before any `:context` suffix), used for
+	// the 16:9 placeholder art when a package has no explicit icon or image.
+	const DEFAULT_ICONS_BY_POINT = [
+		'behavior' => 'zap',
+		'behavior_action' => 'zap',
+		'behavior_switch' => 'zap',
+		'behavior_loop' => 'repeat',
+		'bot' => 'bot',
+		'calendar' => 'calendar',
+		'card_widget' => 'clipboard',
+		'connected_service' => 'plug',
+		'profile_tab' => 'folder',
+		'profile_widget' => 'id-card',
+		'project_board' => 'kanban',
+		'task' => 'check',
+		'workspace_page' => 'dashboard',
+		'workspace_tab' => 'folder',
+		'workspace_widget' => 'gauge',
+	];
+
+	const DEFAULT_ICON = 'cube';
+
+	/**
+	 * The cerb-icon name for this package's placeholder art: an explicit `icon` (when it's a real
+	 * cerb-icon), else the default for its `point` base type, else a generic fallback.
+	 */
+	function getIcon() : string {
+		if($this->icon && in_array($this->icon, DevblocksPlatform::services()->ui()->getCerbIcons(), true))
+			return $this->icon;
+
+		$point_base = current(explode(':', $this->point, 2));
+
+		return self::DEFAULT_ICONS_BY_POINT[$point_base] ?? self::DEFAULT_ICON;
+	}
+
 	function getInstructions() {
 		$db = DevblocksPlatform::services()->database();
 		
@@ -1048,10 +1131,16 @@ class Context_PackageLibrary extends Extension_DevblocksContext implements IDevb
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'image':
-				$out_fields[DAO_Worker::_IMAGE] = $value;
+				// A `data:` value is an embedded image (stored as an avatar blob); anything else is a
+				// cerb-icon name for the placeholder art.
+				if(DevblocksPlatform::strStartsWith($value, 'data:')) {
+					$out_fields[DAO_PackageLibrary::_IMAGE] = $value;
+				} else {
+					$out_fields[DAO_PackageLibrary::ICON] = $value;
+				}
 				break;
 		}
-		
+
 		return true;
 	}
 	
@@ -1200,15 +1289,16 @@ class Context_PackageLibrary extends Extension_DevblocksContext implements IDevb
 					'package_json' => new DevblocksKataRawString($model->getPackageJson()),
 				],
 			];
-			
-			/*
-			if(($avatar = DAO_ContextAvatar::getByContext(CerberusContexts::CONTEXT_PACKAGE, $model->id))) {
+
+			// Export the art: an explicit icon name, else the stored image (PNG or SVG) as a data URI
+			if($model->icon) {
+				$workflow_kata['records'][$record_key]['fields']['image'] = $model->icon;
+			} else if(($avatar = DAO_ContextAvatar::getByContext(CerberusContexts::CONTEXT_PACKAGE, $model->id))) {
 				if(($avatar_data = Storage_ContextAvatar::get($avatar))) {
-					$workflow_kata['records'][$record_key]['fields']['image'] = 'data:image/png;base64,'.base64_encode($avatar_data);
+					$workflow_kata['records'][$record_key]['fields']['image'] = sprintf('data:%s;base64,%s', $avatar->content_type, base64_encode($avatar_data));
 					unset($avatar_data);
 				}
 			}
-			*/
 		}
 		
 		return $workflow_kata;

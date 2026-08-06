@@ -13,7 +13,7 @@
       "uri": "cerb_bot_behavior_auto_reply",
       "description": "A behavior that automatically replies to new messages in all groups",
       "point": "behavior",
-      "image": ""
+      "image": "send"
     },
     "configure": {
       "placeholders": [
