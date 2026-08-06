@@ -936,13 +936,24 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 				break;
 				
 			case 'pages':
-				$page_ids = DAO_WorkerPref::getAsJson($worker->id, 'menu_json', '[]');
-				
-				if($page_ids) {
-					$pages = DAO_WorkspacePage::getIds($page_ids);
-					$tpl->assign('pages', $pages);
+				$page_ids = DAO_WorkerPref::getAsJson($worker->id, 'menu_json', '[]') ?: [];
+
+				// Shape the worker's saved nav pages into PriorityPicker items (selected, in saved order);
+				// the template decorates each with a per-id icon color client-side.
+				$items = [];
+				if($page_ids && ($pages = DAO_WorkspacePage::getIds($page_ids))) {
+					foreach($page_ids as $page_id) {
+						if(isset($pages[$page_id])) {
+							$items[] = [
+								'id' => (string) $page_id,
+								'label' => $pages[$page_id]->name,
+								'selected' => true,
+							];
+						}
+					}
 				}
-				
+
+				$tpl->assign('pages_json', json_encode($items));
 				$tpl->display('devblocks:cerberusweb.core::internal/profiles/tabs/worker/settings/tabs/pages.tpl');
 				break;
 				
@@ -1150,7 +1161,8 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 					}
 					
 					DAO_WorkerPref::setAsJson($worker->id, 'menu_json', $page_ids);
-					
+					$worker->clearPagesMenuCache();
+
 					echo json_encode([
 						'status' => true,
 						'message' => DevblocksPlatform::translate('success.saved_changes'),

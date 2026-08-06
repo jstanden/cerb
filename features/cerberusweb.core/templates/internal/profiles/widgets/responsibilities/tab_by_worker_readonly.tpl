@@ -6,7 +6,7 @@
 
 {if $tab_is_editable}
 <form action="#" method="post" style="margin:5px;" id="frm{$tab_uniqid}">
-	<button type="button"><span class="cerb-icons cerb-icon-gear"></span> {'common.edit'|devblocks_translate|capitalize}</button>
+	<button type="button" class="cerb-ui-button cerb-ui-button--subtle"><span class="cerb-icons cerb-icon-gear"></span> {'common.edit'|devblocks_translate|capitalize}</button>
 </form>
 {/if}
 
@@ -14,12 +14,12 @@
 
 {foreach from=$groups item=group key=group_id}
 {if $worker->isGroupMember($group_id)}
-<fieldset class="peek" style="margin-bottom:0;display:block;vertical-align:top;break-inside:avoid-column;">
-	<legend>
-		<a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$group->id}">{$group->name}</a>
-	</legend>
-	
-	<div style="padding-left:10px;">
+<div class="cerb-ui-panel cerb-ui-panel--spaced" style="break-inside:avoid-column;margin:0 0 10px 0;">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$group->id}">{$group->name}</a></div>
+	</div>
+
+	<div>
 		{foreach from=$group->getBuckets() item=bucket key=bucket_id}
 		{$responsibility_level = $responsibilities.$bucket_id}
 		<div style="width:250px;display:block;margin:0 10px 10px 5px;">
@@ -27,16 +27,13 @@
 				<a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$bucket->id}"><b>{$bucket->name}</b></a>
 			</label>
 			
-			<div style="margin-top:5px;position:relative;margin-left:5px;width:250px;height:10px;background-color:var(--cerb-color-background-contrast-230);border-radius:10px;">
-				<span style="display:inline-block;background-color:rgb(200,200,200);height:18px;width:1px;position:absolute;top:-4px;margin-left:1px;left:50%;"></span>
-				<div style="position:relative;margin-left:-6px;top:-3px;left:{$responsibility_level}%;width:15px;height:15px;border-radius:15px;background-color:{if $responsibility_level < 50}rgb(230,70,70);{elseif $responsibility_level > 50}rgb(0,200,0);{else}rgb(175,175,175);{/if}"></div>
-			</div>
+			{include file="devblocks:cerberusweb.core::internal/cerb_ui/slider_readonly.tpl" value=$responsibility_level invert=true tick=true width='250px' track_height='10px' thumb='15px'}
 			
 		</div>
 		{/foreach}
-		
+
 	</div>
-</fieldset>
+</div>
 {/if}
 {/foreach}
 
@@ -58,9 +55,7 @@ $(function() {
 		
 		// When the popup saves, reload the tab
 		$popup.one('responsibilities_save', function() {
-			var $tabs = $frm.closest('div.ui-tabs');
-			var tabId = $tabs.tabs("option", "active");
-			$tabs.tabs("load", tabId);
+			window.CerbUI?.Tabs?.fromPanel($frm[0])?.refresh();
 		});
 		
 	});

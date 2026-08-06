@@ -1,5 +1,5 @@
 {$form_id = uniqid()}
-<form id="{$form_id}" action="{devblocks_url}{/devblocks_url}" method="post">
+<form id="{$form_id}" class="cerb-ui-form" action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invokeTab">
 <input type="hidden" name="tab_id" value="{$tab->id}">
@@ -8,59 +8,53 @@
 <input type="hidden" name="worker_id" value="{$worker->id}">
 <input type="hidden" name="tab" value="watchers">
 
-<fieldset class="peek">
-<legend>If I'm watching something, send me a notification when these events happen:</legend>
-Select: 
-<a data-cerb-link="check_all">{'common.all'|devblocks_translate|lower}</a>
-| <a data-cerb-link="check_none">{'common.none'|devblocks_translate|lower}</a>
-<br>
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight cerb-ui-header--center">
+		<div class="cerb-ui-header--title-sm">If I'm watching something, notify me when these events happen</div>
+		<div class="cerb-ui-header--right cerb-u-flex cerb-u-items-center cerb-u-gap-2">
+			<a data-cerb-link="check_all" class="cerb-u-cursor-pointer">{'common.all'|devblocks_translate|lower}</a>
+			<span class="cerb-u-text-muted">|</span>
+			<a data-cerb-link="check_none" class="cerb-u-cursor-pointer">{'common.none'|devblocks_translate|lower}</a>
+		</div>
+	</div>
 
-<ul style="padding:0;margin:10px 0px 10px 0px;margin-top:10px;list-style:none;line-height:150%;">
-{foreach from=$activities item=activity key=activity_point}
-{$selected = !in_array($activity_point,$dont_notify_on_activities)}
-<li>
-	<input type="hidden" name="activity_point[]" value="{$activity_point}">
-	<label style="{if $selected}font-weight:bold;{/if}">
-		<input type="checkbox" name="activity_enable[]" value="{$activity_point}" {if $selected}checked="checked"{/if}> 
-		{$activity.params.label_key|devblocks_translate}
-	</label>
-</li>
-{/foreach}
-</ul>
+	<div id="watcherActivities">
+		{foreach from=$activities item=activity key=activity_point}
+		{$selected = !in_array($activity_point,$dont_notify_on_activities)}
+		<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-2 cerb-u-mb-1">
+			<input type="hidden" name="activity_point[]" value="{$activity_point}">
+			<label class="cerb-ui-toggle"><input type="checkbox" name="activity_enable[]" id="act_{$activity_point}_{$form_id}" value="{$activity_point}" {if $selected}checked="checked"{/if}><span class="cerb-ui-toggle--slider"></span></label>
+			<label for="act_{$activity_point}_{$form_id}">{$activity.params.label_key|devblocks_translate}</label>
+		</div>
+		{/foreach}
+	</div>
+</div>
 
-<button type="button" class="submit" style="margin-top:10px;"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	
-</fieldset>
+<div>
+	<div class="cerb-ui-toolbar-strip">
+		<button type="button" id="btnSave_{$form_id}" class="cerb-ui-toolbar-button cerb-u-anim-group"><span class="cerb-icons cerb-icon-circle-ok cerb-u-anim-pulse-hover"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	</div>
+</div>
 </form>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	let $frm = $('#{$form_id}');
-	
-	$frm
-		.find('input:checkbox')
-		.change(
-			function(e) {
-				e.stopPropagation();
-				if(false != $(this).prop('checked'))
-					$(this).closest('label').css('font-weight','bold');
-				else
-					$(this).closest('label').css('font-weight','');
-			}
-		)
-		;
+
+	if(window.CerbUI && CerbUI.Toggle)
+		$frm.find('.cerb-ui-toggle').each(function() { new CerbUI.Toggle(this); });
 
 	$frm.find('[data-cerb-link=check_all]').on('click', function(e) {
 		e.stopPropagation();
-		checkAll('{$form_id}', true);
+		checkAll('watcherActivities', true);
 	});
 
 	$frm.find('[data-cerb-link=check_none]').on('click', function(e) {
 		e.stopPropagation();
-		checkAll('{$form_id}', false);
+		checkAll('watcherActivities', false);
 	});
 
-	$frm.find('button.submit').on('click', function(e) {
+	$frm.find('#btnSave_{$form_id}').on('click', function(e) {
 		e.stopPropagation();
 		Devblocks.saveAjaxTabForm($frm);
 	});

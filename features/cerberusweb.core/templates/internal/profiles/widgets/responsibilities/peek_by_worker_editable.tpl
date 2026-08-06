@@ -1,48 +1,40 @@
 <form id="worker{$worker->id}Responsibilities" action="#">
 
-<div class="cerb-delta-slider-container" style="display:none;margin-right:0;">
-	<div class="cerb-delta-slider cerb-slider-gray">
-		<span class="cerb-delta-slider-midpoint"></span>
-	</div>
-</div>
-
 <div style="column-width:275px;">
 
 {foreach from=$memberships item=membership}
 	{$group = $groups.{$membership->group_id}}
-	
+
 	{if $group}
-	<fieldset class="peek" style="vertical-align:top;break-inside: avoid-column;margin:0;">
-		<legend>
-			<a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$group->id}">{$group->name}</a>
-		</legend>
-	
-		<div style="margin-left:15px;">
+	<div class="cerb-ui-panel cerb-ui-panel--spaced" style="break-inside:avoid-column;margin:0 0 10px 0;">
+		<div class="cerb-ui-header cerb-ui-header--tight">
+			<div class="cerb-ui-header--title-sm"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$group->id}">{$group->name}</a></div>
+		</div>
+
+		<div>
 			{$buckets = $group->getBuckets()}
 			{foreach from=$buckets item=bucket}
 			{$responsibility = $responsibilities.{$bucket->id}}
-			<div class="cerb-slider-card" style="width:250px;display:block;margin:0 10px 10px 5px;">
+			<div style="width:250px;display:block;margin:0 10px 10px 5px;">
 				<label>
 					<a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$bucket->id}">{$bucket->name}</a>
 				</label>
-				
-				<div class="cerb-slider-readonly" style="margin-bottom:15px;">
-					<input type="hidden" name="responsibilities[{$bucket->id}]" value="{$responsibility|default:0}" data-worker-id="{$worker->id}" data-bucket-id="{$bucket->id}">
-					<div style="margin:5px 0 0 5px;position:relative;width:250px;height:9px;background-color:var(--cerb-color-background-contrast-230);border-radius:9px;">
-						<span style="display:inline-block;background-color:rgb(200,200,200);height:18px;width:1px;position:absolute;top:-4px;margin-left:1px;left:50%;"></span>
-						<div class="cerb-slider-handle" style="position:relative;margin-left:-6px;top:-3px;left:{$responsibility}%;width:15px;height:15px;border-radius:15px;background-color:{if $responsibility < 50}rgb(230,70,70);{elseif $responsibility > 50}rgb(0,200,0);{else}rgb(175,175,175);{/if}"></div>
-					</div>
+
+				<div class="cerb-ui-slider" style="max-width:250px;margin-bottom:10px;" data-worker-id="{$worker->id}" data-bucket-id="{$bucket->id}">
+					<input type="hidden" name="responsibilities[{$bucket->id}]" value="{$responsibility|default:0}">
 				</div>
 			</div>
 			{/foreach}
 		</div>
-	</fieldset>
+	</div>
 	{/if}
 {/foreach}
 
 </div>
 
-<button type="button" class="done"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.done'|devblocks_translate|capitalize}</button>
+<div class="buttons" style="margin-top:10px;">
+	<button type="button" class="cerb-ui-button done"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.done'|devblocks_translate|capitalize}</button>
+</div>
 
 </form>
 
@@ -52,111 +44,48 @@ $(function() {
 	let $frm = $('#worker{$worker->id}Responsibilities');
 
 	Devblocks.formDisableSubmit($frm);
-	
+
 	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"{'common.responsibilities'|devblocks_translate|capitalize}: {$worker->getName()}");
-		
+
 		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
-		
-		var $slider_helper = $frm.find('> .cerb-delta-slider-container');
-		var $slider_helper_control = $slider_helper.find('.cerb-delta-slider');
-		
-		$slider_helper_control.each(function() {
-			var $this = $(this);
-			var $label = $this.siblings('label');
-			var $level = $label.find('small');
-			
-			var funcColorizeHandle = function(e, ui) {
-				e.stopPropagation();
-				
-				$this.removeClass('cerb-slider-gray cerb-slider-red cerb-slider-green');
-				
-				if(ui.value < 50) {
-					$this.addClass('cerb-slider-red');
-					$this.slider('option', 'range', 'min');
-				} else if(ui.value > 50) {
-					$this.addClass('cerb-slider-green');
-					$this.slider('option', 'range', 'max');
-				} else {
-					$this.addClass('cerb-slider-gray');
-					$this.slider('option', 'range', false);
-				}
-			};
-			
-			$this.slider({
-				disabled: false,
-				value: 0,
-				min: 0,
-				max: 100,
-				step: 10,
-				range: 'min',
-				slide: funcColorizeHandle,
-				change: funcColorizeHandle
-			});
-		});
-		
-		$popup.find('fieldset.peek').parent().on('mouseenter mouseleave', '.cerb-slider-card', 
-			function(e) {
-				e.stopPropagation();
-				
-				var $this = $(this);
-				var $slider = $this.find('.cerb-slider-readonly');
-				var $input = $slider.find('input:hidden');
-				
-				if('mouseenter' == e.type) {
-					$slider_helper_control.slider('value', $input.val());
-					$slider_helper.insertAfter($slider.hide()).show();
-					
-				} else {
-					var value = $slider_helper_control.slider('value');
-					var $slider_handle = $slider.find('.cerb-slider-handle');
-					
-					// If the value changed
-					if($input.val() != value) {
-						var form_data = new FormData();
+
+		// One slider per bucket; inverted scale (red=low, green=high), saves on change
+		if(window.CerbUI && CerbUI.Slider) {
+			$frm.find('div.cerb-ui-slider').each(function() {
+				let worker_id = this.getAttribute('data-worker-id');
+				let bucket_id = this.getAttribute('data-bucket-id');
+
+				new CerbUI.Slider(this, {
+					min: 0, max: 100, step: 10, midpoint: 50, invert: true,
+					onChange: function(value) {
+						let form_data = new FormData();
 						form_data.append('c', 'profiles');
 						form_data.append('a', 'invokeWidget');
 						form_data.append('widget_id', '{$widget->id}');
 						form_data.append('action', 'savePopupJson');
-						form_data.append('worker_id', $input.attr('data-worker-id'));
-						form_data.append('bucket_id', $input.attr('data-bucket-id'));
+						form_data.append('worker_id', worker_id);
+						form_data.append('bucket_id', bucket_id);
 						form_data.append('responsibility', value);
-						
+
 						genericAjaxPost(form_data, '', null, function(err) {
 							Devblocks.clearAlerts();
-							
+
 							if(err.error) {
 								Devblocks.createAlertError(err.error);
-								
 							} else {
 								Devblocks.createAlert('Saved!');
 							}
 						});
 					}
-					
-					$input.val(value);
-					
-					$slider_handle.css('left', value + '%');
-					
-					if(value < 50) {
-						$slider_handle.css('background-color', 'rgb(230,70,70)');
-					} else if (value > 50) {
-						$slider_handle.css('background-color', 'rgb(0,200,0)');
-					} else {
-						$slider_handle.css('background-color', 'rgb(175,175,175)');
-					}
-					
-					$slider.show();
-					$slider_helper.detach();
-				}
-			}
-		);
-		
+				});
+			});
+		}
+
 		$frm.find('button.done').click(function(e) {
 			e.stopPropagation();
 			genericAjaxPopupClose($popup, 'responsibilities_save');
 		});
 	});
-
 });
 </script>

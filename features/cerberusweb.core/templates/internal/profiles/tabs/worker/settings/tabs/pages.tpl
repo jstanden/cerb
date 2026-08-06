@@ -1,5 +1,5 @@
 {$form_id = uniqid()}
-<form id="{$form_id}" action="{devblocks_url}{/devblocks_url}" method="post">
+<form id="{$form_id}" class="cerb-ui-form" action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invokeTab">
 <input type="hidden" name="tab_id" value="{$tab->id}">
@@ -8,46 +8,91 @@
 <input type="hidden" name="worker_id" value="{$worker->id}">
 <input type="hidden" name="tab" value="pages">
 
-<fieldset class="peek">
-	<legend>Show these pages in the navigation bar:</legend>
-	
-	<div style="margin-left:10px;"></div>
-	
-	<button type="button" class="chooser-abstract" data-field-name="pages[]" data-context="{CerberusContexts::CONTEXT_WORKSPACE_PAGE}" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="cerb-icons cerb-icon-search"></span></button>
-	
-	<ul class="bubbles chooser-container">
-		{foreach from=$pages item=page}
-		<li style="cursor:move;"><input type="hidden" name="pages[]" value="{$page->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKSPACE_PAGE}" data-context-id="{$page->id}">{$page->name}</a></li>
-		{/foreach}
-	</ul>
-</fieldset>
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight"><div class="cerb-ui-header--title-sm">Show these pages in the navigation bar</div></div>
+	<div id="pp-{$form_id}"></div>
+</div>
 
-<button type="button" class="submit" style="margin-top:10px;"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+<span id="pp-inputs-{$form_id}"></span>
 </form>
 
+<script type="application/json" id="pp-data-{$form_id}">{$pages_json nofilter}</script>
+
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
+{literal}
 $(function() {
-	let $frm = $('#{$form_id}');
+	const formId = '{/literal}{$form_id}{literal}';
+	const $frm = $('#' + formId);
 
 	Devblocks.formDisableSubmit($frm);
 
-	$frm.find('.chooser-abstract')
-		.cerbChooserTrigger()
-		;
-	
-	$frm.find('.cerb-peek-trigger')
-		.cerbPeekTrigger()
-		;
-	
-	$frm.find('ul.bubbles')
-		.sortable({
-			items: 'li',
-			placeholder:'ui-state-highlight'
-		})
-		;
-	
-	$frm.find('button.submit').on('click', function(e) {
-		Devblocks.saveAjaxTabForm($frm);
+	if(!(window.CerbUI && CerbUI.PriorityPicker))
+		return;
+
+	// Per-page appearance: a document icon tinted by a stable per-id color (same hashing as record avatars)
+	const decorate = function(it) {
+		it.icon = 'file-document';
+		if(CerbUI.chooserCore)
+			it.color = CerbUI.chooserCore.monogramColor('workspace_page:' + it.id);
+		return it;
+	};
+
+	let items = [];
+	try { items = JSON.parse(document.getElementById('pp-data-' + formId).textContent || '[]').map(decorate); } catch(e) {}
+
+	const $inputs = $('#pp-inputs-' + formId);
+	let pp = null;
+
+	pp = new CerbUI.PriorityPicker(document.getElementById('pp-' + formId), {
+		items: items,
+		icon: 'collection',
+		headerLabel: 'Pages',
+		emptyText: 'No pages',
+		outsideIgnore: '.cerb-ui-chooser--panel', // the inline adder's dropdown attaches to <body>
+		// Inline "add a page" chooser at the bottom of the popover — no second popup, never closes the picker.
+		// Each pick appends a new (selected) page row for sorting/toggling.
+		panelFooter: function(picker) {
+			const wrap = document.createElement('div');
+
+			if(!CerbUI.RecordChooser)
+				return wrap;
+
+			const host = document.createElement('div');
+			wrap.appendChild(host);
+
+			const rc = new CerbUI.RecordChooser(host, {
+				context: 'workspace_page',
+				searchButton: false, // autocomplete only — the full-popup dialog would close the picker
+				searchPlaceholder: 'Add a page…',
+				emptyIcon: 'collection',
+				exclude: function() { return picker.getItems().map(function(it) { return it.id; }); },
+				onSelect: function(item) {
+					picker.setItems(picker.getItems().concat([decorate({
+						id: String(item.id),
+						label: item.label,
+						selected: true
+					})]), { preserveSelection: true });
+					rc.clear(false);
+					rc.openAutocomplete(); // keep the menu open to add the next page
+				},
+				onResults: function(results, term) {
+					// Nothing left to add (the empty query returns no pages) → hide the adder until a save frees some up
+					if(!term && results.length === 0 && wrap.parentNode)
+						wrap.parentNode.style.display = 'none';
+				}
+			});
+
+			wrap.cerbCleanup = function() { rc.destroy(); };
+			return wrap;
+		},
+		onChange: function(state) {
+			$inputs.empty();
+			state.selected.forEach(function(id) {
+				$('<input>', { type: 'hidden', name: 'pages[]', value: id }).appendTo($inputs);
+			});
+			Devblocks.saveAjaxTabForm($frm);
+		}
 	});
 });
+{/literal}
 </script>

@@ -6,13 +6,13 @@
 
 		{foreach from=$list item=tab_name}
 		{$tabs[] = $tab_name}
-		<li data-alias="{$tab_name}"><a href="{devblocks_url}ajax.php?c=profiles&a=invokeTab&tab_id={$tab->id}&action=showSettingsSectionTab&worker_id={$worker->id}&tab={$tab_name}{/devblocks_url}">{$tab_name|devblocks_translate|capitalize}</a></li>
+		<li data-alias="{$tab_name}"><a href="c=profiles&a=invokeTab&tab_id={$tab->id}&action=showSettingsSectionTab&worker_id={$worker->id}&tab={$tab_name}">{$tab_name|devblocks_translate|capitalize}</a></li>
 		{/foreach}
 	</ul>
 </div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	$('#worker{$worker->id}SettingsTabs').tabs();
+	$('#worker{$worker->id}SettingsTabs > ul').each(function() { if(window.CerbUI && CerbUI.Tabs) new CerbUI.Tabs(this, { variant: 'underline' }); });
 });
 </script>
