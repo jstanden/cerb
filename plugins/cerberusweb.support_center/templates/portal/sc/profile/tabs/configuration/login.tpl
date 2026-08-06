@@ -7,21 +7,31 @@
 <input type="hidden" name="portal_id" value="{$portal->id}">
 <input type="hidden" name="config_tab" value="login">
 
-<div style="margin-bottom:10px;">
+<div class="cerb-u-mb-3">
 	<b>Authenticate logins using these methods:</b>
 </div>
 
 {foreach from=$login_extensions item=ext}
-<fieldset class="black peek" style="background:none;">
-	<legend><label><input type="checkbox" name="login_extensions[]" value="{$ext->id}" {if isset($login_extensions_enabled.{$ext->id})}checked="checked"{/if}> {$ext->manifest->name}</label></legend>
-	
-	<div style="margin-left:25px;{if isset($login_extensions_enabled.{$ext->id})}display:block;{else}display:none;{/if}">
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight cerb-ui-header--center">
+		<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-2">
+			<label class="cerb-ui-toggle">
+				<input type="checkbox" name="login_extensions[]" value="{$ext->id}" {if isset($login_extensions_enabled.{$ext->id})}checked="checked"{/if}>
+				<span class="cerb-ui-toggle--slider"></span>
+			</label>
+			<div class="cerb-ui-header--title-sm">{$ext->manifest->name}</div>
+		</div>
+	</div>
+
+	<div class="cerb-ui-login-ext-config" {if !isset($login_extensions_enabled.{$ext->id})}style="display:none;"{/if}>
 		{$ext->renderConfigForm($portal)}
 	</div>
-</fieldset>
+</div>
 {/foreach}
 
-<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+<div class="buttons cerb-u-mt-2">
+	<button type="button" class="cerb-ui-button save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+</div>
 </form>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
@@ -30,20 +40,21 @@ $(function() {
 
 	Devblocks.formDisableSubmit($frm);
 
-	$frm.find('input[name="login_extensions[]"]').on('click', function(e) {
+	// Enhance every toggle (extension enable/disable + each extension's own config toggles).
+	if(window.CerbUI && CerbUI.Toggle)
+		$frm.find('.cerb-ui-toggle').each(function() { new CerbUI.Toggle(this); });
+
+	// The editor lives in a cerb-ui-panel now, so reveal/hide the extension config from the panel (not closest('fieldset')).
+	$frm.find('input[name="login_extensions[]"]').on('change', function(e) {
 		e.stopPropagation();
-		$(this).closest('fieldset').find('> div').toggle();
+		$(this).closest('.cerb-ui-panel').find('.cerb-ui-login-ext-config').toggle(this.checked);
 	});
 
 	$frm.find('.cerb-peek-trigger')
 		.cerbPeekTrigger()
 	;
-	
-	$frm.find('.cerb-chooser-trigger')
-		.cerbChooserTrigger()
-	;
-	
-	$frm.find('button.submit').on('click', function(e) {
+
+	$frm.find('button.save').on('click', function(e) {
 		genericAjaxPost($frm, '', null, function(json) {
 			Devblocks.clearAlerts();
 			if(json && typeof json == 'object') {

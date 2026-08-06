@@ -1,11 +1,22 @@
+{$chooser_id = uniqid('ldapChooser')}
 <b>{'common.connected_service'|devblocks_translate|capitalize}:</b><br>
-<button type="button" class="cerb-chooser-trigger" data-field-name="params[ldap_service_id]" data-context="{CerberusContexts::CONTEXT_CONNECTED_SERVICE}" data-single="true" data-query="service:ldap"><span class="cerb-icons cerb-icon-search"></span></button>
-
-<ul class="bubbles chooser-container">
+<div class="cerb-ui-record-chooser" id="{$chooser_id}">
 	{$service = DAO_ConnectedService::get($ldap_service_id)}
 	{if $service}
-		<li><input type="hidden" name="params[ldap_service_id]" value="{$service->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CONNECTED_SERVICE}" data-context-id="{$service->id}">{$service->name}</a></li>
+		<li data-context="{CerberusContexts::CONTEXT_CONNECTED_SERVICE}" data-context-id="{$service->id}" data-label="{$service->name}"></li>
 	{/if}
-</ul>
+</div>
 <br>
 <br>
+
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
+$(function() {
+	if(window.CerbUI && CerbUI.RecordChooser)
+		new CerbUI.RecordChooser(document.getElementById('{$chooser_id}'), {
+			context: '{CerberusContexts::CONTEXT_CONNECTED_SERVICE}',
+			name: 'params[ldap_service_id]',
+			emptyIcon: 'key',
+			query: 'service:ldap'
+		});
+});
+</script>
