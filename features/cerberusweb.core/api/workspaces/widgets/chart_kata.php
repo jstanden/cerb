@@ -150,8 +150,8 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget implements ICe
 		}
 		
 		$fp = fopen("php://temp", 'r+');
-		
-		foreach(($chart_json['data']['columns'] ?? []) as $data) {
+
+		foreach($this->_configToColumns($chart_json) as $data) {
 			fputcsv($fp, $data, escape:'');
 		}
 		
@@ -180,10 +180,40 @@ class WorkspaceWidget_ChartKata extends Extension_WorkspaceWidget implements ICe
 				'label' => $widget->label,
 				'type' => $widget->extension_id,
 				'version' => 'Cerb ' . APP_VERSION,
-				'results' => $chart_json['data']['columns'] ?? [],
+				'results' => $this->_configToColumns($chart_json),
 			],
 		];
-		
+
 		return DevblocksPlatform::strFormatJson($results);
+	}
+
+	// Reconstruct column rows (x + one row per series) from the CerbUI chart config for CSV/JSON export.
+	private function _configToColumns(array $config) : array {
+		$kind = $config['kind'] ?? 'cartesian';
+
+		if($kind === 'pie') {
+			$labels = array_map(fn($sl) => $sl['label'] ?? '', $config['slices'] ?? []);
+			$values = array_map(fn($sl) => $sl['value'] ?? 0, $config['slices'] ?? []);
+			return [['x', ...$labels], ['value', ...$values]];
+		}
+
+		if($kind === 'gauge')
+			return [['value', $config['value'] ?? 0]];
+
+		$cols = [];
+		$x = $config['x'] ?? [];
+		$xvals = $x['categories'] ?? ($x['values'] ?? []);
+
+		if($xvals && $kind !== 'scatter')
+			$cols[] = ['x', ...$xvals];
+
+		foreach(($config['series'] ?? []) as $s) {
+			$name = $s['name'] ?? ($s['key'] ?? '');
+			$cols[] = [$name, ...($s['values'] ?? [])];
+			if($kind === 'scatter' && isset($s['x']))
+				$cols[] = [$name . '_x', ...$s['x']];
+		}
+
+		return $cols;
 	}
 };

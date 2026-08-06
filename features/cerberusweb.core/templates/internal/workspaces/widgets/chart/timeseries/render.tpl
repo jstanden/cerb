@@ -1,105 +1,65 @@
-{$is_date_formatted = array_intersect([$yaxis_format],['number.minutes','number.seconds'])}
-
-<div id="widget{$widget->id}"></div>
+<div id="{$el_id}"></div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	Devblocks.loadResources({
-		'css': [
-			'/resource/devblocks.core/js/c3/c3.min.css'
-		],
-		'js': [
-			{if $is_date_formatted}
-			'/resource/devblocks.core/js/humanize-duration.js',
-			{/if}
-			'/resource/devblocks.core/js/d3/d3.v5.min.js',
-			'/resource/devblocks.core/js/c3/c3.min.js'
-		]
-	}, function() {
-		try {
-			var $widget = $('#widget{$widget->id}');
-			
-			var chart = null;
-			var config_json = {$config_json nofilter};
-			
-			{if $chart_meta_json}
-				var chart_meta = {$chart_meta_json nofilter};
-				
-				if(chart_meta.series) {
-					config_json.data.onclick = function(d, i) {
-						try {
-							if(!config_json.data.json && !config_json.data.json)
-								return;
-							
-							if(!chart_meta.series[d.id])
-								return;
-							
-							var ts = config_json.data.json.ts[d.index];
-							var series_meta = chart_meta.series[d.id][ts];
-							
-							var $trigger = $('<div/>')
-								.attr('data-context', chart_meta.context)
-								.attr('data-query', series_meta.query)
-								.cerbSearchTrigger()
-								.on('cerb-search-opened', function(e) {
-									$(this).remove();
-								})
-								.click()
-								;
-							
-						} catch(e) {
-							if(console && console.error)
-								console.error(e);
-						}
-					};
+	try {
+		const $widget = $('#{$el_id}');
+		const ts = {$ts nofilter};
+		const series = {$series nofilter};
+		const groups = {if $groups}{$groups nofilter}{else}null{/if};
+		const chart_meta = {if $chart_meta_json}{$chart_meta_json nofilter}{else}null{/if};
+		const chart_as = '{$chart_as}';
+		const xLabel = '{$xaxis_label|escape:'javascript'}';
+		const yLabel = '{$yaxis_label|escape:'javascript'}';
+
+		const fmtFor = function(fmt) {
+			if(fmt === 'number.seconds') return function(v) { return CerbUI.num.duration(v, 'seconds'); };
+			if(fmt === 'number.minutes') return function(v) { return CerbUI.num.duration(v, 'minutes'); };
+			return CerbUI.num.grouped;
+		};
+		const yFmt = fmtFor('{$yaxis_format}');
+
+		// Parse the ts strings to ms for a continuous time axis.
+		const timestamps = ts.map(function(s) { return Date.parse(String(s).replace(' ', 'T')); });
+
+		// Map chart_as -> per-series mark type + stacking.
+		let type = 'line', stackAll = false;
+		if(chart_as === 'spline') type = 'spline';
+		else if(chart_as === 'area') { type = 'area'; stackAll = true; }
+		else if(chart_as === 'bar') type = 'bar';
+		else if(chart_as === 'bar_stacked') { type = 'bar'; stackAll = true; }
+
+		const stackOf = function(label) {
+			if(!stackAll) return null;
+			if(groups && groups.length) {
+				for(let g = 0; g < groups.length; g++) {
+					if(groups[g].indexOf(label) !== -1) return 'g' + g;
 				}
-				
-			{else}
-				var chart_meta = {};
-			{/if}
-			
-			{if $is_date_formatted}
-				var shortEnglishHumanizer = humanizeDuration.humanizer({
-					language: 'shortEn',
-					spacer: '',
-					languages: {
-						shortEn: {
-							y: () => 'y',
-							mo: () => 'mo',
-							w: () => 'w',
-							d: () => 'd',
-							h: () => 'h',
-							m: () => 'm',
-							s: () => 's',
-							ms: () => 'ms',
-						}
-					}
-				});
-			
-				var format_seconds = function(secs) {
-					secs = parseInt(secs);
-					return shortEnglishHumanizer(secs * 1000, { largest:2 });
-				};
-				
-				var format_minutes = function(minutes) {
-					minutes = parseInt(minutes);
-					return shortEnglishHumanizer(minutes * 60 * 1000, { largest:2 });
-				};
-			{/if}
-			
-			{if $yaxis_format == 'number.seconds'}
-			config_json.axis.y.tick.format = format_seconds;
-			{else if $yaxis_format == 'number.minutes'}
-			config_json.axis.y.tick.format = format_minutes;
-			{else}
-			config_json.axis.y.tick.format = d3.format(',');
-			{/if}
-			
-			chart = c3.generate(config_json);
-		
-		} catch(e) {
-			console.error(e);
-		}
-	});
+			}
+			return 'g';
+		};
+
+		series.forEach(function(s) {
+			s.type = type;
+			s.stack = stackOf(s.key);
+			s.click = ts.map(function(tsStr) {
+				const m = (chart_meta && chart_meta.series && chart_meta.series[s.key]) ? chart_meta.series[s.key][tsStr] : null;
+				return (m && m.query) ? { context: chart_meta.context, query: m.query } : null;
+			});
+		});
+
+		new CerbUI.CartesianChart($widget[0], {
+			orientation: 'vertical',
+			x: { scale: 'time', timestamps: timestamps, tickFormat: CerbUI.date.strftime('{$xaxis_format}'), rotate: -90, label: xLabel || undefined },
+			y: { tickFormat: yFmt, grid: true, label: yLabel || undefined },
+			series: series,
+			legend: {if $show_legend}true{else}false{/if},
+			points: {if $show_points}true{else}false{/if},
+			height: {$height|intval}
+		});
+
+	} catch(e) {
+		console.error(e);
+	}
 });
 </script>

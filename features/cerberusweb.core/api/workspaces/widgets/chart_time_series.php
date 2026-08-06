@@ -76,104 +76,32 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget implemen
 		if($xaxis_format == '%Y-%m-%d %H:%i')
 			$xaxis_format = '%Y-%m-%d %H:%M';
 		
-		$config_json = [
-			'bindto' => sprintf("#widget%d", $widget->id),
-			'data' => [
-				'x' => 'ts',
-				'xFormat' => '%Y-%m-%d',
-				'json' => $results['data'],
-				'type' => 'line'
-			],
-			'axis' => [
-				'x' => [
-					'type' => 'timeseries',
-					'tick' => [
-						'rotate' => -90,
-						'fit' => true,
-					]
-				],
-				'y' => [
-					'tick' => [
-						'fit' => true,
-					]
-				]
-			],
-			'grid' => [
-				'y' => [
-					'show' => true,
-				]
-			],
-			'subchart' => [
-				'show' => false,
-				'size' => [
-					'height' => 50,
-				]
-			],
-			'legend' => [
-				'show' => true,
-			],
-			'point' => [
-				'show' => true,
-			]
-		];
-		
-		$config_json['data']['xFormat']  = $xaxis_format;
-		
-		if($xaxis_format)
-			$config_json['axis']['x']['tick']['format']  = $xaxis_format;
-		
-		$config_json['subchart']['show']  = (bool)($options['subchart'] ?? false);
-		$config_json['legend']['show']  = (bool)($options['show_legend'] ?? false);
-		$config_json['point']['show']  = (bool)($options['show_points'] ?? false);
-		
-		switch($chart_as) {
-			case 'line':
-				$config_json['data']['type']  = 'line';
-				break;
-				
-			case 'spline':
-				$config_json['data']['type']  = 'spline';
-				break;
-				
-			case 'area':
-				$config_json['data']['type']  = 'area-step';
-				$config_json['data']['groups'] = [array_values(array_diff(array_keys($results['data']), [$xaxis_key]))];
-				break;
-				
-			case 'bar':
-				$config_json['data']['type'] = 'bar';
-				$config_json['bar']['width'] = [
-					'ratio' => 0.75,
-				];
-				break;
-				
-			case 'bar_stacked':
-				$config_json['data']['type']  = 'bar';
-				$config_json['bar']['width'] = [
-					'ratio' => 0.75,
-				];
-				
-				if(array_key_exists('groups', $results['_']) && $results['_']['groups']) {
-					$config_json['data']['groups'] = $results['_']['groups'];
-				} else {
-					$config_json['data']['groups'] = [array_values(array_diff(array_keys($results['data']), [$xaxis_key]))];
-				}
-				break;
+		// First key 'ts' = the timestamp column; each remaining key is a numeric series aligned to it.
+		$data = $results['data'] ?? [];
+		$ts = $data['ts'] ?? [];
+
+		$series = [];
+		foreach($data as $key => $values) {
+			if($key === 'ts')
+				continue;
+			$series[] = ['key' => (string)$key, 'values' => array_map('floatval', $values)];
 		}
-		
-		if($xaxis_label)
-			$config_json['axis']['x']['label'] = $xaxis_label;
-		
-		if($yaxis_label)
-			$config_json['axis']['y']['label'] = $yaxis_label;
-		
-		$config_json['size'] = ['height' => $height ?: 320];
-		
+
 		if(false != ($chart_meta = @$results['_']))
 			$tpl->assign('chart_meta_json', json_encode($chart_meta));
-			
-		$tpl->assign('config_json', json_encode($config_json));
+
+		$tpl->assign('el_id', 'widget' . $widget->id);
+		$tpl->assign('ts', json_encode($ts));
+		$tpl->assign('series', json_encode($series));
+		$tpl->assign('groups', json_encode($results['_']['groups'] ?? null));
+		$tpl->assign('chart_as', $chart_as);
+		$tpl->assign('xaxis_format', $xaxis_format);
 		$tpl->assign('yaxis_format', $yaxis_format);
+		$tpl->assign('xaxis_label', $xaxis_label);
+		$tpl->assign('yaxis_label', $yaxis_label);
+		$tpl->assign('show_legend', (bool)($options['show_legend'] ?? false));
+		$tpl->assign('show_points', (bool)($options['show_points'] ?? false));
+		$tpl->assign('height', $height ?: 320);
 		$tpl->assign('widget', $widget);
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/chart/timeseries/render.tpl');
 	}

@@ -1,14 +1,12 @@
 <div style="text-align:center;">
-<canvas id="widget{$widget->id}_canvas" width="200" height="125" style="margin-right:5px;">
-	Your browser does not support HTML5 Canvas.
-</canvas>
+	<div id="widget{$widget->id}" style="display:inline-block;width:200px;height:150px;"></div>
 </div>
 
 <span style="margin:5px 0px 0px 0px;display:inline-block;vertical-align:top;">
 {foreach from=$widget->params['threshold_labels'] item=label key=idx name=labels}
 {if !empty($label)}
 <span>
-	<span style="width:10px;height:10px;display:inline-block;background-color:{$widget->params['threshold_colors'][$idx]};margin:2px;vertical-align:middle;border-radius:10px;-moz-border-radius:10px;-webkit-border-radius:10px;-o-border-radius:10px;"></span>
+	<span style="width:10px;height:10px;display:inline-block;background-color:{$widget->params['threshold_colors'][$idx]};margin:2px;vertical-align:middle;border-radius:10px;"></span>
 	<b style="vertical-align:middle;">{$label}</b>
 </span>
 {/if}
@@ -17,32 +15,31 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-try {
-	{$metric_value = $widget->params.metric_value}
-	{$metric_min = $widget->params.metric_min|default:0}
-	{$metric_label = DevblocksPlatform::formatNumberAs($metric_value, $widget->params.metric_type)}	
-	{$metric_label_min = DevblocksPlatform::formatNumberAs($metric_min, $widget->params.metric_type)}
-	
-	var options = {
-		{if !empty($widget->params.threshold_values)}
-		{$metric_max = end($widget->params.threshold_values)|default:0}
+	try {
+		{$metric_value = $widget->params.metric_value|default:0}
+		{$metric_min = $widget->params.metric_min|default:0}
+		{$metric_max = end($widget->params.threshold_values)|default:100}
+		{$metric_label = DevblocksPlatform::formatNumberAs($metric_value, $widget->params.metric_type)}
+		{$metric_label_min = DevblocksPlatform::formatNumberAs($metric_min, $widget->params.metric_type)}
 		{$metric_label_max = DevblocksPlatform::formatNumberAs($metric_max, $widget->params.metric_type)}
-		'threshold_values': {json_encode($widget->params.threshold_values) nofilter},
-		'metric_label_max': "{$metric_label_max}",
-		{/if}
-		{if !empty($widget->params.threshold_colors)}'threshold_colors': {json_encode($widget->params.threshold_colors) nofilter},{/if}
-		{if !empty($metric_min)}'metric_min': {floatval($metric_min)},{/if}
-		{if !empty($metric_value)}'metric': {floatval($metric_value)},{/if}
-		'metric_label': "{$widget->params.metric_prefix}{$metric_label}{$widget->params.metric_suffix}",
-		'metric_label_min': "{$metric_label_min}",
-		/*'metric_compare': 173,*/
-		'legend': false,
-		'radius': 90
-	};
-	
-	$('#widget{$widget->id}_canvas').devblocksCharts('gauge', options);
-	
-} catch(e) {
-}
+
+		const values = ({json_encode($widget->params.threshold_values) nofilter}) || [];
+		const colors = ({json_encode($widget->params.threshold_colors) nofilter}) || [];
+		const thresholds = values.map(function(v, i) { return { value: v, color: colors[i] }; });
+
+		new CerbUI.Gauge(document.getElementById('widget{$widget->id}'), {
+			value: {floatval($metric_value)},
+			min: {floatval($metric_min)},
+			max: {floatval($metric_max)},
+			thresholds: thresholds,
+			valueText: '{$widget->params.metric_prefix|escape:'javascript'}{$metric_label|escape:'javascript'}{$widget->params.metric_suffix|escape:'javascript'}',
+			minLabel: '{$metric_label_min|escape:'javascript'}',
+			maxLabel: '{$metric_label_max|escape:'javascript'}',
+			height: 150,
+		});
+
+	} catch(e) {
+		if(console && console.error) console.error(e);
+	}
 });
 </script>

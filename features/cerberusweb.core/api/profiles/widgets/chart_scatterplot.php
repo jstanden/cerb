@@ -54,46 +54,32 @@ class ProfileWidget_ChartScatterplot extends Extension_ProfileWidget {
 			return;
 		}
 		
-		$config_json = [
-			'bindto' => sprintf("#widget%d", $model->id),
-			'data' => [
-				'xs' => [],
-				'columns' => $results['data'],
-				'type' => 'scatter',
-			],
-			'axis' => [
-				'x' => [
-					'tick' => [
-						'format' => null,
-						'fit' => false,
-						'rotate' => -90,
-					]
-				],
-				'y' => [
-					'tick' => [
-						'fit' => false,
-						'format' => null,
-					]
-				]
-			],
-		];
-		
-		foreach($results['data'] as $result) {
-			if(@DevblocksPlatform::strEndsWith($result[0], '_x'))
-				$config_json['data']['xs'][mb_substr($result[0],0,-2)] = $result[0];
+		// Each series is a pair of columns: y-values in "<name>" and x-values in "<name>_x".
+		$by_id = [];
+		foreach(($results['data'] ?? []) as $col) {
+			$col = array_values($col);
+			$id = array_shift($col);
+			$by_id[$id] = $col;
 		}
-		
-		if($xaxis_label)
-			$config_json['axis']['x']['label'] = $xaxis_label;
-		
-		if($yaxis_label)
-			$config_json['axis']['y']['label'] = $yaxis_label;
-		
-		$config_json['size'] = ['height' => $height ?: 320];
-		
-		$tpl->assign('config_json', json_encode($config_json));
+
+		$series = [];
+		foreach($by_id as $id => $vals) {
+			if(DevblocksPlatform::strEndsWith($id, '_x'))
+				continue;
+			$series[] = [
+				'key' => (string)$id,
+				'x' => array_map('floatval', $by_id[$id . '_x'] ?? []),
+				'values' => array_map('floatval', $vals),
+			];
+		}
+
+		$tpl->assign('el_id', 'widget' . $model->id);
+		$tpl->assign('series', json_encode($series));
 		$tpl->assign('xaxis_format', $xaxis_format);
 		$tpl->assign('yaxis_format', $yaxis_format);
+		$tpl->assign('xaxis_label', $xaxis_label);
+		$tpl->assign('yaxis_label', $yaxis_label);
+		$tpl->assign('height', $height ?: 320);
 		$tpl->assign('widget', $model);
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/chart/scatterplot/render.tpl');
 	}

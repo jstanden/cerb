@@ -48,7 +48,7 @@ class WorkspaceWidget_ChartCategories extends Extension_WorkspaceWidget implemen
 		
 		$error = null;
 		
-		if(false == ($results = $this->getData($widget, $error))) {
+		if(!($results = $this->getData($widget, $error))) {
 			echo DevblocksPlatform::strEscapeHtml($error);
 			return;
 		}
@@ -58,70 +58,32 @@ class WorkspaceWidget_ChartCategories extends Extension_WorkspaceWidget implemen
 			return;
 		}
 		
-		@$xaxis_key = $results['_']['format_params']['xaxis_key'] ?: '';
-		
-		$config_json = [
-			'bindto' => sprintf("#widget%d", $widget->id),
-			'padding' => [
-				'left' => 150,
-			],
-			'data' => [
-				'x' => $xaxis_key,
-				'columns' => $results['data'],
-				'type' => 'bar',
-				'colors' => [
-					'hits' => '#1f77b4'
-				]
-			],
-			'axis' => [
-				'rotated' => true,
-				'x' => [
-					'type' => 'category',
-					'tick' => [
-						'format' => null,
-						'multiline' => true,
-						'multilineMax' => 2,
-						'width' => 150,
-					]
-				],
-				'y' => [
-					'tick' => [
-						'rotate' => -90,
-						'format' => null
-					]
-				]
-			],
-			'legend' => [
-				'show' => true,
-			]
-		];
-		
-		if($results['_']['stacked'] ?? null) {
-			$config_json['data']['type']  = 'bar';
-			$groups = array_column($results['data'], 0);
-			array_shift($groups);
-			$config_json['data']['groups'] = [array_values($groups)];
-			$config_json['legend']['show'] = true;
-			
-			if(!$height)
-				$height = 100 + (50 * count($results['data'][0] ?? []));
-			
-		} else if ($results['data'] ?? null) {
-			$config_json['data']['type']  = 'bar';
-			$config_json['legend']['show'] = false;
-			
-			if(!$height)
-				$height = 100 + (50 * count($results['data'][0] ?? []));
+		$columns = $results['data'] ?? [];
+		$stacked = !empty($results['_']['stacked']);
+
+		// First column = category labels; each remaining column = a numeric series aligned to categories.
+		$categories = array_values($columns[0] ?? []);
+		array_shift($categories); // drop the id header
+
+		$series = [];
+		for($i = 1; $i < count($columns); $i++) {
+			$col = array_values($columns[$i]);
+			$id = array_shift($col);
+			$series[] = ['key' => $id, 'values' => array_map('floatval', $col)];
 		}
-		
-		$config_json['size'] = ['height' => $height ?: 320];
-		
+
+		if(!$height)
+			$height = 100 + (50 * count($columns[0] ?? []));
+
 		if(($chart_meta = ($results['_'] ?? null)))
 			$tpl->assign('chart_meta_json', json_encode($chart_meta));
-		
-		$tpl->assign('config_json', json_encode($config_json));
+
+		$tpl->assign('categories', json_encode($categories));
+		$tpl->assign('series', json_encode($series));
+		$tpl->assign('stacked', $stacked);
 		$tpl->assign('xaxis_format', $xaxis_format);
 		$tpl->assign('yaxis_format', $yaxis_format);
+		$tpl->assign('height', $height ?: 320);
 		$tpl->assign('widget', $widget);
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/chart/categories/render.tpl');
 	}

@@ -54,42 +54,14 @@ class ProfileWidget_ChartPie extends Extension_ProfileWidget {
 			return;
 		}
 		
-		$config_json = [
-			'bindto' => sprintf("#widget%d", $model->id),
-			'data' => [
-				'columns' => $results['data'],
-				'type' => $chart_as == 'pie' ? 'pie' : 'donut',
-			],
-			'donut' => [
-				'label' => [
-					'show' => false,
-					'format' => null,
-				],
-			],
-			'pie' => [
-				'label' => [
-					'show' => false,
-					'format' => null,
-				],
-			],
-			'tooltip' => [
-				'format' => [
-					'value' => null,
-				],
-			],
-			'legend' => [
-				'show' => true,
-			]
-		];
-		
-		$config_json['legend']['show']  = @$options['show_legend'] ? true : false;
-		
-		$config_json['size'] = ['height' => $height ?: 320];
-		
+		$tpl->assign('data', json_encode($results['data'] ?? []));
+		$tpl->assign('chart_as', $chart_as == 'pie' ? 'pie' : 'donut');
+		$tpl->assign('show_legend', !empty($options['show_legend']));
+		$tpl->assign('height', $height ?: 320);
+
 		if(false != ($chart_meta = @$results['_']))
 			$tpl->assign('chart_meta_json', json_encode($chart_meta));
-		
-		$tpl->assign('config_json', json_encode($config_json));
+
 		$tpl->assign('widget', $model);
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/chart/pie/render.tpl');
 	}
