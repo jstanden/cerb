@@ -2,15 +2,7 @@
 {$show_table = empty($widget->params.chart_display) || 'table' == $widget->params.chart_display}
 
 {if $show_image}
-<div class="chart-tooltip" style="margin-top:2px;">&nbsp;</div>
-
-<canvas id="widget{$widget->id}_axes_canvas" width="300" height="125" style="position:absolute;cursor:crosshair;" class="overlay">
-	Your browser does not support HTML5 Canvas.
-</canvas>
-
-<canvas id="widget{$widget->id}_canvas" width="300" height="125">
-	Your browser does not support HTML5 Canvas.
-</canvas>
+<div id="widget{$widget->id}"></div>
 {/if}
 
 {if !$show_table}
@@ -72,90 +64,25 @@
 {if $show_image}
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-try {
-	var $widget = $('#workspaceWidget{$widget->id}');
-	var width = $widget.width();
-	
-	if(width > 0)
-		$widget.find('canvas').attr('width', width);
-	
-	var options = {
-		series:[
-			{foreach from=$widget->params['series'] item=series key=series_idx name=series}
-			{literal}{{/literal}
-				'options': {
-					'line_color': '{$series.line_color|default:'#058DC7'}',
-					'fill_color': '{$series.fill_color|default:'rgba(5,141,199,0.15)'}'
-				},
-				'data': {json_encode($series.data) nofilter}
-			{literal}}{/literal}
-			{if !$smarty.foreach.series.last},{/if}
-			{/foreach}
-		]
-	};
-	
-	var $canvas = $('#widget{$widget->id}_canvas');
-	var $overlay = $('#widget{$widget->id}_axes_canvas');
-	
-	$canvas.devblocksCharts('line', options);
-	
-	$canvas.on('devblocks-chart-mousemove', function(e) {
-		var $canvas = $(this);
-		var $overlay = $('#widget{$widget->id}_axes_canvas');
-		
-		var canvas = $overlay.get(0);
-		var context = canvas.getContext('2d');
-		
-		var options = $canvas.data('model');
-		var closest = e.closest;
+	try {
+		const raw = ({json_encode($widget->params.series) nofilter}) || [];
+		const withData = raw.filter(function(s) { return s.data && s.data.length; });
+		const categories = withData.length ? withData[0].data.map(function(d) { return d.x_label; }) : [];
+		const series = withData.map(function(s, i) {
+			return { key: 's' + i, name: s.label ? s.label : ('Series #' + (i + 1)), type: 'line', color: s.line_color, values: s.data.map(function(d) { return d.y; }) };
+		});
 
-		context.clearRect(0, 0, canvas.width, canvas.height);
-		
-		if(null == options.series[closest.series_idx])
-			return;
-		
-		var series = options.series[closest.series_idx];
-		var chart_x = Math.floor(closest.chart_x) + 0.5;
-		var chart_y = Math.floor(closest.chart_y) + 0.5;
-		
-		if(context.setLineDash !== undefined)
-			context.setLineDash([5,2]);
-		
-		// Draw a horizontal line through the point
-		context.beginPath();
-		context.strokeStyle = series.options.line_color;
-		context.lineWidth = 1;
-		context.moveTo(0, chart_y);
-		context.lineTo(canvas.width, chart_y);
-		context.stroke();
+		new CerbUI.CartesianChart(document.getElementById('widget{$widget->id}'), {
+			x: { scale: 'category', categories: categories },
+			y: { grid: true },
+			series: series,
+			legend: false,
+			height: 160,
+		});
 
-		// Draw a bouncing ball at the point
-		context.beginPath();
-		context.fillStyle = series.options.line_color;
-		context.arc(chart_x, chart_y, 4, 0, 2 * Math.PI, false);
-		context.fill();
-		
-		var $label = $('<span style="padding:2px;font-weight:bold;background-color:var(--cerb-color-background-contrast-240);"/>').text(closest.data.x_label + ': ');
-		$label.append($('<span/>').css('color',series.options.line_color).text(closest.data.y_label));
-		
-		var $tooltip = $canvas.siblings('DIV.chart-tooltip');
-		$tooltip.html('').append($label);
-		
-	});
-	
-	$overlay
-		.on('mousemove', function(e) {
-			var $canvas = $('#widget{$widget->id}_canvas');
-			$canvas.trigger(e);
-		})
-		.mouseout(function(e) {
-			$tooltip = $(this).siblings('DIV.chart-tooltip');
-			$tooltip.html('&nbsp;');
-		})
-		;
-	
-} catch(e) {
-}
+	} catch(e) {
+		if(console && console.error) console.error(e);
+	}
 });
 </script>
 {/if}

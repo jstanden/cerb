@@ -1,11 +1,16 @@
 {$is_writeable = !$is_locked && CerberusContexts::isWriteableByActor(CerberusContexts::CONTEXT_WORKSPACE_PAGE, $page, $active_worker)}
 
-<div style="margin-bottom:5px;display:flex;flex-flow:row wrap;align-items:flex-start;gap:10px;">
-	{if $is_writeable}
-	<div class="cerb-ui-toolbar-strip cerb-no-print">
-		{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}.create")}<button id="btnWorkspaceTabAddWidget{$model->id}" type="button" class="cerb-peek-trigger cerb-ui-toolbar-button" data-context="{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}" data-context-id="0" data-edit="tab:{$model->id}" data-width="75%"><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.widget.add'|devblocks_translate|capitalize}</button>{/if}
-		<button id="btnWorkspaceTabEditDashboard{$model->id}" type="button" class="cerb-ui-toolbar-button"><span class="cerb-icons cerb-icon-edit"></span> {'common.dashboard.edit'|devblocks_translate|capitalize}</button>
-		<button id="btnWorkspaceTabToggleWidgets{$model->id}" type="button" class="cerb-ui-toolbar-button" style="display:none;" aria-pressed="false" title="Hidden widgets"><span class="cerb-icons cerb-icon-eye-close"></span> Hidden Widgets <span class="cerb-ui-toolbar--badge cerb-ui-toolbar--badge-neutral badge-count">0</span></button>
+<div style="margin-bottom:5px;">
+	{if !$is_locked}
+	<div style="display:flex;flex-flow:row wrap;align-items:center;gap:10px;margin-bottom:5px;">
+		{if $is_writeable}
+		<div class="cerb-ui-toolbar-strip cerb-no-print">
+			{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}.create")}<button id="btnWorkspaceTabAddWidget{$model->id}" type="button" class="cerb-peek-trigger cerb-ui-toolbar-button" data-context="{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}" data-context-id="0" data-edit="tab:{$model->id}" data-width="75%"><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.widget.add'|devblocks_translate|capitalize}</button>{/if}
+			<button id="btnWorkspaceTabEditDashboard{$model->id}" type="button" class="cerb-ui-toolbar-button"><span class="cerb-icons cerb-icon-edit"></span> {'common.dashboard.edit'|devblocks_translate|capitalize}</button>
+			<button id="btnWorkspaceTabToggleWidgets{$model->id}" type="button" class="cerb-ui-toolbar-button" style="display:none;" aria-pressed="false" title="Hidden widgets"><span class="cerb-icons cerb-icon-eye-close"></span> Hidden Widgets <span class="cerb-ui-toolbar--badge cerb-ui-toolbar--badge-neutral badge-count">0</span></button>
+		</div>
+		{/if}
+
 		<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-2 cerb-no-print" style="margin-left:auto;">
 			<div id="workspaceTabRefreshRing{$model->id}" style="display:none;"></div>
 			<span class="cerb-ui-header--label">Auto-refresh</span>

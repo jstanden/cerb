@@ -1,21 +1,26 @@
-<div id="widget{$widget->id}ConfigTabDatasource" style="margin-top:10px;">
-	<fieldset id="widget{$widget->id}Datasource" class="peek">
-		<legend>Data source</legend>
-	
-		<b>Count down</b> to date
-		<input type="text" name="params[target_timestamp]" value="{$widget->params.target_timestamp|devblocks_date}" size="45" placeholder="e.g. &quot;Jan 19 2038&quot;, &quot;+1 week&quot;"> 
-		<br>
-	
-		<b>Color</b> it
-		<input type="text" name="params[color]" value="{$widget->params.color|default:'#34434E'}" style="width:100%;" class="color-picker">
-		<br>
-	
-	</fieldset>
+<div id="widget{$widget->id}ConfigTabDatasource" class="cerb-u-mt-3">
+	<div class="cerb-ui-panel cerb-ui-panel--spaced" id="widget{$widget->id}Datasource">
+		<div class="cerb-ui-header cerb-ui-header--tight">
+			<div class="cerb-ui-header--title-sm">Data source</div>
+		</div>
+
+		<div class="cerb-ui-form">
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">Count down to date</label>
+				<input type="text" name="params[target_timestamp]" value="{$widget->params.target_timestamp|devblocks_date}" size="45" placeholder="e.g. &quot;Jan 19 2038&quot;, &quot;+1 week&quot;">
+			</div>
+
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">Color</label>
+				<input type="text" name="params[color]" value="{$widget->params.color|default:'#34434E'}" class="color-picker">
+			</div>
+		</div>
+	</div>
 </div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $fieldset = $('fieldset#widget{$widget->id}Datasource');
+	var $fieldset = $('#widget{$widget->id}Datasource');
 
 	$fieldset.find('input:text.color-picker').each(function() {
 		new CerbUI.ColorPicker(this, {

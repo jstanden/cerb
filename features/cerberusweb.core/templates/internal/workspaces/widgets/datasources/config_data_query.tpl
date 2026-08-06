@@ -1,18 +1,21 @@
 {$div_id = uniqid()}
-<div id="{$div_id}">
-	Run this <b>data query</b> {include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/docs/data-queries/"}:
-	<div>
-		<textarea name="params[data_query]" data-editor-mode="ace/mode/cerb_query" placeholder="" class="placeholders">{$widget->params.data_query}</textarea>
+<div class="cerb-ui-form" id="ds{$div_id}">
+	<div class="cerb-ui-form--field">
+		<label class="cerb-ui-form--label cerb-u-flex cerb-u-items-center cerb-u-gap-2">
+			<span>Data query</span>
+			{include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/docs/data-queries/"}
+		</label>
+		<textarea id="dq{$div_id}" class="placeholders" name="params[data_query]" data-editor-lines="12" spellcheck="false">{$widget->params.data_query}</textarea>
 	</div>
 </div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $div = $('#{$div_id}');
-	
-	$div.find('textarea')
-		.cerbCodeEditor()
-		.cerbCodeEditorAutocompleteDataQueries()
-		;
+	const $div = $('#ds{$div_id}');
+
+	const dq = new CerbUI.DataQuery($div.find('#dq{$div_id}')[0], {
+		onAutocomplete: CerbUI.DataQuery.dataQueryFieldSource(),
+		toolbar: true,
+	});
 });
 </script>

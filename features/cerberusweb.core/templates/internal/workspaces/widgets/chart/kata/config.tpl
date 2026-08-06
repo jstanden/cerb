@@ -1,264 +1,194 @@
-<div id="widget{$widget->id}Config" style="margin-top:10px;">
-	<fieldset class="peek" data-cerb-editor-datasets>
-		<legend>Datasets: (KATA)</legend>
-
-		<div class="cerb-code-editor-toolbar">
-			<button type="button" class="cerb-code-editor-toolbar-button cerb-button-autocomplete-datasets" title="{'common.autocomplete'|devblocks_translate|capitalize} (Ctrl+Space)"><span class="cerb-icons cerb-icon-sparkles"></span></button>
-			<button type="button" class="cerb-code-editor-toolbar-button cerb-button-test-datasets" title="Test datasets"><span class="cerb-icons cerb-icon-play"></span></button>
-			
-			<div class="cerb-code-editor-toolbar-divider"></div>
-			
-			{if $widget->id}
-				<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-changesets-datasets title="{'common.change_history'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-history"></span></button>
-			{/if}
+<div id="widget{$widget->id}Config" class="cerb-ui-form" style="margin-top:10px;">
+	<div class="cerb-ui-panel cerb-ui-panel--spaced">
+		<div class="cerb-ui-header cerb-ui-header--tight">
+			<div class="cerb-ui-header--title-sm">Datasets: (KATA)</div>
 		</div>
 
-		<textarea name="params[datasets_kata]" data-editor-mode="ace/mode/cerb_kata" class="placeholders" style="width:95%;height:50px;">{$widget->params.datasets_kata}</textarea>
+		<div class="cerb-ui-kataeditor-wrap">
+			<ul class="cerb-ui-toolbar" id="widget{$widget->id}DatasetsToolbar">
+				<li data-icon="autocomplete" data-value="autocomplete" title="{'common.autocomplete'|devblocks_translate|capitalize} (Ctrl+Space)"></li>
+				<li data-icon="play" data-value="test" title="Test datasets"></li>
+				{if $widget->id}
+					<li></li>
+					<li data-icon="history" data-value="changesets" title="{'common.change_history'|devblocks_translate|capitalize}"></li>
+				{/if}
+			</ul>
 
-		<div style="margin:5px 0 0 20px;">
-			<div>
-				<div>
-					<legend>Simulate placeholders:</b> (KATA)</legend>
+			<textarea id="widget{$widget->id}DatasetsEditor" name="params[datasets_kata]" class="placeholders" data-editor-lines="8" spellcheck="false">{$widget->params.datasets_kata}</textarea>
+		</div>
+
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">Simulate placeholders: (KATA)</label>
+			<textarea id="widget{$widget->id}SimulatorEditor" name="params[placeholder_simulator_kata]" data-editor-lines="4" spellcheck="false">{$widget->params.placeholder_simulator_kata}</textarea>
+		</div>
+
+		<div class="cerb-ui-panel" style="display:none;" data-cerb-results-datasets>
+			<div class="cerb-ui-header cerb-ui-header--tight cerb-ui-header--center">
+				<div class="cerb-ui-header--title-sm">{'common.results'|devblocks_translate|capitalize}</div>
+				<div class="cerb-ui-header--right">
+					<button type="button" class="cerb-ui-button cerb-ui-button--transparent" data-cerb-results-close><span class="cerb-icons cerb-icon-circle-remove"></span></button>
 				</div>
-				<textarea name="params[placeholder_simulator_kata]" class="cerb-datasets-editor-placeholders" data-editor-mode="ace/mode/cerb_kata">{$widget->params.placeholder_simulator_kata}</textarea>
 			</div>
-
-			<fieldset style="display:none;position:relative;">
-				<span data-cerb-link="fieldset_hide" class="cerb-icons cerb-icon-circle-remove" style="position:absolute;right:-5px;top:-10px;cursor:pointer;color:var(--cerb-color-background-contrast-75);zoom:1.5;background-color:var(--cerb-color-background);"></span>
-				<legend>{'common.results'|devblocks_translate|capitalize}</legend>
-				<textarea class="cerb-json-results-editor" data-editor-mode="ace/mode/json"></textarea>
-			</fieldset>
+			<textarea id="widget{$widget->id}ResultsEditor" data-editor-lines="15" spellcheck="false"></textarea>
 		</div>
-	</fieldset>
-	
-	<fieldset class="peek" data-cerb-editor-chart>
-		<legend>Chart: (KATA)</legend>
+	</div>
 
-		<div class="cerb-code-editor-toolbar">
-			<button type="button" class="cerb-code-editor-toolbar-button cerb-button-autocomplete-chart" title="{'common.autocomplete'|devblocks_translate|capitalize} (Ctrl+Space)"><span class="cerb-icons cerb-icon-sparkles"></span></button>
-			<button type="button" class="cerb-code-editor-toolbar-button cerb-button-test-chart" title="Test chart"><span class="cerb-icons cerb-icon-play"></span></button>
-			
-			<div class="cerb-code-editor-toolbar-divider"></div>
-			
-			{if $widget->id}
-				<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-changesets-chart title="{'common.change_history'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-history"></span></button>
-			{/if}
+	<div class="cerb-ui-panel cerb-ui-panel--spaced">
+		<div class="cerb-ui-header cerb-ui-header--tight">
+			<div class="cerb-ui-header--title-sm">Chart: (KATA)</div>
 		</div>
 
-		<textarea name="params[chart_kata]" data-editor-mode="ace/mode/cerb_kata" class="placeholders" style="width:95%;height:50px;">{$widget->params.chart_kata}</textarea>
+		<div class="cerb-ui-kataeditor-wrap">
+			<ul class="cerb-ui-toolbar" id="widget{$widget->id}ChartToolbar">
+				<li data-icon="autocomplete" data-value="autocomplete" title="{'common.autocomplete'|devblocks_translate|capitalize} (Ctrl+Space)"></li>
+				<li data-icon="play" data-value="test" title="Test chart"></li>
+				{if $widget->id}
+					<li></li>
+					<li data-icon="history" data-value="changesets" title="{'common.change_history'|devblocks_translate|capitalize}"></li>
+				{/if}
+			</ul>
 
-		<div style="margin:5px 0 0 20px;">
-			<fieldset style="display:none;position:relative;">
-				<span data-cerb-link="fieldset_hide" class="cerb-icons cerb-icon-circle-remove" style="position:absolute;right:-5px;top:-10px;cursor:pointer;color:var(--cerb-color-background-contrast-75);zoom:1.5;background-color:var(--cerb-color-background);"></span>
-				<legend>{'common.preview'|devblocks_translate|capitalize}</legend>
-				<div data-cerb-results-chart></div>
-			</fieldset>
+			<textarea id="widget{$widget->id}ChartEditor" name="params[chart_kata]" class="placeholders" data-editor-lines="10" spellcheck="false">{$widget->params.chart_kata}</textarea>
 		</div>
-	</fieldset>
+
+		<div class="cerb-ui-panel" style="display:none;" data-cerb-results-chart-wrap>
+			<div class="cerb-ui-header cerb-ui-header--tight cerb-ui-header--center">
+				<div class="cerb-ui-header--title-sm">{'common.preview'|devblocks_translate|capitalize}</div>
+				<div class="cerb-ui-header--right">
+					<button type="button" class="cerb-ui-button cerb-ui-button--transparent" data-cerb-results-close><span class="cerb-icons cerb-icon-circle-remove"></span></button>
+				</div>
+			</div>
+			<div data-cerb-results-chart></div>
+		</div>
+	</div>
 </div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $config = $('#widget{$widget->id}Config');
-	var $frm = $config.closest('form');
+	const $config = $('#widget{$widget->id}Config');
+	const $frm = $config.closest('form');
 
-	// Previews
-
-	$config.find('[data-cerb-link=fieldset_hide]').on('click', function(e) {
-		$(this).closest('fieldset').hide();
+	// Close buttons on the results / preview panels
+	$config.find('[data-cerb-results-close]').on('click', function(e) {
+		e.stopPropagation();
+		$(this).closest('.cerb-ui-panel').hide();
 	});
 
-	// Datasets
+	// Editors
 
-	var $editor_datasets = $config.find('textarea[name="params[datasets_kata]"]')
-		.cerbCodeEditor()
-		.cerbCodeEditorAutocompleteKata({
-			autocomplete_suggestions: {CerberusApplication::kataAutocompletions()->dataset()|json_encode nofilter}
-		})
-		.nextAll('pre.ace_editor')
-	;
+	const datasets_editor = new CerbUI.KataEditor($config.find('#widget{$widget->id}DatasetsEditor')[0], {
+		onAutocomplete: CerbUI.KataEditor.kataFieldSource({$datasets_autocomplete_json nofilter})
+	});
 
-	var editor_datasets = ace.edit($editor_datasets.attr('id'));
+	const chart_editor = new CerbUI.KataEditor($config.find('#widget{$widget->id}ChartEditor')[0], {
+		onAutocomplete: CerbUI.KataEditor.kataFieldSource({$chart_autocomplete_json nofilter})
+	});
+
+	new CerbUI.KataEditor($config.find('#widget{$widget->id}SimulatorEditor')[0]);
+
+	const results_editor = new CerbUI.JsonEditor($config.find('#widget{$widget->id}ResultsEditor')[0], {
+		readOnly: true,
+		minLines: 1
+	});
 
 	{if $widget->id}
-	$config.find('[data-cerb-editor-button-changesets-datasets]').on('click', function(e) {
-		e.stopPropagation();
-		var formData = new FormData();
+	// Change history (diff) popup
+	const openChangesets = function(record_key, editor) {
+		const formData = new FormData();
 		formData.set('c', 'internal');
 		formData.set('a', 'invoke');
 		formData.set('module', 'records');
 		formData.set('action', 'showChangesetsPopup');
 		formData.set('record_type', 'workspace_widget');
 		formData.set('record_id', '{$widget->id}');
-		formData.set('record_key', 'datasets_kata');
+		formData.set('record_key', record_key);
 
-		var $editor_policy_differ_popup = genericAjaxPopup('editorDiffDataset{$form_id}', formData, null, null, '80%');
+		const $popup = genericAjaxPopup('editorDiff' + record_key + '{$widget->id}', formData, null, null, '80%');
 
-		$editor_policy_differ_popup.one('cerb-diff-editor-ready', function(e) {
+		$popup.one('cerb-diff-viewer-ready', function(e) {
 			e.stopPropagation();
 
-			if(!e.hasOwnProperty('differ'))
+			if(!e.hasOwnProperty('viewer'))
 				return;
 
-			e.differ.editors.right.ace.setValue(editor_datasets.getValue());
-			e.differ.editors.right.ace.clearSelection();
+			e.viewer.setCurrent(editor.getValue());
 
-			e.differ.editors.right.ace.on('change', function() {
-				editor_datasets.setValue(e.differ.editors.right.ace.getValue());
-				editor_datasets.clearSelection();
+			e.viewer.onRestore(function(content) {
+				editor.setValue(content);
+				editor.clearSelection();
 			});
 		});
-	});
+	};
 	{/if}
-	
-	// Chart
-	
-	var $editor_chart = $config.find('textarea[name="params[chart_kata]"]')
-		.cerbCodeEditor()
-		.cerbCodeEditorAutocompleteKata({
-			autocomplete_suggestions: {CerberusApplication::kataAutocompletions()->chart()|json_encode nofilter}
-		})
-		.nextAll('pre.ace_editor')
-	;
-
-	var editor_chart = ace.edit($editor_chart.attr('id'));
-
-	{if $widget->id}
-	$config.find('[data-cerb-editor-button-changesets-chart]').on('click', function(e) {
-		e.stopPropagation();
-		var formData = new FormData();
-		formData.set('c', 'internal');
-		formData.set('a', 'invoke');
-		formData.set('module', 'records');
-		formData.set('action', 'showChangesetsPopup');
-		formData.set('record_type', 'workspace_widget');
-		formData.set('record_id', '{$widget->id}');
-		formData.set('record_key', 'chart_kata');
-
-		var $editor_policy_differ_popup = genericAjaxPopup('editorDiffChart{$form_id}', formData, null, null, '80%');
-
-		$editor_policy_differ_popup.one('cerb-diff-editor-ready', function(e) {
-			e.stopPropagation();
-
-			if(!e.hasOwnProperty('differ'))
-				return;
-
-			e.differ.editors.right.ace.setValue(editor_chart.getValue());
-			e.differ.editors.right.ace.clearSelection();
-
-			e.differ.editors.right.ace.on('change', function() {
-				editor_chart.setValue(e.differ.editors.right.ace.getValue());
-				editor_chart.clearSelection();
-			});
-		});
-	});
-	{/if}
-
-	// Autocomplete datasets
-
-	$config.find('button.cerb-button-autocomplete-datasets').on('click', function(e) {
-		e.stopPropagation();
-		editor_datasets.commands.byName.startAutocomplete.exec(editor_datasets);
-	});
 
 	// Test datasets
-	
-	var $query_button = $config.find('button.cerb-button-test-datasets');
 
-	$config.find('textarea.cerb-datasets-editor-placeholders')
-		.cerbCodeEditor()
-		.nextAll('pre.ace_editor')
-	;
-	
-	var $json_results = $config.find('textarea.cerb-json-results-editor')
-		.cerbCodeEditor()
-		.nextAll('pre.ace_editor')
-	;
+	const testDatasets = function(e) {
+		const $panel = $config.find('[data-cerb-results-datasets]');
 
-	var editor_results = ace.edit($json_results.attr('id'));
-	
-	$query_button.on('click', function(e) {
-		e.stopPropagation();
-
-		// If alt+click, clear the results
-		if(e.altKey) {
-			var json_results = ace.edit($json_results.attr('id'));
-			$json_results.closest('fieldset').hide();
-			json_results.setValue('');
+		// alt+click clears the results
+		if(e && e.altKey) {
+			$panel.hide();
+			results_editor.setValue('');
 			return;
 		}
 
-		var $spinner = Devblocks.getSpinner()
+		const $toolbar = $config.find('#widget{$widget->id}DatasetsToolbar').next('.cerb-ui-toolbar--strip');
+
+		const $spinner = Devblocks.getSpinner()
 			.css('max-width', '16px')
 			.css('margin-right', '5px')
-			.insertAfter($query_button)
+			.insertAfter($toolbar)
 		;
-		
-		$query_button.hide();
-		$json_results.closest('fieldset').hide();
-		
-		var formData = new FormData($frm.get(0));
+
+		$panel.hide();
+
+		const formData = new FormData($frm.get(0));
 		formData.set('c', 'profiles');
 		formData.set('a', 'invoke');
 		formData.set('module', 'workspace_widget');
 		formData.set('action', 'invokeConfig');
 		formData.set('config_action', 'previewDataset');
-		
+
 		genericAjaxPost(formData, '', '', function(json) {
 			$spinner.remove();
-			$query_button.fadeIn();
-			
+
 			if(null == json || 'object' != typeof json) {
 				Devblocks.createAlertError('An unexpected error occurred.');
-			
+
 			} else if(json.hasOwnProperty('error')) {
-				editor_results.session.setMode('ace/mode/text');
-				editor_results.setReadOnly(true);
-				editor_results.setValue(json.error);
-				editor_results.clearSelection();
-				$json_results.closest('fieldset').show();
-				
+				results_editor.setValue(json.error);
+				$panel.show();
+
 			} else {
-				editor_results.session.setMode('ace/mode/json');
-				editor_results.setReadOnly(true);
-				editor_results.setValue(JSON.stringify(json, null, 2));
-				editor_results.clearSelection();
-				$json_results.closest('fieldset').show();
+				results_editor.setValue(JSON.stringify(json, null, 2));
+				$panel.show();
 			}
 		});
-	});
+	};
 
-	// Autocomplete chart
+	// Test chart
 
-	$config.find('button.cerb-button-autocomplete-chart').on('click', function(e) {
-		e.stopPropagation();
-		editor_chart.commands.byName.startAutocomplete.exec(editor_chart);
-	});
+	const testChart = function(e) {
+		const $panel = $config.find('[data-cerb-results-chart-wrap]');
+		const $chart_preview = $panel.find('[data-cerb-results-chart]');
 
-	// Preview chart
-
-	var $chart_button = $config.find('button.cerb-button-test-chart');
-	let $chart_preview = $config.find('[data-cerb-results-chart]');
-	
-	$chart_button.on('click', function(e) {
-		e.stopPropagation();
-		
-		$chart_preview.closest('fieldset').hide();
+		$panel.hide();
 		$chart_preview.html('');
-		
-		// If alt+click, clear the results
-		if(e.altKey) {
-			return;
-		}
 
-		var $spinner = Devblocks.getSpinner()
+		// alt+click clears the preview
+		if(e && e.altKey)
+			return;
+
+		const $toolbar = $config.find('#widget{$widget->id}ChartToolbar').next('.cerb-ui-toolbar--strip');
+
+		const $spinner = Devblocks.getSpinner()
 			.css('max-width', '16px')
 			.css('margin-right', '5px')
-			.insertAfter($chart_button)
+			.insertAfter($toolbar)
 		;
-		$chart_button.hide();
 
-		var formData = new FormData($frm.get(0));
+		const formData = new FormData($frm.get(0));
 		formData.set('c', 'profiles');
 		formData.set('a', 'invoke');
 		formData.set('module', 'workspace_widget');
@@ -267,13 +197,50 @@ $(function() {
 
 		genericAjaxPost(formData, '', '', function(html) {
 			$spinner.remove();
-			$chart_button.fadeIn();
 
 			if('string' == typeof html) {
 				$chart_preview.html(html);
-				$chart_preview.closest('fieldset').show();
+				$panel.show();
 			}
 		});
-	});
+	};
+
+	// Toolbars
+
+	const datasets_toolbar = document.getElementById('widget{$widget->id}DatasetsToolbar');
+	if(datasets_toolbar && window.CerbUI && CerbUI.Toolbar) {
+		new CerbUI.Toolbar(datasets_toolbar, {
+			bare: false,
+			onSelect: function(item, sourceLi, e) {
+				if('autocomplete' === item.value) {
+					datasets_editor.openAutocomplete();
+				} else if('test' === item.value) {
+					testDatasets(e);
+				{if $widget->id}
+				} else if('changesets' === item.value) {
+					openChangesets('datasets_kata', datasets_editor);
+				{/if}
+				}
+			}
+		});
+	}
+
+	const chart_toolbar = document.getElementById('widget{$widget->id}ChartToolbar');
+	if(chart_toolbar && window.CerbUI && CerbUI.Toolbar) {
+		new CerbUI.Toolbar(chart_toolbar, {
+			bare: false,
+			onSelect: function(item, sourceLi, e) {
+				if('autocomplete' === item.value) {
+					chart_editor.openAutocomplete();
+				} else if('test' === item.value) {
+					testChart(e);
+				{if $widget->id}
+				} else if('changesets' === item.value) {
+					openChangesets('chart_kata', chart_editor);
+				{/if}
+				}
+			}
+		});
+	}
 });
 </script>

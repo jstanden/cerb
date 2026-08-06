@@ -3,7 +3,7 @@
 		<li><a href="#widget{$widget->id}TabFields">{'common.fields'|devblocks_translate|capitalize}</a>
 		<li><a href="#widget{$widget->id}TabOptions">{'common.options'|devblocks_translate|capitalize}</a>
 		<li><a href="#widget{$widget->id}TabToolbar">{'common.toolbar'|devblocks_translate|capitalize}</a>
-		<li><a href="#widget{$widget->id}TabSearchButtons">{'common.search'|devblocks_translate|capitalize} (Deprecated)</a>
+		<li><a href="#widget{$widget->id}TabSearchButtons">{'common.search'|devblocks_translate|capitalize}</a>
 	</ul>
 	
 	<div id="widget{$widget->id}TabFields">
@@ -70,102 +70,110 @@
 		</div>
 	</div>
 
-	<div id="widget{$widget->id}TabSearchButtons">
-		<table cellpadding="3" cellspacing="0" width="100%">
-			<thead>
-				<tr>
-					<td></td>
-					<td><b>Record type:</b></td>
-					<td><b>Search query to count:</b></td>
-				</tr>
-			</thead>
-			
+	<div id="widget{$widget->id}TabSearchButtons" class="cerb-u-mt-3">
+		{* One search-button config row: record type (SelectMenu) + labels on the left, a CerbUI.SearchQuery on the right. *}
+		{function name=search_button_row context='' label_singular='' label_plural='' query='' contexts=null template=false}
+		<div data-cerb-search-row{if $template} data-cerb-search-template hidden{/if} class="cerb-ui-panel cerb-ui-panel--spaced">
+			<div class="cerb-u-flex cerb-u-justify-end">
+				<button type="button" data-cerb-search-remove class="cerb-ui-button cerb-ui-button--transparent" title="Remove"><span class="cerb-icons cerb-icon-circle-minus"></span></button>
+			</div>
+
+			<div class="cerb-ui-form">
+				<div class="cerb-ui-form--row">
+					<div class="cerb-ui-form--field">
+						<label class="cerb-ui-form--label">{'common.record.type'|devblocks_translate|capitalize}</label>
+						<select class="cerb-search-context" name="params[search][context][]">
+							{foreach from=$contexts item=search_context}
+							<option value="{$search_context->id}" data-cerb-ui-icon="{$search_context->params.icon|default:'collection'}" {if $search_context->id == $context}selected="selected"{/if}>{$search_context->name}</option>
+							{/foreach}
+						</select>
+					</div>
+					<div class="cerb-ui-form--field">
+						<label class="cerb-ui-form--label">Singular label <span class="cerb-ui-form--hint">(optional)</span></label>
+						<input type="text" name="params[search][label_singular][]" value="{$label_singular}" placeholder="(singular label)">
+					</div>
+					<div class="cerb-ui-form--field">
+						<label class="cerb-ui-form--label">Plural label <span class="cerb-ui-form--hint">(optional)</span></label>
+						<input type="text" name="params[search][label_plural][]" value="{$label_plural}" placeholder="(plural label)">
+					</div>
+				</div>
+
+				<div class="cerb-ui-form--field">
+					<label class="cerb-ui-form--label">Search query to count</label>
+					<textarea name="params[search][query][]" class="placeholders" rows="1" spellcheck="false">{$query}</textarea>
+				</div>
+			</div>
+		</div>
+		{/function}
+
+		<div class="cerb-ui-form" data-cerb-search-rows>
 			{foreach from=$search_buttons item=search_button}
-			<tbody>
-				<tr>
-					<td width="1%" nowrap="nowrap" valign="top">
-						<button data-cerb-button="search_remove" type="button"><span class="cerb-icons cerb-icon-circle-minus"></span></button>
-					</td>
-					<td width="1%" nowrap="nowrap" valign="top">
-						<select class="cerb-search-context" name="params[search][context][]">
-							{foreach from=$search_contexts item=search_context}
-							<option value="{$search_context->id}" {if $search_context->id == $search_button.context}selected="selected"{/if}>{$search_context->name}</option>
-							{/foreach}
-						</select>
-						<br>
-						<input type="text" name="params[search][label_singular][]" value="{$search_button.label_singular}" style="width:95%;border-color:rgb(200,200,200);" placeholder="(singular label; optional)">
-						<br>
-						<input type="text" name="params[search][label_plural][]" value="{$search_button.label_plural}" style="width:95%;border-color:rgb(200,200,200);" placeholder="(plural label; optional)">
-					</td>
-					<td width="98%" valign="top">
-						<textarea name="params[search][query][]" class="placeholders" style="width:100%;height:60px;">{$search_button.query}</textarea>
-					</td>
-				</tr>
-			</tbody>
+			{call name=search_button_row context=$search_button.context label_singular=$search_button.label_singular label_plural=$search_button.label_plural query=$search_button.query contexts=$search_contexts}
 			{/foreach}
-			
-			<tbody class="cerb-placeholder" style="display:none;">
-				<tr>
-					<td width="1%" nowrap="nowrap" valign="top">
-						<button type="button" data-cerb-button="search_remove"><span class="cerb-icons cerb-icon-circle-minus"></span></button>
-					</td>
-					<td width="1%" nowrap="nowrap" valign="top">
-						<select class="cerb-search-context" name="params[search][context][]">
-							{foreach from=$search_contexts item=search_context}
-							<option value="{$search_context->id}">{$search_context->name}</option>
-							{/foreach}
-						</select>
-						<br>
-						<input type="text" name="params[search][label_singular][]" style="width:95%;border-color:rgb(200,200,200);" placeholder="(singular label; optional)">
-						<br>
-						<input type="text" name="params[search][label_plural][]" style="width:95%;border-color:rgb(200,200,200);" placeholder="(plural label; optional)">
-					</td>
-					<td width="98%" valign="top">
-						<textarea name="params[search][query][]" class="placeholders" style="width:100%;height:60px;"></textarea>
-					</td>
-				</tr>
-			</tbody>
-		</table>
-		
-		<button type="button" class="cerb-placeholder-add"><span class="cerb-icons cerb-icon-circle-plus"></span></button>
+		</div>
+
+		{* Hidden template row, cloned when adding a new search button *}
+		{call name=search_button_row contexts=$search_contexts template=true}
+
+		<div class="cerb-u-mt-2">
+			<button type="button" data-cerb-search-add class="cerb-ui-button cerb-ui-button--subtle"><span class="cerb-icons cerb-icon-circle-plus"></span> Add search button</button>
+		</div>
 	</div>
 </div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 
-	// Search
-	
-	var $tab_search = $('#widget{$widget->id}TabSearchButtons');
+	// Search buttons
 
-	$tab_search.on('click', function(e) {
+	const $tab_search = $('#widget{$widget->id}TabSearchButtons');
+	const $search_rows = $tab_search.find('[data-cerb-search-rows]');
+	const $search_template = $tab_search.find('[data-cerb-search-template]').detach().removeAttr('data-cerb-search-template hidden');
+
+	// Enhance one row: record-type SelectMenu (icons) + a CerbUI.SearchQuery whose autocomplete context
+	// follows the selected record type.
+	const initSearchRow = function(rowEl) {
+		if(!window.CerbUI)
+			return;
+
+		const $row = $(rowEl);
+		const selectEl = $row.find('select.cerb-search-context')[0];
+		const queryEl = $row.find('textarea[name="params[search][query][]"]')[0];
+
+		if(selectEl && CerbUI.SelectMenu)
+			new CerbUI.SelectMenu(selectEl, { filter: true });
+
+		let sq = null;
+		if(queryEl && CerbUI.SearchQuery) {
+			const context = selectEl ? selectEl.value : '';
+			sq = new CerbUI.SearchQuery(queryEl, {
+				context: context,
+				onAutocomplete: CerbUI.SearchQuery.queryFieldSource(context)
+			});
+		}
+
+		// The native <select> stays (SelectMenu just skins it), so its change swaps the query editor's context.
+		if(selectEl && sq)
+			$(selectEl).on('change', function() { sq.setContext(this.value); });
+	};
+
+	$search_rows.find('[data-cerb-search-row]').each(function() { initSearchRow(this); });
+
+	$tab_search.on('click', '[data-cerb-search-remove]', function(e) {
 		e.stopPropagation();
-
-		let $target = $(e.target);
-
-		if($target.is('.cerb-icon-circle-minus'))
-			$target = $target.closest('button');
-
-		if($target.is('[data-cerb-button=search_remove]'))
-			$target.closest('tbody').remove();
+		$(this).closest('[data-cerb-search-row]').remove();
 	});
 
-	var $tab_search_template = $tab_search.find('tbody.cerb-placeholder').detach();
-	var $tab_search_table = $tab_search.find('> table:first');
-	
-	$tab_search.find('button.cerb-placeholder-add').on('click', function(e) {
-		var $clone = $tab_search_template.clone();
-		
-		$clone
-			.show()
-			.removeClass('cerb-placeholder')
-			.appendTo($tab_search_table)
-			;
+	$tab_search.find('[data-cerb-search-add]').on('click', function(e) {
+		e.stopPropagation();
+		const clone = $search_template.clone()[0];
+		$search_rows.append(clone);
+		initSearchRow(clone);
 	});
-	
+
 	if(window.CerbUI && CerbUI.Sortable)
-		new CerbUI.Sortable($tab_search.find('> table').get(0), {
-			items: 'tbody',
+		new CerbUI.Sortable($search_rows.get(0), {
+			items: '[data-cerb-search-row]',
 			helper: 'clone'
 		});
 

@@ -4,14 +4,15 @@
 {$widget_is_hidden = $widget->isHidden($workspace_tab_dict)}
 <div class="cerb-workspace-widget {if $widget_is_hidden}cerb-workspace-widget--hidden{/if}" data-widget-id="{$widget->id}" data-widget-name="{$widget->label}" style="flex:{$width_units} {$width_units} {$width_units * 0.25 * 100}%;">
 	<div>
-		<div class="cerb-workspace-widget--header {if $is_widget_writeable}cerb-draggable{/if}">
+		<div class="cerb-workspace-widget--header cerb-u-border-1 cerb-u-bdg-3 cerb-u-mb-1 cerb-u-py-2 cerb-u-rounded-1 {if $is_widget_writeable}cerb-draggable{/if}">
 			<b>
-				<a class="cerb-workspace-widget--link no-underline">
+				<span class="cerb-icons cerb-icon-{$widget->getIcon()}"></span> <!--
+				--><a class="cerb-workspace-widget--link no-underline">
 					{if $widget_is_hidden}<span class="cerb-icons cerb-icon-eye-close"></span> {/if}{$widget->label}<!--
 					--><span class="cerb-icons cerb-icon-chevron-down"></span>
 				</a>
 				{if $is_widget_writeable}
-				<span class="cerb-icons cerb-icon-menu-hamburger" style="vertical-align:baseline;color:rgb(200,200,200);float:right;display:none;"></span>
+				<span class="cerb-icons cerb-icon-menu-hamburger" style="vertical-align:baseline;float:right;display:none;"></span>
 				{/if}
 			</b>
 		</div>

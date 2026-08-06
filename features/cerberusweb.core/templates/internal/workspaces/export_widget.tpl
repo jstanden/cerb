@@ -3,12 +3,12 @@
 
 <fieldset class="peek">
 	<legend>JSON</legend>
-	<textarea data-editor-mode="ace/mode/json" data-editor-readonly="true">{$export_json}</textarea>
+	<textarea id="workspaceWidgetExportJson" data-editor-lines="20" spellcheck="false">{$export_json}</textarea>
 </fieldset>
 
 <fieldset class="peek">
 	<legend>{{'common.workflow'|devblocks_translate|capitalize}}</legend>
-	<textarea data-editor-mode="ace/mode/cerb_kata" data-editor-readonly="true">{$export_workflow}</textarea>
+	<textarea id="workspaceWidgetExportWorkflow" data-editor-lines="20" spellcheck="false">{$export_workflow}</textarea>
 </fieldset>
 
 <div style="padding:5px;">
@@ -30,7 +30,8 @@ $(function() {
 		let title = "Export Widget: " + {$widget->label|json_encode nofilter};
 		$this.dialog('option','title', title);
 
-		$popup.find('textarea[data-editor-mode]').cerbCodeEditor();
+		new CerbUI.JsonEditor($popup.find('#workspaceWidgetExportJson')[0], { readOnly: true });
+		new CerbUI.KataEditor($popup.find('#workspaceWidgetExportWorkflow')[0], { readOnly: true });
 
 		$frm.find('button.submit').click(function(e) {
 			e.stopPropagation();

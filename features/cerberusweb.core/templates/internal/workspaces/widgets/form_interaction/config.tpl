@@ -1,20 +1,23 @@
-<div style="margin-top:10px;">
-	<fieldset class="peek">
-		<legend>Enable these form interactions: <small>(KATA)</small></legend>
+{$fi_uid = uniqid()}
+<div class="cerb-u-mt-3">
+	<div class="cerb-ui-panel cerb-ui-panel--spaced">
+		<div class="cerb-ui-header cerb-ui-header--tight">
+			<div class="cerb-ui-header--title-sm">Enable these form interactions: <span class="cerb-ui-form--hint">KATA</span></div>
+		</div>
 
-		<div class="cerb-code-editor-toolbar">
-			<div data-cerb-toolbar style="display:inline-block;">
-				{$toolbar_dict = DevblocksDictionaryDelegate::instance([
-					'caller_name' => 'cerb.toolbar.editor',
-					
-					'widget__context' => CerberusContexts::CONTEXT_WORKSPACE_WIDGET,
-					'widget_id' => $widget->id,
-					
-					'worker__context' => CerberusContexts::CONTEXT_WORKER,
-					'worker_id' => $active_worker->id
-				])}
+		{* Toolbar-builder insert menu — a hidden section folded into the KataEditor's integrated strip *}
+		<div data-cerb-toolbar-builder hidden>
+			{$toolbar_dict = DevblocksDictionaryDelegate::instance([
+				'caller_name' => 'cerb.toolbar.editor',
 
-				{$toolbar_kata =
+				'widget__context' => CerberusContexts::CONTEXT_WORKSPACE_WIDGET,
+				'widget_id' => $widget->id,
+
+				'worker__context' => CerberusContexts::CONTEXT_WORKER,
+				'worker_id' => $active_worker->id
+			])}
+
+			{$toolbar_kata =
 "menu/insert:
   icon: circle-plus
   items:
@@ -25,27 +28,35 @@
       label: Menu
       uri: ai.cerb.toolbarBuilder.menu
 "
-				}
+			}
 
-				{$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
+			{$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
 
-				{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
-			</div>
-
-			<div class="cerb-code-editor-toolbar-divider"></div>
-			<button type="button" data-cerb-button="interactions-preview" class="cerb-code-editor-toolbar-button"><span class="cerb-icons cerb-icon-play"></span></button>
-
-			<button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="https://cerb.ai/docs/automations/triggers/interaction.worker/callers/cerb.toolbar.workspaceWidget.interactions/" target="_blank"><span class="cerb-icons cerb-icon-circle-question-mark"></span></a></button>
+			{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
 		</div>
-		<textarea name="params[interactions_kata]" class="cerb-code-editor placeholders" data-editor-mode="ace/mode/cerb_kata" style="width:100%;">{$widget->params.interactions_kata}</textarea>
-		<div class="cerb-code-editor-preview-output"></div>
-	</fieldset>
 
-	<fieldset class="peek">
-		<legend>Start interactions:</legend>
-		<label><input type="radio" name="params[is_popup]" value="0" {if !$widget->params.is_popup}checked="checked"{/if}> In the widget</label>
-		<label><input type="radio" name="params[is_popup]" value="1" {if $widget->params.is_popup}checked="checked"{/if}> As a popup</label>
-	</fieldset>	
+		{* Editor actions — preview + help, routed through the KataEditor toolbar's onAction *}
+		<ul class="cerb-ui-toolbar" data-cerb-editor-actions hidden>
+			<li data-value="preview" data-icon="play" title="{'common.preview'|devblocks_translate|capitalize}"></li>
+			<li data-value="help" data-icon="circle-question-mark" title="{'common.help'|devblocks_translate|capitalize}"></li>
+		</ul>
+
+		<textarea name="params[interactions_kata]" data-editor-lines="15" spellcheck="false">{$widget->params.interactions_kata}</textarea>
+		<div class="cerb-code-editor-preview-output"></div>
+	</div>
+
+	<div class="cerb-ui-panel cerb-ui-panel--spaced">
+		<div class="cerb-ui-header cerb-ui-header--tight">
+			<div class="cerb-ui-header--title-sm">Start interactions:</div>
+		</div>
+		<div>
+			<input type="hidden" name="params[is_popup]" id="isPopup{$fi_uid}" value="{if $widget->params.is_popup}1{else}0{/if}">
+			<div class="cerb-ui-switcher" data-cerb-input="isPopup{$fi_uid}">
+				<button type="button" data-value="0" {if !$widget->params.is_popup}class="cerb-ui-switcher--active"{/if}>In the widget</button>
+				<button type="button" data-value="1" {if $widget->params.is_popup}class="cerb-ui-switcher--active"{/if}>As a popup</button>
+			</div>
+		</div>
+	</div>
 </div>
 
 {$script_uid = uniqid('script')}
@@ -54,21 +65,10 @@ $(function() {
 	var $script = $('#{$script_uid}');
 	var $config = $script.prev('div');
 	var $form = $config.closest('form');
-
-	var $editor = $config.find('.cerb-code-editor')
-		.cerbCodeEditor()
-		.cerbCodeEditorAutocompleteKata({
-			autocomplete_suggestions: cerbAutocompleteSuggestions.kataToolbar
-		})
-		.next('pre.ace_editor')
-		;
-
-	var editor = ace.edit($editor.attr('id'));
-
 	var $placeholder_output = $config.find('.cerb-code-editor-preview-output');
 
-	$config.find('button[data-cerb-button="interactions-preview"]').on('click', function (e) {
-		e.stopPropagation();
+	// Preview the configured interactions into the output area below the editor
+	var runPreview = function(ed) {
 		$placeholder_output.html('').append(Devblocks.getSpinner());
 
 		var formData = new FormData();
@@ -77,7 +77,7 @@ $(function() {
 		formData.set('module', 'workspace_widget');
 		formData.set('action', 'invokeConfig');
 		formData.set('config_action', 'previewInteractions');
-		formData.set('interactions_kata', editor.getValue());
+		formData.set('interactions_kata', ed.getValue());
 
 		var $hidden = $form.find('input[name=id]');
 
@@ -93,11 +93,11 @@ $(function() {
 		} else {
 			formData.set('id', $hidden.val());
 		}
+
 		genericAjaxPost(formData, null, null, function (html) {
 			$placeholder_output.html(html);
 		});
-	})
-	;
+	};
 
 	var doneFunc = function(e) {
 		e.stopPropagation();
@@ -122,20 +122,43 @@ $(function() {
 		e.stopPropagation();
 	};
 
-	$config.find('[data-cerb-toolbar]').cerbToolbar({
-		caller: {
-			name: 'cerb.toolbar.editor',
-			params: {
-				toolbar: 'cerb.toolbar.workspaceWidget.interactions',
-				selected_text: ''
+	// KataEditor with its integrated toolbar: the toolbar-builder insert menu + editor actions (preview/help).
+	var editor = new CerbUI.KataEditor($config.find('textarea[name="params[interactions_kata]"]')[0], {
+		onAutocomplete: CerbUI.KataEditor.kataFieldSource(CerbUI.editorCore.autocompleteSchemas.kataToolbar),
+		toolbar: {
+			sections: [
+				$config.find('[data-cerb-toolbar-builder] ul.cerb-ui-toolbar')[0],
+				$config.find('[data-cerb-editor-actions]')[0]
+			],
+			toolbarOpts: {
+				caller: {
+					name: 'cerb.toolbar.editor',
+					params: {
+						toolbar: 'cerb.toolbar.workspaceWidget.interactions',
+						selected_text: ''
+					}
+				},
+				start: function(formData) {
+					formData.set('caller[params][selected_text]', editor.getSelectedText())
+				},
+				done: doneFunc,
+				reset: resetFunc,
+				error: errorFunc
+			},
+			onAction: function(value, ed) {
+				if('preview' === value) { runPreview(ed); return true; }
+				if('help' === value) { window.open('https://cerb.ai/docs/automations/triggers/interaction.worker/callers/cerb.toolbar.workspaceWidget.interactions/', '_blank', 'noopener'); return true; }
+				return false;
 			}
-		},
-		start: function(formData) {
-			formData.set('caller[params][selected_text]', editor.getSelectedText())
-		},
-		done: doneFunc,
-		reset: resetFunc,
-		error: errorFunc
+		}
 	});
+
+	// Start-interactions switcher (hidden input carries the POST value)
+	if(window.CerbUI && CerbUI.Switcher) {
+		var isPopupEl = $config.find('.cerb-ui-switcher[data-cerb-input="isPopup{$fi_uid}"]')[0];
+		var $isPopup = $config.find('#isPopup{$fi_uid}');
+		if(isPopupEl)
+			new CerbUI.Switcher(isPopupEl, { value: $isPopup.val(), onSelect: function(value) { $isPopup.val(value); } });
+	}
 });
 </script>
