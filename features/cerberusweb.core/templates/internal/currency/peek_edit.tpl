@@ -11,77 +11,62 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<table cellspacing="0" cellpadding="2" border="0" width="98%" style="margin-bottom:10px;">
-	<tr>
-		<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate|capitalize} ({'common.singular'|devblocks_translate|capitalize}):</b></td>
-		<td width="99%">
-			<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus" placeholder="US Dollar">
-		</td>
-	</tr>
-	<tr>
-		<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate|capitalize} ({'common.plural'|devblocks_translate|capitalize}):</b></td>
-		<td width="99%">
-			<input type="text" name="name_plural" value="{$model->name_plural}" style="width:98%;" placeholder="US Dollars">
-		</td>
-	</tr>
-	
-	<tr>
-		<td width="1%" nowrap="nowrap"><b>{'dao.currency.symbol'|devblocks_translate|capitalize}:</b></td>
-		<td width="99%">
-			<input type="text" name="symbol" size="4" maxlength="2" value="{$model->symbol}" style="width:4em;" placeholder="$">
-		</td>
-	</tr>
-	<tr>
-		<td width="1%" nowrap="nowrap"><b>{'dao.currency.code'|devblocks_translate|capitalize}:</b></td>
-		<td width="99%">
-			<input type="text" name="code" size="4" maxlength="3" value="{$model->code}" style="width:4em;" placeholder="USD">
-		</td>
-	</tr>
-	<tr>
-		<td width="1%" nowrap="nowrap"><b>{'dao.currency.decimal_at'|devblocks_translate|capitalize}:</b></td>
-		<td width="99%">
-			<input type="text" name="decimal_at" size="3" maxlength="2" value="{$model->decimal_at}" style="width:4em;" placeholder="2">
-		</td>
-	</tr>
-	<tr>
-		<td width="1%" nowrap="nowrap"><b>{'common.default'|devblocks_translate|capitalize}:</b></td>
-		<td width="99%">
-			<label>
-				<input type="radio" name="is_default" value="1" {if $model->is_default}checked="checked"{/if}> 
-				{'common.yes'|devblocks_translate|capitalize}
-			</label>
-			<label>
-				<input type="radio" name="is_default" value="0" {if !$model->is_default}checked="checked"{/if}> 
-				{'common.no'|devblocks_translate|capitalize}
-			</label>
-		</td>
-	</tr>
-	
-	{if !empty($custom_fields)}
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" tbody=true bulk=false}
-	{/if}
-</table>
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--row">
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.name'|devblocks_translate|capitalize} <span class="cerb-ui-form--hint">({'common.singular'|devblocks_translate|lower})</span></label>
+				<input type="text" name="name" value="{$model->name}" autofocus="autofocus" placeholder="US Dollar">
+			</div>
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.name'|devblocks_translate|capitalize} <span class="cerb-ui-form--hint">({'common.plural'|devblocks_translate|lower})</span></label>
+				<input type="text" name="name_plural" value="{$model->name_plural}" placeholder="US Dollars">
+			</div>
+		</div>
+
+		<div class="cerb-ui-form--row">
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'dao.currency.symbol'|devblocks_translate|capitalize}</label>
+				<input type="text" name="symbol" maxlength="2" value="{$model->symbol}" placeholder="$">
+			</div>
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'dao.currency.code'|devblocks_translate|capitalize}</label>
+				<input type="text" name="code" maxlength="3" value="{$model->code}" placeholder="USD">
+			</div>
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'dao.currency.decimal_at'|devblocks_translate|capitalize}</label>
+				<input type="text" name="decimal_at" maxlength="2" value="{$model->decimal_at}" placeholder="2">
+			</div>
+		</div>
+
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'common.default'|devblocks_translate|capitalize}</label>
+			<div>
+				<input type="hidden" name="is_default" id="isDefault_{$form_id}" value="{$model->is_default}">
+				<div class="cerb-ui-switcher" data-cerb-input="isDefault_{$form_id}">
+					<button type="button" data-value="1"{if $model->is_default} class="cerb-ui-switcher--active"{/if}>{'common.yes'|devblocks_translate|capitalize}</button>
+					<button type="button" data-value="0"{if !$model->is_default} class="cerb-ui-switcher--active"{/if}>{'common.no'|devblocks_translate|capitalize}</button>
+				</div>
+			</div>
+		</div>
+
+		{if !empty($custom_fields)}
+		{include file="devblocks:cerberusweb.core::internal/custom_fields/form.tpl" custom_fields=$custom_fields}
+		{/if}
+	</div>
+</div>
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
 {if !empty($model->id)}
-<fieldset style="display:none;" class="delete">
-	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
-	
-	<div>
-		Are you sure you want to permanently delete this currency?
-	</div>
-	
-	<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
-	<button type="button" class="delete-cancel">{'common.no'|devblocks_translate|capitalize}</button>
-</fieldset>
+	{include file="devblocks:cerberusweb.core::internal/peek/delete_confirm.tpl" noun="currency"}
 {/if}
 
 <div class="status"></div>
 
-<div class="buttons">
-	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+<div class="buttons" style="margin-top:10px;">
+	<button type="button" class="cerb-ui-button save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="cerb-ui-button cerb-ui-button--subtle delete-prompt"><span class="cerb-icons cerb-icon-trash"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>
@@ -92,16 +77,24 @@ $(function() {
 	let $popup = genericAjaxPopupFind($frm);
 
 	Devblocks.formDisableSubmit($frm);
-	
+
 	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"{'common.currency'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		$popup.css('overflow', 'inherit');
 
-		// Buttons
-		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
+		$popup.find('button.save').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-		$popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
-		$popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
+		if(window.CerbUI && CerbUI.Form) CerbUI.Form.ConfirmDelete($popup[0]);
+
+		if(window.CerbUI && CerbUI.Switcher) {
+			$popup.find('.cerb-ui-switcher[data-cerb-input]').each(function() {
+				let input = document.getElementById(this.getAttribute('data-cerb-input'));
+				new CerbUI.Switcher(this, {
+					value: input ? input.value : null,
+					onSelect: function(value) { if(input) input.value = value; }
+				});
+			});
+		}
 	});
 });
 </script>

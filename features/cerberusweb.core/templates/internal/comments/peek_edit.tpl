@@ -15,145 +15,108 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<div class="cerb-form">
-	{if $model->id}
-		{$author = $model->getActorDictionary()}
-		{if $author}
-		<div>
-			<label>{'common.author'|devblocks_translate|capitalize}:</label>
-			<ul class="bubbles">
-				<li>
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-form">
+		{if $model->id}
+			{$author = $model->getActorDictionary()}
+			{if $author}
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.author'|devblocks_translate|capitalize}</label>
+				<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-1">
 					{if $author->_image_url}
-					<img src="{$author->_image_url}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
+					<img src="{$author->_image_url}" style="height:16px;width:16px;border-radius:16px;">
 					{/if}
-					<a class="cerb-peek-trigger" data-context="{$author->_context}" data-context-id="{$author->id}">{$author->_label}</a>
-				</li>
-			</ul>
-		</div>
-		{/if}
-	{/if}
-	
-	{if $model->context}
-		{if $target}
-		<div>
-			<label>{'common.on'|devblocks_translate|capitalize}:</label>
-			<input type="hidden" name="context" value="{$target->_context}">
-			<input type="hidden" name="context_id" value="{$target->id}">
-			<ul class="bubbles">
-				<li>
-					{if $target->_image_url}
-					<img src="{$target->_image_url}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
-					{/if}
-					<a class="cerb-peek-trigger" data-context="{$target->_context}" data-context-id="{$target->id}">{$target->_label}</a>
-				</li>
-			</ul>
-		</div>
-		{/if}
-	{/if}
-
-	<div>
-		<label>
-			{'common.comment'|devblocks_translate|capitalize}:
-		</label>
-
-		<div class="cerb-code-editor-toolbar">
-			<button type="button" title="Toggle formatting" class="cerb-code-editor-toolbar-button cerb-editor-toolbar-button--formatting" data-format="{if $is_html}html{else}plaintext{/if}">{if $is_html}Formatting on{else}Formatting off{/if}</button>
-
-			<div class="cerb-code-editor-subtoolbar-format-html" style="{if !$is_html}display:none;{else}display:inline-block;{/if}">
-				<button type="button" title="Bold (Ctrl+B)" data-cerb-key-binding="ctrl+b" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--bold"><span class="cerb-icons cerb-icon-bold"></span></button>
-				<button type="button" title="Italics (Ctrl+I)" data-cerb-key-binding="ctrl+i" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--italic"><span class="cerb-icons cerb-icon-italic"></span></button>
-				<button type="button" title="Link (Ctrl+K)" data-cerb-key-binding="ctrl+k" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--link"><span class="cerb-icons cerb-icon-link"></span></button>
-				<button type="button" title="Image (Ctrl+M)" data-cerb-key-binding="ctrl+m" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--image"><span class="cerb-icons cerb-icon-picture"></span></button>
-				<button type="button" title="List" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--list"><span class="cerb-icons cerb-icon-list"></span></button>
-				<button type="button" title="Quote (Ctrl+Q)" data-cerb-key-binding="ctrl+q" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--quote"><span class="cerb-icons cerb-icon-quote"></span></button>
-				<button type="button" title="Code (Ctrl+O)" data-cerb-key-binding="ctrl+o" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--code"><span class="cerb-icons cerb-icon-embed"></span></button>
-				<button type="button" title="Table" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--table"><span class="cerb-icons cerb-icon-table"></span></button>
+					<a class="cerb-peek-trigger no-underline" data-context="{$author->_context}" data-context-id="{$author->id}">{$author->_label}</a>
+				</div>
 			</div>
+			{/if}
+		{/if}
 
-			<div class="cerb-code-editor-toolbar-divider"></div>
+		{if $model->context}
+			{if $target}
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.on'|devblocks_translate|capitalize}</label>
+				<input type="hidden" name="context" value="{$target->_context}">
+				<input type="hidden" name="context_id" value="{$target->id}">
+				<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-1">
+					{if $target->_image_url}
+					<img src="{$target->_image_url}" style="height:16px;width:16px;border-radius:16px;">
+					{/if}
+					<a class="cerb-peek-trigger no-underline" data-context="{$target->_context}" data-context-id="{$target->id}">{$target->_label}</a>
+				</div>
+			</div>
+			{/if}
+		{/if}
 
-			<button type="button" title="Insert @mention" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--mention"><span class="cerb-icons cerb-icon-mention"></span></button>
-			<button type="button" title="Insert snippet" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--snippets"><span class="cerb-icons cerb-icon-clipboard"></span></button>
-			<div class="cerb-code-editor-toolbar-divider"></div>
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'common.comment'|devblocks_translate|capitalize}</label>
 
-			<button type="button" title="Preview (Ctrl+Shift+P)" data-cerb-key-binding="ctrl+shift+p" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--preview"><span class="cerb-icons cerb-icon-eye-open"></span></button>
+			{* Built-in formatting + markdown/plaintext toggle come from the editor; this host section (mention /
+			   snippet / preview) and any worker-configured custom toolbar merge in after the formatting buttons. *}
+			<ul class="cerb-ui-toolbar" data-cerb-editor-toolbar hidden>
+				<li data-value="mention" data-icon="mention" title="Insert @mention"></li>
+				<li data-value="snippets" data-icon="clipboard" title="Insert snippet"></li>
+				<li></li>
+				<li data-value="preview" data-icon="eye-open" title="Preview"></li>
+			</ul>
 
 			{if $toolbar_custom}
-				<div class="cerb-code-editor-toolbar-divider"></div>
-				
-				<div data-cerb-toolbar class="cerb-comment-editor-subtoolbar-custom" style="display:inline-block;">
+				<div data-cerb-toolbar class="cerb-comment-editor-subtoolbar-custom" hidden>
 					{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar_custom)}
 				</div>
 			{/if}
+
+			<textarea name="comment" placeholder="{'comment.notify.at_mention'|devblocks_translate}">{$model->comment}</textarea>
 		</div>
 
-		<textarea name="comment" placeholder="{'comment.notify.at_mention'|devblocks_translate}">{$model->comment}</textarea>
-	</div>
-
-	<div>
-		<label>
-			{'common.attachments'|devblocks_translate|capitalize}:
-		</label>
-
-		<div class="cerb-comment-attachments">
-			<button type="button" class="chooser_file"><span class="cerb-icons cerb-icon-paperclip"></span></button>
-			<ul class="chooser-container bubbles">
-				{if !empty($attachments)}
-					{foreach from=$attachments item=attachment name=attachments}
-						<li>
-							<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$attachment->id}">
-								<b>{$attachment->name}</b>
-								({$attachment->storage_size|devblocks_prettybytes}	-
-								{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if})
-							</a>
-							<input type="hidden" name="file_ids[]" value="{$attachment->id}">
-							<a><span class="cerb-icons cerb-icon-circle-remove"></span></a>
-						</li>
-					{/foreach}
-				{/if}
-			</ul>
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'common.attachments'|devblocks_translate|capitalize}</label>
+			<div class="cerb-comment-attachments">
+				<div class="cerb-ui-file-upload" data-name="file_ids" data-multiple="1">
+					{if !empty($attachments)}
+						{foreach from=$attachments item=attachment name=attachments}
+							<li data-file-id="{$attachment->id}" data-file-name="{$attachment->name}" data-file-size="{$attachment->storage_size}"></li>
+						{/foreach}
+					{/if}
+				</div>
+			</div>
 		</div>
-	</div>
-	
-	{if $model->id}
-	<div>
-		<label>{'common.options'|devblocks_translate|capitalize}:</label>
-		<div style="margin-left: 10px;">
-			<label style="font-weight:normal;">
-				<input type="checkbox" name="options[update_timestamp]" value="1"> Update the comment timestamp
-			</label>
+
+		{if $model->id}
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'common.options'|devblocks_translate|capitalize}</label>
+			<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-2">
+				<label class="cerb-ui-toggle">
+					<input type="checkbox" name="options[update_timestamp]" id="optUpdateTs_{$form_id}" value="1">
+					<span class="cerb-ui-toggle--slider"></span>
+				</label>
+				<label for="optUpdateTs_{$form_id}">Update the comment timestamp</label>
+			</div>
 		</div>
+		{/if}
 	</div>
-	{/if}
 </div>
 
 {if !empty($custom_fields)}
-<fieldset class="peek">
-	<legend>{'common.custom_fields'|devblocks_translate}</legend>
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-</fieldset>
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">{'common.custom_fields'|devblocks_translate|capitalize}</div>
+	</div>
+	{include file="devblocks:cerberusweb.core::internal/custom_fields/form.tpl" custom_fields=$custom_fields}
+</div>
 {/if}
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
 {if !empty($model->id)}
-<fieldset style="display:none;" class="delete">
-	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
-	
-	<div>
-		Are you sure you want to permanently delete this comment?
-	</div>
-	
-	<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
-	<button type="button" class="delete-cancel">{'common.no'|devblocks_translate|capitalize}</button>
-</fieldset>
+	{include file="devblocks:cerberusweb.core::internal/peek/delete_confirm.tpl" noun="comment"}
 {/if}
 
 <div class="status"></div>
 
-<div class="buttons">
-	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+<div class="buttons" style="margin-top:10px;">
+	<button type="button" class="cerb-ui-button save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="cerb-ui-button cerb-ui-button--subtle delete-prompt"><span class="cerb-icons cerb-icon-trash"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>
@@ -170,156 +133,95 @@ $(function() {
 
 		// Buttons
 
-		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
+		$popup.find('button.save').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-		$popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
-		$popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
+		if(window.CerbUI && CerbUI.Form) CerbUI.Form.ConfirmDelete($popup[0]);
 
 		$popup.find('.cerb-peek-trigger')
 			.cerbPeekTrigger()
 			;
 
-		// Drag/drop attachments
+		// Attachments
 
-		var $attachments = $frm.find('.cerb-comment-attachments');
+		let fu = null;
+		if(window.CerbUI && CerbUI.FileUpload)
+			fu = new CerbUI.FileUpload($frm.find('.cerb-ui-file-upload')[0], { name: 'file_ids', multiple: true });
 
-		$attachments.find('.cerb-icon-circle-remove').on('click', function(e) {
-			e.stopPropagation();
-			$(this).closest('li').remove();
-		});
-
-		$attachments.cerbAttachmentsDropZone();
-
-		// Editor
-
-		var $editor = $popup.find('textarea[name=comment]');
-
-		$editor
-			.cerbTextEditor()
-			.cerbTextEditorAutocompleteComments()
-			;
-
-		// Comment editor toolbar
-		var $editor_toolbar = $popup.find('.cerb-code-editor-toolbar')
-			.cerbTextEditorToolbarMarkdown()
-			;
-
-		// Paste images
-		$editor.cerbTextEditorInlineImagePaster({
-			attachmentsContainer: $attachments,
-			toolbar: $editor_toolbar
-		})
-
-		// Formatting
-		$editor_toolbar.find('.cerb-editor-toolbar-button--formatting').on('click', function() {
-			var $button = $(this);
-
-			if('html' === $button.attr('data-format')) {
-				$editor_toolbar.triggerHandler($.Event('cerb-editor-toolbar-formatting-set', { enabled: false }));
-			} else {
-				$editor_toolbar.triggerHandler($.Event('cerb-editor-toolbar-formatting-set', { enabled: true }));
-			}
-		});
-
-		$editor_toolbar.on('cerb-editor-toolbar-formatting-set', function(e) {
-			var $button = $editor_toolbar.find('.cerb-editor-toolbar-button--formatting');
-
-			if(e.enabled) {
-				$frm.find('input:hidden[name=is_markdown]').val('1');
-				$button.attr('data-format', 'html');
-				$button.text('Formatting on');
-				$editor_toolbar.find('.cerb-code-editor-subtoolbar-format-html').css('display','inline-block');
-			} else {
-				$frm.find('input:hidden[name=is_markdown]').val('0');
-				$button.attr('data-format', 'plaintext');
-				$button.text('Formatting off');
-				$editor_toolbar.find('.cerb-code-editor-subtoolbar-format-html').css('display','none');
-			}
-		});
-
-		// Upload image
-		$editor_toolbar.on('cerb-editor-toolbar-image-inserted', function(event) {
-			event.stopPropagation();
-
-			var new_event = $.Event('cerb-chooser-save', {
-				labels: event.labels,
-				values: event.values
-			});
-
-			$popup.find('button.chooser_file').triggerHandler(new_event);
-
-			$editor.cerbTextEditor('insertText', '![inline-image](' + event.url + ')');
-
-			setTimeout(function() {
-				$editor.focus();
-			}, 100);
-		});
-
-		// Custom editor toolbar
+		// Editor (replaces the legacy cerbTextEditor stack) — built-in formatting toolbar + markdown/plaintext
+		// toggle. The host section (mention/snippet/preview) and any worker-configured custom toolbar merge in.
+		let editor_sections = [ $popup.find('[data-cerb-editor-toolbar]')[0] ];
 		{if $toolbar_custom}
-		$popup.find('.cerb-comment-editor-subtoolbar-custom')
-			.cerbToolbar({
-				caller: {
-					name: 'cerb.toolbar.comment.editor',
-					params: {
-						{if $target}
-						record_type: '{$target->_type}',
-						record_id: '{$target->id}',
-						{/if}
-						selected_text: ''
-					}
-				},
-				start: function(formData) {
-					formData.set('caller[params][selected_text]', $editor.cerbTextEditor('getSelection'));
-					formData.set('caller[params][text]', $editor.val());
-				},
-				done: function(e) {
-					if(e.type !== 'cerb-interaction-done')
-						return;
+		let custom_toolbar_ul = $popup.find('.cerb-comment-editor-subtoolbar-custom ul.cerb-ui-toolbar')[0];
+		if(custom_toolbar_ul) editor_sections.push(custom_toolbar_ul);
+		{/if}
 
-					if (e.eventData.exit === 'error') {
+		let ed = new CerbUI.MarkdownEditor($popup.find('textarea[name=comment]')[0], {
+			mode: {if $is_html}'markdown'{else}'plaintext'{/if},
+			onAutocomplete: CerbUI.MarkdownEditor.mentionSource(),
+			onImage: function(info) {
+				if(fu) fu.add([{ id: info.file_id, name: info.file_name }]);
+				if(ed._editorToolbar) ed._editorToolbar.setMode('markdown'); // a pasted image enables markdown
+			},
+			toolbar: {
+				onMode: function(v) { $frm.find('input:hidden[name=is_markdown]').val(v === 'markdown' ? '1' : '0'); },
+				sections: editor_sections,
+				onAction: function(value, ed) {
+					if(value === 'mention')  { ed.insertText('@'); ed.openAutocomplete(); return true; }
+					if(value === 'snippets') { insertSnippet(); return true; }
+					if(value === 'preview')  { previewComment(); return true; }
+					return false; // bold/italic/… run their built-in
+				}{if $toolbar_custom},
+				// The worker-configured custom toolbar fires interactions through CerbUI.Toolbar (cerbBotTrigger).
+				toolbarOpts: {
+					caller: {
+						name: 'cerb.toolbar.comment.editor',
+						params: {
+							{if $target}
+							record_type: '{$target->_type}',
+							record_id: '{$target->id}',
+							{/if}
+							selected_text: ''
+						}
+					},
+					start: function(formData) {
+						formData.set('caller[params][selected_text]', ed.getSelection());
+						formData.set('caller[params][text]', ed.getValue());
+					},
+					done: function(e) {
+						if(e.type !== 'cerb-interaction-done')
+							return;
 
-					} else if(e.eventData.exit === 'return') {
-						Devblocks.interactionWorkerPostActions(e.eventData);
+						if (e.eventData.exit === 'error') {
+							// Show error
+						} else if(e.eventData.exit === 'return') {
+							Devblocks.interactionWorkerPostActions(e.eventData);
 
-						if(e.eventData.return && e.eventData.return.snippet) {
-							$editor.cerbTextEditor('replaceSelection', e.eventData.return.snippet);
-							setTimeout(function() { $editor.focus(); }, 25);
+							if(e.eventData.return && e.eventData.return.snippet) {
+								ed.replaceSelection(e.eventData.return.snippet);
+								setTimeout(function() { ed.focus(); }, 25);
+							}
 						}
 					}
-				}
-			})
-		;
-		{/if}
-		
-		// Mention
-		$editor_toolbar.find('.cerb-markdown-editor-toolbar-button--mention').on('click', function () {
-			var token = $editor.cerbTextEditor('getCurrentWord');
-
-			if(token !== '@') {
-				$editor.cerbTextEditor('insertText', '@');
+				}{/if}
 			}
-
-			$editor.autocomplete('search');
 		});
 
-		// Snippets
-		$editor_toolbar.find('.cerb-markdown-editor-toolbar-button--snippets').on('click', function () {
-			var context = 'cerberusweb.contexts.snippet';
-			var chooser_url = 'c=internal&a=invoke&module=records&action=chooserOpen&q=' + encodeURIComponent('type:[plaintext,comment]') + '&single=1&context=' + encodeURIComponent(context);
+		let insertSnippet = function() {
+			let context = 'cerberusweb.contexts.snippet';
+			let chooser_url = 'c=internal&a=invoke&module=records&action=chooserOpen&q=' + encodeURIComponent('type:[plaintext,comment]') + '&single=1&context=' + encodeURIComponent(context);
 
-			var $chooser = genericAjaxPopup(Devblocks.uniqueId(), chooser_url, null, true, '90%');
+			let $chooser = genericAjaxPopup(Devblocks.uniqueId(), chooser_url, null, true, '90%');
 
 			$chooser.on('chooser_save', function (event) {
 				if (!event.values || 0 === event.values.length)
 					return;
 
-				var snippet_id = event.values[0];
+				let snippet_id = event.values[0];
 
 				if (null == snippet_id)
 					return;
 
-				var formData = new FormData();
+				let formData = new FormData();
 				formData.set('c', 'profiles');
 				formData.set('a', 'invoke');
 				formData.set('module', 'snippet');
@@ -330,67 +232,59 @@ $(function() {
 				genericAjaxPost(formData, null, null, function (json) {
 					// If the content has placeholders, use that popup instead
 					if (json.has_prompts) {
-						var $popup_paste = genericAjaxPopup('snippet_paste', 'c=profiles&a=invoke&module=snippet&action=getPrompts&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id), null, false, '50%');
+						let $popup_paste = genericAjaxPopup('snippet_paste', 'c=profiles&a=invoke&module=snippet&action=getPrompts&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id), null, false, '50%');
 
 						$popup_paste.bind('snippet_paste', function (event) {
 							if (null == event.text)
 								return;
 
-							$editor.cerbTextEditor('insertText', event.text);
+							ed.insertText(event.text);
 						});
 
 					} else {
-						$editor.cerbTextEditor('insertText', json.text);
+						ed.insertText(json.text);
 					}
 				});
 			});
-		});
+		};
 
-		// Preview
-		$editor_toolbar.find('.cerb-markdown-editor-toolbar-button--preview').on('click', function () {
-			var formData = new FormData();
+		let previewComment = function() {
+			let formData = new FormData();
 			formData.set('c', 'profiles');
 			formData.set('a', 'invoke');
 			formData.set('module', 'comment');
 			formData.set('action', 'preview');
 			formData.set('context', $frm.find('input:hidden[name=context]').val());
-			formData.set('comment', $frm.find('textarea[name=comment]').val());
+			formData.set('comment', ed.getValue());
 			formData.set('is_markdown', $frm.find('input:hidden[name=is_markdown]').val());
 
-			genericAjaxPopup(
-				'comment_preview',
-				formData,
-				'reuse',
-				false
-			);
-		});
+			genericAjaxPopup('comment_preview', formData, 'reuse', false);
+		};
 
 		setTimeout(function() {
-			$editor.focus();
+			ed.focus();
+			// With pre-filled text (e.g. a reply seeded with "@mention "), drop the caret at the end
+			let _end = ed.getValue().length;
+			if(_end > 0) ed.setSelection(_end, _end);
 		}, 100);
 
-		// Attachments
-
-		$popup.find('button.chooser_file').each(function() {
-			ajax.chooserFile(this,'file_ids');
-		});
-
 		{if $pref_keyboard_shortcuts}
+			let $editor_input = $popup.find('textarea[name=comment]');
+
 			// Save focus
-			$editor.bind('keydown', 'ctrl+return meta+return alt+return', function(e) {
+			$editor_input.bind('keydown', 'ctrl+return meta+return alt+return', function(e) {
 				e.preventDefault();
 				e.stopPropagation();
-				$popup.find('button.submit').focus();
+				$popup.find('button.save').focus();
 			});
 
 			// Save click
-			$editor.bind('keydown', 'ctrl+shift+return meta+shift+return alt+shift+return', function(e) {
+			$editor_input.bind('keydown', 'ctrl+shift+return meta+shift+return alt+shift+return', function(e) {
 				e.preventDefault();
 				e.stopPropagation();
-				$popup.find('button.submit').click();
+				$popup.find('button.save').click();
 			});
 		{/if}
-
 	});
 });
 </script>

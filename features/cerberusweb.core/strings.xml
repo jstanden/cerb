@@ -940,6 +940,11 @@
 				<seg>currencies</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.current">
+			<tuv xml:lang="en_US">
+				<seg>current</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.custom_field">
 			<tuv xml:lang="en_US">
 				<seg>custom field</seg>

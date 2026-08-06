@@ -29,7 +29,7 @@
 	</table>
 </fieldset>
 
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$bulk_context bulk=true}
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/bulk_custom_fieldsets.tpl" context=$bulk_context}
 
 {if $active_worker->hasPriv("contexts.{$bulk_context}.delete")}
 <fieldset class="peek" data-cerb-section-name="delete">
@@ -78,7 +78,6 @@ $(function() {
 			});
 		});
 		
-		$popup.find('button.chooser-abstract').cerbChooserTrigger();
 		
 		{include file="devblocks:cerberusweb.core::internal/views/bulk_broadcast_jquery.tpl"}
 	});

@@ -34,102 +34,83 @@
 	{tree keys=$placeholders}
 </ul>
 
-<table cellspacing="0" cellpadding="2" border="0" width="98%">
-	<tr>
-		<td width="1%" valign="top" nowrap="nowrap"><b>{'common.name'|devblocks_translate|capitalize}:</b></td>
-		<td width="99%">
-			<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
-		</td>
-	</tr>
-	{if $owners_menu}
-	<tr>
-		<td width="1%" nowrap="nowrap" valign="top">
-			<b>{'common.owner'|devblocks_translate|capitalize}:</b>
-		</td>
-		<td width="99%">
-			{include file="devblocks:cerberusweb.core::internal/peek/menu_actor_owner.tpl"}
-		</td>
-	</tr>
-	{/if}
-	
-	{if !empty($custom_fields)}
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
-	{/if}
-</table>
-
-<div style="margin-top:5px;">
-	<b>When sending plaintext email:</b> (required)
-
-	<div class="cerb-code-editor-toolbar cerb-code-editor-toolbar--text">
-		<button type="button" title="Insert placeholder" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--placeholders"><span class="cerb-icons cerb-icon-placeholders"></span></button>
-		<div class="cerb-code-editor-toolbar-divider"></div>
-		<button type="button" title="Preview" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--preview"><span class="cerb-icons cerb-icon-eye-open"></span></button>
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'common.name'|devblocks_translate|capitalize}</label>
+			<input type="text" name="name" value="{$model->name}" autofocus="autofocus">
+		</div>
+		{if $owners_menu}
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'common.owner'|devblocks_translate|capitalize}</label>
+			<div>
+				{include file="devblocks:cerberusweb.core::internal/peek/menu_actor_owner.tpl"}
+			</div>
+		</div>
+		{/if}
 	</div>
-
-	<textarea name="signature" class="cerb-code-editor-text placeholders" data-editor-mode="ace/mode/twig" data-editor-lines="15" data-editor-line-numbers="false" style="height:100px;width:98%;">{$model->signature}</textarea>
 </div>
 
-<div style="margin:5px 0;">
-	<b>When sending HTML email:</b> (optional)
+{if !empty($custom_fields)}
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-form">
+		{include file="devblocks:cerberusweb.core::internal/custom_fields/form.tpl" custom_fields=$custom_fields}
+	</div>
+</div>
+{/if}
 
-	<div class="cerb-code-editor-toolbar cerb-code-editor-toolbar--html">
-		<button type="button" title="Insert placeholder" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--placeholders"><span class="cerb-icons cerb-icon-placeholders"></span></button>
-		<div class="cerb-code-editor-toolbar-divider"></div>
-		<button type="button" title="Bold" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--bold"><span class="cerb-icons cerb-icon-bold"></span></button>
-		<button type="button" title="Italics" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--italic"><span class="cerb-icons cerb-icon-italic"></span></button>
-		<button type="button" title="Link" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--link"><span class="cerb-icons cerb-icon-link"></span></button>
-		<button type="button" title="Image" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--image"><span class="cerb-icons cerb-icon-picture"></span></button>
-		<button type="button" title="List" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--list"><span class="cerb-icons cerb-icon-list"></span></button>
-		<button type="button" title="Quote" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--quote"><span class="cerb-icons cerb-icon-quote"></span></button>
-		<button type="button" title="Code" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--code"><span class="cerb-icons cerb-icon-embed"></span></button>
-		<button type="button" title="Table" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--table"><span class="cerb-icons cerb-icon-table"></span></button>
-		<div class="cerb-code-editor-toolbar-divider"></div>
-		<button type="button" title="Preview" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--preview"><span class="cerb-icons cerb-icon-eye-open"></span></button>
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">When sending plaintext email <small class="cerb-u-text-muted cerb-u-fw-400">({'common.required'|devblocks_translate})</small></div>
 	</div>
 
-	<textarea name="signature_html" class="cerb-code-editor-html placeholders" data-editor-mode="ace/mode/twig" data-editor-lines="15" data-editor-line-numbers="false" style="height:100px;width:98%;">{$model->signature_html}</textarea>
+	{* Host toolbar section (placeholder + preview) — the editor builds the strip and merges this in. *}
+	<ul class="cerb-ui-toolbar" data-cerb-sig-text-toolbar hidden>
+		<li data-value="placeholders" data-icon="placeholders" title="Insert placeholder"></li>
+		<li></li>
+		<li data-value="preview" data-icon="eye-open" title="Preview"></li>
+	</ul>
+
+	<textarea name="signature" data-editor-lines="15" spellcheck="false">{$model->signature}</textarea>
 </div>
 
-<fieldset class="peek">
-	<legend>{'common.attachments'|devblocks_translate|capitalize}</legend>
-	<button type="button" class="chooser_file"><span class="cerb-icons cerb-icon-paperclip"></span></button>
-	<ul class="chooser-container bubbles">
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">When sending HTML email <small class="cerb-u-text-muted cerb-u-fw-400">({'common.optional'|devblocks_translate})</small></div>
+	</div>
+
+	{* Built-in formatting comes from the editor; this host section (placeholder + preview) merges in after it. *}
+	<ul class="cerb-ui-toolbar" data-cerb-sig-html-toolbar hidden>
+		<li data-value="placeholders" data-icon="placeholders" title="Insert placeholder"></li>
+		<li></li>
+		<li data-value="preview" data-icon="eye-open" title="Preview"></li>
+	</ul>
+
+	<textarea name="signature_html" spellcheck="false">{$model->signature_html}</textarea>
+</div>
+
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">{'common.attachments'|devblocks_translate|capitalize}</div>
+	</div>
+	<div class="cerb-ui-file-upload" data-name="file_ids" data-multiple="1">
 		{if !empty($attachments)}
 			{foreach from=$attachments item=attachment name=attachments}
-				<li>
-					<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$attachment->id}">
-						<b>{$attachment->name}</b>
-						({$attachment->storage_size|devblocks_prettybytes}	-
-						{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if})
-					</a>
-					<input type="hidden" name="file_ids[]" value="{$attachment->id}">
-					<a data-cerb-link="remove_parent"><span class="cerb-icons cerb-icon-circle-remove"></span></a>
-				</li>
+				<li data-file-id="{$attachment->id}" data-file-name="{$attachment->name}" data-file-size="{$attachment->storage_size}"></li>
 			{/foreach}
 		{/if}
-	</ul>
-</fieldset>
+	</div>
+</div>
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
 {if !empty($model->id)}
-<fieldset style="display:none;" class="delete">
-	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
-	
-	<div>
-		Are you sure you want to permanently delete this email signature?
-	</div>
-	
-	<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
-	<button type="button" class="delete-cancel">{'common.no'|devblocks_translate|capitalize}</button>
-</fieldset>
+	{include file="devblocks:cerberusweb.core::internal/peek/delete_confirm.tpl" noun="email signature"}
 {/if}
 
-<div class="status"></div>
-
 <div class="buttons" style="margin-top:10px;">
-	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	<button type="button" class="cerb-ui-button save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="cerb-ui-button cerb-ui-button--subtle delete-prompt"><span class="cerb-icons cerb-icon-trash"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>
@@ -145,190 +126,86 @@ $(function() {
 		$popup.dialog('option','title',"{'common.signature'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		$popup.css('overflow', 'inherit');
 
-		var $placeholder_menu = $popup.find('.menu');
+		var $placeholder_menu = $popup.find('.menu').hide();
+		var activeEditor = null;   // which editor the placeholder menu inserts into (set on its toolbar click)
 
 		// Buttons
-		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
+		$popup.find('button.save').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-		$popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
-		$popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
+		if(window.CerbUI && CerbUI.Form) CerbUI.Form.ConfirmDelete($popup[0]);
 
-		// Plaintext signature
-
-		var $editor_text = $popup.find('.cerb-code-editor-text')
-			.cerbCodeEditor()
-			;
-
-		var editor_text = ace.edit($editor_text.nextAll('pre.ace_editor').attr('id'));
-
-		var $editor_toolbar_text = $popup.find('.cerb-code-editor-toolbar--text')
-			.cerbCodeEditorToolbarMarkdown()
-		;
-
-		$editor_toolbar_text.find('.cerb-markdown-editor-toolbar-button--placeholders').on('click', function(e) {
-			var $cursor = $editor_text.nextAll('pre.ace_editor').find('.ace_text-input');
-
-			$placeholder_menu
-				.insertAfter($editor_toolbar_text)
-				.toggle()
-				.position({
-					my: 'left bottom',
-					at: 'left top',
-					of: $cursor
-				})
-			;
-
-			editor_text.focus();
-		});
-
-		$editor_toolbar_text.find('.cerb-markdown-editor-toolbar-button--preview').on('click', function(e) {
+		var previewSignature = function(format, value) {
 			var formData = new FormData();
 			formData.set('c', 'profiles');
 			formData.set('a', 'invoke');
 			formData.set('module', 'email_signature');
 			formData.set('action', 'preview');
-			formData.set('format', 'text');
-			formData.set('signature', editor_text.getValue());
+			formData.set('format', format);
+			formData.set('signature', value);
+			genericAjaxPopup('preview_sig', formData, 'reuse', false);
+		};
 
-			genericAjaxPopup(
-				'preview_sig',
-				formData,
-				'reuse',
-				false
-			);
-		});
-
-		// HTML signature
-
-		var $editor_html = $popup.find('.cerb-code-editor-html')
-			.cerbCodeEditor()
-			;
-
-		var editor_html = ace.edit($editor_html.nextAll('pre.ace_editor').attr('id'));
-
-		var $editor_toolbar_html = $popup.find('.cerb-code-editor-toolbar--html')
-			.cerbCodeEditorToolbarMarkdown()
-			;
-
-		$editor_toolbar_html.on('cerb-editor-toolbar-image-inserted', function(event) {
-			event.stopPropagation();
-
-			var new_event = $.Event('cerb-chooser-save', {
-				labels: event.labels,
-				values: event.values
-			});
-
-			$popup.find('button.chooser_file').triggerHandler(new_event);
-
-			editor_html.insertSnippet('![inline-image](' + event.url + ')');
-			editor_html.focus();
-		});
-
-		$editor_toolbar_html.find('.cerb-markdown-editor-toolbar-button--placeholders').on('click', function(e) {
-			var $cursor = $editor_html.nextAll('pre.ace_editor').find('.ace_text-input');
-
-			$placeholder_menu
-				.insertAfter($editor_toolbar_html)
-				.toggle()
-				.position({
-					my: 'left bottom',
-					at: 'left top',
-					of: $cursor
-				})
-			;
-
-			editor_html.focus();
-		});
-
-		$editor_toolbar_html.find('.cerb-markdown-editor-toolbar-button--preview').on('click', function(e) {
-			var formData = new FormData();
-			formData.set('c', 'profiles');
-			formData.set('a', 'invoke');
-			formData.set('module', 'email_signature');
-			formData.set('action', 'preview');
-			formData.set('format', 'markdown');
-			formData.set('signature', editor_html.getValue());
-
-			genericAjaxPopup(
-				'preview_sig',
-				formData,
-				'reuse',
-				false
-			);
-		});
-
-		// Owners
-		{if $owners_menu}
-		var $owners_menu = $popup.find('ul.owners-menu');
-		var $ul = $owners_menu.siblings('ul.chooser-container');
-		
-		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
-		
-		$ul.on('bubble-remove', function(e, ui) {
-			e.stopPropagation();
-			$(e.target).closest('li').remove();
-			$ul.hide();
-			$owners_menu.show();
-		});
-		
-		$owners_menu.menu({
-			select: function(event, ui) {
-				var token = ui.item.attr('data-token');
-				var label = ui.item.attr('data-label');
-				
-				if(undefined == token || undefined == label)
-					return;
-				
-				$owners_menu.hide();
-				
-				// Build bubble
-				
-				var context_data = token.split(':');
-				var $li = $('<li/>');
-				let $label = $('<a class="cerb-peek-trigger no-underline" />').attr('data-context',context_data[0]).attr('data-context-id',context_data[1]).text(label);
-				$label.cerbPeekTrigger().appendTo($li);
-				$('<input type="hidden">').attr('name', 'owner').attr('value',token).appendTo($li);
-				ui.item.find('img.cerb-avatar').clone().prependTo($li);
-				let $a = $('<a><span class="cerb-icons cerb-icon-circle-remove"></span></a>').appendTo($li);
-				$a.on('click', function(e) {
-					e.stopPropagation();
-					$(this).trigger('bubble-remove');
-				});
-				
-				$ul.find('> *').remove();
-				$ul.append($li);
-				$ul.show();
-			}
-		});
-		{/if}
+		// Open the shared placeholder menu (anchored at the clicked toolbar button) for whichever editor was clicked.
+		var openPlaceholders = function(ed, e) {
+			activeEditor = ed;
+			if(menu) menu.open((e && (e.currentTarget || e.target)) || ed.el);
+			ed.focus();
+		};
 
 		// Attachments
+		var fu = null;
+		if(window.CerbUI && CerbUI.FileUpload)
+			fu = new CerbUI.FileUpload($popup.find('.cerb-ui-file-upload')[0], { name: 'file_ids', multiple: true });
 
-		$popup.find('button.chooser_file').each(function() {
-			ajax.chooserFile(this,'file_ids');
+		// Plaintext signature — a ScriptingEditor (plaintext + Twig/KataScript). Sections-only toolbar (no built-in formatting).
+		var edText = new CerbUI.ScriptingEditor($popup.find('textarea[name=signature]')[0], {
+			minLines: 5,
+			gutter: false,
+			toolbar: {
+				sections: [ $popup.find('[data-cerb-sig-text-toolbar]')[0] ],
+				onAction: function(value, ed, item, sourceLi, e) {
+					if(value === 'placeholders') { openPlaceholders(ed, e); return true; }
+					if(value === 'preview')      { previewSignature('text', ed.getValue()); return true; }
+					return false;
+				}
+			}
 		});
 
-		$popup.find('.chooser-container [data-cerb-link=remove_parent]').on('click', Devblocks.onClickRemoveParent);
+		// HTML signature — a MarkdownEditor (Twig/KataScript scripting on). Built-in formatting + the placeholder/preview section.
+		var edHtml = new CerbUI.MarkdownEditor($popup.find('textarea[name=signature_html]')[0], {
+			mode: 'markdown',
+			scripting: true,
+			onImage: function(info) {
+				// Also attach the inline image to this signature (mirrors the comment editor).
+				if(fu) fu.add([{ id: info.file_id, name: info.file_name }]);
+			},
+			toolbar: {
+				mode: false, // the HTML signature is always markdown — no plaintext toggle
+				sections: [ $popup.find('[data-cerb-sig-html-toolbar]')[0] ],
+				onAction: function(value, ed, item, sourceLi, e) {
+					if(value === 'placeholders') { openPlaceholders(ed, e); return true; }
+					if(value === 'preview')      { previewSignature('markdown', ed.getValue()); return true; }
+					return false; // bold/italic/… run their built-in
+				}
+			}
+		});
+
+		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
 
 		// Quick insert token menu
 
-		$placeholder_menu.menu({
-			select: function(event, ui) {
-				var token = ui.item.attr('data-token');
-				var label = ui.item.attr('data-label');
+		var menu = new CerbUI.Menu($placeholder_menu[0], {
+			selectableParents: true,
+			filter: true,
+			onSelect: function(li, src) {
+				var token = src.getAttribute('data-token');
+				var label = src.getAttribute('data-label');
 
 				if(undefined == token || undefined == label)
 					return;
 
-				var $field = $placeholder_menu.siblings('pre.ace_editor');
-
-				if($field.is('.ace_editor')) {
-					var evt = new jQuery.Event('cerb.insertAtCursor');
-					evt.content = '{literal}{{{/literal}' + token + '{literal}}}{/literal}';
-					$field.trigger(evt);
-				}
-
-				$placeholder_menu.hide();
+				if(activeEditor)
+					activeEditor.insertAtCursor('{literal}{{{/literal}' + token + '{literal}}}{/literal}');
 			}
 		});
 

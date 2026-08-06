@@ -15,104 +15,107 @@
 	{$addy = $org->getEmail()}
 {/if}
 
-<table cellpadding="0" cellspacing="2" border="0" width="98%" style="margin-bottom:10px;">
-	<tr>
-		<td width="0%" nowrap="nowrap">{'common.name'|devblocks_translate|capitalize}: </td>
-		<td width="100%"><input type="text" name="org_name" value="{$org->name}" style="width:98%;"></td>
-	</tr>
-	<tr>
-		<td width="1%" nowrap="nowrap" valign="top" title="(one per line)">
-			{'common.aliases'|devblocks_translate|capitalize}:
-		</td>
-		<td width="99%" valign="top">
-			<textarea name="aliases" cols="45" rows="3" style="width:98%;" placeholder="(one per line)">{implode("\n", $aliases)}</textarea>
-		</td>
-	</tr>
-	<tr>
-		<td valign="top">{'contact_org.street'|devblocks_translate|capitalize}: </td>
-		<td><textarea name="street" style="width:98%;height:50px;">{$org->street}</textarea></td>
-	</tr>
-	<tr>
-		<td>{'contact_org.city'|devblocks_translate|capitalize}: </td>
-		<td><input type="text" name="city" value="{$org->city}" style="width:98%;"></td>
-	</tr>
-	<tr>
-		<td>{'contact_org.province'|devblocks_translate|capitalize}.: </td>
-		<td><input type="text" name="province" value="{$org->province}" style="width:98%;"></td>
-	</tr>
-	<tr>
-		<td>{'contact_org.postal'|devblocks_translate|capitalize}: </td>
-		<td><input type="text" name="postal" value="{$org->postal}" style="width:98%;"></td>
-	</tr>
-	<tr>
-		<td>{'contact_org.country'|devblocks_translate|capitalize}: </td>
-		<td>
-			<input type="text" name="country" value="{$org->country}" style="width:98%;">
-		</td>
-	</tr>
-	<tr>
-		<td width="1%" nowrap="nowrap" valign="middle">{'common.email'|devblocks_translate|capitalize}:</td>
-		<td width="99%" valign="top">
-				<button type="button" class="chooser-abstract" data-field-name="email_id" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-single="true" data-query="org.id:{$org->id}" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="cerb-icons cerb-icon-search"></span></button>
-				
-				<ul class="bubbles chooser-container">
-					{if $addy}
-						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$addy->id}{/devblocks_url}?v={$addy->updated}"><input type="hidden" name="email_id" value="{$addy->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$addy->id}">{$addy->email}</a></li>
-					{/if}
-				</ul>
-		</td>
-	</tr>
-	<tr>
-		<td>{'common.phone'|devblocks_translate|capitalize}: </td>
-		<td><input type="text" name="phone" value="{$org->phone}" style="width:98%;"></td>
-	</tr>
-	<tr>
-		<td>{'common.website'|devblocks_translate|capitalize}: </td>
-		<td><input type="text" name="website" value="{$org->website}" style="width:98%;" class="url"></td>
-	</tr>
-	
-	<tr>
-		<td width="1%" nowrap="nowrap" valign="top">{'common.image'|devblocks_translate|capitalize}:</td>
-		<td width="99%" valign="top">
-			<div style="float:left;margin-right:5px;">
-				<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=org&context_id={$org->id}{/devblocks_url}?v={$org->updated}" style="height:50px;width:50px;">
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'common.name'|devblocks_translate|capitalize}</label>
+			<input type="text" name="org_name" value="{$org->name}" autofocus="autofocus">
+		</div>
+
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'common.aliases'|devblocks_translate|capitalize} <span class="cerb-ui-form--hint">(press Enter to add)</span></label>
+			<div class="cerb-ui-tag-input" id="aliasesInput_{$form_id}" data-name="aliases">
+				{foreach from=$aliases item=alias_val}
+					<input type="text" name="aliases[]" maxlength="255" value="{$alias_val}">
+				{/foreach}
 			</div>
-			<div style="float:left;">
-				<button type="button" class="cerb-avatar-chooser" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$org->id}">{'common.edit'|devblocks_translate|capitalize}</button>
-				<input type="hidden" name="avatar_image">
+		</div>
+
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'contact_org.street'|devblocks_translate|capitalize}</label>
+			<textarea name="street" style="height:50px;">{$org->street}</textarea>
+		</div>
+
+		<div class="cerb-ui-form--row">
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'contact_org.city'|devblocks_translate|capitalize}</label>
+				<input type="text" name="city" value="{$org->city}">
 			</div>
-		</td>
-	</tr>
-	
-	{if !empty($custom_fields)}
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
-	{/if}
-</table>
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'contact_org.province'|devblocks_translate|capitalize}</label>
+				<input type="text" name="province" value="{$org->province}">
+			</div>
+		</div>
+
+		<div class="cerb-ui-form--row">
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'contact_org.postal'|devblocks_translate|capitalize}</label>
+				<input type="text" name="postal" value="{$org->postal}">
+			</div>
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'contact_org.country'|devblocks_translate|capitalize}</label>
+				<input type="text" name="country" value="{$org->country}">
+			</div>
+		</div>
+
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'common.email'|devblocks_translate|capitalize}</label>
+			<div class="cerb-ui-record-chooser" id="emailChooser_{$form_id}">
+				{if $addy}
+					<li data-context-id="{$addy->id}" data-label="{$addy->email}" data-image="{devblocks_url}c=avatars&context=address&context_id={$addy->id}{/devblocks_url}?v={$addy->updated}"></li>
+				{/if}
+			</div>
+		</div>
+
+		<div class="cerb-ui-form--row">
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.phone'|devblocks_translate|capitalize}</label>
+				<label class="cerb-ui-form--control">
+					<span class="cerb-ui-form--control-icon cerb-icons cerb-icon-phone-handset"></span>
+					<input type="text" name="phone" value="{$org->phone}">
+				</label>
+			</div>
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.website'|devblocks_translate|capitalize}</label>
+				<label class="cerb-ui-form--control">
+					<span class="cerb-ui-form--control-icon cerb-icons cerb-icon-link"></span>
+					<input type="text" name="website" value="{$org->website}" class="url">
+				</label>
+			</div>
+		</div>
+
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'common.image'|devblocks_translate|capitalize}</label>
+			<div>
+				<span class="cerb-ui-avatar" style="width:50px;height:50px;font-size:21px;"
+					data-cerb-image-editor data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$org->id}" data-name="avatar_image"
+					data-avatar="{$org->name}" data-avatar-seed="org:{$org->id}"
+					data-avatar-image="{devblocks_url}c=avatars&context=org&context_id={$org->id}{/devblocks_url}?v={$org->updated}"></span>
+				<input type="hidden" name="avatar_image" value="">
+			</div>
+		</div>
+
+		{if !empty($custom_fields)}
+		{include file="devblocks:cerberusweb.core::internal/custom_fields/form.tpl" custom_fields=$custom_fields}
+		{/if}
+	</div>
+</div>
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_ORG context_id=$org->id}
 
 {include file="devblocks:cerberusweb.core::internal/cards/editors/comment.tpl"}
 
 {if !empty($org->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}
-<fieldset style="display:none;" class="delete">
-	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
-	
-	<div>
-		Are you sure you want to permanently delete this organization?
-	</div>
-
-	<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
-	<button type="button" class="delete-cancel">{'common.no'|devblocks_translate|capitalize}</button>
-</fieldset>
+	{include file="devblocks:cerberusweb.core::internal/peek/delete_confirm.tpl" noun="organization"}
 {/if}
 
 <div class="status"></div>
 
-<div class="buttons">
+<div class="buttons" style="margin-top:10px;">
 	{if (!$org->id && $active_worker->hasPriv("contexts.{$peek_context}.create")) || ($org->id && $active_worker->hasPriv("contexts.{$peek_context}.update"))}
-	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	<button type="button" class="cerb-ui-button save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 	{/if}
-	{if $active_worker->hasPriv("contexts.{$peek_context}.delete") && !empty($org->id)}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	{if $active_worker->hasPriv("contexts.{$peek_context}.delete") && !empty($org->id)}<button type="button" class="cerb-ui-button cerb-ui-button--subtle delete-prompt"><span class="cerb-icons cerb-icon-trash"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 </form>
 
@@ -124,34 +127,44 @@ $(function() {
 	Devblocks.formDisableSubmit($frm);
 
 	$popup.one('popup_open',function() {
-		// Buttons
-		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
-		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-		$popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
-		$popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
-
-		// Abstract choosers
-		$popup.find('button.chooser-abstract').cerbChooserTrigger();
-		
-		// Title
 		$popup.dialog('option','title', "{'common.edit'|devblocks_translate|capitalize|escape:'javascript' nofilter}: {'common.organization'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
-		
-		// Worker autocomplete
-		$popup.find('button.chooser_watcher').each(function() {
-			ajax.chooser(this,'cerberusweb.contexts.worker','add_watcher_ids', { autocomplete:true });
-		});
-		
+
+		$popup.find('button.save').click(Devblocks.callbackPeekEditSave);
+		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
+		if(window.CerbUI && CerbUI.Form) CerbUI.Form.ConfirmDelete($popup[0]);
+
+		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
+
 		// Country autocomplete
-		ajax.countryAutoComplete($popup.find('form input[name=country]'));
-		
+		if(window.CerbUI && CerbUI.TextChooser)
+			$popup.find('form input[name=country]').each(function() {
+				new CerbUI.TextChooser(this, { icon: 'globe', source: 'c=profiles&a=invoke&module=org&action=autocompleteCountry' });
+			});
+
 		// Avatar
-		
-		var $avatar_chooser = $popup.find('button.cerb-avatar-chooser');
-		var $avatar_image = $avatar_chooser.closest('td').find('img.cerb-avatar');
-		ajax.chooserAvatar($avatar_chooser, $avatar_image);
-		
+		if(window.CerbUI && CerbUI.ImageEditor)
+			$popup.find('[data-cerb-image-editor]').each(function() { new CerbUI.ImageEditor(this); });
+
+		// Aliases tag input (posts aliases[]; persisted CRLF-delimited)
+		if(window.CerbUI && CerbUI.TagInput) {
+			let aliasesEl = $popup.find('#aliasesInput_{$form_id}')[0];
+			if(aliasesEl)
+				new CerbUI.TagInput(aliasesEl, { placeholder: 'Add an alias and press Enter…' });
+		}
+
+		// Email chooser
+		if(window.CerbUI && CerbUI.RecordChooser) {
+			new CerbUI.RecordChooser($popup.find('#emailChooser_{$form_id}')[0], {
+				context: 'address',
+				name: 'email_id',
+				emptyIcon: 'mail',
+				query: 'mailTransport.id:0 isBanned:n isDefunct:no',
+				create: 'if-null',
+				searchPlaceholder: "{'common.email'|devblocks_translate|capitalize|escape:'javascript' nofilter}"
+			});
+		}
+
 		$popup.find(':input:text:first').focus();
-		
 	});
 });
 </script>

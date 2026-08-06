@@ -2,45 +2,40 @@
 {$attach_uniqid = uniqid()}
 
 {if $attachments}
-<fieldset class="properties" style="padding:5px 0;border:0;">
-	<ul id="{$attach_uniqid}" class="bubbles" style="display:block;">
-		{foreach from=$attachments item=attachment}
-		<li>
-			<span class="cerb-icons cerb-icon-paperclip" style="vertical-align:baseline;"></span>
-			<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$attachment->id}" data-profile-url="{devblocks_url}c=files&id={$attachment->id}&name={$attachment->name|devblocks_permalink}{/devblocks_url}">
+<ul id="{$attach_uniqid}" class="cerb-u-flex cerb-u-flex-wrap cerb-u-items-center cerb-u-gap-1 cerb-u-my-2 cerb-u-py-1 cerb-u-px-0" style="list-style:none;">
+	{foreach from=$attachments item=attachment}
+	<li>
+		<span class="cerb-ui-pill" style="white-space:normal;word-break:break-word;">
+			<span class="cerb-icons cerb-icon-paperclip"></span>
+			<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$attachment->id}" data-profile-url="{devblocks_url}c=files&id={$attachment->id}&name={$attachment->name|devblocks_permalink}{/devblocks_url}"{if !empty($attachment->mime_type)} title="{$attachment->mime_type}"{/if}>
 				<b>{$attachment->name}</b>
-				({$attachment->storage_size|devblocks_prettybytes}
-				-
-				{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if})
+				<span class="cerb-u-fgg-7">({$attachment->storage_size|devblocks_prettybytes})</span>
 			</a>
-			<a class="cerb-menu-trigger"><span class="cerb-icons cerb-icon-chevron-down" style="top:4px;"></span></a>
-		</li>
-		{/foreach}
-	</ul>
-	<ul class="cerb-menu" style="display:none;position:absolute;">
-		<li data-option="download"><div><b>Download</b></div></li>
-		<li data-option="browser"><div><b>Open in browser</b></div></li>
-	</ul>
-</fieldset>
+			<a class="cerb-menu-trigger"><span class="cerb-icons cerb-icon-chevron-down"></span></a>
+		</span>
+	</li>
+	{/foreach}
+</ul>
+<ul class="cerb-menu" style="display:none;position:absolute;">
+	<li data-option="download"><div><b>Download</b></div></li>
+	<li data-option="browser"><div><b>Open in browser</b></div></li>
+</ul>
 {/if}
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $attachments = $('#{$attach_uniqid}');
-	var $target = null;
-	
-	var $menu = $attachments.next('ul.cerb-menu').menu({
-		select: function(e, ui) {
-			e.preventDefault();
-			e.stopPropagation();
+	const $attachments = $('#{$attach_uniqid}');
+	let $target = null;
 
-			var $link = ui.item;
-			var url = null;
-
-			if(!$link.is('li'))
+	const menuEl = $attachments.next('ul.cerb-menu')[0];
+	const menu = (menuEl && window.CerbUI && CerbUI.Menu) ? new CerbUI.Menu(menuEl, {
+		onSelect: function(li, src) {
+			if(!$target)
 				return;
 
-			switch($link.attr('data-option')) {
+			let url = null;
+
+			switch(src.getAttribute('data-option')) {
 				case 'card':
 					$target.find('a').click();
 					break;
@@ -54,12 +49,11 @@ $(function() {
 					break;
 			}
 
-			$menu.hide();
-			$target = null;			
+			$target = null;
 		}
-	});
-	
-	$attachments.find('li > a.cerb-menu-trigger')
+	}) : null;
+
+	$attachments.find('a.cerb-menu-trigger')
 		.hoverIntent({
 			over: function() {
 				$(this).click();
@@ -70,23 +64,12 @@ $(function() {
 		.click(function(e) {
 			e.preventDefault();
 			e.stopPropagation();
-			
+
 			$target = $(this).closest('li');
-			
-			$menu.css('width', $target.width() + 'px');
-			$menu.addClass('ui-front');
-			$menu.show().position( { my: 'left top', at: 'left bottom', of: $target } );
+
+			if(menu)
+				menu.open(this);
 		})
 	;
-	
-	$menu.hoverIntent({
-		interval: 0,
-		timeout: 250,
-		over: function(e) { },
-		out: function() {
-			$menu.hide();
-		}
-	});
-	
 });
 </script>

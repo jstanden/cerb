@@ -12,40 +12,38 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<table cellspacing="0" cellpadding="2" border="0" width="98%">
-	<tr>
-		<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate|capitalize}:</b></td>
-		<td width="99%">
-			<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
-		</td>
-	</tr>
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'common.name'|devblocks_translate|capitalize}</label>
+			<input type="text" name="name" value="{$model->name}" autofocus="autofocus">
+		</div>
 
-	<tr>
-		<td width="1%" valign="top" nowrap="nowrap"><b>{'common.token'|devblocks_translate|capitalize}:</b></td>
-		<td width="99%">
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'common.token'|devblocks_translate|capitalize}</label>
 			{if $model->id}
-				{$model->token_hint}
+				<div class="cerb-u-text-muted">{$model->token_hint}</div>
 			{else}
-				<input type="text" name="token" value="{$model->token_hint}" style="width:90%;" spellcheck="false" readonly="readonly">
-				<button type="button" data-cerb-button-copy-token><span class="cerb-icons cerb-icon-copy"></span></button>
-				<div>
-					(this will only be displayed once)
+				<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-1">
+					<input type="text" name="token" value="{$model->token_hint}" style="flex:1 1 auto;min-width:0;" spellcheck="false" readonly="readonly">
+					<button type="button" class="cerb-ui-button cerb-ui-button--subtle" data-cerb-button-copy-token><span class="cerb-icons cerb-icon-copy"></span></button>
 				</div>
+				<div class="cerb-ui-form--help">(this will only be displayed once)</div>
 			{/if}
-		</td>
-	</tr>
+		</div>
 
-	{if !empty($custom_fields)}
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
-	{/if}
-</table>
+		{if !empty($custom_fields)}
+		{include file="devblocks:cerberusweb.core::internal/custom_fields/form.tpl" custom_fields=$custom_fields}
+		{/if}
+	</div>
+</div>
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
-<br>
-
-<fieldset class="peek">
-	<legend>{'common.scopes'|devblocks_translate|capitalize}</legend>
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">{'common.scopes'|devblocks_translate|capitalize}</div>
+	</div>
 
 	<table cellspacing="0" cellpadding="4" border="0" width="100%" class="cerb-scope-list">
 		{foreach $available_scopes as $group_key => $group}
@@ -57,7 +55,7 @@
 					> <b>{$group_key}</b>
 				</label>
 			</td>
-			<td width="60%" style="color:var(--cerb-color-background-contrast-125);">{$group.label}</td>
+			<td width="60%" class="cerb-u-text-muted">{$group.label}</td>
 		</tr>
 		{foreach $group.children as $scope_key => $child}
 		<tr>
@@ -69,33 +67,24 @@
 					> {$child.name}
 				</label>
 			</td>
-			<td style="color:var(--cerb-color-background-contrast-125);">{$child.label}</td>
+			<td class="cerb-u-text-muted">{$child.label}</td>
 		</tr>
 		{/foreach}
 		{/foreach}
 	</table>
-</fieldset>
+</div>
 
 {if !empty($model->id)}
-<fieldset style="display:none;" class="delete">
-	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
-
-	<div>
-		Are you sure you want to permanently delete this service token?
-	</div>
-
-	<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
-	<button type="button" class="delete-cancel">{'common.no'|devblocks_translate|capitalize}</button>
-</fieldset>
+	{include file="devblocks:cerberusweb.core::internal/peek/delete_confirm.tpl" noun="service token"}
 {/if}
 
 <div class="buttons" style="margin-top:10px;">
 	{if $model->id}
-		<button type="button" class="save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-		<button type="button" class="save-continue"><span class="cerb-icons cerb-icon-circle-arrow-right"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>
-		{if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+		<button type="button" class="cerb-ui-button save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cerb-ui-button cerb-ui-button--subtle save-continue"><span class="cerb-icons cerb-icon-circle-arrow-right"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>
+		{if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="cerb-ui-button cerb-ui-button--subtle delete-prompt"><span class="cerb-icons cerb-icon-trash"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 	{else}
-		<button type="button" class="save"><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.create'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cerb-ui-button save"><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.create'|devblocks_translate|capitalize}</button>
 	{/if}
 </div>
 
@@ -116,8 +105,7 @@ $(function() {
 		$popup.find('button.save').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.save-continue').click({ mode: 'continue' }, Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-		$popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
-		$popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
+		if(window.CerbUI && CerbUI.Form) CerbUI.Form.ConfirmDelete($popup[0]);
 
 		let $input_token = $frm.find('input[name=token]');
 
@@ -127,7 +115,7 @@ $(function() {
 			Devblocks.createAlert('Copied to clipboard!');
 		});
 
-		$popup.find('.cerb-scope-list').disableSelection();
+		$popup.find('.cerb-scope-list').each(function() { if(window.CerbUI && CerbUI.utils) CerbUI.utils.disableSelection(this); });
 
 		// Scope parent/child checkbox interaction
 		$popup.find('[data-cerb-scope-parent]').on('change', function() {

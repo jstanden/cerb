@@ -90,11 +90,8 @@
 			</td>
 			<td width="100%">
 				<div style="display:none;">
-					<div class="cerb-delta-slider-container">
-					<input type="hidden" name="params[importance]" value="50">
-						<div class="cerb-delta-slider cerb-slider-gray">
-							<span class="cerb-delta-slider-midpoint"></span>
-						</div>
+					<div class="cerb-ui-slider" style="max-width:250px;">
+						<input type="hidden" name="params[importance]" value="50">
 					</div>
 				</div>
 			</td>
@@ -129,8 +126,7 @@
 			</td>
 			<td width="100%">
 				<div style="display:none;">
-					<button type="button" class="chooser-abstract" data-field-name="params[owner]" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="cerb-icons cerb-icon-search"></span></button>
-					<ul class="bubbles chooser-container"></ul>
+					<div class="cerb-ui-record-chooser" data-cerb-chooser="params_owner"></div>
 				</div>
 			</td>
 		</tr>
@@ -146,8 +142,7 @@
 			</td>
 			<td width="100%">
 				<div style="display:none;">
-					<button type="button" class="chooser-abstract" data-field-name="params[org]" data-context="{CerberusContexts::CONTEXT_ORG}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="cerb-icons cerb-icon-search"></span></button>
-					<ul class="bubbles chooser-container"></ul>
+					<div class="cerb-ui-record-chooser" data-cerb-chooser="params_org"></div>
 				</div>
 			</td>
 		</tr>
@@ -162,8 +157,7 @@
 			</td>
 			<td width="100%">
 				<div style="display:none;">
-					<button type="button" class="chooser-abstract" data-field-name="params[watchers_add][]" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-autocomplete=""><span class="cerb-icons cerb-icon-search"></span></button>
-					<ul class="bubbles chooser-container" style="display:block;"></ul>
+					<div class="cerb-ui-record-chooser" data-cerb-chooser="params_watchers_add"></div>
 				</div>
 			</td>
 		</tr>
@@ -177,8 +171,7 @@
 			</td>
 			<td width="100%">
 				<div style="display:none;">
-					<button type="button" class="chooser-abstract" data-field-name="params[watchers_remove][]" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-autocomplete=""><span class="cerb-icons cerb-icon-search"></span></button>
-					<ul class="bubbles chooser-container" style="display:block;"></ul>
+					<div class="cerb-ui-record-chooser" data-cerb-chooser="params_watchers_remove"></div>
 				</div>
 			</td>
 		</tr>
@@ -192,7 +185,7 @@
 </fieldset>
 {/if}
 
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TICKET bulk=true}
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/bulk_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TICKET}
 
 {if $active_worker->hasPriv('contexts.cerberusweb.contexts.ticket.broadcast')}
 {include file="devblocks:cerberusweb.core::internal/views/bulk_broadcast.tpl" context=CerberusContexts::CONTEXT_TICKET is_reply=true}
@@ -221,7 +214,12 @@ $(function() {
 		$popup.dialog('option','title',"{'common.bulk_update'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		$popup.css('overflow', 'inherit');
 		
-		$popup.find('button.chooser-abstract').cerbChooserTrigger();
+		if(window.CerbUI && CerbUI.RecordChooser) {
+			new CerbUI.RecordChooser($popup.find('[data-cerb-chooser="params_owner"]')[0], { context: '{CerberusContexts::CONTEXT_WORKER}', name: 'params[owner]', emptyIcon: 'user' });
+			new CerbUI.RecordChooser($popup.find('[data-cerb-chooser="params_org"]')[0], { context: '{CerberusContexts::CONTEXT_ORG}', name: 'params[org]', emptyIcon: 'building-office', create: 'if-null' });
+			new CerbUI.RecordChooser($popup.find('[data-cerb-chooser="params_watchers_add"]')[0], { context: '{CerberusContexts::CONTEXT_WORKER}', name: 'params[watchers_add]', multiple: true, emptyIcon: 'user', query: 'isDisabled:n' });
+			new CerbUI.RecordChooser($popup.find('[data-cerb-chooser="params_watchers_remove"]')[0], { context: '{CerberusContexts::CONTEXT_WORKER}', name: 'params[watchers_remove]', multiple: true, emptyIcon: 'user', query: 'isDisabled:n' });
+		}
 
 		$popup.find('select[name="params[status][status_id]"]').on('change', function(e) {
 			e.stopPropagation();
@@ -259,36 +257,11 @@ $(function() {
 		
 		// Slider
 		
-		$popup.find('div.cerb-delta-slider').each(function() {
-			var $this = $(this);
-			var $input = $this.siblings('input:hidden');
-			
-			$this.slider({
-				disabled: false,
-				value: 50,
-				min: 0,
-				max: 100,
-				step: 1,
-				range: 'min',
-				slide: function(event, ui) {
-					$this.removeClass('cerb-slider-gray cerb-slider-red cerb-slider-green');
-					
-					if(ui.value < 50) {
-						$this.addClass('cerb-slider-green');
-						$this.slider('option', 'range', 'min');
-					} else if(ui.value > 50) {
-						$this.addClass('cerb-slider-red');
-						$this.slider('option', 'range', 'max');
-					} else {
-						$this.addClass('cerb-slider-gray');
-						$this.slider('option', 'range', false);
-					}
-				},
-				stop: function(event, ui) {
-					$input.val(ui.value);
-				}
+		if(window.CerbUI && CerbUI.Slider) {
+			$popup.find('div.cerb-ui-slider').each(function() {
+				new CerbUI.Slider(this, { min: 0, max: 100, step: 1, midpoint: 50 });
 			});
-		});
+		}
 		
 		// Move to
 		

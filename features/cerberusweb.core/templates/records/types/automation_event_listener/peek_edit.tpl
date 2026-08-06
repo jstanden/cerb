@@ -13,96 +13,93 @@
 
 	{include file="devblocks:cerberusweb.core::records/types/workflow/managed_callout.tpl" workflow=$workflow workflow_url=$workflow_url noun="event listener"}
 
-		<tr>
-			<td width="1%" valign="top" nowrap="nowrap">
-				<b>{'common.event'|devblocks_translate|capitalize}:</b>
-			</td>
-			<td width="99%">
-				<button type="button" data-cerb-event-chooser data-interaction-uri="ai.cerb.chooser.automationEvent" data-interaction-params=""><span class="cerb-icons cerb-icon-search"></span></button>
-				<ul class="chooser-container bubbles">
-					{if $model->event_name}
-						<li>
-							{$model->event_name}
-							<input type="hidden" name="event_name" value="{$model->event_name}">
-							<span class="cerb-icons cerb-icon-circle-remove"></span>
-						</li>
-					{/if}
-				</ul>
-			</td>
-		</tr>
+	<div class="cerb-ui-panel cerb-ui-panel--spaced">
+		<div class="cerb-ui-form">
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.name'|devblocks_translate|capitalize}</label>
+				<input type="text" name="name" value="{$model->name}" autofocus="autofocus">
+			</div>
 
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'common.priority'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%">
-				<input type="text" name="priority" maxlength="3" size="3" value="{$model->priority|default:100}">
-				<span>
-					(0=first, 255=last)
-				</span>
-			</td>
-		</tr>
+			<div class="cerb-ui-form--row">
+				{* Event — the interaction chooser (button + ul.bubbles), kept verbatim *}
+				<div class="cerb-ui-form--field cerb-u-flex-2">
+					<label class="cerb-ui-form--label">{'common.event'|devblocks_translate|capitalize}</label>
+					<div>
+						<button type="button" data-cerb-event-chooser data-interaction-uri="ai.cerb.chooser.automationEvent" data-interaction-params=""><span class="cerb-icons cerb-icon-search"></span></button>
+						<ul class="chooser-container bubbles" style="display:inline-block;">
+							{if $model->event_name}
+								<li>
+									{$model->event_name}
+									<input type="hidden" name="event_name" value="{$model->event_name}">
+									<span class="cerb-icons cerb-icon-circle-remove"></span>
+								</li>
+							{/if}
+						</ul>
+					</div>
+				</div>
 
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'common.status'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%">
-				<label>
-					<input type="radio" name="is_disabled" value="0" {if !$model->is_disabled}checked="checked"{/if}>
-					{'common.enabled'|devblocks_translate|capitalize}
-				</label>
-				<label>
-					<input type="radio" name="is_disabled" value="1" {if $model->is_disabled}checked="checked"{/if}>
-					{'common.disabled'|devblocks_translate|capitalize}
-				</label>
-			</td>
-		</tr>
+				<div class="cerb-ui-form--field cerb-u-flex-1">
+					<label class="cerb-ui-form--label">{'common.priority'|devblocks_translate|capitalize} <span class="cerb-icons cerb-icon-sort-asc" title="0-255, ascending"></span></label>
+					<div><input type="number" name="priority" min="0" max="255" value="{$model->priority|default:100}" style="width:5em;"></div>
+				</div>
 
-		{if !empty($custom_fields)}
-			{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
-		{/if}
-	</table>
+				<div class="cerb-ui-form--field cerb-u-flex-1">
+					<label class="cerb-ui-form--label">{'common.enabled'|devblocks_translate|capitalize}</label>
+					<div>
+						<input type="hidden" name="is_disabled" id="isDisabled_{$form_id}" value="{$model->is_disabled|default:0}">
+						<label class="cerb-ui-toggle">
+							<input type="checkbox" id="statusEnabled_{$form_id}" {if !$model->is_disabled}checked="checked"{/if}>
+							<span class="cerb-ui-toggle--slider"></span>
+						</label>
+					</div>
+				</div>
+			</div>
+
+			{if !empty($custom_fields)}
+				{* bulk/form.tpl with tbody=true emits <tbody> rows → needs a <table> wrapper *}
+				<table cellspacing="0" cellpadding="2" border="0" width="98%">
+					{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
+				</table>
+			{/if}
+		</div>
+	</div>
 
 	{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
-	<fieldset data-cerb-event-listener-toolbar class="peek">
-		<legend>Automations: (KATA)</legend>
-		<div class="cerb-code-editor-toolbar">
-			<div data-cerb-toolbar-custom style="display:inline-block;">
-				{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
-			</div>
+	<div class="cerb-ui-panel cerb-ui-panel--spaced">
+		<div class="cerb-ui-header cerb-ui-header--tight">
+			<div class="cerb-ui-header--title-sm">Automations: (KATA)</div>
+		</div>
+		<div data-cerb-event-listener-toolbar>
+			{* Static editor actions; the per-event interaction items are spliced in at the front (before the divider) on init/refresh *}
+			<ul class="cerb-ui-toolbar" id="event_toolbar_{$form_id}">
+				<li data-static></li>
+				{if $model->id}
+					<li data-static data-icon="history" data-key="changesets" title="{'common.change_history'|devblocks_translate|capitalize}"></li>
+				{/if}
+				<li data-static data-icon="book-open" data-toggle data-key="placeholders" title="{'common.placeholders'|devblocks_translate|capitalize}"></li>
+				<li data-static data-icon="lab" data-toggle data-key="tester" title="{'common.test'|devblocks_translate|capitalize}"></li>
+				<li data-static data-icon="circle-question-mark" data-key="help" title="{'common.help'|devblocks_translate|capitalize}"></li>
+			</ul>
 
-			<div class="cerb-code-editor-toolbar-divider"></div>
-
-			{if $model->id}
-				<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-changesets title="{'common.change_history'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-history"></span></button>
-			{/if}
-
-			{include file="devblocks:cerberusweb.core::automations/triggers/editor_event_handler_buttons.tpl"}
-
-			<button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="https://cerb.ai/docs/automations/#events" target="_blank"><span class="cerb-icons cerb-icon-circle-question-mark"></span></a></button>
+			{* Initial per-event interaction items (their own ul); the JS moves these <li>s into the strip above *}
+			<div data-cerb-toolbar-dynamic-source hidden>{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}</div>
 		</div>
 
-		<textarea name="event_kata" data-editor-mode="ace/mode/cerb_kata" data-editor-lines="30">{$model->event_kata}</textarea>
+		<textarea id="event_kata_editor_{$form_id}" name="event_kata" data-editor-lines="30" spellcheck="false">{$model->event_kata}</textarea>
 
 		{include file="devblocks:cerberusweb.core::automations/triggers/editor_event_handler.tpl" trigger_inputs=$trigger_inputs}
-	</fieldset>
+	</div>
 
 	{if !empty($model->id)}
-		<fieldset style="display:none;" class="delete">
-			<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
-
-			<div>
-				Are you sure you want to permanently delete this event listener?
-			</div>
-
-			<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
-			<button type="button" class="delete-cancel">{'common.no'|devblocks_translate|capitalize}</button>
-		</fieldset>
+		{include file="devblocks:cerberusweb.core::internal/peek/delete_confirm.tpl" noun="event listener"}
 	{/if}
 
 	<div class="buttons" style="margin-top:10px;">
 		{if $model->id}
 			<button type="button" class="save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 			<button type="button" class="save-continue"><span class="cerb-icons cerb-icon-circle-arrow-right"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>
-			{if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+			{if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-trash cerb-u-anim-shake-hover"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 		{else}
 			<button type="button" class="save"><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.create'|devblocks_translate|capitalize}</button>
 		{/if}
@@ -124,15 +121,33 @@
 
 			// Buttons
 
-			$popup.find('button.save').click(Devblocks.callbackPeekEditSave);
-			$popup.find('button.save-continue').click({ mode: 'continue' }, Devblocks.callbackPeekEditSave);
+			// Flush the editor's full document (incl. any folded rows) into the textarea before the form serializes
+			let syncKataEditor = function() {
+				$popup.find('[name=event_kata]').val(editor.getValue());
+			};
+
+			$popup.find('button.save').click({ before: syncKataEditor }, Devblocks.callbackPeekEditSave);
+			$popup.find('button.save-continue').click({ mode: 'continue', before: syncKataEditor }, Devblocks.callbackPeekEditSave);
 			$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-			$popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
-			$popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
+
+			// Inline delete confirm (reveals the cerb-ui-panel--alert, hides the button row); the actual
+			// delete stays on button.delete above.
+			if(window.CerbUI && CerbUI.Form)
+				CerbUI.Form.ConfirmDelete($popup[0]);
+
+			$popup.find('a.cerb-peek-trigger').cerbPeekTrigger();
+
+			// Status toggle (checked = enabled = is_disabled:0); the hidden field carries the POST value
+			let $statusToggle = $popup.find('#statusEnabled_{$form_id}').closest('.cerb-ui-toggle');
+			if(window.CerbUI && CerbUI.Toggle) {
+				new CerbUI.Toggle($statusToggle[0], {
+					onChange: function(checked) { $popup.find('#isDisabled_{$form_id}').val(checked ? 0 : 1); }
+				});
+			}
 
 			// Editor
 
-			let autocomplete_suggestions = cerbAutocompleteSuggestions.kataAutomationEvent;
+			let autocomplete_suggestions = CerbUI.editorCore.autocompleteSchemas.kataAutomationEvent;
 
 			{if $trigger_ext && $trigger_ext->id}
 			autocomplete_suggestions['automation:uri:']['params']['automation'] = {
@@ -140,20 +155,14 @@
 			};
 			{/if}
 
-			let $editor = $popup.find('[name=event_kata]')
-				.cerbCodeEditor()
-				.cerbCodeEditorAutocompleteKata({
-					autocomplete_suggestions: autocomplete_suggestions
-				})
-				.next('pre.ace_editor')
-			;
+			let $editor = $popup.find('#event_kata_editor_{$form_id}');
 
-			let editor = ace.edit($editor.attr('id'));
+			let editor = new CerbUI.KataEditor($editor[0], {
+				onAutocomplete: CerbUI.KataEditor.kataFieldSource(autocomplete_suggestions)
+			});
 
 			{if $model->id}
-			$popup.find('[data-cerb-editor-button-changesets]').on('click', function(e) {
-				e.stopPropagation();
-
+			let openChangesets = function() {
 				let formData = new FormData();
 				formData.set('c', 'internal');
 				formData.set('a', 'invoke');
@@ -165,28 +174,44 @@
 
 				let $editor_policy_differ_popup = genericAjaxPopup('editorDiff{$form_id}', formData, null, null, '80%');
 
-				$editor_policy_differ_popup.one('cerb-diff-editor-ready', function(e) {
+				$editor_policy_differ_popup.one('cerb-diff-viewer-ready', function(e) {
 					e.stopPropagation();
 
-					if(!e.hasOwnProperty('differ'))
+					if(!e.hasOwnProperty('viewer'))
 						return;
 
-					e.differ.editors.right.ace.setValue(editor.getValue());
-					e.differ.editors.right.ace.clearSelection();
+					e.viewer.setCurrent(editor.getValue());
 
-					e.differ.editors.right.ace.on('change', function() {
-						editor.setValue(e.differ.editors.right.ace.getValue());
+					e.viewer.onRestore(function(content) {
+						editor.setValue(content);
 						editor.clearSelection();
 					});
 				});
-			});
+			};
 			{/if}
 
 			// Toolbar
 
-			let $toolbar = $popup.find('[data-cerb-event-listener-toolbar]').find('.cerb-code-editor-toolbar');
+			let $toolbar_wrapper = $popup.find('[data-cerb-event-listener-toolbar]');
+			let toolbar_ul = $toolbar_wrapper.find('#event_toolbar_{$form_id}')[0];
 
-			$toolbar.cerbToolbar({
+			// Move the server-rendered per-event interaction <li>s into the front of the strip (before the
+			// first static item). Passing null just clears them (e.g. when the event is removed).
+			let spliceToolbarDynamic = function(source_ul) {
+				toolbar_ul.querySelectorAll(':scope > li:not([data-static])').forEach(li => li.remove());
+
+				if(source_ul) {
+					let anchor = toolbar_ul.querySelector(':scope > li[data-static]');
+					Array.from(source_ul.children)
+						.filter(node => node.tagName === 'LI')
+						.forEach(li => toolbar_ul.insertBefore(li, anchor))
+					;
+				}
+			};
+
+			spliceToolbarDynamic($toolbar_wrapper.find('[data-cerb-toolbar-dynamic-source] > ul')[0]);
+
+			let toolbar = new CerbUI.Toolbar(toolbar_ul, {
 				caller: {
 					name: 'cerb.toolbar.editor',
 					params: {
@@ -196,7 +221,7 @@
 				},
 				start: function(formData) {
 					let pos = editor.getCursorPosition();
-					let token_path = Devblocks.cerbCodeEditor.getKataTokenPath(pos, editor).join('');
+					let token_path = editor.getTokenPath().join('');
 
 					let event_id = 'cerb.trigger.' + $frm.find('input[name=event_name]').val();
 
@@ -212,7 +237,7 @@
 
 					let $target = e.trigger;
 
-					if(!$target.is('.cerb-bot-trigger'))
+					if(!$target.is('[data-interaction-uri]'))
 						return;
 
 					if (e.eventData.exit === 'error') {
@@ -223,12 +248,29 @@
 				},
 				reset: function(e) {
 					e.stopPropagation();
+				},
+				onSelect: function(item) {
+					switch(item.key) {
+						case 'placeholders':
+							$popup.find('[data-cerb-event-placeholders]').stop(true, true)[item.pressed ? 'fadeIn' : 'fadeOut']();
+							break;
+						case 'tester':
+							$popup.find('[data-cerb-event-tester]').stop(true, true)[item.pressed ? 'fadeIn' : 'fadeOut']();
+							break;
+						{if $model->id}
+						case 'changesets':
+							openChangesets();
+							break;
+						{/if}
+						case 'help':
+							window.open('https://cerb.ai/docs/automations/#events', '_blank');
+							break;
+					}
 				}
 			});
 
-			$toolbar.cerbCodeEditorToolbarEventHandler({
-				editor: editor
-			});
+			// Tester panel ("Test": placeholders KataEditor + Run + results) — shared impl in editor-core.
+			CerbUI.editorCore.attachEventHandlerTester($popup, editor);
 
 			// Event chooser
 
@@ -245,15 +287,12 @@
 
 				$target.closest('li').remove();
 
-				// Clear the toolbar
-				$toolbar.find('[data-cerb-toolbar-custom]').empty();
+				// Clear the per-event interaction items from the toolbar
+				spliceToolbarDynamic(null);
+				toolbar.refresh();
 
-				// Reset autocompletions
-				$editor
-					.cerbCodeEditorAutocompleteKata({
-						autocomplete_suggestions: cerbAutocompleteSuggestions.kataAutomationEvent
-					})
-				;
+				// Reset autocompletions (the editor's source reads this map live)
+				delete autocomplete_suggestions['automation:uri:']['params']['automation'];
 
 				// Reset placeholders
 				$popup.find('[data-cerb-event-placeholders]').empty();
@@ -319,28 +358,18 @@
 					formData.set('event_id', event_id);
 
 					genericAjaxPost(formData, null, null, function(json) {
-						// Update toolbar by event
+						// Update the per-event interaction items by event
 						if('object' == typeof json && json.hasOwnProperty('toolbar_html')) {
-							$toolbar
-								.find('[data-cerb-toolbar-custom]')
-								.html(json.toolbar_html)
-								.closest('.cerb-code-editor-toolbar')
-								.triggerHandler('cerb-toolbar--refreshed')
-							;
+							let tmp = document.createElement('div');
+							tmp.innerHTML = json.toolbar_html;
+							spliceToolbarDynamic(tmp.querySelector('ul'));
+							toolbar.refresh();
 						}
 
-						// Update autocompletion by event
-						let autocomplete_suggestions = cerbAutocompleteSuggestions.kataAutomationEvent;
-
+						// Update autocompletion by event (the editor's source reads this map live)
 						autocomplete_suggestions['automation:uri:']['params']['automation'] = {
 							'triggers': ['cerb.trigger.' + event_id]
 						};
-
-						$editor
-							.cerbCodeEditorAutocompleteKata({
-								autocomplete_suggestions: autocomplete_suggestions
-							})
-						;
 
 						// Update placeholders by event
 						if('object' == typeof json && json.hasOwnProperty('placeholders_html'))

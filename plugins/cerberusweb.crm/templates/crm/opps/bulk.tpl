@@ -39,7 +39,7 @@
 			<td width="0%" nowrap="nowrap" align="right" valign="top">Add watchers:</td>
 			<td width="100%">
 				<div>
-					<div class="cerb-ui-record-chooser" id="do_watcher_add_ids"></div>
+					<div class="cerb-ui-record-chooser" data-cerb-chooser="do_watcher_add_ids"></div>
 				</div>
 			</td>
 		</tr>
@@ -48,7 +48,7 @@
 			<td width="0%" nowrap="nowrap" align="right" valign="top">Remove watchers:</td>
 			<td width="100%">
 				<div>
-					<div class="cerb-ui-record-chooser" id="do_watcher_remove_ids"></div>
+					<div class="cerb-ui-record-chooser" data-cerb-chooser="do_watcher_remove_ids"></div>
 				</div>
 			</td>
 		</tr>
@@ -89,8 +89,8 @@ $(function() {
 		$popup.css('overflow', 'inherit');
 	
 		if(window.CerbUI && CerbUI.RecordChooser) {
-			new CerbUI.RecordChooser($popup.find('#do_watcher_add_ids')[0], { context: '{CerberusContexts::CONTEXT_WORKER}', name: 'do_watcher_add_ids', multiple: true, emptyIcon: 'user', query: 'isDisabled:n' });
-			new CerbUI.RecordChooser($popup.find('#do_watcher_remove_ids')[0], { context: '{CerberusContexts::CONTEXT_WORKER}', name: 'do_watcher_remove_ids', multiple: true, emptyIcon: 'user', query: 'isDisabled:n' });
+			new CerbUI.RecordChooser($popup.find('[data-cerb-chooser="do_watcher_add_ids"]')[0], { context: '{CerberusContexts::CONTEXT_WORKER}', name: 'do_watcher_add_ids', multiple: true, emptyIcon: 'user', query: 'isDisabled:n' });
+			new CerbUI.RecordChooser($popup.find('[data-cerb-chooser="do_watcher_remove_ids"]')[0], { context: '{CerberusContexts::CONTEXT_WORKER}', name: 'do_watcher_remove_ids', multiple: true, emptyIcon: 'user', query: 'isDisabled:n' });
 		}
 		
 		$popup.find('button.submit').click(function() {

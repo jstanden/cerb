@@ -14,82 +14,65 @@
 {/if}
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<table cellpadding="0" cellspacing="2" border="0" width="100%">
-	<tr>
-		<td width="0%" nowrap="nowrap" valign="top">{'common.name'|devblocks_translate|capitalize}: </td>
-		<td width="100%">
-			<input type="text" name="name" value="{$model->name}" style="width:100%;" autofocus="autofocus">
-		</td>
-	</tr>
-	
-	<tr>
-		<td width="0%" nowrap="nowrap" valign="top">{'common.calendar'|devblocks_translate|capitalize}: </td>
-		<td width="100%">
-			<button type="button" class="chooser-abstract" data-field-name="calendar_id" data-context="{CerberusContexts::CONTEXT_CALENDAR}" data-single="true" data-query=""><span class="cerb-icons cerb-icon-search"></span></button>
-			
-			<ul class="bubbles chooser-container">
-				{if $model}
-					{$calendar = $model->getCalendar()}
-					{if $calendar}
-						<li><input type="hidden" name="calendar_id" value="{$calendar->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CALENDAR}" data-context-id="{$calendar->id}">{$calendar->name}</a></li>
-					{/if}
-				{/if}
-			</ul>
-		</td>
-	</tr>
-	
-	<tr>
-		<td width="0%" nowrap="nowrap" valign="top">When: </td>
-		<td width="100%">
-			<div>
-				<input type="text" name="date_start" value="{$model->date_start|devblocks_date:'M d Y h:ia'}" size="32">
-				 until 
-				<input type="text" name="date_end" value="{$model->date_end|devblocks_date:'M d Y h:ia'}" size="32">
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--row">
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.name'|devblocks_translate|capitalize}</label>
+				<input type="text" name="name" value="{$model->name}" autofocus="autofocus">
 			</div>
-			
-			<i>(e.g. "tomorrow 5pm", "+2 hours", "2011-04-27 5:00pm", "8am", "August 15", "next Thursday")</i>
-		</td>
-	</tr>
-	<tr>
-		<td width="0%" nowrap="nowrap" valign="top">{'common.status'|devblocks_translate|capitalize}: </td>
-		<td width="100%">
-			<label><input type="radio" name="is_available" value="1" {if empty($model) || $model->is_available}checked="checked"{/if}> Available</label>
-			<label><input type="radio" name="is_available" value="0" {if !empty($model) && empty($model->is_available)}checked="checked"{/if}> Busy</label>
-		</td>
-	</tr>
-</table>
-<br>
 
-{if !empty($custom_fields)}
-<fieldset class="peek">
-	<legend>{'common.custom_fields'|devblocks_translate}</legend>
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-</fieldset>
-{/if}
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.calendar'|devblocks_translate|capitalize}</label>
+				<div class="cerb-ui-record-chooser" id="calendarChooser_{$form_id}">
+					{if $model}
+						{$calendar = $model->getCalendar()}
+						{if $calendar}
+							<li data-context-id="{$calendar->id}" data-label="{$calendar->name}"></li>
+						{/if}
+					{/if}
+				</div>
+			</div>
+		</div>
+
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">When</label>
+			<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-1 cerb-u-flex-wrap">
+				<input type="text" name="date_start" class="input_date" style="flex:1 1 12em;min-width:0;" value="{$model->date_start|devblocks_date:'M d Y h:ia'}">
+				<span class="cerb-u-text-muted">until</span>
+				<input type="text" name="date_end" class="input_date" style="flex:1 1 12em;min-width:0;" value="{$model->date_end|devblocks_date:'M d Y h:ia'}">
+			</div>
+			<div class="cerb-ui-form--help">e.g. "tomorrow 5pm", "+2 hours", "2011-04-27 5:00pm", "8am", "August 15", "next Thursday"</div>
+		</div>
+
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'common.status'|devblocks_translate|capitalize}</label>
+			<div>
+				<input type="hidden" name="is_available" id="isAvailable_{$form_id}" value="{if empty($model) || $model->is_available}1{else}0{/if}">
+				<div class="cerb-ui-switcher" data-cerb-input="isAvailable_{$form_id}">
+					<button type="button" data-value="1"{if empty($model) || $model->is_available} class="cerb-ui-switcher--active"{/if}><span class="cerb-icons cerb-icon-circle-ok"></span> Available</button>
+					<button type="button" data-value="0"{if !empty($model) && empty($model->is_available)} class="cerb-ui-switcher--active"{/if}><span class="cerb-icons cerb-icon-clock"></span> Busy</button>
+				</div>
+			</div>
+		</div>
+
+		{if !empty($custom_fields)}
+		{include file="devblocks:cerberusweb.core::internal/custom_fields/form.tpl" custom_fields=$custom_fields}
+		{/if}
+	</div>
+</div>
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
 {if !empty($model->id)}
-<fieldset style="display:none;" class="delete">
-	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
-	
-	<div>
-		Are you sure you want to permanently delete this calendar event?
-	</div>
-	
-	<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
-	<button type="button" class="delete-cancel">{'common.no'|devblocks_translate|capitalize}</button>
-</fieldset>
+	{include file="devblocks:cerberusweb.core::internal/peek/delete_confirm.tpl" noun="calendar event"}
 {/if}
 
 <div class="status"></div>
 
-<div class="buttons">
-	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button>
-	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}
-	<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>
-	{/if}
-	<br clear="all">
+<div class="buttons" style="margin-top:10px;">
+	<button type="button" class="cerb-ui-button save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button>
+	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="cerb-ui-button cerb-ui-button--subtle delete-prompt"><span class="cerb-icons cerb-icon-trash"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 </form>
 
@@ -99,29 +82,41 @@ $(function() {
 	let $popup = genericAjaxPopupFind($frm);
 
 	Devblocks.formDisableSubmit($frm);
-	
-	$popup.one('popup_open',function(event,ui) {
-		// Title
-		$popup.dialog('option','title', '{'common.calendar.event'|devblocks_translate|capitalize|escape:'javascript'}');
-		
-		var after = function() {
-			var $event = jQuery.Event('calendar_event_save');
-			$popup.trigger($event);
-		}
-		
-		// Buttons
-		$popup.find('button.submit').click({ after: after }, Devblocks.callbackPeekEditSave);
-		$popup.find('button.delete').click({ mode: 'delete', after: after }, Devblocks.callbackPeekEditSave);
-		$popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
-		$popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
 
-		// Triggers
+	$popup.one('popup_open',function(event,ui) {
+		$popup.dialog('option','title', '{'common.calendar.event'|devblocks_translate|capitalize|escape:'javascript'}');
+
+		let after = function() {
+			$popup.trigger(jQuery.Event('calendar_event_save'));
+		};
+
+		$popup.find('button.save').click({ after: after }, Devblocks.callbackPeekEditSave);
+		$popup.find('button.delete').click({ mode: 'delete', after: after }, Devblocks.callbackPeekEditSave);
+		if(window.CerbUI && CerbUI.Form) CerbUI.Form.ConfirmDelete($popup[0]);
+
 		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
-		$popup.find('.chooser-abstract').cerbChooserTrigger();
-		
-		// Focus
+		$popup.find('input.input_date').each(function() { if(window.CerbUI && CerbUI.DatePicker) new CerbUI.DatePicker.FormInput(this); });
+
+		if(window.CerbUI && CerbUI.RecordChooser) {
+			new CerbUI.RecordChooser($popup.find('#calendarChooser_{$form_id}')[0], {
+				context: 'calendar',
+				name: 'calendar_id',
+				emptyIcon: 'calendar',
+				searchPlaceholder: "{'common.calendar'|devblocks_translate|capitalize|escape:'javascript' nofilter}"
+			});
+		}
+
+		if(window.CerbUI && CerbUI.Switcher) {
+			$popup.find('.cerb-ui-switcher[data-cerb-input]').each(function() {
+				let input = document.getElementById(this.getAttribute('data-cerb-input'));
+				new CerbUI.Switcher(this, {
+					value: input ? input.value : null,
+					onSelect: function(value) { if(input) input.value = value; }
+				});
+			});
+		}
+
 		$popup.find('input:text[name=name]').focus();
-		
 	});
 });
 </script>

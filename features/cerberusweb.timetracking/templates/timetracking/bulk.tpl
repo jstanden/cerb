@@ -44,14 +44,14 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="top">Add watchers:</td>
 			<td width="100%">
-				<div class="cerb-ui-record-chooser" id="ttWatcherAddChooser"></div>
+				<div class="cerb-ui-record-chooser" data-cerb-chooser="ttWatcherAddChooser"></div>
 			</td>
 		</tr>
 		
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="top">Remove watchers:</td>
 			<td width="100%">
-				<div class="cerb-ui-record-chooser" id="ttWatcherRemoveChooser"></div>
+				<div class="cerb-ui-record-chooser" data-cerb-chooser="ttWatcherRemoveChooser"></div>
 			</td>
 		</tr>
 		
@@ -80,8 +80,8 @@ $(function() {
 		$popup.dialog('option','title',"{'common.bulk_update'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		
 		if(window.CerbUI && CerbUI.RecordChooser) {
-			new CerbUI.RecordChooser($popup.find('#ttWatcherAddChooser')[0], { context: '{CerberusContexts::CONTEXT_WORKER}', name: 'do_watcher_add_ids', multiple: true, emptyIcon: 'user', query: 'isDisabled:n', searchPlaceholder: 'Add watchers' });
-			new CerbUI.RecordChooser($popup.find('#ttWatcherRemoveChooser')[0], { context: '{CerberusContexts::CONTEXT_WORKER}', name: 'do_watcher_remove_ids', multiple: true, emptyIcon: 'user', query: 'isDisabled:n', searchPlaceholder: 'Remove watchers' });
+			new CerbUI.RecordChooser($popup.find('[data-cerb-chooser="ttWatcherAddChooser"]')[0], { context: '{CerberusContexts::CONTEXT_WORKER}', name: 'do_watcher_add_ids', multiple: true, emptyIcon: 'user', query: 'isDisabled:n', searchPlaceholder: 'Add watchers' });
+			new CerbUI.RecordChooser($popup.find('[data-cerb-chooser="ttWatcherRemoveChooser"]')[0], { context: '{CerberusContexts::CONTEXT_WORKER}', name: 'do_watcher_remove_ids', multiple: true, emptyIcon: 'user', query: 'isDisabled:n', searchPlaceholder: 'Remove watchers' });
 		}
 		
 		$popup.find('button.submit').click(function() {

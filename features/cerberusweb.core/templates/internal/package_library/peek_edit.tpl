@@ -25,9 +25,13 @@
 </div>
 {/if}
 
-<div>
-	<b>{'common.package'|devblocks_translate|capitalize}:</b> (JSON) {include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/docs/packages/"}
-	<textarea name="package_json" class="cerb-code-editor" data-editor-mode="ace/mode/json">{if $model}{$model->getPackageJson()}{else}{literal}{
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight cerb-ui-header--center">
+		<div class="cerb-ui-header--title-sm">{'common.package'|devblocks_translate|capitalize} <span class="cerb-u-text-muted cerb-u-fw-400">(JSON)</span></div>
+		<div class="cerb-ui-header--right">{include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/docs/packages/"}</div>
+	</div>
+
+	<textarea id="packageJsonEditor_{$form_id}" name="package_json" data-editor-lines="25" spellcheck="false">{if $model}{$model->getPackageJson()}{else}{literal}{
   "package": {
     "name": "Package Name",
     "revision": 1,
@@ -56,28 +60,22 @@
 </div>
 
 {if !empty($custom_fields)}
-{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-form">
+		{include file="devblocks:cerberusweb.core::internal/custom_fields/form.tpl" custom_fields=$custom_fields}
+	</div>
+</div>
 {/if}
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
 {if !empty($model->id)}
-<fieldset style="display:none;" class="delete">
-	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
-	
-	<div>
-		Are you sure you want to permanently delete this package?
-	</div>
-	
-	<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
-	<button type="button" class="delete-cancel">{'common.no'|devblocks_translate|capitalize}</button>
-</fieldset>
+	{include file="devblocks:cerberusweb.core::internal/peek/delete_confirm.tpl" noun="package"}
 {/if}
 
-
 <div class="buttons" style="margin-top:10px;">
-	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	<button type="button" class="cerb-ui-button save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="cerb-ui-button cerb-ui-button--subtle delete-prompt"><span class="cerb-icons cerb-icon-trash"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>
@@ -87,23 +85,20 @@ $(function() {
 	let $frm = $('#{$form_id}');
 	let $popup = genericAjaxPopupFind($frm);
 
-    Devblocks.formDisableSubmit($frm);
-	
+	Devblocks.formDisableSubmit($frm);
+
 	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"{'common.package'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		$popup.css('overflow', 'inherit');
-		
+
 		// Buttons
-		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
+		$popup.find('button.save').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-        $popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
-        $popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
+		if(window.CerbUI && CerbUI.Form) CerbUI.Form.ConfirmDelete($popup[0]);
 
 		// Form elements
-		$popup.find('.cerb-code-editor')
-			.cerbCodeEditor()
-			;
-		
+		new CerbUI.JsonEditor($popup.find('#packageJsonEditor_{$form_id}')[0], { validate: true, minLines: 8 });
+
 	});
 });
 </script>

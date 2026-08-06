@@ -14,59 +14,50 @@
 <div class="cerb-tabs">
 	{if !$model->id && $model->context && $packages}
 	<ul>
-		<li><a href="#package-library">{'common.library'|devblocks_translate|capitalize}</a></li>
-		<li><a href="#tab-build">{'common.build'|devblocks_translate|capitalize}</a></li>
+		<li><a href="#package-library_{$form_id}">{'common.library'|devblocks_translate|capitalize}</a></li>
+		<li><a href="#tab-build_{$form_id}">{'common.build'|devblocks_translate|capitalize}</a></li>
 	</ul>
 	{/if}
 	
 	{if !$model->id && $model->context && $packages}
-	<div id="package-library" class="package-library">
+	<div id="package-library_{$form_id}" class="package-library">
 		<input type="hidden" name="package_context" value="{$model->context}">
 		{include file="devblocks:cerberusweb.core::internal/package_library/editor_chooser.tpl"}
 	</div>
 	{/if}
 	
-	<div id="tab-build">
-		<table cellspacing="0" cellpadding="2" border="0" width="98%">
-			<tr>
-				<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate|capitalize}:</b></td>
-				<td width="99%">
-					<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
-				</td>
-			</tr>
-			
-			<tr>
-				<td width="1%" nowrap="nowrap"><b>{'common.record'|devblocks_translate|capitalize}:</b></td>
-				<td width="99%">
+	<div id="tab-build_{$form_id}">
+		<div class="cerb-ui-panel cerb-ui-panel--spaced">
+			<div class="cerb-ui-form">
+				<div class="cerb-ui-form--field">
+					<label class="cerb-ui-form--label">{'common.name'|devblocks_translate|capitalize}</label>
+					<input type="text" name="name" value="{$model->name}" autofocus="autofocus">
+				</div>
+
+				<div class="cerb-ui-form--field">
+					<label class="cerb-ui-form--label">{'common.record'|devblocks_translate|capitalize}</label>
 					{if $model->id}
-						{$model_context = $model->getContextExtension(false)}
-						{if $model_context}
-							{$model_context->name}
-						{else}
-							{$model->context}
-						{/if}
+						<div>
+							{$model_context = $model->getContextExtension(false)}
+							{if $model_context}{$model_context->name}{else}{$model->context}{/if}
+						</div>
 					{else}
 						<select name="context">
 							<option value=""></option>
 							{foreach from=$context_mfts item=context_mft}
-							<option value="{$context_mft->id}" {if $context_mft->id == $model->context}selected="selected"{/if}>{$context_mft->name}</option>
+							<option value="{$context_mft->id}" data-cerb-ui-icon="{$context_mft->params.icon|default:'collection'}" {if $context_mft->id == $model->context}selected="selected"{/if}>{$context_mft->name}</option>
 							{/foreach}
 						</select>
 					{/if}
-				</td>
-			</tr>
-			
-			<tbody class="cerb-tab-extension" style="{if $model->context}{else}display:none;{/if}">
-			<tr>
-				<td width="1%" nowrap="nowrap"><b>{'common.type'|devblocks_translate|capitalize}:</b></td>
-				<td width="99%">
+				</div>
+
+				<div class="cerb-ui-form--field cerb-tab-extension" style="{if $model->context}{else}display:none;{/if}">
+					<label class="cerb-ui-form--label">{'common.type'|devblocks_translate|capitalize}</label>
 					{if $model->id}
-						{$tab_extension = $model->getExtension()}
-						{if $tab_extension}
-							{$tab_extension->manifest->name}
-						{else}
-							{$model->extension_id}
-						{/if}
+						<div>
+							{$tab_extension = $model->getExtension()}
+							{if $tab_extension}{$tab_extension->manifest->name}{else}{$model->extension_id}{/if}
+						</div>
 					{else}
 						<select name="extension_id">
 							<option value=""></option>
@@ -75,17 +66,18 @@
 							{/foreach}
 						</select>
 					{/if}
-				</td>
-			</tr>
-			</tbody>
-		
-			<tbody>
-			{if !empty($custom_fields)}
-			{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
-			{/if}
-			</tbody>
-		</table>
-		
+				</div>
+			</div>
+		</div>
+
+		{if !empty($custom_fields)}
+		<div class="cerb-ui-panel cerb-ui-panel--spaced">
+			<div class="cerb-ui-form">
+				{include file="devblocks:cerberusweb.core::internal/custom_fields/form.tpl" custom_fields=$custom_fields}
+			</div>
+		</div>
+		{/if}
+
 		{* The rest of config comes from the tab *}
 		<div class="cerb-tab-params">
 		{if $model->id}
@@ -98,32 +90,24 @@
 		
 		{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
-		<fieldset data-cerb-fieldset-advanced class="peek" style="margin-top:0.5em;">
-			<legend>Advanced options:</legend>
-			<div>
-				<div class="cerb-code-editor-toolbar">
-					<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-magic title="{'common.autocomplete'|devblocks_translate|capitalize} (Ctrl+Space)"><span class="cerb-icons cerb-icon-autocomplete"></span></button>
-				</div>
-				<textarea name="options_kata" data-editor-mode="ace/mode/cerb_kata" class="placeholders" style="display:none;">{$model->options_kata}</textarea>
+		<div data-cerb-fieldset-advanced class="cerb-ui-panel cerb-ui-panel--spaced">
+			<div class="cerb-ui-header cerb-ui-header--tight">
+				<div class="cerb-ui-header--title-sm">Advanced options</div>
 			</div>
-		</fieldset>
+			{* Integrated editor toolbar: a single "suggest" (autocomplete) button merged into the KataEditor's strip. *}
+			<ul class="cerb-ui-toolbar" data-cerb-editor-toolbar hidden>
+				<li data-value="suggest" data-icon="autocomplete" title="{'common.autocomplete'|devblocks_translate|capitalize} (Ctrl/⌘+Space)"></li>
+			</ul>
+			<textarea name="options_kata" data-editor-lines="10" spellcheck="false">{$model->options_kata}</textarea>
+		</div>
 
 		{if !empty($model->id)}
-		<fieldset style="display:none;" class="delete">
-			<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
-			
-			<div>
-				Are you sure you want to permanently delete this profile tab?
-			</div>
-			
-			<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
-			<button type="button" class="delete-cancel">{'common.no'|devblocks_translate|capitalize}</button>
-		</fieldset>
+			{include file="devblocks:cerberusweb.core::internal/peek/delete_confirm.tpl" noun="profile tab"}
 		{/if}
-		
+
 		<div class="buttons" style="margin-top:10px;">
-			<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-			{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+			<button type="button" class="cerb-ui-button save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+			{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="cerb-ui-button cerb-ui-button--subtle delete-prompt"><span class="cerb-icons cerb-icon-trash"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 		</div>
 	</div>
 </div>
@@ -147,15 +131,21 @@ $(function() {
 		var $params = $popup.find('.cerb-tab-params');
 		
 		// Buttons
-		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
+		$popup.find('button.save').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-		$popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
-		$popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
+		if(window.CerbUI && CerbUI.Form) CerbUI.Form.ConfirmDelete($popup[0]);
+
+		// Record — native <select> keeps the POST value; enhance with type-to-filter (re-fires change below)
+		if(window.CerbUI && CerbUI.SelectMenu)
+			$select_context.each(function() { new CerbUI.SelectMenu(this); });
 
 		// Package Library
 		
 		{if !$model->id && $model->context && $packages}
-			var $tabs = $popup.find('.cerb-tabs').tabs();
+			var $tabs = $popup.find('.cerb-tabs');
+			$tabs.find('> ul').each(function() {
+				if(window.CerbUI && CerbUI.Tabs) new CerbUI.Tabs(this);
+			});
 			var $library_container = $tabs;
 			{include file="devblocks:cerberusweb.core::internal/package_library/editor_chooser.js.tpl"}
 			
@@ -163,8 +153,8 @@ $(function() {
 				$popup.one('peek_saved peek_error', function(e) {
 					$library_container.triggerHandler('cerb-package-library-form-submit--done');
 				});
-				
-				$popup.find('button.submit').click();
+
+				$popup.find('button.save').click();
 			});
 		{/if}
 		
@@ -191,9 +181,13 @@ $(function() {
 					}
 					
 					$select_extension.fadeIn();
-					$params.fadeIn();
+
+					// Auto-load the config for the auto-selected first extension. Picking an option that's
+					// already shown (e.g. the only/first type) wouldn't fire 'change', so the config would
+					// otherwise stay empty on a fresh create (context picked from scratch).
+					$select_extension.trigger('change');
 				});
-				
+
 				$tbody_extension.show();
 			}
 		});
@@ -213,32 +207,28 @@ $(function() {
 
 		// Options Editor
 
-		let $fieldset_advanced = $frm.find('fieldset[data-cerb-fieldset-advanced]');
+		let $fieldset_advanced = $frm.find('[data-cerb-fieldset-advanced]');
 
-		let $advanced_editor = $fieldset_advanced
-			.find('textarea[name=options_kata]')
-			.cerbCodeEditor()
-			.cerbCodeEditorAutocompleteKata({
-				autocomplete_suggestions: {
-					'': [
-						'hidden@bool:'
-					],
-					'hidden:': [
-						'yes',
-						'no',
-						"{literal}{{worker_id == 123}}{/literal}",
-						"{literal}{{not worker_is_superuser}}{/literal}",
-						"{literal}{{record__type is record type ('ticket') and record_id == 123}}{/literal}"
-					]
+		let advanced_editor = new CerbUI.KataEditor($fieldset_advanced.find('textarea[name=options_kata]')[0], {
+			onAutocomplete: CerbUI.KataEditor.kataFieldSource({
+				'': [
+					'hidden@bool:'
+				],
+				'hidden:': [
+					'yes',
+					'no',
+					"{literal}{{worker_id == 123}}{/literal}",
+					"{literal}{{not worker_is_superuser}}{/literal}",
+					"{literal}{{record__type is record type ('ticket') and record_id == 123}}{/literal}"
+				]
+			}),
+			toolbar: {
+				sections: [ $fieldset_advanced.find('[data-cerb-editor-toolbar]')[0] ],
+				onAction: function(value, ed) {
+					if(value === 'suggest') { ed.openAutocomplete(); return true; }
+					return false;
 				}
-			})
-			.nextAll('pre.ace_editor')
-		;
-
-		let advanced_editor = ace.edit($advanced_editor.attr('id'));
-
-		$fieldset_advanced.find('[data-cerb-editor-button-magic]').on('click', function(e) {
-			advanced_editor.commands.byName.startAutocomplete.exec(advanced_editor);
+			}
 		});
 	});
 });

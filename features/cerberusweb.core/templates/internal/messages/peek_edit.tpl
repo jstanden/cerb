@@ -14,55 +14,60 @@
 {$ticket = $model->getTicket()}
 {$headers = $model->getHeaders()}
 
-{if $headers.from}
-	<b>{'message.header.from'|devblocks_translate|capitalize}:</b> 
-	{$headers.from}
-	<br>
-{/if}
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--row">
+			{if $headers.from}
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'message.header.from'|devblocks_translate|capitalize}</label>
+				<div>{$headers.from}</div>
+			</div>
+			{/if}
 
-{if $headers.to}
-	<b>{'message.header.to'|devblocks_translate|capitalize}:</b> 
-	{$headers.to}
-	<br>
-{/if}
+			{if $headers.to}
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'message.header.to'|devblocks_translate|capitalize}</label>
+				<div>{$headers.to}</div>
+			</div>
+			{/if}
+		</div>
 
-{if $headers.subject}
-	<b>{'message.header.subject'|devblocks_translate|capitalize}:</b> 
-	{$headers.subject}
-	<br>
-{/if}
+		<div class="cerb-ui-form--row">
+			{if $headers.subject}
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'message.header.subject'|devblocks_translate|capitalize}</label>
+				<div>{$headers.subject}</div>
+			</div>
+			{/if}
 
-<b>{'message.header.date'|devblocks_translate|capitalize}:</b> 
-{$model->created_date|devblocks_date} ({$model->created_date|devblocks_prettytime})
-<br>
-
-<br>
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'message.header.date'|devblocks_translate|capitalize}</label>
+				<div>{$model->created_date|devblocks_date} <span class="cerb-u-text-muted">({$model->created_date|devblocks_prettytime})</span></div>
+			</div>
+		</div>
+	</div>
+</div>
 
 {if !empty($custom_fields)}
-<fieldset class="peek">
-	<legend>{'common.properties'|devblocks_translate}</legend>
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-</fieldset>
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">{'common.properties'|devblocks_translate|capitalize}</div>
+	</div>
+	<div class="cerb-ui-form">
+		{include file="devblocks:cerberusweb.core::internal/custom_fields/form.tpl" custom_fields=$custom_fields}
+	</div>
+</div>
 {/if}
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
-{if !empty($model->id) && $active_worker->hasPriv('contexts.cerberusweb.contexts.message.delete')}
-<fieldset style="display:none;" class="delete">
-	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
-	
-	<div>
-		Are you sure you want to delete this message?
-	</div>
-
-	<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
-	<button type="button" class="delete-cancel">{'common.no'|devblocks_translate|capitalize}</button>
-</fieldset>
+{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}
+	{include file="devblocks:cerberusweb.core::internal/peek/delete_confirm.tpl" noun="message"}
 {/if}
 
-<div class="buttons">
-	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {$translate->_('common.save_changes')|capitalize}</button>
-	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+<div class="buttons" style="margin-top:10px;">
+	<button type="button" class="cerb-ui-button save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="cerb-ui-button cerb-ui-button--subtle delete-prompt"><span class="cerb-icons cerb-icon-trash"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 </form>
 
@@ -71,16 +76,13 @@ $(function() {
 	let $popup = genericAjaxPopupFind('#{$form_id}');
 
 	Devblocks.formDisableSubmit($popup);
-	
+
 	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"{'common.edit'|devblocks_translate|capitalize|escape:'javascript' nofilter}: {'common.message'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
-		
-		// Buttons
-		
-		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
+
+		$popup.find('button.save').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-		$popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
-		$popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
+		if(window.CerbUI && CerbUI.Form) CerbUI.Form.ConfirmDelete($popup[0]);
 	});
 });
 </script>

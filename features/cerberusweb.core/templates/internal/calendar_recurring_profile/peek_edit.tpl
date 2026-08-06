@@ -11,137 +11,127 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<table cellpadding="0" cellspacing="2" border="0" width="100%">
-	<tr>
-		<td width="0%" nowrap="nowrap" valign="top">{'common.name'|devblocks_translate|capitalize}: </td>
-		<td width="100%">
-			<input type="text" name="event_name" value="{$model->event_name}" autofocus="autofocus" style="width:100%;" placeholder="Work">
-		</td>
-	</tr>
-	
-	<tr>
-		<td width="0%" nowrap="nowrap" valign="top">{'common.calendar'|devblocks_translate|capitalize}: </td>
-		<td width="100%">
-			<button type="button" class="chooser-abstract" data-field-name="calendar_id" data-context="{CerberusContexts::CONTEXT_CALENDAR}" data-single="true" data-query=""><span class="cerb-icons cerb-icon-search"></span></button>
-			
-			<ul class="bubbles chooser-container">
-				{if $model}
-					{$calendar = $model->getCalendar()}
-					{if $calendar}
-						<li><input type="hidden" name="calendar_id" value="{$calendar->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CALENDAR}" data-context-id="{$calendar->id}">{$calendar->name}</a></li>
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--row">
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.name'|devblocks_translate|capitalize}</label>
+				<input type="text" name="event_name" value="{$model->event_name}" autofocus="autofocus" placeholder="Work">
+			</div>
+
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.calendar'|devblocks_translate|capitalize}</label>
+				<div class="cerb-ui-record-chooser" id="calendarChooser_{$form_id}">
+					{if $model}
+						{$calendar = $model->getCalendar()}
+						{if $calendar}
+							<li data-context-id="{$calendar->id}" data-label="{$calendar->name}"></li>
+						{/if}
 					{/if}
-				{/if}
-			</ul>
-		</td>
-	</tr>
+				</div>
+			</div>
+		</div>
 
-	<tr>
-		<td width="0%" nowrap="nowrap" valign="top">On: </td>
-		<td width="100%">
-			<textarea name="patterns" style="width:100%;height:5.5em;" placeholder="Enter any number of patterns to match">{$model->patterns}</textarea>
-			<select data-cerb-select-examples class="placeholders">
-				<option value="">-- {'common.examples'|devblocks_translate|lower} --</option>
-				<optgroup label="Days of the week">
-					<option value="Weekdays">Weekdays</option>
-					<option value="Weekends">Weekends</option>
-					<option value="Sunday">Sunday</option>
-					<option value="Monday">Monday</option>
-					<option value="Tuesday">Tuesday</option>
-					<option value="Wednesday">Wednesday</option>
-					<option value="Thursday">Thursday</option>
-					<option value="Friday">Friday</option>
-					<option value="Saturday">Saturday</option>
-				</optgroup>
-				<optgroup label="Days of the month">
-					<option value="1st">1st</option>
-					<option value="15th">15th</option>
-				</optgroup>
-				<optgroup label="Days of the year">
-					<option value="Jan 1">Jan 1</option>
-					<option value="Dec 25">Dec 25</option>
-				</optgroup>
-				<optgroup label="Specific weekdays">
-					{$examples = ["first Monday of September","fourth Thursday of November","third Friday of every month","first day of every month","last day of every month"]}
-					{foreach from=$examples item=example}
-					<option value="{$example}">{$example}</option>
-					{/foreach}
-				</optgroup>
-				<optgroup label="Specific holidays">
-					{$examples = ["Easter","Easter -7 weeks Wednesday","Easter +3 days"]}
-					{foreach from=$examples item=example}
-					<option value="{$example}">{$example}</option>
-					{/foreach}
-				</optgroup>
-			</select>
-		</td>
-	</tr>
-	<tr>
-		<td width="0%" nowrap="nowrap" valign="top">When: </td>
-		<td width="100%">
-			<input type="text" name="event_start" value="{$model->event_start}" size="16" placeholder="9am">
-			 until 
-			<input type="text" name="event_end" value="{$model->event_end}" size="16" placeholder="6pm">
-			
-			<select name="tz">
-				<option value="">(use calendar timezone)</option>
-				{foreach from=$timezones item=timezone}
-				<option value="{$timezone}" {if $timezone == $model->tz}selected="selected"{/if}>{$timezone}</option>
-				{/foreach}
-			</select>
-			<br>
-			
-			<i style="display:none;">(e.g. 9am, 16:00, "+2 hours", "tomorrow 03:00", "+1 week")</i>
-		</td>
-	</tr>
-	<tr>
-		<td width="0%" nowrap="nowrap" valign="top">Starting on: </td>
-		<td width="100%">
-			<input type="text" name="recur_start" value="{$model->recur_start|devblocks_date:'M d Y h:ia'}" size="64" placeholder="e.g. January 9 2002; or leave blank for always">
-		</td>
-	</tr>
-	<tr>
-		<td width="0%" nowrap="nowrap" valign="top">Ending on: </td>
-		<td width="100%">
-			<input type="text" name="recur_end" value="{$model->recur_end|devblocks_date:'M d Y h:ia'}" size="64" placeholder="e.g. January 19 2038; or leave blank to never end">
-		</td>
-	</tr>
-	<tr>
-		<td width="0%" nowrap="nowrap" valign="top">{'common.status'|devblocks_translate|capitalize}: </td>
-		<td width="100%">
-			<label><input type="radio" name="is_available" value="1" {if empty($model) || $model->is_available}checked="checked"{/if}> Available</label>
-			<label><input type="radio" name="is_available" value="0" {if !empty($model) && empty($model->is_available)}checked="checked"{/if}> Busy</label>
-		</td>
-	</tr>
-</table>
-<br>
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">On</label>
+			<textarea name="patterns" style="height:5.5em;" placeholder="Enter any number of patterns to match">{$model->patterns}</textarea>
+			<div class="cerb-u-mt-1">
+				<select data-cerb-select-examples>
+					<option value="">-- {'common.examples'|devblocks_translate|lower} --</option>
+					<optgroup label="Days of the week">
+						<option value="Weekdays">Weekdays</option>
+						<option value="Weekends">Weekends</option>
+						<option value="Sunday">Sunday</option>
+						<option value="Monday">Monday</option>
+						<option value="Tuesday">Tuesday</option>
+						<option value="Wednesday">Wednesday</option>
+						<option value="Thursday">Thursday</option>
+						<option value="Friday">Friday</option>
+						<option value="Saturday">Saturday</option>
+					</optgroup>
+					<optgroup label="Days of the month">
+						<option value="1st">1st</option>
+						<option value="15th">15th</option>
+					</optgroup>
+					<optgroup label="Days of the year">
+						<option value="Jan 1">Jan 1</option>
+						<option value="Dec 25">Dec 25</option>
+					</optgroup>
+					<optgroup label="Specific weekdays">
+						{$examples = ["first Monday of September","fourth Thursday of November","third Friday of every month","first day of every month","last day of every month"]}
+						{foreach from=$examples item=example}
+						<option value="{$example}">{$example}</option>
+						{/foreach}
+					</optgroup>
+					<optgroup label="Specific holidays">
+						{$examples = ["Easter","Easter -7 weeks Wednesday","Easter +3 days"]}
+						{foreach from=$examples item=example}
+						<option value="{$example}">{$example}</option>
+						{/foreach}
+					</optgroup>
+				</select>
+			</div>
+		</div>
 
-{if !empty($custom_fields)}
-<fieldset class="peek">
-	<legend>{'common.custom_fields'|devblocks_translate}</legend>
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-</fieldset>
-{/if}
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">When</label>
+			<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-1 cerb-u-flex-wrap">
+				<input type="text" name="event_start" value="{$model->event_start}" style="width:8em;flex:0 0 auto;" placeholder="9am">
+				<span class="cerb-u-text-muted">until</span>
+				<input type="text" name="event_end" value="{$model->event_end}" style="width:8em;flex:0 0 auto;" placeholder="6pm">
+				<select name="tz" data-cerb-tz-selectmenu style="flex:1 1 14em;min-width:0;">
+					<option value="">(use calendar timezone)</option>
+					{foreach from=$timezones item=timezone}
+					<option value="{$timezone}" {if $timezone == $model->tz}selected="selected"{/if}>{$timezone}</option>
+					{/foreach}
+				</select>
+			</div>
+			<div class="cerb-ui-form--help">e.g. 9am, 16:00, "+2 hours", "tomorrow 03:00", "+1 week"</div>
+		</div>
+
+		<div class="cerb-ui-form--row">
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">Starting on</label>
+				<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-1">
+					<input type="text" name="recur_start" class="input_date" style="flex:1 1 auto;min-width:0;" value="{$model->recur_start|devblocks_date:'M d Y h:ia'}" placeholder="e.g. January 9 2002; or leave blank for always">
+				</div>
+			</div>
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">Ending on</label>
+				<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-1">
+					<input type="text" name="recur_end" class="input_date" style="flex:1 1 auto;min-width:0;" value="{$model->recur_end|devblocks_date:'M d Y h:ia'}" placeholder="e.g. January 19 2038; or leave blank to never end">
+				</div>
+			</div>
+		</div>
+
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'common.status'|devblocks_translate|capitalize}</label>
+			<div>
+				<input type="hidden" name="is_available" id="isAvailable_{$form_id}" value="{if empty($model) || $model->is_available}1{else}0{/if}">
+				<div class="cerb-ui-switcher" data-cerb-input="isAvailable_{$form_id}">
+					<button type="button" data-value="1"{if empty($model) || $model->is_available} class="cerb-ui-switcher--active"{/if}><span class="cerb-icons cerb-icon-circle-ok"></span> Available</button>
+					<button type="button" data-value="0"{if !empty($model) && empty($model->is_available)} class="cerb-ui-switcher--active"{/if}><span class="cerb-icons cerb-icon-clock"></span> Busy</button>
+				</div>
+			</div>
+		</div>
+
+		{if !empty($custom_fields)}
+		{include file="devblocks:cerberusweb.core::internal/custom_fields/form.tpl" custom_fields=$custom_fields}
+		{/if}
+	</div>
+</div>
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
 {if !empty($model->id)}
-<fieldset style="display:none;" class="delete">
-	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
-	
-	<div>
-		Are you sure you want to permanently delete this calendar recurring event?
-	</div>
-	
-	<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
-	<button type="button" class="delete-cancel">{'common.no'|devblocks_translate|capitalize}</button>
-</fieldset>
+	{include file="devblocks:cerberusweb.core::internal/peek/delete_confirm.tpl" noun="calendar recurring event"}
 {/if}
 
 <div class="status"></div>
 
-<div class="buttons">
-	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+<div class="buttons" style="margin-top:10px;">
+	<button type="button" class="cerb-ui-button save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="cerb-ui-button cerb-ui-button--subtle delete-prompt"><span class="cerb-icons cerb-icon-trash"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>
@@ -152,40 +142,48 @@ $(function() {
 	let $popup = genericAjaxPopupFind($frm);
 
 	Devblocks.formDisableSubmit($frm);
-	
+
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'common.calendar.event.recurring'|devblocks_translate|capitalize|escape:'javascript'}");
-		
-		$popup.find('input[name=event_start], input[name=event_end]')
-			.focus(function() {
-				$(this).siblings('i').fadeIn();
-			})
-			.blur(function() {
-				$(this).siblings('i').fadeOut();
-			})
-			;
-		
-		// Buttons
-		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
+
+		$popup.find('button.save').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-		$popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
-		$popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
+		if(window.CerbUI && CerbUI.Form) CerbUI.Form.ConfirmDelete($popup[0]);
 
-		// Triggers
 		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
-		$popup.find('.chooser-abstract').cerbChooserTrigger();
+		$popup.find('input.input_date').each(function() { if(window.CerbUI && CerbUI.DatePicker) new CerbUI.DatePicker.FormInput(this); });
 
-		// Select
+		if(window.CerbUI && CerbUI.RecordChooser) {
+			new CerbUI.RecordChooser($popup.find('#calendarChooser_{$form_id}')[0], {
+				context: 'calendar',
+				name: 'calendar_id',
+				emptyIcon: 'calendar',
+				searchPlaceholder: "{'common.calendar'|devblocks_translate|capitalize|escape:'javascript' nofilter}"
+			});
+		}
+
+		if(window.CerbUI && CerbUI.SelectMenu)
+			$popup.find('select[data-cerb-tz-selectmenu]').each(function() { new CerbUI.SelectMenu(this, { filter: true }); });
+
+		if(window.CerbUI && CerbUI.Switcher) {
+			$popup.find('.cerb-ui-switcher[data-cerb-input]').each(function() {
+				let input = document.getElementById(this.getAttribute('data-cerb-input'));
+				new CerbUI.Switcher(this, {
+					value: input ? input.value : null,
+					onSelect: function(value) { if(input) input.value = value; }
+				});
+			});
+		}
+
+		// Examples → insert into the patterns textarea
 		$popup.find('[data-cerb-select-examples]').on('change', function(e) {
 			e.stopPropagation();
 			let $select = $(this);
-			$select.siblings('textarea').insertAtCursor($select.val() + '\n').trigger('change');
+			$select.closest('.cerb-ui-form--field').find('textarea').insertAtCursor($select.val() + '\n').trigger('change');
 			$select.val('');
 		});
 
-		// Focus
 		$popup.find('input:text[name=event_name]').focus();
-		
 	});
 });
 </script>

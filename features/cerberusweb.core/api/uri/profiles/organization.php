@@ -85,7 +85,8 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 				
 			} else { // create/edit
 				$org_name = DevblocksPlatform::importGPC($_POST['org_name'] ?? null, 'string','');
-				$aliases = DevblocksPlatform::importGPC($_POST['aliases'] ?? null, 'string','');
+				$aliases = DevblocksPlatform::importGPC($_POST['aliases'] ?? null, 'array', []);
+				$aliases = implode("\n", array_filter(array_map('trim', $aliases)));
 				$street = DevblocksPlatform::importGPC($_POST['street'] ?? null, 'string','');
 				$city = DevblocksPlatform::importGPC($_POST['city'] ?? null, 'string','');
 				$province = DevblocksPlatform::importGPC($_POST['province'] ?? null, 'string','');

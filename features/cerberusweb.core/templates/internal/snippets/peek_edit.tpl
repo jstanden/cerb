@@ -11,46 +11,49 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<table cellpadding="2" cellspacing="0" border="0" width="100%">
-	<tr>
-		<td width="1%" nowrap="nowrap" valign="top">
-			<b>{'common.title'|devblocks_translate|capitalize}:</b><br>
-		</td>
-		<td width="99%">
-			<input type="text" name="title" value="{$model->title}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;" autofocus="autofocus"><br>
-		</td>
-	</tr>
-	<tr>
-		<td width="1%" nowrap="nowrap" valign="top">
-			<b>{'common.type'|devblocks_translate|capitalize}:</b><br>
-		</td>
-		<td width="99%">
-			<select name="context">
-				<option value="" {if empty($model->id)}selected="selected"{/if}>Plaintext</option>
-				{foreach from=$contexts item=ctx key=k}
-				{if is_array($ctx->params.options.0) && isset($ctx->params.options.0.snippets)}
-				<option value="{$k}" {if $model->context==$k}selected="selected"{/if}>{$ctx->name}</option>
-				{/if}
-				{/foreach}
-			</select>
-		</td>
-	</tr>
-	<tr>
-		<td width="1%" nowrap="nowrap" valign="top">
-			<b>{'common.owner'|devblocks_translate|capitalize}:</b>
-		</td>
-		<td width="99%">
-			{include file="devblocks:cerberusweb.core::internal/peek/menu_actor_owner.tpl"}
-		</td>
-	</tr>
-</table>
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--row">
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.title'|devblocks_translate|capitalize}</label>
+				<input type="text" name="title" value="{$model->title}" autofocus="autofocus">
+			</div>
 
-<b>{'common.content'|devblocks_translate|capitalize}:</b><br>
-<textarea name="content" style="width:98%;height:200px;border:1px solid rgb(180,180,180);padding:2px;">{$model->content}</textarea>
-<div class="toolbar"></div>
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.type'|devblocks_translate|capitalize}</label>
+				<select name="context">
+					{* Plaintext intentionally has no icon so it stands out from the record types *}
+					<option value="" {if empty($model->id)}selected="selected"{/if}>Plaintext</option>
+					{foreach from=$contexts item=ctx key=k}
+					{if is_array($ctx->params.options.0) && isset($ctx->params.options.0.snippets)}
+					<option value="{$k}" data-cerb-ui-icon="{$ctx->params.icon|default:'collection'}" {if $model->context==$k}selected="selected"{/if}>{$ctx->name}</option>
+					{/if}
+					{/foreach}
+				</select>
+			</div>
+		</div>
 
-<fieldset class="peek placeholders" style="margin-top:10px;">
-	<legend>{'common.prompts'|devblocks_translate|capitalize}: <small>(KATA)</small></legend>
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'common.owner'|devblocks_translate|capitalize}</label>
+			<div>
+				{include file="devblocks:cerberusweb.core::internal/peek/menu_actor_owner.tpl"}
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">{'common.content'|devblocks_translate|capitalize}</div>
+	</div>
+	<textarea name="content" style="width:100%;height:200px;">{$model->content}</textarea>
+	<div class="toolbar"></div>
+</div>
+
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">{'common.prompts'|devblocks_translate|capitalize} <small class="cerb-u-text-muted cerb-u-fw-400">(KATA)</small></div>
+	</div>
 
 	<div class="cerb-code-editor-toolbar">
 		<button type="button" class="cerb-code-editor-toolbar-button cerb-editor-button-run"><span class="cerb-icons cerb-icon-play"></span></button>
@@ -63,34 +66,30 @@
 		</ul>
 		<button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="https://cerb.ai/docs/snippets/" target="_blank"><span class="cerb-icons cerb-icon-circle-question-mark"></span></a></button>
 	</div>
-	<textarea name="prompts_kata" class="cerb-editor-kata-placeholders" data-editor-mode="ace/mode/cerb_kata">{$model->prompts_kata}</textarea>
+	<textarea name="prompts_kata" data-editor-lines="15" spellcheck="false">{$model->prompts_kata}</textarea>
 	<div class="cerb-code-editor-preview-output"></div>
-</fieldset>
+</div>
 
 {if !empty($custom_fields)}
-<fieldset class="peek" style="margin-top:10px;">
-	<legend>{'common.custom_fields'|devblocks_translate}</legend>
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-</fieldset>
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">{'common.custom_fields'|devblocks_translate|capitalize}</div>
+	</div>
+	<div class="cerb-ui-form">
+		{include file="devblocks:cerberusweb.core::internal/custom_fields/form.tpl" custom_fields=$custom_fields}
+	</div>
+</div>
 {/if}
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
 {if isset($model->id)}
-<fieldset class="delete" style="display:none;">
-	<legend>Delete this snippet?</legend>
-	<p>Are you sure you want to permanently delete this snippet?</p>
-	
-	<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
-	<button type="button" class="delete-cancel">{'common.no'|devblocks_translate|capitalize}</button>
-</fieldset>
+	{include file="devblocks:cerberusweb.core::internal/peek/delete_confirm.tpl" noun="snippet"}
 {/if}
 
-<div class="status"></div>
-
-<div class="buttons">
-	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if $model->id && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+<div class="buttons" style="margin-top:10px;">
+	<button type="button" class="cerb-ui-button save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if $model->id && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="cerb-ui-button cerb-ui-button--subtle delete-prompt"><span class="cerb-icons cerb-icon-trash"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>
@@ -110,67 +109,20 @@ $(function() {
 
 		var $textarea = $popup.find('textarea[name=content]');
 
-		var $editor = $popup.find('.cerb-editor-kata-placeholders')
-			.cerbCodeEditor()
-			.cerbCodeEditorAutocompleteKata({
-				autocomplete_suggestions: {CerberusApplication::kataAutocompletions()->snippetPrompt()|json_encode nofilter}
-			})
-			.nextAll('pre.ace_editor')
-		;
-
-		var editor = ace.edit($editor.attr('id'));
+		var editor = new CerbUI.KataEditor($popup.find('textarea[name=prompts_kata]')[0], {
+			onAutocomplete: CerbUI.KataEditor.kataFieldSource({CerberusApplication::kataAutocompletions()->snippetPrompt()|json_encode nofilter})
+		});
 
 		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
 
 		// Buttons
-		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
+		$popup.find('button.save').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-		$popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
-		$popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
+		if(window.CerbUI && CerbUI.Form) CerbUI.Form.ConfirmDelete($popup[0]);
 
-		// Owners
-
-		var $owners_menu = $popup.find('ul.owners-menu');
-		var $ul = $owners_menu.siblings('ul.chooser-container');
-
-		$ul.on('bubble-remove', function (e) {
-			e.stopPropagation();
-			$(e.target).closest('li').remove();
-			$ul.hide();
-			$owners_menu.show();
-		});
-
-		$owners_menu.menu({
-			select: function (event, ui) {
-				event.stopPropagation();
-
-				var token = ui.item.attr('data-token');
-				var label = ui.item.attr('data-label');
-
-				if (undefined == token || undefined == label)
-					return;
-
-				$owners_menu.hide();
-
-				// Build bubble
-
-				var context_data = token.split(':');
-				var $li = $('<li/>');
-				let $label = $('<a class="cerb-peek-trigger no-underline" />').attr('data-context', context_data[0]).attr('data-context-id', context_data[1]).text(label);
-				$label.cerbPeekTrigger().appendTo($li);
-				$('<input type="hidden">').attr('name', 'owner').attr('value', token).appendTo($li);
-				ui.item.find('img.cerb-avatar').clone().prependTo($li);
-				let $a = $('<a><span class="cerb-icons cerb-icon-circle-remove"></span></a>').appendTo($li);
-				$a.on('click', function(e) {
-					e.stopPropagation();
-					$(this).trigger('bubble-remove');
-				});
-
-				$ul.find('> *').remove();
-				$ul.append($li);
-				$ul.show();
-			}
-		});
+		// Type — native <select> keeps the POST value; enhance with type-to-filter (re-fires change below)
+		if(window.CerbUI && CerbUI.SelectMenu)
+			$popup.find('form select[name=context]').each(function() { new CerbUI.SelectMenu(this); });
 
 		// Change
 
@@ -182,11 +134,6 @@ $(function() {
 
 		// If editing and a target context is known
 		genericAjaxGet($popup.find('DIV.toolbar'), 'c=profiles&a=invoke&module=snippet&action=renderToolbar&form_id={$frm_id}&context={$model->context}');
-
-		// Snippet syntax
-		$textarea
-			.cerbTextEditor()
-		;
 
 		var $placeholder_output = $popup.find('.cerb-code-editor-preview-output');
 
@@ -208,21 +155,14 @@ $(function() {
 		});
 
 		var $button_add = $frm.find('.cerb-editor-button-add');
-		var $menu_add = $button_add.next('ul');
+		var $menu_add = $button_add.next('ul').hide();
 
-		$button_add.on('click', function () {
-			$menu_add.toggle();
-		});
-
-		$menu_add.menu({
-			select: function (e, ui) {
-				e.stopPropagation();
-
-				var $li = $(ui.item);
-				var type = $li.attr('data-type');
+		new CerbUI.Menu($menu_add[0], {
+			clickTrigger: $button_add[0],
+			filter: true,
+			onSelect: function (li, src) {
+				var type = src.getAttribute('data-type');
 				var snippet = '';
-
-				$menu_add.hide();
 
 				{literal}
 				if ('checkbox' === type) {
@@ -253,7 +193,8 @@ $(function() {
 				}
 				{/literal}
 
-				$editor.triggerHandler($.Event('cerb.appendText', { content: snippet }));
+				// insertSnippet accepts Ace-format snippets: it flattens numbered tab-stops to their defaults and lands the caret at the first.
+				editor.insertSnippet(snippet);
 			}
 		});
 

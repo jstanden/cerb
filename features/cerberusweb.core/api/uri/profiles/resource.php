@@ -93,11 +93,12 @@ class PageSection_ProfilesResource extends Extension_PageSection {
 				$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? null, 'string', '');
 				$is_dynamic = DevblocksPlatform::importGPC($_POST['is_dynamic'] ?? null, 'integer', 0);
 				$automation_kata = DevblocksPlatform::importGPC($_POST['automation_kata'] ?? null, 'string', '');
-				$file = DevblocksPlatform::importGPC($_FILES['file'] ?? null, 'array', []);
-				
+				$file_token = DevblocksPlatform::importGPC($_POST['file_token'] ?? null, 'string', '');
+
 				$error = null;
 				$fp = null;
-				
+				$extension_params = [];
+
 				$fields = [
 					DAO_Resource::AUTOMATION_KATA => $automation_kata,
 					DAO_Resource::DESCRIPTION => $description,
@@ -111,27 +112,21 @@ class PageSection_ProfilesResource extends Extension_PageSection {
 				if(!($resource_ext = Extension_ResourceType::get($extension_id, true)))
 					throw new Exception_DevblocksAjaxValidationError('Invalid resource extension.');
 				
-				// Report file upload errors
-				if(is_array($file) && array_key_exists('error', $file) && $file['error']) {
-					$error = match($file['error']) {
-						UPLOAD_ERR_INI_SIZE => 'The uploaded file is too large (upload_max_filesize).',
-						UPLOAD_ERR_FORM_SIZE => 'The uploaded file is too large (MAX_FILE_SIZE).',
-						default => 'The uploaded file was not uploaded.',
-					};
-					throw new Exception_DevblocksAjaxValidationError($error);
-				}
-				
-				if(is_array($file) && array_key_exists('tmp_name', $file) && $file['tmp_name']) {
-					$extension_params = [];
-					
-					if(!($fp = fopen($file['tmp_name'], 'r+b'))) {
-						throw new Exception_DevblocksAjaxValidationError('Failed to upload file.');
-					}
-					
+				if($file_token) {
+					if(null == ($automation_resource = DAO_AutomationResource::getByToken($file_token)))
+						throw new Exception_DevblocksAjaxValidationError('The uploaded file could not be found.');
+
+					$fp = DevblocksPlatform::getTempFile();
+
+					if(!$automation_resource->getFileContents($fp))
+						throw new Exception_DevblocksAjaxValidationError('Failed to read the uploaded file.');
+
+					fseek($fp, 0);
+
 					if(!($resource_ext->validateContentData($fp, $extension_params, $error))) {
 						throw new Exception_DevblocksAjaxValidationError($error ?? 'Uploaded file is not a valid image.');
 					}
-					
+
 					$fields[DAO_Resource::EXTENSION_KATA] = DevblocksPlatform::services()->kata()->emit($extension_params);
 				}
 				
@@ -208,13 +203,13 @@ class PageSection_ProfilesResource extends Extension_PageSection {
 			));
 			return;
 			
-		} catch (Throwable) {
+		} catch (Throwable $e) {
 			echo json_encode(array(
 				'status' => false,
-				'error' => 'An error occurred.',
+				'error' => DEVELOPMENT_MODE ? ('An error occurred: ' . $e->getMessage()) : 'An error occurred.',
 			));
 			return;
-			
+
 		}
 	}
 	

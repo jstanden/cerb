@@ -12,46 +12,42 @@
 	<input type="hidden" name="do_delete" value="0">
 	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-	<table cellspacing="0" cellpadding="2" border="0" width="98%">
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'common.status'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%">
-				{if $model->status_id == 0}
-					<span class="cerb-icons cerb-icon-play"></span> Running
-				{elseif $model->status_id == 1}
-					<span class="cerb-icons cerb-icon-pause"></span> Paused
-				{elseif $model->status_id == 2}
-					<span class="cerb-icons cerb-icon-circle-ok"></span> {'common.done'|devblocks_translate|capitalize}
-				{elseif $model->status_id == 3}
-					<span class="cerb-icons cerb-icon-ban"></span> Canceled
-				{/if}
-			</td>
-		</tr>
-		{if !empty($metadata_json)}
-		<tr>
-			<td valign="top" nowrap="nowrap"><b>Metadata:</b></td>
-			<td>
-				<textarea readonly spellcheck="false" rows="8" style="width:99%;font-family:monospace;font-size:0.9em;white-space:pre;word-wrap:normal;">{$metadata_json}</textarea>
-			</td>
-		</tr>
-		{/if}
-	</table>
+	<div class="cerb-ui-panel cerb-ui-panel--spaced">
+		<div class="cerb-ui-form">
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.status'|devblocks_translate|capitalize}</label>
+				<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-1">
+					{if $model->status_id == 0}
+						<span class="cerb-icons cerb-icon-play"></span> Running
+					{elseif $model->status_id == 1}
+						<span class="cerb-icons cerb-icon-pause"></span> Paused
+					{elseif $model->status_id == 2}
+						<span class="cerb-icons cerb-icon-circle-ok"></span> {'common.done'|devblocks_translate|capitalize}
+					{elseif $model->status_id == 3}
+						<span class="cerb-icons cerb-icon-ban"></span> Canceled
+					{/if}
+				</div>
+			</div>
+
+			{if !empty($metadata_json)}
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">Metadata</label>
+				<textarea readonly spellcheck="false" rows="8" style="font-family:monospace;font-size:0.9em;white-space:pre;word-wrap:normal;">{$metadata_json}</textarea>
+			</div>
+			{/if}
+		</div>
+	</div>
 
 	{if $model->id}
-		<fieldset style="display:none;" class="delete">
-			<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
-			<div>Are you sure you want to permanently delete this queue job and all of its messages?</div>
-			<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
-			<button type="button" class="delete-cancel">{'common.no'|devblocks_translate|capitalize}</button>
-		</fieldset>
+		{include file="devblocks:cerberusweb.core::internal/peek/delete_confirm.tpl" noun="queue job and all of its messages"}
 	{/if}
 
 	<div class="buttons" style="margin-top:10px;">
 		{if $model->id}
 			{if $model->status_id != 2}
-				<button type="button" class="save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+				<button type="button" class="cerb-ui-button save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 			{/if}
-			{if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+			{if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="cerb-ui-button cerb-ui-button--subtle delete-prompt"><span class="cerb-icons cerb-icon-trash"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 		{/if}
 	</div>
 </form>
@@ -69,8 +65,7 @@ $(function() {
 
 		$popup.find('button.save').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-		$popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
-		$popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
+		if(window.CerbUI && CerbUI.Form) CerbUI.Form.ConfirmDelete($popup[0]);
 	});
 });
 </script>

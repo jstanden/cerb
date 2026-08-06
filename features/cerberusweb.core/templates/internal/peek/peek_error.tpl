@@ -1,44 +1,33 @@
 {$div_uniqid = uniqid()}
 
-<div id="{$div_uniqid}" style="margin-bottom:10px;">
-	<p>
-		{$error_message}
-	</p>
-	
-	<button type="button"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.ok'|devblocks_translate}</button>
+<div id="{$div_uniqid}">
+	<div class="cerb-ui-panel cerb-ui-panel--alert">
+		<div class="cerb-ui-header">
+			<div class="cerb-ui-callout">
+				<span class="cerb-icons cerb-icon-circle-exclamation-mark cerb-ui-callout--icon"></span>
+				<div>
+					<div class="cerb-ui-header--title-sm">{'common.error'|devblocks_translate|capitalize}</div>
+					<div class="cerb-ui-header--subtitle">{$error_message}</div>
+				</div>
+			</div>
+			<div class="cerb-ui-header--right">
+				<button type="button" class="cerb-ui-button"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.ok'|devblocks_translate}</button>
+			</div>
+		</div>
+	</div>
 </div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $popup = genericAjaxPopupFind('#{$div_uniqid}');
-	
-	$popup.one('popup_open', function(event,ui) {
-		var $layer = $popup.attr('id').substring(5);
-		
-		$popup
-			.dialog('option','title',"{'common.error'|devblocks_translate|capitalize|escape:'javascript' nofilter}")
-			.dialog('option', 'close', false)
-			;
-		
-		var $dialog = $popup.closest('div.ui-dialog');
+	var $layer = $popup.attr('id').substring(5);
 
-		var $icon = $('<span class="cerb-icons cerb-icon-circle-exclamation-mark" style="margin-right:5px;"></span>');
-		
-		$dialog
-			.find('div.ui-dialog-titlebar')
-			.css('background-color', 'rgb(200,0,0)')
-			.find('span.ui-dialog-title')
-			.prepend($icon)
-			;
-		
-		$dialog
-			.find('button.ui-dialog-titlebar button')
-			.hide()
-			;
-		
-		$popup.find('button').click(function() {
-			genericAjaxPopupClose($layer);
-		});
+	$popup.one('popup_open', function() {
+		$popup.dialog('option','title',"{'common.error'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
+	});
+
+	$popup.find('button').on('click', function() {
+		genericAjaxPopupClose($layer);
 	});
 });
 </script>

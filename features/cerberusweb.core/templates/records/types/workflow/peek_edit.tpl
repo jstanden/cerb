@@ -15,37 +15,45 @@
     <div id="{$tabset_id}" class="cerb-tabs">
         {if !$model->id && $packages}
             <ul>
-                <li><a href="#workflow-library">{'common.library'|devblocks_translate|capitalize}</a></li>
-                <li><a href="#workflow-builder">{'common.build'|devblocks_translate|capitalize}</a></li>
+                <li><a href="#workflow-library_{$form_id}">{'common.library'|devblocks_translate|capitalize}</a></li>
+                <li><a href="#workflow-builder_{$form_id}">{'common.build'|devblocks_translate|capitalize}</a></li>
             </ul>
         {/if}
 
         {if !$model->id && $packages}
-            <div id="workflow-library" class="package-library">
+            <div id="workflow-library_{$form_id}" class="package-library">
                 {include file="devblocks:cerberusweb.core::internal/package_library/editor_chooser.tpl"}
             </div>
         {/if}
 
-        <div id="workflow-builder">
-        <table cellspacing="0" cellpadding="2" border="0" width="98%">
+        <div id="workflow-builder_{$form_id}">
             {if $model->name}
-                <h1>{$model->name}</h1>
-                <div>{$model->description}</div>
+                <div class="cerb-ui-header cerb-ui-header--tight">
+                    <div>
+                        <div class="cerb-ui-header--title">{$model->name}</div>
+                        <div class="cerb-ui-header--subtitle">{$model->description}</div>
+                    </div>
+                </div>
             {/if}
 
             {if !empty($custom_fields)}
-                {include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
+            <div class="cerb-ui-panel cerb-ui-panel--spaced">
+                <div class="cerb-ui-form">
+                    {include file="devblocks:cerberusweb.core::internal/custom_fields/form.tpl" custom_fields=$custom_fields}
+                </div>
+            </div>
             {/if}
-        </table>
 
         {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
         {if $model->id}
-        <div class="cerb-code-editor-toolbar" style="margin:0.5em 0;">
-            {if $model->config_kata}
-            <button type="button" data-cerb-button-config-update data-cerb-template-section="config"><span class="cerb-icons cerb-icon-adjust"></span> Edit Configuration</button>
-            {/if}
-            <button type="button" data-cerb-button-template-update><span class="cerb-icons cerb-icon-edit"></span> Update Template</button>
+        <div data-cerb-workflow-toolbar style="margin:0.5em 0;">
+            <ul class="cerb-ui-toolbar">
+                {if $model->config_kata}
+                <li data-cerb-button-config-update data-cerb-template-section="config" data-icon="adjust">Edit Configuration</li>
+                {/if}
+                <li data-cerb-button-template-update data-icon="edit">Update Template</li>
+            </ul>
         </div>
         {else}
             {if $templates_layout.filtering}
@@ -76,12 +84,12 @@
 
         <div class="buttons" style="margin-top:10px;">
             {if $model->id}
-                <button type="button" class="save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-                <button type="button" class="save-continue"><span class="cerb-icons cerb-icon-circle-arrow-right"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>
-                {if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+                <button type="button" class="cerb-ui-button save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+                <button type="button" class="cerb-ui-button cerb-ui-button--subtle save-continue"><span class="cerb-icons cerb-icon-circle-arrow-right"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>
+                {if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="cerb-ui-button cerb-ui-button--subtle delete-prompt"><span class="cerb-icons cerb-icon-trash"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
             {else}
-                <button type="button" class="create-library" style="display:none;"><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.create'|devblocks_translate|capitalize}</button>
-                <button type="button" class="create"><span class="cerb-icons cerb-icon-circle-arrow-right"></span> {'common.create_and_continue'|devblocks_translate|capitalize}</button>
+                <button type="button" class="cerb-ui-button create-library" style="display:none;"><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.create'|devblocks_translate|capitalize}</button>
+                <button type="button" class="cerb-ui-button create"><span class="cerb-icons cerb-icon-circle-arrow-right"></span> {'common.create_and_continue'|devblocks_translate|capitalize}</button>
             {/if}
         </div>
     </div>
@@ -99,7 +107,7 @@
             $popup.find('[autofocus]:first').focus();
             $popup.css('overflow', 'inherit');
 
-            let $tab_builder = $popup.find('#workflow-builder');
+            let $tab_builder = $popup.find('#workflow-builder_{$form_id}');
 
             let funcAfter = function(e) {
                 let popup_url = 'c=internal&a=invoke&module=records&action=showPeekPopup' +
@@ -114,7 +122,7 @@
                 $new_popup.one('popup_open', function(evt) {
                     evt.stopPropagation();
                     setTimeout(function() {
-                        $new_popup.find('button[data-cerb-button-template-update]').click();
+                        $new_popup.find('[data-cerb-button-template-update]').click();
                     }, 50);
                 });
             };
@@ -163,8 +171,19 @@
                 });
             };
 
-            $tab_builder.find('button[data-cerb-button-config-update').on('click', onButtonTemplateUpdate);
-            $tab_builder.find('button[data-cerb-button-template-update').on('click', onButtonTemplateUpdate);
+            let $workflow_toolbar = $tab_builder.find('[data-cerb-workflow-toolbar]');
+
+            // Real handler on the source <li>s — these receive both forwarded strip selections and the
+            // cross-popup programmatic clicks (the <li> is server-rendered, so it never races enhancement).
+            $workflow_toolbar.find('[data-cerb-button-config-update], [data-cerb-button-template-update]')
+                .on('click', onButtonTemplateUpdate);
+
+            // Enhance into a CerbUI.Toolbar strip; forward a strip-button selection to its source <li>.
+            let workflowToolbarUl = $workflow_toolbar.find('ul.cerb-ui-toolbar')[0];
+            if(workflowToolbarUl && window.CerbUI && CerbUI.Toolbar)
+                new CerbUI.Toolbar(workflowToolbarUl, {
+                    onSelect: function(item, sourceLi) { if(sourceLi) $(sourceLi).trigger('click'); }
+                });
 
             let $template_cells = $tab_builder.find('.cerb-sheet--row-item');
 
@@ -219,10 +238,8 @@
             // Package Library
 
             {if !$model->id && $packages}
-            let tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
-            tabOptions.active = Devblocks.getjQueryUiTabSelected('{$tabset_id}');
-
-            let $tabs = $popup.find('.cerb-tabs').tabs(tabOptions);
+            let $tabs = $popup.find('.cerb-tabs');
+            $tabs.find('> ul').each(function() { if(window.CerbUI && CerbUI.Tabs) new CerbUI.Tabs(this, { remember: '{$tabset_id}' }); });
 
             let $library_container = $tabs;
             {include file="devblocks:cerberusweb.core::internal/package_library/editor_chooser.js.tpl"}
@@ -252,7 +269,7 @@
                                 let $new_popup = genericAjaxPopup(layer, popup_url, 'reuse', false);
 
                                 setTimeout(function() {
-                                    $new_popup.find('button[data-cerb-button-template-update]').click();
+                                    $new_popup.find('[data-cerb-button-template-update]').click();
                                 }, 50);
                             }
                         },

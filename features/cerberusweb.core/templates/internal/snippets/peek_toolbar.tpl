@@ -37,17 +37,15 @@ $(function() {
 	let $content = $popup.find('textarea[name=content]');
 	let $frm = $menu_trigger.closest('form');
 	
-	$menu_trigger.click(function(e) {
-		e.stopPropagation();
-		$placeholder_menu.toggle();
-	});
-	
 	// Quick insert token menu
-	
-	$placeholder_menu.menu({
-		select: function(event, ui) {
-			let token = ui.item.attr('data-token');
-			let label = ui.item.attr('data-label');
+
+	new CerbUI.Menu($placeholder_menu[0], {
+		clickTrigger: $menu_trigger[0],
+		selectableParents: true,
+		filter: true,
+		onSelect: function(li, src) {
+			let token = src.getAttribute('data-token');
+			let label = src.getAttribute('data-label');
 			
 			if(undefined == token || undefined == label)
 				return;

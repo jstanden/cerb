@@ -13,61 +13,55 @@
 
     {include file="devblocks:cerberusweb.core::records/types/workflow/managed_callout.tpl" workflow=$workflow workflow_url=$workflow_url noun="rule"}
 
-    <table cellspacing="0" cellpadding="2" border="0" width="98%">
-        <tr>
-            <td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate|capitalize}:</b></td>
-            <td width="99%">
-                <input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
-            </td>
-        </tr>
+    <div class="cerb-ui-panel cerb-ui-panel--spaced">
+        <div class="cerb-ui-form">
+            <div class="cerb-ui-form--field">
+                <label class="cerb-ui-form--label">{'common.name'|devblocks_translate|capitalize}</label>
+                <input type="text" name="name" value="{$model->name}" autofocus="autofocus">
+            </div>
 
-        <tr>
-            <td width="1%" nowrap="nowrap"><b>{'common.priority'|devblocks_translate|capitalize}:</b></td>
-            <td width="99%">
-                <input type="text" name="priority" maxlength="3" size="3" value="{$model->priority|default:100}">
-                <span>
-					(0=first, 255=last)
-				</span>
-            </td>
-        </tr>
+            <div class="cerb-ui-form--row">
+                <div class="cerb-ui-form--field">
+                    <label class="cerb-ui-form--label">{'common.priority'|devblocks_translate|capitalize} <span class="cerb-icons cerb-icon-sort-asc" title="0=first, 255=last"></span></label>
+                    <div><input type="number" name="priority" min="0" max="255" value="{$model->priority|default:100}" style="width:5em;"></div>
+                </div>
 
-        <tr>
-            <td width="1%" nowrap="nowrap"><b>{'common.status'|devblocks_translate|capitalize}:</b></td>
-            <td width="99%">
-                <label>
-                    <input type="radio" name="is_disabled" value="0" {if !$model->is_disabled}checked="checked"{/if}>
-                    {'common.enabled'|devblocks_translate|capitalize}
-                </label>
-                <label>
-                    <input type="radio" name="is_disabled" value="1" {if $model->is_disabled}checked="checked"{/if}>
-                    {'common.disabled'|devblocks_translate|capitalize}
-                </label>
-            </td>
-        </tr>
+                <div class="cerb-ui-form--field">
+                    <label class="cerb-ui-form--label">{'common.status'|devblocks_translate|capitalize}</label>
+                    <div>
+                        <input type="hidden" name="is_disabled" id="ruleStatus_{$form_id}" value="{if $model->is_disabled}1{else}0{/if}">
+                        <div class="cerb-ui-switcher" data-cerb-input="ruleStatus_{$form_id}">
+                            <button type="button" data-value="0"{if !$model->is_disabled} class="cerb-ui-switcher--active"{/if}><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.enabled'|devblocks_translate|capitalize}</button>
+                            <button type="button" data-value="1"{if $model->is_disabled} class="cerb-ui-switcher--active"{/if}><span class="cerb-icons cerb-icon-ban"></span> {'common.disabled'|devblocks_translate|capitalize}</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        {if !empty($custom_fields)}
-            {include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
-        {/if}
-    </table>
+    {if !empty($custom_fields)}
+    <div class="cerb-ui-panel cerb-ui-panel--spaced">
+        <div class="cerb-ui-form">
+            {include file="devblocks:cerberusweb.core::internal/custom_fields/form.tpl" custom_fields=$custom_fields}
+        </div>
+    </div>
+    {/if}
 
     {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
-    <fieldset class="peek">
-        <legend>Routing: (KATA)</legend>
-        <div class="cerb-code-editor-toolbar">
-            <button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-magic title="{'common.autocomplete'|devblocks_translate|capitalize} (Ctrl+Space)"><span class="cerb-icons cerb-icon-sparkles"></span></button>
-            {if $model->id}
-                <button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-changesets title="{'common.change_history'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-history"></span></button>
-            {/if}
+    <div class="cerb-ui-panel cerb-ui-panel--spaced">
+        <div class="cerb-ui-header cerb-ui-header--tight">
+            <div class="cerb-ui-header--title-sm">Routing <small class="cerb-u-text-muted cerb-u-fw-400">(KATA)</small></div>
+        </div>
+        {$toolbar_dict = DevblocksDictionaryDelegate::instance([
+        'caller_name' => 'cerb.toolbar.editor',
 
-            {$toolbar_dict = DevblocksDictionaryDelegate::instance([
-            'caller_name' => 'cerb.toolbar.editor',
+        'worker__context' => CerberusContexts::CONTEXT_WORKER,
+        'worker_id' => $active_worker->id
+        ])}
 
-            'worker__context' => CerberusContexts::CONTEXT_WORKER,
-            'worker_id' => $active_worker->id
-            ])}
-
-            {$toolbar_kata =
+        {$toolbar_kata =
 "menu/insert:
   icon: circle-plus
   hidden@bool: yes
@@ -77,23 +71,28 @@
       uri: ai.cerb.mailRoutingRuleBuilder.rule
 "}
 
-            {$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
+        {$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
 
-            {DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
+        {* Editor toolbar sections merged into the KataEditor's integrated strip: the server-rendered
+           Insert menu + the local Suggest/Change history/Help/Test items. *}
+        <div data-cerb-interaction-toolbar hidden>{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}</div>
+        <ul class="cerb-ui-toolbar" data-cerb-routing-toolbar-items hidden>
+            <li data-value="suggest" data-icon="autocomplete" title="{'common.autocomplete'|devblocks_translate|capitalize} (Ctrl/⌘+Space)"></li>
+            {if $model->id}
+                <li data-value="changesets" data-icon="history" title="{'common.change_history'|devblocks_translate|capitalize}"></li>
+            {/if}
+            <li></li>
+            <li data-value="help" data-toggle data-key="help" data-icon="circle-question-mark" title="{'common.help'|devblocks_translate|capitalize}"></li>
+            <li data-value="tester" data-toggle data-key="tester" data-icon="lab" title="{'common.test'|devblocks_translate|capitalize}"></li>
+        </ul>
 
-            <div class="cerb-code-editor-toolbar-divider"></div>
+        <textarea name="routing_kata" data-editor-lines="30" spellcheck="false">{$model->routing_kata}</textarea>
+    </div>
 
-            <button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-help title="{'common.help'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-circle-question-mark"></span></button>
-            <button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-tester title="{'common.test'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-lab"></span></button>
-
-            <div class="cerb-code-editor-toolbar-divider"></div>
+    <div data-cerb-fieldset-help class="cerb-ui-panel cerb-ui-panel--spaced cerb-hidden">
+        <div class="cerb-ui-header cerb-ui-header--tight">
+            <div class="cerb-ui-header--title-sm">{'common.help'|devblocks_translate|capitalize}</div>
         </div>
-
-        <textarea name="routing_kata" data-editor-mode="ace/mode/cerb_kata" data-editor-lines="30">{$model->routing_kata}</textarea>
-    </fieldset>
-
-    <fieldset data-cerb-fieldset-help class="peek black cerb-hidden">
-        <legend style="font-size:140%;">{'common.help'|devblocks_translate|capitalize}</legend>
 
         {if $routing_placeholders}
             <h3 style="padding:0;margin:0 0 5px 0;">{'common.placeholders'|devblocks_translate|capitalize}</h3>
@@ -120,46 +119,38 @@
                 </div>
             </div>
         {/if}
-    </fieldset>
+    </div>
 
-    <fieldset data-cerb-routing-tester class="peek black cerb-hidden" style="margin:10px 0 0 0;">
-        <legend style="font-size:140%;">{'common.test'|devblocks_translate|capitalize}</legend>
+    <div data-cerb-routing-tester class="cerb-ui-panel cerb-ui-panel--spaced cerb-hidden">
+        <div class="cerb-ui-header cerb-ui-header--tight">
+            <div class="cerb-ui-header--title-sm">{'common.test'|devblocks_translate|capitalize}</div>
+        </div>
 
         <div>
             <div data-cerb-routing-tester-editor-placeholders>
-                <div class="cerb-code-editor-toolbar">
-                    <b>{'common.placeholders'|devblocks_translate|capitalize} (KATA)</b>
-                    <div class="cerb-code-editor-toolbar-divider"></div>
-                    <button type="button" class="cerb-code-editor-toolbar-button cerb-code-editor-toolbar-button--chooser" title="{'common.choose'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-search"></span></button>
-                    <button type="button" class="cerb-code-editor-toolbar-button cerb-code-editor-toolbar-button--run" title="{'common.run'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-play"></span></button>
+                <div class="cerb-ui-editor-toolbar cerb-u-flex cerb-u-items-center cerb-u-gap-2">
+                    <span class="cerb-u-text-muted cerb-u-fs-n1">{'common.placeholders'|devblocks_translate|capitalize} (KATA)</span>
+                    <button type="button" class="cerb-ui-button cerb-ui-button--transparent cerb-code-editor-toolbar-button--chooser" title="{'common.choose'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-search"></span></button>
+                    <button type="button" class="cerb-ui-button cerb-ui-button--transparent cerb-code-editor-toolbar-button--run" title="{'common.run'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-play"></span></button>
                 </div>
-                <textarea name="tester[placeholders]" data-editor-mode="ace/mode/cerb_kata" rows="5" cols="45"></textarea>
+                <textarea name="tester[placeholders]" data-editor-lines="6" spellcheck="false"></textarea>
             </div>
 
             <div data-cerb-routing-tester-results style="margin-top:10px;position:relative;"></div>
         </div>
-    </fieldset>
+    </div>
 
     {if !empty($model->id)}
-        <fieldset style="display:none;" class="delete">
-            <legend>{'common.delete'|devblocks_translate|capitalize}</legend>
-
-            <div>
-                Are you sure you want to permanently delete this mail routing rule?
-            </div>
-
-            <button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
-            <button type="button" class="delete-cancel">{'common.no'|devblocks_translate|capitalize}</button>
-        </fieldset>
+        {include file="devblocks:cerberusweb.core::internal/peek/delete_confirm.tpl" noun="mail routing rule"}
     {/if}
 
     <div class="buttons" style="margin-top:10px;">
         {if $model->id}
-            <button type="button" class="save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-            <button type="button" class="save-continue"><span class="cerb-icons cerb-icon-circle-arrow-right"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>
-            {if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+            <button type="button" class="cerb-ui-button save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+            <button type="button" class="cerb-ui-button cerb-ui-button--subtle save-continue"><span class="cerb-icons cerb-icon-circle-arrow-right"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>
+            {if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="cerb-ui-button cerb-ui-button--subtle delete-prompt"><span class="cerb-icons cerb-icon-trash"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
         {else}
-            <button type="button" class="save"><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.create'|devblocks_translate|capitalize}</button>
+            <button type="button" class="cerb-ui-button save"><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.create'|devblocks_translate|capitalize}</button>
         {/if}
     </div>
 </form>
@@ -181,8 +172,16 @@
             $popup.find('button.save').click(Devblocks.callbackPeekEditSave);
             $popup.find('button.save-continue').click({ mode: 'continue' }, Devblocks.callbackPeekEditSave);
             $popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-            $popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
-            $popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
+            if(window.CerbUI && CerbUI.Form) CerbUI.Form.ConfirmDelete($popup[0]);
+
+            // Status (enabled/disabled) switcher bound to its hidden input
+            if(window.CerbUI && CerbUI.Switcher) {
+                $popup.find('.cerb-ui-switcher[data-cerb-input]').each(function() {
+                    var input = document.getElementById(this.getAttribute('data-cerb-input'));
+                    if(!input) return;
+                    new CerbUI.Switcher(this, { value: input.value, onSelect: function(value) { input.value = value; } });
+                });
+            }
 
             $popup.find('a.cerb-peek-trigger').cerbPeekTrigger();
 
@@ -190,19 +189,46 @@
 
             let autocomplete_suggestions = {if $autocomplete_json}{$autocomplete_json nofilter}{else}[]{/if};
 
-            let $editor = $popup.find('[name=routing_kata]')
-                .cerbCodeEditor()
-                .cerbCodeEditorAutocompleteKata({
-                    autocomplete_suggestions: autocomplete_suggestions
-                })
-            ;
-
-            let editor = ace.edit($editor.next('pre.ace_editor').attr('id'));
+            let editor = new CerbUI.KataEditor($popup.find('textarea[name=routing_kata]')[0], {
+                onAutocomplete: CerbUI.KataEditor.kataFieldSource(autocomplete_suggestions),
+                toolbar: {
+                    sections: [
+                        $popup.find('[data-cerb-interaction-toolbar] ul.cerb-ui-toolbar')[0],
+                        $popup.find('[data-cerb-routing-toolbar-items]')[0]
+                    ].filter(Boolean),
+                    toolbarOpts: {
+                        caller: { name: 'cerb.toolbar.editor', params: { toolbar: 'cerb.toolbar.recordEditor.toolbarSection', selected_text: '' } },
+                        start: function(formData) {
+                            let pos = editor.getCursorPosition();
+                            formData.set('caller[params][selected_text]', editor.getSelectedText());
+                            formData.set('caller[params][token_path]', editor.getTokenPath().join(''));
+                            formData.set('caller[params][cursor_row]', pos.row);
+                            formData.set('caller[params][cursor_column]', pos.column);
+                            formData.set('caller[params][toolbar]', '{if $toolbar_ext}{$toolbar_ext->id}{/if}');
+                            formData.set('caller[params][value]', editor.getValue());
+                        },
+                        done: function(e) {
+                            e.stopPropagation();
+                            if(!e.trigger.is('.cerb-bot-trigger'))
+                                return;
+                            if(e.eventData.exit === 'return')
+                                Devblocks.interactionWorkerPostActions(e.eventData, editor);
+                        }
+                    },
+                    onAction: function(value, ed, item) {
+                        if(value === 'suggest')    { ed.openAutocomplete(); return true; }
+                        {if $model->id}
+                        if(value === 'changesets') { openChangesets(); return true; }
+                        {/if}
+                        if(value === 'help')   { $popup.find('[data-cerb-fieldset-help]').toggle(!!(item && item.pressed)); return true; }
+                        if(value === 'tester') { $popup.find('[data-cerb-routing-tester]').toggle(!!(item && item.pressed)); return true; }
+                        return false;
+                    }
+                }
+            });
 
             {if $model->id}
-            $popup.find('[data-cerb-editor-button-changesets]').on('click', function(e) {
-                e.stopPropagation();
-
+            let openChangesets = function() {
                 let formData = new FormData();
                 formData.set('c', 'internal');
                 formData.set('a', 'invoke');
@@ -214,101 +240,26 @@
 
                 let $editor_policy_differ_popup = genericAjaxPopup('editorDiff{$form_id}', formData, null, null, '80%');
 
-                $editor_policy_differ_popup.one('cerb-diff-editor-ready', function(e) {
+                $editor_policy_differ_popup.one('cerb-diff-viewer-ready', function(e) {
                     e.stopPropagation();
 
-                    if(!e.hasOwnProperty('differ'))
+                    if(!e.hasOwnProperty('viewer'))
                         return;
 
-                    e.differ.editors.right.ace.setValue(editor.getValue());
-                    e.differ.editors.right.ace.clearSelection();
+                    e.viewer.setCurrent(editor.getValue());
 
-                    e.differ.editors.right.ace.on('change', function() {
-                        editor.setValue(e.differ.editors.right.ace.getValue());
+                    e.viewer.onRestore(function(content) {
+                        editor.setValue(content);
                         editor.clearSelection();
                     });
                 });
-            });
+            };
             {/if}
 
-            // Toolbar
-
-            var doneFunc = function(e) {
-                e.stopPropagation();
-
-                var $target = e.trigger;
-
-                if(!$target.is('.cerb-bot-trigger'))
-                    return;
-
-                if (e.eventData.exit === 'error') {
-
-                } else if(e.eventData.exit === 'return') {
-                    Devblocks.interactionWorkerPostActions(e.eventData, editor);
-                }
-            };
-
-            var resetFunc = function(e) {
-                e.stopPropagation();
-            };
-
-            var $toolbar = $popup.find('.cerb-code-editor-toolbar').cerbToolbar({
-                caller: {
-                    name: 'cerb.toolbar.editor',
-                    params: {
-                        toolbar: 'cerb.toolbar.recordEditor.toolbarSection',
-                        selected_text: ''
-                    }
-                },
-                start: function(formData) {
-                    let pos = editor.getCursorPosition();
-                    let token_path = Devblocks.cerbCodeEditor.getKataTokenPath(pos, editor).join('');
-
-                    formData.set('caller[params][selected_text]', editor.getSelectedText());
-                    formData.set('caller[params][token_path]', token_path);
-                    formData.set('caller[params][cursor_row]', pos.row);
-                    formData.set('caller[params][cursor_column]', pos.column);
-
-                    formData.set('caller[params][toolbar]', '{if $toolbar_ext}{$toolbar_ext->id}{/if}');
-                    formData.set('caller[params][value]', editor.getValue());
-                },
-                done: doneFunc,
-                reset: resetFunc,
-            });
-
-            $toolbar.find('[data-cerb-editor-button-help]').on('click', function(e) {
-                e.stopPropagation();
-                let $button = $(this);
-                let $fieldset = $popup.find('[data-cerb-fieldset-help]').toggle();
-
-                if($fieldset.is(':visible')) {
-                    $button.addClass('cerb-code-editor-toolbar-button--enabled');
-                } else {
-                    $button.removeClass('cerb-code-editor-toolbar-button--enabled');
-                }
-            });
-
             let $fieldset_tester = $popup.find('[data-cerb-routing-tester]');
-            let highlight_marker = null;
             let $fieldset_tester_results = $fieldset_tester.find('[data-cerb-routing-tester-results]');
 
-            let $editor_tester = $fieldset_tester.find('textarea[name="tester[placeholders]"]')
-                .cerbCodeEditor()
-                .next('pre.ace_editor')
-            ;
-
-            let editor_tester = ace.edit($editor_tester.attr('id'));
-
-            $toolbar.find('[data-cerb-editor-button-tester]').on('click', function(e) {
-                e.stopPropagation();
-                let $button = $(this);
-
-                if($fieldset_tester.toggle().is(':visible')) {
-                    $button.addClass('cerb-code-editor-toolbar-button--enabled');
-                } else {
-                    $button.removeClass('cerb-code-editor-toolbar-button--enabled');
-                }
-            });
+            let editor_tester = new CerbUI.KataEditor($fieldset_tester.find('textarea')[0]);
 
             $fieldset_tester.find('.cerb-code-editor-toolbar-button--chooser')
                 .attr('data-interaction-uri', 'cerb:automation:ai.cerb.routingRuleBuilder.inputChooser')
@@ -324,10 +275,7 @@
             $fieldset_tester.find('.cerb-code-editor-toolbar-button--run').on('click', function(e) {
                 e.stopPropagation();
 
-                if(null != highlight_marker) {
-                    editor.session.removeMarker(highlight_marker.id);
-                    highlight_marker = null;
-                }
+                editor.clearHighlight();
 
                 $fieldset_tester_results.html('').hide();
 
@@ -342,27 +290,16 @@
                         return;
 
                     if(!json.hasOwnProperty('key')) {
-                        let $h1 = $('<h1/>').text('(no matching rules)');
-                        $fieldset_tester_results.append($h1).fadeIn();
+                        $fieldset_tester_results.append($('<div/>').addClass('cerb-ui-panel cerb-ui-panel--spaced cerb-ui-panel--note').text('(no matching rules)')).fadeIn();
 
                     } else if(json.hasOwnProperty('line')) {
                         let row = json['line'];
-                        highlight_marker = editor.session.highlightLines(row, row);
+                        editor.highlightLine(row, { color: 'green' });
                         editor.scrollToLine(row);
 
-                        let $h1 = $('<h1/>').text('Matched ' + json['key']);
-                        $fieldset_tester_results.append($h1).fadeIn();
+                        $fieldset_tester_results.append($('<div/>').addClass('cerb-ui-panel cerb-ui-panel--spaced cerb-ui-panel--success').text('Matched ' + json['key'])).fadeIn();
                     }
                 });
-            });
-
-            $toolbar.find('[data-cerb-editor-button-magic]').on('click', function(e) {
-                e.stopPropagation();
-            	editor.commands.byName.startAutocomplete.exec(editor);
-            });
-
-            $toolbar.cerbCodeEditorToolbarHandler({
-                editor: editor
             });
         });
     });

@@ -13,106 +13,85 @@
 
 {include file="devblocks:cerberusweb.core::records/types/workflow/managed_callout.tpl" workflow=$workflow workflow_url=$workflow_url noun="custom field"}
 
-<table cellspacing="0" cellpadding="2" border="0" width="98%">
-	<tr>
-		<td width="1%" nowrap="nowrap"><abbr title="The label for this custom field."><b>{'common.name'|devblocks_translate|capitalize}:</b></abbr></td>
-		<td width="99%">
-			<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
-		</td>
-	</tr>
-	<tr>
-		<td width="1%" nowrap="nowrap"><abbr title="The unique name for this custom field within this record type."><b>{'common.uri'|devblocks_translate}:</b></abbr></td>
-		<td width="99%">
-			<input type="text" name="uri" value="{$model->uri}" style="width:98%;">
-		</td>
-	</tr>
-	<tr>
-		<td width="1%" nowrap="nowrap"><abbr title="This custom field will be displayed on records of this type."><b>{'common.record'|devblocks_translate|capitalize}:</b></abbr></td>
-		<td width="99%">
-			{if $model->id}
-				<input type="hidden" name="context" value="{$model->context}">
-				{$context_mft = $context_mfts.{$model->context}}
-				{if $context_mft}
-				{$context_mft->name}
-				{else}
-				{$model->context}
-				{/if}
-			{else}
-			<select name="context">
-				<option value=""></option>
-				{foreach from=$context_mfts item=ctx}
-				<option value="{$ctx->id}" {if $ctx->id == $model->context}selected="selected"{/if}>{$ctx->name}</option>
-				{/foreach}
-			</select>
-			{/if}
-		</td>
-	</tr>
-	<tr>
-		<td width="1%" nowrap="nowrap"><abbr title="The optional parent fieldset. If blank, this field is displayed on every record of this type.">{'common.fieldset'|devblocks_translate|capitalize}</abbr>:</td>
-		<td width="99%">
-			<button type="button" class="chooser-abstract" data-field-name="custom_fieldset_id" data-context="{CerberusContexts::CONTEXT_CUSTOM_FIELDSET}" data-single="true" data-query="context:{$model->context}"><span class="cerb-icons cerb-icon-search"></span></button>
-			
-			<ul class="bubbles chooser-container">
-				{if $model}
-					{$custom_fieldset = $model->getFieldset()}
-					{if $custom_fieldset}
-						<li><input type="hidden" name="custom_fieldset_id" value="{$custom_fieldset->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CUSTOM_FIELDSET}" data-context-id="{$custom_fieldset->id}">{$custom_fieldset->name}</a></li>
-					{/if}
-				{/if}
-			</ul>
-		</td>
-	</tr>
-	<tr>
-		<td width="1%" nowrap="nowrap"><abbr title="The display order of this field on the record or fieldset: 0 (first) ... 100 (last). Fields with the same order sort alphabetically.">{'common.order'|devblocks_translate|capitalize}</abbr>:</td>
-		<td width="99%">
-			<input type="text" name="pos" value="{$model->pos|default:50}" maxlength="3" size="4" placeholder="0-100">
-		</td>
-	</tr>
-	<tr>
-		<td width="1%" nowrap="nowrap"><abbr title="The data type of this custom field."><b>{'common.type'|devblocks_translate|capitalize}:</b></abbr></td>
-		<td width="99%">
-			{if $model->id}
-			<input type="hidden" name="type" value="{$model->type}">
-			{$type = $types.{$model->type}}
-			{if $type}
-				{$type}
-			{else}
-				{$model->type}
-			{/if}
-			{else}
-			<select name="type">
-				<option value=""></option>
-				{foreach from=$types item=label key=key}
-				<option value="{$key}" {if $key == $model->type}selected="selected"{/if}>{$label}</option>
-				{/foreach}
-			</select>
-			{/if}
-		</td>
-	</tr>
-</table>
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--row">
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.name'|devblocks_translate|capitalize}</label>
+				<input type="text" name="name" value="{$model->name}" autofocus="autofocus">
+			</div>
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.uri'|devblocks_translate|capitalize}</label>
+				<input type="text" name="uri" value="{$model->uri}">
+			</div>
+		</div>
 
-<div class="params" style="margin-top:5px;">
-{$model->renderConfig()}
+		<div class="cerb-ui-form--row">
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.record'|devblocks_translate|capitalize}</label>
+				{if $model->id}
+					<input type="hidden" name="context" value="{$model->context}">
+					<div class="cerb-u-text-muted">{$context_mft = $context_mfts.{$model->context}}{if $context_mft}{$context_mft->name}{else}{$model->context}{/if}</div>
+				{else}
+					<select name="context" data-cerb-cfield-context-selectmenu>
+						<option value="">({'common.choose'|devblocks_translate|lower})</option>
+						{foreach from=$context_mfts item=ctx}
+						<option value="{$ctx->id}" data-cerb-ui-icon="{$ctx->params.icon|default:'collection'}" {if $ctx->id == $model->context}selected="selected"{/if}>{$ctx->name}</option>
+						{/foreach}
+					</select>
+				{/if}
+			</div>
+
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.fieldset'|devblocks_translate|capitalize} <span class="cerb-ui-form--hint">(optional)</span></label>
+				<div class="cerb-ui-record-chooser" id="fieldsetChooser_{$form_id}">
+					{if $model}
+						{$custom_fieldset = $model->getFieldset()}
+						{if $custom_fieldset}
+							<li data-context-id="{$custom_fieldset->id}" data-label="{$custom_fieldset->name}"></li>
+						{/if}
+					{/if}
+				</div>
+			</div>
+		</div>
+
+		<div class="cerb-ui-form--row">
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.order'|devblocks_translate|capitalize} <span class="cerb-icons cerb-icon-sort-asc" title="0...100, ascending; same order sorts alphabetically"></span></label>
+				<input type="number" name="pos" min="0" max="100" value="{$model->pos|default:50}" style="width:5em;">
+			</div>
+
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.type'|devblocks_translate|capitalize}</label>
+				{if $model->id}
+					<input type="hidden" name="type" value="{$model->type}">
+					<div class="cerb-u-text-muted">{$type = $types.{$model->type}}{if $type}{$type}{else}{$model->type}{/if}</div>
+				{else}
+					<select name="type" data-cerb-cfield-type>
+						<option value="">({'common.choose'|devblocks_translate|lower})</option>
+						{foreach from=$types item=label key=key}
+						<option value="{$key}" data-cerb-ui-icon="{$type_icons[$key]|default:'tag'}" {if $key == $model->type}selected="selected"{/if}>{$label}</option>
+						{/foreach}
+					</select>
+				{/if}
+			</div>
+		</div>
+
+		<div class="params">
+			{$model->renderConfig()}
+		</div>
+	</div>
 </div>
 
 {if !empty($model->id)}
-<fieldset style="display:none;" class="delete">
-	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
-	
-	<div>
-		Are you sure you want to permanently delete this custom field?
-	</div>
-	
-	<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
-	<button type="button" class="delete-cancel">{'common.no'|devblocks_translate|capitalize}</button>
-</fieldset>
+	{include file="devblocks:cerberusweb.core::internal/peek/delete_confirm.tpl" noun="custom field"}
 {/if}
 
 <div class="status"></div>
 
 <div class="buttons" style="margin-top:10px;">
-	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	<button type="button" class="cerb-ui-button save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="cerb-ui-button cerb-ui-button--subtle delete-prompt"><span class="cerb-icons cerb-icon-trash"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>
@@ -123,41 +102,54 @@ $(function() {
 	let $popup = genericAjaxPopupFind($frm);
 
 	Devblocks.formDisableSubmit($frm);
-	
+
 	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"{'Custom Field'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		$popup.css('overflow', 'inherit');
 
-		// Buttons
-		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
+		$popup.find('button.save').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-		$popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
-		$popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
+		if(window.CerbUI && CerbUI.Form) CerbUI.Form.ConfirmDelete($popup[0]);
 
-		// Abstract choosers
-		$popup.find('button.chooser-abstract').cerbChooserTrigger();
-		
-		// Abstract peeks
 		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
-		
-		// When the context changes, update the chooser
+
+		if(window.CerbUI && CerbUI.SelectMenu)
+			$popup.find('select[data-cerb-cfield-context-selectmenu], select[data-cerb-cfield-type]').each(function() { new CerbUI.SelectMenu(this, { filter: true }); });
+
+		// The type-specific params (currency / format / "to record type" pickers) are ajax-injected into
+		// div.params, so enhance their selects from here — on the initial render and after each type change.
+		let enhanceParamsSelects = function() {
+			if(!(window.CerbUI && CerbUI.SelectMenu)) return;
+			$popup.find('div.params select').each(function() {
+				if(!CerbUI.SelectMenu.from(this)) new CerbUI.SelectMenu(this, { filter: true });
+			});
+		};
+		enhanceParamsSelects();
+
+		let fieldsetChooser = null;
+		if(window.CerbUI && CerbUI.RecordChooser) {
+			fieldsetChooser = new CerbUI.RecordChooser($popup.find('#fieldsetChooser_{$form_id}')[0], {
+				context: "{CerberusContexts::CONTEXT_CUSTOM_FIELDSET}",
+				name: 'custom_fieldset_id',
+				emptyIcon: 'collection',
+				query: 'context:{$model->context}',
+				searchPlaceholder: "{'common.fieldset'|devblocks_translate|capitalize|escape:'javascript' nofilter}"
+			});
+		}
+
+		// When the record type changes, re-scope (and clear) the fieldset chooser
 		$popup.find('select[name=context]').on('change', function(e) {
-			var $this = $(this);
-			var $chooser = $popup.find('button[data-field-name="custom_fieldset_id"]');
-			var val = $this.val();
-			$chooser.attr('data-query', 'context:' + val);
-			
-			// Clear chooser
-			$chooser.parent().find('ul.chooser-container').html('');
+			if(fieldsetChooser) {
+				fieldsetChooser.setQuery('context:' + $(this).val());
+				if(typeof fieldsetChooser.setValue === 'function') fieldsetChooser.setValue([]);
+			}
 		});
-		
+
 		// When the type changes, draw new params
 		$popup.find('select[name=type]').on('change', function(e) {
-			var $this = $(this);
-			var $params = $popup.find('div.params');
-			genericAjaxGet($params, 'c=profiles&a=invoke&module=custom_field&action=getFieldParams&type=' + $this.val());
+			let $params = $popup.find('div.params');
+			genericAjaxGet($params, 'c=profiles&a=invoke&module=custom_field&action=getFieldParams&type=' + $(this).val(), enhanceParamsSelects);
 		});
-		
 	});
 });
 </script>

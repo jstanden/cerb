@@ -24,8 +24,7 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right">{'common.organization'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
-				<button type="button" class="chooser-abstract" data-field-name="org_id" data-context="{CerberusContexts::CONTEXT_ORG}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="cerb-icons cerb-icon-search"></span></button>
-				<ul class="bubbles chooser-container"></ul>
+				<div class="cerb-ui-record-chooser" data-cerb-chooser="org_id"></div>
 			</td>
 		</tr>
 		
@@ -83,8 +82,7 @@
 			<td width="0%" nowrap="nowrap" align="right" valign="top">Add watchers:</td>
 			<td width="100%">
 				<div>
-					<button type="button" class="chooser-abstract" data-field-name="do_watcher_add_ids[]" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-autocomplete=""><span class="cerb-icons cerb-icon-search"></span></button>
-					<ul class="bubbles chooser-container" style="display:block;"></ul>
+					<div class="cerb-ui-record-chooser" data-cerb-chooser="do_watcher_add_ids"></div>
 				</div>
 			</td>
 		</tr>
@@ -93,8 +91,7 @@
 			<td width="0%" nowrap="nowrap" align="right" valign="top">Remove watchers:</td>
 			<td width="100%">
 				<div>
-					<button type="button" class="chooser-abstract" data-field-name="do_watcher_remove_ids[]" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-autocomplete=""><span class="cerb-icons cerb-icon-search"></span></button>
-					<ul class="bubbles chooser-container" style="display:block;"></ul>
+					<div class="cerb-ui-record-chooser" data-cerb-chooser="do_watcher_remove_ids"></div>
 				</div>
 			</td>
 		</tr>
@@ -120,7 +117,7 @@
 </fieldset>
 {/if}
 
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_CONTACT bulk=true}
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/bulk_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_CONTACT}
 
 {if $active_worker->hasPriv('contexts.cerberusweb.contexts.contact.broadcast')}
 {include file="devblocks:cerberusweb.core::internal/views/bulk_broadcast.tpl" context=CerberusContexts::CONTEXT_CONTACT}
@@ -155,7 +152,11 @@ $(function() {
 		$popup.find('select[data-cerb-bulk-shortcuts]').cerbSelectShortcuts({ "attr": "data-cerb-bulk-shortcuts" });
 
 		// Abstract choosers
-		$popup.find('button.chooser-abstract').cerbChooserTrigger();
+		if(window.CerbUI && CerbUI.RecordChooser) {
+			new CerbUI.RecordChooser($popup.find('[data-cerb-chooser="org_id"]')[0], { context: '{CerberusContexts::CONTEXT_ORG}', name: 'org_id', emptyIcon: 'building-office' });
+			new CerbUI.RecordChooser($popup.find('[data-cerb-chooser="do_watcher_add_ids"]')[0], { context: '{CerberusContexts::CONTEXT_WORKER}', name: 'do_watcher_add_ids', multiple: true, emptyIcon: 'user', query: 'isDisabled:n' });
+			new CerbUI.RecordChooser($popup.find('[data-cerb-chooser="do_watcher_remove_ids"]')[0], { context: '{CerberusContexts::CONTEXT_WORKER}', name: 'do_watcher_remove_ids', multiple: true, emptyIcon: 'user', query: 'isDisabled:n' });
+		}
 		
 		{include file="devblocks:cerberusweb.core::internal/views/bulk_broadcast_jquery.tpl"}
 	});

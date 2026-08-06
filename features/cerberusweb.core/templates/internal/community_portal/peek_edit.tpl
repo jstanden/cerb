@@ -10,65 +10,53 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<table cellspacing="0" cellpadding="2" border="0" width="98%">
-	<tr>
-		<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate}:</b></td>
-		<td width="99%">
-			<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
-		</td>
-	</tr>
-	
-	<tr>
-		<td width="1%" nowrap="nowrap"><b>{'common.type'|devblocks_translate}:</b></td>
-		<td width="99%">
-			{if $model->id}
-				{$model->extension_id}
-			{else}
-				<select name="extension_id">
-					{foreach from=$tool_manifests item=tool}
-					<option value="{$tool->id}" {if $model->extension_id == $tool->id}selected="selected"{/if}>{$tool->name}</option>
-					{/foreach}
-				</select>
-			{/if}
-		</td>
-	</tr>
-	
-	<tr>
-		<td width="1%" nowrap="nowrap" valign="top"><b>{'common.path'|devblocks_translate|capitalize}:</b></td>
-		<td width="99%">
-			<input type="text" name="path" value="{$model->uri}" style="width:98%;" maxlength="32" placeholder="support">
-			<div style="margin-left:5px;">
-				<code>{devblocks_url full=true}c=portal{/devblocks_url}/<b>&lt;{'common.path'|devblocks_translate|lower}&gt;</b></code><br>
-				<small>(letters, numbers, dashes, underscores)</small>
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--row">
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.name'|devblocks_translate|capitalize}</label>
+				<input type="text" name="name" value="{$model->name}" autofocus="autofocus">
 			</div>
-		</td>
-	</tr>
-	
-	{if !empty($custom_fields)}
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
-	{/if}
-</table>
+
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.type'|devblocks_translate|capitalize}</label>
+				{if $model->id}
+					<div class="cerb-u-text-muted">{$model->extension_id}</div>
+				{else}
+					<select name="extension_id" data-cerb-portal-selectmenu>
+						{foreach from=$tool_manifests item=tool}
+						<option value="{$tool->id}" {if $model->extension_id == $tool->id}selected="selected"{/if}>{$tool->name}</option>
+						{/foreach}
+					</select>
+				{/if}
+			</div>
+		</div>
+
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'common.path'|devblocks_translate|capitalize}</label>
+			<input type="text" name="path" value="{$model->uri}" maxlength="32" placeholder="support">
+			<div class="cerb-ui-form--help">
+				<code>{devblocks_url full=true}c=portal{/devblocks_url}/<b>&lt;{'common.path'|devblocks_translate|lower}&gt;</b></code> — letters, numbers, dashes, underscores
+			</div>
+		</div>
+
+		{if !empty($custom_fields)}
+		{include file="devblocks:cerberusweb.core::internal/custom_fields/form.tpl" custom_fields=$custom_fields}
+		{/if}
+	</div>
+</div>
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
 {if !empty($model->id)}
-<fieldset style="display:none;" class="delete">
-	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
-	
-	<div>
-		Are you sure you want to permanently delete this community portal?
-	</div>
-	
-	<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
-	<button type="button" class="delete-cancel">{'common.no'|devblocks_translate|capitalize}</button>
-</fieldset>
+	{include file="devblocks:cerberusweb.core::internal/peek/delete_confirm.tpl" noun="community portal"}
 {/if}
 
 <div class="status"></div>
 
 <div class="buttons" style="margin-top:10px;">
-	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	<button type="button" class="cerb-ui-button save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="cerb-ui-button cerb-ui-button--subtle delete-prompt"><span class="cerb-icons cerb-icon-trash"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>
@@ -77,16 +65,17 @@
 $(function() {
 	let $frm = $('#{$form_id}');
 	let $popup = genericAjaxPopupFind($frm);
-	
+
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'Community Portal'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		$popup.css('overflow', 'inherit');
 
-		// Buttons
-		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
+		$popup.find('button.save').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-		$popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
-		$popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
+		if(window.CerbUI && CerbUI.Form) CerbUI.Form.ConfirmDelete($popup[0]);
+
+		if(window.CerbUI && CerbUI.SelectMenu)
+			$popup.find('select[data-cerb-portal-selectmenu]').each(function() { new CerbUI.SelectMenu(this, { filter: true }); });
 	});
 });
 </script>

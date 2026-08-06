@@ -25,8 +25,7 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.organization'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
-				<button type="button" class="chooser-abstract" data-field-name="org_id" data-context="{CerberusContexts::CONTEXT_ORG}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="cerb-icons cerb-icon-search"></span></button>
-				<ul class="bubbles chooser-container"></ul>
+				<div class="cerb-ui-record-chooser" data-cerb-chooser="org_id"></div>
 			</td>
 		</tr>
 		<tr>
@@ -57,8 +56,7 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.email_transport'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
-				<button type="button" class="chooser-abstract" data-field-name="mail_transport_id" data-context="{CerberusContexts::CONTEXT_MAIL_TRANSPORT}" data-single="true" data-query="" data-query-required="" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="cerb-icons cerb-icon-search"></span></button>
-				<ul class="bubbles chooser-container"></ul>
+				<div class="cerb-ui-record-chooser" data-cerb-chooser="mail_transport_id"></div>
 			</td>
 		</tr>
 		{/if}
@@ -72,7 +70,7 @@
 </fieldset>
 {/if}
 
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_ADDRESS bulk=true}
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/bulk_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_ADDRESS}
 
 {if $active_worker->hasPriv('contexts.cerberusweb.contexts.address.broadcast')}
 {include file="devblocks:cerberusweb.core::internal/views/bulk_broadcast.tpl" context=CerberusContexts::CONTEXT_ADDRESS}
@@ -104,7 +102,10 @@ $(function() {
 			});
 		});
 		
-		$popup.find('button.chooser-abstract').cerbChooserTrigger();
+		if(window.CerbUI && CerbUI.RecordChooser) {
+			new CerbUI.RecordChooser($popup.find('[data-cerb-chooser="org_id"]')[0], { context: '{CerberusContexts::CONTEXT_ORG}', name: 'org_id', emptyIcon: 'building-office', create: 'if-null' });
+			new CerbUI.RecordChooser($popup.find('[data-cerb-chooser="mail_transport_id"]')[0], { context: '{CerberusContexts::CONTEXT_MAIL_TRANSPORT}', name: 'mail_transport_id', emptyIcon: 'mail', create: 'if-null' });
+		}
 		
 		{include file="devblocks:cerberusweb.core::internal/views/bulk_broadcast_jquery.tpl"}
 	});

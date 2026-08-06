@@ -12,104 +12,74 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<table cellspacing="0" cellpadding="2" border="0" width="98%">
-	<tr>
-		<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate}:</b></td>
-		<td width="99%">
-			<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
-		</td>
-	</tr>
-	
-	{if $owners_menu && 1 == count($owners_menu) && $owners_menu['App']}
-	<tr>
-		<td colspan="2">
-			<input type="hidden" name="owner" value="{$owners_menu['App']->key}">
-		</td>
-	</tr>
-	{elseif $owners_menu}
-	<tr>
-		<td width="1%" nowrap="nowrap" valign="top">
-			<b>{'common.owner'|devblocks_translate|capitalize}:</b>
-		</td>
-		<td width="99%">
-			{if 1 == count($owners_menu) && array_key_exists('App', $owners_menu)}
-			{$owner = array_shift($owners_menu)}
-			{$owner_parts = explode(':', $owner->key)}
-			<ul class="chooser-container bubbles">
-				<li>
-					<img class="cerb-avatar" src="{devblocks_url}c=avatars&ctx=cerberusweb.contexts.app&id=0{/devblocks_url}?v="><a class="cerb-peek-trigger no-underline" data-context="{$owner_parts.0}" data-context-id="{$owner_parts.1}">{$owner->label}</a>
-					<input type="hidden" name="owner" value="{$owner->key}">
-				</li>
-			</ul>
-			{else}
-			{include file="devblocks:cerberusweb.core::internal/peek/menu_actor_owner.tpl"}
-			{/if}
-		</td>
-	</tr>
-	{/if}
-	
-	{if $custom_record->hasOption('avatars')}
-	<tr>
-		<td width="1%" nowrap="nowrap" valign="top">{'common.photo'|devblocks_translate|capitalize}:</td>
-		<td width="99%" valign="top">
-			<div style="float:left;margin-right:5px;">
-				<img class="cerb-avatar" src="{devblocks_url}c=avatars&context={$custom_record->uri}&context_id={$model->id}{/devblocks_url}?v={$model->updated_at}" style="height:50px;width:50px;">
-			</div>
-			<div style="float:left;">
-				<button type="button" class="cerb-avatar-chooser" data-context="{$custom_record->getContext()}" data-context-id="{$model->id}">{'common.edit'|devblocks_translate|capitalize}</button>
-				<input type="hidden" name="avatar_image">
-			</div>
-		</td>
-	</tr>
-	{/if}
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'common.name'|devblocks_translate|capitalize}</label>
+			<input type="text" name="name" value="{$model->name}" autofocus="autofocus">
+		</div>
 
-	{if !empty($custom_fields)}
-		{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" tbody=true bulk=false}
-	{/if}
-</table>
+		{if $owners_menu && 1 == count($owners_menu) && $owners_menu['App']}
+			<input type="hidden" name="owner" value="{$owners_menu['App']->key}">
+		{elseif $owners_menu}
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'common.owner'|devblocks_translate|capitalize}</label>
+			{if 1 == count($owners_menu) && array_key_exists('App', $owners_menu)}
+				{$owner = array_shift($owners_menu)}
+				{$owner_parts = explode(':', $owner->key)}
+				<div>
+					<a class="cerb-ui-pill cerb-peek-trigger" data-context="{$owner_parts.0}" data-context-id="{$owner_parts.1}"><img class="cerb-avatar" src="{devblocks_url}c=avatars&ctx=cerberusweb.contexts.app&id=0{/devblocks_url}?v="> {$owner->label}</a>
+					<input type="hidden" name="owner" value="{$owner->key}">
+				</div>
+			{else}
+				{include file="devblocks:cerberusweb.core::internal/peek/menu_actor_owner.tpl"}
+			{/if}
+		</div>
+		{/if}
+
+		{if $custom_record->hasOption('avatars')}
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'common.photo'|devblocks_translate|capitalize}</label>
+			<div>
+				<span class="cerb-ui-avatar" style="width:50px;height:50px;font-size:21px;"
+					data-cerb-image-editor data-context="{$custom_record->getContext()}" data-context-id="{$model->id}" data-name="avatar_image"
+					data-avatar="{$model->name}" data-avatar-seed="{$custom_record->uri}:{$model->id}"
+					data-avatar-image="{devblocks_url}c=avatars&context={$custom_record->uri}&context_id={$model->id}{/devblocks_url}?v={$model->updated_at}"></span>
+				<input type="hidden" name="avatar_image" value="">
+			</div>
+		</div>
+		{/if}
+
+		{if !empty($custom_fields)}
+			{include file="devblocks:cerberusweb.core::internal/custom_fields/form.tpl" custom_fields=$custom_fields}
+		{/if}
+	</div>
+</div>
 
 {if $custom_record->hasOption('attachments')}
-<fieldset class="peek" style="margin-top:10px;">
-	<legend>{'common.attachments'|devblocks_translate|capitalize}</legend>
-	<button type="button" class="chooser_file"><span class="cerb-icons cerb-icon-paperclip"></span></button>
-	<ul class="chooser-container bubbles">
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">{'common.attachments'|devblocks_translate|capitalize}</div>
+	</div>
+	<div class="cerb-ui-file-upload" data-name="file_ids" data-multiple="1">
 		{if !empty($attachments)}
 			{foreach from=$attachments item=attachment name=attachments}
-				<li>
-					<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$attachment->id}">
-						<b>{$attachment->name}</b>
-						({$attachment->storage_size|devblocks_prettybytes}	-
-						{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if})
-					</a>
-					<input type="hidden" name="file_ids[]" value="{$attachment->id}">
-					<a data-cerb-link="file_remove"><span class="cerb-icons cerb-icon-circle-remove"></span></a>
-				</li>
+				<li data-file-id="{$attachment->id}" data-file-name="{$attachment->name}" data-file-size="{$attachment->storage_size}"></li>
 			{/foreach}
 		{/if}
-	</ul>
-</fieldset>
+	</div>
+</div>
 {/if}
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
 {if !empty($model->id)}
-<fieldset style="display:none;" class="delete">
-	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
-	
-	<div>
-		Are you sure you want to permanently delete this {$custom_record->name|lower}?
-	</div>
-	
-	<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
-	<button type="button" class="delete-cancel">{'common.no'|devblocks_translate|capitalize}</button>
-</fieldset>
+	{include file="devblocks:cerberusweb.core::internal/peek/delete_confirm.tpl" noun=$custom_record->name|lower}
 {/if}
 
-<div class="status"></div>
-
-<div class="buttons" style="margin-top:5px;">
-	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+<div class="buttons" style="margin-top:10px;">
+	<button type="button" class="cerb-ui-button save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="cerb-ui-button cerb-ui-button--subtle delete-prompt"><span class="cerb-icons cerb-icon-trash"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>
@@ -120,89 +90,25 @@ $(function() {
 	let $popup = genericAjaxPopupFind($frm);
 
 	Devblocks.formDisableSubmit($frm);
-	
+
 	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"{$custom_record->name|escape:'javascript' nofilter}");
 		$popup.css('overflow', 'inherit');
 
 		// Buttons
-		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
+		$popup.find('button.save').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-		$popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
-		$popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
+		if(window.CerbUI && CerbUI.Form) CerbUI.Form.ConfirmDelete($popup[0]);
 
-		// Owners
-		{if $owners_menu}
-		var $owners_menu = $popup.find('ul.owners-menu');
-		var $ul = $owners_menu.siblings('ul.chooser-container');
-		
 		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
-		
-		$ul.on('bubble-remove', function(e, ui) {
-			e.stopPropagation();
-			$(e.target).closest('li').remove();
-			$ul.hide();
-			$owners_menu.show();
-			
-			$events.each(function() {
-				$(this).hide();
-			});
-		});
-		
-		$owners_menu.menu({
-			select: function(event, ui) {
-				var token = ui.item.attr('data-token');
-				var label = ui.item.attr('data-label');
-				
-				if(undefined == token || undefined == label)
-					return;
-				
-				$owners_menu.hide();
-				
-				// Build bubble
-				
-				var context_data = token.split(':');
-				var $li = $('<li/>');
-				var $label = $('<a class="cerb-peek-trigger no-underline" />').attr('data-context',context_data[0]).attr('data-context-id',context_data[1]).text(label);
-				$label.cerbPeekTrigger().appendTo($li);
-				$('<input type="hidden">').attr('name', 'owner').attr('value',token).appendTo($li);
-				ui.item.find('img.cerb-avatar').clone().prependTo($li);
-				let $a = $('<a><span class="cerb-icons cerb-icon-circle-remove"></span></a>').appendTo($li);
-				$a.on('click', function(e) {
-					e.stopPropagation();
-					$(this).trigger('bubble-remove');
-				});
-				
-				$ul.find('> *').remove();
-				$ul.append($li);
-				$ul.show();
-				
-				// Contextual events
-				$events.each(function() {
-					var contexts = $(this).attr('contexts').split(' ');
-					
-					if($.inArray(context_data[0], contexts) != -1)
-						$(this).show();
-					else
-						$(this).hide();
-				});
-			}
-		});
-		{/if}
-		
+
 		// Avatar chooser
-		
-		var $avatar_chooser = $popup.find('button.cerb-avatar-chooser');
-		var $avatar_image = $avatar_chooser.closest('td').find('img.cerb-avatar');
-		ajax.chooserAvatar($avatar_chooser, $avatar_image);
+		if(window.CerbUI && CerbUI.ImageEditor)
+			$popup.find('[data-cerb-image-editor]').each(function() { new CerbUI.ImageEditor(this); });
 
 		// Attachments
-
-		$popup.find('button.chooser_file').each(function() {
-			ajax.chooserFile(this,'file_ids');
-		});
-
-		$popup.find('.chooser-container [data-cerb-link=file_remove]').on('click', Devblocks.onClickRemoveParent);
+		if(window.CerbUI && CerbUI.FileUpload)
+			$popup.find('.cerb-ui-file-upload').each(function() { new CerbUI.FileUpload(this, { name: 'file_ids', multiple: true }); });
 	});
 });
 </script>

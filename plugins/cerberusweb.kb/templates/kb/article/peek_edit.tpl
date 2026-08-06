@@ -131,6 +131,8 @@ $(function() {
 			mode: 'markdown',
 			minHeight: 200,
 			maxHeight: 500,
+			diffGutter: true,   // full-width body bands mark what changed since the article was opened
+
 			// KB articles are Twig-rendered, so inline images insert a cerb_file_url(...) template expression.
 			imageMarkdown: function(info) {
 				{literal}return '![inline-image]({{cerb_file_url(' + info.file_id + ',"' + info.file_name + '")}})';{/literal}

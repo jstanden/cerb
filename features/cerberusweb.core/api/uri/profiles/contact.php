@@ -82,7 +82,8 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 			} else {
 				$first_name = DevblocksPlatform::importGPC($_POST['first_name'] ?? null, 'string', '');
 				$last_name = DevblocksPlatform::importGPC($_POST['last_name'] ?? null, 'string', '');
-				$aliases = DevblocksPlatform::importGPC($_POST['aliases'] ?? null, 'string','');
+				$aliases = DevblocksPlatform::importGPC($_POST['aliases'] ?? null, 'array', []);
+				$aliases = implode("\n", array_filter(array_map('trim', $aliases)));
 				$title = DevblocksPlatform::importGPC($_POST['title'] ?? null, 'string', '');
 				$org_id = DevblocksPlatform::importGPC($_POST['org_id'] ?? null, 'integer', 0);
 				$primary_email_id = DevblocksPlatform::importGPC($_POST['primary_email_id'] ?? null, 'integer', 0);

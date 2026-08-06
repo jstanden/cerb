@@ -107,7 +107,8 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 			} else {
 				$first_name = DevblocksPlatform::importGPC($_POST['first_name'] ?? null, 'string');
 				$last_name = DevblocksPlatform::importGPC($_POST['last_name'] ?? null, 'string');
-				$aliases = DevblocksPlatform::importGPC($_POST['aliases'] ?? null, 'string','');
+				$aliases = DevblocksPlatform::importGPC($_POST['aliases'] ?? null, 'array', []);
+				$aliases = implode("\n", array_filter(array_map('trim', $aliases))); // CerbUI.TagInput posts aliases[]; persist CRLF-delimited
 				$title = DevblocksPlatform::importGPC($_POST['title'] ?? null, 'string');
 				$email_id = DevblocksPlatform::importGPC($_POST['email_id'] ?? null, 'integer', 0);
 				$email_ids = DevblocksPlatform::importGPC($_POST['email_ids'] ?? null, 'array:int', []);

@@ -12,103 +12,81 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<table cellpadding="0" cellspacing="2" border="0" width="98%" style="margin-bottom:10px;">
-	<tbody>
-		{$ticket = $draft->getTicket()}
-		{if $ticket}
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'common.on'|devblocks_translate|capitalize}:</b>&nbsp;</td>
-			<td width="99%">
-				<ul class="bubbles">
-					<li>
-						<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_TICKET}" data-context-id="{$ticket->id}">#{$ticket->mask}: {$ticket->subject}</a>
-					</li>
-				</ul>
-			</td>
-		</tr>
-		{/if}
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--row">
+			{$ticket = $draft->getTicket()}
+			{if $ticket}
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.on'|devblocks_translate|capitalize}</label>
+				<div><a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_TICKET}" data-context-id="{$ticket->id}">#{$ticket->mask}: {$ticket->subject}</a></div>
+			</div>
+			{/if}
 
-		{$worker = $draft->getWorker()}
-		{if $worker}
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'message.header.from'|devblocks_translate|capitalize}:</b>&nbsp;</td>
-			<td width="99%">
-				<ul class="bubbles">
-					<li>
-						<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$worker->id}{/devblocks_url}?v={$worker->updated}">
-						<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker->id}">{$worker->getName()}</a>
-					</li>
-				</ul>
-			</td>
-		</tr>
-		{/if}
+			{$worker = $draft->getWorker()}
+			{if $worker}
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'message.header.from'|devblocks_translate|capitalize}</label>
+				<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-2">
+					<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$worker->id}{/devblocks_url}?v={$worker->updated}">
+					<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker->id}">{$worker->getName()}</a>
+				</div>
+			</div>
+			{/if}
+		</div>
 
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'message.header.to'|devblocks_translate|capitalize}:</b>&nbsp;</td>
-			<td width="99%">
-				{$draft->getParam('to')}
-			</td>
-		</tr>
+		<div class="cerb-ui-form--row">
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'message.header.to'|devblocks_translate|capitalize}</label>
+				<div>{$draft->getParam('to')}</div>
+			</div>
 
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'message.header.subject'|devblocks_translate|capitalize}:</b>&nbsp;</td>
-			<td width="99%">
-				{$draft->getParam('subject')}
-			</td>
-		</tr>
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'message.header.subject'|devblocks_translate|capitalize}</label>
+				<div>{$draft->getParam('subject')}</div>
+			</div>
+		</div>
 
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'message.header.date'|devblocks_translate|capitalize}:</b>&nbsp;</td>
-			<td width="99%">
-				{$draft->updated|devblocks_date}
-			</td>
-		</tr>
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'message.header.date'|devblocks_translate|capitalize}</label>
+			<div>{$draft->updated|devblocks_date}</div>
+		</div>
 
 		{if $draft->is_queued}
-		<tr>
-			<td width="1%" nowrap="nowrap" valign="top"><b>{'common.status'|devblocks_translate|capitalize}:</b>&nbsp;</td>
-			<td width="99%">
-				<label><input type="radio" name="is_queued" value="0" {if !$draft->is_queued}checked{/if}> {'draft'|devblocks_translate|capitalize}</label>
-				<label><input type="radio" name="is_queued" value="1" {if $draft->is_queued}checked{/if}> {'queued'|devblocks_translate|capitalize}</label>
-			</td>
-		</tr>
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'common.status'|devblocks_translate|capitalize}</label>
+			<div>
+				<input type="hidden" name="is_queued" id="isQueued_{$form_id}" value="{$draft->is_queued}">
+				<div class="cerb-ui-switcher" id="queuedSwitcher_{$form_id}" data-cerb-input="isQueued_{$form_id}">
+					<button type="button" data-value="0"{if !$draft->is_queued} class="cerb-ui-switcher--active"{/if}>{'draft'|devblocks_translate|capitalize}</button>
+					<button type="button" data-value="1"{if $draft->is_queued} class="cerb-ui-switcher--active"{/if}>{'queued'|devblocks_translate|capitalize}</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="cerb-ui-form--field" id="sendAt_{$form_id}"{if !$draft->is_queued} style="display:none;"{/if}>
+			<label class="cerb-ui-form--label">{'Send at'|devblocks_translate|capitalize}</label>
+			<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-1">
+				<input type="text" name="send_at" class="input_date" style="flex:1 1 auto;min-width:0;" value="{$draft->queue_delivery_date|devblocks_date}" placeholder="now">
+			</div>
+		</div>
 		{/if}
-	</tbody>
 
-	{if $draft->is_queued}
-	<tbody class="cerb-tbody-queued" style="display:{if $draft->is_queued}table-row-group{else}none{/if};">
-		<tr>
-			<td width="1%" nowrap="nowrap" valign="top"><b>{'Send at'|devblocks_translate|capitalize}:</b>&nbsp;</td>
-			<td width="99%">
-				<input type="text" name="send_at" value="{$draft->queue_delivery_date|devblocks_date}" placeholder="now" style="width:90%;">
-			</td>
-		</tr>
-	</tbody>
-	{/if}
-
-	{if !empty($custom_fields)}
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
-	{/if}
-</table>
+		{if !empty($custom_fields)}
+		{include file="devblocks:cerberusweb.core::internal/custom_fields/form.tpl" custom_fields=$custom_fields}
+		{/if}
+	</div>
+</div>
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$draft->id}
 
 {if !empty($draft->id)}
-<fieldset style="display:none;" class="delete">
-	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
-	
-	<div>
-		Are you sure you want to permanently delete this draft?
-	</div>
-	
-	<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
-	<button type="button" class="delete-cancel">{'common.no'|devblocks_translate|capitalize}</button>
-</fieldset>
+	{include file="devblocks:cerberusweb.core::internal/peek/delete_confirm.tpl" noun="draft"}
 {/if}
 
-<div class="buttons">
-	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if $active_worker->hasPriv("contexts.{$peek_context}.delete") && !empty($draft)}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+<div class="buttons" style="margin-top:10px;">
+	<button type="button" class="cerb-ui-button save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if $active_worker->hasPriv("contexts.{$peek_context}.delete") && !empty($draft)}<button type="button" class="cerb-ui-button cerb-ui-button--subtle delete-prompt"><span class="cerb-icons cerb-icon-trash"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 </form>
 
@@ -118,36 +96,33 @@ $(function() {
 	let $popup = genericAjaxPopupFind($frm);
 
 	Devblocks.formDisableSubmit($frm);
-	
+
 	$popup.one('popup_open',function() {
 		$popup.dialog('option','title','{'common.draft'|devblocks_translate|capitalize}');
 
-		var $tbody_queued = $popup.find('.cerb-tbody-queued');
-		
-		// Buttons
-		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
+		$popup.find('button.save').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-		$popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
-		$popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
+		if(window.CerbUI && CerbUI.Form) CerbUI.Form.ConfirmDelete($popup[0]);
 
-		// Abstract choosers
-		$popup.find('button.chooser-abstract').cerbChooserTrigger();
-		
-		// Abstract peeks
 		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
+		$popup.find('[name=send_at]').each(function() { if(window.CerbUI && CerbUI.DatePicker) new CerbUI.DatePicker.FormInput(this); });
 
-		// Radios
-		$popup.find('[name=is_queued]').on('click', function(e) {
-			if($(this).val() === '1') {
-				$tbody_queued.show();
-			} else {
-				$tbody_queued.hide();
-			}
-		});
-
-		// Dates
-		$popup.find('[name=send_at]').cerbDateInputHelper();
-		
+		if(window.CerbUI && CerbUI.Switcher) {
+			$popup.find('.cerb-ui-switcher[data-cerb-input]').each(function() {
+				let input = document.getElementById(this.getAttribute('data-cerb-input'));
+				let isQueued = (this.id === 'queuedSwitcher_{$form_id}');
+				new CerbUI.Switcher(this, {
+					value: input ? input.value : null,
+					onSelect: function(value) {
+						if(input) input.value = value;
+						if(isQueued) {
+							let $sendAt = $('#sendAt_{$form_id}');
+							if(value === '1') { $sendAt.stop(true,true).css('display','flex'); } else { $sendAt.stop(true,true).hide(); }
+						}
+					}
+				});
+			});
+		}
 	});
 });
 </script>

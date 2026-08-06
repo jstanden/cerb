@@ -45,7 +45,7 @@
 </fieldset>
 {/if}
 
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_ATTACHMENT bulk=true}
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/bulk_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_ATTACHMENT}
 
 {if $active_worker->is_superuser && $active_worker->hasPriv('contexts.cerberusweb.contexts.attachment.update.bulk')}
 	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
@@ -73,7 +73,6 @@ $(function() {
 			});
 		});
 		
-		$popup.find('button.chooser-abstract').cerbChooserTrigger();
 		
 		{include file="devblocks:cerberusweb.core::internal/views/bulk_broadcast_jquery.tpl"}
 	});

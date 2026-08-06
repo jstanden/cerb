@@ -11,73 +11,65 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<fieldset class="peek" style="background:none;border:0;">
-	
-	<table cellspacing="0" cellpadding="2" border="0" width="98%">
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%">
-				<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
-			</td>
-		</tr>
-		
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'common.tag'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%">
-				<input type="text" name="tag" value="{$model->tag}" style="width:98%;" placeholder="e.g. eu-sales (letters, numbers, dash)">
-			</td>
-		</tr>
-		
-		<tr>
-			<td width="1%" valign="top" nowrap="nowrap"><b>{'common.owner'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%">
-				{include file="devblocks:cerberusweb.core::internal/peek/menu_actor_owner.tpl"}
-			</td>
-		</tr>
-		
-		<tr>
-			<td width="1%" nowrap="nowrap" valign="top">
-				<b>{'common.type'|devblocks_translate|capitalize}:</b><br>
-			</td>
-			<td width="99%">
-				<select name="context">
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--row">
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.name'|devblocks_translate|capitalize}</label>
+				<input type="text" name="name" value="{$model->name}" autofocus="autofocus">
+			</div>
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.tag'|devblocks_translate|capitalize}</label>
+				<label class="cerb-ui-form--control">
+					<span class="cerb-ui-form--control-icon cerb-icons cerb-icon-tag"></span>
+					<input type="text" name="tag" value="{$model->tag}" placeholder="e.g. eu-sales (letters, numbers, dash)">
+				</label>
+			</div>
+		</div>
+
+		<div class="cerb-ui-form--row">
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.owner'|devblocks_translate|capitalize}</label>
+				<div>{include file="devblocks:cerberusweb.core::internal/peek/menu_actor_owner.tpl"}</div>
+			</div>
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.type'|devblocks_translate|capitalize}</label>
+				<select name="context" data-cerb-savedsearch-selectmenu>
 					{foreach from=$contexts item=ctx key=k}
 					<option value="{$k}" {if $model->context==$k}selected="selected"{/if}>{$ctx->name}</option>
 					{/foreach}
 				</select>
-			</td>
-		</tr>
-		
-		<tr>
-			<td width="1%" valign="top" nowrap="nowrap"><b>{'common.query'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%">
-				<textarea name="query" class="cerb-query-trigger" data-editor-mode="ace/mode/cerb_query">{$model->query}</textarea>
-			</td>
-		</tr>
-	</table>
-	
-</fieldset>
+			</div>
+		</div>
 
-{if !empty($model->id)}
-<fieldset style="display:none;" class="delete">
-	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
-	
-	<div>
-		Are you sure you want to permanently delete this saved search?
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'common.query'|devblocks_translate|capitalize}</label>
+			<div class="cerb-ui-searchquery">
+				<span class="cerb-ui-searchquery--icon cerb-icons cerb-icon-search"></span>
+				<div class="cerb-ui-searchquery--field">
+					<div class="cerb-ui-searchquery--highlight" aria-hidden="true"></div>
+					<textarea name="query" class="cerb-ui-searchquery--input" rows="1">{$model->query}</textarea>
+					<span class="cerb-ui-searchquery--caret-anchor"></span>
+				</div>
+				<div class="cerb-ui-searchquery--right">
+					<a data-action="autocomplete" style="cursor:pointer;color:var(--cerb-color-background-contrast-150);" title="Suggestions (Ctrl/⌘+Space)"><span class="cerb-icons cerb-icon-autocomplete"></span></a>
+				</div>
+			</div>
+		</div>
 	</div>
-	
-	<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
-	<button type="button" class="delete-cancel">{'common.no'|devblocks_translate|capitalize}</button>
-</fieldset>
-{/if}
+</div>
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
+{if !empty($model->id)}
+	{include file="devblocks:cerberusweb.core::internal/peek/delete_confirm.tpl" noun="saved search"}
+{/if}
+
 <div class="status"></div>
 
-<div class="buttons">
-	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+<div class="buttons" style="margin-top:10px;">
+	<button type="button" class="cerb-ui-button save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="cerb-ui-button cerb-ui-button--subtle delete-prompt"><span class="cerb-icons cerb-icon-trash"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>
@@ -88,79 +80,37 @@ $(function() {
 	let $popup = genericAjaxPopupFind($frm);
 
 	Devblocks.formDisableSubmit($frm);
-	
+
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'Saved Search'|capitalize|escape:'javascript' nofilter}");
 		$popup.css('overflow', 'inherit');
-		
+
 		var $context = $popup.find('select[name=context]');
-		var $query = $popup.find('.cerb-query-trigger');
-		
-		// Buttons
-		
-		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
+		var sqEl = $popup.find('.cerb-ui-searchquery')[0];
+
+		$popup.find('button.save').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-		$popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
-		$popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
+		if(window.CerbUI && CerbUI.Form) CerbUI.Form.ConfirmDelete($popup[0]);
 
-		// Code Editor
-		
-		var $editor  = $query
-			.cerbCodeEditor()
-			.cerbCodeEditorAutocompleteSearchQueries({ context: $context.val() })
-			.nextAll('pre.ace_editor')
-			;
-		
-		// Change the query context when the dropdown changes
-		
+		// Search-query editor (context follows the record-type dropdown)
+		var savedSearchSq = null;
+		if(sqEl && window.CerbUI && CerbUI.SearchQuery) {
+			savedSearchSq = new CerbUI.SearchQuery(sqEl, {
+				onAutocomplete: CerbUI.SearchQuery.queryFieldSource($context.val()),
+				context: $context.val(),
+			});
+			var acBtn = sqEl.querySelector('[data-action=autocomplete]');
+			if(acBtn) acBtn.addEventListener('click', () => savedSearchSq.openAutocomplete());
+		}
+
 		$context.change(function(e) {
-			$editor.trigger('cerb-code-editor-change-context', $(this).val());
+			if(savedSearchSq) savedSearchSq.setContext($(this).val());
 		});
 
-		// Owners
-		
-		var $owners_menu = $popup.find('ul.owners-menu');
-		var $ul = $owners_menu.siblings('ul.chooser-container');
-		
+		if(window.CerbUI && CerbUI.SelectMenu)
+			$popup.find('select[data-cerb-savedsearch-selectmenu]').each(function() { new CerbUI.SelectMenu(this, { filter: true }); });
+
 		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
-		
-		$ul.on('bubble-remove', function(e, ui) {
-			e.stopPropagation();
-			$(e.target).closest('li').remove();
-			$ul.hide();
-			$owners_menu.show();
-		});
-		
-		$owners_menu.menu({
-			select: function(event, ui) {
-				var token = ui.item.attr('data-token');
-				var label = ui.item.attr('data-label');
-				
-				if(undefined == token || undefined == label)
-					return;
-				
-				$owners_menu.hide();
-				
-				// Build bubble
-				
-				var context_data = token.split(':');
-				var $li = $('<li/>');
-				let $label = $('<a class="cerb-peek-trigger no-underline" />').attr('data-context',context_data[0]).attr('data-context-id',context_data[1]).text(label);
-				$label.cerbPeekTrigger().appendTo($li);
-				$('<input type="hidden">').attr('name', 'owner').attr('value',token).appendTo($li);
-				ui.item.find('img.cerb-avatar').clone().prependTo($li);
-				let $a = $('<a><span class="cerb-icons cerb-icon-circle-remove"></span></a>').appendTo($li);
-				$a.on('click', function(e) {
-					e.stopPropagation();
-					$(this).trigger('bubble-remove');
-				});
-				
-				$ul.find('> *').remove();
-				$ul.append($li);
-				$ul.show();
-			}
-		});
-		
 	});
 });
 </script>

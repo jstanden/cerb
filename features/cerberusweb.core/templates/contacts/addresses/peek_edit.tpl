@@ -15,203 +15,197 @@
 	{$org = DAO_ContactOrg::get($address->contact_org_id)}
 {/if}
 
-<table cellpadding="0" cellspacing="2" border="0" width="98%">
-
-	{if !$address->id}
-	<tr>
-		<td width="0%" nowrap="nowrap" valign="top"><b>{'common.email'|devblocks_translate|capitalize}:</b> </td>
-		<td width="100%">
-			{if !empty($email)}
-				<input type="hidden" name="email" value="{$email}">
-				{$email}
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'common.email'|devblocks_translate|capitalize}</label>
+			{if !$address->id}
+				{if !empty($email)}
+					<input type="hidden" name="email" value="{$email}">
+					<div class="cerb-u-text-muted">{$email}</div>
+				{else}
+					<input type="text" name="email" value="{$email}" class="required email" autocomplete="off" spellcheck="false" autofocus>
+				{/if}
 			{else}
-				<input type="text" name="email" style="width:98%;" value="{$email}" class="required email" autocomplete="off" spellcheck="false" autofocus>
+				<div class="cerb-u-text-muted">{$address->email}</div>
 			{/if}
-		</td>
-	</tr>
-	{else}
-	<tr>
-		<td width="0%" nowrap="nowrap" valign="top"><b>{'common.email'|devblocks_translate|capitalize}:</b> </td>
-		<td width="100%">
-			{$address->email}
-		</td>
-	</tr>
-	{/if}
-	
-	<tr>
-		<td width="1%" nowrap="nowrap" valign="middle"><b>{'common.organization'|devblocks_translate|capitalize}:</b> </td>
-		<td width="99%" valign="top">
-				<button type="button" class="chooser-abstract" data-field-name="org_id" data-context="{CerberusContexts::CONTEXT_ORG}" data-single="true" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="cerb-icons cerb-icon-search"></span></button>
-				
-				<ul class="bubbles chooser-container">
-					{if $org}
-						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=org&context_id={$org->id}{/devblocks_url}?v={$org->updated}"><input type="hidden" name="org_id" value="{$org->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$org->id}">{$org->name}</a></li>
-					{/if}
-				</ul>
-		</td>
-	</tr>
-	
-	<tr>
-		<td width="1%" nowrap="nowrap" valign="middle"><b>{'common.contact'|devblocks_translate|capitalize}:</b> </td>
-		<td width="99%" valign="top">
-				<button type="button" class="chooser-abstract" data-field-name="contact_id" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-single="true" {if $org}data-query="org.id:{$org->id}"{/if} data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null" data-create-defaults="email:{if $address->id}{$address->id}{elseif $email}{$email}{/if} {if $org}org:{$org->id}{/if}"><span class="cerb-icons cerb-icon-search"></span></button>
-				
-				<ul class="bubbles chooser-container">
-					{if $contact}
-						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=contact&context_id={$contact->id}{/devblocks_url}?v={$contact->updated_at}"><input type="hidden" name="contact_id" value="{$contact->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-context-id="{$contact->id}">{$contact->getName()}</a></li>
-					{/if}
-				</ul>
-				
-		</td>
-	</tr>
-	
-	{if !empty($custom_fields)}
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
-	{/if}
-</table>
+		</div>
 
-<fieldset class="peek" style="margin-top:10px;">
-	<legend>{'common.mail.filtering'|devblocks_translate|mb_ucfirst}</legend>
-	
-	<div style="margin-left:10px;">
-		<label>
-			<input type="checkbox" name="is_banned" value="1" {if $address->is_banned}checked="checked"{/if}>
-			Reject incoming mail from this address
-			({'address.is_banned'|devblocks_translate|lower})
-		</label>
-		<br>
-		
-		<label>
-			<input type="checkbox" name="is_defunct" value="1" {if $address->is_defunct}checked="checked"{/if}>
-			Reject outgoing mail to this address
-			({'address.is_defunct'|devblocks_translate|lower})
-		</label>
+		<div class="cerb-ui-form--row">
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.organization'|devblocks_translate|capitalize}</label>
+				<div class="cerb-ui-record-chooser" id="orgChooser_{$form_id}">
+					{if $org}
+						<li data-context-id="{$org->id}" data-label="{$org->name}" data-image="{devblocks_url}c=avatars&context=org&context_id={$org->id}{/devblocks_url}?v={$org->updated}"></li>
+					{/if}
+				</div>
+			</div>
+
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.contact'|devblocks_translate|capitalize}</label>
+				<div class="cerb-ui-record-chooser" id="contactChooser_{$form_id}">
+					{if $contact}
+						<li data-context-id="{$contact->id}" data-label="{$contact->getName()}" data-image="{devblocks_url}c=avatars&context=contact&context_id={$contact->id}{/devblocks_url}?v={$contact->updated_at}"></li>
+					{/if}
+				</div>
+			</div>
+		</div>
+
+		{if !empty($custom_fields)}
+		{include file="devblocks:cerberusweb.core::internal/custom_fields/form.tpl" custom_fields=$custom_fields}
+		{/if}
 	</div>
-</fieldset>
+</div>
+
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">{'common.mail.filtering'|devblocks_translate|mb_ucfirst}</div>
+	</div>
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--row">
+			<div class="cerb-ui-form--field">
+				<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-2">
+					<label class="cerb-ui-toggle"><input type="checkbox" name="is_banned" id="isBanned_{$form_id}" value="1" {if $address->is_banned}checked="checked"{/if}><span class="cerb-ui-toggle--slider"></span></label>
+					<label for="isBanned_{$form_id}">Reject incoming mail from this address <span class="cerb-u-text-muted">({'address.is_banned'|devblocks_translate|lower})</span></label>
+				</div>
+			</div>
+			<div class="cerb-ui-form--field">
+				<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-2">
+					<label class="cerb-ui-toggle"><input type="checkbox" name="is_defunct" id="isDefunct_{$form_id}" value="1" {if $address->is_defunct}checked="checked"{/if}><span class="cerb-ui-toggle--slider"></span></label>
+					<label for="isDefunct_{$form_id}">Reject outgoing mail to this address <span class="cerb-u-text-muted">({'address.is_defunct'|devblocks_translate|lower})</span></label>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
 
 {if $active_worker->is_superuser}
-<fieldset class="peek black cerb-email-type">
-	<legend><label><input type="radio" name="type" value="transport" {if $address->mail_transport_id}checked="checked"{/if}> We send email from this address</label></legend>
-	
-	{if $active_worker->is_superuser}{/if}
-	<div style="margin-left:20px;{if !$address->mail_transport_id}display:none;{/if}">
-		<table cellpadding="0" cellspacing="2" border="0" width="98%">
-			<tr>
-				<td valign="middle" width="0%" nowrap="nowrap">
-					<b>{'common.email_transport'|devblocks_translate|capitalize}: </b>
-				</td>
-				<td valign="middle" width="100%">
-					<button type="button" class="chooser-abstract" data-field-name="mail_transport_id" data-context="{CerberusContexts::CONTEXT_MAIL_TRANSPORT}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="cerb-icons cerb-icon-search"></span></button>
-					
-					{$mail_transport = DAO_MailTransport::get($address->mail_transport_id)}
-					
-					<ul class="bubbles chooser-container">
-					{if $mail_transport}
-						<li><input type="hidden" name="mail_transport_id" value="{$mail_transport->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_MAIL_TRANSPORT}" data-context-id="{$mail_transport->id}">{$mail_transport->name}</a></li>
-					{/if}
-					</ul>
-				</td>
-			</tr>
-		</table>
-	</div>
-</fieldset>
+{$addr_type = ''}{if $address->mail_transport_id}{$addr_type = 'transport'}{elseif $address->worker_id}{$addr_type = 'worker'}{/if}
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'common.type'|devblocks_translate|capitalize}</label>
+			<div>
+				<input type="hidden" name="type" id="addrType_{$form_id}" value="{$addr_type}">
+				<div class="cerb-ui-switcher" id="addrTypeSwitcher_{$form_id}" data-cerb-input="addrType_{$form_id}">
+					<button type="button" data-value="transport"{if $addr_type == 'transport'} class="cerb-ui-switcher--active"{/if}><span class="cerb-icons cerb-icon-send"></span> We send email from this address</button>
+					<button type="button" data-value="worker"{if $addr_type == 'worker'} class="cerb-ui-switcher--active"{/if}><span class="cerb-icons cerb-icon-user"></span> A worker's personal address</button>
+					<button type="button" data-value=""{if $addr_type == ''} class="cerb-ui-switcher--active"{/if}><span class="cerb-icons cerb-icon-ban"></span> None of the above</button>
+				</div>
+			</div>
+		</div>
 
-<fieldset class="peek black cerb-email-type">
-	<legend><label><input type="radio" name="type" value="worker" {if $address->worker_id}checked="checked"{/if}> This is a worker's personal email address</label></legend>
-	
-	<div style="margin-left:20px;{if !$address->worker_id}display:none;{/if}">
-		<table cellpadding="0" cellspacing="2" border="0" width="98%">
-			<tr>
-				<td valign="middle" width="0%" nowrap="nowrap">
-					<b>{'common.worker'|devblocks_translate|capitalize}: </b>
-				</td>
-				<td valign="middle" width="100%">
-					<button type="button" class="chooser-abstract" data-field-name="worker_id" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="isDisabled:n" data-autocomplete="" data-autocomplete-if-empty="true"><span class="cerb-icons cerb-icon-search"></span></button>
-					
-					{$worker = DAO_Worker::get($address->worker_id)}
-					
-					<ul class="bubbles chooser-container">
-					{if $worker}
-						<li><input type="hidden" name="worker_id" value="{$worker->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker->id}">{$worker->getName()}</a></li>
-					{/if}
-					</ul>
-				</td>
-			</tr>
-		</table>
-	</div>
-</fieldset>
+		<div class="cerb-ui-form--field" data-cerb-type-transport{if $addr_type != 'transport'} style="display:none;"{/if}>
+			<label class="cerb-ui-form--label">{'common.email_transport'|devblocks_translate|capitalize}</label>
+			<div class="cerb-ui-record-chooser" id="transportChooser_{$form_id}">
+				{$mail_transport = DAO_MailTransport::get($address->mail_transport_id)}
+				{if $mail_transport}
+					<li data-context-id="{$mail_transport->id}" data-label="{$mail_transport->name}"></li>
+				{/if}
+			</div>
+		</div>
 
-<fieldset class="peek black cerb-email-type">
-	<legend><label><input type="radio" name="type" value="" {if !$address->mail_transport_id && !$address->worker_id}checked="checked"{/if}> None of the above</label></legend>
-</fieldset>
+		<div class="cerb-ui-form--field" data-cerb-type-worker{if $addr_type != 'worker'} style="display:none;"{/if}>
+			<label class="cerb-ui-form--label">{'common.worker'|devblocks_translate|capitalize}</label>
+			<div class="cerb-ui-record-chooser" id="addrWorkerChooser_{$form_id}">
+				{$worker = DAO_Worker::get($address->worker_id)}
+				{if $worker}
+					<li data-context-id="{$worker->id}" data-label="{$worker->getName()}" data-image="{devblocks_url}c=avatars&context=worker&context_id={$worker->id}{/devblocks_url}?v={$worker->updated}"></li>
+				{/if}
+			</div>
+		</div>
+	</div>
+</div>
 {/if}
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$address->id}
 
 <div class="status"></div>
 
-{if (!$address->id && $active_worker->hasPriv("contexts.{$peek_context}.create")) 
+<div class="buttons" style="margin-top:10px;">
+{if (!$address->id && $active_worker->hasPriv("contexts.{$peek_context}.create"))
 	|| ($address->id && $active_worker->hasPriv("contexts.{$peek_context}.update"))}
-	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button>
+	<button type="button" class="cerb-ui-button save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button>
 {else}
-	<div class="error">{'error.core.no_acl.edit'|devblocks_translate}</div>
+	<div class="cerb-ui-panel cerb-ui-panel--spaced cerb-ui-panel--alert">
+		<div class="cerb-ui-header"><div class="cerb-ui-callout"><span class="cerb-icons cerb-icon-ban cerb-ui-callout--icon"></span><div class="cerb-ui-header--subtitle">{'error.core.no_acl.edit'|devblocks_translate}</div></div></div>
+	</div>
 {/if}
+</div>
 
 </form>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFind('#{$form_id}');
-	var $chooser_org = $popup.find('button.chooser-abstract[data-field-name="org_id"]');
-	var $chooser_contact = $popup.find('button.chooser-abstract[data-field-name="contact_id"]');
+	let $popup = genericAjaxPopupFind('#{$form_id}');
 
 	Devblocks.formDisableSubmit($popup);
-	
-	$popup.one('popup_open',function(event,ui) {
-		// Title
-		$popup.dialog('option','title', "{'common.edit'|devblocks_translate|capitalize|escape:'javascript' nofilter}: {'common.email_address'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
-		
-		// Buttons
-		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
 
-		var $fieldsets_email_types = $popup.find('fieldset.cerb-email-type');
-		
-		// Radios
-		{if $active_worker->is_superuser}
-		$popup.find('input:radio[name=type]').on('change', function(e) {
-			e.preventDefault();
-			$fieldsets_email_types.find('> div').hide();
-			$(this).closest('fieldset').find('> div').fadeIn();
-		});
-		{/if}
-		
-		// Abstract choosers
-		$popup.find('button.chooser-abstract')
-			.cerbChooserTrigger()
-			.on('cerb-chooser-saved', function(e) {
-				// When the org changes, default the contact chooser filter
-				if($(e.target).attr('data-field-name') === 'org_id') {
-					var $bubble = $chooser_org.siblings('ul.chooser-container').find('> li:first input:hidden');
-					var $button_create_contact = $chooser_contact.siblings('button.chooser-create');
-					
-					if($bubble.length > 0) {
-						var org_id = $bubble.val();
-						$chooser_contact.attr('data-query', 'org.id:' + org_id);
-						
-						// If there's a contact create button, change its defaults to the form contents
-						$button_create_contact.attr('data-edit', '{if $address->id}email:{$address->id}{/if} org:' + org_id);
-					}
-					
-				}
-			})
-			;
-		
-		// Peek triggers
+	$popup.one('popup_open',function(event,ui) {
+		$popup.dialog('option','title', "{'common.edit'|devblocks_translate|capitalize|escape:'javascript' nofilter}: {'common.email_address'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
+
+		$popup.find('button.save').click(Devblocks.callbackPeekEditSave);
 		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
-		
-		// Search triggers
-		$popup.find('.cerb-search-trigger').cerbSearchTrigger();
-		
+
+		let contactChooser = null;
+
+		if(window.CerbUI && CerbUI.RecordChooser) {
+			new CerbUI.RecordChooser($popup.find('#orgChooser_{$form_id}')[0], {
+				context: 'org',
+				name: 'org_id',
+				emptyIcon: 'building-office',
+				create: 'if-null',
+				searchPlaceholder: "{'common.organization'|devblocks_translate|capitalize|escape:'javascript' nofilter}",
+				onSelect: function(item) {
+					// When the org changes, scope the contact chooser to that org
+					if(contactChooser && item && item.id) contactChooser.setQuery('org.id:' + item.id);
+				}
+			});
+
+			contactChooser = new CerbUI.RecordChooser($popup.find('#contactChooser_{$form_id}')[0], {
+				context: 'contact',
+				name: 'contact_id',
+				emptyIcon: 'user',
+				create: 'if-null',
+				{if $org}query: 'org.id:{$org->id}',{/if}
+				searchPlaceholder: "{'common.contact'|devblocks_translate|capitalize|escape:'javascript' nofilter}"
+			});
+
+			{if $active_worker->is_superuser}
+			new CerbUI.RecordChooser($popup.find('#transportChooser_{$form_id}')[0], {
+				context: "{CerberusContexts::CONTEXT_MAIL_TRANSPORT}",
+				name: 'mail_transport_id',
+				emptyIcon: 'mail',
+				searchPlaceholder: "{'common.email_transport'|devblocks_translate|capitalize|escape:'javascript' nofilter}"
+			});
+
+			new CerbUI.RecordChooser($popup.find('#addrWorkerChooser_{$form_id}')[0], {
+				context: 'worker',
+				name: 'worker_id',
+				emptyIcon: 'user',
+				query: 'isDisabled:n',
+				searchPlaceholder: "{'common.worker'|devblocks_translate|capitalize|escape:'javascript' nofilter}"
+			});
+			{/if}
+		}
+
+		// Address-type switcher → reveal the matching sub-chooser
+		if(window.CerbUI && CerbUI.Switcher) {
+			$popup.find('.cerb-ui-switcher[data-cerb-input]').each(function() {
+				let input = document.getElementById(this.getAttribute('data-cerb-input'));
+				let isType = (this.id === 'addrTypeSwitcher_{$form_id}');
+				new CerbUI.Switcher(this, {
+					value: input ? input.value : null,
+					onSelect: function(value) {
+						if(input) input.value = value;
+						if(isType) {
+							$popup.find('[data-cerb-type-transport]').toggle(value === 'transport');
+							$popup.find('[data-cerb-type-worker]').toggle(value === 'worker');
+						}
+					}
+				});
+			});
+		}
 	});
 });
 </script>

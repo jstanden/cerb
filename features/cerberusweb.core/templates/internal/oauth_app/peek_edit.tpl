@@ -11,98 +11,83 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<table cellspacing="0" cellpadding="2" border="0" width="98%">
-	<tr>
-		<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate}:</b></td>
-		<td width="99%">
-			<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
-		</td>
-	</tr>
-	
-	<tr>
-		<td width="1%" nowrap="nowrap"><b>{'dao.oauth_app.client_id'|devblocks_translate}:</b></td>
-		<td width="99%">
-			<input type="text" name="client_id" value="{$model->client_id}" style="width:98%;" spellcheck="false">
-		</td>
-	</tr>
-	
-	<tr>
-		<td width="1%" nowrap="nowrap"><b>{'dao.oauth_app.client_secret'|devblocks_translate}:</b></td>
-		<td width="99%">
-			<input type="text" name="client_secret" value="{$model->client_secret}" style="width:98%;" spellcheck="false">
-		</td>
-	</tr>
-	
-	<tr>
-		<td width="1%" nowrap="nowrap"><b>{'dao.oauth_app.callback_url'|devblocks_translate}:</b></td>
-		<td width="99%">
-			<input type="text" name="callback_url" value="{$model->callback_url}" style="width:98%;" spellcheck="false">
-		</td>
-	</tr>
-	
-	<tr>
-		<td width="1%" nowrap="nowrap"><b>{'common.website'|devblocks_translate|capitalize}:</b></td>
-		<td width="99%">
-			<input type="text" name="url" value="{$model->url}" style="width:98%;" spellcheck="false">
-		</td>
-	</tr>
-	
-	<tr>
-		<td width="1%" valign="top" nowrap="nowrap"><b>Scopes:</b></td>
-		<td width="99%">
-			<textarea name="scopes_yaml" data-editor-mode="ace/mode/yaml">{$model->scopes_yaml}</textarea>
-		</td>
-	</tr>
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'common.name'|devblocks_translate|capitalize}</label>
+			<input type="text" name="name" value="{$model->name}" autofocus="autofocus">
+		</div>
 
-	<tr>
-		<td width="1%" valign="top" nowrap="nowrap"><b>{{'common.tokens'|devblocks_translate|capitalize}}:</b></td>
-		<td width="99%">
-			<table>
-				<tr>
-					<td>
-						{{'dao.oauth_app.access_token_ttl'|devblocks_translate|capitalize}}:
-					</td>
-					<td>
-						<input type="text" name="access_token_ttl" value="{$model->access_token_ttl}" size="32" placeholder="(1 hour)">
-					</td>
-				</tr>
-				<tr>
-					<td>
-						{{'dao.oauth_app.refresh_token_ttl'|devblocks_translate|capitalize}}:
-					</td>
-					<td>
-						<input type="text" name="refresh_token_ttl" value="{$model->refresh_token_ttl}" size="32" placeholder="(1 month)">
-					</td>
-				</tr>
-			</table>
-		</td>
-	</tr>
+		<div class="cerb-ui-form--row">
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'dao.oauth_app.client_id'|devblocks_translate|capitalize}</label>
+				<input type="text" name="client_id" value="{$model->client_id}" spellcheck="false">
+			</div>
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'dao.oauth_app.client_secret'|devblocks_translate|capitalize}</label>
+				<label class="cerb-ui-form--control">
+					<span class="cerb-ui-form--control-icon cerb-icons cerb-icon-key"></span>
+					<input type="text" name="client_secret" value="{$model->client_secret}" spellcheck="false">
+				</label>
+			</div>
+		</div>
 
-	{if !empty($custom_fields)}
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
-	{/if}
-</table>
+		<div class="cerb-ui-form--row">
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'dao.oauth_app.callback_url'|devblocks_translate|capitalize}</label>
+				<label class="cerb-ui-form--control">
+					<span class="cerb-ui-form--control-icon cerb-icons cerb-icon-link"></span>
+					<input type="text" name="callback_url" value="{$model->callback_url}" spellcheck="false">
+				</label>
+			</div>
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.website'|devblocks_translate|capitalize}</label>
+				<label class="cerb-ui-form--control">
+					<span class="cerb-ui-form--control-icon cerb-icons cerb-icon-globe"></span>
+					<input type="text" name="url" value="{$model->url}" spellcheck="false">
+				</label>
+			</div>
+		</div>
+
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">Scopes</label>
+			<textarea name="scopes_yaml" data-editor-lines="10" spellcheck="false">{$model->scopes_yaml}</textarea>
+		</div>
+
+		<div class="cerb-ui-form--row">
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'dao.oauth_app.access_token_ttl'|devblocks_translate|capitalize}</label>
+				<label class="cerb-ui-form--control">
+					<span class="cerb-ui-form--control-icon cerb-icons cerb-icon-clock"></span>
+					<input type="text" name="access_token_ttl" value="{$model->access_token_ttl}" placeholder="(1 hour)">
+				</label>
+			</div>
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'dao.oauth_app.refresh_token_ttl'|devblocks_translate|capitalize}</label>
+				<label class="cerb-ui-form--control">
+					<span class="cerb-ui-form--control-icon cerb-icons cerb-icon-clock"></span>
+					<input type="text" name="refresh_token_ttl" value="{$model->refresh_token_ttl}" placeholder="(1 month)">
+				</label>
+			</div>
+		</div>
+
+		{if !empty($custom_fields)}
+		{include file="devblocks:cerberusweb.core::internal/custom_fields/form.tpl" custom_fields=$custom_fields}
+		{/if}
+	</div>
+</div>
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
 {if $model->id}
-<fieldset style="display:none;" class="delete">
-	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
-	
-	<div>
-		Are you sure you want to permanently delete this OAuth app?
-	</div>
-	
-	<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
-	<button type="button" class="delete-cancel">{'common.no'|devblocks_translate|capitalize}</button>
-</fieldset>
+	{include file="devblocks:cerberusweb.core::internal/peek/delete_confirm.tpl" noun="OAuth app"}
 {/if}
 
 <div class="status"></div>
 
 <div class="buttons" style="margin-top:10px;">
-	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if $model->id && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	<button type="button" class="cerb-ui-button save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if $model->id && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="cerb-ui-button cerb-ui-button--subtle delete-prompt"><span class="cerb-icons cerb-icon-trash"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>
@@ -113,22 +98,19 @@ $(function() {
 	let $popup = genericAjaxPopupFind($frm);
 
 	Devblocks.formDisableSubmit($frm);
-	
+
 	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"{'OAuth App'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		$popup.css('overflow', 'inherit');
 
-		// Buttons
-		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
+		$popup.find('button.save').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-		$popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
-		$popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
+		if(window.CerbUI && CerbUI.Form) CerbUI.Form.ConfirmDelete($popup[0]);
 
-		// Code Editor
-		$popup.find('textarea[name=scopes_yaml]')
-			.cerbCodeEditor()
-			;
-		
+		// Scopes editor — KataEditor (no autocompletion yet; no oauth-scope dialect). [TODO] migrate scopes_yaml → KATA.
+		var scopesEl = $popup.find('textarea[name=scopes_yaml]')[0];
+		if(scopesEl && window.CerbUI && CerbUI.KataEditor)
+			new CerbUI.KataEditor(scopesEl);
 	});
 });
 </script>

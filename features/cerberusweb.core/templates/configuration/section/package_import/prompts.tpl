@@ -15,7 +15,7 @@
 		</select>
 		{/if}
 	{elseif $prompt.type == 'chooser'}
-	<div class="cerb-ui-record-chooser cerb-package-prompt-chooser" data-context="{$prompt.params.context|escape:'html'}" data-name="prompts[{$prompt.key|escape:'html'}]"{if $prompt.params.single} data-single="1"{/if}{if $prompt.params.query} data-query="{$prompt.params.query|escape:'html'}"{/if}></div>
+	<div class="cerb-ui-record-chooser cerb-package-prompt-chooser" data-context="{$prompt.params.context}" data-name="prompts[{$prompt.key}]"{if $prompt.params.single} data-single="1"{/if}{if $prompt.params.query} data-query="{$prompt.params.query}"{/if}></div>
 	{/if}
 	</div>
 	{/if}

@@ -25,29 +25,25 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.send.from'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
-				<button type="button" class="chooser-abstract" data-field-name="send_from_id" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-single="true" data-query="" data-query-required="mailTransport.id:>0" data-autocomplete="mailTransport.id:>0" data-autocomplete-if-empty="true" data-create="if-null"><span class="cerb-icons cerb-icon-search"></span></button>
-				<ul class="bubbles chooser-container"></ul>
+				<div class="cerb-ui-record-chooser" data-cerb-chooser="send_from_id"></div>
 			</td>
 		</tr>
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.signature'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
-				<button type="button" class="chooser-abstract" data-field-name="signature_id" data-context="{CerberusContexts::CONTEXT_EMAIL_SIGNATURE}" data-single="true" data-query="" data-query-required="" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="cerb-icons cerb-icon-search"></span></button>
-				<ul class="bubbles chooser-container"></ul>
+				<div class="cerb-ui-record-chooser" data-cerb-chooser="signature_id"></div>
 			</td>
 		</tr>
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.email_template'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
-				<button type="button" class="chooser-abstract" data-field-name="email_template_id" data-context="{CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE}" data-single="true" data-query="" data-query-required="" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="cerb-icons cerb-icon-search"></span></button>
-				<ul class="bubbles chooser-container"></ul>
+				<div class="cerb-ui-record-chooser" data-cerb-chooser="email_template_id"></div>
 			</td>
 		</tr>
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.encrypt.signing.key'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
-				<button type="button" class="chooser-abstract" data-field-name="signing_key_id" data-context="{CerberusContexts::CONTEXT_GPG_PRIVATE_KEY}" data-single="true" data-query="" data-query-required="" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="cerb-icons cerb-icon-search"></span></button>
-				<ul class="bubbles chooser-container"></ul>
+				<div class="cerb-ui-record-chooser" data-cerb-chooser="signing_key_id"></div>
 			</td>
 		</tr>
 		<tr>
@@ -74,7 +70,7 @@
 </fieldset>
 {/if}
 
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_GROUP bulk=true}
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/bulk_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_GROUP}
 
 {if $active_worker->hasPriv('contexts.cerberusweb.contexts.group.update')}
 	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
@@ -102,7 +98,12 @@ $(function() {
 			});
 		});
 		
-		$popup.find('button.chooser-abstract').cerbChooserTrigger();
+		if(window.CerbUI && CerbUI.RecordChooser) {
+			new CerbUI.RecordChooser($popup.find('[data-cerb-chooser="send_from_id"]')[0], { context: '{CerberusContexts::CONTEXT_ADDRESS}', name: 'send_from_id', emptyIcon: 'mail', query: 'mailTransport.id:>0', create: 'if-null' });
+			new CerbUI.RecordChooser($popup.find('[data-cerb-chooser="signature_id"]')[0], { context: '{CerberusContexts::CONTEXT_EMAIL_SIGNATURE}', name: 'signature_id', emptyIcon: 'signature', create: 'if-null' });
+			new CerbUI.RecordChooser($popup.find('[data-cerb-chooser="email_template_id"]')[0], { context: '{CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE}', name: 'email_template_id', emptyIcon: 'file', create: 'if-null' });
+			new CerbUI.RecordChooser($popup.find('[data-cerb-chooser="signing_key_id"]')[0], { context: '{CerberusContexts::CONTEXT_GPG_PRIVATE_KEY}', name: 'signing_key_id', emptyIcon: 'key', create: 'if-null' });
+		}
 		
 		{include file="devblocks:cerberusweb.core::internal/views/bulk_broadcast_jquery.tpl"}
 	});

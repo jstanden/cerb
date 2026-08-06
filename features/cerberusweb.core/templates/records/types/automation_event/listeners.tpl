@@ -1,4 +1,6 @@
-<legend>Listeners:</legend>
+<div class="cerb-ui-header cerb-ui-header--tight">
+	<div class="cerb-ui-header--label">Listeners</div>
+</div>
 
 <div style="display:flex;flex-flow:row wrap;gap:5px;">
     {if $listeners}
@@ -19,7 +21,7 @@
 <script nonce="{DevblocksPlatform::getRequestNonce()}" id="{$script_uid}" type="text/javascript">
 $(function() {
     let $script = $('#{$script_uid}');
-    let $listeners = $script.closest('fieldset');
+    let $listeners = $script.closest('[data-cerb-event-listeners]');
     
     $listeners.find('[data-context]')
         .cerbPeekTrigger({
