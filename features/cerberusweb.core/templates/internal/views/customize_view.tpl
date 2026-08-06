@@ -146,7 +146,7 @@ $(function() {
 
 	$container.find('input:text.color-picker').each(function() {
 		new CerbUI.ColorPicker(this, {
-			palette: ['#6A87DB','#CF2C1D','#FEAF03','#57970A','#9669DB','#ADADAD','#34434E']
+			palette: ['#4065f1','#6A87DB','#CF2C1D','#FEAF03','#57970A','#852EE0','#ADADAD','#34434E']
 		});
 	});
 

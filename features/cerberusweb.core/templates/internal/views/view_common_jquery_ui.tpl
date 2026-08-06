@@ -74,11 +74,11 @@ $(function() {
 				
 				if(0 === $selected_rows.length) {
 					$view_actions.find('button,.action-on-select').not('.action-always-show').fadeOut('fast');
-					$frm.find('TABLE.worklistBody TBODY').enableSelection();
+					$frm.find('TABLE.worklistBody TBODY').each(function() { if(window.CerbUI && CerbUI.utils) CerbUI.utils.enableSelection(this); });
 
 				} else if(1 === $selected_rows.length) {
 					$view_actions.find('button,.action-on-select').not('.action-always-show').fadeIn('fast');
-					$frm.find('TABLE.worklistBody TBODY').disableSelection();
+					$frm.find('TABLE.worklistBody TBODY').each(function() { if(window.CerbUI && CerbUI.utils) CerbUI.utils.disableSelection(this); });
 				}
 				
 				$chk.trigger('check');
@@ -200,13 +200,13 @@ $(function() {
 			$(this).prop('checked', e.checked);
 			$rows.addClass('selected');
 			$view_actions.find('button,.action-on-select').not('.action-always-show').fadeIn('fast');
-			$view_form.find('TABLE.worklistBody TBODY').disableSelection();
+			$view_form.find('TABLE.worklistBody TBODY').each(function() { if(window.CerbUI && CerbUI.utils) CerbUI.utils.disableSelection(this); });
 		} else {
 			$checkbox.prop('checked', e.checked);
 			$(this).prop('checked', e.checked);
 			$rows.removeClass('selected');
 			$view_actions.find('button,.action-on-select').not('.action-always-show').fadeOut('fast');
-			$view_form.find('TABLE.worklistBody TBODY').enableSelection();
+			$view_form.find('TABLE.worklistBody TBODY').each(function() { if(window.CerbUI && CerbUI.utils) CerbUI.utils.enableSelection(this); });
 		}
 	});
 	
@@ -265,7 +265,9 @@ $(function() {
 	
 	// View toolbar
 
-	$view.find('[data-cerb-worklist-toolbar]').cerbToolbar({
+	let worklist_toolbar_ul = $view.find('[data-cerb-worklist-toolbar] ul.cerb-ui-toolbar')[0];
+	if(worklist_toolbar_ul && window.CerbUI && CerbUI.Toolbar)
+	new CerbUI.Toolbar(worklist_toolbar_ul, {
 		caller: {
 			name: 'cerb.toolbar.records.worklist',
 			params: {

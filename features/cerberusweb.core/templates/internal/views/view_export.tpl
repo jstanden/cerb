@@ -78,7 +78,7 @@
 		</div>
 
 		<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.export'|devblocks_translate|capitalize}</button>
-		<button type="button" class="cancel"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cancel cerb-ui-button cerb-ui-button--subtle"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 	</div>
 	
 	<div id="export{$view_id}_tabBuild">
@@ -88,11 +88,11 @@
 				{tree keys=$placeholders}
 			</ul>
 		</div>
-		<textarea name="export_kata" data-editor-mode="ace/mode/cerb_kata">{$export_kata}</textarea>
+		<textarea name="export_kata" data-editor-lines="15" spellcheck="false">{$export_kata}</textarea>
 		
 		<div style="margin-top:10px;">
 			<button type="button" class="submit-build"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.export'|devblocks_translate|capitalize}</button>
-			<button type="button" class="cancel"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+			<button type="button" class="cancel cerb-ui-button cerb-ui-button--subtle"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 		</div>
 	</div>
 </div>
@@ -113,36 +113,32 @@ $(function() {
 	let $tab_build = $('#export{$view_id}_tabBuild');
 	let $editor_toolbar = $tab_build.find('.cerb-code-editor-toolbar');
 	
-	let $tabs = $('#export{$view_id}_tabs').tabs();
+	let $tabs = $('#export{$view_id}_tabs');
+	$tabs.find('> ul').each(function() { if(window.CerbUI && CerbUI.Tabs) new CerbUI.Tabs(this); });
 	
-	let $editor_columns_kata = $tab_build.find('[data-editor-mode]')
-		.cerbCodeEditor()
-		.cerbCodeEditorAutocompleteKata({
-			autocomplete_suggestions: cerbAutocompleteSuggestions.kataSchemaWorklistExport
-		})
-		.nextAll('pre.ace_editor')
-	;
-
-	let editor_columns_kata = ace.edit($editor_columns_kata.attr('id'));
+	let editor_columns_kata = new CerbUI.KataEditor($tab_build.find('textarea[name=export_kata]')[0], {
+		onAutocomplete: CerbUI.KataEditor.kataFieldSource(CerbUI.editorCore.autocompleteSchemas.kataSchemaWorklistExport)
+	});
 	
-	let $editor_columns_menu = $editor_toolbar.find('.cerb-code-editor-toolbar-menu-placeholders').menu({
-		select: function(event, ui) {
-			$editor_columns_menu.hide();
-			editor_columns_kata.insertSnippet(ui.item.attr('data-token'));
+	new CerbUI.Menu($editor_toolbar.find('.cerb-code-editor-toolbar-menu-placeholders').hide()[0], {
+		clickTrigger: $editor_toolbar.find('.cerb-editor-button-event-placeholders')[0],
+		selectableParents: true,
+		filter: true,
+		onSelect: function(li, src) {
+			editor_columns_kata.insertSnippet(src.getAttribute('data-token'));
 			editor_columns_kata.focus();
 		}
 	});
-
-	$editor_toolbar.find('.cerb-editor-button-event-placeholders').on('click', function() {
-		$editor_columns_menu.toggle();
-	});
 	
-	$frm.find('ul.menu').menu({
-		select: function(event, ui) {
-			var token = ui.item.attr('data-token');
-			var label = ui.item.attr('data-label');
-			
-			if(undefined === token || undefined === label)
+	new CerbUI.Menu($frm.find('ul.menu').hide()[0], {
+		inline: true,
+		selectableParents: true,
+		filter: true,
+		onSelect: function(li, src) {
+			var token = src.getAttribute('data-token');
+			var label = src.getAttribute('data-label');
+
+			if(null == token || null == label)
 				return;
 			
 			var $bubble = $('<li style="display:block;"></li>')
@@ -180,11 +176,11 @@ $(function() {
 		$bubbles.find('a').css('visibility', 'hidden');
 	});
 	
-	$frm.find('ul.bubbles.sortable').sortable({
-		placeholder: 'ui-state-highlight',
-		items: 'li',
-		distance: 10
-	});
+	if(window.CerbUI && CerbUI.Sortable)
+		new CerbUI.Sortable($frm.find('ul.bubbles.sortable').get(0), {
+			items: 'li',
+			distance: 10
+		});
 	
 	let funcSubmit = function() {
 		Devblocks.clearAlerts();

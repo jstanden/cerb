@@ -133,9 +133,7 @@
 				</td>
 			{elseif $column=="t_importance"}
 			<td data-column="{$column}" title="{$result.$column}">
-				<div style="display:inline-block;margin-left:5px;width:40px;height:8px;background-color:var(--cerb-color-background-contrast-220);border-radius:8px;">
-					<div style="position:relative;margin-left:-5px;top:-1px;left:{$result.$column}%;width:10px;height:10px;border-radius:10px;background-color:{if $result.$column < 50}rgb(0,200,0);{elseif $result.$column > 50}rgb(230,70,70);{else}rgb(175,175,175);{/if}"></div>
-				</div>
+				{include file="devblocks:cerberusweb.core::internal/cerb_ui/slider_readonly.tpl" value=$result.$column}
 			</td>
 			{elseif $column=="t_owner_id"}
 			<td data-column="{$column}">
