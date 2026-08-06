@@ -4,21 +4,13 @@
 </select>
 <br>
 
-<button type="button" class="chooser_worker unbound"><span class="cerb-icons cerb-icon-search"></span></button>
-<ul class="chooser-container bubbles" style="display:block;">
+<div class="cerb-ui-record-chooser chooser_worker unbound">
 {if isset($params.worker_id)}
 {foreach from=$params.worker_id item=worker_id}
 	{$context_worker = $workers.$worker_id}
 	{if !empty($context_worker)}
-	<li>{$context_worker->getName()}<input type="hidden" name="{$namePrefix}[worker_id][]" value="{$context_worker->id}"><a data-cerb-link="remove_parent"><span class="cerb-icons cerb-icon-circle-remove"></span></a></li>
+	<li data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$context_worker->id}" data-label="{$context_worker->getName()}"></li>
 	{/if}
 {/foreach}
 {/if}
-</ul>
-
-<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
-$(function() {
-	let $condition = $('#{$namePrefix}_{$nonce}');
-	$condition.find('.chooser-container [data-cerb-link=remove_parent]').on('click', Devblocks.onClickRemoveParent);
-})
-</script>
+</div>

@@ -6,18 +6,18 @@
 		<button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="https://cerb.ai/docs/data-queries/" target="_blank"><span class="cerb-icons cerb-icon-circle-question-mark"></span></a></button>
 	</div>
 
-	<textarea name="{$namePrefix}[data_query]" class="cerb-data-query-editor placeholders" data-editor-mode="ace/mode/cerb_query" style="width:95%;height:50px;">{$params.data_query}</textarea>
+	<textarea id="dq_{$namePrefix}_{$nonce}" name="{$namePrefix}[data_query]" data-editor-lines="12" spellcheck="false">{$params.data_query}</textarea>
 	
 	<div style="margin-top:5px;">
 		<fieldset class="peek black">
 			<legend>Simulate placeholders:</b> <small>(KATA)</small></legend>
-			<textarea name="{$namePrefix}[placeholder_simulator_kata]" class="cerb-data-query-editor-placeholders" data-editor-mode="ace/mode/cerb_kata">{$params.placeholder_simulator_kata}</textarea>
+			<textarea name="{$namePrefix}[placeholder_simulator_kata]" data-editor-lines="6" spellcheck="false">{$params.placeholder_simulator_kata}</textarea>
 		</fieldset>
 		
 		<fieldset class="peek black" style="display:none;position:relative;">
 			<span class="cerb-icons cerb-icon-circle-remove" style="position:absolute;right:-5px;top:-10px;cursor:pointer;color:rgb(80,80,80);zoom:1.5;background-color:var(--cerb-color-background);"></span>
 			<legend>{'common.results'|devblocks_translate|capitalize}:</legend>
-			<textarea class="cerb-json-results-editor" data-editor-mode="ace/mode/json"></textarea>
+			<textarea class="cerb-json-results-editor" spellcheck="false"></textarea>
 		</fieldset>
 	</div>
 </div>
@@ -48,7 +48,7 @@
 		<button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="https://cerb.ai/docs/sheets/" target="_blank"><span class="cerb-icons cerb-icon-circle-question-mark"></span></a></button>
 	</div>
 
-	<textarea name="{$namePrefix}[sheet_kata]" class="cerb-sheet-yaml-editor" data-editor-mode="ace/mode/cerb_kata" style="width:95%;height:50px;">{$params.sheet_kata}</textarea>
+	<textarea class="cerb-sheet-yaml-editor" name="{$namePrefix}[sheet_kata]" data-editor-lines="20" spellcheck="false">{$params.sheet_kata}</textarea>
 
 	<fieldset class="peek black" style="display:none;position:relative;margin-top:10px;">
 		<span class="cerb-icons cerb-icon-circle-remove" style="position:absolute;right:-5px;top:-10px;cursor:pointer;color:rgb(80,80,80);zoom:1.5;background-color:var(--cerb-color-background);"></span>
@@ -63,21 +63,14 @@ $(function() {
 	let $frm = $action.closest('form');
 	let $query_button = $action.find('button.cerb-button-sample-query');
 	
-	$action.find('textarea.cerb-data-query-editor')
-		.cerbCodeEditor()
-		.cerbCodeEditorAutocompleteDataQueries()
-		.nextAll('pre.ace_editor')
-		;
+	let dq = new CerbUI.DataQuery($action.find('textarea[name="{$namePrefix}[data_query]"]')[0], {
+		onAutocomplete: CerbUI.DataQuery.dataQueryFieldSource()
+	});
+
+	new CerbUI.KataEditor($action.find('textarea[name="{$namePrefix}[placeholder_simulator_kata]"]')[0]);
 	
-	$action.find('textarea.cerb-data-query-editor-placeholders')
-		.cerbCodeEditor()
-		.nextAll('pre.ace_editor')
-		;
-	
-	let $json_results = $action.find('textarea.cerb-json-results-editor')
-		.cerbCodeEditor()
-		.nextAll('pre.ace_editor')
-		;
+	let $json_results = $action.find('.cerb-json-results-editor');
+	let json_results_editor = new CerbUI.JsonEditor($json_results[0], { readOnly: true, minLines: 1 });
 
 	$json_results.closest('fieldset').find('> .cerb-icon-circle-remove').on('click', function(e) {
 		e.stopPropagation();
@@ -89,9 +82,8 @@ $(function() {
 		
 		// If alt+click, clear the results
 		if(e.altKey) {
-			let json_results = ace.edit($json_results.attr('id'));
 			$json_results.closest('fieldset').hide();
-			json_results.setValue('');
+			json_results_editor.setValue('');
 			return;
 		}
 		
@@ -108,12 +100,7 @@ $(function() {
 		
 		genericAjaxPost(formData, null, null, function(json) {
 			if(false == json.status) {
-				let editor = ace.edit($json_results.attr('id'));
-				
-				editor.session.setMode('ace/mode/text');
-				editor.setReadOnly(true);
-				editor.setValue(json.response);
-				editor.clearSelection();
+				json_results_editor.setValue(json.response);
 
 				$json_results.closest('fieldset').show();
 				return;
@@ -125,25 +112,16 @@ $(function() {
 			formData.set('q', json.response);
 			
 			genericAjaxPost(formData, null, null, function(json) {
-				let editor = ace.edit($json_results.attr('id'));
-				
-				editor.session.setMode('ace/mode/json');
-				editor.setReadOnly(true);
-				editor.setValue(JSON.stringify(json, null, 2));
-				editor.clearSelection();
+				json_results_editor.setValue(JSON.stringify(json, null, 2));
 
 				$json_results.closest('fieldset').show();
 			});
 		});
 	});
 	
-	let $yaml_editor = $action.find('textarea.cerb-sheet-yaml-editor')
-		.cerbCodeEditor()
-		.cerbCodeEditorAutocompleteKata({
-			autocomplete_suggestions: cerbAutocompleteSuggestions.kataSchemaSheet
-		})
-		.nextAll('pre.ace_editor')
-		;
+	let yaml_editor = new CerbUI.KataEditor($action.find('.cerb-sheet-yaml-editor')[0], {
+		onAutocomplete: CerbUI.KataEditor.kataFieldSource(CerbUI.editorCore.autocompleteSchemas.kataSchemaSheet)
+	});
 
 	let $sheet_button_preview = $action.find('.cerb-button-preview-sheet');
 	let $sheet_button_add = $action.find('.cerb-button-sheet-column-add');
@@ -179,13 +157,11 @@ $(function() {
 				return;
 			}
 			
-			let editor = ace.edit($yaml_editor.attr('id'));
-			
 			let formData = new FormData();
 			formData.set('c', 'ui');
 			formData.set('a', 'sheet');
 			formData.set('data_query', json.response);
-			formData.set('sheet_kata', editor.getValue());
+			formData.set('sheet_kata', yaml_editor.getValue());
 			formData.append('types[]', 'card');
 			formData.append('types[]', 'code');
 			formData.append('types[]', 'date');
@@ -205,12 +181,11 @@ $(function() {
 		});
 	});
 
-	let $sheet_button_add_menu = $sheet_button_add.next('ul').menu({
-		"select": function(e, $ui) {
-			e.stopPropagation();
-			$sheet_button_add_menu.hide();
-
-			let column_type = $ui.item.attr('data-type');
+	new CerbUI.Menu($sheet_button_add.next('ul').hide()[0], {
+		clickTrigger: $sheet_button_add[0],
+		filter: true,
+		onSelect: function(li, src) {
+			let column_type = src.getAttribute('data-type');
 
 			if(null == column_type)
 				return;
@@ -240,13 +215,9 @@ $(function() {
 			{/literal}
 
 			if(snippet.length > 0) {
-				$yaml_editor.triggerHandler($.Event('cerb.insertAtCursor', { content: snippet } ));
+				yaml_editor.insertSnippet(snippet.replace({literal}/\$\{\d+:([^}]*)\}/g{/literal}, '$1'));
 			}
 		}
-	});
-
-	$sheet_button_add.on('click', function() {
-		$sheet_button_add_menu.toggle();
 	});
 });
 </script>

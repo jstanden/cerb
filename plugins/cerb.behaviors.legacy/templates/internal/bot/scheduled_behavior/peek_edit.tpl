@@ -11,88 +11,72 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<table cellspacing="0" cellpadding="2" border="0" width="98%">
-	<tr>
-		<td width="1%" nowrap="nowrap"><b>{'common.at'|devblocks_translate|capitalize}:</b></td>
-		<td width="99%">
-			<input type="text" name="run_date" value="{$model->run_date|devblocks_date}" style="width:98%;" autofocus="autofocus">
-		</td>
-	</tr>
-	<tr>
-		<td width="1%" nowrap="nowrap" valign="top"><b>{'common.on'|devblocks_translate|capitalize}:</b></td>
-		<td width="99%">
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'common.at'|devblocks_translate|capitalize}</label>
+			<input type="text" name="run_date" value="{$model->run_date|devblocks_date}" autofocus="autofocus">
+		</div>
+
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'common.on'|devblocks_translate|capitalize}</label>
 			<select name="context">
 				{if !$event_point}
 				<option value=""></option>
 				{/if}
 				{foreach from=$contexts item=context key=macro_event}
-				<option value="{$context->id}" data-event-point="{$macro_event}" {if $context->id == $model->context}selected="selected"{/if}>{$context->name}</option>
+				<option value="{$context->id}" data-event-point="{$macro_event}" data-cerb-ui-icon="{$context->params.icon|default:'collection'}" {if $context->id == $model->context}selected="selected"{/if}>{$context->name}</option>
 				{/foreach}
 			</select>
-		</td>
-	</tr>
-	<tbody class="cerb-hideable" {if !$event_point}style="display:none;"{/if}>
-	<tr>
-		<td width="1%" nowrap="nowrap" valign="top"><b>{'common.record'|devblocks_translate|capitalize}:</b></td>
-		<td width="99%">
-			<button type="button" class="chooser-abstract" data-field-name="context_id" data-context="{$model->context}" data-single="true" data-query="" data-query-required=""><span class="cerb-icons cerb-icon-search"></span></button>
-			<ul class="bubbles chooser-container">
+		</div>
+
+		<div class="cerb-ui-form--field cerb-hideable" {if !$event_point}style="display:none;"{/if}>
+			<label class="cerb-ui-form--label">{'common.record'|devblocks_translate|capitalize}</label>
+			<div class="cerb-ui-record-chooser cerb-record-chooser-context">
 				{if $model->context_id}
 				{$record = $model->getRecordDictionary()}
 				{if $record}
-					<li><input type="hidden" name="context_id" value="{$record->id}"><a class="cerb-peek-trigger no-underline" data-context="{$record->_context}" data-context-id="{$record->id}">{$record->_label}</a></li>
+				<li data-context="{$record->_context}" data-context-id="{$record->id}" data-label="{$record->_label}"></li>
 				{/if}
 				{/if}
-			</ul>
-		</td>
-	</tr>
-	</tbody>
-	<tbody class="cerb-hideable" {if !$event_point}style="display:none;"{/if}>
-		<tr>
-			<td width="1%" nowrap="nowrap" valign="top"><b>{'common.run'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%">
-				<button type="button" class="chooser-abstract" data-field-name="behavior_id" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-single="true" data-query="" data-query-required="event:{$event_point|default:'event.macro.*'} private:n disabled:n" data-autocomplete="event:{$event_point|default:'event.macro.*'} private:n disabled:n" data-autocomplete-if-empty="true"><span class="cerb-icons cerb-icon-search"></span></button>
-				
-				{$behavior = $model->getBehavior()}
-				
-				<ul class="bubbles chooser-container">
-					{if $behavior}
-					<li><input type="hidden" name="behavior_id" value="{$model->behavior_id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-context-id="{$model->behavior_id}">{$behavior->title}</a></li>
-					{/if}
-				</ul>
-				
-				<div class="cerb-behavior-params" style="margin:5px 0px 0px 0px;">
-					{include file="devblocks:cerb.behaviors.legacy::internal/decisions/assistant/behavior_variables_entry.tpl" field_name="behavior_params" variables=$behavior->variables|default:[] variable_values=$model->variables}
-				</div>
-			</td>
-		</tr>
-	</tbody>
-	
-	{if !empty($custom_fields)}
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-	{/if}
-</table>
+			</div>
+		</div>
+
+		<div class="cerb-ui-form--field cerb-hideable" {if !$event_point}style="display:none;"{/if}>
+			<label class="cerb-ui-form--label">{'common.run'|devblocks_translate|capitalize}</label>
+			{$behavior = $model->getBehavior()}
+			<div class="cerb-ui-record-chooser cerb-record-chooser-behavior">
+				{if $behavior}
+				<li data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-context-id="{$model->behavior_id}" data-label="{$behavior->title}"></li>
+				{/if}
+			</div>
+
+			<div class="cerb-behavior-params" style="margin:5px 0px 0px 0px;">
+				{include file="devblocks:cerb.behaviors.legacy::internal/decisions/assistant/behavior_variables_entry.tpl" field_name="behavior_params" variables=$behavior->variables|default:[] variable_values=$model->variables}
+			</div>
+		</div>
+	</div>
+</div>
+
+{if !empty($custom_fields)}
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-form">
+		{include file="devblocks:cerberusweb.core::internal/custom_fields/form.tpl" custom_fields=$custom_fields}
+	</div>
+</div>
+{/if}
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
 {if !empty($model->id)}
-<fieldset style="display:none;" class="delete">
-	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
-	
-	<div>
-		Are you sure you want to permanently delete this scheduled behavior?
-	</div>
-	
-	<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
-	<button type="button" class="delete-cancel">{'common.no'|devblocks_translate|capitalize}</button>
-</fieldset>
+	{include file="devblocks:cerberusweb.core::internal/peek/delete_confirm.tpl" noun="scheduled behavior"}
 {/if}
 
 <div class="status"></div>
 
 <div class="buttons" style="margin-top:10px;">
-	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	<button type="button" class="cerb-ui-button save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="cerb-ui-button cerb-ui-button--subtle delete-prompt"><span class="cerb-icons cerb-icon-trash"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>
@@ -106,71 +90,67 @@ $(function() {
 	
 	$popup.one('popup_open', function(event,ui) {
 		var $chooser_context = $popup.find('select[name=context]');
-		var $chooser_record = $popup.find('button[data-field-name=context_id]');
-		var $chooser_behavior = $popup.find('button[data-field-name=behavior_id]');
 		var $behavior_params = $popup.find('div.cerb-behavior-params');
-		var $records = $chooser_record.siblings('ul.chooser-container');
-		var $behaviors = $chooser_behavior.siblings('ul.chooser-container');
-		
+
 		$popup.dialog('option','title',"{'common.behavior.scheduled'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		$popup.css('overflow', 'inherit');
 
 		// Buttons
-		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
+		$popup.find('button.save').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-		$popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
-		$popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
+		if(window.CerbUI && CerbUI.Form) CerbUI.Form.ConfirmDelete($popup[0]);
 
-		$popup.find('input[name=run_date]').cerbDateInputHelper();
+		// On — record-type <select> keeps the POST value + its data-event-point; enhance with type-to-filter + icons
+		if(window.CerbUI && CerbUI.SelectMenu)
+			$chooser_context.each(function() { new CerbUI.SelectMenu(this); });
+
+		$popup.find('input[name=run_date]').each(function() { if(window.CerbUI && CerbUI.DatePicker) new CerbUI.DatePicker.FormInput(this); });
 		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
-		
+
+		let loadBehaviorParams = function(behavior_id) {
+			$behavior_params.text('').hide();
+			if(behavior_id)
+				genericAjaxGet($behavior_params,'c=profiles&a=invoke&module=scheduled_behavior&action=getBulkParams&trigger_id=' + behavior_id);
+		};
+
+		// Record-of-context chooser (dynamic context, driven by the "On:" select) + scoped behavior chooser
+		let rcRecord = null, rcBehavior = null;
+
+		if(window.CerbUI && CerbUI.RecordChooser) {
+			$popup.find('.cerb-record-chooser-context').each(function() {
+				rcRecord = new CerbUI.RecordChooser(this, {
+					context: '{$model->context}',
+					name: 'context_id'
+				});
+			});
+
+			$popup.find('.cerb-record-chooser-behavior').each(function() {
+				rcBehavior = new CerbUI.RecordChooser(this, {
+					context: '{CerberusContexts::CONTEXT_BEHAVIOR}',
+					name: 'behavior_id',
+					emptyIcon: 'branch',
+					query: 'event:{$event_point|default:'event.macro.*'} private:n disabled:n',
+					onSelect: function(item) { loadBehaviorParams(item.id); }
+				});
+			});
+		}
+
 		$chooser_context.on('change', function() {
 			var $this = $(this);
 			var context = $this.val();
-			
-			if(0 == context.length) {
-				$frm.find('table > tbody.cerb-hideable').hide();
-			} else {
-				$frm.find('table > tbody.cerb-hideable').fadeIn();
-			}
-			
+
+			// The hideable rows are cerb-ui-form--field (display:flex) — set display explicitly so jQuery
+			// doesn't force `block` and flatten the label/control layout.
+			$frm.find('.cerb-hideable').css('display', context.length ? 'flex' : 'none');
+
 			var event_point = $this.find('> option:selected').attr('data-event-point');
-			
-			// Set the context on the record chooser
-			$chooser_record.attr('data-context', context);
-			
-			// Set the event point on the behavior chooser
-			$chooser_behavior.attr('data-query-required', 'event:' + event_point + ' private:n disabled:n');
-			$chooser_behavior.attr('data-autocomplete', 'event:' + event_point + ' private:n disabled:n');
-			
-			// Clear selections when the context changes
-			$records.find('span.cerb-icon-circle-remove').click();
-			$behaviors.find('span.cerb-icon-circle-remove').click();
+
+			// Re-target the record chooser to the selected context, and re-scope the behavior chooser to the
+			// matching event point; clear any prior selections (they no longer apply).
+			if(rcRecord) { rcRecord.setContext(context); rcRecord.clear(false); }
+			if(rcBehavior) { rcBehavior.setQuery('event:' + event_point + ' private:n disabled:n'); rcBehavior.clear(false); }
 			$behavior_params.text('').hide();
 		});
-		
-		$popup.find('.chooser-abstract')
-			.cerbChooserTrigger()
-			.on('cerb-chooser-saved', function(e) {
-				var $target = $(e.target);
-				
-				// When the behavior changes, change the 'on record' to match 
-				if($target.attr('data-field-name') == 'context_id') {
-					// ...
-					
-				} else if($target.attr('data-field-name') == 'behavior_id') {
-					$behavior_params.text('').hide();
-					
-					var $behavior = $behaviors.find('> li:first input:hidden');
-					var behavior_id = $behavior.val();
-					
-					if($behavior.length > 0 && undefined != behavior_id) {
-						//genericAjaxGet($behavior_params,'c=profiles&a=invoke&module=behavior&action=getParams&name_prefix=params&trigger_id=' + behavior_id);
-						genericAjaxGet($behavior_params,'c=profiles&a=invoke&module=scheduled_behavior&action=getBulkParams&trigger_id=' + behavior_id);
-					}
-				}
-			})
-			;
 		
 		// Repeat freq
 		

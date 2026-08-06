@@ -1,34 +1,33 @@
-<b>On these workers:</b>
-<div style="margin-left:10px;margin-bottom:0.5em;">
-<select name="{$namePrefix}[on]" class="on">
-	<option value=""></option>
-	{foreach from=$values_to_contexts item=context_data key=val_key name=context_data}
-	{if $context_data.context == CerberusContexts::CONTEXT_WORKER}
-	<option value="{$val_key}" context="{$context_data.context}" {if $params.on==$val_key}selected="selected"{/if}>{$context_data.label}</option>
-	{/if}
-	{/foreach}
-</select>
-</div>
-
-<b>Send the interaction to this behavior:</b>
-<div style="margin-left:10px;margin-bottom:0.5em;">
-	{$behavior = DAO_TriggerEvent::get($params.behavior_id)}
-	<button type="button" class="chooser-abstract" data-field-name="{$namePrefix}[behavior_id]" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-single="true" data-query="bot.id:{$trigger->bot_id}" data-query-required="event:{$event_point|default:'event.interaction.chat.worker'} disabled:n"><span class="cerb-icons cerb-icon-search"></span></button>
-	<ul class="bubbles chooser-container">
-		{if $behavior}
-			<li><input type="hidden" name="{$namePrefix}[behavior_id]" value="{$behavior->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-context-id="{$behavior->id}">{$behavior->title}</a></li>
+<div class="cerb-ui-form--field">
+	<label class="cerb-ui-form--label">On these workers</label>
+	<select name="{$namePrefix}[on]" class="on">
+		<option value=""></option>
+		{foreach from=$values_to_contexts item=context_data key=val_key name=context_data}
+		{if $context_data.context == CerberusContexts::CONTEXT_WORKER}
+		<option value="{$val_key}" context="{$context_data.context}" {if $params.on==$val_key}selected="selected"{/if}>{$context_data.label}</option>
 		{/if}
-	</ul>
+		{/foreach}
+	</select>
 </div>
 
-<b>{'common.interaction'|devblocks_translate|capitalize}:</b> (e.g. "tickets.find.me")
-<div style="margin-left:10px;margin-bottom:0.5em;">
-	<input type="text" name="{$namePrefix}[interaction]" style="width:100%;" value="{$params.interaction}" class="placeholders" placeholder="e.g. tickets.find">
+<div class="cerb-ui-form--field">
+	<label class="cerb-ui-form--label">Send the interaction to this behavior</label>
+	{$behavior = DAO_TriggerEvent::get($params.behavior_id)}
+	<div class="cerb-ui-record-chooser" id="{$namePrefix}_behavior_chooser">
+		{if $behavior}
+			<li data-context-id="{$behavior->id}" data-label="{$behavior->title}"></li>
+		{/if}
+	</div>
 </div>
 
-<b>{'common.params'|devblocks_translate|capitalize}:</b>
-<div style="margin-left:10px;margin-bottom:0.5em;">
-	<textarea name="{$namePrefix}[interaction_params_json]" rows="3" cols="45" style="width:100%;height:{$textarea_height|default:'6em'};" class="placeholders">{$params.interaction_params_json}</textarea>
+<div class="cerb-ui-form--field">
+	<label class="cerb-ui-form--label">{'common.interaction'|devblocks_translate|capitalize}<span class="cerb-ui-form--hint">e.g. "tickets.find.me"</span></label>
+	<input type="text" name="{$namePrefix}[interaction]" value="{$params.interaction}" class="placeholders" placeholder="e.g. tickets.find">
+</div>
+
+<div class="cerb-ui-form--field">
+	<label class="cerb-ui-form--label">{'common.params'|devblocks_translate|capitalize}</label>
+	<textarea name="{$namePrefix}[interaction_params_json]" rows="3" style="height:{$textarea_height|default:'6em'};" class="placeholders">{$params.interaction_params_json}</textarea>
 	<div>
 		JSON object: <tt>{literal}{"key":"value", ...}{/literal}</tt>
 		<br>
@@ -36,15 +35,17 @@
 	</div>
 </div>
 
-<b>{'common.expires'|devblocks_translate|capitalize}:</b> (e.g. "1 week"; leave blank for indefinite)
-<div style="margin-left:10px;margin-bottom:0.5em;">
-	<input type="text" name="{$namePrefix}[expires]" style="width:100%;" value="{$params.expires}" class="placeholders" placeholder="e.g. 1 week">
+<div class="cerb-ui-form--field">
+	<label class="cerb-ui-form--label">{'common.expires'|devblocks_translate|capitalize}<span class="cerb-ui-form--hint">e.g. "1 week"; leave blank for indefinite</span></label>
+	<input type="text" name="{$namePrefix}[expires]" value="{$params.expires}" class="placeholders" placeholder="e.g. 1 week">
 </div>
 
-<b>Create interactions in simulator mode:</b>
-<div style="margin-left:10px;margin-bottom:10px;">
-	<label><input type="radio" name="{$namePrefix}[run_in_simulator]" value="1" {if $params.run_in_simulator}checked="checked"{/if}> {'common.yes'|devblocks_translate|capitalize}</label>
-	<label><input type="radio" name="{$namePrefix}[run_in_simulator]" value="0" {if !$params.run_in_simulator}checked="checked"{/if}> {'common.no'|devblocks_translate|capitalize}</label>
+<div class="cerb-ui-form--field">
+	<label class="cerb-ui-form--label">Create interactions in simulator mode</label>
+	<div>
+		<label><input type="radio" name="{$namePrefix}[run_in_simulator]" value="1" {if $params.run_in_simulator}checked="checked"{/if}> {'common.yes'|devblocks_translate|capitalize}</label>
+		<label><input type="radio" name="{$namePrefix}[run_in_simulator]" value="0" {if !$params.run_in_simulator}checked="checked"{/if}> {'common.no'|devblocks_translate|capitalize}</label>
+	</div>
 </div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
@@ -57,10 +58,7 @@ $(function() {
 		.cerbPeekTrigger()
 		;
 	
-	$action.find('.chooser-abstract')
-		.cerbChooserTrigger()
-			.on('cerb-chooser-saved', function(e) {
-			})
-	;
+	if(window.CerbUI && CerbUI.RecordChooser)
+		new CerbUI.RecordChooser($action.find('#{$namePrefix}_behavior_chooser')[0], { context: '{CerberusContexts::CONTEXT_BEHAVIOR}', name: '{$namePrefix}[behavior_id]', emptyIcon: 'branch', query: "event:{$event_point|default:'event.interaction.chat.worker'} disabled:n bot.id:{$trigger->bot_id}" });
 });
 </script>

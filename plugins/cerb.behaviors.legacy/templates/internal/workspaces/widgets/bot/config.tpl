@@ -1,22 +1,20 @@
 <div id="widget{$widget->id}Config" style="margin-top:10px;">
 	<fieldset id="widget{$widget->id}Behavior" class="peek">
 		<legend>Render the widget using this bot behavior:</legend>
-		
+
 		{$behavior_id = $widget->params.behavior_id}
 		{$behavior = null}
 		{if $behavior_id}
 			{$behavior = DAO_TriggerEvent::get($behavior_id)}
 		{/if}
 		<div style="margin-left:10px;margin-bottom:0.5em;">
-			<button type="button" class="chooser-behavior" data-field-name="params[behavior_id]" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-single="true" data-query="event:event.dashboard.widget.render disabled:n"><span class="cerb-icons cerb-icon-search"></span></button>
-			
-			<ul class="bubbles chooser-container">
+			<div class="cerb-ui-record-chooser">
 				{if $behavior}
-					<li><input type="hidden" name="params[behavior_id]" value="{$behavior->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-context-id="{$behavior->id}">{$behavior->title}</a></li>
+					<li data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-context-id="{$behavior->id}" data-label="{$behavior->title}"></li>
 				{/if}
-			</ul>
+			</div>
 		</div>
-		
+
 		<div class="parameters">
 		{if $behavior}
 		{include file="devblocks:cerb.behaviors.legacy::events/_action_behavior_params.tpl" namePrefix="params[behavior_vars]" params=$widget->params.behavior_vars macro_params=$behavior->variables}
@@ -27,22 +25,23 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $fieldset = $('fieldset#widget{$widget->id}Behavior');
-	var $bubbles = $fieldset.find('ul.chooser-container');
-	var $behavior_params = $fieldset.find('div.parameters');
-	
-	$fieldset.find('.chooser-behavior')
-	.cerbChooserTrigger()
-		.on('cerb-chooser-saved', function(e) {
-			var $bubble = $bubbles.find('> li:first input:hidden');
-			var id = $bubble.first().val();
-			
-			if(id) {
-				genericAjaxGet($behavior_params,'c=profiles&a=invoke&module=behavior&action=getParams&name_prefix=params[behavior_vars]&trigger_id=' + encodeURIComponent(id));
-			} else {
-				$behavior_params.html('');
-			}
-		})
-	;
+	const $fieldset = $('fieldset#widget{$widget->id}Behavior');
+	const $behavior_params = $fieldset.find('div.parameters');
+
+	if(window.CerbUI && CerbUI.RecordChooser)
+		$fieldset.find('.cerb-ui-record-chooser').each(function() {
+			new CerbUI.RecordChooser(this, {
+				context: '{CerberusContexts::CONTEXT_BEHAVIOR}',
+				name: 'params[behavior_id]',
+				emptyIcon: 'branch',
+				query: 'event:event.dashboard.widget.render disabled:n',
+				onSelect: function(item) {
+					if(item.id)
+						genericAjaxGet($behavior_params, 'c=profiles&a=invoke&module=behavior&action=getParams&name_prefix=params[behavior_vars]&trigger_id=' + encodeURIComponent(item.id));
+					else
+						$behavior_params.html('');
+				}
+			});
+		});
 });
 </script>

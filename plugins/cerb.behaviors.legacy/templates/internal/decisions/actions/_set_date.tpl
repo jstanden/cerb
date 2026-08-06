@@ -1,8 +1,8 @@
 {if empty($calendars)}{$calendars = DAO_Calendar::getAll()}{/if}
 
-<div class="set-date-mode">
-	<b>Using:</b> 
-	<div style="margin:0px 0px 5px 5px;">
+<div class="cerb-ui-form--field set-date-mode">
+	<label class="cerb-ui-form--label">Using</label>
+	<div>
 		<label><input type="radio" name="{$namePrefix}[mode]" value="" {if empty($params.mode)}checked="checked"{/if}> Placeholders</label>
 		<label><input type="radio" name="{$namePrefix}[mode]" value="calendar" {if $params.mode=='calendar'}checked="checked"{/if}> Calendar availability</label>
 	</div>
@@ -13,15 +13,16 @@
 </div>
 
 <div class="date-mode date-mode-calendar" style="{if $params.mode != 'calendar'}display:none;{/if}">
-	<b>To:</b>
-	
-	<div style="margin:0px 0px 5px 5px;">
-		<input type="text" name="{$namePrefix}[calendar_reldate]" value="{$params.calendar_reldate}" size="24" placeholder="2 hours">
-		of availability from now
+	<div class="cerb-ui-form--field">
+		<label class="cerb-ui-form--label">To</label>
+		<div>
+			<input type="text" name="{$namePrefix}[calendar_reldate]" value="{$params.calendar_reldate}" size="24" placeholder="2 hours">
+			of availability from now
+		</div>
 	</div>
-	
-	<b>Based on calendar:</b>
-	<div style="margin:0px 0px 5px 5px;">
+
+	<div class="cerb-ui-form--field">
+		<label class="cerb-ui-form--label">Based on calendar</label>
 		<select name="{$namePrefix}[calendar_id]">
 			<option value=""></option>
 			{foreach from=$calendars item=calendar}

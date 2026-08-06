@@ -1,11 +1,7 @@
-<div style="margin-left:10px;">
-	<b>Enter comma-separated email addresses:</b>
-	<br>
-	
-	<textarea rows="3" cols="60" name="{$namePrefix}[recipients]" style="width:100%;" class="placeholders email">{$params.recipients}</textarea>
+<div class="cerb-ui-form--field">
+	<label class="cerb-ui-form--label">Enter comma-separated email addresses</label>
+	<textarea rows="3" name="{$namePrefix}[recipients]" class="placeholders email">{$params.recipients}</textarea>
 </div>
-
-<br>
 
 {capture name=vars_addy}
 {foreach from=$trigger->variables item=var key=var_key}
@@ -16,10 +12,9 @@
 {/capture}
 
 {if $smarty.capture.vars_addy}
-<div style="margin-left:10px;">
-	<b>Include the email addresses from these variables:</b>
-	
-	<ul style="list-style:none;margin-top:5px;padding-left:10px;">
+<div class="cerb-ui-form--field">
+	<label class="cerb-ui-form--label">Include the email addresses from these variables</label>
+	<ul style="list-style:none;margin:0;padding-left:10px;">
 		{$smarty.capture.vars_addy nofilter}
 	</ul>
 </div>
@@ -27,6 +22,23 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	ajax.emailAutoComplete('fieldset#{$namePrefix} textarea.email', { multiple: true });
+	// Comma-tokenized recipient autocomplete (keep the textarea a comma-separated string). Mirrors the old
+	// emailAutoComplete multiple mode. NOTE: the selector below has never matched (the action shell id is
+	// {ldelim}$namePrefix{rdelim}_{ldelim}$nonce{rdelim}) — dormant since the ajax.emailAutoComplete era; the field is a
+	// placeholders ScriptingEditor instead, and wiring both together is untested.
+	if(window.CerbUI && CerbUI.TextChooser)
+		$('fieldset#{$namePrefix} textarea.email').each(function() {
+			new CerbUI.TextChooser(this, {
+				minLength: 1,
+				avatars: true,
+				context: 'address',
+				source: 'c=internal&a=invoke&module=records&action=autocomplete&context=address',
+				getTerm: function(v) { const p = v.lastIndexOf(','); return (p !== -1 ? v.substring(p + 1) : v).trim(); },
+				onSelect: function(item, input) {
+					const val = input.value, p = val.lastIndexOf(',');
+					input.value = (p !== -1 ? val.substring(0, p) + ', ' : '') + item.label + ', ';
+				}
+			});
+		});
 });
 </script>

@@ -61,17 +61,16 @@
 			{/if}
 		{elseif substr($var.type,0,4) == 'ctx_'}
 			{$context = substr($var.type,4)}
-			<button type="button" class="cerb-chooser-trigger" data-context="{$context}" data-field-name="{$field_name}[{$var.key}][]"><span class="cerb-icons cerb-icon-search"></span></button>
-			<ul class="bubbles chooser-container" style="display:inline-block;">
+			<div class="cerb-ui-record-chooser cerb-record-chooser-ctx" data-context="{$context}" data-name="{$field_name}[{$var.key}]">
 				{if is_array($variable_values.$var_key)}
 				{foreach from=$variable_values.$var_key item=context_id}
 					{$null = []}
 					{$var_values = []}
 					{CerberusContexts::getContext($context, $context_id, $null, $var_values, true)}
-					<li>{$var_values._label}<input type="hidden" name="{$field_name}[{$var.key}][]" title="{$var_values._label}" value="{$context_id}"></li>
+					<li data-context="{$context}" data-context-id="{$context_id}" data-label="{$var_values._label}"></li>
 				{/foreach}
 				{/if}
-			</ul>
+			</div>
 		{/if}
 	</div>
 </div>
@@ -82,27 +81,24 @@
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $container = $('#{$vars_uniqid}');
-	
-	// Choosers
-	$container.find('button.cerb-chooser-trigger')
-		.cerbChooserTrigger()
-		;
-	
-	// Worker chooser
-	$container.find('a.cerb-worker-chooser-trigger')
-		.cerbChooserTrigger()
-		.on('cerb-chooser-selected', function(event) {
-			var $trigger = $(this);
-			
-			if(typeof event.values == "object" && event.values.length > 0) {
-				var $textarea = $trigger.closest('div').prevAll('pre.ace_editor')
-				
-				var evt = new jQuery.Event('cerb.insertAtCursor');
-				evt.replace = true;
-				{literal}evt.content = '' + event.values[0] + '{# ' + event.labels[0] + ' #}';{/literal}
-				$textarea.trigger(evt);
-			}
-		})
-		;
+
+	if(window.CerbUI && CerbUI.RecordChooser) {
+		// Record-list variables (ctx_*): a multi chooser; context + posted field name are carried per element
+		$container.find('.cerb-record-chooser-ctx').each(function() {
+			new CerbUI.RecordChooser(this, {
+				context: this.getAttribute('data-context'),
+				name: this.getAttribute('data-name'),
+				multiple: true
+			});
+		});
+
+		// Worker variable (with placeholders): the "worker ID" link inserts a picked worker's id into the textarea
+		$container.find('a.cerb-worker-chooser-trigger').each(function() {
+			CerbUI.RecordChooser.pickerLink(this, {
+				query: this.getAttribute('data-query') || '',
+				input: this.closest('div').previousElementSibling
+			});
+		});
+	}
 });
 </script>

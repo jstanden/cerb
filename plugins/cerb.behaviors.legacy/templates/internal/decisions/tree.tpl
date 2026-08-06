@@ -22,10 +22,13 @@
 
 <div class="node trigger" style="margin-left:10px;{if $trigger->is_disabled}opacity:0.5;{/if}">
 	<input type="hidden" name="node_id" value="0">
-	<div class="badge badge-lightgray">
-		<a node_id="0" trigger_id="{$trigger->id}" style="font-weight:bold;color:var(--cerb-color-text);text-decoration:none;">
-			{$event->name} {if $is_writeable}&#x25be;{/if}
-		</a>
+	<div class="cerb-ui-tile cerb-behavior-node" data-node-id="0" data-trigger-id="{$trigger->id}">
+		<span class="cerb-ui-tile--icon" style="background:var(--cerb-color-tag-blue);"><span class="cerb-icons cerb-icon-bot"></span></span>
+		<div class="cerb-ui-tile--text">
+			<div class="cerb-ui-tile--kind">event</div>
+			<div class="cerb-ui-tile--name">{$event->name}</div>
+		</div>
+		{if $is_writeable}<span class="cerb-icons cerb-icon-chevron-down cerb-ui-tile--caret"></span>{/if}
 	</div>
 	<div class="branch trigger" style="margin-left:10px;">
 		{foreach from=$tree_hier[0] item=child_id}
@@ -37,176 +40,63 @@
 {if $is_writeable}
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	
-$('#decisionTree{$trigger->id} DIV.node').draggable({
-	revert:"invalid",
-	revertDuration:250,
-	cursor:'pointer',
-	handle:'> div.badge',
-	helper:'clone',
-	distance:5,
-	opacity:0.80,
-	start:function(e,ui) {
-		$(this).addClass('dragged');
-	},
-	stop:function(e,ui) {
-		var $dragged = $(this);
-		setTimeout(function() {
-			$dragged.removeClass('dragged');
-		}, 2000);
-	}
-});
+	const container = document.getElementById('{$tree_dom_id|default:"decisionTree`$trigger->id`"}');
+{literal}
+	if(!container || !(window.CerbUI && CerbUI.Draggable && CerbUI.Droppable))
+		return;
 
-$('#decisionTree{$trigger->id} DIV.node.trigger > DIV.badge').droppable({
-	greedy:true,
-	tolerance:'pointer',
-	accept: "#decisionTree{$trigger->id} DIV.node.switch, #decisionTree{$trigger->id} DIV.node.action, #decisionTree{$trigger->id} DIV.node.loop, #decisionTree{$trigger->id} DIV.node.subroutine",
-	activate:function(e,ui) {
-		$(this).addClass('selected');
-	},
-	deactivate:function(e,ui) {
-		$(this).removeClass('selected');
-	},
-	drop:function(e,ui) {
-		var $node = $(this).closest('DIV.node');
-		$node.find('> DIV.branch').prepend(ui.draggable);
-		
-		var child_id = $(ui.draggable).find('> input:hidden[name=node_id]').val();
-		var parent_id = $node.find('> input:hidden[name=node_id]').val();
+	// The form element persists across AJAX tree re-renders (only its innerHTML is replaced), so tear down the
+	// previous render's drag/drop instances first — else listeners stack up and stale drop zones leak.
+	CerbUI.Draggable.from(container)?.destroy();
+	(container._cerbDropZones || []).forEach(zone => zone.destroy());
+	container._cerbDropZones = [];
 
-		var formData = new FormData();
+	// Child node types each parent node type accepts (mirrors the old jQuery-UI droppable accept selectors).
+	const accepts = {
+		trigger: ['switch','action','loop','subroutine'],
+		subroutine: ['switch','action','loop'],
+		switch: ['outcome'],
+		loop: ['switch','action','loop'],
+		outcome: ['switch','action','loop']
+	};
+
+	const reparent = function(childNode, parentNode) {
+		parentNode.querySelector(':scope > div.branch').prepend(childNode);
+
+		const formData = new FormData();
 		formData.set('c', 'profiles');
 		formData.set('a', 'invoke');
 		formData.set('module', 'behavior');
 		formData.set('action', 'reparentNode');
-		formData.set('child_id', child_id);
-		formData.set('parent_id', parent_id);
+		formData.set('child_id', childNode.querySelector(':scope > input[type=hidden][name=node_id]').value);
+		formData.set('parent_id', parentNode.querySelector(':scope > input[type=hidden][name=node_id]').value);
 
 		genericAjaxPost(formData, null, null);
-		return true;
-	}
-});
+	};
 
-$('#decisionTree{$trigger->id} DIV.node.subroutine > DIV.badge').droppable({
-	greedy:true,
-	tolerance:'pointer',
-	accept: "#decisionTree{$trigger->id} DIV.node.switch, #decisionTree{$trigger->id} DIV.node.action, #decisionTree{$trigger->id} DIV.node.loop",
-	activate:function(e,ui) {
-		$(this).addClass('selected');
-	},
-	deactivate:function(e,ui) {
-		$(this).removeClass('selected');
-	},
-	drop:function(e,ui) {
-		var $node = $(this).closest('DIV.node');
-		$node.find('> DIV.branch').prepend(ui.draggable);
-		
-		var child_id = $(ui.draggable).find('> input:hidden[name=node_id]').val();
-		var parent_id = $node.find('> input:hidden[name=node_id]').val();
+	// A parent node's own tile is its drop zone, accepting the child node types listed above.
+	Object.keys(accepts).forEach(function(type) {
+		const childTypes = accepts[type];
+		container.querySelectorAll('div.node.' + type + ' > .cerb-behavior-node').forEach(function(badge) {
+			const parentNode = badge.closest('div.node');
+			container._cerbDropZones.push(new CerbUI.Droppable(badge, {
+				accept: function(item) {
+					return container.contains(item) && childTypes.some(function(t) { return item.classList.contains(t); });
+				},
+				onDrop: function(info) { reparent(info.item, parentNode); }
+			}));
+		});
+	});
 
-		var formData = new FormData();
-		formData.set('c', 'profiles');
-		formData.set('a', 'invoke');
-		formData.set('module', 'behavior');
-		formData.set('action', 'reparentNode');
-		formData.set('child_id', child_id);
-		formData.set('parent_id', parent_id);
-
-		genericAjaxPost(formData, null, null);
-		return true;
-	}
-});
-
-$('#decisionTree{$trigger->id} DIV.node.switch > DIV.badge').droppable({
-	greedy:true,
-	tolerance:'pointer',
-	accept: "#decisionTree{$trigger->id} DIV.node.outcome",
-	activate:function(e,ui) {
-		$(this).addClass('selected');
-	},
-	deactivate:function(e,ui) {
-		$(this).removeClass('selected');
-	},
-	drop:function(e,ui) {
-		var $node = $(this).closest('DIV.node');
-		$node.find('> DIV.branch').prepend(ui.draggable);
-		
-		var child_id = $(ui.draggable).find('> input:hidden[name=node_id]').val();
-		var parent_id = $node.find('> input:hidden[name=node_id]').val();
-
-		var formData = new FormData();
-		formData.set('c', 'profiles');
-		formData.set('a', 'invoke');
-		formData.set('module', 'behavior');
-		formData.set('action', 'reparentNode');
-		formData.set('child_id', child_id);
-		formData.set('parent_id', parent_id);
-
-		genericAjaxPost(formData, null, null);
-		return true;
-	}
-});
-
-$('#decisionTree{$trigger->id} DIV.node.loop > DIV.badge').droppable({
-	greedy:true,
-	tolerance:'pointer',
-	accept: "#decisionTree{$trigger->id} DIV.node.switch, #decisionTree{$trigger->id} DIV.node.action, #decisionTree{$trigger->id} DIV.node.loop",
-	activate:function(e,ui) {
-		$(this).addClass('selected');
-	},
-	deactivate:function(e,ui) {
-		$(this).removeClass('selected');
-	},
-	drop:function(e,ui) {
-		var $node = $(this).closest('DIV.node');
-		$node.find('> DIV.branch').prepend(ui.draggable);
-		
-		var child_id = $(ui.draggable).find('> input:hidden[name=node_id]').val();
-		var parent_id = $node.find('> input:hidden[name=node_id]').val();
-
-		var formData = new FormData();
-		formData.set('c', 'profiles');
-		formData.set('a', 'invoke');
-		formData.set('module', 'behavior');
-		formData.set('action', 'reparentNode');
-		formData.set('child_id', child_id);
-		formData.set('parent_id', parent_id);
-
-		genericAjaxPost(formData, null, null);
-		return true;
-	}
-});
-
-$('#decisionTree{$trigger->id} DIV.node.outcome > DIV.badge').droppable({
-	greedy:true,
-	tolerance:'pointer',
-	accept: "#decisionTree{$trigger->id} DIV.node.switch, #decisionTree{$trigger->id} DIV.node.action, #decisionTree{$trigger->id} DIV.node.loop",
-	activate:function(e,ui) {
-		$(this).addClass('selected');
-	},
-	deactivate:function(e,ui) {
-		$(this).removeClass('selected');
-	},
-	drop:function(e,ui) {
-		var $node = $(this).closest('DIV.node');
-		$node.find('> DIV.branch').prepend(ui.draggable);
-
-		var child_id = $(ui.draggable).find('> input:hidden[name=node_id]').val();
-		var parent_id = $node.find('> input:hidden[name=node_id]').val();
-
-		var formData = new FormData();
-		formData.set('c', 'profiles');
-		formData.set('a', 'invoke');
-		formData.set('module', 'behavior');
-		formData.set('action', 'reparentNode');
-		formData.set('child_id', child_id);
-		formData.set('parent_id', parent_id);
-
-		genericAjaxPost(formData, null, null);
-		return true;
-	}
-});
-
+	// Every node drags by its own tile; a tilted clone floats while the original is reparented on drop. The
+	// `dragged` class flags the node so the post-drag click doesn't reopen its menu (see behavior/tab.tpl).
+	new CerbUI.Draggable(container, {
+		items: 'div.node',
+		handle: '.cerb-behavior-node',
+		onStart: function(node) { node.classList.add('dragged'); },
+		onStop: function(node) { setTimeout(function() { node.classList.remove('dragged'); }, 2000); }
+	});
+{/literal}
 });
 </script>
 {/if}

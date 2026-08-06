@@ -36,7 +36,7 @@
 			{/foreach}
 		{/function}
 	
-		<ul class="cerb-menu" style="width:200px;">
+		<ul class="cerb-menu" style="width:200px;display:none;">
 			{menu keys=$menu}
 		</ul>
 	</div>
@@ -44,25 +44,21 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $fieldset = $('#{$fieldset_id}');
-	var $textarea = $fieldset.find('textarea:first');
-	var $menu = $fieldset.find('ul.cerb-menu');
-	
-	$menu.on('click', 'li', function(e) {
-		e.stopPropagation();
-		var $target = $(e.target);
-		
-		if($target.is('div'))
-			$target = $target.closest('li');
-		
-		var point = $target.attr('data-point');
-		
-		if(null == point)
-			return;
-		
-		$textarea.insertAtCursor(point + "\r\n");
-	});
-	
-	$menu.menu();
+	const $fieldset = $('#{$fieldset_id}');
+	const $textarea = $fieldset.find('textarea:first');
+	const menuEl = $fieldset.find('ul.cerb-menu')[0];
+
+	if(menuEl && window.CerbUI && CerbUI.Menu) {
+		new CerbUI.Menu(menuEl, {
+			inline: true,
+			selectableParents: true,
+			onSelect: function(li, src) {
+				const point = src.getAttribute('data-point');
+
+				if(point != null)
+					$textarea.insertAtCursor(point + "\r\n");
+			}
+		});
+	}
 });
 </script>

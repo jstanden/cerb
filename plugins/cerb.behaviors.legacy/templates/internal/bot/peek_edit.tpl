@@ -12,149 +12,151 @@
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 {if !$model->id}
-<table cellspacing="0" cellpadding="2" border="0" width="98%" style="margin-bottom:10px;">
-	<tr>
-		<td width="1%" nowrap="nowrap" valign="top">
-			<b>{'common.owner'|devblocks_translate|capitalize}:</b>
-		</td>
-		<td width="99%">
-			{include file="devblocks:cerberusweb.core::internal/peek/menu_actor_owner.tpl"}
-		</td>
-	</tr>
-</table>
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'common.owner'|devblocks_translate|capitalize}</label>
+			<div>
+				{include file="devblocks:cerberusweb.core::internal/peek/menu_actor_owner.tpl"}
+			</div>
+		</div>
+	</div>
+</div>
 {/if}
 
 <div class="cerb-tabs">
 	{if !$model->id}
 	<ul>
-		{if $packages}<li><a href="#bot-library">{'common.library'|devblocks_translate|capitalize}</a></li>{/if}
-		<li><a href="#bot-builder">{'common.build'|devblocks_translate|capitalize}</a></li>
+		{if $packages}<li><a href="#bot-library_{$form_id}">{'common.library'|devblocks_translate|capitalize}</a></li>{/if}
+		<li><a href="#bot-builder_{$form_id}">{'common.build'|devblocks_translate|capitalize}</a></li>
 	</ul>
 	{/if}
 	
 	{if !$model->id && $packages}
-	<div id="bot-library" class="package-library">
+	<div id="bot-library_{$form_id}" class="package-library">
 		{include file="devblocks:cerberusweb.core::internal/package_library/editor_chooser.tpl"}
 	</div>
 	{/if}
 	
-	<div id="bot-builder">
-		<table cellspacing="0" cellpadding="2" border="0" width="98%">
-			<tr>
-				<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate}:</b></td>
-				<td width="99%">
-					<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
-				</td>
-			</tr>
-			
-			{if $model->id}
-			<tr>
-				<td width="1%" nowrap="nowrap" valign="top">
-					<b>{'common.owner'|devblocks_translate|capitalize}:</b>
-				</td>
-				<td width="99%">
-					{include file="devblocks:cerberusweb.core::internal/peek/menu_actor_owner.tpl"}
-				</td>
-			</tr>
-			{/if}
-			
-			<tr>
-				<td width="1%" nowrap="nowrap"><b>{'common.status'|devblocks_translate}:</b></td>
-				<td width="99%">
-					<label><input type="radio" name="is_disabled" value="0" {if empty($model->is_disabled)}checked="checked"{/if}> {'common.enabled'|devblocks_translate|capitalize}</label>
-					<label><input type="radio" name="is_disabled" value="1" {if !empty($model->is_disabled)}checked="checked"{/if}> {'common.disabled'|devblocks_translate|capitalize}</label>
-				</td>
-			</tr>
-			
-			<tr>
-				<td width="1%" nowrap="nowrap" valign="top"><b>{'common.image'|devblocks_translate|capitalize}:</b></td>
-				<td width="99%" valign="top">
-					<div style="float:left;margin-right:5px;">
-						<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=bot&context_id={$model->id}{/devblocks_url}?v={$model->updated_at}" style="height:50px;width:50px;">
+	<div id="bot-builder_{$form_id}">
+		<div class="cerb-ui-panel cerb-ui-panel--spaced">
+			<div class="cerb-ui-form">
+				<div class="cerb-ui-form--field">
+					<label class="cerb-ui-form--label">{'common.name'|devblocks_translate|capitalize}</label>
+					<input type="text" name="name" value="{$model->name}" autofocus="autofocus">
+				</div>
+
+				{if $model->id}
+				<div class="cerb-ui-form--field">
+					<label class="cerb-ui-form--label">{'common.owner'|devblocks_translate|capitalize}</label>
+					<div>
+						{include file="devblocks:cerberusweb.core::internal/peek/menu_actor_owner.tpl"}
 					</div>
-					<div style="float:left;">
-						<button type="button" class="cerb-avatar-chooser" data-context="{CerberusContexts::CONTEXT_BOT}" data-context-id="{$model->id}">{'common.edit'|devblocks_translate|capitalize}</button>
-						<input type="hidden" name="avatar_image">
+				</div>
+				{/if}
+
+				<div class="cerb-ui-form--field">
+					<label class="cerb-ui-form--label">{'common.status'|devblocks_translate|capitalize}</label>
+					<div>
+						<input type="hidden" name="is_disabled" id="isDisabled_{$form_id}" value="{if !empty($model->is_disabled)}1{else}0{/if}">
+						<div class="cerb-ui-switcher" data-cerb-input="isDisabled_{$form_id}">
+							<button type="button" data-value="0"{if empty($model->is_disabled)} class="cerb-ui-switcher--active"{/if}>{'common.enabled'|devblocks_translate|capitalize}</button>
+							<button type="button" data-value="1"{if !empty($model->is_disabled)} class="cerb-ui-switcher--active"{/if}>{'common.disabled'|devblocks_translate|capitalize}</button>
+						</div>
 					</div>
-				</td>
-			</tr>
-		
-			{if !empty($custom_fields)}
-			{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
-			{/if}
-		</table>
+				</div>
+
+				<div class="cerb-ui-form--field">
+					<label class="cerb-ui-form--label">{'common.image'|devblocks_translate|capitalize}</label>
+					<div>
+						<span class="cerb-ui-avatar" style="width:50px;height:50px;font-size:21px;"
+							data-cerb-image-editor data-context="{CerberusContexts::CONTEXT_BOT}" data-context-id="{$model->id}" data-name="avatar_image"
+							data-avatar="{$model->name}" data-avatar-seed="bot:{$model->id}"
+							data-avatar-image="{devblocks_url}c=avatars&context=bot&context_id={$model->id}{/devblocks_url}?v={$model->updated_at}"></span>
+						<input type="hidden" name="avatar_image" value="">
+					</div>
+				</div>
+			</div>
+		</div>
+
+		{if !empty($custom_fields)}
+		<div class="cerb-ui-panel cerb-ui-panel--spaced">
+			<div class="cerb-ui-form">
+				{include file="devblocks:cerberusweb.core::internal/custom_fields/form.tpl" custom_fields=$custom_fields}
+			</div>
+		</div>
+		{/if}
 		
 		{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_BOT context_id=$model->id}
 		
-		<fieldset class="peek">
-			<legend>{'common.configuration'|devblocks_translate|capitalize} (JSON)</legend>
-			
-			<textarea name="config_json" data-editor-mode="ace/mode/json" style="width:98%;height:5em;" spellcheck="false">{$model->params.config|json_encode|devblocks_prettyjson}</textarea>
-			<div>(these values will be available to every behavior on this bot)</div>
-		</fieldset>
-		
-		<fieldset class="peek va-fieldset-interactions">
-			<legend>Interactions</legend>
-			
-			<table cellspacing="0" cellpadding="2" border="0" width="98%">
-				<tr>
-					<td width="1%" nowrap="nowrap"><b>{'worker.at_mention_name'|devblocks_translate}:</b></td>
-					<td width="99%">
-						<input type="text" name="at_mention_name" value="{$model->at_mention_name}" style="width:98%;" spellcheck="false" placeholder="mybot">
-					</td>
-				</tr>
-			</table>
-		</fieldset>
-		
-		<fieldset class="peek va-fieldset-events">
-			<legend>Events</legend>
-			
-			<div>
-				<label><input type="radio" name="allowed_events" value="all" {if !$model->params.events.mode || $model->params.events.mode == 'all'}checked="checked"{/if}> Allow all</label>
-				<label><input type="radio" name="allowed_events" value="allow" {if $model->params.events.mode == 'allow'}checked="checked"{/if}> Allow only these:</label>
-				<label><input type="radio" name="allowed_events" value="deny" {if $model->params.events.mode == 'deny'}checked="checked"{/if}> Deny only these:</label>
+		<div class="cerb-ui-panel cerb-ui-panel--spaced">
+			<div class="cerb-ui-header cerb-ui-header--tight">
+				<div class="cerb-ui-header--title-sm">{'common.configuration'|devblocks_translate|capitalize} <small class="cerb-u-text-muted cerb-u-fw-400">(JSON)</small></div>
 			</div>
-			
-			<div style="margin:3px 0px 0px 10px;{if !in_array($model->params.events.mode,['allow','deny'])}display:none;{/if}" class="va-events">
+
+			<textarea id="botConfigJsonEditor_{$form_id}" name="config_json" data-editor-lines="15" spellcheck="false">{$model->params.config|json_encode|devblocks_prettyjson}</textarea>
+			<div class="cerb-u-text-muted" style="margin-top:5px;">(these values will be available to every behavior on this bot)</div>
+		</div>
+
+		<div class="cerb-ui-panel cerb-ui-panel--spaced va-fieldset-interactions">
+			<div class="cerb-ui-header cerb-ui-header--tight">
+				<div class="cerb-ui-header--title-sm">Interactions</div>
+			</div>
+
+			<div class="cerb-ui-form">
+				<div class="cerb-ui-form--field">
+					<label class="cerb-ui-form--label">{'worker.at_mention_name'|devblocks_translate|capitalize}</label>
+					<input type="text" name="at_mention_name" value="{$model->at_mention_name}" spellcheck="false" placeholder="mybot">
+				</div>
+			</div>
+		</div>
+		
+		<div class="cerb-ui-panel cerb-ui-panel--spaced va-fieldset-events">
+			<div class="cerb-ui-header cerb-ui-header--tight">
+				<div class="cerb-ui-header--title-sm">Events</div>
+			</div>
+
+			<input type="hidden" name="allowed_events" id="allowedEvents_{$form_id}" value="{if $model->params.events.mode == 'allow'}allow{elseif $model->params.events.mode == 'deny'}deny{else}all{/if}">
+			<div class="cerb-ui-switcher" data-cerb-input="allowedEvents_{$form_id}">
+				<button type="button" data-value="all"{if !$model->params.events.mode || $model->params.events.mode == 'all'} class="cerb-ui-switcher--active"{/if}>Allow all</button>
+				<button type="button" data-value="allow"{if $model->params.events.mode == 'allow'} class="cerb-ui-switcher--active"{/if}>Allow only these</button>
+				<button type="button" data-value="deny"{if $model->params.events.mode == 'deny'} class="cerb-ui-switcher--active"{/if}>Deny only these</button>
+			</div>
+
+			<div style="margin:5px 0px 0px 10px;{if !in_array($model->params.events.mode,['allow','deny'])}display:none;{/if}" class="va-events">
 				{foreach from=$event_extensions item=event_ext key=event_ext_id}
 					<label style="{if !isset($event_ext->params['contexts'][0][$model->owner_context])}display:none;{/if}" contexts="{if isset($event_ext->params['contexts'][0])}{implode(' ',$event_ext->params['contexts'][0]|array_keys)}{/if}"><input type="checkbox" name="itemized_events[]" value="{$event_ext_id}" {if is_array($model->params.events.items) && in_array($event_ext_id, $model->params.events.items)}checked="checked"{/if}> {$event_ext->name}<br></label>
 				{/foreach}
 			</div>
-		</fieldset>
+		</div>
 		
-		<fieldset class="peek va-fieldset-actions">
-			<legend>Action Extensions</legend>
-			
-			<div>
-				<label><input type="radio" name="allowed_actions" value="all" {if !$model->params.actions.mode || $model->params.actions.mode == 'all'}checked="checked"{/if}> Allow all</label>
-				<label><input type="radio" name="allowed_actions" value="allow" {if $model->params.actions.mode == 'allow'}checked="checked"{/if}> Allow only these:</label>
-				<label><input type="radio" name="allowed_actions" value="deny" {if $model->params.actions.mode == 'deny'}checked="checked"{/if}> Deny only these:</label>
+		<div class="cerb-ui-panel cerb-ui-panel--spaced va-fieldset-actions">
+			<div class="cerb-ui-header cerb-ui-header--tight">
+				<div class="cerb-ui-header--title-sm">Action Extensions</div>
 			</div>
-			
-			<div style="margin:3px 0px 0px 10px;{if empty($model->params.actions.mode) || $model->params.actions.mode == 'all'}display:none;{/if}" class="va-actions">
+
+			<input type="hidden" name="allowed_actions" id="allowedActions_{$form_id}" value="{if $model->params.actions.mode == 'allow'}allow{elseif $model->params.actions.mode == 'deny'}deny{else}all{/if}">
+			<div class="cerb-ui-switcher" data-cerb-input="allowedActions_{$form_id}">
+				<button type="button" data-value="all"{if !$model->params.actions.mode || $model->params.actions.mode == 'all'} class="cerb-ui-switcher--active"{/if}>Allow all</button>
+				<button type="button" data-value="allow"{if $model->params.actions.mode == 'allow'} class="cerb-ui-switcher--active"{/if}>Allow only these</button>
+				<button type="button" data-value="deny"{if $model->params.actions.mode == 'deny'} class="cerb-ui-switcher--active"{/if}>Deny only these</button>
+			</div>
+
+			<div style="margin:5px 0px 0px 10px;{if empty($model->params.actions.mode) || $model->params.actions.mode == 'all'}display:none;{/if}" class="va-actions">
 				{foreach from=$action_extensions item=action_ext key=action_ext_id}
 					<label events="{if isset($action_ext->params['events'][0])}{implode(' ', $action_ext->params['events'][0]|array_keys)}{/if}"><input type="checkbox" name="itemized_actions[]" value="{$action_ext->id}" {if is_array($model->params.actions.items) && in_array($action_ext_id, $model->params.actions.items)}checked="checked"{/if}> {$action_ext->params.label}<br></label>
 				{/foreach}
 			</div>
-		</fieldset>
+		</div>
 		
 		{if !empty($model->id)}
-		<fieldset style="display:none;" class="delete">
-			<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
-			
-			<div>
-				Are you sure you want to permanently delete this bot and all of its behaviors?
-			</div>
-			
-			<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
-			<button type="button" class="delete-cancel">{'common.no'|devblocks_translate|capitalize}</button>
-		</fieldset>
+			{include file="devblocks:cerberusweb.core::internal/peek/delete_confirm.tpl" noun="bot and all of its behaviors"}
 		{/if}
-		
-		<div class="buttons">
-			<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-			{if !empty($model->id)}<button type="button" class="export"><span class="cerb-icons cerb-icon-file-export"></span> {'common.export'|devblocks_translate|capitalize}</button>{/if}
-			{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+
+		<div class="buttons" style="margin-top:10px;">
+			<button type="button" class="cerb-ui-button save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+			{if !empty($model->id)}<button type="button" class="cerb-ui-button cerb-ui-button--subtle export"><span class="cerb-icons cerb-icon-file-export"></span> {'common.export'|devblocks_translate|capitalize}</button>{/if}
+			{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="cerb-ui-button cerb-ui-button--subtle delete-prompt"><span class="cerb-icons cerb-icon-trash"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 		</div>
 	</div>
 </div>
@@ -173,28 +175,21 @@ $(function() {
 		$popup.css('overflow', 'inherit');
 		
 		// Buttons
-		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
+		$popup.find('button.save').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-		$popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
-		$popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
+		if(window.CerbUI && CerbUI.Form) CerbUI.Form.ConfirmDelete($popup[0]);
 		$popup.find('button.export').click(function() {
 			genericAjaxPopup('export_bot', 'c=profiles&a=invoke&module=bot&action=showExportBotPopup&id={$model->id}',null,false,'50%');
 		});
 
-		// Abstract choosers
-		$popup.find('button.chooser-abstract').cerbChooserTrigger();
-		
-		var $events_container = $popup.find('div.va-events');
-		var $events = $events_container.find('label');
-		
-		// Owners
-		var $owners_menu = $popup.find('ul.owners-menu');
-		var $ul = $owners_menu.siblings('ul.chooser-container');
 		
 		// Package Library
 		
 		{if !$model->id}
-			var $tabs = $popup.find('.cerb-tabs').tabs();
+			var $tabs = $popup.find('.cerb-tabs');
+			$tabs.find('> ul').each(function() {
+				if(window.CerbUI && CerbUI.Tabs) new CerbUI.Tabs(this);
+			});
 			
 			{if $packages}
 				var $library_container = $tabs;
@@ -205,96 +200,39 @@ $(function() {
 						$library_container.triggerHandler('cerb-package-library-form-submit--done');
 					});
 					
-					$popup.find('button.submit').click();
+					$popup.find('button.save').click();
 				});
 			{/if}
 		{/if}
-		
+
 		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
-		
-		$ul.on('bubble-remove', function(e, ui) {
-			e.stopPropagation();
-			$(e.target).closest('li').remove();
-			$ul.hide();
-			$owners_menu.show();
-			
-			$events.each(function() {
-				$(this).hide();
+
+		// Switchers (status + the Events/Actions allow-mode). The two allow-mode switchers toggle their
+		// itemized-checkbox list (shown only for allow/deny); dispatched by input name in onSelect.
+		if(window.CerbUI && CerbUI.Switcher) {
+			$popup.find('.cerb-ui-switcher[data-cerb-input]').each(function() {
+				var input = document.getElementById(this.getAttribute('data-cerb-input'));
+				if(!input) return;
+				new CerbUI.Switcher(this, {
+					value: input.value,
+					onSelect: function(value) {
+						input.value = value;
+						if(input.name === 'allowed_events')
+							$popup.find('.va-events')[value === 'all' ? 'hide' : 'show']();
+						if(input.name === 'allowed_actions')
+							$popup.find('.va-actions')[value === 'all' ? 'hide' : 'show']();
+					}
+				});
 			});
-		});
-		
-		$owners_menu.menu({
-			select: function(event, ui) {
-				var token = ui.item.attr('data-token');
-				var label = ui.item.attr('data-label');
-				
-				if(undefined == token || undefined == label)
-					return;
-				
-				$owners_menu.hide();
-				
-				// Build bubble
-				
-				var context_data = token.split(':');
-				var $li = $('<li/>');
-				let $label = $('<a class="cerb-peek-trigger no-underline" />').attr('data-context',context_data[0]).attr('data-context-id',context_data[1]).text(label);
-				$label.cerbPeekTrigger().appendTo($li);
-				$('<input type="hidden">').attr('name', 'owner').attr('value',token).appendTo($li);
-				ui.item.find('img.cerb-avatar').clone().prependTo($li);
-				let $a = $('<a><span class="cerb-icons cerb-icon-circle-remove"></span></a>').appendTo($li);
-				$a.on('click', function(e) {
-					e.stopPropagation();
-					$(this).trigger('bubble-remove');
-				});
-				
-				$ul.find('> *').remove();
-				$ul.append($li);
-				$ul.show();
-				
-				// Contextual events
-				$events.each(function() {
-					var contexts = $(this).attr('contexts').split(' ');
-					
-					if($.inArray(context_data[0], contexts) != -1)
-						$(this).show();
-					else
-						$(this).hide();
-				});
-			}
-		});
-		
-		$popup.find('input:radio[name=allowed_events]').change(function() {
-			var $this = $(this);
-			var $frm = $this.closest('form');
-			var $events_container = $frm.find('div.va-events');
+		}
 
-			if($this.val() == 'all')
-				$events_container.hide();
-			else
-				$events_container.show();
-		});
-		
-		$popup.find('input:radio[name=allowed_actions]').change(function() {
-			var $this = $(this);
-			var $frm = $this.closest('form');
-			var $actions_container = $frm.find('div.va-actions');
-
-			if($this.val() == 'all')
-				$actions_container.hide();
-			else
-				$actions_container.show();
-		});
-		
 		// Editor
-		$popup.find('textarea[name=config_json]')
-			.cerbCodeEditor()
-		;
-		
+		new CerbUI.JsonEditor($popup.find('#botConfigJsonEditor_{$form_id}')[0], { validate: true, minLines: 4 });
+
 		// Avatar
-		
-		var $avatar_chooser = $popup.find('button.cerb-avatar-chooser');
-		var $avatar_image = $avatar_chooser.closest('td').find('img.cerb-avatar');
-		ajax.chooserAvatar($avatar_chooser, $avatar_image);
+
+		if(window.CerbUI && CerbUI.ImageEditor)
+			$popup.find('[data-cerb-image-editor]').each(function() { new CerbUI.ImageEditor(this); });
 		
 	});
 });

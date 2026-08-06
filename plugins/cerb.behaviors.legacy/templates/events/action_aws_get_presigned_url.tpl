@@ -50,7 +50,7 @@ $(function() {
 	var $action = $('#{$namePrefix}_{$nonce}');
 	
 	$action.find('select.cerb-httprequest-verb').change(function() {
-		var $container = $(this).closest('fieldset');
+		var $container = $(this).closest('.cerb-bot-action');
 		var $div_httpbody = $container.find('div.cerb-httprequest-body');
 		var val = $(this).val();
 		

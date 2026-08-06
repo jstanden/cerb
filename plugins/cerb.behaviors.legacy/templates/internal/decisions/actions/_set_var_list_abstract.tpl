@@ -1,6 +1,6 @@
 {$uniq_id = uniqid()}
-<b>Find records of this type:</b>
-<div style="margin:0px 0px 5px 10px;">
+<div class="cerb-ui-form--field">
+	<label class="cerb-ui-form--label">Find records of this type</label>
 	<select name="{$namePrefix}[context]">
 		<option value=""></option>
 		{foreach from=$trigger->variables item=var key=var_key}
@@ -14,28 +14,29 @@
 	</select>
 </div>
 
-<b>And filter using this quick search:</b>
-<div style="margin:0px 0px 5px 10px;">
+<div class="cerb-ui-form--field">
+	<label class="cerb-ui-form--label">And filter using this quick search</label>
 	<input type="hidden" name="{$namePrefix}[search_mode]" value="quick_search">
-	<textarea name="{$namePrefix}[quick_search]" class="quicksearch placeholders" style="width:95%;border-radius:5px;" autocomplete="off" spellcheck="false">{$params.quick_search}</textarea>
+	<textarea name="{$namePrefix}[quick_search]" class="quicksearch placeholders" autocomplete="off" spellcheck="false">{$params.quick_search}</textarea>
 </div>
 
-<b>Limit to:</b>
-<div style="margin:0px 0px 5px 10px;">
-	<select name="{$namePrefix}[limit]" id="select{$uniq_id}">
-		<option value="" {if empty($params.limit)}selected="selected"{/if}>All objects</option>
-		<option value="first" {if $params.limit=='first'}selected="selected"{/if}>First</option>
-		<option value="last" {if $params.limit=='last'}selected="selected"{/if}>Last</option>
-		<option value="random" {if $params.limit=='random'}selected="selected"{/if}>Random</option>
-	</select>
-	<span style="{if empty($params.limit)}display:none;{/if}">
-		<input type="text" name="{$namePrefix}[limit_count]" size="2" maxlength="2" value="{$params.limit_count|default:'10'}">
-	</span>
-	<br>
+<div class="cerb-ui-form--field">
+	<label class="cerb-ui-form--label">Limit to</label>
+	<div>
+		<select name="{$namePrefix}[limit]" id="select{$uniq_id}">
+			<option value="" {if empty($params.limit)}selected="selected"{/if}>All objects</option>
+			<option value="first" {if $params.limit=='first'}selected="selected"{/if}>First</option>
+			<option value="last" {if $params.limit=='last'}selected="selected"{/if}>Last</option>
+			<option value="random" {if $params.limit=='random'}selected="selected"{/if}>Random</option>
+		</select>
+		<span style="{if empty($params.limit)}display:none;{/if}">
+			<input type="text" name="{$namePrefix}[limit_count]" size="2" maxlength="2" value="{$params.limit_count|default:'10'}">
+		</span>
+	</div>
 </div>
 
-<b>Then:</b>
-<div style="margin:0px 0px 5px 10px;">
+<div class="cerb-ui-form--field">
+	<label class="cerb-ui-form--label">Then</label>
 	<select name="{$namePrefix}[mode]">
 		<option value="add" {if !isset($params.mode) || $params.mode=='add'}selected="selected"{/if}>Add these objects to the variable</option>
 		<option value="subtract" {if $params.mode=='subtract'}selected="selected"{/if}>Remove these objects from the variable</option>

@@ -2,48 +2,54 @@
 <div class="bot-chat-object" data-delay-ms="{$delay_ms|default:0}" id="{$msg_id}" style="text-align:center;">
 	<div class="bot-chat-message bot-chat-right">
 		<div class="bot-chat-message-bubble">
-			<button type="button" autofocus="autofocus" class="chooser-abstract" data-field-name="ids[]" data-context="{$context}" {if $selection != "multiple"}data-single="true"{/if} {if $autocomplete == 1}data-autocomplete="{$query}"{/if} data-query="{$query}" data-shortcuts="false"><span class="cerb-icons cerb-icon-search"></span></button>
-			<ul class="bubbles chooser-container" style="display:none;"></ul>
+			<div class="cerb-ui-record-chooser"></div>
+			{if $selection == "multiple"}
+			<button type="button" class="cerb-ui-button cerb-chooser-done"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.done'|devblocks_translate|capitalize}</button>
+			{/if}
 		</div>
 	</div>
 
 	<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 	$(function() {
-		var $msg = $('#{$msg_id}');
-		var $ul = $msg.find('ul.chooser-container');
-		var $button = $msg.find('button.chooser-abstract');
-		
-		var $chat_window_convo = $('#{$layer} div.bot-chat-window-convo');
-		var $chat_window_input_form = $('#{$layer} form.bot-chat-window-input-form');
-		var $chat_input = $chat_window_input_form.find('textarea[name=message]');
-		
-		$button
-			.cerbChooserTrigger()
-			.on('cerb-chooser-saved', function(e) {
-				var $selections = $ul.find('li input:hidden');
-				var ids = $selections.map(function(e) { return parseInt($(this).val()); }).get().join(',');
-				
-				$chat_input.val(ids);
-				
-				$selections.each(function() {
-					var $this = $(this);
-					// Create outgoing message in log
-					var $msg = $('<div class="bot-chat-message bot-chat-right"></div>');
-					var $bubble = $('<div class="bot-chat-message-bubble"></div>');
-					$bubble.text($this.attr('title')).appendTo($msg.appendTo($chat_window_convo));
-					$('<br clear="all">').insertAfter($msg);
-				});
-				
-				$msg.remove();
-				
-				$chat_window_convo.trigger('bot-chat-message-send');
-			})
-		;
-		
-		{if $autocomplete == 1}
-		$button.next('input[type=search]').focus();
+		const $msg = $('#{$msg_id}');
+		const $chat_window_convo = $('#{$layer} div.bot-chat-window-convo');
+		const $chat_input = $('#{$layer} form.bot-chat-window-input-form').find('textarea[name=message]');
+
+		if(!(window.CerbUI && CerbUI.RecordChooser))
+			return;
+
+		// Push the chosen record id(s) into the chat input, echo each as an outgoing bubble, then send.
+		function commit(items) {
+			items = [].concat(items || []).filter(Boolean);
+			if(!items.length)
+				return;
+
+			$chat_input.val(items.map(function(it) { return parseInt(it.id, 10); }).join(','));
+
+			items.forEach(function(it) {
+				const $out = $('<div class="bot-chat-message bot-chat-right"></div>');
+				$('<div class="bot-chat-message-bubble"></div>').text(it.label).appendTo($out.appendTo($chat_window_convo));
+				$('<br clear="all">').insertAfter($out);
+			});
+
+			rc.destroy();
+			$msg.remove();
+			$chat_window_convo.trigger('bot-chat-message-send');
+		}
+
+		const rc = new CerbUI.RecordChooser($msg.find('.cerb-ui-record-chooser')[0], {
+			context: '{$context}',
+			name: 'ids',
+			multiple: {if $selection == "multiple"}true{else}false{/if},
+			query: '{$query|escape:'javascript' nofilter}'{if $selection != "multiple"},
+			onSelect: function(item) { commit([item]); }{/if}
+		});
+
+		{if $selection == "multiple"}
+		$msg.find('.cerb-chooser-done').on('click', function() { commit(rc.getValue()); });
 		{/if}
+
+		requestAnimationFrame(function() { $msg.find('.cerb-ui-record-chooser--input').focus(); });
 	});
 	</script>
 </div>
-

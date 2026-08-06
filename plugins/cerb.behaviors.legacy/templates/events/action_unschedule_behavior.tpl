@@ -40,10 +40,10 @@ $action.find('select.on').change(function(e) {
 	var $on = $(this).find('option:selected');
 	var ctx = $on.attr('context');
 
-	var $sel_behavior = $(this).closest('fieldset').find('select.behavior');
+	var $sel_behavior = $(this).closest('.cerb-bot-action').find('select.behavior');
 	$sel_behavior.find('option').remove();
 	
-	var $sel_behavior_defaults = $(this).closest('fieldset').find('select.behavior_defaults');
+	var $sel_behavior_defaults = $(this).closest('.cerb-bot-action').find('select.behavior_defaults');
 	$sel_behavior_defaults.find('option').each(function() {
 		var $this = $(this);
 		if($this.attr('context') == ctx) {

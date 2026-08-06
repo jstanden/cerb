@@ -24,7 +24,7 @@
 {/if}
 </ul>
 
-<div id="{$menu_button}" class="badge badge-lightgray" style="cursor:pointer;"><a style="text-decoration:none;color:var(--cerb-color-background-contrast-50);">{'common.add'|devblocks_translate|capitalize} &#x25be;</a></div>
+<button id="{$menu_button}" type="button" class="cerb-ui-button cerb-ui-button--subtle">{'common.add'|devblocks_translate|capitalize} <span class="cerb-icons cerb-icon-chevron-down"></span></button>
 
 <ul class="cerb-popupmenu" style="max-height:200px;overflow-y:auto;border:0;">
 	<li class="filter"><input type="text" class="input_search" size="45"></li>

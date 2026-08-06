@@ -1,10 +1,12 @@
 {$uniq_id = uniqid()}
-<b>Find records using this worklist:</b>
-<div style="margin:0px 0px 5px 10px;">
-	<div id="popup{$uniq_id}" class="badge badge-lightgray" style="font-weight:bold;color:rgb(80,80,80);cursor:pointer;"><span class="name">{if !empty($view->name)}{$view->name}{else}Worklist{/if}</span> &#x25be;</div>
-	<input type="hidden" name="{$namePrefix}[worklist_model_json]" value="{$params.worklist_model|json_encode}" class="model">
-	
-	<div style="margin-top:10px;">
+<div class="cerb-ui-form--field">
+	<label class="cerb-ui-form--label">Find records using this worklist</label>
+	<div>
+		<div id="popup{$uniq_id}" class="badge badge-lightgray" style="font-weight:bold;color:rgb(80,80,80);cursor:pointer;"><span class="name">{if !empty($view->name)}{$view->name}{else}Worklist{/if}</span> &#x25be;</div>
+		<input type="hidden" name="{$namePrefix}[worklist_model_json]" value="{$params.worklist_model|json_encode}" class="model">
+	</div>
+
+	<div>
 		<label><input type="checkbox" name="{$namePrefix}[search_mode]" value="quick_search" class="mode" {if $params.search_mode == "quick_search"}checked="checked"{/if}> <b>and filter using quick search:</b></label>
 		<div style="margin-left:20px;">
 			<textarea name="{$namePrefix}[quick_search]" class="quicksearch placeholders" style="width:95%;border-radius:5px;" autocomplete="off" spellcheck="false">{$params.quick_search}</textarea>
@@ -12,22 +14,23 @@
 	</div>
 </div>
 
-<b>Limit to:</b>
-<div style="margin:0px 0px 5px 10px;">
-	<select name="{$namePrefix}[limit]" id="select{$uniq_id}">
-		<option value="" {if empty($params.limit)}selected="selected"{/if}>All objects</option>
-		<option value="first" {if $params.limit=='first'}selected="selected"{/if}>First</option>
-		<option value="last" {if $params.limit=='last'}selected="selected"{/if}>Last</option>
-		<option value="random" {if $params.limit=='random'}selected="selected"{/if}>Random</option>
-	</select>
-	<span style="{if empty($params.limit)}display:none;{/if}">
-		<input type="text" name="{$namePrefix}[limit_count]" size="2" maxlength="2" value="{$params.limit_count|default:'10'}">
-	</span>
-	<br>
+<div class="cerb-ui-form--field">
+	<label class="cerb-ui-form--label">Limit to</label>
+	<div>
+		<select name="{$namePrefix}[limit]" id="select{$uniq_id}">
+			<option value="" {if empty($params.limit)}selected="selected"{/if}>All objects</option>
+			<option value="first" {if $params.limit=='first'}selected="selected"{/if}>First</option>
+			<option value="last" {if $params.limit=='last'}selected="selected"{/if}>Last</option>
+			<option value="random" {if $params.limit=='random'}selected="selected"{/if}>Random</option>
+		</select>
+		<span style="{if empty($params.limit)}display:none;{/if}">
+			<input type="text" name="{$namePrefix}[limit_count]" size="2" maxlength="2" value="{$params.limit_count|default:'10'}">
+		</span>
+	</div>
 </div>
 
-<b>Then:</b>
-<div style="margin:0px 0px 5px 10px;">
+<div class="cerb-ui-form--field">
+	<label class="cerb-ui-form--label">Then</label>
 	<select name="{$namePrefix}[mode]">
 		<option value="add" {if !isset($params.mode) || $params.mode=='add'}selected="selected"{/if}>Add these objects to the variable</option>
 		<option value="subtract" {if $params.mode=='subtract'}selected="selected"{/if}>Remove these objects from the variable</option>
@@ -40,7 +43,7 @@ $(function() {
 	var $action = $('#{$namePrefix}_{$nonce}');
 	var $div = $('#popup{$uniq_id}');
 	var $parent = $div.parent();
-	var $popup = $div.closest('.ui-dialog');
+	var $popup = $div.closest('.cerb-ui-dialog');
 	
 	$div.click(function(e) {
 		var width = $(window).width()-100;
@@ -48,12 +51,10 @@ $(function() {
 		var q = '';
 		
 		if($mode.is(':checked')) {
-			var $pre = $action.find('pre.ace_editor');
-			
-			if($pre.length > 0) {
-				var editor = ace.edit($pre.attr('id'));
-				q = editor.getSession().getValue();
-			}
+			var $ta = $action.find('textarea.quicksearch');
+			var ed = ($ta.length && window.CerbUI && CerbUI.ScriptingEditor)
+				? CerbUI.ScriptingEditor.from($ta.closest('.cerb-ui-scriptingeditor')[0]) : null;
+			q = ed ? ed.getValue() : $ta.val();
 		}
 		
 		var $chooser = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=invoke&module=records&action=chooserOpenParams&context={$context}&view_id={$view->id}&trigger_id={$trigger->id}&q=' + encodeURIComponent(q), null, true, width);
@@ -63,12 +64,11 @@ $(function() {
 				$div.find('span.name').text(event.view_name);
 				$parent.find('input:hidden.model').val(event.worklist_model);
 				
-				var $pre = $action.find('pre.ace_editor');
-			
-				if($pre.length > 0) {
-					var editor = ace.edit($pre.attr('id'));
-					q = editor.getSession().setValue(event.worklist_quicksearch);
-				}
+				var $ta = $action.find('textarea.quicksearch');
+				var ed = ($ta.length && window.CerbUI && CerbUI.ScriptingEditor)
+					? CerbUI.ScriptingEditor.from($ta.closest('.cerb-ui-scriptingeditor')[0]) : null;
+				if(ed) ed.setValue(event.worklist_quicksearch);
+				else $ta.val(event.worklist_quicksearch);
 			}
 		});
 	});

@@ -5,13 +5,22 @@
 <h3>Behavior: {$trigger->title}</h3>
 
 <div>
-	<div class="badge badge-lightgray" style="margin:2px;">
-		<a style="text-decoration:none;font-weight:bold;color:var(--cerb-color-background-contrast-50);">
-			{$event->manifest->name}
-		</a>
+	<div class="node trigger" style="margin-left:10px;">
+		<div class="cerb-ui-tile">
+			<span class="cerb-ui-tile--icon" style="background:var(--cerb-color-tag-blue);"><span class="cerb-icons cerb-icon-bot"></span></span>
+			<div class="cerb-ui-tile--text">
+				<div class="cerb-ui-tile--kind">event</div>
+				<div class="cerb-ui-tile--name">{$event->manifest->name}</div>
+			</div>
+		</div>
+		<div class="branch trigger" style="margin-left:10px;">
+		{if is_array($tree[0]) && !empty($tree[0])}
+			{foreach from=$tree[0] item=child_id}
+				{include file="devblocks:cerb.behaviors.legacy::internal/decisions/simulator/branch.tpl" node_id=$child_id trigger_id=$trigger_id path=$behavior_path nodes=$nodes tree=$tree depths=$depths}
+			{/foreach}
+		{/if}
+		</div>
 	</div>
-
-	{include file="devblocks:cerb.behaviors.legacy::internal/decisions/simulator/branch.tpl" node_id=0 trigger_id=$trigger_id path=$behavior_path nodes=$nodes tree=$tree depths=$depths}
 </div>
 
 {if !empty($simulator_output) && is_array($simulator_output)}

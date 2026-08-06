@@ -1,143 +1,128 @@
 {$custom_fieldsets_all = DAO_CustomFieldset::getByContext($context)}
-{$custom_fieldsets_available = $custom_fieldsets_all}
-{$bulk = $bulk|default:false}
 
 {if $custom_fieldsets_linked}
-	{$custom_fieldsets_available = array_diff_key($custom_fieldsets_available, $custom_fieldsets_linked)}
-	
 	{foreach from=$custom_fieldsets_linked item=cf_group}
-	{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/fieldset.tpl" bulk=$bulk custom_fieldset=$cf_group field_wrapper=$field_wrapper}
+	{* custom_field_values here are the action's saved form strings, not DB-scaled ints *}
+	{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/fieldset.tpl" custom_fieldset=$cf_group field_wrapper=$field_wrapper custom_field_values_raw=true}
 	{/foreach}
 {/if}
 
 <div class="custom-fieldset-insertion"></div>
 
 {$btn_cfield_group_domid = "cfield_sets_{uniqid()}"}
-<div style="margin-left:10px;margin-bottom:10px;">
-	<div id="{$btn_cfield_group_domid}" class="badge badge-lightgray" style="cursor:pointer;"><a style="text-decoration:none;color:var(--cerb-color-background-contrast-50);">Add Fieldset &#x25be;</a></div>
-	<ul class="cerb-popupmenu" style="border:0;">
-		<li style="background:none;">
-			<input type="text" size="32" class="input_search filter">
-		</li>
+<div class="cerb-u-my-2">
+	<button id="{$btn_cfield_group_domid}" type="button" class="cerb-ui-button cerb-ui-button--subtle"><span class="cerb-icons cerb-icon-circle-plus"></span> Add Fieldset <span class="cerb-icons cerb-icon-chevron-down"></span></button>
+
+	<ul class="cerb-cfieldset-menu" style="width:250px;display:none;">
 		{foreach from=$custom_fieldsets_all item=cf_group key=cf_group_id}
 		{$owner_ctx = Extension_DevblocksContext::get($cf_group->owner_context|default:'')}
-		<li class="item" cf_group_id="{$cf_group->id}" style="{if $custom_fieldsets_linked.$cf_group_id}display:none;{/if}">
-			<div>
-				<a>
-					{$cf_group->name}
-				</a>
-			</div>
-			<div style="margin-left:10px;">
-				{if is_a($owner_ctx, 'Extension_DevblocksContext')}
-					{$meta = $owner_ctx->getMeta($cf_group->owner_context_id)}
-					{$meta.name} ({$owner_ctx->manifest->name})
-				{/if}
-			</div>
+		{$cf_owner_label = ''}
+		{if $cf_group->owner_context != CerberusContexts::CONTEXT_APPLICATION && is_a($owner_ctx, 'Extension_DevblocksContext')}
+			{* Fall back to the owner record type when the record has no resolvable name (e.g. workflow-owned) *}
+			{$meta = $owner_ctx->getMeta($cf_group->owner_context_id)}
+			{$cf_owner_name = $meta.name|default:$owner_ctx->manifest->name}
+			{$cf_owner_label = " ({$cf_owner_name})"}
+		{/if}
+		<li data-cf-group-id="{$cf_group->id}" data-cf-idx="{$cf_group@iteration}"{if $custom_fieldsets_linked.$cf_group_id} data-cf-linked="1"{/if}>
+			<div>{$cf_group->name}{$cf_owner_label}</div>
 		</li>
 		{/foreach}
 	</ul>
 </div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
-$('#{$btn_cfield_group_domid}')
-	.each(function() {
-		var $menu = $(this).siblings('ul.cerb-popupmenu');
+$(function() {
+	const $button = $('#{$btn_cfield_group_domid}');
+	const $menu = $button.siblings('ul.cerb-cfieldset-menu');
+	const detached = new Map();
+	let menu = null;
 
-		// Allow existing fieldsets to be immediately deleted and returned to the menu
-		$menu.parent().parent().find('> fieldset.peek').on('custom_fieldset_delete', function(e) {
-			var fieldset_id = e.fieldset_id;
-			
-			$menu.find('li.item').each(function() {
-				if($(this).attr('cf_group_id') == e.fieldset_id) {
-					$(this).show()
-				}
-			});
-			
-			$menu.closest('div').show();
-			$('#{$btn_cfield_group_domid}').show();
+	// Custom-field text values accept placeholders at run time (tpl_builder), so tag their carriers
+	// for the action editor's placeholder toolbar. DatePicker inputs and hidden chooser carriers are
+	// excluded by construction.
+	const funcTagPlaceholders = function($scope) {
+		$scope.find('input[type=text][name^="{$field_wrapper}[field_"]:not([data-cerb-date-picker]), textarea[name^="{$field_wrapper}[field_"]')
+			.addClass('placeholders');
+	};
+
+	// CerbUI.Menu snapshots its source UL at construction, so availability changes (pick a fieldset,
+	// remove one from the form) detach/restore source <li>s and rebuild the menu instance.
+	const funcRebuildMenu = function() {
+		if(menu) {
+			menu.destroy();
+			menu = null;
+		}
+
+		const hasItems = 0 < $menu.children('li').length;
+		$button.toggle(hasItems);
+
+		if(hasItems && window.CerbUI && CerbUI.Menu)
+			menu = new CerbUI.Menu($menu[0], { clickTrigger: $button[0], filter: true, onSelect: funcOnSelect });
+	};
+
+	const funcDetachOption = function(cf_group_id) {
+		const $li = $menu.children('li[data-cf-group-id="' + cf_group_id + '"]');
+		if($li.length)
+			detached.set(String(cf_group_id), $li.detach());
+		funcRebuildMenu();
+	};
+
+	const funcRestoreOption = function(cf_group_id) {
+		const $li = detached.get(String(cf_group_id));
+		if(!$li)
+			return;
+		detached.delete(String(cf_group_id));
+
+		// Reinsert at the option's original position
+		const idx = parseInt($li.attr('data-cf-idx'));
+		let placed = false;
+		$menu.children('li').each(function() {
+			if(parseInt($(this).attr('data-cf-idx')) > idx) {
+				$li.insertBefore(this);
+				placed = true;
+				return false;
+			}
 		});
-		
-		{if empty($custom_fieldsets_available)}
-		$('#{$btn_cfield_group_domid}').hide();
-		{/if}
-		
-		$menu
-		.find('> li')
-		.click(function(e) {
-			e.stopPropagation();
-			if(!$(e.target).is('li') && !$(e.target).is('div'))
+		if(!placed)
+			$menu.append($li);
+
+		funcRebuildMenu();
+	};
+
+	const funcOnSelect = function(li, src) {
+		const cf_group_id = src.getAttribute('data-cf-group-id');
+
+		if(!cf_group_id)
+			return;
+
+		genericAjaxGet('', 'c=internal&a=invoke&module=records&action=getCustomFieldSet{if $field_wrapper}&field_wrapper={$field_wrapper|escape:'url'}{/if}&id=' + encodeURIComponent(cf_group_id), function(html) {
+			if(undefined == html || null == html)
 				return;
 
-			$(this).find('a').trigger('click');
-		})
-		.find('a')
-		.click(function() {
-			var $li = $(this).closest('li');
-			var $ul = $li.closest('ul.cerb-popupmenu');
-			var cf_group_id = $li.attr('cf_group_id');
-			
-			genericAjaxGet('', 'c=internal&a=invoke&module=records&action=getCustomFieldSet&bulk={if !empty($bulk)}1{else}0{/if}{if $field_wrapper}&field_wrapper={$field_wrapper|escape:'url'}{/if}&trigger_id={$trigger->id}&id=' + cf_group_id, function(html) {
-				if(undefined == html || null == html)
-					return;
+			const $at = $button.parent().siblings('div.custom-fieldset-insertion');
+			const $fieldset = $(html);
+			$fieldset.insertBefore($at);
 
-				var $at = $('#{$btn_cfield_group_domid}')
-					.parent()
-					.closest('div')
-					.siblings('div.custom-fieldset-insertion')
-					;
-				
-				var $fieldset = $(html);
-				
-				// If the fieldset we added is removed, add its option back to the menu
-				$fieldset.on('custom_fieldset_delete', function(e) {
-					var fieldset_id = e.fieldset_id;
-					
-					$menu.find('li.item').each(function() {
-						if($(this).attr('cf_group_id') == e.fieldset_id) {
-							$(this).show()
-						}
-					});
-					
-					$menu.closest('div').show();
-					$('#{$btn_cfield_group_domid}').show();
-				});
-				
-				$fieldset.insertBefore($at);
-			});
-			
-			$li.hide();
-			
-			if($ul.find('> li.item:visible').length == 0)
-				$ul.closest('div').hide();
-		})
-		;
-		
-		$menu.find('> li > input.filter').keyup(
-			function(e) {
-				var term = $(this).val().toLowerCase();
-				var $fs_menu = $(this).closest('ul.cerb-popupmenu');
-				$fs_menu.find('> li.item').each(function(e) {
-					if(-1 != $(this).text().toLowerCase().indexOf(term)) {
-						$(this).show();
-					} else {
-						$(this).hide();
-					}
-				});
-			}
-		);
-		
-		$(this).data('menu', $menu);
-	})
-	.click(function() {
-		var $ul = $(this).data('menu');
+			funcTagPlaceholders($fieldset);
+			$fieldset.filter('[data-cerb-custom-fieldset]').trigger('cerb-placeholders--enhance');
+		});
 
-		$ul.toggle();
-		
-		if($ul.is(':hidden')) {
-			$ul.blur();
-		} else {
-			$ul.find('input:text').first().focus();
-		}
-	})
-	;
+		funcDetachOption(cf_group_id);
+	};
+
+	// When a fieldset panel is removed from the form, return its option to the menu
+	$menu.parent().parent().on('custom_fieldset_delete', '[data-cerb-custom-fieldset]', function(e) {
+		funcRestoreOption(e.fieldset_id);
+	});
+
+	// Fieldsets already on the form aren't offered again
+	$menu.children('li[data-cf-linked]').each(function() {
+		detached.set(String($(this).attr('data-cf-group-id')), $(this).detach());
+	});
+
+	funcRebuildMenu();
+
+	// Server-rendered fieldsets: tag before the action editor's popup_open enhancement pass runs
+	funcTagPlaceholders($button.parent().parent());
+});
 </script>

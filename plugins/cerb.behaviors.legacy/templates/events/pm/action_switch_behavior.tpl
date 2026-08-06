@@ -8,13 +8,11 @@
 
 <b>{'common.behavior'|devblocks_translate|capitalize}:</b>
 <div style="margin-left:10px;margin-bottom:0.5em;">
-	<button type="button" class="chooser-behavior" data-field-name="{$namePrefix}[behavior_id]" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-single="true" data-query="" data-query-required="event:event.message.chat.worker disabled:n usableBy.bot:{$trigger->bot_id}"><span class="cerb-icons cerb-icon-search"></span></button>
-	
-	<ul class="bubbles chooser-container">
+	<div class="cerb-ui-record-chooser">
 		{if $behavior}
-			<li><input type="hidden" name="{$namePrefix}[behavior_id]" value="{$behavior->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-context-id="{$behavior->id}">{$behavior->title}</a></li>
+			<li data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-context-id="{$behavior->id}" data-label="{$behavior->title}"></li>
 		{/if}
-	</ul>
+	</div>
 </div>
 
 <div class="parameters">
@@ -33,30 +31,36 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $action = $('#{$namePrefix}_{$nonce}');
-	var $behavior_params = $action.find('div.parameters');
-	
-	$action.find('.cerb-peek-trigger')
-		.cerbPeekTrigger()
-		;
-	
-	$action.find('.chooser-behavior')
-		.cerbChooserTrigger()
-			.on('cerb-chooser-saved', function(e) {
-				var $bubbles = $action.find('ul.chooser-container');
-				var $bubble = $bubbles.find('> li:first input:hidden');
-				var id = $bubble.first().val();
-				
-				if(id) {
-					genericAjaxGet(null,'c=profiles&a=invoke&module=behavior&action=getParams&name_prefix={$namePrefix}&trigger_id=' + id, function(html) {
-						var $html = $(html);
+	const $action = $('#{$namePrefix}_{$nonce}');
+	const $behavior_params = $action.find('div.parameters');
+
+	if(!(window.CerbUI && CerbUI.RecordChooser))
+		return;
+
+	$action.find('.cerb-ui-record-chooser').each(function() {
+		new CerbUI.RecordChooser(this, {
+			context: '{CerberusContexts::CONTEXT_BEHAVIOR}',
+			name: '{$namePrefix}[behavior_id]',
+			emptyIcon: 'branch',
+			query: 'event:event.message.chat.worker disabled:n usableBy.bot:{$trigger->bot_id}',
+			onSelect: function(item) {
+				if(item.id) {
+					genericAjaxGet(null, 'c=profiles&a=invoke&module=behavior&action=getParams&name_prefix={$namePrefix}&trigger_id=' + item.id, function(html) {
+						const $html = $(html);
 						$behavior_params.html($html);
-						$html.find('.placeholders').cerbCodeEditor();
+						if(window.CerbUI && CerbUI.ScriptingEditor) {
+							$html.find('textarea.placeholders, :text.placeholders').each(function() {
+								const isInput = this.tagName === 'INPUT';
+								this.classList.remove('placeholders');
+								CerbUI.ScriptingEditor.enhance(this, { singleLine: isInput, minLines: isInput ? 1 : 3, maxLines: isInput ? 6 : 12 });
+							});
+						}
 					});
 				} else {
 					$behavior_params.html('');
 				}
-			})
-	;
+			}
+		});
+	});
 });
 </script>

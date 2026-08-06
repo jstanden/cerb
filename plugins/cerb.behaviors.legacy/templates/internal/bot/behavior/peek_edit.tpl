@@ -1,5 +1,6 @@
 {$peek_context = CerberusContexts::CONTEXT_BEHAVIOR}
 {$peek_context_id = $model->id}
+{$form_id = uniqid()}
 <form id="frmDecisionBehavior{$model->id}">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
@@ -14,37 +15,35 @@
 	{if $bot}
 	<input type="hidden" name="bot_id" value="{$bot->id}">
 	{else}
-	<table cellspacing="0" cellpadding="2" border="0" width="98%" style="margin-bottom:10px;">
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'common.bot'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%">
-				<button type="button" class="chooser-abstract" data-field-name="bot_id" data-context="{CerberusContexts::CONTEXT_BOT}" data-single="true" data-autocomplete="" data-autocomplete-if-empty="true"><span class="cerb-icons cerb-icon-search"></span></button>
-				
-				<ul class="bubbles chooser-container"></ul>
-			</td>
-		</tr>
-	</table>
+	<div class="cerb-ui-panel cerb-ui-panel--spaced">
+		<div class="cerb-ui-form">
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.bot'|devblocks_translate|capitalize}</label>
+				<div class="cerb-ui-record-chooser cerb-record-chooser-bot"></div>
+			</div>
+		</div>
+	</div>
 	{/if}
 {/if}
 
 <div class="cerb-tabs">
 	{if !$model->id}
 	<ul>
-		{if $packages}<li><a href="#behavior-library">{'common.library'|devblocks_translate|capitalize}</a></li>{/if}
-		<li><a href="#behavior-builder">{'common.build'|devblocks_translate|capitalize}</a></li>
-		<li><a href="#behavior-import">{'common.import'|devblocks_translate|capitalize}</a></li>
+		{if $packages}<li><a href="#behavior-library_{$form_id}">{'common.library'|devblocks_translate|capitalize}</a></li>{/if}
+		<li><a href="#behavior-builder_{$form_id}">{'common.build'|devblocks_translate|capitalize}</a></li>
+		<li><a href="#behavior-import_{$form_id}">{'common.import'|devblocks_translate|capitalize}</a></li>
 	</ul>
 	{/if}
 	
 	{if !$model->id && $packages}
-	<div id="behavior-library" class="package-library">
+	<div id="behavior-library_{$form_id}" class="package-library">
 		{include file="devblocks:cerberusweb.core::internal/package_library/editor_chooser.tpl"}
 	</div>
 	{/if}
 	
 	{if !$model->id}
-	<div id="behavior-import">
-		<textarea name="import_json" style="width:100%;height:250px;white-space:pre;word-wrap:normal;" rows="10" cols="45" spellcheck="false" placeholder="Paste a behavior in JSON format"></textarea>
+	<div id="behavior-import_{$form_id}">
+		<textarea name="import_json" style="width:100%;height:250px;box-sizing:border-box;white-space:pre;word-wrap:normal;" rows="10" cols="45" spellcheck="false" placeholder="Paste a behavior in JSON format"></textarea>
 		
 		<div class="config"></div>
 		
@@ -54,97 +53,82 @@
 	</div>
 	{/if}
 	
-	<div id="behavior-builder">
-		<table cellspacing="0" cellpadding="2" border="0" width="98%" style="margin-bottom:10px;">
-			<tbody>
+	<div id="behavior-builder_{$form_id}">
+		<div class="cerb-ui-panel cerb-ui-panel--spaced">
+			<div class="cerb-ui-form">
 				{if $model->id}
-				<tr>
-					<td width="1%" nowrap="nowrap"><b>{'common.bot'|devblocks_translate|capitalize}:</b></td>
-					<td width="99%">
-						{if !$model->id}
-							<button type="button" class="chooser-abstract" data-field-name="bot_id" data-context="{CerberusContexts::CONTEXT_BOT}" data-single="true" data-autocomplete="" data-autocomplete-if-empty="true"><span class="cerb-icons cerb-icon-search"></span></button>
-							
-							<ul class="bubbles chooser-container">
-								{if $bot}
-									<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=bot&context_id={$bot->id}{/devblocks_url}?v={$bot->updated_at}"><input type="hidden" name="bot_id" value="{$bot->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BOT}" data-context-id="{$bot->id}">{$bot->name}</a></li>
-								{/if}
-							</ul>
-						{else}
-							{if $bot}
-								<ul class="bubbles chooser-container">
-									<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=bot&context_id={$bot->id}{/devblocks_url}?v={$bot->updated_at}"><input type="hidden" name="bot_id" value="{$bot->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BOT}" data-context-id="{$bot->id}">{$bot->name}</a></li>
-								</ul>
-							{/if}
-						{/if}
-					</td>
-				</tr>
+				<div class="cerb-ui-form--field">
+					<label class="cerb-ui-form--label">{'common.bot'|devblocks_translate|capitalize}</label>
+					{if $bot}
+						<ul class="bubbles chooser-container">
+							<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=bot&context_id={$bot->id}{/devblocks_url}?v={$bot->updated_at}"><input type="hidden" name="bot_id" value="{$bot->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BOT}" data-context-id="{$bot->id}">{$bot->name}</a></li>
+						</ul>
+					{/if}
+				</div>
 				{/if}
-				
-				<tr class="behavior-event">
-					<td width="1%" nowrap="nowrap" valign="top">
-						<b>{'common.event'|devblocks_translate|capitalize}:</b>
-					</td>
-					<td width="99%">
-						{if $ext}
-							<ul class="bubbles">
-								<li>{$ext->manifest->name}</li>
-							</ul>
+
+				<div class="cerb-ui-form--field behavior-event">
+					<label class="cerb-ui-form--label">{'common.event'|devblocks_translate|capitalize}</label>
+					{if $ext}
+						<ul class="bubbles">
+							<li>{$ext->manifest->name}</li>
+						</ul>
+					{else}
+					<div class="events-widget" style="display:none;">
+						{if $events_menu}
+							{include file="devblocks:cerb.behaviors.legacy::internal/peek/menu_behavior_event.tpl"}
 						{else}
-						<div class="events-widget" style="display:none;">
-							{if $events_menu}
-								{include file="devblocks:cerb.behaviors.legacy::internal/peek/menu_behavior_event.tpl"}
-							{else}
-								(choose a bot to see available events)
-							{/if}
-						</div>
+							(choose a bot to see available events)
 						{/if}
-						
-						<div class="event-params">
-						{if $ext && method_exists($ext,'renderEventParams')}
-						{$ext->renderEventParams($model)}
-						{/if}
+					</div>
+					{/if}
+
+					<div class="event-params">
+					{if $ext && method_exists($ext,'renderEventParams')}
+					{$ext->renderEventParams($model)}
+					{/if}
+					</div>
+				</div>
+
+				<div class="cerb-ui-form--field">
+					<label class="cerb-ui-form--label">{'common.name'|devblocks_translate|capitalize}</label>
+					<input type="text" name="title" value="{$model->title}" autocomplete="off" spellcheck="false" autofocus="autofocus">
+				</div>
+
+				<div class="cerb-ui-form--row">
+					<div class="cerb-ui-form--field cerb-u-flex-2">
+						<label class="cerb-ui-form--label"><abbr title="An optional unique alias for this behavior. Lowercase letters, numbers, and underscores.">{'common.uri'|devblocks_translate|capitalize}</abbr></label>
+						<input type="text" name="uri" value="{$model->uri}" placeholder="(optional)" spellcheck="false">
+					</div>
+
+					<div class="cerb-ui-form--field">
+						<label class="cerb-ui-form--label">{'common.priority'|devblocks_translate|capitalize}</label>
+						<input type="text" name="priority" value="{$model->priority|default:50}" placeholder="50" maxlength="2" autocomplete="off" spellcheck="false">
+					</div>
+				</div>
+
+				<div class="cerb-ui-form--field">
+					<label class="cerb-ui-form--label">{'common.status'|devblocks_translate|capitalize}</label>
+					<div>
+						<input type="hidden" name="is_disabled" id="isDisabled_{$form_id}" value="{if !empty($model->is_disabled)}1{else}0{/if}">
+						<div class="cerb-ui-switcher" data-cerb-input="isDisabled_{$form_id}">
+							<button type="button" data-value="0"{if empty($model->is_disabled)} class="cerb-ui-switcher--active"{/if}>{'common.enabled'|devblocks_translate|capitalize}</button>
+							<button type="button" data-value="1"{if !empty($model->is_disabled)} class="cerb-ui-switcher--active"{/if}>{'common.disabled'|devblocks_translate|capitalize}</button>
 						</div>
-					</td>
-				</tr>
-				
-				<tr>
-					<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate|capitalize}:</b></td>
-					<td width="99%">
-						<input type="text" name="title" value="{$model->title}" style="width:100%;" autocomplete="off" spellcheck="false" autofocus="autofocus"><br>
-					</td>
-				</tr>
-				
-				<tr>
-					<td width="1%" nowrap="nowrap"><b><abbr title="An optional unique alias for this behavior. Lowercase letters, numbers, and underscores.">{'common.uri'|devblocks_translate}</abbr>:</b></td>
-					<td width="99%">
-						<input type="text" name="uri" value="{$model->uri}" style="width:98%;" placeholder="(optional)" spellcheck="false">
-					</td>
-				</tr>
-				
-				<tr>
-					<td width="1%" nowrap="nowrap"><b>{'common.priority'|devblocks_translate|capitalize}:</b></td>
-					<td width="99%">
-						<input type="text" name="priority" value="{$model->priority|default:50}" placeholder="50" maxlength="2" style="width:50px" autocomplete="off" spellcheck="false">
-					</td>
-				</tr>
-				
-				<tr>
-					<td width="1%" nowrap="nowrap"><b>{'common.status'|devblocks_translate|capitalize}:</b></td>
-					<td width="99%">
-						<label><input type="radio" name="is_disabled" value="0" {if empty($model->is_disabled)}checked="checked"{/if}> {'common.enabled'|devblocks_translate|capitalize}</label>
-						<label><input type="radio" name="is_disabled" value="1" {if !empty($model->is_disabled)}checked="checked"{/if}> {'common.disabled'|devblocks_translate|capitalize}</label>
-					</td>
-				</tr>
-				
+					</div>
+				</div>
+
 				{if !empty($custom_fields)}
-				{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
+				{include file="devblocks:cerberusweb.core::internal/custom_fields/form.tpl" custom_fields=$custom_fields}
 				{/if}
-			</tbody>
-		</table>
+			</div>
+		</div>
 		
-		<fieldset class="peek behavior-variables">
-			<legend style="color:inherit;">{'common.variables'|devblocks_translate|capitalize}</legend>
-			
+		<div class="cerb-ui-panel cerb-ui-panel--spaced behavior-variables">
+			<div class="cerb-ui-header cerb-ui-header--tight">
+				<div class="cerb-ui-header--title-sm">{'common.variables'|devblocks_translate|capitalize}</div>
+			</div>
+
 			<div id="divBehaviorVariables{$model->id}">
 			{foreach from=$model->variables key=k item=var name=vars}
 				{$seq = uniqid()}
@@ -185,23 +169,17 @@
 				{menu keys=$variables_menu}
 				</ul>
 			</div>
-		</fieldset>
-		
+		</div>
+
 		{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_BEHAVIOR context_id=$model->id}
-		
+
 		{if isset($model->id)}
-		<fieldset class="delete" style="display:none;">
-			<legend>Delete this behavior?</legend>
-			<p>Are you sure you want to permanently delete this behavior and all of its effects?</p>
-			
-			<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
-			<button type="button" class="delete-cancel">{'common.no'|devblocks_translate|capitalize}</button>
-		</fieldset>
+			{include file="devblocks:cerberusweb.core::internal/peek/delete_confirm.tpl" noun="behavior and all of its effects"}
 		{/if}
-		
-		<div class="buttons">
-			<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-			{if $model->id && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+
+		<div class="buttons" style="margin-top:10px;">
+			<button type="button" class="cerb-ui-button save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+			{if $model->id && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="cerb-ui-button cerb-ui-button--subtle delete-prompt"><span class="cerb-icons cerb-icon-trash"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 		</div>
 	</div>
 </div>
@@ -219,31 +197,28 @@ $(function() {
 		$popup.dialog('option','title',"{'common.behavior'|devblocks_translate|capitalize|escape:'javascript'}");
 		$popup.css('overflow', 'inherit');
 		
-		$popup.find('.chooser-abstract')
-			.cerbChooserTrigger()
-			.on('cerb-chooser-saved', function(e) {
-				var $btn = $(e.target);
-				var $ul = $btn.siblings('ul.chooser-container');
-				
-				// We're adding or swapping bots
-				if($ul.find('li').length > 0) {
-					// Load the events from Ajax by bot ID
-					var $hidden = $ul.find('li input[name=bot_id]');
-					var bot_id = $hidden.val();
-					
-					genericAjaxGet('', 'c=profiles&a=invoke&module=behavior&action=getEventsMenuByBot&bot_id=' + bot_id, function(html) {
-						$popup.find('div.events-widget').html(html).fadeIn();
-						$popup.trigger('events-menu-refresh');
-					});
-				
-				// We removed all bots
-				} else {
-					var $events_menu = $popup.find('ul.events-menu').hide();
-					$events_menu.siblings('ul.chooser-container').hide();
-					$frm.find('div.event-params').hide();
-				}
-			})
-			;
+		let loadEventsByBot = function(bot_id) {
+			// Load the events menu for the chosen bot
+			if(bot_id) {
+				genericAjaxGet('', 'c=profiles&a=invoke&module=behavior&action=getEventsMenuByBot&bot_id=' + bot_id, function(html) {
+					$popup.find('div.events-widget').html(html).fadeIn();
+					$popup.trigger('events-menu-refresh');
+				});
+			} else {
+				$popup.find('div.events-widget').hide();
+				$frm.find('div.event-params').hide();
+			}
+		};
+
+		if(window.CerbUI && CerbUI.RecordChooser)
+			$popup.find('.cerb-record-chooser-bot').each(function() {
+				new CerbUI.RecordChooser(this, {
+					context: '{CerberusContexts::CONTEXT_BOT}',
+					name: 'bot_id',
+					emptyIcon: 'bot',
+					onSelect: function(item) { loadEventsByBot(item.id); }
+				});
+			});
 		
 		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
 		
@@ -254,16 +229,26 @@ $(function() {
 			}
 		};
 		
-		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
+		$popup.find('button.save').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-		$popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
-		$popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
+		if(window.CerbUI && CerbUI.Form) CerbUI.Form.ConfirmDelete($popup[0]);
 		$popup.find('button.import').click({ after: checkForConfigForm }, Devblocks.callbackPeekEditSave);
+
+		// Status switcher (enabled/disabled) bound to the hidden is_disabled input
+		if(window.CerbUI && CerbUI.Switcher) {
+			$popup.find('.cerb-ui-switcher[data-cerb-input]').each(function() {
+				var input = document.getElementById(this.getAttribute('data-cerb-input'));
+				if(input) new CerbUI.Switcher(this, { value: input.value, onSelect: function(v) { input.value = v; } });
+			});
+		}
 		
 		// Package Library
 		
 		{if !$model->id}
-			var $tabs = $popup.find('.cerb-tabs').tabs();
+			var $tabs = $popup.find('.cerb-tabs');
+			$tabs.find('> ul').each(function() {
+				if(window.CerbUI && CerbUI.Tabs) new CerbUI.Tabs(this);
+			});
 			
 			{if $packages}
 				var $library_container = $tabs;
@@ -274,99 +259,98 @@ $(function() {
 						$library_container.triggerHandler('cerb-package-library-form-submit--done');
 					});
 					
-					$popup.find('button.submit').click();
+					$popup.find('button.save').click();
 				});
 			{/if}
 		{/if}
-		
-		// Behavior variables
-		
-		$popup.find('fieldset.behavior-variables')
-			.sortable({ 'items':'FIELDSET', 'placeholder':'ui-state-highlight', 'handle':'legend' })
-			;
 
-		$popup.find('fieldset.behavior-variables').on({
+		// Behavior variables — each row is a .cerb-behavior-var panel, dragged by its .cerb-ui-header
+		if(window.CerbUI && CerbUI.Sortable)
+			new CerbUI.Sortable($popup.find('#divBehaviorVariables{$model->id}').get(0), { items:'.cerb-behavior-var', handle:'.cerb-ui-header' });
+
+		$popup.find('.behavior-variables').on({
 			mouseenter: function() {
 				$(this).find(':hidden[data-cerb-onhover]').show();
 			},
 			mouseleave: function() {
 				$(this).find(':visible[data-cerb-onhover]').hide();
 			}
-		}, "fieldset");
+		}, ".cerb-behavior-var");
 
 		var $variables = $('#divBehaviorVariables{$model->id}');
 		
-		var $menu_variables = $popup.find('ul.add-variable-menu')
-			.menu({
-				'select': function(event, ui) {
-					var $li = $(ui.item);
-					var field_type = $li.attr('data-token');
-					
-					if(null != field_type) {
-						genericAjaxGet('', 'c=profiles&a=invoke&module=behavior&action=getTriggerVariableParams&type=' +  encodeURIComponent(field_type), function(o) {
-							var $html = $(o).appendTo($variables);
-						});
-					}
+		new CerbUI.Menu($popup.find('ul.add-variable-menu').hide()[0], {
+			clickTrigger: $popup.find('BUTTON.add-variable')[0],
+			filter: true,
+			onSelect: function(li, src) {
+				var field_type = src.getAttribute('data-token');
+
+				if(null != field_type) {
+					genericAjaxGet('', 'c=profiles&a=invoke&module=behavior&action=getTriggerVariableParams&type=' +  encodeURIComponent(field_type), function(o) {
+						var $html = $(o).appendTo($variables);
+					});
 				}
-			})
-		;
-		
-		$popup.find('BUTTON.add-variable').click(function() {
-			var $button = $(this);
-			$menu_variables.toggle();
+			}
 		});
 		
 		// Events
-		
-		$popup.on('events-bubble-remove', function(e, ui) {
-			var $events_menu = $popup.find('ul.events-menu');
-			var $events_ul = $events_menu.siblings('ul.chooser-container');
-			
-			e.stopPropagation();
-			$(e.target).closest('li').remove();
-			$events_ul.hide();
-			$events_menu.show();
-			$frm.find('div.event-params').hide();
-		});
-		
-		$popup.on('events-menu-refresh', function(e, ui) {
-			var $events_menu = $popup.find('ul.events-menu');
-			var $events_ul = $events_menu.siblings('ul.chooser-container');
-			
-			$events_menu.menu({
-				select: function(event, ui) {
-					var token = ui.item.attr('data-token');
-					var label = ui.item.attr('data-label');
-					
-					if(undefined == token || undefined == label)
+
+		let initEventsMenu = function() {
+			let $widget = $popup.find('div.events-widget');
+			let menuEl = $widget.find('ul.events-menu')[0];
+
+			if(!menuEl || !(window.CerbUI && CerbUI.Menu))
+				return;
+
+			let $events_ul = $widget.find('ul.chooser-container');
+			let $trigger = $widget.find('button.events-menu-trigger');
+
+			// Nested events tree; branches only expand. Type-to-filter searches all leaf events.
+			new CerbUI.Menu($(menuEl).hide()[0], {
+				clickTrigger: $trigger[0],
+				filter: true,
+				onSelect: function(li, src) {
+					let token = src.getAttribute('data-token');
+					let label = src.getAttribute('data-label');
+
+					if(!token || !label)
 						return;
-					
-					$events_menu.hide();
-					
-					// Build bubble
-					
-					var $li = $('<li/>');
-					var $label = $('<span/>').attr('data-event',token).text(label);
-					$label.appendTo($li);
-					$('<input type="hidden">').attr('name', 'event_point').attr('value',token).appendTo($li);
-					let $a = $('<a><span class="cerb-icons cerb-icon-circle-remove"></span></a>').appendTo($li);
-					$a.on('click', function(e) {
-						e.stopPropagation();
-						$(this).trigger('events-bubble-remove');
-					});
+
+					// Build the selected-event bubble
+					let $li = $('<li/>');
+					$('<span/>').attr('data-event', token).text(label).appendTo($li);
+					$('<input type="hidden">').attr('name', 'event_point').attr('value', token).appendTo($li);
+					$('<a><span class="cerb-icons cerb-icon-circle-remove"></span></a>')
+						.appendTo($li)
+						.on('click', function(e) {
+							e.stopPropagation();
+							$(this).trigger('events-bubble-remove');
+						})
+					;
 
 					$events_ul.find('> *').remove();
-					$events_ul.append($li);
-					$events_ul.show();
-					
+					$events_ul.append($li).show();
+					$trigger.hide();
+
 					genericAjaxGet('', 'c=profiles&a=invoke&module=behavior&action=getTriggerEventParams&id=' + encodeURIComponent(token), function(o) {
-						var $params = $frm.find('div.event-params');
-						$params.html(o).fadeIn();
+						$frm.find('div.event-params').html(o).fadeIn();
 					});
 				}
-			})
-			.fadeIn()
-			;
+			});
+		};
+
+		$popup.on('events-bubble-remove', function(e) {
+			let $widget = $popup.find('div.events-widget');
+
+			e.stopPropagation();
+			$(e.target).closest('li').remove();
+			$widget.find('ul.chooser-container').hide();
+			$widget.find('button.events-menu-trigger').show();
+			$frm.find('div.event-params').hide();
+		});
+
+		$popup.on('events-menu-refresh', function(e) {
+			initEventsMenu();
 		});
 		
 		{if $events_menu}

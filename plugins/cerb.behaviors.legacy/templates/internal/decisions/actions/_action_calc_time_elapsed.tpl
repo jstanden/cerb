@@ -1,15 +1,15 @@
-<b>From date:</b> (e.g. "Jan 1 2017 8am")
-<div style="margin-left:10px;margin-bottom:0.5em;">
-	<input type="text" name="{$namePrefix}[date_from]" style="width:100%;" value="{$params.date_from}" class="placeholders" placeholder="">
+<div class="cerb-ui-form--field">
+	<label class="cerb-ui-form--label">From date<span class="cerb-ui-form--hint">e.g. "Jan 1 2017 8am"</span></label>
+	<input type="text" name="{$namePrefix}[date_from]" value="{$params.date_from}" class="placeholders" placeholder="">
 </div>
 
-<b>To date:</b> (e.g. "Dec 31 2017 23:59")
-<div style="margin-left:10px;margin-bottom:0.5em;">
-	<input type="text" name="{$namePrefix}[date_to]" style="width:100%;" value="{$params.date_to}" class="placeholders" placeholder="">
+<div class="cerb-ui-form--field">
+	<label class="cerb-ui-form--label">To date<span class="cerb-ui-form--hint">e.g. "Dec 31 2017 23:59"</span></label>
+	<input type="text" name="{$namePrefix}[date_to]" value="{$params.date_to}" class="placeholders" placeholder="">
 </div>
 
-<b>Determine availability from calendar:</b><br>
-<div style="margin-left:10px;margin-bottom:10px;">
+<div class="cerb-ui-form--field">
+	<label class="cerb-ui-form--label">Determine availability from calendar</label>
 	<select name="{$namePrefix}[calendar_id]">
 		<option value=""></option>
 		{foreach from=$values_to_contexts key=var_key item=var}
@@ -23,9 +23,11 @@
 	</select>
 </div>
 
-<b>Save time elapsed (seconds) to a placeholder named:</b><br>
-<div style="margin-left:10px;margin-bottom:10px;">
-	&#123;&#123;<input type="text" name="{$namePrefix}[placeholder]" value="{$params.placeholder|default:"_time_elapsed"}" required="required" spellcheck="false" size="32" placeholder="e.g. _time_elapsed">&#125;&#125;
+<div class="cerb-ui-form--field">
+	<label class="cerb-ui-form--label">Save time elapsed (seconds) to a placeholder named</label>
+	<div>
+		&#123;&#123;<input type="text" name="{$namePrefix}[placeholder]" value="{$params.placeholder|default:"_time_elapsed"}" required="required" spellcheck="false" size="32" placeholder="e.g. _time_elapsed">&#125;&#125;
+	</div>
 </div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">

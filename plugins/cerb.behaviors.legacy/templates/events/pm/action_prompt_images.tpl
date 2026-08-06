@@ -4,13 +4,9 @@
 <fieldset>
 <b>{'common.image'|devblocks_translate|capitalize}:</b>
 <div style="margin-left:10px;margin-bottom:0.5em;">
-	<div style="float:left;margin-right:5px;">
-		<img src="{$image}" class="cerb-prompt-image">
-	</div>
-	<div style="float:left;">
-		<button type="button" class="cerb-avatar-chooser">{'common.edit'|devblocks_translate|capitalize}</button>
-		<input type="hidden" name="{$namePrefix}[images][]" value="{$image}">
-	</div>
+	<span class="cerb-ui-avatar" style="width:50px;height:50px;font-size:21px;"
+		data-cerb-image-editor data-name="{$namePrefix}[images][]" data-avatar-icon="picture" data-avatar-image="{$image}"></span>
+	<input type="hidden" name="{$namePrefix}[images][]" value="{$image}">
 	<br clear="all">
 </div>
 
@@ -25,13 +21,9 @@
 <fieldset class="cerb-prompt-image-add-template" style="display:none;">
 	<b>{'common.image'|devblocks_translate|capitalize}:</b>
 	<div style="margin-left:10px;margin-bottom:0.5em;">
-		<div style="float:left;margin-right:5px;">
-			<img src="" class="cerb-prompt-image">
-		</div>
-		<div style="float:left;">
-			<button type="button" class="cerb-avatar-chooser">{'common.edit'|devblocks_translate|capitalize}</button>
-			<input type="hidden" name="{$namePrefix}[images][]" value="">
-		</div>
+		<span class="cerb-ui-avatar" style="width:50px;height:50px;font-size:21px;"
+			data-cerb-image-editor data-name="{$namePrefix}[images][]" data-avatar-icon="picture" data-avatar-image=""></span>
+		<input type="hidden" name="{$namePrefix}[images][]" value="">
 		<br clear="all">
 	</div>
 	
@@ -70,10 +62,9 @@ $(function() {
 	var $add = $action.find('button.cerb-prompt-image-add');
 	var $template = $action.find('fieldset.cerb-prompt-image-add-template');
 	
-	$action.find('button.cerb-avatar-chooser').each(function() {
-		var $avatar_chooser = $(this);
-		var $avatar_image = $avatar_chooser.parent().parent().find('img.cerb-prompt-image');
-		ajax.chooserAvatar($avatar_chooser, $avatar_image);
+	$action.find('[data-cerb-image-editor]').each(function() {
+		if($(this).closest('fieldset.cerb-prompt-image-add-template').length) return; // skip the clone template
+		if(window.CerbUI && CerbUI.ImageEditor) new CerbUI.ImageEditor(this);
 	});
 	
 	$add.on('click', function(e) {
@@ -84,13 +75,13 @@ $(function() {
 		$clone.insertBefore($template);
 		
 		// Code editor
-		$clone.find('textarea').addClass('placeholders').cerbCodeEditor();
+		if(window.CerbUI && CerbUI.ScriptingEditor)
+			$clone.find('textarea').each(function() { CerbUI.ScriptingEditor.enhance(this, { minLines: 3, maxLines: 12 }); });
 
 		// Avatar chooser
-		var $avatar_chooser = $clone.find('button.cerb-avatar-chooser');
-		var $avatar_image = $avatar_chooser.parent().parent().find('img.cerb-prompt-image');
-		ajax.chooserAvatar($avatar_chooser, $avatar_image);
-		
+		if(window.CerbUI && CerbUI.ImageEditor)
+			$clone.find('[data-cerb-image-editor]').each(function() { new CerbUI.ImageEditor(this); });
+
 		$clone.fadeIn();
 	});
 });

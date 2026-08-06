@@ -46,7 +46,7 @@ $(function() {
 		var q = $action.find('input.quicksearch').val();
 		
 		if(context.length == 0) {
-			$select.effect('highlight','slow');
+			if(window.CerbUI && CerbUI.effects) CerbUI.effects.flash($select);
 			return;
 		}
 		

@@ -14,15 +14,11 @@
 <b>Load this snippet:</b>
 <div style="margin-left:10px;margin-bottom:10px;">
 	<div>
-		<button type="button" class="chooser-snippet" data-field-name="{$namePrefix}[snippet_id]" data-context="{CerberusContexts::CONTEXT_SNIPPET}" data-query="" data-query-required="" data-single="true"><span class="cerb-icons cerb-icon-search"></span></button>
-		<ul class="bubbles chooser-container">
+		<div class="cerb-ui-record-chooser">
 			{if $snippet}
-			<li>
-				<input type="hidden" name="{$namePrefix}[snippet_id]" title="{$snippet->title}" value="{$snippet->id}">
-				{$snippet->title}
-			</li>
+				<li data-context="{CerberusContexts::CONTEXT_SNIPPET}" data-context-id="{$snippet->id}" data-label="{$snippet->title}"></li>
 			{/if}
-		</ul>
+		</div>
 	</div>
 	<div class="snippet-preview">
 		{if $snippet && $snippet->id}
@@ -41,35 +37,29 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $action = $('#{$namePrefix}_{$nonce}');
-	var $snippet_preview = $action.find('div.snippet-preview');
-	
-	// Snippet insert menu
-	$action.find('.chooser-snippet')
-		.cerbChooserTrigger()
-		.on('cerb-chooser-saved', function(e) {
-			e.stopPropagation();
-			
-			var $this = $(this);
-			var $ul = $this.siblings('ul.chooser-container');
-			
-			// Find the snippet_id
-			var snippet_id = $ul.find('input:hidden').val();
-			
-			if(null == snippet_id) {
-				$snippet_preview.html('');
-				return;
-			}
-			
-			genericAjaxGet('','c=profiles&a=invoke&module=snippet&action=getSnippetPlaceholders&name_prefix={$namePrefix}&id=' + snippet_id, function(html) {
-				if(null == html || html.length === 0) {
-					$snippet_preview.html('').hide();
-					return;
+	const $action = $('#{$namePrefix}_{$nonce}');
+	const $snippet_preview = $action.find('div.snippet-preview');
+
+	if(window.CerbUI && CerbUI.RecordChooser)
+		$action.find('.cerb-ui-record-chooser').each(function() {
+			new CerbUI.RecordChooser(this, {
+				context: '{CerberusContexts::CONTEXT_SNIPPET}',
+				name: '{$namePrefix}[snippet_id]',
+				emptyIcon: 'clipboard',
+				onSelect: function(item) {
+					if(!item.id) {
+						$snippet_preview.html('').hide();
+						return;
+					}
+					genericAjaxGet('', 'c=profiles&a=invoke&module=snippet&action=getSnippetPlaceholders&name_prefix={$namePrefix}&id=' + item.id, function(html) {
+						if(!html || html.length === 0) {
+							$snippet_preview.html('').hide();
+							return;
+						}
+						$snippet_preview.html(html).show();
+					});
 				}
-				
-				$snippet_preview.html(html).show();
 			});
-		})
-	;
+		});
 });
 </script>

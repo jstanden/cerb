@@ -1,4 +1,4 @@
-<div style="margin-left:10px;margin-bottom:10px;">
+<div class="cerb-ui-form--field">
 	<select name="{$namePrefix}[mode]">
 		<option value="" {if !$params.mode}selected="selected"{/if}> Terminate</option>
 		

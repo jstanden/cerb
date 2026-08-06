@@ -24,12 +24,11 @@
 	{/foreach}
 </select>
 {elseif $import_field.type == 'chooser'}
-<button type="button" class="cerb-chooser-trigger" data-field-name="configure[{$import_seq}]" data-context="{$import_field.params.context}" {if $import_field.params.single}data-single="true"{/if} data-query="{$import_field.params.query}"><span class="cerb-icons cerb-icon-search"></span></button>
-<ul class="bubbles chooser-container"></ul>
+<div class="cerb-ui-record-chooser" data-context="{$import_field.params.context}" data-name="configure[{$import_seq}]"{if $import_field.params.single} data-single="true"{/if}{if $import_field.params.query} data-query="{$import_field.params.query}"{/if}></div>
 {else}
 	{if substr($import_field.type,0,4) == 'ctx_'}
 		{$context = substr($import_field.type, 4)}
-		<button type="button" class="chooser" context="{$context}" field="configure[{$import_seq}]"><span class="cerb-icons cerb-icon-search"></span></button>
+		<div class="cerb-ui-record-chooser" data-context="{$context}" data-name="configure[{$import_seq}]"></div>
 	{/if}
 {/if}
 
@@ -41,14 +40,15 @@
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $fieldset = $('#{$div_uniqid}');
-	
-	$fieldset.find('button.chooser').each(function() {
-		var $this = $(this);
-		ajax.chooser(this,$(this).attr('context'),$(this).attr('field'), { autocomplete:false });
-	});
-	
-	$fieldset.find('.cerb-chooser-trigger')
-		.cerbChooserTrigger()
-		;
+
+	if(window.CerbUI && CerbUI.RecordChooser)
+		$fieldset.find('.cerb-ui-record-chooser').each(function() {
+			new CerbUI.RecordChooser(this, {
+				context: this.getAttribute('data-context'),
+				name: this.getAttribute('data-name'),
+				multiple: !this.hasAttribute('data-single'),
+				query: this.getAttribute('data-query') || ''
+			});
+		});
 });
 </script>

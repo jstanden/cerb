@@ -2,12 +2,11 @@
 
 <b>Send the interaction to this behavior:</b>
 <div style="margin-left:10px;margin-bottom:0.5em;">
-	<button type="button" class="chooser-behavior" data-field-name="{$namePrefix}[behavior_id]" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-single="true" data-query="" data-query-required="bot.id:{$trigger->bot_id} event:{$event_point|default:'event.interaction.chat.worker'} disabled:n"><span class="cerb-icons cerb-icon-search"></span></button>
-	<ul class="bubbles chooser-container">
+	<div class="cerb-ui-record-chooser">
 		{if $behavior}
-			<li><input type="hidden" name="{$namePrefix}[behavior_id]" value="{$behavior->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-context-id="{$behavior->id}">{$behavior->title}</a></li>
+			<li data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-context-id="{$behavior->id}" data-label="{$behavior->title}"></li>
 		{/if}
-	</ul>
+	</div>
 </div>
 
 <b>{'common.name'|devblocks_translate|capitalize}:</b> (e.g. "Show my tickets")
@@ -32,18 +31,16 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $action = $('#{$namePrefix}_{$nonce}');
-	var $behavior_params = $action.find('div.parameters');
-	var $bubbles = $action.find('ul.chooser-container');
-	
-	$action.find('.cerb-peek-trigger')
-		.cerbPeekTrigger()
-		;
-	
-	$action.find('.chooser-behavior')
-		.cerbChooserTrigger()
-			.on('cerb-chooser-saved', function(e) {
-			})
-	;
+	const $action = $('#{$namePrefix}_{$nonce}');
+
+	if(window.CerbUI && CerbUI.RecordChooser)
+		$action.find('.cerb-ui-record-chooser').each(function() {
+			new CerbUI.RecordChooser(this, {
+				context: '{CerberusContexts::CONTEXT_BEHAVIOR}',
+				name: '{$namePrefix}[behavior_id]',
+				emptyIcon: 'branch',
+				query: 'bot.id:{$trigger->bot_id} event:{$event_point|default:'event.interaction.chat.worker'} disabled:n'
+			});
+		});
 });
 </script>

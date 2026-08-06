@@ -18,16 +18,14 @@
 <b>Run this behavior:</b>
 {$behavior = null}
 <div style="margin-left:10px;margin-bottom:0.5em;">
-	<button type="button" class="chooser-behavior" data-field-name="{$namePrefix}[behavior_id]" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-single="true" data-query="event:{$selected_event} disabled:n usableBy.bot:{$trigger->bot_id}"><span class="cerb-icons cerb-icon-search"></span></button>
-	
-	<ul class="bubbles chooser-container">
+	<div class="cerb-ui-record-chooser">
 		{if $params.behavior_id}
 			{$behavior = DAO_TriggerEvent::get($params.behavior_id)}
 			{if $behavior}
-				<li><input type="hidden" name="{$namePrefix}[behavior_id]" value="{$behavior->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-context-id="{$behavior->id}">{$behavior->title}</a></li>
+				<li data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-context-id="{$behavior->id}" data-label="{$behavior->title}"></li>
 			{/if}
 		{/if}
-	</ul>
+	</div>
 </div>
 
 <div class="parameters">
@@ -52,39 +50,33 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $action = $('#{$namePrefix}_{$nonce}');
-	var $behavior_params = $action.find('div.parameters');
-	var $bubbles = $action.find('ul.chooser-container');
-	
-	$action.find('.cerb-peek-trigger')
-		.cerbPeekTrigger()
-		;
-	
-	$action.find('.chooser-behavior')
-		.cerbChooserTrigger()
-			.on('cerb-chooser-saved', function(e) {
-				var $bubble = $bubbles.find('> li:first input:hidden');
-				var id = $bubble.first().val();
-				
-				if(id) {
-					genericAjaxGet($behavior_params,'c=profiles&a=invoke&module=behavior&action=getParams&name_prefix={$namePrefix}&trigger_id=' + id);
-				} else {
-					$behavior_params.html('');
-				}
-			})
-		;
-	
-	$action.find('select.on').change(function(e) {
+	const $action = $('#{$namePrefix}_{$nonce}');
+	const $behavior_params = $action.find('div.parameters');
+
+	if(!(window.CerbUI && CerbUI.RecordChooser))
+		return;
+
+	function loadParams(id) {
+		if(id)
+			genericAjaxGet($behavior_params, 'c=profiles&a=invoke&module=behavior&action=getParams&name_prefix={$namePrefix}&trigger_id=' + id);
+		else
+			$behavior_params.html('');
+	}
+
+	const rc = new CerbUI.RecordChooser($action.find('.cerb-ui-record-chooser')[0], {
+		context: '{CerberusContexts::CONTEXT_BEHAVIOR}',
+		name: '{$namePrefix}[behavior_id]',
+		emptyIcon: 'branch',
+		query: 'event:{$selected_event} disabled:n usableBy.bot:{$trigger->bot_id}',
+		onSelect: function(item) { loadParams(item.id); }
+	});
+
+	// The "On:" event scopes which behaviors are pickable; changing it re-scopes the chooser and clears.
+	$action.find('select.on').on('change', function() {
 		$behavior_params.html('');
-		
-		var $on = $(this).find('option:selected');
-		var event_point = $on.attr('data-event');
-		
-		$action.find('.chooser-behavior')
-			.attr('data-query', 'event:' + event_point + ' disabled:n usableBy.bot:{$trigger->bot_id}')
-			;
-		
-		$bubbles.find('> *').remove();
+		const event_point = $(this).find('option:selected').attr('data-event');
+		rc.setQuery('event:' + event_point + ' disabled:n usableBy.bot:{$trigger->bot_id}');
+		rc.clear();
 	});
 });
 </script>

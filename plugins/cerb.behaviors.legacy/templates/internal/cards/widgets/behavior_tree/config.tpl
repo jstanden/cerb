@@ -16,10 +16,6 @@ $(function() {
     var $config = $('#cardWidgetConfig{$config_uniqid}');
     var $input_behavior_id = $config.find('input[name="params[behavior_id]"]');
 
-    $config.find('.cerb-chooser').cerbChooserTrigger()
-        .on('cerb-chooser-selected', function(e) {
-            {literal}$input_behavior_id.val(e.values[0] + '{# ' + e.labels[0] + ' #}');{/literal}
-        })
-    ;
+    if(window.CerbUI && CerbUI.RecordChooser) CerbUI.RecordChooser.pickerLink($config.find('.cerb-chooser')[0], { input: $input_behavior_id });
 });
 </script>

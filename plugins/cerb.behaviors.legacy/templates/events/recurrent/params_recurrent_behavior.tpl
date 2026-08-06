@@ -2,7 +2,7 @@
 <fieldset id="{$fieldset_id}" style="margin-top:5px;">
 	<b>Repeat every:</b>
 	<div style="margin-left:10px;margin-bottom:5px;">
-		<textarea name="event_params[repeat_patterns]" data-editor-mode="ace/mode/ini" rows="6" cols="45" style="height:8em;width:100%;" placeholder="Enter any number of cron expressions">{$trigger->event_params.repeat_patterns}</textarea>
+		<textarea name="event_params[repeat_patterns]" data-editor-lines="6" spellcheck="false" placeholder="Enter any number of cron expressions">{$trigger->event_params.repeat_patterns}</textarea>
 		<select class="cerb-insert-menu">
 			<option value="">-- {'common.examples'|devblocks_translate|lower} --</option>
 			<optgroup label="Time intervals">
@@ -73,32 +73,19 @@
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $fieldset = $('#{$fieldset_id}');
-	var $textarea = $fieldset.find('textarea:first');
 	var $select = $fieldset.find('select.cerb-insert-menu');
-	
-	$textarea
-		.cerbCodeEditor()
-	;
-	
+
+	// Cron patterns — a plain ScriptingEditor (no autocomplete; no Twig in crontab content).
+	var ed = null;
+	var schedEl = $fieldset.find('textarea[name="event_params[repeat_patterns]"]')[0];
+	if(schedEl && window.CerbUI && CerbUI.ScriptingEditor)
+		ed = new CerbUI.ScriptingEditor(schedEl);
+
+	// The examples menu inserts its (\n-joined) cron expression at the caret.
 	$select.on('change', function(e) {
 		e.stopPropagation();
-		
-		var $field = $select.prevAll('pre.ace_editor, :text, textarea').first();
-		
-		var lines = $select.val().split('\\n');
-		
-		for(var idx in lines) {
-			var line = lines[idx];
-			if($field.is(':text, textarea')) {
-				$field.focus().insertAtCursor(line + '\n');
-				
-			} else if($field.is('.ace_editor')) {
-				var evt = new jQuery.Event('cerb.insertAtCursor');
-				evt.content = line + '\n';
-				$field.trigger(evt);
-			}
-		}
-		
+		if(ed)
+			ed.insertAtCursor($select.val().split('\\n').join('\n') + '\n');
 		$select.val('');
 	});
 });

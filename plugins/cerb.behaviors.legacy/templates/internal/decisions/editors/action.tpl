@@ -5,9 +5,9 @@
 		<li><a href="#action{$id}-build">{'common.build'|devblocks_translate|capitalize}</a></li>
 	</ul>
 	{/if}
-	
+
 	<div id="action{$id}-build" class="action-build">
-		<form id="frmDecisionAction{$id}Action" method="post">
+		<form id="frmDecisionAction{$id}Action" method="post" class="cerb-ui-form">
 		<input type="hidden" name="c" value="profiles">
 		<input type="hidden" name="a" value="invoke">
 		<input type="hidden" name="module" value="behavior">
@@ -17,33 +17,39 @@
 		{if isset($type)}<input type="hidden" name="type" value="{$type}">{/if}
 		{if isset($trigger_id)}<input type="hidden" name="trigger_id" value="{$trigger_id}">{/if}
 		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
-	
-		<b>{'common.title'|devblocks_translate|capitalize}:</b>
-		<div style="margin:0px 0px 10px 10px;">
-			<input type="text" name="title" value="{$model->title|default:''}" style="width:100%;" autofocus="autofocus" autocomplete="off" spellcheck="false">
+
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'common.title'|devblocks_translate|capitalize}</label>
+			<input type="text" name="title" value="{$model->title|default:''}" autofocus="autofocus" autocomplete="off" spellcheck="false">
 		</div>
-		
-		<b>{'common.status'|devblocks_translate|capitalize}:</b>
-		<div style="margin:0px 0px 10px 10px;">
-			<label><input type="radio" name="status_id" value="0" {if !$model || !$model->status_id}checked="checked"{/if}> Live</label>
-			<label><input type="radio" name="status_id" value="2" {if 2 == $model->status_id|default:0}checked="checked"{/if}> Simulator only</label>
-			<label><input type="radio" name="status_id" value="1" {if 1 == $model->status_id|default:0}checked="checked"{/if}> Disabled</label>
+
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'common.status'|devblocks_translate|capitalize}</label>
+			<input type="hidden" name="status_id" value="{$model->status_id|default:0}">
+			<div>
+				<div class="cerb-ui-switcher cerb-behavior-status-switcher">
+					<button type="button" data-value="0"{if !$model || !$model->status_id} class="cerb-ui-switcher--active"{/if}><span class="cerb-icons cerb-icon-play-button"></span> Live</button>
+					<button type="button" data-value="2"{if 2 == $model->status_id|default:0} class="cerb-ui-switcher--active"{/if}><span class="cerb-icons cerb-icon-lab"></span> Simulator only</button>
+					<button type="button" data-value="1"{if 1 == $model->status_id|default:0} class="cerb-ui-switcher--active"{/if}><span class="cerb-icons cerb-icon-ban"></span> Disabled</button>
+				</div>
+			</div>
 		</div>
-		
+
 		<div class="actions">
-		
+
 		{$seq = null}
 		{if $model && array_key_exists('actions', $model->params) && is_array($model->params.actions)}
 		{foreach from=$model->params.actions item=params key=seq}
-		<fieldset id="action{$seq}_{$nonce}" class="cerb-bot-action">
+		<div id="action{$seq}_{$nonce}" class="cerb-ui-panel cerb-ui-panel--spaced cerb-bot-action">
 			{$action = $params.action|default:''}
-			<legend class="cerb-bot-action--title" style="font-size:135%;">
-				{if array_key_exists($action, $actions)}{$actions[$action].label}{else}(missing action: {$action}){/if}<!--
-				--><span data-cerb-onhover style="display:none;cursor:pointer;"><span class="cerb-icons cerb-icon-move"></span></span><!--
-				--><span data-cerb-onhover style="display:none;cursor:pointer;"><span class="cerb-icons cerb-icon-circle-remove"></span></span>
-			</legend>
+			<div class="cerb-ui-header cerb-ui-header--tight cerb-ui-header--center cerb-bot-action--title" style="cursor:move;">
+				<div class="cerb-ui-header--title-sm">{if array_key_exists($action, $actions)}{$actions[$action].label}{else}(missing action: {$action}){/if}</div>
+				<div class="cerb-ui-header--right">
+					<span data-cerb-onhover class="cerb-icons cerb-icon-circle-remove" style="display:none;cursor:pointer;"></span>
+				</div>
+			</div>
 
-			<div style="margin-left:10px;">
+			<div class="cerb-ui-form cerb-bot-action--body">
 				<input type="hidden" name="actions[]" value="{$seq}">
 				<input type="hidden" name="action{$seq}[action]" value="{$action}">
 
@@ -54,7 +60,7 @@
 					The action will be ignored by this behavior until it becomes available again.
 				{/if}
 			</div>
-		</fieldset>
+		</div>
 		{/foreach}
 		{/if}
 		</div>
@@ -62,9 +68,9 @@
 		<div id="divDecisionActionToolbar{$id}" style="display:none;">
 			<div class="tester"></div>
 
-			<button type="button" class="cerb-popupmenu-trigger">Insert placeholder &#x25be;</button>
-			<button type="button" class="tester">{'common.test'|devblocks_translate|capitalize}</button>
-			<button type="button" data-cerb-button="toolbar-help">Help</button>
+			<button type="button" class="cerb-ui-button cerb-ui-button--subtle cerb-popupmenu-trigger">Insert placeholder <span class="cerb-icons cerb-icon-chevron-down"></span></button>
+			<button type="button" class="cerb-ui-button cerb-ui-button--subtle tester">{'common.test'|devblocks_translate|capitalize}</button>
+			<button type="button" class="cerb-ui-button cerb-ui-button--subtle" data-cerb-button="toolbar-help">Help</button>
 
 			{$types = $values['_types']|default:[]}
 			{function tree level=0}
@@ -105,8 +111,8 @@
 		{if isset($trigger_id)}<input type="hidden" name="trigger_id" value="{$trigger_id}">{/if}
 		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-		<div style="margin:10px 0 10px 0;">
-			<button type="button" class="action cerb-popupmenu-trigger"><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.add'|devblocks_translate|capitalize} &#x25be;</button>
+		<div class="cerb-u-my-2">
+			<button type="button" class="cerb-ui-button cerb-ui-button--subtle action cerb-popupmenu-trigger"><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.add'|devblocks_translate|capitalize} <span class="cerb-icons cerb-icon-chevron-down"></span></button>
 
 			{function menu level=0}
 				{foreach from=$keys item=data key=idx}
@@ -134,22 +140,17 @@
 		</form>
 
 		{if isset($id)}
-		<fieldset class="delete" style="display:none;">
-			<legend>Delete this action?</legend>
-			<p>Are you sure you want to permanently delete this action?</p>
-			<button type="button" class="red" data-cerb-button="delete-confirm"> {'common.yes'|devblocks_translate|capitalize}</button>
-			<button type="button" data-cerb-button="delete-reject"> {'common.no'|devblocks_translate|capitalize}</button>
-		</fieldset>
+			{include file="devblocks:cerberusweb.core::internal/peek/delete_confirm.tpl" noun="action"}
 		{/if}
 
-		<div class="toolbar">
+		<div class="buttons">
 			{if !isset($id)}
-				<button type="button" data-cerb-button="save-create"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+				<button type="button" class="cerb-ui-button cerb-u-anim-group" data-cerb-button="save-create"><span class="cerb-icons cerb-icon-circle-ok cerb-u-anim-pulse-hover"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 			{else}
-				<button type="button" data-cerb-button="save-close"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_and_close'|devblocks_translate|capitalize}</button>
-				<button type="button" data-cerb-button="save-continue"><span class="cerb-icons cerb-icon-circle-arrow-right"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>
-				<button type="button" data-cerb-button="simulate"> <span class="cerb-icons cerb-icon-gear"></span> Simulator</button>
-				<button type="button" data-cerb-button="delete"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>
+				<button type="button" class="cerb-ui-button cerb-u-anim-group" data-cerb-button="save-close"><span class="cerb-icons cerb-icon-circle-ok cerb-u-anim-pulse-hover"></span> {'common.save_and_close'|devblocks_translate|capitalize}</button>
+				<button type="button" class="cerb-ui-button cerb-ui-button--subtle" data-cerb-button="save-continue"><span class="cerb-icons cerb-icon-circle-arrow-right"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>
+				<button type="button" class="cerb-ui-button cerb-ui-button--subtle" data-cerb-button="simulate"><span class="cerb-icons cerb-icon-gear"></span> Simulator</button>
+				<button type="button" class="cerb-ui-button cerb-ui-button--subtle delete-prompt"><span class="cerb-icons cerb-icon-trash"></span> {'common.delete'|devblocks_translate|capitalize}</button>
 			{/if}
 		</div>
 	</div>
@@ -179,6 +180,13 @@ $(function() {
 
 	Devblocks.formDisableSubmit($popup.find('form'));
 
+	// Refresh every on-page instance of this behavior's tree (it can appear in multiple widgets/cards).
+	const refreshTrees = function() {
+		$('[data-behavior-tree-id="{$trigger_id}"]').each(function() {
+			genericAjaxGet(this.id, 'c=profiles&a=invoke&module=behavior&action=renderDecisionTree&id={$trigger_id}&tree_dom_id=' + encodeURIComponent(this.id));
+		});
+	};
+
 	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"{if empty($id)}New {/if}Actions");
 		$popup.find('input:text').first().focus();
@@ -189,11 +197,18 @@ $(function() {
 		var $frm_library = $('#frmDecisionAction{$id}Library');
 		var $frm_add_action = $('#frmDecisionActionAdd{$id}');
 
+		if(window.CerbUI && CerbUI.Switcher) {
+			$frm_build.find('.cerb-behavior-status-switcher').each(function() {
+				const input = this.closest('.cerb-ui-form--field').querySelector('input[name=status_id]');
+				new CerbUI.Switcher(this, { value: input ? input.value : null, onSelect: function(v) { if(input) input.value = v; } });
+			});
+		}
+
 		$popup.find('[data-cerb-button=save-create]').on('click', function(e) {
 			e.stopPropagation();
 			genericAjaxPost($frm_build,null,null,function() {
 				genericAjaxPopupDestroy('node_action{$id}');
-				genericAjaxGet('decisionTree{$trigger_id}','c=profiles&a=invoke&module=behavior&action=renderDecisionTree&id={$trigger_id}');
+				refreshTrees();
 			});
 		});
 
@@ -201,7 +216,7 @@ $(function() {
 			e.stopPropagation();
 			genericAjaxPost($frm_build,null,null,function() {
 				genericAjaxPopupDestroy('node_action{$id}');
-				genericAjaxGet('decisionTree{$trigger_id}','c=profiles&a=invoke&module=behavior&action=renderDecisionTree&id={$trigger_id}');
+				refreshTrees();
 			});
 		});
 
@@ -209,7 +224,7 @@ $(function() {
 			e.stopPropagation();
 			genericAjaxPost($frm_build,null,null,function() {
 				Devblocks.createAlert('Saved!', 'note');
-				genericAjaxGet('decisionTree{$trigger_id}','c=profiles&a=invoke&module=behavior&action=renderDecisionTree&id={$trigger_id}');
+				refreshTrees();
 			});
 		});
 
@@ -218,30 +233,20 @@ $(function() {
 			genericAjaxPopup('simulate_behavior','c=profiles&a=invoke&module=behavior&action=renderSimulatorPopup&trigger_id={$trigger_id}','reuse',false,'50%');
 		});
 
-		$popup.find('[data-cerb-button=delete]').on('click', function(e) {
-			e.stopPropagation();
-			$(this).closest('.toolbar').hide().prev('fieldset.delete').show();
-		});
+		if(window.CerbUI && CerbUI.Form) {
+			CerbUI.Form.ConfirmDelete($popup[0], { onConfirm: function() {
+				var formData = new FormData($frm_build[0]);
+				formData.set('action', 'saveDecisionDeletePopup');
+				genericAjaxPost(formData,null,null,function() {
+					genericAjaxPopupDestroy('node_action{$id}');
+					refreshTrees();
+				});
+			}});
+		}
 
 		$popup.find('[data-cerb-button=toolbar-help]').on('click', function(e) {
 			e.stopPropagation();
 			genericAjaxPopup('help', 'c=profiles&a=invoke&module=snippet&action=helpPopup', { my:'left top' , at:'left+20 top+20'}, false, '600');
-		});
-
-		$popup.find('[data-cerb-button=delete-confirm]').on('click', function(e) {
-			e.stopPropagation();
-			var formData = new FormData($frm_build[0]);
-			formData.set('action', 'saveDecisionDeletePopup');
-
-			genericAjaxPost(formData,null,null,function() {
-				genericAjaxPopupDestroy('node_action{$id}');
-				genericAjaxGet('decisionTree{$trigger_id}','c=profiles&a=invoke&module=behavior&action=renderDecisionTree&id={$trigger_id}');
-			});
-		});
-
-		$popup.find('[data-cerb-button=delete-reject]').on('click', function(e) {
-			e.stopPropagation();
-			$(this).closest('fieldset').hide().next('.toolbar').show();
 		});
 
 		// Make sure the toolbar is never removed
@@ -257,16 +262,19 @@ $(function() {
 		let funcBehaviorActionRemove = function(e) {
 			e.stopPropagation();
 			let id = $(this).attr('data-cerb-node-id');
-			$(this).closest('fieldset').find('#divDecisionActionToolbar' + id).hide().appendTo($('#frmDecisionAction' + id + 'Action'));
-			$(this).closest('fieldset').trigger('cerb.remove');
+			$(this).closest('.cerb-bot-action').find('#divDecisionActionToolbar' + id).hide().appendTo($('#frmDecisionAction' + id + 'Action'));
+			$(this).closest('.cerb-bot-action').trigger('cerb.remove');
 		}
 
-		$frm_build.find('fieldset.cerb-bot-action legend .cerb-icon-circle-remove').on('click', funcBehaviorActionRemove);
+		$frm_build.find('.cerb-bot-action .cerb-ui-header .cerb-icon-circle-remove').on('click', funcBehaviorActionRemove);
 
 		// Package Library
 
 		{if !$id && $packages}
-			var $tabs = $popup.find('.cerb-tabs').tabs();
+			var $tabs = $popup.find('.cerb-tabs');
+			$tabs.find('> ul').each(function() {
+				if(window.CerbUI && CerbUI.Tabs) new CerbUI.Tabs(this);
+			});
 			var $library_container = $tabs;
 			{include file="devblocks:cerberusweb.core::internal/package_library/editor_chooser.js.tpl"}
 
@@ -282,9 +290,8 @@ $(function() {
 					} else if (json.id && json.type) {
 						genericAjaxPopupDestroy('node_action{$id}');
 
-						genericAjaxGet('decisionTree{$trigger_id}','c=profiles&a=invoke&module=behavior&action=renderDecisionTree&id={$trigger_id}', function() {
-							genericAjaxPopup('node_' + json.type + json.id,'c=profiles&a=invoke&module=behavior&action=renderDecisionPopup&id=' + encodeURIComponent(json.id),null,false,'50%');
-						});
+						refreshTrees();
+						genericAjaxPopup('node_' + json.type + json.id,'c=profiles&a=invoke&module=behavior&action=renderDecisionPopup&id=' + encodeURIComponent(json.id),null,false,'50%');
 					}
 				});
 
@@ -293,32 +300,26 @@ $(function() {
 
 		// Choosers
 
-		$popup.find('BUTTON.chooser_group.unbound').each(function() {
-			var seq = $(this).closest('fieldset').find('input:hidden[name="actions[]"]').val();
-			ajax.chooser(this,'cerberusweb.contexts.group','action'+seq+'[group_id]', { autocomplete:true });
+		$popup.find('.chooser_group.unbound').each(function() {
+			var seq = $(this).closest('.cerb-bot-action').find('input:hidden[name="actions[]"]').val();
+			if(window.CerbUI && CerbUI.RecordChooser)
+				new CerbUI.RecordChooser(this, { context:'cerberusweb.contexts.group', name:'action'+seq+'[group_id]', multiple:true, emptyIcon:'users' });
 			$(this).removeClass('unbound');
 		});
 
-		$popup.find('BUTTON.chooser_worker.unbound').each(function() {
-			var seq = $(this).closest('fieldset').find('input:hidden[name="actions[]"]').val();
-			ajax.chooser(this,'cerberusweb.contexts.worker','action'+seq+'[worker_id]', { autocomplete:true });
-			$(this).removeClass('unbound');
-		});
-		$popup.find('BUTTON.chooser_notify_workers.unbound').each(function() {
-			var seq = $(this).closest('fieldset').find('input:hidden[name="actions[]"]').val();
-			ajax.chooser(this,'cerberusweb.contexts.worker','action'+seq+'[notify_worker_id]', { autocomplete:true });
+		$popup.find('.chooser_worker.unbound').each(function() {
+			var seq = $(this).closest('.cerb-bot-action').find('input:hidden[name="actions[]"]').val();
+			if(window.CerbUI && CerbUI.RecordChooser)
+				new CerbUI.RecordChooser(this, { context:'cerberusweb.contexts.worker', name:'action'+seq+'[worker_id]', multiple:true, emptyIcon:'user' });
 			$(this).removeClass('unbound');
 		});
 
-		$popup.find('#frmDecisionAction{$id}Action DIV.actions')
-			.sortable({
-				'items': 'fieldset.cerb-bot-action',
-				'placeholder': 'ui-state-highlight',
-				'handle': 'legend span.cerb-icon-move',
-				'tolerance': 'pointer',
-				'opacity': 0.7
-			})
-		;
+		if(window.CerbUI && CerbUI.Sortable)
+			new CerbUI.Sortable($popup.find('#frmDecisionAction{$id}Action div.actions').get(0), {
+				items: '.cerb-bot-action',
+				handle: '.cerb-ui-header',
+				tolerance: 'pointer'
+			});
 
 		$popup.find('#frmDecisionAction{$id}Action DIV.actions').on({
 			mouseenter: function() {
@@ -327,40 +328,40 @@ $(function() {
 			mouseleave: function() {
 				$(this).find(':visible[data-cerb-onhover]').hide();
 			}
-		}, "fieldset");
+		}, ".cerb-bot-action");
 
 		// Placeholders
 
-		$popup.find('textarea.placeholders, :text.placeholders').each(function() {
-			var $this = $(this);
-
-			$this.cerbCodeEditor();
-
-			if('ace/mode/cerb_query' == $this.attr('data-editor-mode'))
-				$this.cerbCodeEditorAutocompleteDataQueries();
-		});
-
-		$popup.delegate(':text.placeholders, textarea.placeholders, pre.placeholders', 'focus', function(e) {
-			e.stopPropagation();
-
-			var $target = $(e.target);
-			var $parent = $target.closest('.ace_editor');
-
-			if(0 != $parent.length) {
-				$toolbar.find('div.tester').html('');
-				$toolbar.find('ul.menu').hide();
-				$toolbar.show().insertAfter($parent);
-				$toolbar.data('src', $parent);
-
-			} else {
-				if(0 == $target.nextAll('#divDecisionActionToolbar{$id}').length) {
+		// Each .placeholders field becomes a CerbUI.ScriptingEditor (a <textarea> is multi-line; an <input> is
+		// single-line/wrap with a guaranteed single-line value via enhance()). The shared placeholder toolbar docks
+		// onto the editor on focus; token insertion + the tester resolve the editor instance (see the menu below).
+		// Runs at init AND on each dynamically-loaded action template.
+		var enhancePlaceholders = function($scope) {
+			if(!(window.CerbUI && CerbUI.ScriptingEditor)) return;
+			$scope.find('textarea.placeholders, :text.placeholders').each(function() {
+				var isInput = this.tagName === 'INPUT';
+				this.classList.remove('placeholders');   // the carrier stays named + submitted, just not re-matched
+				var ed = CerbUI.ScriptingEditor.enhance(this, {
+					singleLine: isInput,
+					minLines: isInput ? 1 : 3,
+					maxLines: isInput ? 6 : 12
+				});
+				if(!ed) return;
+				ed.textarea.addEventListener('focus', function() {
 					$toolbar.find('div.tester').html('');
 					$toolbar.find('ul.menu').hide();
-					$toolbar.show().insertAfter($target);
-					$toolbar.data('src', $target);
+					$toolbar.show().insertAfter(ed.el);
+					$toolbar.data('src', ed);
 					$toolbar.find('button.tester').show();
-				}
-			}
+				});
+			});
+		};
+
+		enhancePlaceholders($popup);
+
+		// Late-added fields (e.g. an AJAX-added custom fieldset) request enhancement via this event
+		$popup.on('cerb-placeholders--enhance', function(e) {
+			enhancePlaceholders($(e.target));
 		});
 
 		// Placeholder menu
@@ -370,57 +371,53 @@ $(function() {
 
 		// Quick insert token menu
 
-		$placeholder_menu.menu({
-			select: function(event, ui) {
-				var token = ui.item.attr('data-token');
-				var label = ui.item.attr('data-label');
+		var menu = new CerbUI.Menu($placeholder_menu[0], {
+			clickTrigger: $placeholder_menu_trigger[0],
+			selectableParents: true,
+			filter: true,
+			onSelect: function(li, src) {
+				var token = src.getAttribute('data-token');
+				var label = src.getAttribute('data-label');
 
 				if(undefined == token || undefined == label)
 					return;
 
-				var $field = null;
+				var insert = '{literal}{{{/literal}' + token + '{literal}}}{/literal}';
+				var fieldSrc = $toolbar.data('src');
 
-				if($toolbar.data('src')) {
-					$field = $toolbar.data('src');
-
-				} else {
-					$field = $toolbar.prev(':text, textarea');
+				// The docked source is a ScriptingEditor (enhanced field) or a plain jQuery field (any stray case).
+				if(fieldSrc instanceof CerbUI.ScriptingEditor) {
+					fieldSrc.focus();
+					fieldSrc.insertAtCursor(insert);
+					return;
 				}
 
-				if(null == $field)
+				var $field = fieldSrc ? $(fieldSrc) : $toolbar.prev(':text, textarea');
+
+				if(!$field || 0 == $field.length)
 					return;
 
-				if(null == $field)
-					return;
-
-				if($field.is(':text, textarea')) {
-					$field.focus().insertAtCursor('{literal}{{{/literal}' + token + '{literal}}}{/literal}');
-
-				} else if($field.is('.ace_editor')) {
-					var evt = new jQuery.Event('cerb.insertAtCursor');
-					evt.content = '{literal}{{{/literal}' + token + '{literal}}}{/literal}';
-					$field.trigger(evt);
-				}
+				if($field.is(':text, textarea'))
+					$field.focus().insertAtCursor(insert);
 			}
 		});
 
 		$toolbar.find('button.tester').click(function(e) {
 			var divTester = $toolbar.find('div.tester').first();
 
+			var fieldSrc = $toolbar.data('src');
 			var $field = null;
 
-			if($toolbar.data('src')) {
-				$field = $toolbar.data('src');
-			} else {
+			// Resolve the named control: for an enhanced editor it's the value carrier (input) or the textarea itself.
+			if(fieldSrc instanceof CerbUI.ScriptingEditor)
+				$field = $(fieldSrc.el).find('[name]').first();
+			else if(fieldSrc)
+				$field = $(fieldSrc);
+			else
 				$field = $toolbar.prev(':text, textarea');
-			}
 
-			if(null == $field)
+			if(null == $field || 0 == $field.length)
 				return;
-
-			if($field.is('.ace_editor')) {
-				var $field = $field.prev('textarea, :text');
-			}
 
 			var regexpName = /^(.*?)(\[.*?\])$/;
 			var hits = regexpName.exec($field.attr('name'));
@@ -443,13 +440,10 @@ $(function() {
 		});
 
 		$placeholder_menu_trigger
-			.click(
-				function(e) {
-					$placeholder_menu.toggle();
-				}
-			)
 			.bind('remove',
 				function(e) {
+					if(menu)
+						menu.destroy();
 					$placeholder_menu.remove();
 				}
 			)
@@ -458,16 +452,15 @@ $(function() {
 		// Action menu
 
 		var $actions_menu_trigger = $frm_add_action.find('button.action.cerb-popupmenu-trigger');
-		var $actions_menu = $frm_add_action.find('ul.actions-menu');
+		var $actions_menu = $frm_add_action.find('ul.actions-menu').hide();
 
-		$actions_menu_trigger.click(function() {
-			$actions_menu.toggle();
-		});
-
-		$actions_menu.menu({
-			select: function(event, ui) {
-				var token = ui.item.attr('data-token');
-				var label = ui.item.attr('data-label');
+		new CerbUI.Menu($actions_menu[0], {
+			clickTrigger: $actions_menu_trigger[0],
+			selectableParents: true,
+			filter: true,
+			onSelect: function(li, src) {
+				var token = src.getAttribute('data-token');
+				var label = src.getAttribute('data-label');
 
 				if(label)
 					label = label.replace('(Common) ','');
@@ -484,52 +477,44 @@ $(function() {
 					if(null == seq)
 						seq = 0;
 
-					var $container = $('<fieldset class="cerb-bot-action" />').attr('id','action' + seq + '_{$nonce}').addClass('cerb-bot-action');
-					$container.prepend('<legend class="cerb-bot-action--title" style="font-size:135%;">'
-						+ label
-						+ '<span data-cerb-onhover style="display:none;cursor:pointer;"><span class="cerb-icons cerb-icon-move"></span></span>'
-						+ '<span data-cerb-onhover style="display:none;cursor:pointer;"><span class="cerb-icons cerb-icon-circle-remove"></span></span>'
+					var $container = $('<div class="cerb-ui-panel cerb-ui-panel--spaced cerb-bot-action" />').attr('id','action' + seq + '_{$nonce}');
+					$container.prepend('<div class="cerb-ui-header cerb-ui-header--tight cerb-ui-header--center cerb-bot-action--title" style="cursor:move;">'
+						+ '<div class="cerb-ui-header--title-sm"></div>'
+						+ '<div class="cerb-ui-header--right"><span data-cerb-onhover class="cerb-icons cerb-icon-circle-remove" style="display:none;cursor:pointer;"></span></div>'
+						+ '</div>'
 					);
-					$container.find('legend .cerb-icon-circle-remove').on('click', funcBehaviorActionRemove);
-					var $div = $('<div style="margin-left:10px;" />').appendTo($container);
+					$container.find('.cerb-ui-header--title-sm').text(label);
+					$container.find('.cerb-ui-header .cerb-icon-circle-remove').on('click', funcBehaviorActionRemove);
+					var $div = $('<div class="cerb-ui-form cerb-bot-action--body" />').appendTo($container);
 					$ul.append($container);
-					
+
 					var $html = $div.html(html);
 					$div.prepend('<input type="hidden" name="action'+seq+'[action]" value="' + token + '">');
 					$div.prepend('<input type="hidden" name="actions[]" value="' + seq + '">');
 
 					$container.append($html);
-					
-					$html.find('BUTTON.chooser_group.unbound').each(function() {
-						ajax.chooser(this,'cerberusweb.contexts.group','action'+seq+'[group_id]', { autocomplete:true });
+
+					$html.find('.chooser_group.unbound').each(function() {
+						if(window.CerbUI && CerbUI.RecordChooser)
+							new CerbUI.RecordChooser(this, { context:'cerberusweb.contexts.group', name:'action'+seq+'[group_id]', multiple:true, emptyIcon:'users' });
 						$(this).removeClass('unbound');
 					});
-					
-					$html.find('BUTTON.chooser_worker.unbound').each(function() {
-						ajax.chooser(this,'cerberusweb.contexts.worker','action'+seq+'[worker_id]', { autocomplete:true });
+
+					$html.find('.chooser_worker.unbound').each(function() {
+						if(window.CerbUI && CerbUI.RecordChooser)
+							new CerbUI.RecordChooser(this, { context:'cerberusweb.contexts.worker', name:'action'+seq+'[worker_id]', multiple:true, emptyIcon:'user' });
 						$(this).removeClass('unbound');
 					});
-					$html.find('BUTTON.chooser_notify_workers.unbound').each(function() {
-						ajax.chooser(this,'cerberusweb.contexts.worker','action'+seq+'[notify_worker_id]', { autocomplete:true });
-						$(this).removeClass('unbound');
-					});
-					
-					$html.find('textarea.placeholders, :text.placeholders').each(function() {
-						var $this = $(this);
-						
-						$this.cerbCodeEditor();
-						
-						if('ace/mode/cerb_query' == $this.attr('data-editor-mode'))
-							$this.cerbCodeEditorAutocompleteDataQueries();
-					});
-					
+
+					enhancePlaceholders($html);
+
 					$frm_add_action.find('input[name=seq]').val(1+seq);
 				});
-				
+
 			}
 		});
-		
+
 	}); // popup_open
-	
+
 });
 </script>

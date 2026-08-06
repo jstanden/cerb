@@ -1,61 +1,56 @@
-<b>From these workers:</b>
-<div style="margin-left:10px;">
-	<button type="button" class="chooser_worker unbound"><span class="cerb-icons cerb-icon-search"></span></button>
-	<ul class="chooser-container bubbles" style="display:block;">
+<div class="cerb-ui-form--field">
+	<label class="cerb-ui-form--label">From these workers</label>
+	<div class="cerb-ui-record-chooser chooser_worker unbound">
 	{if isset($params.worker_id)}
 	{foreach from=$params.worker_id item=worker_id}
 		{$context_worker = $workers.$worker_id}
 		{if !empty($context_worker)}
-		<li>{$context_worker->getName()}<input type="hidden" name="{$namePrefix}[worker_id][]" value="{$context_worker->id}"><a data-cerb-link="remove_parent"><span class="cerb-icons cerb-icon-circle-remove"></span></a></li>
+		<li data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$context_worker->id}" data-label="{$context_worker->getName()}"></li>
 		{/if}
 	{/foreach}
 	{/if}
-	</ul>
+	</div>
 </div>
 
-<b>And the workers from these groups:</b>
-<div style="margin-left:10px;">
-	<button type="button" class="chooser_group unbound"><span class="cerb-icons cerb-icon-search"></span></button>
-	<ul class="chooser-container bubbles" style="display:block;">
+<div class="cerb-ui-form--field">
+	<label class="cerb-ui-form--label">And the workers from these groups</label>
+	<div class="cerb-ui-record-chooser chooser_group unbound">
 	{if isset($params.group_id)}
 	{foreach from=$params.group_id item=group_id}
 		{$context_group = $groups.$group_id}
 		{if !empty($context_group)}
-		<li>{$context_group->name}<input type="hidden" name="{$namePrefix}[group_id][]" value="{$context_group->id}"><a data-cerb-link="remove_parent"><span class="cerb-icons cerb-icon-circle-remove"></span></a></li>
+		<li data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$context_group->id}" data-label="{$context_group->name}"></li>
 		{/if}
 	{/foreach}
 	{/if}
-	</ul>
+	</div>
 </div>
 
 {if !empty($worker_variables)}
-<b>And the workers from these variables:</b>
-<div style="margin-left:10px;">
-	{foreach from=$worker_variables item=var key=var_key}
-		<label><input type="checkbox" name="{$namePrefix}[vars][]" value="{$var_key}" {if is_array($params.vars) && in_array($var_key, $params.vars)}checked="checked"{/if}> {$var}</label>
-	{/foreach}
+<div class="cerb-ui-form--field">
+	<label class="cerb-ui-form--label">And the workers from these variables</label>
+	<div>
+		{foreach from=$worker_variables item=var key=var_key}
+			<label><input type="checkbox" name="{$namePrefix}[vars][]" value="{$var_key}" {if is_array($params.vars) && in_array($var_key, $params.vars)}checked="checked"{/if}> {$var}</label>
+		{/foreach}
+	</div>
 </div>
 {/if}
 
-<b>Where:</b>
-<div style="margin-left:10px;">
-	<label><input type="checkbox" name="{$namePrefix}[opt_is_available]" value="1" {if $params.opt_is_available}checked="checked"{/if}>The worker is available</label>
-	<br>
-	<label><input type="checkbox" name="{$namePrefix}[opt_logged_in]" value="1" {if $params.opt_logged_in}checked="checked"{/if}>The worker is currently logged in</label>
+<div class="cerb-ui-form--field">
+	<label class="cerb-ui-form--label">Where</label>
+	<div>
+		<label><input type="checkbox" name="{$namePrefix}[opt_is_available]" value="1" {if $params.opt_is_available}checked="checked"{/if}>The worker is available</label>
+		<br>
+		<label><input type="checkbox" name="{$namePrefix}[opt_logged_in]" value="1" {if $params.opt_logged_in}checked="checked"{/if}>The worker is currently logged in</label>
+	</div>
 </div>
 
-<b>Pick:</b>
-<div style="margin-left:10px;">
+<div class="cerb-ui-form--field">
+	<label class="cerb-ui-form--label">Pick</label>
 	<select name="{$namePrefix}[mode]">
 		<option value="random" {if $params.mode=='random'}selected='selected'{/if}>A random worker</option>
 		<option value="seq" {if $params.mode=='seq'}selected='selected'{/if}>Each worker sequentially (i.e. round robin)</option>
 		<option value="load_balance" {if $params.mode=='load_balance'}selected='selected'{/if}>The worker with the fewest open assignments (i.e. load balance)</option>
 	</select>
 </div>
-
-<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
-$(function() {
-	let $action = $('#{$namePrefix}_{$nonce}');
-	$action.find('[data-cerb-link=remove_parent]').on('click', Devblocks.onClickRemoveParent);
-});
-</script>

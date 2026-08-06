@@ -60,7 +60,7 @@ $action.find('select.behavior').change(function() {
 	var behavior_id = $behavior.val();
 	
 	if(behavior_id.length > 0) {
-		var $div = $(this).closest('fieldset').find('div.parameters');
+		var $div = $(this).closest('.cerb-bot-action').find('div.parameters');
 		genericAjaxGet($div, 'c=profiles&a=invoke&module=behavior&action=getParams&name_prefix={$namePrefix}&trigger_id=' + encodeURIComponent(behavior_id));
 	}
 });
@@ -69,15 +69,15 @@ $action.find('select.on').change(function() {
 	var $on = $(this);
 	var ctx = $on.find('option:selected').attr('data-context');
 	
-	$on.closest('fieldset').find('div.parameters').html('');
+	$on.closest('.cerb-bot-action').find('div.parameters').html('');
 
-	var $sel_behavior = $on.closest('fieldset').find('select.behavior');
+	var $sel_behavior = $on.closest('.cerb-bot-action').find('select.behavior');
 	$sel_behavior
 		.empty()
 		.append($("<option/>"))
 	;
 	
-	var $sel_behavior_defaults = $on.closest('fieldset').find('select.behavior_defaults');
+	var $sel_behavior_defaults = $on.closest('.cerb-bot-action').find('select.behavior_defaults');
 	$sel_behavior_defaults.find('option').each(function() {
 		var $this = $(this);
 		if(ctx === $this.attr('data-context')) {

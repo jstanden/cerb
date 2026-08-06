@@ -12,15 +12,8 @@
 <div style="{if $params.format=='parsedown'}{else}display:none;{/if}" class="options-parsedown">
 	<b>HTML Template:</b><br>
 	<div style="margin-left:10px;margin-bottom:0.5em;">
-		<button type="button" class="chooser-abstract" data-field-name="{$namePrefix}[html_template_id]" data-context="{CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE}" data-single="true" data-autocomplete="" data-autocomplete-placeholders="{$smarty.capture.addy_placeholders}"><span class="cerb-icons cerb-icon-search"></span></button>
-		<ul class="bubbles chooser-container">
-			{if $params.html_template_id}
-				{$html_template = $html_templates.{$params.html_template_id}}
-				{if $html_template}
-				<li><input type="hidden" name="{$namePrefix}[html_template_id]" value="{$html_template->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE}" data-context-id="{$html_template->id}">{$html_template->name}</a></li>
-				{/if}
-			{/if}
-		</ul>
+		<a class="cerb-chooser cerb-html-template-chooser" data-context="{CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE}" data-single="true">ID</a>:
+		<input type="text" name="{$namePrefix}[html_template_id]" value="{$params.html_template_id}" class="placeholders" size="40" autocomplete="off" spellcheck="false">
 	</div>
 </div>
 
@@ -75,14 +68,19 @@ $(function() {
 	let $content = $action.find('textarea.editor');
 	
 	$action.find('.cerb-peek-trigger').cerbPeekTrigger();
-	$action.find('.chooser-abstract').cerbChooserTrigger();
-	
-	// Attachments
-	
-	$action.find('button.chooser-file-bundle').each(function() {
-		$(this).parent().find('[data-cerb-link=bundle_remove]').on('click', Devblocks.onClickRemoveParent);
-		ajax.chooser(this,'{CerberusContexts::CONTEXT_FILE_BUNDLE}','{$namePrefix}[bundle_ids]', { autocomplete:false });
-	});
+
+	if(window.CerbUI && CerbUI.RecordChooser) {
+		// HTML template: placeholder-capable (type a placeholder, or pick a template via the ID link).
+		$action.find('.cerb-html-template-chooser').each(function() {
+			CerbUI.RecordChooser.pickerLink(this, { input: $action.find('input[name="{$namePrefix}[html_template_id]"]')[0] });
+		});
+
+		{if DevblocksPlatform::isPluginEnabled('cerb.file_bundles')}
+		$action.find('.cerb-file-bundle-chooser').each(function() {
+			new CerbUI.RecordChooser(this, { context: 'cerberusweb.contexts.file_bundle', name: '{$namePrefix}[bundle_ids]', multiple: true, emptyIcon: 'paperclip' });
+		});
+		{/if}
+	}
 
 	// Format toggle
 	let $format = $action.find('input:radio[name="{$namePrefix}[format]"]');

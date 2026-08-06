@@ -1,21 +1,23 @@
-<b>{'common.context'|devblocks_translate|capitalize}:</b> <i>(e.g. "ticket")</i> {include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/docs/records/types/"}
-<div style="margin-left:10px;margin-bottom:10px;">
-	<input type="text" name="{$namePrefix}[context]" class="placeholders" spellcheck="false" style="width:100%;" value="{$params.context}" placeholder="e.g. ticket">
+<div class="cerb-ui-form--field">
+	<label class="cerb-ui-form--label">{'common.context'|devblocks_translate|capitalize}<span class="cerb-ui-form--hint">e.g. "ticket"</span> {include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/docs/records/types/"}</label>
+	<input type="text" name="{$namePrefix}[context]" class="placeholders" spellcheck="false" value="{$params.context}" placeholder="e.g. ticket">
 </div>
 
-<b>{'common.query'|devblocks_translate}:</b> <i>(e.g. <tt>status:o</tt>)</i> {include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/docs/search/"}
-<div style="margin-left:10px;margin-bottom:10px;">
-	<textarea name="{$namePrefix}[query]" class="placeholders" spellcheck="false" style="width:100%;">{$params.query}</textarea>
+<div class="cerb-ui-form--field">
+	<label class="cerb-ui-form--label">{'common.query'|devblocks_translate}<span class="cerb-ui-form--hint">e.g. <tt>status:o</tt></span> {include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/docs/search/"}</label>
+	<textarea name="{$namePrefix}[query]" class="placeholders" spellcheck="false">{$params.query}</textarea>
 </div>
 
-<b>Keys to expand:</b> <i>(one per line; e.g. <tt>custom_</tt>, <tt>owner_</tt>)</i>
-<div style="margin-left:10px;margin-bottom:10px;">
-	<textarea name="{$namePrefix}[expand]" class="placeholders" spellcheck="false" style="width:100%;">{$params.expand}</textarea>
+<div class="cerb-ui-form--field">
+	<label class="cerb-ui-form--label">Keys to expand<span class="cerb-ui-form--hint">one per line; e.g. <tt>custom_</tt>, <tt>owner_</tt></span></label>
+	<textarea name="{$namePrefix}[expand]" class="placeholders" spellcheck="false">{$params.expand}</textarea>
 </div>
 
-<b>Save record dictionaries to a placeholder named:</b><br>
-<div style="margin-left:10px;margin-bottom:10px;">
-	&#123;&#123;<input type="text" name="{$namePrefix}[object_placeholder]" value="{$params.object_placeholder|default:"_records"}" required="required" spellcheck="false" size="32" placeholder="e.g. _records">&#125;&#125;
+<div class="cerb-ui-form--field">
+	<label class="cerb-ui-form--label">Save record dictionaries to a placeholder named</label>
+	<div>
+		&#123;&#123;<input type="text" name="{$namePrefix}[object_placeholder]" value="{$params.object_placeholder|default:"_records"}" required="required" spellcheck="false" size="32" placeholder="e.g. _records">&#125;&#125;
+	</div>
 </div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">

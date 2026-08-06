@@ -12,7 +12,7 @@
 <input type="hidden" name="action" value="">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-    <textarea data-editor-mode="ace/mode/json">{$bots_json}</textarea>
+    <textarea id="exportBotsJson" data-editor-lines="25" spellcheck="false">{$bots_json}</textarea>
 </form>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
@@ -21,8 +21,6 @@ $(function() {
 
     Devblocks.formDisableSubmit($frm);
 
-	$frm.find('textarea')
-		.cerbCodeEditor()
-		;
+	new CerbUI.JsonEditor($frm.find('#exportBotsJson')[0], { readOnly: true, minLines: 8 });
 });
 </script>
