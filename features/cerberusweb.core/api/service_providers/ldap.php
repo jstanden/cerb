@@ -255,7 +255,8 @@ class ServiceProvider_Ldap extends Extension_ConnectedServiceProvider {
 				$tpl->assign('settings', $settings);
 				$tpl->assign('service', $service);
 				$tpl->assign('email', $login_state->getEmail());
-				
+				$tpl->assign('pref_dark_mode', true);
+
 				$tpl->display('devblocks:cerberusweb.core::header.tpl');
 				$tpl->display('devblocks:cerberusweb.core::internal/connected_service/providers/ldap/sso/login.tpl');
 				$tpl->display('devblocks:cerberusweb.core::footer.tpl');

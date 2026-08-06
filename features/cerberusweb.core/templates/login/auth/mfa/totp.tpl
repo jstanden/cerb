@@ -2,13 +2,17 @@
 <form action="{devblocks_url}c=login&a=mfa{/devblocks_url}" method="post" id="loginMfaForm">
 <input type="hidden" name="_csrf_token" value="{$csrf_token}">
 
-<div class="cerb-login-card">
+<div class="cerb-login-card cerb-ui-panel cerb-ui-panel--filled">
 	<div class="cerb-login-brand">
 		<a href="{devblocks_url}{/devblocks_url}" tabindex="-1"><div id="cerb-logo"></div></a>
 	</div>
 
-	<h1 class="cerb-login-h1">Two-factor authentication</h1>
-	<p class="cerb-login-sub">Enter the security code from your authenticator app.</p>
+	<div class="cerb-ui-header">
+		<div>
+			<div class="cerb-ui-header--title-sm">Two-factor authentication</div>
+			<div class="cerb-ui-header--subtitle">Enter the security code from your authenticator app.</div>
+		</div>
+	</div>
 
 	{if !empty($error)}
 	<div class="cerb-ui-panel cerb-ui-panel--spaced cerb-ui-panel--alert">
@@ -24,27 +28,27 @@
 	</div>
 	{/if}
 
-	<label class="cerb-login-field">
-		<span class="cerb-login-label">Security code</span>
-		<div class="cerb-login-input-wrap">
-			<span class="cerb-login-icon">
-				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-			</span>
-			<input type="text" name="otp" value="" placeholder="e.g. 123456" inputmode="numeric" autocomplete="one-time-code">
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">Security code</label>
+			<div class="cerb-ui-form--control">
+				<span class="cerb-ui-form--control-icon cerb-icons cerb-icon-lock"></span>
+				<input type="text" name="otp" value="" placeholder="e.g. 123456" inputmode="numeric" autocomplete="one-time-code">
+			</div>
 		</div>
-	</label>
 
-	{if $setting_mfa_can_remember && $setting_mfa_remember_days}
-	<label class="cerb-login-check">
-		<input type="checkbox" name="remember_device" value="1">
-		<span>Remember this device for {$setting_mfa_remember_days} days</span>
-	</label>
-	{/if}
+		{if $setting_mfa_can_remember && $setting_mfa_remember_days}
+		<label class="cerb-login-check">
+			<input type="checkbox" name="remember_device" value="1">
+			<span>Remember this device for {$setting_mfa_remember_days} days</span>
+		</label>
+		{/if}
 
-	<button type="button" class="submit cerb-login-submit" disabled>
-		<span>{'common.continue'|devblocks_translate|capitalize}</span>
-		<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-	</button>
+		<button type="button" class="submit cerb-login-submit cerb-ui-button" disabled>
+			<span>{'common.continue'|devblocks_translate|capitalize}</span>
+			<span class="cerb-icons cerb-icon-right-arrow"></span>
+		</button>
+	</div>
 </div>
 </form>
 </div>
@@ -64,7 +68,7 @@ $(function() {
 		const keycode = e.keyCode || e.which;
 
 		if(13 === keycode) {
-			// Focus the submit button so its :focus orange paints before
+			// Focus the submit button so its :focus ring paints before
 			// the click handler disables and navigates
 			$submit.focus();
 			setTimeout(function() { $submit.click(); }, 100);

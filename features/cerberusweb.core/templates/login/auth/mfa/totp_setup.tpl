@@ -2,13 +2,17 @@
 <form action="{devblocks_url}c=login&a=mfa{/devblocks_url}" method="post" id="setupMfaForm">
 <input type="hidden" name="_csrf_token" value="{$csrf_token}">
 
-<div class="cerb-login-card">
+<div class="cerb-login-card cerb-ui-panel cerb-ui-panel--filled">
 	<div class="cerb-login-brand">
 		<a href="{devblocks_url}{/devblocks_url}" tabindex="-1"><div id="cerb-logo"></div></a>
 	</div>
 
-	<h1 class="cerb-login-h1">Set up two-factor authentication</h1>
-	<p class="cerb-login-sub">Access to your account requires a one-time code that changes every 30 seconds.</p>
+	<div class="cerb-ui-header">
+		<div>
+			<div class="cerb-ui-header--title-sm">Set up two-factor authentication</div>
+			<div class="cerb-ui-header--subtitle">Access to your account requires a one-time code that changes every 30 seconds.</div>
+		</div>
+	</div>
 
 	<div class="cerb-ui-panel cerb-ui-panel--spaced cerb-ui-panel--note">
 		<div class="cerb-ui-header cerb-ui-header--center">
@@ -35,31 +39,32 @@
 	</div>
 	{/if}
 
-	<h3 style="margin:0 0 8px 0;">Step 1: Scan this QR code with your app</h3>
-	<p class="cerb-login-sub" style="margin:0 0 12px 0;">e.g. Apple Keychain, 1Password, Google Authenticator</p>
+	<div class="cerb-ui-header--title-sm" style="margin-bottom:8px;">Step 1: Scan this QR code with your app</div>
+	<div class="cerb-ui-header--subtitle" style="margin:0 0 12px 0;">e.g. Apple Keychain, 1Password, Google Authenticator</div>
 
 	<div id="qrcode" style="margin:0 0 12px 0;"></div>
 
 	<p style="margin:0 0 8px 0;">or enter this code manually: <b>{$seed}</b></p>
 
 	<p style="margin:0 0 20px 0;">
-		Need help? See: <a href="https://cerb.ai/guides/security/two-factor-auth/" target="_blank" rel="noopener noreferrer" tabindex="-1" class="cerb-login-forgot">Configure two-factor authentication</a>
+		Need help? See: <a href="https://cerb.ai/guides/security/two-factor-auth/" target="_blank" rel="noopener noreferrer" tabindex="-1">Configure two-factor authentication</a>
 	</p>
 
-	<label class="cerb-login-field">
-		<span class="cerb-login-label">Step 2: Type the current access code from your app</span>
-		<div class="cerb-login-input-wrap">
-			<span class="cerb-login-icon">
-				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-			</span>
-			<input type="text" name="otp" value="" placeholder="e.g. 123456" inputmode="numeric" autocomplete="one-time-code">
-		</div>
-	</label>
+	<div class="cerb-ui-header--title-sm" style="margin-bottom:8px;">Step 2: Type the current access code from your app</div>
 
-	<button type="submit" name="action" value="new_otp" class="cerb-login-submit">
-		<span>{'common.verify'|devblocks_translate|capitalize}</span>
-		<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-	</button>
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--field">
+			<div class="cerb-ui-form--control">
+				<span class="cerb-ui-form--control-icon cerb-icons cerb-icon-lock"></span>
+				<input type="text" name="otp" value="" placeholder="e.g. 123456" inputmode="numeric" autocomplete="one-time-code">
+			</div>
+		</div>
+
+		<button type="submit" name="action" value="new_otp" class="cerb-login-submit cerb-ui-button">
+			<span>{'common.verify'|devblocks_translate|capitalize}</span>
+			<span class="cerb-icons cerb-icon-right-arrow"></span>
+		</button>
+	</div>
 </div>
 </form>
 </div>

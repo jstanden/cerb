@@ -1,10 +1,17 @@
+<div class="cerb-login-bg">
 <form action="{devblocks_url}c=sso&service={$service->uri}&uri=authenticate{/devblocks_url}" method="post" id="ssoLdapLoginForm">
 
-<div style="text-align:center;">
-	<a href="{devblocks_url}{/devblocks_url}"><div id="cerb-logo" style="background-position:center;"></div></a>
-</div>
+<div class="cerb-login-card cerb-ui-panel cerb-ui-panel--filled">
+	<div class="cerb-login-brand">
+		<a href="{devblocks_url}{/devblocks_url}" tabindex="-1"><div id="cerb-logo"></div></a>
+	</div>
 
-<div style="vertical-align:middle;max-width:500px;margin:20px auto 20px auto;padding:5px 20px 20px 20px;border-radius:5px;box-shadow:darkgray 0px 0px 5px;">
+	<div class="cerb-ui-header">
+		<div>
+			<div class="cerb-ui-header--title-sm">Log in with your email address and password</div>
+		</div>
+	</div>
+
 	{if !empty($error)}
 	<div class="cerb-ui-panel cerb-ui-panel--spaced cerb-ui-panel--alert">
 		<div class="cerb-ui-header cerb-ui-header--center">
@@ -19,31 +26,42 @@
 	</div>
 	{/if}
 
-	<div>
-		<h3>Log in with your email address and password</h3>
-		
-		<div>
-			<input type="text" name="email" size="45" value="{$email}" placeholder="you@example.com" style="width:100%;line-height:1.5em;height:24px;padding:0px 5px;border-radius:5px;box-sizing:border-box;">
-			<input type="password" name="password" size="45" value="" placeholder="Password" autocomplete="off" spellcheck="false" style="width:100%;line-height:1.5em;height:24px;margin-top:10px;padding:0 5px 0 25px;border-radius:5px;box-sizing:border-box;">
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">Email address</label>
+			<div class="cerb-ui-form--control">
+				<span class="cerb-ui-form--control-icon cerb-icons cerb-icon-mail"></span>
+				<input type="email" name="email" value="{$email}" placeholder="you@example.com" autocomplete="username">
+			</div>
 		</div>
-		
-		<div style="margin-top:10px;">
-			<button type="submit" style="width:100%;">
-				{'common.continue'|devblocks_translate|capitalize}
-			</button>
+
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">Password</label>
+			<div class="cerb-ui-form--control">
+				<span class="cerb-ui-form--control-icon cerb-icons cerb-icon-lock"></span>
+				<input type="password" name="password" value="" placeholder="Enter your password" autocomplete="current-password" spellcheck="false">
+			</div>
 		</div>
+
+		<button type="submit" class="submit cerb-login-submit cerb-ui-button">
+			<span>{'common.continue'|devblocks_translate|capitalize}</span>
+			<span class="cerb-icons cerb-icon-right-arrow"></span>
+		</button>
 	</div>
 </div>
 
 </form>
+</div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
+	let $frm = $('#ssoLdapLoginForm');
+
 	// Auto-focus the email input field
 	{if $email}
-	$('#ssoLdapLoginForm input[name=password]').focus();
+	$frm.find('input[name=password]').focus();
 	{else}
-	$('#ssoLdapLoginForm input[name=email]').focus().select();
+	$frm.find('input[name=email]').focus().select();
 	{/if}
 });
 </script>

@@ -16,7 +16,7 @@
 <input type="hidden" name="accept" value="1">
 <input type="hidden" name="_csrf_token" value="{$csrf_token}">
 
-<div class="cerb-login-card" style="max-width:900px;">
+<div class="cerb-login-card cerb-ui-panel cerb-ui-panel--filled" style="max-width:900px;">
 	<div class="cerb-login-brand">
 		<a href="{devblocks_url}{/devblocks_url}" tabindex="-1"><div id="cerb-logo"></div></a>
 	</div>
@@ -25,7 +25,7 @@
 		{$motd_message nofilter}
 	</div>
 
-	<button type="button" class="submit cerb-login-submit">
+	<button type="button" class="submit cerb-login-submit cerb-ui-button">
 		<span>
 			{if $motd_button}
 				{$motd_button}
@@ -33,7 +33,7 @@
 				{'common.continue'|devblocks_translate|capitalize}
 			{/if}
 		</span>
-		<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+		<span class="cerb-icons cerb-icon-right-arrow"></span>
 	</button>
 </div>
 </form>

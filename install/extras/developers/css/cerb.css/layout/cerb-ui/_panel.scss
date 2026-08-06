@@ -16,6 +16,13 @@
 	border-left: 4px solid var(--cerb-ui-accent, var(--cerb-color-background-contrast-200));
 }
 
+// Filled surface (raised card look) — e.g. the login card
+.cerb-ui-panel--filled {
+	background: var(--cerb-color-background-contrast-240);
+	border-radius: 14px;
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
 // Status callouts: a tinted surface + a semantic border — the cerb-ui replacement for the legacy
 // .help-box / .error-box blocks. Compose a cerb-ui-callout lead (icon + title/message) with an optional
 // cerb-ui-header--right action. Each variant maps a role palette (bg / border / icon / title / text /
