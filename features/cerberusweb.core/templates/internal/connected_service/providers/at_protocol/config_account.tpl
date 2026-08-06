@@ -1,9 +1,13 @@
-<fieldset class="peek black">
-    <b>Identifier:</b><br>
-    <input type="text" name="params[identifier]" value="{$params.identifier}" placeholder="example.bsky.social" size="50" spellcheck="false"><br>
-    <br>
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">Identifier</label>
+			<input type="text" name="params[identifier]" value="{$params.identifier}" placeholder="example.bsky.social" spellcheck="false">
+		</div>
 
-    <b>Password:</b><br>
-    <input type="password" name="params[password]" value="{$params.password}" size="45" autocomplete="off" spellcheck="false"><br>
-    <br>
-</fieldset>
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">Password</label>
+			<input type="password" name="params[password]" value="{$params.password}" autocomplete="off" spellcheck="false">
+		</div>
+	</div>
+</div>

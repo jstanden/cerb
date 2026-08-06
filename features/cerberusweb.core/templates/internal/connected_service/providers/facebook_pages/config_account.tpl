@@ -1,62 +1,80 @@
 {$uniqid = uniqid()}
 <div id="{$uniqid}">
-	<fieldset class="cerb-facebook-account peek black">
-		<legend>Facebook Account</legend>
-		
-		<button type="button" class="chooser-abstract" data-field-name="params[connected_account_id]" data-context="{CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}" data-single="true" data-query="facebook"><span class="cerb-icons cerb-icon-search"></span></button>
-		<ul class="bubbles chooser-container">
-			{if $connected_account}
-				<li><input type="hidden" name="params[connected_account_id]" value="{$connected_account->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}" data-context-id="{$connected_account->id}">{$connected_account->name}</a></li>
-			{/if}
-		</ul>
-		<br>
-	</fieldset>
-	
-	{*if !$connected_account}display:none;{/if*}
-	<fieldset class="peek black">
-		<legend>Page</legend>
-		
+	<div class="cerb-ui-panel cerb-ui-panel--spaced cerb-facebook-account">
+		<div class="cerb-ui-header cerb-ui-header--tight">
+			<div class="cerb-ui-header--title-sm">Facebook Account</div>
+		</div>
+
+		<div class="cerb-ui-form">
+			<div class="cerb-ui-form--field">
+				<div class="cerb-ui-record-chooser" id="accountChooser_{$uniqid}">
+					{if $connected_account}
+						<li data-context-id="{$connected_account->id}" data-label="{$connected_account->name}"></li>
+					{/if}
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="cerb-ui-panel cerb-ui-panel--spaced">
+		<div class="cerb-ui-header cerb-ui-header--tight">
+			<div class="cerb-ui-header--title-sm">Page</div>
+		</div>
+
 		<div class="cerb-facebook-pages">
 			{if $params.page.name}
 			Linked to <b>{$params.page.name}</b>
 			{/if}
 		</div>
-	</fieldset>
+	</div>
 </div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $container = $('#{$uniqid}');
-	var $fieldset_account = $container.find('fieldset.cerb-facebook-account');
-	var $pages = $container.find('div.cerb-facebook-pages');
-	
-	$fieldset_account.find('button.chooser-abstract')
-		.cerbChooserTrigger()
-			// If the account changes, refresh
-			.on('cerb-chooser-saved', function(e) {
-				var $bubbles = $fieldset_account.find('ul.chooser-container');
-				var $bubble = $bubbles.find('> li:first input:hidden');
-				
-				if($bubble.length == 0) {
-					$pages.hide().html('');
-					
-				} else {
-					var connected_account_id = $bubble.first().val();
+	const $container = $('#{$uniqid}');
+	const $pages = $container.find('div.cerb-facebook-pages');
+	const accountEl = $container.find('#accountChooser_{$uniqid}')[0];
 
-					var formData = new FormData();
-					formData.set('c', 'profiles');
-					formData.set('a', 'invoke');
-					formData.set('module', 'connected_service');
-					formData.set('action', 'ajax');
-					formData.set('ajax', 'getPagesFromAccount');
-					formData.set('id', '{$service->extension_id}');
-					formData.set('connected_account_id', connected_account_id);
+	const refreshPages = function() {
+		const value = chooser ? chooser.getValue() : null;
 
-					genericAjaxPost(formData, $pages, null, function() {
-						$pages.fadeIn();
-					});
-				}
-			})
-		;
+		if(!value) {
+			$pages.hide().html('');
+			return;
+		}
+
+		const formData = new FormData();
+		formData.set('c', 'profiles');
+		formData.set('a', 'invoke');
+		formData.set('module', 'connected_service');
+		formData.set('action', 'ajax');
+		formData.set('ajax', 'getPagesFromAccount');
+		formData.set('id', '{$service->extension_id}');
+		formData.set('connected_account_id', value.id);
+
+		genericAjaxPost(formData, $pages, null, function() {
+			$pages.fadeIn();
+		});
+	};
+
+	let chooser = null;
+
+	if(accountEl && window.CerbUI && CerbUI.RecordChooser) {
+		chooser = new CerbUI.RecordChooser(accountEl, {
+			context: '{CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}',
+			name: 'params[connected_account_id]',
+			emptyIcon: 'key',
+			query: 'facebook',
+			searchPlaceholder: 'Facebook account',
+			onSelect: refreshPages
+		});
+
+		// The chooser's clear button removes the value without a callback and stops propagation, so listen in
+		// the capture phase (runs before the button's stopPropagation) and refresh on the next frame.
+		accountEl.addEventListener('click', function(e) {
+			if(e.target.closest('.cerb-ui-record-chooser--clear'))
+				requestAnimationFrame(refreshPages);
+		}, true);
+	}
 });
 </script>

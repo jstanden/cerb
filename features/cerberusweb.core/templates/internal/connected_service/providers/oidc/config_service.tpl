@@ -1,57 +1,66 @@
 {$fieldset_id = uniqid()}
-<fieldset class="peek black" id="{$fieldset_id}">
-	<b>Client ID:</b><br>
-	<input type="text" name="params[client_id]" value="{$params.client_id}" style="width:100%;" size="50" spellcheck="false"><br>
-	<br>
-	
-	<b>Client Secret:</b><br>
-	<input type="text" name="params[client_secret]" value="{$params.client_secret}" style="width:100%;" size="50" spellcheck="false"><br>
-	<br>
-	
-	<b>Authorize Scope:</b><br>
-	<input type="text" name="params[scope]" value="{$params.scope|default:'openid profile'}" style="width:100%;" size="50" spellcheck="false"><br>
-	<br>
-	
-	<b>Issuer:</b><br>
-	<input type="text" name="params[issuer]" value="{$params.issuer}" style="width:100%;" size="50" spellcheck="false"><br>
-	<br>
-	
-	<button type="button" class="cerb-oidc-discovery-button">Run Discovery</button>
-	<br>
-	<br>
-	
-	<div class="cerb-oidc-discovery-status"></div>
-	
-	<b>Authorization URL:</b><br>
-	<input type="text" name="params[authorization_url]" value="{$params.authorization_url}" style="width:100%;" size="50" spellcheck="false"><br>
-	<br>
-	
-	<b>Access Token URL:</b><br>
-	<input type="text" name="params[access_token_url]" value="{$params.access_token_url}" style="width:100%;" size="50" spellcheck="false"><br>
-	<br>
-	
-	<b>Userinfo URL:</b><br>
-	<input type="text" name="params[userinfo_url]" value="{$params.userinfo_url}" style="width:100%;" size="50" spellcheck="false"><br>
-	<br>
-	
-	<b>JWKS URL:</b><br>
-	<input type="text" name="params[jwks_url]" value="{$params.jwks_url}" style="width:100%;" size="50" spellcheck="false"><br>
-	<br>
-</fieldset>
+<div class="cerb-ui-panel cerb-ui-panel--spaced" id="{$fieldset_id}">
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">Client ID</label>
+			<input type="text" name="params[client_id]" value="{$params.client_id}" spellcheck="false">
+		</div>
+
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">Client Secret</label>
+			<input type="text" name="params[client_secret]" value="{$params.client_secret}" spellcheck="false">
+		</div>
+
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">Authorize Scope</label>
+			<input type="text" name="params[scope]" value="{$params.scope|default:'openid profile'}" spellcheck="false">
+		</div>
+
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">Issuer</label>
+			<input type="text" name="params[issuer]" value="{$params.issuer}" spellcheck="false">
+		</div>
+
+		<div class="cerb-ui-form--field">
+			<div>
+				<button type="button" class="cerb-ui-button cerb-oidc-discovery-button">Run Discovery</button>
+			</div>
+		</div>
+
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">Authorization URL</label>
+			<input type="text" name="params[authorization_url]" value="{$params.authorization_url}" spellcheck="false">
+		</div>
+
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">Access Token URL</label>
+			<input type="text" name="params[access_token_url]" value="{$params.access_token_url}" spellcheck="false">
+		</div>
+
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">Userinfo URL</label>
+			<input type="text" name="params[userinfo_url]" value="{$params.userinfo_url}" spellcheck="false">
+		</div>
+
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">JWKS URL</label>
+			<input type="text" name="params[jwks_url]" value="{$params.jwks_url}" spellcheck="false">
+		</div>
+	</div>
+</div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $fieldset = $('#{$fieldset_id}');
-	var $button_discovery = $fieldset.find('.cerb-oidc-discovery-button');
-	var $status_discovery = $fieldset.find('.cerb-oidc-discovery-status');
-	
-	$button_discovery.on('click', function(e) {
-		var $issuer = $fieldset.find('input:text[name="params[issuer]"]');
-		var issuer = $issuer.val();
-		
-		$status_discovery.html('');
+	const $fieldset = $('#{$fieldset_id}');
+	const $button_discovery = $fieldset.find('.cerb-oidc-discovery-button');
 
-		var formData = new FormData();
+	$button_discovery.on('click', function(e) {
+		const $issuer = $fieldset.find('input:text[name="params[issuer]"]');
+		const issuer = $issuer.val();
+
+		Devblocks.clearAlerts();
+
+		const formData = new FormData();
 		formData.set('c', 'profiles');
 		formData.set('a', 'invoke');
 		formData.set('module', 'connected_service');
@@ -61,18 +70,18 @@ $(function() {
 		formData.set('issuer', issuer);
 
 		genericAjaxPost(formData, '', '', function(json) {
-			var $input_authorization_url = $fieldset.find('input:text[name="params[authorization_url]"]');
-			var $input_access_token_url = $fieldset.find('input:text[name="params[access_token_url]"]');
-			var $input_userinfo_url = $fieldset.find('input:text[name="params[userinfo_url]"]');
-			var $input_jwks_url = $fieldset.find('input:text[name="params[jwks_url]"]');
-			
+			const $input_authorization_url = $fieldset.find('input:text[name="params[authorization_url]"]');
+			const $input_access_token_url = $fieldset.find('input:text[name="params[access_token_url]"]');
+			const $input_userinfo_url = $fieldset.find('input:text[name="params[userinfo_url]"]');
+			const $input_jwks_url = $fieldset.find('input:text[name="params[jwks_url]"]');
+
 			if(null == json || null == json.issuer) {
 				if(json.error) {
 					Devblocks.createAlertError(json.error);
 				}
 				return;
 			}
-			
+
 			$input_authorization_url.val(json.authorization_endpoint);
 			$input_access_token_url.val(json.token_endpoint);
 			$input_userinfo_url.val(json.userinfo_endpoint);

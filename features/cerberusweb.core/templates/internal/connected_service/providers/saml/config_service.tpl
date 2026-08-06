@@ -1,32 +1,24 @@
 {$fieldset_id = uniqid()}
-<fieldset id="{$fieldset_id}" class="black peek">
-	<div>
-		<b>Entity ID:</b><br>
-		<input type="text" name="params[entity_id]" value="{$params.entity_id}" size="64" spellcheck="false"><br>
-	</div>
-	
-	<div>
-		<b>SSO URL:</b><br>
-		<input type="text" name="params[url_sso]" value="{$params.url_sso}" size="64" spellcheck="false"><br>
-	</div>
-	
-	<div>
-		<b>SLO URL:</b> (optional)<br>
-		<input type="text" name="params[url_slo]" value="{$params.url_slo}" size="64" spellcheck="false"><br>
-	</div>
-	
-	<div>
-		<b>X.509 Certificate:</b><br>
-		<textarea name="params[cert]" cols="64" rows="10" style="" spellcheck="false" data-editor-mode="">{$params.cert}</textarea>
-	</div>
-</fieldset>
+<div class="cerb-ui-panel cerb-ui-panel--spaced" id="{$fieldset_id}">
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">Entity ID</label>
+			<input type="text" name="params[entity_id]" value="{$params.entity_id}" spellcheck="false">
+		</div>
 
-<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
-$(function() {
-	var $fieldset = $('#{$fieldset_id}');
-	
-	$fieldset.find('input:text,textarea').css('width','100%');
-	
-	//$fieldset.find('textarea').cerbCodeEditor();
-})
-</script>
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">SSO URL</label>
+			<input type="text" name="params[url_sso]" value="{$params.url_sso}" spellcheck="false">
+		</div>
+
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">SLO URL <span class="cerb-ui-form--hint">{'common.optional'|devblocks_translate|lower}</span></label>
+			<input type="text" name="params[url_slo]" value="{$params.url_slo}" spellcheck="false">
+		</div>
+
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">X.509 Certificate</label>
+			<textarea name="params[cert]" style="height:10em;" spellcheck="false">{$params.cert}</textarea>
+		</div>
+	</div>
+</div>

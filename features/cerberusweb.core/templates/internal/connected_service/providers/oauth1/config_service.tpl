@@ -1,31 +1,39 @@
 {$fieldset_id = uniqid()}
-<fieldset class="peek black" id="{$fieldset_id}">
-	<b>Client ID:</b><br>
-	<input type="text" name="params[client_id]" value="{$params.client_id}" style="width:100%;" size="50" spellcheck="false"><br>
-	<br>
-	
-	<b>Client Secret:</b><br>
-	<input type="text" name="params[client_secret]" value="{$params.client_secret}" style="width:100%;" size="50" spellcheck="false"><br>
-	<br>
-	
-	<b>Request Token URL:</b><br>
-	<input type="text" name="params[request_token_url]" value="{$params.request_token_url}" style="width:100%;" size="50" spellcheck="false"><br>
-	<br>
-	
-	<b>Authentication URL:</b><br>
-	<input type="text" name="params[authentication_url]" value="{$params.authentication_url}" style="width:100%;" size="50" spellcheck="false"><br>
-	<br>
-	
-	<b>Access Token URL:</b><br>
-	<input type="text" name="params[access_token_url]" value="{$params.access_token_url}" style="width:100%;" size="50" spellcheck="false"><br>
-	<br>
-	
-	<b>Signature Method:</b><br>
-	{$methods = ['HMAC-SHA1','PLAINTEXT']}
-	<select name="params[signature_method]">
-		{foreach from=$methods item=method}
-		<option value="{$method}" {if $method==$params.signature_method}selected="selected"{/if}>{$method}</option>
-		{/foreach}
-	</select>
-	<br>
-</fieldset>
+<div class="cerb-ui-panel cerb-ui-panel--spaced" id="{$fieldset_id}">
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">Client ID</label>
+			<input type="text" name="params[client_id]" value="{$params.client_id}" spellcheck="false">
+		</div>
+
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">Client Secret</label>
+			<input type="text" name="params[client_secret]" value="{$params.client_secret}" spellcheck="false">
+		</div>
+
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">Request Token URL</label>
+			<input type="text" name="params[request_token_url]" value="{$params.request_token_url}" spellcheck="false">
+		</div>
+
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">Authentication URL</label>
+			<input type="text" name="params[authentication_url]" value="{$params.authentication_url}" spellcheck="false">
+		</div>
+
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">Access Token URL</label>
+			<input type="text" name="params[access_token_url]" value="{$params.access_token_url}" spellcheck="false">
+		</div>
+
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">Signature Method</label>
+			{$methods = ['HMAC-SHA1','PLAINTEXT']}
+			<select name="params[signature_method]">
+				{foreach from=$methods item=method}
+				<option value="{$method}" {if $method==$params.signature_method}selected="selected"{/if}>{$method}</option>
+				{/foreach}
+			</select>
+		</div>
+	</div>
+</div>

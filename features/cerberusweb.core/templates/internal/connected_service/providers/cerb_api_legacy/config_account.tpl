@@ -1,13 +1,18 @@
-<fieldset class="peek black">
-	<b>Base URL:</b><br>
-	<input type="text" name="params[base_url]" value="{$params.base_url}" size="50" spellcheck="false"><br>
-	<br>
-	
-	<b>Access Key:</b><br>
-	<input type="text" name="params[access_key]" value="{$params.access_key}" size="50" spellcheck="false"><br>
-	<br>
-	
-	<b>Secret Key:</b><br>
-	<input type="password" name="params[secret_key]" value="{$params.secret_key}" size="45" autocomplete="off" spellcheck="false"><br>
-	<br>
-</fieldset>
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">Base URL</label>
+			<input type="text" name="params[base_url]" value="{$params.base_url}" spellcheck="false">
+		</div>
+
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">Access Key</label>
+			<input type="text" name="params[access_key]" value="{$params.access_key}" spellcheck="false">
+		</div>
+
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">Secret Key</label>
+			<input type="password" name="params[secret_key]" value="{$params.secret_key}" autocomplete="off" spellcheck="false">
+		</div>
+	</div>
+</div>

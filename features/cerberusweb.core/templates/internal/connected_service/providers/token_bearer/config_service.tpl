@@ -1,5 +1,8 @@
-<fieldset class="peek black">
-	<b>Token Name:</b><br>
-	<input type="text" name="params[token_name]" value="{$params.token_name|default:'Bearer'}" size="50" style="width:100%;" placeholder="Bearer" spellcheck="false"><br>
-	<br>
-</fieldset>
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">Token Name</label>
+			<input type="text" name="params[token_name]" value="{$params.token_name|default:'Bearer'}" placeholder="Bearer" spellcheck="false">
+		</div>
+	</div>
+</div>

@@ -1,4 +1,8 @@
-<fieldset class="peek black">
-	<b>Token:</b><br>
-	<textarea name="params[token]" style="width:100%;height:3.5em;" spellcheck="false">{$params.token}</textarea>
-</fieldset>
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">Token</label>
+			<textarea name="params[token]" style="height:3.5em;" spellcheck="false">{$params.token}</textarea>
+		</div>
+	</div>
+</div>
