@@ -5,43 +5,23 @@ class WorkspaceWidget_Calendar extends Extension_WorkspaceWidget implements ICer
 		
 		if(!Context_WorkspaceWidget::isReadableByActor($model, $active_worker))
 			DevblocksPlatform::dieWithHttpError(null, 403);
-		
-		switch($action) {
-			case 'showCalendarTab':
-				return $this->_workspaceWidgetAction_showCalendarTab($model);
-		}
+
+		// Nav + event fetching are client-side now (CerbUI.Calendar → c=ui&a=calendarEventsJson).
 		return false;
 	}
-	
+
 	function render(Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();
-
-		$month = DevblocksPlatform::importGPC($_REQUEST['month'] ?? null, 'integer', null);
-		$year = DevblocksPlatform::importGPC($_REQUEST['year'] ?? null, 'integer', null);
+		$active_worker = CerberusApplication::getActiveWorker();
 
 		if(null == ($calendar = $this->_resolveCalendarForWidget($widget))) { /* @var Model_Calendar $calendar */
 			echo "A calendar isn't linked to this widget. Configure it to select one.";
 			return;
 		}
 
-		$start_on_mon = (bool)($calendar->params['start_on_mon'] ?? false);
-		$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year, $start_on_mon);
-		
-		$calendar_events = $calendar->getEvents($calendar_properties['date_range_from'], $calendar_properties['date_range_to']);
-		
-		// Occlusion
-		
-		$availability = $calendar->computeAvailability($calendar_properties['date_range_from'], $calendar_properties['date_range_to'], $calendar_events);
-		$availability->occludeCalendarEvents($calendar_events);
-		
-		// Template scope
-		
-		$tpl->assign('widget', $widget);
-		$tpl->assign('calendar', $calendar);
-		$tpl->assign('calendar_events', $calendar_events);
-		$tpl->assign('calendar_properties', $calendar_properties);
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/calendar/calendar.tpl');
+		$default_view = $widget->params['default_view'] ?? 'month';
+
+		$calendar->displayWidget($tpl, $active_worker, $default_view);
 	}
 	
 	// Config
@@ -122,41 +102,6 @@ class WorkspaceWidget_Calendar extends Extension_WorkspaceWidget implements ICer
 		return DAO_Calendar::get($calendar_id) ?: null;
 	}
 
-	private function _workspaceWidgetAction_showCalendarTab(Model_WorkspaceWidget $model) {
-		$tpl = DevblocksPlatform::services()->template();
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		$calendar_id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null, 'integer');
-		$month = DevblocksPlatform::importGPC($_REQUEST['month'] ?? null, 'integer', 0);
-		$year = DevblocksPlatform::importGPC($_REQUEST['year'] ?? null, 'integer', 0);
-		
-		if(null == ($calendar = DAO_Calendar::get($calendar_id))) /* @var Model_Calendar $calendar */
-			DevblocksPlatform::dieWithHttpError(null, 404);
-			
-		if(!Context_Calendar::isReadableByActor($calendar, $active_worker))
-			DevblocksPlatform::dieWithHttpError(null, 403);
-		
-		$start_on_mon = (bool)($calendar->params['start_on_mon'] ?? false);
-		$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year, $start_on_mon);
-		
-		$calendar_events = $calendar->getEvents($calendar_properties['date_range_from'], $calendar_properties['date_range_to']);
-		
-		// Occlusion
-		
-		$availability = $calendar->computeAvailability($calendar_properties['date_range_from'], $calendar_properties['date_range_to'], $calendar_events);
-		$availability->occludeCalendarEvents($calendar_events);
-		
-		// Template scope
-		$tpl->assign('widget', $model);
-		$tpl->assign('calendar', $calendar);
-		$tpl->assign('calendar_events', $calendar_events);
-		$tpl->assign('calendar_properties', $calendar_properties);
-		
-		// Template
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/calendar/calendar.tpl');
-	}
-	
 	// Export
 	
 	function exportData(Model_WorkspaceWidget $widget, $format=null) {

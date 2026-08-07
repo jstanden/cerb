@@ -591,7 +591,49 @@ class Model_Calendar extends DevblocksRecordModel {
 	public $params;
 	public $timezone;
 	public $updated_at;
-	
+
+	// Shared render path for the CerbUI.Calendar widgets (profile / workspace / card). Assigns a JSON config
+	// (dom id, calendar id, tz offset, week start, source color) + displays the host partial, which boots a
+	// CerbUI.Calendar that fetches events from c=ui&a=calendarEventsJson. One source per calendar.
+	function displayWidget($tpl, $active_worker, $default_view='month') {
+		$dom_id = 'cerbcal_' . uniqid();
+
+		if(!in_array($default_view, ['day', 'week', 'month', 'year']))
+			$default_view = 'month';
+
+		// getEvents() day-buckets events in the calendar's timezone, or the server/worker default ("viewer's
+		// timezone"). The client interprets the absolute epochs in that SAME IANA zone (DST-aware) — a fixed
+		// offset would be an hour off in the other season and roll an all-day event's end into the next day.
+		$tz_name = $this->timezone ?: (($active_worker && $active_worker->timezone) ? $active_worker->timezone : DevblocksPlatform::getTimezone());
+
+		// Only pass a name the client's Intl can resolve; otherwise let it fall back to browser-local.
+		try {
+			new DateTimeZone($tz_name);
+		} catch (Exception $e) {
+			$tz_name = null;
+		}
+
+		// Legend swatch = the calendar's configured color (events carry their own available/busy colors;
+		// this just identifies the source). Prefer the "available" color, fall back to busy, then a default.
+		$source_color = $this->params['color_available'] ?? null;
+		if(!$source_color)
+			$source_color = $this->params['color_busy'] ?? '#4a90d9';
+
+		$config = [
+			'domId' => $dom_id,
+			'calendarId' => intval($this->id),
+			'defaultView' => $default_view,
+			'startOfWeek' => ($this->params['start_on_mon'] ?? false) ? 'mon' : 'sun',
+			'tz' => $tz_name,
+			'label' => $this->name,
+			'color' => $source_color,
+		];
+
+		$tpl->assign('cerb_ui_calendar_dom_id', $dom_id);
+		$tpl->assign('cerb_ui_calendar_config', json_encode($config, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT));
+		$tpl->display('devblocks:cerberusweb.core::internal/calendar/widget.tpl');
+	}
+
 	function getEvents($date_from, $date_to, $sorted=true, $timezone=null) {
 		if(!$timezone)
 			$timezone = $this->timezone;

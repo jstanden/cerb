@@ -12,9 +12,14 @@
 			{if empty($workers)}{$workers = DAO_Worker::getAll()}{/if}
 
 			{if $context == CerberusContexts::CONTEXT_WORKER && $context_id != $active_worker->id && isset($workers.$context_id)}
-			<div class="ui-widget">
-				<div class="ui-state-error ui-corner-all" style="padding: 0.7em; margin: 0.2em; ">
-					<strong>{$workers.$context_id->getName()} has not configured an availability calendar in their settings.</strong>
+			<div class="cerb-ui-panel cerb-ui-panel--spaced cerb-ui-panel--alert">
+				<div class="cerb-ui-header">
+					<div class="cerb-ui-callout">
+						<span class="cerb-icons cerb-icon-alert cerb-ui-callout--icon"></span>
+						<div>
+							<div class="cerb-ui-header--subtitle">{$workers.$context_id->getName()} has not configured an availability calendar in their settings.</div>
+						</div>
+					</div>
 				</div>
 			</div>
 			{/if}
