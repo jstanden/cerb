@@ -114,6 +114,10 @@ class LlmAgentNode extends AbstractNode {
 				$validation->addField('commands', 'commands:')
 					->array();
 
+				$validation->addField('agent', 'agent:')
+					->string()
+					->setMaxLength(255);
+
 				$validation->addField('session_id', 'session_id:')
 					->string()
 					->setMaxLength(36);
@@ -597,72 +601,75 @@ class LlmAgentNode extends AbstractNode {
 
 		return $tools;
 	}
-	
-	private function _getToolSchemaAutomation(string $tool_name, array $tool) : ?array {
-		$llm = DevblocksPlatform::services()->llm();
-		return $llm->getToolSchemaForAutomation($tool_name, $tool);
+
+	/**
+	 * Resolve `agent:` to the AI worker this turn runs AS — IDENTITY ONLY.
+	 *
+	 * Models are deliberately NOT sourced here: they're their own `agent_model` records, decoupled from the
+	 * persona, so the same model serves a named agent and an anonymous "Agent" alike. What the agent supplies
+	 * is who the turn is attributed to — the transcript's name/avatar and, later, memory's `actor`.
+	 *
+	 * Accepts an `@mention`, a bare worker id, or a `cerb:worker:<id|mention>` URI — the same shapes
+	 * `mounts:`' `filesystem:` takes.
+	 */
+	private function _applyAgentDefaults() : void {
+		$this->_agent_worker_id = 0;
+
+		if('' === ($agent_ref = trim(strval($this->_inputs['agent'] ?? ''))))
+			return;
+
+		if(!($agent = self::_resolveAgentWorker($agent_ref)))
+			throw new Exception_DevblocksAutomationError(sprintf("`llm.agent` couldn't resolve `agent: %s` to an AI worker.", $agent_ref));
+
+		$this->_agent_worker_id = $agent->id;
 	}
-	
-	private function _getToolSchemaCustom(string $tool_name, array $tool) : ?array {
-		$tool_schema = [
-			'type' => 'function',
-			'function' => [
-				'name' => $tool_name,
-				'description' => $tool['description'] ?? '',
-				'parameters' => [
-					'type' => 'object',
-					'properties' => (object)[],
-				],
-			]
-		];
-		
-		if(array_key_exists('parameters', $tool) && is_array($tool['parameters'])) {
-			$tool_schema['function']['parameters']['properties'] = [];
-			$tool_schema['function']['parameters']['required'] = [];
-			
-			foreach($tool['parameters'] as $param_key => $parameter) {
-				list($param_type, $param_name) = array_pad(
-					explode('/', $param_key),
-					2,
-					null
-				);
-				
-				if(!$param_name)
-					$param_name = $param_type;
-				
-				if('string' == $param_type) {
-					$tool_schema['function']['parameters']['properties'][$param_name] = [
-						'type' => 'string',
-						'description' => $parameter['description'] ?? '',
-					];
-					
-					if(array_key_exists('enum', $parameter) && is_array($parameter['enum']))
-						$tool_schema['function']['parameters']['properties'][$param_name]['enum'] = $parameter['enum'];
-					
-					if($parameter['required'] ?? false)
-						$tool_schema['function']['parameters']['required'][] = $param_name;
-				}
+
+	/**
+	 * `@mention` | worker id | `cerb:worker:<id>` | `cerb:worker:<mention>` → the AI worker, or null. A HUMAN
+	 * worker is rejected: a person isn't a model config, and silently running as one would attribute memory to them.
+	 */
+	private static function _resolveAgentWorker(string $value) : ?\Model_Worker {
+		$value = trim($value);
+		$worker = null;
+
+		if(str_starts_with($value, '@')) {
+			$worker = \DAO_Worker::getByAtMention(DevblocksPlatform::strLower(ltrim($value, '@')));
+
+		} else if(str_starts_with($value, 'cerb:')) {
+			// Parsed as a string rather than through parseURI(), for the same reason _resolveFilesystemRef()
+			// does: no context-registry dependency, so it stays pure and headless-testable.
+			$parts = explode(':', $value);
+
+			if(3 === count($parts) && 'worker' === ($parts[1] ?? '')) {
+				// An id OR an @mention handle. The mention form is what makes a SHIPPED package portable: a
+				// worker id differs per environment, so `cerb:worker:cerb` is the only form we can hardcode.
+				// The framework's generic resolver already accepts aliases here
+				// (Context_Worker::getContextIdFromAlias) -- this local parser just hadn't kept up.
+				//
+				// The `@` is trimmed here too: autocomplete offers `@handle`, so `cerb:worker:@handle` is what
+				// you get by pasting a suggestion into the URI form. Accepting only the bare handle there would
+				// fail for a reason nobody could see.
+				$handle = ltrim($parts[2], '@');
+
+				$worker = is_numeric($handle)
+					? \DAO_Worker::get(intval($handle))
+					: \DAO_Worker::getByAtMention(DevblocksPlatform::strLower($handle))
+					;
 			}
+
+		} else if(is_numeric($value)) {
+			$worker = \DAO_Worker::get(intval($value));
+
+		} else {
+			// A bare handle is the @mention without its sigil -- the common typo, and unambiguous
+			$worker = \DAO_Worker::getByAtMention(DevblocksPlatform::strLower($value));
 		}
-		
-		return $tool_schema;
+
+		if(!$worker || !$worker->is_ai || $worker->is_disabled)
+			return null;
+
+		return $worker;
 	}
-	
-	// [TODO] Cache these by signatures
-	private function _getToolSchemas() : array {
-		$tools = [];
-		
-		foreach($this->_getTools() as $tool_name => $tool) {
-			$tool_type = $tool['type'] ?? null;
-			
-			$tool_schema = match($tool_type) {
-				'automation' => $this->_getToolSchemaAutomation($tool_name, $tool),
-				'tool' => $this->_getToolSchemaCustom($tool_name, $tool),
-				default => null,
-			};
-			
-			if($tool_schema)
-				$tools[$tool_name] = $tool_schema;
 
 	/**
 	 * Is the agent filesystem enabled for this turn? Authoring `mounts:` AT ALL enables it — an EMPTY block
