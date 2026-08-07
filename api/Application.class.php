@@ -5426,6 +5426,9 @@ class _CerbApplication_KataSchemas {
                         types:
                           object:
                             attributes:
+                              agent:
+                                types:
+                                  string:
                               model:
                                 types:
                                   object:
