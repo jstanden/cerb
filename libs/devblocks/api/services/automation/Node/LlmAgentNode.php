@@ -1,9 +1,9 @@
 <?php
 namespace Cerb\AutomationBuilder\Node;
 
-use CerberusContexts as CerberusContextsAlias;
 use DAO_Automation;
 use DevblocksDictionaryDelegate;
+use DevblocksLlmChatResponse;
 use DevblocksLlmChatResponse_Tool;
 use DevblocksPlatform;
 use Exception_DevblocksAutomationError;
@@ -54,6 +54,10 @@ class LlmAgentNode extends AbstractNode {
 			// resume still knows which agent it's running as.
 			$this->_applyAgentDefaults();
 			
+			// A fresh turn (not a tool-loop re-entry) validates, reconciles the session, and inits the stack.
+			$is_new_turn = !array_key_exists('stack', $this->_node_memory);
+
+			if($is_new_turn) {
 				$validation = DevblocksPlatform::services()->validation();
 				
 				// Params validation
@@ -110,6 +114,9 @@ class LlmAgentNode extends AbstractNode {
 				$validation->addField('commands', 'commands:')
 					->array();
 
+				$validation->addField('session_id', 'session_id:')
+					->string()
+					->setMaxLength(36);
 				
 				if (false === ($validation->validateAll($this->_inputs, $error)))
 					throw new Exception_DevblocksAutomationError($error);
@@ -157,9 +164,6 @@ class LlmAgentNode extends AbstractNode {
 				list($state, $state_params) = array_pad($state, 2, null);
 				
 				if(in_array($state, ['llm', 'tools_done'])) {
-					if(!$this->_activateLLM($state, $error))
-						return false;
-					
 					// A fresh user turn means "go": clear any stale interrupt left from a prior turn that finished
 					// before its Stop was consumed, so it can't kill THIS turn at the first tools_done. Only a Stop
 					// raised DURING this run (after this point) should count.
@@ -266,14 +270,14 @@ class LlmAgentNode extends AbstractNode {
 				} else if('tool_return' == $state) {
 					$llm = DevblocksPlatform::services()->llm();
 					
-					$session_key = $this->_getSessionKey($llm_provider);
+					$session_key = $this->_getSessionKey();
 					$session_id = $this->_dict->getKeyPath($session_key, null, '::');
 					$memory_store = $llm->getMemoryStore($session_id);
 					
 					$tool_dict = $this->_dict->get('__tool', []);
 					$tool_spec = new DevblocksLlmChatResponse_Tool($tool_dict['name'] ?? '', $tool_dict['parameters'] ?? [], $tool_dict['id'] ?? '');
-					
-					$tools = $this->_getTools();
+
+					$tools = $this->_getTools($session_id);
 					$tool = $tools[$tool_spec->getName()] ?? null;
 					
 					if('automation' == $tool_dict['type']) {
@@ -399,14 +403,29 @@ class LlmAgentNode extends AbstractNode {
 		}
 	}
 	
+	// The provider comes from the SESSION (its stored provider + provider_params) once reconciled —
+	// that's the single source of truth. Falls back to `inputs.llm` only before the session exists.
+	// Sourcing keys on `session->provider` (not full priming): a session with a provider but empty params
+	// still yields a valid provider instance (auth failures surface at request time, not as a TypeError).
 	private function _getLlmProvider() : \Extension_DevblocksLlmProvider {
-	private function _getTools() : array {
 		$llm = DevblocksPlatform::services()->llm();
+
+		$session_id = $this->_dict->getKeyPath($this->_getSessionKey(), null, '::');
+
+		if($session_id && ($session = \DAO_LlmAgentSession::get($session_id)) && $session->provider) {
+			$params = is_array($session->provider_params) ? $session->provider_params : [];
+
+			if(($provider = $llm->getProvider($session->provider, $this->_defaultCache($params))))
+				return $provider;
+		}
+
 		$llm_id = strval(array_key_first($this->_inputs['llm'] ?? []));
 		$llm_params = is_array($this->_inputs['llm'][$llm_id] ?? null) ? $this->_inputs['llm'][$llm_id] : [];
 
 		if($llm_id && ($provider = $llm->getProvider($llm_id, $this->_defaultCache($llm_params))))
 			return $provider;
+
+		throw new Exception_DevblocksAutomationError("`llm.agent` has no LLM provider — prime the session (an `llm:` block, or an agentPrompt) or pass `inputs.llm`.");
 	}
 
 	// `llm.agent` is multi-turn — the prompt prefix is re-sent and read back next turn — so default prompt
@@ -518,10 +537,45 @@ class LlmAgentNode extends AbstractNode {
 		throw new Exception_DevblocksAutomationError("`llm.agent` has no models. Give it a `session_id:` (primed by an agentPrompt or a prior turn), an `llm:` block, or a `model:` reference — or configure a default agent model router.");
 	}
 
+	// Ownership/lineage columns stamped on a session the node creates.
+	private function _sessionCreateFields(Model_Automation $automation) : array {
+		$fields = [
+			'automation_id' => $automation->id ?? 0,
+			'automation_node' => $this->node->getId(),
+			// The acting AI worker. Paired with the user_* fields below (whom it serves), this is the
+			// actor/target pair the memory layer attributes entries with.
+			'agent_id' => $this->_agent_worker_id,
+		];
+
+		if(in_array($automation->extension_id, [
+			\AutomationTrigger_InteractionInternal::ID,
+			\AutomationTrigger_InteractionWorker::ID,
+			\AutomationTrigger_MailDraftValidate::ID,
+			\AutomationTrigger_MailReplyValidate::ID,
+		])) {
+			$fields['user_type'] = 'worker';
+			$fields['user_id'] = $this->_dict->get('worker_id', 0);
+		} elseif($automation->extension_id == \AutomationTrigger_InteractionWebsite::ID) {
+			$fields['user_type'] = 'portal_visitor';
+			$fields['user_ip'] = $this->_dict->get('client_ip', '');
+		}
+
+		return $fields;
+	}
+	
+	private function _getTools(?string $session_id = null) : array {
 		$tools = [];
-		
-		foreach(($this->_inputs['tools'] ?? []) as $tool_key => $tool) {
-			list($tool_type, $tool_name) = explode('/', $tool_key);
+
+		// Use the inbound `tools:`; on a pure-resume (no `inputs.tools`) fall back to the session's
+		// stored tools (the session is the source of truth, like system_prompt / provider_params).
+		// Omitting `tools:` on resume therefore inherits the prior turn's tools rather than sending none.
+		$tools_config = $this->_inputs['tools'] ?? [];
+
+		if(!$tools_config && $session_id && ($session = \DAO_LlmAgentSession::get($session_id)))
+			$tools_config = $session->tools;
+
+		foreach($tools_config as $tool_key => $tool) {
+			list($tool_type, $tool_name) = array_pad(explode('/', $tool_key, 2), 2, null);
 			if (empty($tool_name)) $tool_name = $tool_type;
 			
 			// Conditionally disable tools
@@ -691,8 +745,6 @@ class LlmAgentNode extends AbstractNode {
 				'at' => ('' !== ($at = strval($mount['at'] ?? ''))) ? $at : ('/' . $key),
 			];
 		}
-		
-		return $tools;
 
 		return $specs;
 	}
@@ -1301,16 +1353,20 @@ class LlmAgentNode extends AbstractNode {
 		
 		$llm_provider = $this->_getLlmProvider();
 		
-		$tools = $this->_getTools();
-		$tool =	$tools[$tool_spec->getName()] ?? null;
-		
-		$session_key = $this->_getSessionKey($llm_provider);
+		$session_key = $this->_getSessionKey();
 		$session_id = $this->_dict->getKeyPath($session_key, null, '::');
 		$memory_store = $llm->getMemoryStore($session_id);
+
+		$tools = $this->_getTools($session_id);
+		$tool =	$tools[$tool_spec->getName()] ?? null;
 		
+		$tool_response = [
+			'content' => 'ERROR: Unknown tool type.'
+		];
+
 		if($tool) {
 			$tool_type = $tool['type'] ?? null;
-			
+
 			$this->_dict->set('__tool', [
 				'id' => $tool_spec->getId(),
 				'name' => $tool_spec->getName(),

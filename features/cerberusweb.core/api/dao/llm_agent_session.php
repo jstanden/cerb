@@ -442,8 +442,12 @@ class Model_LlmAgentSession {
 	public function __construct(?string $uuid = null) {
 		$this->uuid = $uuid ?: DevblocksPlatform::services()->string()->uuid();
 		$this->created_at = time();
-		$this->user_ip = DevblocksPlatform::getClientIp();
 		$this->updated_at = $this->created_at;
+		// getClientIp() reads $_SERVER['REMOTE_ADDR'] and returns NULL when there isn't one — i.e. always off a
+		// web request. Without the coercion this constructor fatals on a typed-property assignment, which takes
+		// DAO_LlmAgentSession::get() with it and makes every agent session unreadable from CLI. '' is both the
+		// declared default and what the NOT NULL column stores for "no client".
+		$this->user_ip = strval(DevblocksPlatform::getClientIp());
 	}
 	
 	// The model id lives inside provider_params now (no dedicated column); this is the display/worklist accessor.

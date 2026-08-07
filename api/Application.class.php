@@ -5608,6 +5608,9 @@ class _CerbApplication_KataSchemas {
                                                               required:
                                                                 types:
                                                                   bool:
+                              session_id:
+                                types:
+                                  string:
                       on_error:
                         ref: commands
                       on_simulate:

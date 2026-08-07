@@ -1693,41 +1693,10 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 						'docHTML' => 'Mount agent filesystems and give the agent an <code>agent_fs</code> tool to browse them. Each key is a filesystem name. Leave the block <b>empty</b> to mount nothing but <code>/tmp</code> — a scratch pad plus the <code>|</code> scripting pipeline, so the agent can park and transform text without spending context on it.',
 					],
 					[
-						'caption' => 'thinking_level:',
-						'snippet' => "thinking_level: low",
-						'docHTML' => '<b>thinking_level:</b>Adjust the reasoning effort based on the complexity of a request.<br><code>low</code> or <code>high</code> for Gemini 3 Pro, any setting for Gemini 3 Flash. Not supported for Gemini 2.5.',
-					],
-				],
-				'(.*):llm.agent:inputs:llm:gemini:api_endpoint_url:' => [
-					'https://generativelanguage.googleapis.com/v1beta/openai'
-				],
-				'(.*):llm.agent:inputs:llm:gemini:authentication:' => [
-					'type' => 'cerb-uri',
-					'params' => [
-						'connected_account' => null,
-					]
-				],
-				// https://ai.google.dev/gemini-api/docs/models
-				'(.*):llm.agent:inputs:llm:gemini:model:' => [
-					'gemini-3-pro-preview',
-					'gemini-3-flash-preview',
-					'gemini-2.5-pro',
-					'gemini-2.5-flash',
-					'gemini-2.5-flash-lite',
-					'gemini-2.0-flash',
-					'gemini-2.0-flash-lite',
-				],
-				'(.*):llm.agent:inputs:llm:gemini:thinking_level:' => [
-					'minimal',
-					'low',
-					'medium',
-					'high',
-				],
-				'(.*):llm.agent:inputs:llm:groq:' => [
-					[
-						'caption' => 'model:',
-						'snippet' => "model:",
-						'score' => 2000,
+						'caption' => 'session_id:',
+						'snippet' => "session_id: \${1}",
+						'score' => 1995,
+						'docHTML' => 'Join an <b>existing</b> agent session instead of the one this node would start on its own. Mint an id once (<code>set: session_id: {{uuid()}}</code>) and pass the same one to the <code>agentPrompt</code> element and <code>llmTranscript</code>, so all three work on one conversation.<br><br>Render the <code>agentPrompt</code> <b>before</b> the turn runs: submitting it primes the session with the chosen model and the worker\'s message, so the agent resumes a conversation that already exists.<br><br>Only the <b>first</b> turn reads this. Once a session is attached to the node it stays attached to it for the life of the interaction, and that cached session wins over anything passed later.',
 					],
 				],
 				// Per-provider `llm:<provider>:` params autocomplete (model lists + knobs) — sourced from the
