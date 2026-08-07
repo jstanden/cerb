@@ -4,6 +4,7 @@
 		<meta http-equiv="Content-Type" content="text/html; charset={$smarty.const.LANG_CHARSET_CODE}">
 		<meta http-equiv="Cache-Control" content="no-cache">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+		<meta name="color-scheme" content="{if $pref_dark_mode}dark{else}light{/if}">
 
 		<meta name="robots" content="noindex">
 		<meta name="googlebot" content="noindex">
@@ -37,6 +38,12 @@
 		<style type="text/css">
 			BODY { margin:0; padding:0; }
 			IFRAME { width:100%; height:100%; border: 0; }
+			{if $pref_dark_mode}
+			HTML, BODY, IFRAME { background-color: rgb(32,32,32); }
+			/* Hide the frame until its inner document has painted, so the dark page
+			   background shows through instead of the browser's white loading canvas. */
+			#explorerFrame { visibility: hidden; }
+			{/if}
 		</style>
 	</head>
 	
@@ -56,11 +63,11 @@
 										
 										<div style="max-width:75vw;text-overflow:ellipsis;word-wrap:break-word;word-break:break-all;">
 											{if !empty($content)}
-											<a href="{$url}" target="_blank" rel="noopener">{$content}</a>
-											{else} 
+											{$content}
+											{else}
 											<a href="{$url}" target="_blank" rel="noopener">{$url|truncate:100}</a>
 											{/if}
-										</div> 
+										</div>
 									</div>
 								</div>
 							</div>
@@ -97,7 +104,9 @@
 		let frameInit = function() {
 			try {
 				// Frame keyboard shortcuts
-				$explorerToolbar.cerbToolbar({
+				let explorer_toolbar_ul = $explorerToolbar.find('ul.cerb-ui-toolbar')[0];
+				if(explorer_toolbar_ul && window.CerbUI && CerbUI.Toolbar)
+				new CerbUI.Toolbar(explorer_toolbar_ul, {
 					caller: {
 						name: 'cerb.toolbar.interaction.worker.explore',
 						params: {
@@ -116,6 +125,20 @@
 
 							} else if (e.eventData.exit === 'return') {
 								Devblocks.interactionWorkerPostActions(e.eventData);
+
+								// A returned `callout` targets the tour page inside the iframe, not the
+								// explorer chrome. Re-run it in the frame's own Devblocks so the selector
+								// resolves against that document and the tooltip is positioned there.
+								try {
+									let frameWin = $explorerFrame[0].contentWindow;
+									if(
+										frameWin && frameWin.Devblocks
+										&& e.eventData.hasOwnProperty('return')
+										&& e.eventData.return.hasOwnProperty('callout')
+									) {
+										frameWin.Devblocks.interactionWorkerPostActions({ return: { callout: e.eventData.return.callout } });
+									}
+								} catch(err) { if(console && console.error) console.error(err); }
 
 								if(e.eventData.hasOwnProperty('return') && e.eventData.return.hasOwnProperty('explore_page')) {
 									$explorerForm.find('input[name=page]').val(e.eventData.return.explore_page);
@@ -161,6 +184,9 @@
 
 		let funcOnLoad = function(e) {
 			e.stopPropagation();
+
+			// The inner document has painted; reveal the frame (no-op in light mode).
+			$explorerFrame.css('visibility', 'visible');
 
 			try {
 				let $explorerFrameBody = $explorerFrame.contents().find('body').parent();

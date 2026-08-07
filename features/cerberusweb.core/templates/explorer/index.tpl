@@ -4,6 +4,7 @@
 		<meta http-equiv="Content-Type" content="text/html; charset={$smarty.const.LANG_CHARSET_CODE}">
 		<meta http-equiv="Cache-Control" content="no-cache">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+		<meta name="color-scheme" content="{if $pref_dark_mode}dark{else}light{/if}">
 
 		<meta name="robots" content="noindex">
 		<meta name="googlebot" content="noindex">
@@ -37,6 +38,13 @@
 		<style type="text/css">
 			BODY { margin:0; padding:0; }
 			IFRAME { width:100%; height:100%; border: 0; }
+			#explorerToolbar { padding:5px; background:var(--cerb-color-background); border-bottom:1px solid var(--cerb-color-background-contrast-230); }
+			{if $pref_dark_mode}
+			HTML, BODY, IFRAME { background-color: rgb(32,32,32); }
+			/* Hide the frame until its inner document has painted, so the dark page
+			   background shows through instead of the browser's white loading canvas. */
+			#explorerFrame { visibility: hidden; }
+			{/if}
 		</style>
 	</head>
 	
@@ -44,7 +52,7 @@
 		<table cellpadding="0" cellspacing="0" border="0" style="height:100vh;width:100vw;">
 			<tr>
 				<td style="height:50px;">
-					<div class="block" id="explorerToolbar">
+					<div id="explorerToolbar">
 						<div style="display:flex;flex-flow:row wrap;">
 							<div style="flex:1 1 auto;">
 								<div style="display:flex;flex-flow:row wrap;">
@@ -67,10 +75,10 @@
 							<div style="flex:1 1 auto;text-align:right;">
 								{if !empty($count)}
 								<form action="#" method="get">
-								{if $prev}<button id="btnExplorerPrev" type="button"><span class="cerb-icons cerb-icon-chevron-left"></span></button>{/if}
-								<b>{$p}</b> of <b>{$count}</b> 
-								{if $next}<button id="btnExplorerNext" type="button"><span class="cerb-icons cerb-icon-chevron-right"></span></button>{/if}
-								<button id="btnExplorerExit" type="button"><span class="cerb-icons cerb-icon-circle-remove"></span></button>
+								{if $prev}<button id="btnExplorerPrev" type="button" class="cerb-ui-button cerb-ui-button--transparent" title="{'common.previous'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-chevron-left"></span></button>{/if}
+								<b>{$p}</b> of <b>{$count}</b>
+								{if $next}<button id="btnExplorerNext" type="button" class="cerb-ui-button cerb-ui-button--transparent" title="{'common.next'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-chevron-right"></span></button>{/if}
+								<button id="btnExplorerExit" type="button" class="cerb-ui-button cerb-ui-button--transparent" title="{'common.close'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-circle-remove"></span></button>
 								</form>
 								{/if}
 							</div>
@@ -130,6 +138,10 @@
 		
 		let funcOnLoad = function(e) {
 			e.stopPropagation();
+
+			// The inner document has painted; reveal the frame (no-op in light mode).
+			$explorerFrame.css('visibility', 'visible');
+
 			try {
 				// Frame keyboard shortcuts
 				var $explorerBody = $explorerFrame.contents().find('body').parent();
