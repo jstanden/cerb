@@ -475,10 +475,10 @@ $(function() {
     const funcCancel = function() {
         if(!isCurrent()) return;
 
-        confirmPopup(
-            'Cancel queue job',
-            'Cancel this queue job? Remaining work will be discarded.',
-            function() {
+        CerbUI.Confirm.open({
+            title: 'Cancel queue job',
+            body: 'Cancel this queue job? Remaining work will be discarded.',
+            onConfirm: function() {
                 if(!isCurrent()) return;
 
                 genericAjaxPost(funcBuildFormData('cancel'), null, null, function(json) {
@@ -487,7 +487,7 @@ $(function() {
                     funcMarkTerminated();
                 });
             }
-        );
+        });
     };
 
     const funcOnRefreshClick = function() {
