@@ -4,12 +4,25 @@ use Cerb\AutomationBuilder\Node\AbstractNode;
 
 class Exception_DevblocksAutomationError extends Exception_Devblocks {
 	public ?DevblocksDictionaryDelegate $dict = null;
-	
+
 	public function __construct(string $message = "", ?DevblocksDictionaryDelegate $dict=null) {
 		$this->dict = $dict;
 		parent::__construct($message);
 	}
 };
+
+// An LLM provider API failure that carries the HTTP status (`statusCode`; 0 = a network/timeout error with no
+// response), so a caller can decide retry-vs-surface by error CLASS — 429/503/5xx/timeout are transient (retry),
+// 401/400/403 are futile (surface). Subclass of the automation error so existing
+// `catch (Exception_DevblocksAutomationError)` sites (the llm.agent node, etc.) still handle it unchanged.
+class Exception_DevblocksLlmApiError extends Exception_DevblocksAutomationError {
+	public int $statusCode;
+
+	public function __construct(string $message = "", int $status_code = 0) {
+		$this->statusCode = $status_code;
+		parent::__construct($message);
+	}
+}
 
 class _DevblocksAutomationService {
 	private static $_instance = null;

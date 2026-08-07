@@ -7,6 +7,7 @@ use DevblocksLlmChatResponse;
 use DevblocksLlmChatResponse_Tool;
 use DevblocksPlatform;
 use Exception_DevblocksAutomationError;
+use Exception_DevblocksLlmApiError;
 use Extension_DevblocksLlmMemoryStore;
 use Extension_DevblocksLlmProvider;
 use GuzzleHttp\Psr7\Request;

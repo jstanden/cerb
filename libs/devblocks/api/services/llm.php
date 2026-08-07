@@ -374,6 +374,43 @@ abstract class Extension_DevblocksLlmProvider {
 		return [];
 	}
 
+	/**
+	 * Best-effort human text for a non-2xx response body, for the operator staring at a log line.
+	 *
+	 * OpenAI's `{error:{message}}` is the shape everyone claims, but OpenAI-compatible endpoints leak their
+	 * NATIVE error shape on the paths their compatibility layer doesn't cover — notably throttling, where
+	 * DashScope answers a 429 with a top-level `{code:"Throttling.RateQuota", message:"..."}`. Reading only
+	 * the nested key turned every one of those into a bare "HTTP status code: 429", hiding whether it was a
+	 * per-minute rate limit (wait) or an exhausted quota (won't fix itself).
+	 *
+	 * Falls back to the bare status so the caller always has something to throw.
+	 */
+	protected function _getApiErrorMessage(mixed $response_json, int $status_code) : string {
+		$fallback = 'HTTP status code: ' . $status_code;
+
+		if(!is_array($response_json))
+			return $fallback;
+
+		$error = $response_json['error'] ?? null;
+
+		// `error` is sometimes the message itself (a plain string) rather than an object
+		$message = is_array($error)
+			? ($error['message'] ?? null)
+			: (is_string($error) ? $error : null);
+
+		// Native shapes put the message (and a machine code worth keeping) at the top level
+		$message = $message ?: ($response_json['message'] ?? null);
+
+		if(!is_string($message) || '' === trim($message))
+			return $fallback;
+
+		$code = (is_array($error) ? ($error['code'] ?? null) : null) ?: ($response_json['code'] ?? null);
+
+		if(is_string($code) && '' !== $code && !str_contains($message, $code))
+			$message = sprintf('%s (%s)', $message, $code);
+
+		return $message;
+	}
 
 	/**
 	 * The endpoint that lists this provider's available chat models. Mirrors

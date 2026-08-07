@@ -169,6 +169,7 @@ class _DevblocksClassLoadManager {
 			'CerbAutomationAstNodeVisitor',
 			'CerbAutomationPolicy',
 			'Exception_DevblocksAutomationError',
+			'Exception_DevblocksLlmApiError',
 		]);
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/aws.php', [
 			'_DevblocksAwsService',
