@@ -5048,6 +5048,18 @@
 		</extension>
 
 		<extension point="cerb.toolbar">
+			<id>cerb.toolbar.agent.pane</id>
+			<name>agent.pane</name>
+			<class>
+				<file>api/toolbars/agent.pane.php</file>
+				<name>Toolbar_AgentPane</name>
+			</class>
+			<params>
+				<param key="icon" value="bot" />
+			</params>
+		</extension>
+
+		<extension point="cerb.toolbar">
 			<id>cerb.toolbar.comment.editor</id>
 			<name>comment.editor</name>
 			<class>
