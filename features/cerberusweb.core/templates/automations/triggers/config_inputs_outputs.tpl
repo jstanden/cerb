@@ -1,3 +1,4 @@
+{if $inputs || $outputs}
 <div>
     {if $inputs}
     <h3>{'common.inputs'|devblocks_translate|capitalize}</h3>
@@ -66,3 +67,4 @@ $(function() {
     }
 });
 </script>
+{/if}

@@ -11,7 +11,7 @@
 $(function() {
     var $script = $('#{$script_uid}');
     var $popup = genericAjaxPopupFind($script);
-    var $panel = $script.closest('.ui-tabs-panel');
+    var $panel = $script.closest('.cerb-ui-tabs--panel');
     var $toolbar = $panel.find('.cerb-code-editor-toolbar');
     
     var $log = $panel.find('[data-cerb-automation-editor--log]');

@@ -3,12 +3,12 @@
 <div id="{$uniqid}">
     <fieldset class="peek">
         <legend>{{'common.package'|devblocks_translate|capitalize}}</legend>
-        <textarea data-editor-mode="ace/mode/json" data-editor-readonly="true">{$export_json}</textarea>
+        <textarea id="{$uniqid}Json" data-editor-lines="20" spellcheck="false">{$export_json}</textarea>
     </fieldset>
 
     <fieldset class="peek">
         <legend>{{'common.workflow'|devblocks_translate|capitalize}}</legend>
-        <textarea data-editor-mode="ace/mode/cerb_kata" data-editor-readonly="true">{$export_workflow}</textarea>
+        <textarea id="{$uniqid}Workflow" data-editor-lines="20" spellcheck="false">{$export_workflow}</textarea>
     </fieldset>
 </div>
 
@@ -20,8 +20,8 @@ $(function() {
     $popup.one('popup_open', function() {
         $popup.dialog('option', 'title', '{'common.export'|devblocks_translate|capitalize}: {{'common.automation'|devblocks_translate}|capitalize}');
         
-        const $textarea = $popup.find('textarea');
-        $textarea.cerbCodeEditor().nextAll('pre.ace_editor');
+        new CerbUI.JsonEditor($popup.find('#{$uniqid}Json')[0], { readOnly: true });
+        new CerbUI.KataEditor($popup.find('#{$uniqid}Workflow')[0], { readOnly: true });
     });
 });
 </script>

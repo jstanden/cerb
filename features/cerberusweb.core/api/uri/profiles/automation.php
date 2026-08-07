@@ -388,7 +388,6 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 	
 	private function _profileAction_editorUsage() {
 		$tpl = DevblocksPlatform::services()->template();
-		$sheets = DevblocksPlatform::services()->sheet()->withDefaultTypes();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
@@ -438,54 +437,45 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		}
 		
 		$data = [];
-		
+
+		// Stable per-record-type accent for the tile icon square (hashed into the tag palette)
+		$palette = ['blue', 'green', 'purple', 'orange', 'red', 'gray'];
+
 		foreach($results as $record_type => $record_ids) {
 			$record_ext = Extension_DevblocksContext::getByAlias($record_type);
-			
+
+			if(!$record_ext)
+				continue;
+
+			$icon = $record_ext->params['icon'] ?? 'collection';
+			$color = $palette[abs(crc32($record_type)) % count($palette)];
+
 			foreach($record_ids as $record_id) {
 				$data[] = DevblocksDictionaryDelegate::instance([
 					'_context' => $record_ext->id,
 					'_type' => $record_type,
 					'_type_label' => $record_ext->name,
+					'_type_icon' => $icon,
+					'_type_color' => $color,
 					'id' => $record_id
 				]);
 			}
 		}
-		
-		// Sort dictionaries by _type_label
-		DevblocksPlatform::sortObjects($data, '_type_label');
-		
-		$sheet_kata = <<< EOD
-        layout:
-          headings@bool: yes
-          filtering@bool: no
-          paging@bool: no
-          style: columns
-        columns:
-          text/_type_label:
-            label: Type
-          card/id:
-            label: Record
-            params:
-              bold@bool: yes
-              text_size: 120%
-        EOD;
-		
-		$sheet = $sheets->parse($sheet_kata);
-		$layout = $sheets->getLayout($sheet);
-		$columns = $sheets->getColumns($sheet);
-		$rows = $sheets->getRows($sheet, $data);
-		
-		if(empty($rows)) {
+
+		if(empty($data)) {
 			echo '(no usage found)';
 			return;
 		}
-		
-		$tpl->assign('layout', $layout);
-		$tpl->assign('columns', $columns);
-		$tpl->assign('rows', $rows);
-		
-		$tpl->display('devblocks:cerberusweb.core::ui/sheets/render_grid.tpl');
+
+		// Resolve the record label + profile URL for every tile in one pass per context
+		DevblocksDictionaryDelegate::bulkLazyLoad($data, '_label');
+		DevblocksDictionaryDelegate::bulkLazyLoad($data, 'record_url');
+
+		// Sort dictionaries by _type_label, then record label
+		DevblocksPlatform::sortObjects($data, '_type_label');
+
+		$tpl->assign('usage', $data);
+		$tpl->display('devblocks:cerberusweb.core::internal/automation/editor_usage.tpl');
 	}
 	
 	private function _profileAction_editorLog() {
@@ -3162,6 +3152,8 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 			echo json_encode([
 				'exit' => 'error',
 				'exit_state' => null,
+				// KATA parse/validation errors embed a 1-based `(line N)` in the script; surface it for a line callout.
+				'error_line' => (preg_match('/\(line (\d+)\)/', $error, $matches) ? intval($matches[1]) : null),
 				'dict' => DevblocksPlatform::services()->string()->yamlEmit([
 					'__exit' => 'error',
 					'error' => 'Automation: ' . $error,
@@ -3186,6 +3178,8 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 			echo json_encode([
 				'exit' => 'error',
 				'exit_state' => null,
+				// Runtime/scripting errors may also report a 1-based `(line N)` in the script.
+				'error_line' => (preg_match('/\(line (\d+)\)/', $error, $matches) ? intval($matches[1]) : null),
 				'dict' => DevblocksPlatform::services()->string()->yamlEmit([
 					'__exit' => 'error',
 					'error' => $error,
