@@ -5499,6 +5499,14 @@ class _CerbApplication_KataSchemas {
                                               role:
                                                 types:
                                                   string:
+                              commands:
+                                types:
+                                  object:
+                                    attributes:
+                                      command:
+                                        multiple@bool: yes
+                                        types:
+                                          object:
                               mounts:
                                 types:
                                   object:
