@@ -100,20 +100,43 @@ class DevblocksLlmChatResponse_Tool {
 		return $this->_parameters;
 	}
 	
-	function getLabel(?array $tool_labels) : ?string {
-		$label = sprintf("Tool: %s", $this->getName());
-		
-		if($tool_labels && array_key_exists($this->getName(), $tool_labels)) {
-			$label = $tool_labels[$this->getName()];
-			
-			if(str_contains($label, '{{')) {
-				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-				if(false !== ($new_label = $tpl_builder->build($label, $this->getParameters())))
-					$label = $new_label;
-			}
-		}
-		
-		return $label;
+	// Summary phrasings for this call, resolved from the session's tool map (Model_LlmAgentSession::getToolMap()).
+	// Returns [summary, active]; each backfills the other, and BOTH ARE EMPTY when the tool authored no labels
+	// — the renderer owns the fallback, because only it knows what it can say (the transcript component turns
+	// an empty summary into "Worked for 340ms" from the measured duration; inventing a generic "Worked" here
+	// would shadow that and throw the number away). Built against THIS call's parameters, so `{{query}}`
+	// reflects what the agent actually asked for.
+	function getLabels(?array $tool_map) : array {
+		$labels = $tool_map[$this->getName()]['labels'] ?? [];
+
+		if(!is_array($labels))
+			$labels = [];
+
+		$build = function(string $str) : string {
+			if(!str_contains($str, '{{'))
+				return $str;
+
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+
+			if(false !== ($built = $tpl_builder->build($str, $this->getParameters())))
+				return $built;
+
+			return $str;
+		};
+
+		$summary = strval($labels['summary'] ?? '');
+		$active = strval($labels['active'] ?? '');
+
+		return [
+			'summary' => $build($summary ?: $active),
+			'active' => $build($active ?: $summary),
+		];
+	}
+
+	// The tool's icon from the session's tool map — a cerb-icons name. Empty lets the renderer pick its own
+	// default rather than baking one in here.
+	function getIcon(?array $tool_map) : string {
+		return strval($tool_map[$this->getName()]['icon'] ?? '');
 	}
 	
 	function serialize() : array {
