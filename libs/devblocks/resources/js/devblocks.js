@@ -1089,23 +1089,6 @@ function checkAll(divName, state) {
 	}
 }
 
-// [JAS]: [TODO] Make this a little more generic?
-function appendTextboxAsCsv(formName, field, oLink) {
-	var frm = document.getElementById(formName);
-	if(null == frm) return;
-	
-	var txt = frm.elements[field];
-	var sAppend = '';
-	
-	// [TODO]: check that the last character(s) aren't comma or comma space
-	if(0 != txt.value.length && txt.value.substr(-1,1) != ',' && txt.value.substr(-2,2) != ', ')
-		sAppend += ', ';
-		
-	sAppend += oLink.innerHTML;
-	
-	txt.value = txt.value + sAppend;
-}
-
 // The modal "Loading, please wait…" overlay — now backed by the singleton CerbUI.Dialog.Loading factory (the
 // jQuery-UI panel is retired). Both names + their no-arg call sites are preserved; show() takes an optional message.
 function showLoadingPanel(message) {

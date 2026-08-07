@@ -144,7 +144,7 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		$results = [];
 		
 		foreach($counts as $ext_id => $count) {
-			if(false == (@$context = $contexts[$ext_id]))
+			if(!($context = ($contexts[$ext_id] ?? null)))
 				continue;
 			
 			$aliases = Extension_DevblocksContext::getAliasesForContext($context);

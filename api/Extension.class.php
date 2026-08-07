@@ -42,9 +42,9 @@
 
 abstract class Extension_AutomationApiCommand extends \DevblocksExtension {
 	use DevblocksExtensionGetterTrait;
-	
+
 	const POINT = 'cerb.automation.api_command';
-	
+
 	abstract function getAutocompleteSuggestions($key_path, $prefix, $key_fullpath, $script) : array;
 	abstract function run(array $params=[], &$error=null) : array|false;
 }
@@ -743,7 +743,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 	use DevblocksExtensionGetterTrait;
 	
 	const POINT = 'cerb.automation.trigger';
-	
+
 	static $_registry = [];
 	static $_cache_record_types = null;
 	

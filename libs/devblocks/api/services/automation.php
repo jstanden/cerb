@@ -489,7 +489,7 @@ class _DevblocksAutomationService {
 		// [TODO] Check if we're given an exit/return/error/await status
 		$dict->unset('__exit');
 		$dict->unset('__return');
-		
+
 		$environment = [
 			'debug' => false,
 			'state' => $dict->getKeyPath('__state.next', $tree->getId()),

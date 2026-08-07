@@ -1093,10 +1093,10 @@ class Controller_UI extends DevblocksControllerExtension {
 		@array_shift($stack); // resource
 		@$resource_key = array_shift($stack); // e.g. map.world
 
-		if(false == ($resource = DAO_Resource::getByName($resource_key)))
+		if(!($resource = DAO_Resource::getByName($resource_key)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
-		if(false == ($resource_ext = $resource->getExtension()))
+		if(!($resource_ext = $resource->getExtension()))
 			DevblocksPlatform::dieWithHttpError(null, 500);
 		
 		// Verify allowed resource types on this endpoint

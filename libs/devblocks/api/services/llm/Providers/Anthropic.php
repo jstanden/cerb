@@ -248,8 +248,6 @@ class Anthropic extends Extension_DevblocksLlmProvider implements Chat, ChatStre
 				throw new Exception_DevblocksLlmApiError('HTTP status code: ' . $status_code, $status_code);
 			}
 		}
-		
-		// Add to the memory
 
 		// Neutral token usage for the turn. Anthropic maps directly: input_tokens (fresh),
 		// cache_read/cache_creation_input_tokens (read/write), output_tokens.
