@@ -82,10 +82,18 @@ class DevblocksLlmChatResponse_Tool {
 	private string $_name;
 	private array $_parameters;
 	
-	function __construct(string $name, array $parameters, string $id = '') {
+	/**
+	 * `$parameters` accepts an OBJECT as well as an array, because an empty parameter bag has two legitimate
+	 * shapes in flight: storage/`json_decode(assoc)` gives `[]`, but the Anthropic/Bedrock wire format requires
+	 * `{}` — so `sanitizeMessages()` casts empty inputs to `(object)[]` at send time. Anything that re-reads a
+	 * SEND-shaped message (the dev transcript's compact preview does exactly this: sanitize → convert) would
+	 * otherwise hand us a stdClass and fatal on the type. Normalize once, here, rather than in every provider's
+	 * converter — `getParameters()` keeps returning an array, so the reverse (`toNativeMessage`) is unaffected.
+	 */
+	function __construct(string $name, array|object $parameters, string $id = '') {
 		$this->_id = $id;
 		$this->_name = $name;
-		$this->_parameters = $parameters;
+		$this->_parameters = is_object($parameters) ? (array) $parameters : $parameters;
 	}
 	
 	function getId() : string {
