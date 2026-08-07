@@ -23,10 +23,7 @@
 	</td>
 	{if $show_responsibilities}
 	<td nowrap="nowrap">
-		<div style="position:relative;margin:0 5px;width:70px;height:10px;background-color:var(--cerb-color-background-contrast-230);border-radius:10px;display:inline-block;">
-			<span style="display:inline-block;background-color:var(--cerb-color-background-contrast-200);height:14px;width:1px;position:absolute;top:-2px;margin-left:1px;left:50%;"></span>
-			<div style="position:relative;margin-left:-6px;top:-2px;left:{$worker_meta[$worker->id].responsibility}%;width:14px;height:14px;border-radius:14px;background-color:{if $worker_meta[$worker->id].responsibility < 50}rgb(230,70,70);{elseif $worker_meta[$worker->id].responsibility > 50}rgb(0,200,0);{else}rgb(175,175,175);{/if}"></div>
-		</div>
+			{include file="devblocks:cerberusweb.core::internal/cerb_ui/slider_readonly.tpl" value=$worker_meta[$worker->id].responsibility invert=true tick=true width='70px' track_height='10px' thumb='14px'}
 	</td>
 	{/if}
 	<td nowrap="nowrap">
