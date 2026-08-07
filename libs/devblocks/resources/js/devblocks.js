@@ -121,10 +121,9 @@ function DevblocksClass() {
 						// Fade in the form (if the tab isn't Ajax)
 						$frm.fadeTo('fast', 1.0);
 						
-						// Reload the tab
-						var $tabs = $frm.closest('.ui-tabs');
-						var tabId = $tabs.tabs("option", "active");
-						$tabs.tabs("load", tabId);
+						// Reload the CerbUI.Tabs panel this form lives in
+						if(window.CerbUI && CerbUI.Tabs)
+							CerbUI.Tabs.fromPanel($frm[0])?.refresh();
 					};
 					
 					setTimeout(funcReloadTab, 750);
@@ -698,112 +697,6 @@ function DevblocksClass() {
 		
 		return response;
 	}
-	
-	this.getDefaultjQueryUiTabOptions = function() {
-		var $this = this;
-		
-		return {
-			activate: function(event, ui) {
-				var tabsId = ui.newPanel.closest('.ui-tabs').attr('id');
-				
-				if(!tabsId || 0 == tabsId.length)
-					return;
-				
-				var index = ui.newTab.index();
-				$this.setjQueryUiTabSelected(tabsId, index);
-			},
-			beforeLoad: function(event, ui) {
-				var tab_title = ui.tab.find('> a').first().clone();
-				var $div = $('<div style="font-size:18px;font-weight:bold;text-align:center;padding:10px;margin:10px;"/>')
-					.text('Loading: ' + tab_title.text().trim())
-					.append($('<br>'))
-					.append(Devblocks.getSpinner())
-					;
-				ui.panel.html($div);
-				
-				ui.ajaxSettings.error = function(err) {
-					ui.panel.html('');
-					
-					if(typeof err == 'object' && err.status) {
-						Devblocks.clearAlerts();
-						if(401 === err.status) {
-							let $alert = Devblocks.createAlert('', 'error', 0);
-							let $a = $('<b/>').css('margin-right', '0.5em').text('Your session has expired.');
-							let $b = $('<a/>').attr('href', window.location.href).text('Please log back in.');
-							$alert.append($a).append($b);
-						} else if(404 === err.status) {
-							let $alert = Devblocks.createAlert('', 'error', 0);
-							let $a = $('<b/>').css('margin-right','0.5em').text('The requested resource was not found.');
-							$alert.append($a);
-						} else if(504 === err.status) {
-							let $alert = Devblocks.createAlert('', 'error', 0);
-							let $a = $('<b/>').css('margin-right','0.5em').text('The request timed out.');
-							$alert.append($a);
-						} else {
-							let $alert = Devblocks.createAlert('', 'error', 0);
-							let $a = $('<b/>').css('margin-right','0.5em').text('An unexpected error occurred.');
-							let $b = $('<a/>').attr('href',window.location.href).text('Did your session expire?');
-							$alert.append($a).append($b);
-						}
-					}
-				}
-			}
-		};
-	};
-	
-	this.setjQueryUiTabSelected = function(tabsId, index) {
-		var selectedTabs = {};
-		var currentRevision = '1'; // Increment this to invalidate
-		
-		if(undefined != localStorage.selectedTabs) {
-			selectedTabs = JSON.parse(localStorage.selectedTabs);
-			
-			var revision = selectedTabs['_revision'];
-			
-			if(undefined == revision || currentRevision != revision) {
-				selectedTabs = {'_revision': currentRevision};
-			}
-		} else {
-			selectedTabs = {'_revision': currentRevision };
-		}
-		
-		selectedTabs[tabsId] = index;
-		localStorage.selectedTabs = JSON.stringify(selectedTabs);
-	};
-	
-	this.getjQueryUiTabSelected = function(tabsId, activeTab) {
-		if(undefined != activeTab) {
-			var $tabs = $('#' + tabsId);
-			var $activeTab = $tabs.find('li[data-alias="' + activeTab + '"]');
-			
-			if($activeTab.length > 0) {
-				var selectedTabs = {};
-				
-				if(undefined != localStorage.selectedTabs)
-					selectedTabs = JSON.parse(localStorage.selectedTabs);
-				
-				selectedTabs[tabsId] = $activeTab.index();
-				
-				try {
-					localStorage.selectedTabs = JSON.stringify(selectedTabs);
-				} catch(e) {
-					
-				}
-				
-				return $activeTab.index();
-			}
-		}
-		
-		if(undefined == localStorage.selectedTabs)
-			return 0;
-		
-		var selectedTabs = JSON.parse(localStorage.selectedTabs);
-		
-		if(typeof selectedTabs != "object" || undefined == selectedTabs[tabsId])
-			return 0;
-		
-		return selectedTabs[tabsId];
-	};
 	
 	this.callbackPeekEditSave = function(e) {
 		if(!(typeof e == 'object'))
