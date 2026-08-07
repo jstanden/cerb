@@ -5355,6 +5355,18 @@
 		</extension>
 
 		<extension point="cerb.card.widget">
+			<id>cerb.card.widget.agent_filesystem</id>
+			<name>Agent Filesystem</name>
+			<class>
+				<file>api/cards/widgets/agent_filesystem.php</file>
+				<name>CardWidget_AgentFilesystem</name>
+			</class>
+			<params>
+				<param key="icon" value="folder" />
+			</params>
+		</extension>
+
+		<extension point="cerb.card.widget">
 			<id>cerb.card.widget.search_index</id>
 			<name>Search Index</name>
 			<class>
