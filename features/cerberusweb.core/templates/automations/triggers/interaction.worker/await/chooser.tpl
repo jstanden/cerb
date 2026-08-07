@@ -1,9 +1,8 @@
 {$element_id = uniqid('prompt')}
 <div class="cerb-form-builder-prompt cerb-form-builder-prompt-chooser" id="{$element_id}">
 	<h6>{$label}</h6>
-	<button type="button" data-field-name="prompts[{$var}]{if $multiple}[]{/if}" data-context="{$record_type}" {if !$multiple}data-single="true"{/if} data-query="{$query}" {if $autocomplete}data-autocomplete="" data-autocomplete-if-empty="true"{/if}><span class="cerb-icons cerb-icon-search"></span></button>
 	{$selected_values = $value|default:$default}
-	<ul class="bubbles chooser-container">
+	<div class="cerb-ui-record-chooser">
 		{if $selected_values}
 			{if !is_array($selected_values)}{$selected_values = [$selected_values]}{/if}
 			{$selected_models = CerberusContexts::getModels($record_type, $selected_values)}
@@ -12,21 +11,25 @@
 			{if $selected_dicts}
 				{foreach from=$selected_values item=selected_value}
 					{if array_key_exists($selected_value, $selected_dicts)}
-					<li>
-						<input type="hidden" name="prompts[{$var}]{if $multiple}[]{/if}" value="{$selected_value}">
-						<a data-context="{$record_type}" data-context-id="{$selected_value}">{$selected_dicts[$selected_value]->get('_label')}</a>
-					</li>
+					<li data-context="{$record_type}" data-context-id="{$selected_value}" data-label="{$selected_dicts[$selected_value]->get('_label')}" data-image="{$selected_dicts[$selected_value]->get('_image_url')}"></li>
 					{/if}
 				{/foreach}
 			{/if}
 		{/if}
-	</ul>
+	</div>
 </div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	let $prompt = $('#{$element_id}');
-	$prompt.find('button').cerbChooserTrigger();
-	$prompt.find('ul li a[data-context]').cerbPeekTrigger();
+	if(window.CerbUI && CerbUI.RecordChooser)
+		$prompt.find('.cerb-ui-record-chooser').each(function() {
+			new CerbUI.RecordChooser(this, {
+				context: '{$record_type}',
+				name: 'prompts[{$var}]',
+				multiple: {if $multiple}true{else}false{/if},
+				query: '{$query|escape:'javascript' nofilter}'
+			});
+		});
 });
 </script>

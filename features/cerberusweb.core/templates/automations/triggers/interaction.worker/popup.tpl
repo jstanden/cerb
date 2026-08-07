@@ -7,9 +7,8 @@ $(function() {
 	var $popup = genericAjaxPopupFind('#{$layer}');
 
 	$popup.one('popup_open',function() {
-		$popup.dialog('option','title', "{'common.interaction'|devblocks_translate|capitalize}");
-		
-		$popup.closest('.ui-dialog').find('.ui-dialog-titlebar-close')
+		// Title is owned by the opener (the launcher's label); await:form:title still overrides per step.
+		$popup.closest('.cerb-ui-dialog').find('.cerb-ui-dialog--btn[aria-label="Close"]')
 			.attr('tabindex', '-1')
 			;
 	});

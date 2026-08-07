@@ -74,18 +74,7 @@
             $form.triggerHandler(evt);
         });
        
-        // Window close
-
-        // (x) close button
-        $popup_draft.closest('.ui-dialog').find('.ui-dialog-titlebar-close').on('click', function(e) {
-            e.stopPropagation();
-            $hidden.val('compose.discard');
-
-            var evt = $.Event('cerb-form-builder-submit');
-            $form.triggerHandler(evt);
-        });
-
-        // ESC key
+        // Window close — the (x) button and ESC both fire peek_aborted via CerbUI.Dialog.
         $popup_draft.on('cerb-peek-aborted peek_aborted', function(e) {
             e.stopPropagation();
             $hidden.val('compose.discard');

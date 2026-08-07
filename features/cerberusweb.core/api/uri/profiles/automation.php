@@ -1530,6 +1530,18 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		}
 	}
 	
+	// Normalize `__error` (a bare string from a timeout, or a `{message: ...}` map from an uncaught error) into
+	// a display string. Returns '' when there's nothing to show.
+	private static function _errorMessage($error) : string {
+		if(is_string($error))
+			return trim($error);
+
+		if(is_array($error))
+			return trim(strval($error['message'] ?? ''));
+
+		return '';
+	}
+
 	private function _respondAutomationAwait(Model_AutomationContinuation $continuation, DevblocksDictionaryDelegate $automation_results) {
 		// Only re-enter a non-form await responder while GENUINELY awaiting. A terminal exit (error/return/exit)
 		// can still carry a stale `__return.<type>` — e.g. a queued turn that FAILED during the advance leaves
@@ -2141,6 +2153,17 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 				return;
 				
 			} else { // Not a delegate
+				// A hard error exit (an execution timeout, an uncaught node error) carries its reason on `__error`
+				// but no `__return`, so the end below would render blank — the interaction just stops with zero
+				// indication of why. Surface the reason as an error `say` first. (`__error` is a bare string from
+				// the timeout path, or a `{message}` map from the uncaught-error path.)
+				if('error' == $exit_code && ($error_message = self::_errorMessage($automation_results->get('__error')))) {
+					$elements['say/__error'] = [
+						'content' => sprintf("**The automation stopped with an error:**\n\n%s", $error_message),
+						'style' => 'error',
+					];
+				}
+
 				$elements['end/' . uniqid()] = $automation_results->get('__return', []);
 			}
 		}

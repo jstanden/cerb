@@ -234,7 +234,43 @@ function DevblocksClass() {
 
 		return $alert;
 	};
-	
+
+	// The default AJAX failure UI, shared by genericAjaxGet()/genericAjaxPost(). Extracted so a caller can
+	// install its own `.fail()` (the `fail` option) for the statuses it expects — e.g. an interaction's queue
+	// worker sidecar, which is designed to outlive the gateway's request timeout — and delegate here for
+	// everything else.
+	this.ajaxFail = function(err, div) {
+		Devblocks.clearAlerts();
+		hideLoadingPanel();
+
+		if(null != div) {
+			div.html('').fadeIn();
+		}
+
+		if(401 === err.status) {
+			let $alert = Devblocks.createAlert('', 'error', 0);
+			let $a = $('<b/>').css('margin-right', '0.5em').text('Your session has expired.');
+			let $b = $('<a/>').attr('href', window.location.href).text('Please log back in.');
+			$alert.append($a).append($b);
+
+		} else if(403 === err.status) {
+			let $alert = Devblocks.createAlert('', 'error', 0);
+			let $a = $('<b/>').css('margin-right','0.5em').text('Access denied.');
+			let $b = $('<a/>').attr('href',window.location.href).text('Did your session expire?');
+			$alert.append($a).append($b);
+
+		} else if(404 === err.status) {
+			let $alert = Devblocks.createAlert('', 'error', 0);
+			let $a = $('<b/>').css('margin-right','0.5em').text('The requested resource was not found.');
+			$alert.append($a);
+
+		} else if(504 === err.status) {
+			let $alert = Devblocks.createAlert('', 'error', 0);
+			let $a = $('<b/>').css('margin-right','0.5em').text('The request timed out.');
+			$alert.append($a);
+		}
+	};
+
 	// A single reused CerbUI.Tooltip for automation callouts: a floating panel pinned to a DOM element,
 	// with an arrow pointing at it, dismissed by click or outside-click. Reused (not per-callout) because
 	// hiding a Tooltip keeps its panel in the DOM — a fresh instance each time would leak one.
@@ -1662,40 +1698,18 @@ function genericAjaxGet(divRef,args,cb,options) {
 	var $ajax = $.ajax(options);
 	
 	$ajax.fail(function(err) {
-		Devblocks.clearAlerts();
-		
-		if(null != div) {
-			div.html('').fadeIn();
-		}
-		
-		if(401 === err.status) {
-			let $alert = Devblocks.createAlert('', 'error', 0);
-			let $a = $('<b/>').css('margin-right', '0.5em').text('Your session has expired.');
-			let $b = $('<a/>').attr('href', window.location.href).text('Please log back in.');
-			$alert.append($a).append($b);
-			
-		} else if(403 === err.status) {
-			let $alert = Devblocks.createAlert('', 'error', 0);
-			let $a = $('<b/>').css('margin-right','0.5em').text('Access denied.');
-			let $b = $('<a/>').attr('href',window.location.href).text('Did your session expire?');
-			$alert.append($a).append($b);
-			
-		} else if(404 === err.status) {
-			let $alert = Devblocks.createAlert('', 'error', 0);
-			let $a = $('<b/>').css('margin-right','0.5em').text('The requested resource was not found.');
-			$alert.append($a);
-			
-		} else if(504 === err.status) {
-			let $alert = Devblocks.createAlert('', 'error', 0);
-			let $a = $('<b/>').css('margin-right','0.5em').text('The request timed out.');
-			$alert.append($a);
-		}
-		
+		// A caller-supplied `fail` REPLACES the default failure UI; it delegates to Devblocks.ajaxFail(err, div)
+		// for the statuses it doesn't handle itself. (`options.error` keeps its additive meaning.)
+		if(typeof options.fail == 'function')
+			return options.fail(err, div);
+
+		Devblocks.ajaxFail(err, div);
+
 		if(typeof options.error == 'function') {
 			options.error(err);
 		}
 	});
-	
+
 	if(typeof cb == 'function') {
 		$ajax.done(cb);
 	}
@@ -1810,36 +1824,13 @@ function genericAjaxPost(formRef,divRef,args,cb,options) {
 	var $ajax = $.ajax(options);
 	
 	$ajax.fail(function(err) {
-		Devblocks.clearAlerts();
-		hideLoadingPanel();
-		
-		if(null != div) {
-			div.html('').fadeIn();
-		}
-		
-		if(401 === err.status) {
-			let $alert = Devblocks.createAlert('', 'error', 0);
-			let $a = $('<b/>').css('margin-right', '0.5em').text('Your session has expired.');
-			let $b = $('<a/>').attr('href', window.location.href).text('Please log back in.');
-			$alert.append($a).append($b);
-			
-		} else if(403 === err.status) {
-			let $alert = Devblocks.createAlert('', 'error', 0);
-			let $a = $('<b/>').css('margin-right','0.5em').text('Access denied.');
-			let $b = $('<a/>').attr('href',window.location.href).text('Did your session expire?');
-			$alert.append($a).append($b);
-			
-		} else if(404 === err.status) {
-			let $alert = Devblocks.createAlert('', 'error', 0);
-			let $a = $('<b/>').css('margin-right','0.5em').text('The requested resource was not found.');
-			$alert.append($a);
-			
-		} else if(504 === err.status) {
-			let $alert = Devblocks.createAlert('', 'error', 0);
-			let $a = $('<b/>').css('margin-right','0.5em').text('The request timed out.');
-			$alert.append($a);
-		}
-		
+		// A caller-supplied `fail` REPLACES the default failure UI; it delegates to Devblocks.ajaxFail(err, div)
+		// for the statuses it doesn't handle itself. (`options.error` keeps its additive meaning.)
+		if(typeof options.fail == 'function')
+			return options.fail(err, div);
+
+		Devblocks.ajaxFail(err, div);
+
 		if(typeof options.error == 'function') {
 			options.error(err);
 		}

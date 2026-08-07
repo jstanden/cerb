@@ -3,42 +3,24 @@
 	<h6>{$label}</h6>
 
 	<div style="margin-left:10px;">
-		<button type="button" class="chooser_file"><span class="cerb-icons cerb-icon-paperclip"></span></button>
-		<ul class="bubbles chooser-container">
+		<div class="cerb-ui-file-upload" data-name="prompts[{$var}]">
 			{if $value}
 				{$file = DAO_Attachment::get($value)}
 				{if !empty($file)}
-					<li>
-						<input type="hidden" name="prompts[{$var}]" value="{$file->id}">
-						<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$file->id}">
-							{$file->name} ({$file->storage_size|devblocks_prettybytes})
-						</a>
-						<a>
-							<span class="cerb-icons cerb-icon-circle-remove"></span>
-						</a>
-					</li>
+					<li data-file-id="{$file->id}" data-file-name="{$file->name}" data-file-size="{$file->storage_size}"></li>
 				{/if}
 			{/if}
-		</ul>
+		</div>
 	</div>
 </div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	let $prompt = $('#{$element_id}');
-	let $container = $prompt.find('.chooser-container');
 
-	$container.find('.cerb-icon-circle-remove').parent().on('click', function(e) {
-		e.stopPropagation();
-		$(this).closest('li').remove();
-	});
-
-	$prompt.find('button.chooser_file').each(function() {
-		ajax.chooserFile(this, 'prompts[{$var}]', { single: true });
-	});
-
-	$prompt.find('.cerb-peek-trigger')
-		.cerbPeekTrigger()
-	;
+	if(window.CerbUI && CerbUI.FileUpload)
+		$prompt.find('.cerb-ui-file-upload').each(function() {
+			new CerbUI.FileUpload(this, { name: 'prompts[{$var}]', multiple: false });
+		});
 });
 </script>
