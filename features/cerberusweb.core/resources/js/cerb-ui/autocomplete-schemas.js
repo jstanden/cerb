@@ -9,7 +9,11 @@
  *     kataSchemaSheet, …), exposed as CerbUI.editorCore.autocompleteSchemas and fed to
  *     CerbUI.KataEditor.kataFieldSource(). editor-core.js attaches it to the namespace (it loads after
  *     this file and reassigns CerbUI.editorCore wholesale, so it can't be attached here).
- * Both are plain module-level bindings (not window properties); reach them via the CerbUI accessors.
+ *   - `CerbUI.mailReplyAutocompleteSource` — a public factory (not a data table) returning an
+ *     onAutocomplete(ctx) for the reply/compose MarkdownEditors; attached to the namespace at the foot
+ *     of this file (templates call it directly).
+ * The two schema tables are plain module-level bindings (not window properties); reach them via the
+ * CerbUI accessors. The factory is the exception — it's namespaced because templates call it directly.
  */
 
 let twigAutocompleteSuggestions = {
@@ -1620,4 +1624,130 @@ let cerbAutocompleteSuggestions = {
 			}
 		]
 	}
+};
+
+// Mail reply/compose composer autocomplete source (factory). Unlike the two schema tables above
+// (internal, reached via CerbUI.editorCore accessors), this is a public factory used directly by
+// the reply/compose templates as MarkdownEditor.onAutocomplete, so it attaches to the namespace.
+window.CerbUI = window.CerbUI || {};
+// Inline autocomplete source for the mail reply / compose composers (ported from the legacy reply
+// autocomplete plugin). Returns an onAutocomplete(ctx) for CerbUI.MarkdownEditor; branches on
+// ctx.path[0]: '@' mentions, '#' commands, '#snippet'/'#attach' continuations. opts.mode = 'reply'|'compose'.
+CerbUI.mailReplyAutocompleteSource = function(opts) {
+	opts = opts || {};
+	var mode = ('compose' === opts.mode) ? 'compose' : 'reply';
+	var mentionFn = (window.CerbUI && CerbUI.MarkdownEditor && CerbUI.MarkdownEditor.mentionSource)
+		? CerbUI.MarkdownEditor.mentionSource() : function() { return []; };
+	var commandsCache = null;
+
+	function loadCommands() {
+		if(Array.isArray(commandsCache)) return Promise.resolve(commandsCache);
+		return new Promise(function(resolve) {
+			genericAjaxGet('', 'c=ui&a=getReplyCommandsJson&mode=' + encodeURIComponent(mode), function(json) {
+				commandsCache = Array.isArray(json) ? json : [];
+				resolve(commandsCache);
+			});
+		});
+	}
+
+	function dataQuery(query) {
+		return new Promise(function(resolve) {
+			genericAjaxGet('', 'c=ui&a=dataQuery&q=' + encodeURIComponent(query), function(json) {
+				// worklist.records returns `data` keyed by record id — PHP serializes that assoc array as a JS
+				// OBJECT, not an array — so normalize to a values array (Array.isArray alone would miss it).
+				var data = (json && typeof json === 'object') ? json.data : null;
+				resolve(data ? (Array.isArray(data) ? data : Object.values(data)) : []);
+			});
+		});
+	}
+
+	// #snippet <term>: snippet records usable by me (types depend on mode), most-used first
+	function snippetItems(term) {
+		var types = ('reply' === mode) ? '[plaintext,ticket,worker]' : '[plaintext,worker]';
+		var query = 'type:worklist.records of:snippet query:(type:' + types
+			+ (term.length === 0 ? ' ' : ' title:"*' + term + '*"')
+			+ ' usableBy.worker:me sort:-totalUses)';
+		return dataQuery(query).then(function(rows) {
+			return rows.map(function(s) {
+				return {
+					caption: s['_label'],
+					value: '#snippet ' + s['title'],
+					icon: 'clipboard',
+					onSelect: function(ed) { applySnippetPick(ed, s['id']); }
+				};
+			});
+		});
+	}
+
+	// #attach <term>: file bundles usable by me; inserts `#attach <tag>` as the whole line
+	function attachItems(term) {
+		var query = 'type:worklist.records of:file_bundle query:('
+			+ (term.length === 0 ? ' ' : ' name:"*' + term + '*"')
+			+ ' usableBy.worker:me)';
+		return dataQuery(query).then(function(rows) {
+			return rows.map(function(b) {
+				return {
+					caption: b['_label'],
+					value: '#attach ' + b['tag'],
+					icon: 'paperclip',
+					onSelect: function(ed) { ed.replaceCurrentLine('#attach ' + b['tag']); }
+				};
+			});
+		});
+	}
+
+	function commandItems(prefix) {
+		return loadCommands().then(function(commands) {
+			var term = ('#' + (prefix || '')).toLowerCase();
+			return commands.filter(function(c) {
+				return prefix.length === 0 || c.label.toLowerCase().startsWith(term);
+			}).map(function(c) {
+				var item = { caption: c.label, value: c.value, subtitle: c.description };
+				if('#delete_quote_from_here' === c.command)
+					item.onSelect = function(ed) { applyDeleteQuoteFromHere(ed); };
+				return item;
+			});
+		});
+	}
+
+	// Clear the `#snippet …` line and let the toolbar's snippet-inserted handler AJAX-paste the content
+	function applySnippetPick(ed, snippet_id) {
+		var lp = ed.getCurrentLinePos();
+		var line = ed.getValue().substring(lp.start, lp.end);
+		var at = line.indexOf('#snippet ');
+		if(at === -1) at = 0;
+		ed.setSelection(lp.start + at, lp.end);
+		ed.replaceSelection('');
+		// The host binds this on the editor element (ed.el) and AJAX-pastes the snippet by id.
+		$(ed.el).triggerHandler(new $.Event('cerb-editor-toolbar-snippet-inserted', { snippet_id: snippet_id }));
+	}
+
+	// Drop the quoted remainder from the caret down (keep non-quoted lines below)
+	function applyDeleteQuoteFromHere(ed) {
+		var start = ed.getCurrentWordPos().start;
+		var value = ed.getValue();
+		var lines = value.substring(start).split(/\r?\n/g);
+		var remainder = [];
+		var finished = false;
+		for(var i = 0; i < lines.length; i++) {
+			if(!finished && (0 === i || lines[i].startsWith('>'))) continue;
+			finished = true;
+			remainder.push(lines[i]);
+		}
+		ed.setSelection(start, value.length);
+		ed.replaceSelection(remainder.join('\n'));
+		ed.setSelection(start, start);
+	}
+
+	return function(ctx) {
+		if(!ctx || !ctx.path || !ctx.path.length) return [];
+		var scope = ctx.path[0];
+		var prefix = ctx.prefix || '';
+
+		if('@' === scope) return mentionFn(ctx);
+		if('#snippet' === scope) return snippetItems(prefix);
+		if('#attach' === scope) return attachItems(prefix);
+		if('#' === scope) return commandItems(prefix);
+		return [];
+	};
 };

@@ -15,37 +15,45 @@
 
 <table cellpadding="0" cellspacing="2" border="0" width="98%">
 	<tr>
-		<td width="0%" nowrap="nowrap" align="right"><b>{'message.header.from'|devblocks_translate|capitalize}:</b>&nbsp;</td>
+		<td width="0%" nowrap="nowrap" align="right" class="cerb-u-text-uppercase cerb-u-text-muted cerb-u-fs-n1">{'message.header.from'|devblocks_translate|capitalize}:&nbsp;</td>
 		<td width="100%">
-			<select name="group_id">
+			{$compose_cur_group = $groups[$draft->params.group_id]}
+			{$compose_cur_bucket = $buckets[$draft->params.bucket_id]}
+
+			<input type="hidden" name="group_id" id="composeGroupId{$popup_uniqid}" value="{$draft->params.group_id}">
+			<input type="hidden" name="bucket_id" id="composeBucketId{$popup_uniqid}" value="{$draft->params.bucket_id}">
+
+			<button type="button" class="cerb-ui-button cerb-ui-button--subtle cerb-u-flex cerb-u-items-center cerb-u-gap-1" id="composeBucketTrigger{$popup_uniqid}" data-group-id="{$draft->params.group_id}" data-group-label="{if $compose_cur_group}{$compose_cur_group->name}{/if}" data-avatar="{devblocks_url}c=avatars&context=group&context_id={$draft->params.group_id}{/devblocks_url}">
+				<span data-cerb-bucket-icon class="cerb-u-flex cerb-u-items-center"></span>
+				<span data-cerb-bucket-label>{if $compose_cur_group}{$compose_cur_group->name}{/if}{if $compose_cur_bucket} &rsaquo; {$compose_cur_bucket->name}{/if}</span>
+				<span class="cerb-icons cerb-icon-chevron-down"></span>
+			</button>
+
+			<ul id="composeBucketMenu{$popup_uniqid}" hidden>
 				{foreach from=$groups item=group key=group_id}
-				{if $active_worker->isGroupMember($group_id)}
-				<option value="{$group_id}" member="true" {if $draft->params.group_id == $group_id}selected="selected"{/if}>{$group->name}</option>
-				{/if}
-				{/foreach}
-			</select>
-			<select class="ticket-peek-bucket-options" style="display:none;">
-				{foreach from=$buckets item=bucket key=bucket_id}
-				<option value="{$bucket_id}" group_id="{$bucket->group_id}">{$bucket->name}</option>
-				{/foreach}
-			</select>
-			<select name="bucket_id">
-				{foreach from=$buckets item=bucket key=bucket_id}
-					{if $bucket->group_id == $draft->params.group_id}
-					<option value="{$bucket_id}" {if $draft->params.bucket_id == $bucket_id}selected="selected"{/if}>{$bucket->name}</option>
+					{if $active_worker->isGroupMember($group_id)}
+					<li data-group-id="{$group_id}" data-group-label="{$group->name}" data-avatar="{devblocks_url}c=avatars&context=group&context_id={$group_id}{/devblocks_url}">{$group->name}
+						<ul>
+							{foreach from=$buckets item=bucket key=bucket_id}
+								{if $bucket->group_id == $group_id}
+									<li data-group-id="{$group_id}" data-bucket-id="{$bucket_id}" data-group-label="{$group->name}" data-group-avatar="{devblocks_url}c=avatars&context=group&context_id={$group_id}{/devblocks_url}">{$bucket->name}</li>
+								{/if}
+							{/foreach}
+						</ul>
+					</li>
 					{/if}
 				{/foreach}
-			</select>
+			</ul>
 		</td>
 	</tr>
 	<tr>
-		<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.organization'|devblocks_translate|capitalize}:&nbsp;</td>
+		<td width="0%" nowrap="nowrap" valign="top" align="right" class="cerb-u-text-uppercase cerb-u-text-muted cerb-u-fs-n1">{'common.organization'|devblocks_translate|capitalize}:&nbsp;</td>
 		<td width="100%">
-			<input type="text" name="org_name" value="{$draft->params.org_name}" style="padding:2px;width:98%;" placeholder="(optional) Link this ticket to an organization for suggested recipients">
+			<input type="text" name="org_name" value="{$draft->params.org_name}" style="padding:2px 2px 2px 2.2em;width:98%;" placeholder="(optional) Link this ticket to an organization for suggested recipients">
 		</td>
 	</tr>
 	<tr>
-		<td width="0%" nowrap="nowrap" valign="top" align="right"><a class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="">{'message.header.to'|devblocks_translate|capitalize}</a>:&nbsp;</td>
+		<td width="0%" nowrap="nowrap" valign="top" align="right" class="cerb-u-text-uppercase cerb-u-text-muted cerb-u-fs-n1"><a class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="">{'message.header.to'|devblocks_translate|capitalize}</a>:&nbsp;</td>
 		<td width="100%">
 			<input type="text" name="to" id="emailinput{$popup_uniqid}" value="{$draft->getParam('to')}" style="padding:2px;width:98%;" placeholder="These recipients will automatically be included in all future correspondence">
 
@@ -57,19 +65,19 @@
 		</td>
 	</tr>
 	<tr>
-		<td width="0%" nowrap="nowrap" valign="top" align="right"><a class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="">{'message.header.cc'|devblocks_translate|capitalize}</a>:&nbsp;</td>
+		<td width="0%" nowrap="nowrap" valign="top" align="right" class="cerb-u-text-uppercase cerb-u-text-muted cerb-u-fs-n1"><a class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="">{'message.header.cc'|devblocks_translate|capitalize}</a>:&nbsp;</td>
 		<td width="100%">
 			<input type="text" name="cc" style="width:98%;padding:2px;" value="{$draft->params.cc}" placeholder="These recipients will publicly receive a copy of this message" autocomplete="off">
 		</td>
 	</tr>
 	<tr>
-		<td width="0%" nowrap="nowrap" valign="top" align="right"><a class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="">{'message.header.bcc'|devblocks_translate|capitalize}</a>:&nbsp;</td>
+		<td width="0%" nowrap="nowrap" valign="top" align="right" class="cerb-u-text-uppercase cerb-u-text-muted cerb-u-fs-n1"><a class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="">{'message.header.bcc'|devblocks_translate|capitalize}</a>:&nbsp;</td>
 		<td width="100%">
 			<input type="text" name="bcc" style="width:98%;padding:2px;" value="{$draft->params.bcc}" placeholder="These recipients will secretly receive a copy of this message" autocomplete="off">
 		</td>
 	</tr>
 	<tr>
-		<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'message.header.subject'|devblocks_translate|capitalize}:</b>&nbsp;</td>
+		<td width="0%" nowrap="nowrap" valign="top" align="right" class="cerb-u-text-uppercase cerb-u-text-muted cerb-u-fs-n1">{'message.header.subject'|devblocks_translate|capitalize}:&nbsp;</td>
 		<td width="100%">
 			<input type="text" name="subject" style="width:98%;padding:2px;" value="{if $draft}{$draft->getParam('subject')}{/if}" autocomplete="off" maxlength="255">
 		</td>
@@ -85,35 +93,24 @@
 				</ul>
 
 				<div id="compose{$popup_uniqid}EditorPanel">
-					<div class="cerb-code-editor-toolbar">
-						{if $toolbar_formatting}
-							<button type="button" title="Toggle formatting" class="cerb-code-editor-toolbar-button cerb-editor-toolbar-button--formatting" data-format="{if $is_html}html{else}plaintext{/if}">{if $is_html}Formatting on{else}Formatting off{/if}</button>
+					{* Formatting buttons + markdown/plaintext toggle come from the editor (built-in). These host sections —
+					   #command / snippet / save-draft / GPG, plus any worker-configured custom toolbar — merge into the strip. *}
+					<ul class="cerb-ui-toolbar" data-cerb-compose-editor-toolbar hidden>
+						<li data-value="commands" data-icon="placeholders" title="Insert #command"></li>
+						<li data-value="snippets" data-icon="clipboard" title="Insert snippet (Ctrl+Shift+Period)"></li>
+						<li data-value="save_draft" data-icon="save" title="Save draft (Ctrl+S)"></li>
+						<li></li>
+						<li data-value="encrypt" data-toggle data-key="gpg_encrypt" data-icon="lock"{if $draft->params.options_gpg_encrypt} data-pressed="1"{/if} title="{'common.encrypt'|devblocks_translate|capitalize}"></li>
+						<li data-value="sign" data-toggle data-key="gpg_sign" data-icon="user-lock"{if $draft->params.options_gpg_sign} data-pressed="1"{/if} title="{'common.encrypt.sign'|devblocks_translate|capitalize}"></li>
+					</ul>
 
-							<div data-cerb-toolbar class="cerb-code-editor-subtoolbar-format-html" style="display:inline-block;{if !$is_html}display:none;{/if}">
-								{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar_formatting)}
-							</div>
-
-							<div class="cerb-code-editor-toolbar-divider"></div>
-						{/if}
-
-						{if $toolbar_custom}
-							<div data-cerb-toolbar class="cerb-code-editor-subtoolbar-custom" style="display:inline-block;">
-								{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar_custom)}
-							</div>
-
-							<div class="cerb-code-editor-toolbar-divider"></div>
-						{/if}
-
-						<button type="button" title="Insert #command" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--commands"><span class="cerb-icons cerb-icon-placeholders"></span></button>
-						<button type="button" title="Insert snippet (Ctrl+Shift+Period)" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--snippets"><span class="cerb-icons cerb-icon-clipboard"></span></button>
-						<button type="button" title="Save draft (Ctrl+S)" data-cerb-key-binding="ctrl+s" class="cerb-code-editor-toolbar-button cerb-reply-editor-toolbar-button--save"><span class="cerb-icons cerb-icon-save"></span></button>
-						<div class="cerb-code-editor-toolbar-divider"></div>
-	
-						<button type="button" title="{'common.encrypt'|devblocks_translate|capitalize}" class="cerb-code-editor-toolbar-button cerb-reply-editor-toolbar-button--encrypt {if $draft->params.options_gpg_encrypt}cerb-code-editor-toolbar-button--enabled{/if}"><span class="cerb-icons {if $draft->params.options_gpg_encrypt}cerb-icon-lock{else}cerb-icon-unlock{/if}"></span></button>
-						<button type="button" title="{'common.encrypt.sign'|devblocks_translate|capitalize}" class="cerb-code-editor-toolbar-button cerb-reply-editor-toolbar-button--sign {if $draft->params.options_gpg_sign}cerb-code-editor-toolbar-button--enabled{/if}"><span class="cerb-icons {if $draft->params.options_gpg_sign}cerb-icon-user-lock{else}cerb-icon-user{/if}"></span></button>
+					{if $toolbar_custom}
+					<div data-cerb-toolbar class="cerb-compose-editor-subtoolbar-custom" hidden>
+						{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar_custom)}
 					</div>
+					{/if}
 
-					<textarea id="divComposeContent{$popup_uniqid}" name="content" style="box-sizing:border-box;">{$draft->getParam('content')}</textarea>
+					<textarea id="divComposeContent{$popup_uniqid}" name="content" spellcheck="true">{$draft->getParam('content')}</textarea>
 				</div>
 
 				<div id="compose{$popup_uniqid}EditorPreviewPanel" style="min-height:100px;max-height:400px;overflow:auto;border:1px dotted rgb(150,150,150);padding:5px;"></div>
@@ -124,128 +121,135 @@
 
 <fieldset class="peek compose-attachments">
 	<legend>{'common.attachments'|devblocks_translate|capitalize}</legend>
-	<button type="button" class="chooser_file"><span class="cerb-icons cerb-icon-paperclip"></span></button>
-	<ul class="bubbles chooser-container">
+	<div class="cerb-ui-file-upload" data-name="file_ids" data-multiple="1">
 	{if $draft->params.file_ids}
 	{foreach from=$draft->params.file_ids item=file_id}
 		{$file = DAO_Attachment::get($file_id)}
 		{if !empty($file)}
-			<li><input type="hidden" name="file_ids[]" value="{$file_id}">{$file->name} ({$file->storage_size} bytes) <a data-cerb-link="remove_file"><span class="cerb-icons cerb-icon-circle-remove"></span></a></li>
+			<li data-file-id="{$file->id}" data-file-name="{$file->name}" data-file-size="{$file->storage_size}"></li>
 		{/if}
 	{/foreach}
 	{/if}
-	</ul>
+	</div>
 </fieldset>
 
-<fieldset class="peek" data-cerb-compose-html-template style="margin-top:10px;{if !$is_html}display:none;{/if}">
-	<legend>{'common.html_mail_template'|devblocks_translate|capitalize}</legend>
+{$compose_half = 'flex:1 1 calc(50% - 0.5em);min-width:13em;'}
 
-	{if $html_templates}
-		<select name="html_template_id" style="max-width:150px;" title="{'common.template'|devblocks_translate|capitalize}">
-			<optgroup label="{'common.template'|devblocks_translate|capitalize}">
-				<option value="">({'common.default'|devblocks_translate|capitalize})</option>
-				{foreach from=$html_templates item=html_template}
-					<option value="{$html_template->id}" {if $draft->params.html_template_id==$html_template->id}selected="selected"{/if}>{$html_template->name}</option>
-				{/foreach}
-			</optgroup>
-		</select>
-	{/if}
-</fieldset>
-
-<fieldset class="peek">
-	<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
-	
-	<div>
-		<b>{'common.status'|devblocks_translate|capitalize}:</b>
-
-		<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+O)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_OPEN}" class="status_open" {if $draft->params.status_id==Model_Ticket::STATUS_OPEN}checked="checked"{/if}> {'status.open'|devblocks_translate}</label>
-		<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+W)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_WAITING}" class="status_waiting" {if $draft->params.status_id==Model_Ticket::STATUS_WAITING}checked="checked"{/if}> {'status.waiting'|devblocks_translate}</label>
-		{if $active_worker->hasPriv('core.ticket.actions.close')}<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+C)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_CLOSED}" class="status_closed" {if $draft->params.status_id==Model_Ticket::STATUS_CLOSED}checked="checked"{/if}> {'status.closed'|devblocks_translate}</label>{/if}
-
-		<div id="divComposeClosed{$popup_uniqid}" style="display:{if $draft->params.status_id==Model_Ticket::STATUS_OPEN}none{else}block{/if};margin:5px 0px 10px 20px;">
-			<b>{'display.reply.next.resume'|devblocks_translate}</b><br>
-			{'display.reply.next.resume_eg'|devblocks_translate}<br>
-			<input type="text" name="ticket_reopen" size="64" class="input_date" value="{$draft->params.ticket_reopen}"><br>
-			{'display.reply.next.resume_blank'|devblocks_translate}<br>
-		</div>
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">{'common.properties'|devblocks_translate|capitalize}</div>
 	</div>
 
-	<div style="margin-top:5px;">
-		<b>{'common.owner'|devblocks_translate|capitalize}:</b>
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--row">
+			{* Status *}
+			<div class="cerb-ui-form--field" style="{$compose_half}">
+				<label class="cerb-ui-form--label">{'common.status'|devblocks_translate|capitalize}</label>
+				<div>
+					<input type="hidden" name="status_id" id="composeStatusId{$popup_uniqid}" value="{$draft->params.status_id|default:Model_Ticket::STATUS_OPEN}">
+					<div class="cerb-ui-switcher" data-cerb-input="composeStatusId{$popup_uniqid}" id="composeStatusSwitcher{$popup_uniqid}">
+						<button type="button" data-value="{Model_Ticket::STATUS_OPEN}"{if $draft->params.status_id==Model_Ticket::STATUS_OPEN} class="cerb-ui-switcher--active"{/if}{if $pref_keyboard_shortcuts} title="(Ctrl+Shift+O)"{/if}><span class="cerb-icons cerb-icon-play-button"></span> {'status.open'|devblocks_translate|capitalize}</button>
+						<button type="button" data-value="{Model_Ticket::STATUS_WAITING}"{if $draft->params.status_id==Model_Ticket::STATUS_WAITING} class="cerb-ui-switcher--active"{/if}{if $pref_keyboard_shortcuts} title="(Ctrl+Shift+W)"{/if}><span class="cerb-icons cerb-icon-clock"></span> {'status.waiting'|devblocks_translate|capitalize}</button>
+						{if $active_worker->hasPriv('core.ticket.actions.close')}<button type="button" data-value="{Model_Ticket::STATUS_CLOSED}"{if $draft->params.status_id==Model_Ticket::STATUS_CLOSED} class="cerb-ui-switcher--active"{/if}{if $pref_keyboard_shortcuts} title="(Ctrl+Shift+C)"{/if}><span class="cerb-icons cerb-icon-circle-ok"></span> {'status.closed'|devblocks_translate|capitalize}</button>{/if}
+					</div>
 
-		<ul class="bubbles chooser-container">
-			{foreach from=$workers item=v key=k}
-				{if !$v->is_disabled && $draft->params.owner_id == $v->id}
-					<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$v->id}{/devblocks_url}?v={$v->updated}"><input type="hidden" name="owner_id" value="{$v->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$v->id}">{$v->getName()}</a></li>
-				{/if}
-			{/foreach}
-		</ul>
-		<button type="button" class="chooser-abstract" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-field-name="owner_id" data-autocomplete="isDisabled:n" data-autocomplete-if-empty="true" data-single="true"><span class="cerb-icons cerb-icon-search"></span></button>
-	</div>
+					<div id="divComposeClosed{$popup_uniqid}" class="cerb-u-mt-2" style="display:{if $draft->params.status_id==Model_Ticket::STATUS_OPEN}none{else}block{/if};">
+						<label class="cerb-ui-form--label">{'display.reply.next.resume'|devblocks_translate}</label>
+						<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-1">
+							<input type="text" name="ticket_reopen" style="flex:1 1 auto;min-width:0;" value="{$draft->params.ticket_reopen}">
+						</div>
+						<div class="cerb-ui-form--help">{'display.reply.next.resume_blank'|devblocks_translate}</div>
+					</div>
+				</div>
+			</div>
 
-	<div style="margin-top:5px;">
-		<b>{'common.watchers'|devblocks_translate|capitalize}:</b>
+			{* Owner *}
+			<div class="cerb-ui-form--field" style="{$compose_half}">
+				<label class="cerb-ui-form--label">{'common.owner'|devblocks_translate|capitalize}</label>
+				<div class="cerb-ui-record-chooser" id="composeOwnerChooser{$popup_uniqid}">
+					{foreach from=$workers item=v key=k}
+						{if !$v->is_disabled && $draft->params.owner_id == $v->id}
+							<li data-context-id="{$v->id}" data-label="{$v->getName()}" data-image="{devblocks_url}c=avatars&context=worker&context_id={$v->id}{/devblocks_url}?v={$v->updated}"></li>
+						{/if}
+					{/foreach}
+				</div>
+			</div>
 
-		<ul class="bubbles chooser-container">
-			{if is_array($draft->params.watcher_ids)}
-			{foreach from=$workers item=v key=k}
-				{if !$v->is_disabled && in_array($v->id,$draft->params.watcher_ids)}
-					<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$v->id}{/devblocks_url}?v={$v->updated}"><input type="hidden" name="watcher_ids[]" value="{$v->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$v->id}">{$v->getName()}</a></li>
-				{/if}
-			{/foreach}
+			{* Watchers *}
+			<div class="cerb-ui-form--field" style="{$compose_half}">
+				<label class="cerb-ui-form--label">{'common.watchers'|devblocks_translate|capitalize}</label>
+				<div class="cerb-ui-record-chooser" id="composeWatchersChooser{$popup_uniqid}">
+					{if is_array($draft->params.watcher_ids)}
+						{foreach from=$workers item=v key=k}
+							{if !$v->is_disabled && in_array($v->id,$draft->params.watcher_ids)}
+								<li data-context-id="{$v->id}" data-label="{$v->getName()}" data-image="{devblocks_url}c=avatars&context=worker&context_id={$v->id}{/devblocks_url}?v={$v->updated}"></li>
+							{/if}
+						{/foreach}
+					{/if}
+				</div>
+			</div>
+
+			{* HTML mail template — only with formatting on (empty = default) *}
+			{if $html_templates}
+				<div class="cerb-ui-form--field" data-cerb-compose-html-template style="{$compose_half}{if !$is_html}display:none;{/if}">
+					<label class="cerb-ui-form--label">{'common.html_mail_template'|devblocks_translate|capitalize}</label>
+					<div class="cerb-ui-record-chooser" id="composeHtmlTemplateChooser{$popup_uniqid}">
+						{$compose_cur_template = $html_templates[$draft->params.html_template_id]}
+						{if $draft->params.html_template_id && $compose_cur_template}
+							<li data-context-id="{$compose_cur_template->id}" data-label="{$compose_cur_template->name}"></li>
+						{/if}
+					</div>
+				</div>
 			{/if}
-		</ul>
-		<button type="button" class="chooser-abstract" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-field-name="watcher_ids[]" data-autocomplete="isDisabled:n"><span class="cerb-icons cerb-icon-search"></span></button>
-	</div>
+		</div>
 
-	<div style="margin-top:5px;">
-		<b>{'common.options'|devblocks_translate|capitalize}:</b><br>
-
-		<div style="padding-left:10px;">
-			<label>
-				<input type="checkbox" name="options_dont_send" value="1" {if $draft->params.options_dont_send}checked="checked"{/if}>
-				Start a new conversation without sending a copy of this message to the recipients
-			</label>
+		{* Options *}
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'common.options'|devblocks_translate|capitalize}</label>
+			<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-2">
+				<label class="cerb-ui-toggle">
+					<input type="checkbox" name="options_dont_send" id="composeDontSend{$popup_uniqid}" value="1" {if $draft->params.options_dont_send}checked="checked"{/if}>
+					<span class="cerb-ui-toggle--slider"></span>
+				</label>
+				<label for="composeDontSend{$popup_uniqid}">Start a new conversation without sending a copy to the recipients</label>
+			</div>
 		</div>
 	</div>
-</fieldset>
+</div>
 
 {if $custom_fields || $custom_fieldsets_available}
-<fieldset class="peek" style="{if $custom_fieldsets_available}padding-bottom:0px;{/if}">
-	<legend>
-		<label>
-			{'common.update'|devblocks_translate|capitalize}
-		</label>
-	</legend>
+	{if !empty($custom_fields)}
+		{include file="devblocks:cerberusweb.core::internal/custom_fields/form.tpl" custom_fields=$custom_fields}
+	{/if}
 
-	<div style="{if $custom_fields}{else}display:none;{/if}">
-		{if !empty($custom_fields)}
-			{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false custom_fields_expanded=$draft->params.custom_fields}
-		{/if}
-	</div>
-
-	{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TICKET context_id=0 bulk=true custom_fieldsets_available=$custom_fieldsets_available custom_fieldsets_linked=$custom_fieldsets_linked custom_fields_expanded=$draft->params.custom_fields}
-</fieldset>
+	{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TICKET context_id=0 collapsible=true collapse_default=true custom_fieldsets_available=$custom_fieldsets_available custom_fieldsets_linked=$custom_fieldsets_linked}
 {/if}
 
-<fieldset class="peek">
-	<legend>
-		<label>
-			<input type="checkbox" class="cerb-compose-deliver-later-toggle" value="1" {if $draft->params.send_at}checked="checked"{/if}>
+<div class="cerb-ui-panel cerb-ui-panel--spaced" data-cerb-compose-deliver-later>
+	<div class="cerb-ui-header cerb-ui-header--tight cerb-ui-header--center">
+		<div class="cerb-ui-header--title-sm">
+			<label class="cerb-ui-toggle">
+				<input type="checkbox" class="cerb-compose-deliver-later-toggle" {if $draft->params.send_at}checked="checked"{/if}>
+				<span class="cerb-ui-toggle--slider"></span>
+			</label>
 			Deliver later
-		</label>
-	</legend>
-
-	<div style="{if $draft->params.send_at}{else}display:none;{/if}">
-		<b>When should the message be delivered?</b> (leave blank to send immediately)<br>
-		<input type="text" name="send_at" size="64" style="width:89%;" placeholder="now" value="{if !empty($draft)}{$draft->params.send_at}{/if}">
+		</div>
 	</div>
-</fieldset>
 
-<div class="submit-normal">
-	<button type="button" class="submit" title="{if $pref_keyboard_shortcuts}(Ctrl+Shift+Enter){/if}"><span class="cerb-icons cerb-icon-send"></span> {'display.ui.send_message'|devblocks_translate}</button>
-	<button type="button" class="draft"><span class="cerb-icons cerb-icon-save"></span> {'display.ui.continue_later'|devblocks_translate}</button>
-	<button type="button" class="discard"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.discard'|devblocks_translate|capitalize}</button>
+	<div data-cerb-compose-deliver-later-body style="{if $draft->params.send_at}{else}display:none;{/if}">
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">When should the message be delivered? <span class="cerb-ui-form--hint">(leave blank to send immediately)</span></label>
+			<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-1">
+				<input type="text" name="send_at" placeholder="now" style="flex:1 1 auto;min-width:0;" value="{if !empty($draft)}{$draft->params.send_at}{/if}">
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="submit-normal" style="margin-top:10px;">
+	<button type="button" class="cerb-ui-button submit" title="{if $pref_keyboard_shortcuts}(Ctrl+Shift+Enter){/if}"><span class="cerb-icons cerb-icon-send"></span> {'display.ui.send_message'|devblocks_translate}</button>
+	<button type="button" class="cerb-ui-button cerb-ui-button--subtle draft"><span class="cerb-icons cerb-icon-save"></span> {'display.ui.continue_later'|devblocks_translate}</button>
+	<button type="button" class="cerb-ui-button cerb-ui-button--subtle discard"><span class="cerb-icons cerb-icon-trash"></span> {'common.discard'|devblocks_translate|capitalize}</button>
 </div>
 </form>
 
@@ -258,6 +262,34 @@ $(function() {
 
 	Devblocks.formDisableSubmit($frm);
 
+	// Save the draft via AJAX (used by the toolbar save button, Ctrl+S, and the autosave interval)
+	let savingDraft = false;
+	let saveDraftComposeNow = function() {
+		if(savingDraft)
+			return;
+		savingDraft = true;
+
+		let formData = new FormData($frm[0]);
+		formData.set('c', 'profiles');
+		formData.set('a', 'invoke');
+		formData.set('module', 'draft');
+		formData.set('action', 'saveDraftCompose');
+
+		genericAjaxPost(formData, null, '', function(json) {
+			savingDraft = false;
+
+			if('object' != typeof json)
+				return;
+
+			if(json.error) {
+				$('#divDraftStatus{$popup_uniqid}').html(json.error);
+			} else if(json.html && json.draft_id) {
+				$('#divDraftStatus{$popup_uniqid}').html(json.html);
+				$frm.find('input[name=draft_id]').val(json.draft_id);
+			}
+		});
+	};
+
 	$frm.find('[data-cerb-link=remove_suggested]').on('click', function(e) {
 		e.stopPropagation();
 		$(this).closest('div').hide();
@@ -265,21 +297,10 @@ $(function() {
 
 	$frm.find('[data-cerb-link=remove_file]').on('click', Devblocks.onClickRemoveParent);
 
-	$frm.find('input[name=status_id]').on('click', function(e) {
-		e.stopPropagation();
-		let val = $(this).val();
-
-		if('0' === val) {
-			toggleDiv('divComposeClosed{$popup_uniqid}','none');
-		} else {
-			toggleDiv('divComposeClosed{$popup_uniqid}','block');
-		}
-	});
-
 	function enableAutoSaveDraft() {
 		if(null == draftComposeAutoSaveInterval) {
 			draftComposeAutoSaveInterval = setInterval(function () {
-				$('#frmComposePeek{$popup_uniqid} .cerb-reply-editor-toolbar-button--save').click();
+				saveDraftComposeNow();
 			}, 30000);
 		}
 	}
@@ -295,14 +316,14 @@ $(function() {
 		var $frm = $('#frmComposePeek{$popup_uniqid}');
 		$popup.dialog('option','title','{'mail.send_mail'|devblocks_translate|capitalize|escape:'javascript' nofilter}');
 		
-		$popup.find('.cerb-editor-tabs').tabs({
-			activate: function(event, ui) {
-			},
-			beforeActivate: function(event, ui) {
-				if(ui.newTab.attr('data-cerb-tab') !== 'preview')
+		$popup.find('.cerb-editor-tabs > ul').each(function() {
+			if(!(window.CerbUI && CerbUI.Tabs)) return;
+			new CerbUI.Tabs(this, { onTabSelected: function(index, tab) {
+				if(tab.li.getAttribute('data-cerb-tab') !== 'preview')
 					return;
 
-				Devblocks.getSpinner().appendTo(ui.newPanel.html(''));
+				var $panel = $(tab.panel);
+				Devblocks.getSpinner().appendTo($panel.html(''));
 
 				var formData = new FormData();
 				formData.set('c', 'profiles');
@@ -310,33 +331,54 @@ $(function() {
 				formData.set('module', 'ticket');
 				formData.set('action', 'previewReplyMessage');
 				formData.set('format', $frm.find('input[name=format]').val());
-				formData.set('group_id', $frm.find('select[name=group_id]').val());
-				formData.set('bucket_id', $frm.find('select[name=bucket_id]').val());
-				formData.set('html_template_id', $frm.find('select[name=html_template_id]').val());
+				formData.set('group_id', $frm.find('[name=group_id]').val());
+				formData.set('bucket_id', $frm.find('[name=bucket_id]').val());
+				formData.set('html_template_id', $frm.find('[name=html_template_id]').val() || '');
 				formData.set('content', $frm.find('textarea[name=content]').val());
 
 				genericAjaxPost(formData, null, null, function(html) {
-					ui.newPanel.html(html);
+					$panel.html(html);
 				});
-			}
+			} });
 		});
 		
 		// Autocompletes
 
-		ajax.emailAutoComplete('#frmComposePeek{$popup_uniqid} input[name=to]', { multiple: true } );
-		ajax.emailAutoComplete('#frmComposePeek{$popup_uniqid} input[name=cc]', { multiple: true } );
-		ajax.emailAutoComplete('#frmComposePeek{$popup_uniqid} input[name=bcc]', { multiple: true } );
-
-		ajax.orgAutoComplete('#frmComposePeek{$popup_uniqid} input:text[name=org_name]');
+		if(window.CerbUI && CerbUI.TextChooser) {
+			// Recipient fields: comma-tokenized (autocomplete the address after the last comma, keep the
+			// posted value a comma-separated string). Mirrors the old emailAutoComplete multiple mode.
+			const emailCommaToken = {
+				minLength: 1,
+				avatars: true,
+				context: 'address',
+				source: 'c=internal&a=invoke&module=records&action=autocomplete&context=address',
+				getTerm: function(v) { const p = v.lastIndexOf(','); return (p !== -1 ? v.substring(p + 1) : v).trim(); },
+				onSelect: function(item, input) {
+					const v = input.value, p = v.lastIndexOf(',');
+					input.value = (p !== -1 ? v.substring(0, p) + ', ' : '') + item.label + ', ';
+				}
+			};
+			$frm.find('input[name=to], input[name=cc], input[name=bcc]').each(function() { new CerbUI.TextChooser(this, emailCommaToken); });
+			$frm.find('input:text[name=org_name]').each(function() {
+				new CerbUI.TextChooser(this, {
+					icon: 'building-office',
+					avatars: true,
+					minLength: 1, // don't pop the menu on focus with an empty field
+					context: 'org',
+					source: 'c=internal&a=invoke&module=records&action=autocomplete&context=org',
+					onSelect: function(item, input) { input.value = item.label; } // post the org name, not its id
+				});
+			});
+		}
 		
 		// Date helpers
 
 		$frm.find('input[name=send_at]')
-			.cerbDateInputHelper()
+			.each(function() { if(window.CerbUI && CerbUI.DatePicker) new CerbUI.DatePicker.FormInput(this); })
 			;
 
 		$frm.find('input[name=ticket_reopen]')
-			.cerbDateInputHelper()
+			.each(function() { if(window.CerbUI && CerbUI.DatePicker) new CerbUI.DatePicker.FormInput(this); })
 			;
 		
 		// Chooser for To/Cc/Bcc recipients
@@ -379,237 +421,137 @@ $(function() {
 			})
 		;
 		
-		$frm.find('button.chooser-abstract').cerbChooserTrigger();
-		
-		$frm.find('button.chooser_file').each(function() {
-			ajax.chooserFile(this,'file_ids');
-		});
-		
-		// Drag/drop attachments
-		
-		var $attachments = $frm.find('fieldset.compose-attachments');
-		$attachments.cerbAttachmentsDropZone();
-		
-		// Text editor
-		
-		var $editor = $frm.find('textarea[name=content]')
-			.cerbTextEditor()
-			.cerbTextEditorAutocompleteReplies({
-				'mode': 'compose'
-			})
-			;
+		if(window.CerbUI && CerbUI.RecordChooser) {
+			new CerbUI.RecordChooser($frm.find('#composeOwnerChooser{$popup_uniqid}')[0], { context: '{CerberusContexts::CONTEXT_WORKER}', name: 'owner_id', emptyIcon: 'user', query: 'isDisabled:n' });
+			new CerbUI.RecordChooser($frm.find('#composeWatchersChooser{$popup_uniqid}')[0], { context: '{CerberusContexts::CONTEXT_WORKER}', name: 'watcher_ids', multiple: true, emptyIcon: 'user', query: 'isDisabled:n' });
 
-		var $editor_toolbar = $frm.find('.cerb-code-editor-toolbar')
-			.cerbTextEditorToolbarMarkdown()
-			;
-
-		// Paste images
-
-		$editor.cerbTextEditorInlineImagePaster({
-			attachmentsContainer: $attachments,
-			toolbar: $editor_toolbar
-		});
-
-		$editor_toolbar.find('.cerb-reply-editor-toolbar-button--encrypt')
-			.click(function() {
-				var $button = $(this);
-				var $hidden = $frm.find('> input:hidden[name=options_gpg_encrypt]');
-				var $icon = $button.find('span.cerb-icons');
-
-				if('1' === $hidden.val()) {
-					$hidden.val(0);
-					$button
-						.removeClass('cerb-code-editor-toolbar-button--enabled')
-						.addClass('cerb-code-editor-toolbar-button--disabled')
-					;
-					$icon
-						.removeClass('cerb-icon-lock')
-						.addClass('cerb-icon-unlock')
-					;
-
-				} else {
-					$hidden.val(1);
-					$button
-						.removeClass('cerb-code-editor-toolbar-button--disabled')
-						.addClass('cerb-code-editor-toolbar-button--enabled')
-					;
-					$icon
-						.removeClass('cerb-icon-unlock')
-						.addClass('cerb-icon-lock')
-					;
-
-					// Enable signing
-					if(!$editor_toolbar_button_sign.hasClass('cerb-code-editor-toolbar-button--enabled')) {
-						$editor_toolbar_button_sign.click();
-					}
-				}
-			})
-		;
-
-		var $editor_toolbar_button_sign = $editor_toolbar.find('.cerb-reply-editor-toolbar-button--sign')
-			.click(function() {
-				var $button = $(this);
-				var $hidden = $frm.find('> input:hidden[name=options_gpg_sign]');
-				var $icon = $button.find('span.cerb-icons');
-
-				if('1' === $hidden.val()) {
-					$hidden.val(0);
-					$button
-						.removeClass('cerb-code-editor-toolbar-button--enabled')
-						.addClass('cerb-code-editor-toolbar-button--disabled')
-					;
-					$icon
-						.removeClass('cerb-icon-user-lock')
-						.addClass('cerb-icon-user')
-					;
-
-				} else {
-					$hidden.val(1);
-					$button
-						.removeClass('cerb-code-editor-toolbar-button--disabled')
-						.addClass('cerb-code-editor-toolbar-button--enabled')
-					;
-					$icon
-						.removeClass('cerb-icon-user')
-						.addClass('cerb-icon-user-lock')
-					;
-
-				}
-			})
-		;
-
-		var $editor_toolbar_button_save_draft = $frm.find('.cerb-reply-editor-toolbar-button--save').click(function(e) {
-			var $this = $(this);
-
-			if(!$this.is(':visible')) {
-				clearTimeout(draftComposeAutoSaveInterval);
-				draftComposeAutoSaveInterval = null;
-				return;
+			// HTML mail template (empty = default)
+			var composeHtmlTemplateEl = $frm.find('#composeHtmlTemplateChooser{$popup_uniqid}')[0];
+			if(composeHtmlTemplateEl) {
+				new CerbUI.RecordChooser(composeHtmlTemplateEl, {
+					context: 'html_template',
+					name: 'html_template_id',
+					emptyIcon: 'template',
+					searchPlaceholder: "{'common.html_mail_template'|devblocks_translate|capitalize|escape:'javascript' nofilter}"
+				});
 			}
+		}
 
-			if($this.attr('disabled'))
-				return;
-
-			$this.attr('disabled','disabled');
-
-			var formData = new FormData($frm[0]);
-			formData.set('c', 'profiles');
-			formData.set('a', 'invoke');
-			formData.set('module', 'draft');
-			formData.set('action', 'saveDraftCompose');
-
-			genericAjaxPost(
-				formData,
-				null,
-				'',
-				function(json) {
-					$this.removeAttr('disabled');
-
-					if('object' != typeof json)
-						return;
-
-					if(json.error) {
-						$('#divDraftStatus{$popup_uniqid}').html(json.error);
-
-					} else if(json.html && json.draft_id) {
-						$('#divDraftStatus{$popup_uniqid}').html(json.html);
-						$frm.find('input[name=draft_id]').val(json.draft_id);
+		// Properties: status switcher (reveals the reopen field when not 'open') + options toggle + template menu
+		if(window.CerbUI && CerbUI.Switcher) {
+			let statusEl = $frm.find('#composeStatusSwitcher{$popup_uniqid}')[0];
+			if(statusEl) {
+				let statusInput = document.getElementById('composeStatusId{$popup_uniqid}');
+				new CerbUI.Switcher(statusEl, {
+					value: statusInput ? statusInput.value : null,
+					onSelect: function(value) {
+						if(statusInput) statusInput.value = value;
+						if(value === '{Model_Ticket::STATUS_OPEN}')
+							$('#divComposeClosed{$popup_uniqid}').stop(true,true).fadeOut();
+						else
+							$('#divComposeClosed{$popup_uniqid}').stop(true,true).fadeIn();
 					}
-				}
-			);
-		});
+				});
+			}
+		}
 
-		// Toolbar
+		if(window.CerbUI && CerbUI.Toggle)
+			$frm.find('input[name=options_dont_send]').closest('.cerb-ui-toggle').each(function() { new CerbUI.Toggle(this); });
 
-		$popup.find('[data-cerb-toolbar]')
-			.cerbToolbar({
-				caller: {
-					name: 'cerb.toolbar.mail.compose',
-					params: {
-						selected_text: ''
+		// Attachments
+
+		var fu_attachments = null;
+		if(window.CerbUI && CerbUI.FileUpload)
+			fu_attachments = new CerbUI.FileUpload($frm.find('.cerb-ui-file-upload')[0], { name: 'file_ids', multiple: true });
+
+		var $editor = $frm.find('textarea[name=content]'); // the textarea — kept for keyboard binds + value reads
+
+		// Open the snippet chooser; the chosen snippet pastes through the shared snippet-inserted handler (below)
+		let openSnippetChooser = function() {
+			let chooser_url = 'c=internal&a=invoke&module=records&action=chooserOpen&qr=' + encodeURIComponent('type:[plaintext,worker]') + '&single=1&context=' + encodeURIComponent('cerberusweb.contexts.snippet');
+			let $chooser = genericAjaxPopup(Devblocks.uniqueId(), chooser_url, null, true, '90%');
+			$chooser.on('chooser_save', function(event) {
+				if(!event.values || 0 === event.values.length)
+					return;
+				let snippet_id = event.values[0];
+				if(null != snippet_id)
+					$(ed.el).triggerHandler($.Event('cerb-editor-toolbar-snippet-inserted', { snippet_id: snippet_id }));
+			});
+		};
+
+		// Text editor (CerbUI.MarkdownEditor) — built-in formatting + markdown/plaintext toggle; the host buttons
+		// (#command / snippet / save-draft / GPG) and the worker-configured custom toolbar merge in as sections.
+		let editor_sections = [ $frm.find('[data-cerb-compose-editor-toolbar]')[0] ];
+		{if $toolbar_custom}
+		let compose_custom_toolbar_ul = $frm.find('.cerb-compose-editor-subtoolbar-custom ul.cerb-ui-toolbar')[0];
+		if(compose_custom_toolbar_ul) editor_sections.push(compose_custom_toolbar_ul);
+		{/if}
+
+		let ed = new CerbUI.MarkdownEditor($frm.find('textarea[name=content]')[0], {
+			mode: {if $is_html}'markdown'{else}'plaintext'{/if},
+			onAutocomplete: CerbUI.mailReplyAutocompleteSource({ mode: 'compose' }),
+			onImage: function(info) {
+				if(fu_attachments) fu_attachments.add([{ id: info.file_id, name: info.file_name }]);
+			},
+			toolbar: {
+				onMode: function(v) {
+					// Markdown = HTML/parsedown mail (show the HTML template picker); plaintext = none
+					let html = (v === 'markdown');
+					$frm.find('input:hidden[name=format]').val(html ? 'parsedown' : '');
+					$frm.find('[data-cerb-compose-html-template]').css('display', html ? '' : 'none');
+				},
+				sections: editor_sections,
+				onAction: function(value, ed, item, sourceLi, e) {
+					if(value === 'commands') { ed.insertText('#'); ed.openAutocomplete(); return true; }
+					if(value === 'snippets') { openSnippetChooser(); return true; }
+					if(value === 'save_draft') { saveDraftComposeNow(); return true; }
+					if(value === 'encrypt') {
+						let on = !!(item && item.pressed);
+						$frm.find('> input:hidden[name=options_gpg_encrypt]').val(on ? 1 : 0);
+						// Encrypting implies signing
+						let tb = ed._editorToolbar && ed._editorToolbar.toolbar;
+						if(on && tb && !tb.isPressed('gpg_sign')) {
+							tb.setPressed('gpg_sign', true);
+							$frm.find('> input:hidden[name=options_gpg_sign]').val(1);
+						}
+						return true;
 					}
+					if(value === 'sign') {
+						$frm.find('> input:hidden[name=options_gpg_sign]').val((item && item.pressed) ? 1 : 0);
+						return true;
+					}
+					return false;
 				},
-				start: function(formData) {
-					formData.set('caller[params][selected_text]', $editor.cerbTextEditor('getSelection'));
-				},
-				done: function(e) {
-					if(e.type !== 'cerb-interaction-done')
-						return;
-
-					if (e.eventData.exit === 'error') {
-
-					} else if(e.eventData.exit === 'return') {
-						Devblocks.interactionWorkerPostActions(e.eventData);
-						
-						if(e.eventData.return && e.eventData.return.snippet) {
-							$editor.cerbTextEditor('replaceSelection', e.eventData.return.snippet);
-							setTimeout(function() { $editor.focus(); }, 25);
+				toolbarOpts: {
+					caller: {
+						name: 'cerb.toolbar.mail.compose',
+						params: { selected_text: '' }
+					},
+					start: function(formData) {
+						formData.set('caller[params][selected_text]', ed.getSelection());
+					},
+					done: function(e) {
+						if(e.type !== 'cerb-interaction-done')
+							return;
+						if(e.eventData.exit === 'return') {
+							Devblocks.interactionWorkerPostActions(e.eventData);
+							if(e.eventData.return && e.eventData.return.snippet) {
+								ed.replaceSelection(e.eventData.return.snippet);
+								setTimeout(function() { ed.focus(); }, 25);
+							}
 						}
 					}
 				}
-			})
-		;
-		
-		// Formatting
-
-		$editor_toolbar.find('.cerb-editor-toolbar-button--formatting').on('click', function() {
-			var $button = $(this);
-
-			if('html' === $button.attr('data-format')) {
-				$editor_toolbar.triggerHandler($.Event('cerb-editor-toolbar-formatting-set', { enabled: false }));
-			} else {
-				$editor_toolbar.triggerHandler($.Event('cerb-editor-toolbar-formatting-set', { enabled: true }));
 			}
 		});
 
-		$editor_toolbar.on('cerb-editor-toolbar-formatting-set', function(e) {
-			var $button = $editor_toolbar.find('.cerb-editor-toolbar-button--formatting');
-
-			if(e.enabled) {
-				$frm.find('input:hidden[name=format]').val('parsedown');
-				$button.attr('data-format', 'html');
-				$button.text('Formatting on');
-				$editor_toolbar.find('.cerb-code-editor-subtoolbar-format-html').css('display','inline-block');
-				$frm.find('[data-cerb-compose-html-template]').show();
-			} else {
-				$frm.find('input:hidden[name=format]').val('');
-				$button.attr('data-format', 'plaintext');
-				$button.text('Formatting off');
-				$editor_toolbar.find('.cerb-code-editor-subtoolbar-format-html').css('display','none');
-				$frm.find('[data-cerb-compose-html-template]').hide();
-			}
-		});
-
-		// Upload image
-		$editor_toolbar.on('cerb-editor-toolbar-image-inserted', function(event) {
-			event.stopPropagation();
-
-			var new_event = $.Event('cerb-chooser-save', {
-				labels: event.labels,
-				values: event.values
-			});
-
-			$popup.find('button.chooser_file').triggerHandler(new_event);
-
-			$editor.cerbTextEditor('insertText', '![inline-image](' + event.url + ')');
-
-			setTimeout(function() {
-				$editor.focus();
-			}, 100);
-		});
-
-		// Commands
-		$editor_toolbar.find('.cerb-markdown-editor-toolbar-button--commands').on('click', function(e) {
-			$editor.cerbTextEditor('insertText', '#');
-			$editor.autocomplete('search');
-		});
-
-		// Snippets
-		$editor_toolbar.on('cerb-editor-toolbar-snippet-inserted', function(event) {
+		// Snippet paste — shared by the toolbar snippet button (openSnippetChooser) AND the inline #snippet
+		// autocomplete (CerbUI.mailReplyAutocompleteSource triggers this on ed.el with a snippet_id).
+		$(ed.el).on('cerb-editor-toolbar-snippet-inserted', function(event) {
 			if(!event.hasOwnProperty('snippet_id'))
 				return;
 
-			var formData = new FormData();
+			let formData = new FormData();
 			formData.set('c', 'profiles');
 			formData.set('a', 'invoke');
 			formData.set('module', 'snippet');
@@ -617,69 +559,94 @@ $(function() {
 			formData.set('id', event.snippet_id);
 			formData.set('context_ids[cerberusweb.contexts.worker]', '{$active_worker->id}');
 
-			genericAjaxPost(formData, null, null, function (json) {
-				// If the content has placeholders, use that popup instead
-				if (json.hasOwnProperty('has_prompts')) {
-					var $popup_paste = genericAjaxPopup('snippet_paste', 'c=profiles&a=invoke&module=snippet&action=getPrompts&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id), null, false, '50%');
-
-					$popup_paste.bind('snippet_paste', function (event) {
-						if (null == event.text)
-							return;
-
-						$editor.cerbTextEditor('insertText', event.text);
+			genericAjaxPost(formData, null, null, function(json) {
+				if(json.hasOwnProperty('has_prompts')) {
+					let $popup_paste = genericAjaxPopup('snippet_paste', 'c=profiles&a=invoke&module=snippet&action=getPrompts&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id), null, false, '50%');
+					$popup_paste.bind('snippet_paste', function(event) {
+						if(null != event.text)
+							ed.insertText(event.text);
 					});
-
 				} else {
-					$editor.cerbTextEditor('insertText', json.text);
+					ed.insertText(json.text);
 				}
 			});
 		});
 
-		// Snippets
-		var $editor_toolbar_button_snippets = $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--snippets').on('click', function () {
-			var context = 'cerberusweb.contexts.snippet';
-			var chooser_url = 'c=internal&a=invoke&module=records&action=chooserOpen&qr=' + encodeURIComponent('type:[plaintext,worker]') + '&single=1&context=' + encodeURIComponent(context);
+		// From (Group → Bucket) — nested type-to-filter menu (mirrors reply's Move)
+		var $composeBucketLabel = $frm.find('[data-cerb-bucket-label]');
+		var $composeBucketIcon = $frm.find('[data-cerb-bucket-icon]');
+		var $composeBucketTrigger = $frm.find('#composeBucketTrigger{$popup_uniqid}');
+		var composeBucketMenuUl = $frm.find('#composeBucketMenu{$popup_uniqid}')[0];
 
-			var $chooser = genericAjaxPopup(Devblocks.uniqueId(), chooser_url, null, true, '90%');
+		var composeSetBucketIcon = function(label, gid, imageUrl) {
+			if(!(window.CerbUI && CerbUI.Avatar)) return;
+			var av = CerbUI.Avatar.create({ label: label || '?', seed: 'group:' + gid, imageUrl: imageUrl || '', size: 18 });
+			av.style.marginRight = '0.4em';
+			$composeBucketIcon.empty().append(av);
+		};
 
-			$chooser.on('chooser_save', function (event) {
-				if (!event.values || 0 === event.values.length)
-					return;
+		if($composeBucketTrigger.attr('data-group-id'))
+			composeSetBucketIcon($composeBucketTrigger.attr('data-group-label'), $composeBucketTrigger.attr('data-group-id'), $composeBucketTrigger.attr('data-avatar'));
 
-				var snippet_id = event.values[0];
+		if(composeBucketMenuUl && window.CerbUI && CerbUI.Menu) {
+			var composeBucketMenu = new CerbUI.Menu(composeBucketMenuUl, {
+				filter: true,
+				captureKeys: true, // keep type-to-filter from leaking to page shortcuts; refocus the trigger on select
+				panelClass: 'cerb-bucket-menu',
+				onRenderItem: function(li, src) {
+					var gid = src.getAttribute('data-group-id');
+					if(!gid || !(window.CerbUI && CerbUI.Avatar)) return;
 
-				if (null == snippet_id)
-					return;
+					if(li.classList.contains('cerb-ui-menu--item-pathed')) {
+						var groupLabel = src.getAttribute('data-group-label') || '';
+						var bucketName = (src.textContent || '').trim();
+						li.querySelectorAll('.cerb-ui-menu--label, .cerb-ui-menu--path').forEach(function(n) { n.remove(); });
 
-				$editor_toolbar.triggerHandler(new $.Event('cerb-editor-toolbar-snippet-inserted', {
-					'snippet_id': snippet_id
-				}));
+						var av = CerbUI.Avatar.create({ label: groupLabel || bucketName, seed: 'group:' + gid, imageUrl: src.getAttribute('data-group-avatar') || '', size: 22 });
+						av.classList.add('cerb-bucket-menu--avatar');
+						li.insertBefore(av, li.firstChild);
+
+						var stack = document.createElement('span');
+						stack.className = 'cerb-bucket-menu--text';
+						var eyebrow = document.createElement('span');
+						eyebrow.className = 'cerb-bucket-menu--eyebrow';
+						eyebrow.textContent = groupLabel;
+						var main = document.createElement('span');
+						main.className = 'cerb-bucket-menu--main';
+						main.textContent = bucketName;
+						stack.appendChild(eyebrow);
+						stack.appendChild(main);
+						li.appendChild(stack);
+						return;
+					}
+
+					if(src.hasAttribute('data-bucket-id')) return;
+					var av2 = CerbUI.Avatar.create({ label: src.getAttribute('data-group-label') || '?', seed: 'group:' + gid, imageUrl: src.getAttribute('data-avatar') || '', size: 18 });
+					av2.style.marginRight = '0.5em';
+					li.insertBefore(av2, li.firstChild);
+				},
+				onSelect: function(li, src) {
+					var bid = src.getAttribute('data-bucket-id');
+					if(bid === null) return;
+					var gid = src.getAttribute('data-group-id');
+					$frm.find('#composeGroupId{$popup_uniqid}').val(gid);
+					$frm.find('#composeBucketId{$popup_uniqid}').val(bid);
+					$composeBucketLabel.text((src.getAttribute('data-group-label') || '') + ' › ' + (src.textContent || '').trim());
+					composeSetBucketIcon(src.getAttribute('data-group-label'), gid, src.getAttribute('data-group-avatar'));
+				}
 			});
-		});
 
-		// Group and bucket
-		$frm.find('select[name=group_id]').on('change', function(e) {
-			var $select = $(this);
-			var group_id = $select.val();
-			var $bucket_options = $select.siblings('select.ticket-peek-bucket-options').find('option')
-			var $bucket = $select.siblings('select[name=bucket_id]');
-			
-			$bucket.children().remove();
-			
-			$bucket_options.each(function() {
-				var parent_id = $(this).attr('group_id');
-				if(parent_id === '*' || parent_id === group_id)
-					$(this).clone().appendTo($bucket);
+			$composeBucketTrigger.on('click', function(e) {
+				e.stopPropagation();
+				composeBucketMenu.isOpen() ? composeBucketMenu.close() : composeBucketMenu.open(this);
 			});
-			
-			$bucket.focus();
-		});
+		}
 		
 		$frm.find('input:text[name=to], input:text[name=cc], input:text[name=bcc]').focus(function(event) {
 			$('#compose_suggested{$popup_uniqid}').appendTo($(this).closest('td'));
 		});
 		
-		$frm.find('input:text[name=org_name]').bind('autocompletechange',function() {
+		$frm.find('input:text[name=org_name]').on('change',function() {
 			genericAjaxGet('', 'c=profiles&a=invoke&module=org&action=getTopContactsByOrgJson&org_name=' + encodeURIComponent($(this).val()), function(json) {
 				var $sug = $('#compose_suggested{$popup_uniqid}');
 				
@@ -742,28 +709,29 @@ $(function() {
 			});
 		});
 		
-		// Date entry
-		
-		$frm.find('> fieldset:nth(1) input.input_date').cerbDateInputHelper();
-		
 		if(null != draftComposeAutoSaveInterval) {
 			clearTimeout(draftComposeAutoSaveInterval);
 			draftComposeAutoSaveInterval = null;
 		}
 
-		// Deliver later
+		// Deliver later — toggle reveals the send-at date (ticket_reopen + send_at date pickers wired above)
 
-		$frm.find('.cerb-compose-deliver-later-toggle').on('click', function(e) {
-			e.stopPropagation();
-
-			var $div = $(this).closest('fieldset').find('> div');
-
-			$div
-				.toggle()
-				.find('input:text')
-				.focus()
-			;
-		});
+		if(window.CerbUI && CerbUI.Toggle) {
+			var $deliverPanel = $frm.find('[data-cerb-compose-deliver-later]');
+			var deliverToggleEl = $deliverPanel.find('.cerb-ui-toggle')[0];
+			if(deliverToggleEl) {
+				new CerbUI.Toggle(deliverToggleEl, {
+					onChange: function(checked) {
+						var $body = $deliverPanel.find('[data-cerb-compose-deliver-later-body]');
+						if(checked) {
+							$body.show().find('input:text').focus();
+						} else {
+							$body.hide().find('input:text').val('');
+						}
+					}
+				});
+			}
+		}
 		
 		enableAutoSaveDraft();
 
@@ -773,7 +741,7 @@ $(function() {
 			var toolbarShortcutTrigger = function(e) {
 				e.preventDefault();
 				e.stopPropagation();
-				$editor_toolbar.find('[data-interaction-keyboard="' + this.keys + '"]').click();
+				$frm.find('[data-interaction-keyboard="' + this.keys + '"]').click();
 				return true;
 			};
 	
@@ -807,13 +775,8 @@ $(function() {
 			$editor.bind('keydown', 'ctrl+shift+c', function(e) {
 				e.preventDefault();
 				try {
-					var $radio = $frm.find('input:radio[name=status_id]');
-					$radio.filter('.status_closed').click();
-					$frm
-						.find('input:text[name=ticket_reopen]')
-						.select()
-						.focus()
-					;
+					$frm.find('#composeStatusSwitcher{$popup_uniqid} button[data-value="{Model_Ticket::STATUS_CLOSED}"]').click();
+					$frm.find('input:text[name=ticket_reopen]').select().focus();
 				} catch(ex) { }
 			});
 
@@ -821,8 +784,7 @@ $(function() {
 			$editor.bind('keydown', 'ctrl+shift+o', function(e) {
 				e.preventDefault();
 				try {
-					var $radio = $frm.find('input:radio[name=status_id]');
-					$radio.filter('.status_open').click().focus();
+					$frm.find('#composeStatusSwitcher{$popup_uniqid} button[data-value="{Model_Ticket::STATUS_OPEN}"]').click();
 				} catch(ex) { }
 			});
 
@@ -830,13 +792,8 @@ $(function() {
 			$editor.bind('keydown', 'ctrl+shift+w', function(e) {
 				e.preventDefault();
 				try {
-					var $radio = $frm.find('input:radio[name=status_id]');
-					$radio.filter('.status_waiting').click();
-					$frm
-						.find('input:text[name=ticket_reopen]')
-						.select()
-						.focus()
-					;
+					$frm.find('#composeStatusSwitcher{$popup_uniqid} button[data-value="{Model_Ticket::STATUS_WAITING}"]').click();
+					$frm.find('input:text[name=ticket_reopen]').select().focus();
 				} catch(ex) { }
 			});
 
@@ -844,7 +801,7 @@ $(function() {
 			$editor.bind('keydown', 'ctrl+shift+g', function(e) {
 				e.preventDefault();
 				try {
-					$editor.cerbTextEditor('insertText', '#signature\n');
+					ed.insertText('#signature\n');
 				} catch(ex) { }
 			});
 
@@ -852,7 +809,7 @@ $(function() {
 			$editor.bind('keydown', 'ctrl+shift+i', function(e) {
 				e.preventDefault();
 				try {
-					$editor_toolbar_button_snippets.click();
+					openSnippetChooser();
 				} catch(ex) { }
 			});
 
@@ -860,7 +817,7 @@ $(function() {
 			$editor.bind('keydown', 'ctrl+shift+q', function(e) {
 				e.preventDefault();
 				try {
-					var txt = $editor.val();
+					var txt = ed.getValue();
 
 					var lines = txt.split("\n");
 
@@ -937,7 +894,7 @@ $(function() {
 						}
 					}
 
-					$editor.val($.trim(out));
+					ed.setValue($.trim(out));
 				} catch(ex) { }
 			});
 		{/if}
@@ -1199,10 +1156,12 @@ $(function() {
 
 			window.onbeforeunload = null;
 
-			confirmPopup(
-				'Discard draft',
-				'Are you sure you want to permanently delete this message?',
-				function() {
+			CerbUI.Confirm.open({
+				title: 'Discard draft',
+				body: 'Are you sure you want to permanently delete this message?',
+				confirmText: '{'common.discard'|devblocks_translate|capitalize|escape:'javascript' nofilter}',
+				cancelText: '{'common.cancel'|devblocks_translate|capitalize|escape:'javascript' nofilter}',
+				onConfirm: function() {
 					disableAutoSaveDraft();
 
 					var draft_id = $frm.find('input:hidden[name=draft_id]').val();
@@ -1222,11 +1181,11 @@ $(function() {
 						genericAjaxPopupClose($popup, $.Event('cerb-compose-discard'));
 					});
 				}
-			);
+			});
 		});
 
 		{if $draft->params.org_name}
-		$frm.find('input:text[name=org_name]').trigger('autocompletechange');
+		$frm.find('input:text[name=org_name]').trigger('change');
 		{/if}
 
 		{* Run custom jQuery scripts from VA behavior *}

@@ -69,6 +69,8 @@ class Controller_UI extends DevblocksControllerExtension {
 				return $this->_uiAction_getContextPlaceholdersJson();
 			case 'getMentionsJson':
 				return $this->_uiAction_getMentionsJson();
+			case 'getReplyCommandsJson':
+				return $this->_uiAction_getReplyCommandsJson();
 			case 'iconsJson':
 				return $this->_uiAction_iconsJson();
 			case 'image':
@@ -619,6 +621,45 @@ class Controller_UI extends DevblocksControllerExtension {
 			
 			$cache->save($results, $cache_key, ['schema_mentions'], 300);
 		}
+		
+		echo json_encode($results);
+	}
+	
+	// The inline `#command` autocomplete for the mail reply/compose composers (ported from the legacy
+	// cerbTextEditorAutocompleteReplies `_sourceCommand`). `mode` (reply|compose) gates the ticket-only commands.
+	private function _uiAction_getReplyCommandsJson() {
+		$mode = DevblocksPlatform::importGPC($_REQUEST['mode'] ?? null, 'string', 'reply');
+		if(!in_array($mode, ['reply','compose']))
+			$mode = 'reply';
+		
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+		
+		// command => [label, value, description, modes]. `value` is inserted verbatim (note the trailing space /
+		// newline). `modes` limits a command to specific composers; omit = all.
+		$commands = [
+			['command' => '#attach', 'label' => '#attach', 'value' => '#attach ', 'description' => 'Attach a file bundle by alias'],
+			['command' => '#comment', 'label' => '#comment', 'value' => '#comment ', 'description' => 'Add a ticket comment with @mention notifications'],
+			['command' => '#cut', 'label' => '#cut', 'value' => "#cut\n", 'description' => 'Ignore everything below this line'],
+			['command' => '#delete_quote_from_here', 'label' => '#delete_quote_from_here', 'value' => '#delete_quote_from_here', 'description' => 'Remove remaining quoted text from this line', 'modes' => ['reply']],
+			['command' => '#original_message', 'label' => '#original_message', 'value' => '#original_message', 'description' => 'Insert the full original message placeholder', 'modes' => ['reply']],
+			['command' => '#signature', 'label' => '#signature', 'value' => "#signature\n", 'description' => 'Insert the signature placeholder'],
+			['command' => '#snippet', 'label' => '#snippet', 'value' => '#snippet ', 'description' => 'Insert a snippet'],
+			['command' => '#start comment', 'label' => '#start comment', 'value' => "#start comment\nYour multiple line comment goes here.\n#end\n", 'description' => 'Add a multiple line ticket comment with @mention notifications'],
+			['command' => '#start note', 'label' => '#start note', 'value' => "#start note\nYour multiple line sticky note goes here.\n#end\n", 'description' => 'Add a multiple line sticky note with @mention notifications'],
+			['command' => '#unwatch', 'label' => '#unwatch', 'value' => "#unwatch\n", 'description' => 'Stop watching this ticket', 'modes' => ['reply']],
+			['command' => '#watch', 'label' => '#watch', 'value' => "#watch\n", 'description' => 'Start watching this ticket', 'modes' => ['reply']],
+		];
+		
+		// #attach only applies when the file bundles plugin is enabled
+		$has_file_bundles = DevblocksPlatform::isPluginEnabled('cerb.file_bundles');
+		
+		$results = array_values(array_filter($commands, function($cmd) use ($mode, $has_file_bundles) {
+			if(isset($cmd['modes']) && !in_array($mode, $cmd['modes']))
+				return false;
+			if('#attach' === $cmd['command'] && !$has_file_bundles)
+				return false;
+			return true;
+		}));
 		
 		echo json_encode($results);
 	}
