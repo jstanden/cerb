@@ -29,7 +29,8 @@ $(function() {
 
 	Devblocks.formDisableSubmit($frm);
 	
-	$popup.find('UL.buffer').sortable({ placeholder: 'ui-state-highlight' });
+	if(window.CerbUI && CerbUI.Sortable)
+		new CerbUI.Sortable($popup.find('ul.buffer').get(0));
 	
 	// Bundle chooser
 	{if $file_bundles_enabled}

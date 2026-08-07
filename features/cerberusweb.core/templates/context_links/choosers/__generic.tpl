@@ -20,7 +20,8 @@
 $(function() {
 	var $popup = genericAjaxPopupFetch('{$layer}');
 
-	$popup.find('UL.buffer').sortable({ placeholder: 'ui-state-highlight' });
+	if(window.CerbUI && CerbUI.Sortable)
+		new CerbUI.Sortable($popup.find('ul.buffer').get(0));
 
 	$popup.one('popup_open',function(event,ui) {
 		$popup.css('overflow', 'inherit');
@@ -163,11 +164,6 @@ $(function() {
 
 			genericAjaxPopupDestroy('{$layer}');
 		});
-	});
-
-	$popup.one('dialogclose', function(event) {
-		event.stopPropagation();
-		genericAjaxPopupDestroy('{$layer}');
 	});
 
 });

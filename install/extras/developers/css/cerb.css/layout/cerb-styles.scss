@@ -299,6 +299,13 @@ UL {
 				}
 			}
 		}
+
+		// While reordering (CerbUI.Sortable active), suppress the per-item hover submenus so dragging a
+		// tab doesn't pop menus open under the cursor. The --active class is auto-added for the drag and
+		// removed on drop OR cancel, so this never sticks. Drop detection is document-driven, unaffected.
+		&.cerb-ui-sortable--active > LI {
+			pointer-events: none;
+		}
 	}
 }
 

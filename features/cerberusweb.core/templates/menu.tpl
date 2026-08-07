@@ -77,25 +77,24 @@ $(function() {
 		});
 	});
 
-	$menu.sortable({
-		items: '> li.drag',
-		distance: 20,
-		stop:function(e) {
-			e.stopPropagation();
-			
-			const $pages = $(this).find('li.drag[data-page]');
-			const page_ids = $pages.map(function(e) {
-				return $(this).attr('data-page');
-			}).get().join(',');
+	if(window.CerbUI && CerbUI.Sortable)
+		new CerbUI.Sortable($menu.get(0), {
+			items: '> li.drag',
+			distance: 20,
+			onSorted:function() {
+				const $pages = $menu.find('li.drag[data-page]');
+				const page_ids = $pages.map(function() {
+					return $(this).attr('data-page');
+				}).get().join(',');
 
-			const formData = new FormData();
-			formData.set('c', 'pages');
-			formData.set('a', 'setOrder');
-			formData.set('pages', page_ids);
+				const formData = new FormData();
+				formData.set('c', 'pages');
+				formData.set('a', 'setOrder');
+				formData.set('pages', page_ids);
 
-			genericAjaxPost(formData, null, null);
-		}
-	});
+				genericAjaxPost(formData, null, null);
+			}
+		});
 	
 	$menu
 		.find('> li.drag')
