@@ -21,19 +21,19 @@
 
 	{if $draft->is_queued}
 		{if !empty($draft->queue_delivery_date) && $draft->queue_delivery_date > $smarty.now}
-			<span class="tag" style="background-color:rgb(120,120,120);color:white;margin-right:5px;">{'message.queued.deliver_in'|devblocks_translate:{$draft->queue_delivery_date|devblocks_prettytime}|lower}</span>
+			{$type_pill_title = 'message.queued.deliver_in'|devblocks_translate:{$draft->queue_delivery_date|devblocks_prettytime}|capitalize}
 		{else}
-			<span class="tag" style="background-color:rgb(120,120,120);color:white;margin-right:5px;">{'message.queued.delivery_immediate'|devblocks_translate|lower}</span>
+			{$type_pill_title = 'message.queued.delivery_immediate'|devblocks_translate|capitalize}
 		{/if}
 	{else}
-		<span class="tag" style="background-color:rgb(120,120,120);color:white;margin-right:5px;">{'draft'|devblocks_translate|lower}</span>
+		{$type_pill_title = 'draft'|devblocks_translate|capitalize}
 	{/if}
 
-	<div style="display:inline-block;">
+	<div style="display:inline-flex;align-items:baseline;gap:0.4em;flex-wrap:wrap;">
 		{if $draft_worker}
-			<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$draft_worker->id}" style="font-weight:bold;font-size:1.2em;">{$draft_worker->getName()}</a>
+			<a class="cerb-peek-trigger cerb-u-underline-hover cerb-u-mr-1" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$draft_worker->id}" style="font-weight:bold;font-size:1.2em;">{$draft_worker->getName()}</a>
 			{if $draft_worker->title}
-				{$draft_worker->title}
+				<span class="cerb-u-text-muted">{$draft_worker->title}</span>
 			{/if}
 		{else}
 			{if $draft->params.from}
@@ -43,24 +43,31 @@
 	</div>
 
 	<div style="float:left;margin:0 10px 10px 0;">
-		{if $draft_worker}
-			<img src="{devblocks_url}c=avatars&context=worker&context_id={$draft_worker->id}{/devblocks_url}?v={$draft_worker->updated}" style="height:48px;width:48px;border-radius:48px;">
-		{else}
-			<img src="{devblocks_url}c=avatars&context=bot&context_id=0{/devblocks_url}?v={$smarty.const.APP_BUILD}" style="height:48px;width:48px;border-radius:48px;">
-		{/if}
+		<span class="cerb-avatar-badged">
+			<span class="cerb-ui-avatar" style="width:48px;height:48px;">
+				{if $draft_worker}
+					<img src="{devblocks_url}c=avatars&context=worker&context_id={$draft_worker->id}{/devblocks_url}?v={$draft_worker->updated}">
+				{else}
+					<img src="{devblocks_url}c=avatars&context=bot&context_id=0{/devblocks_url}?v={$smarty.const.APP_BUILD}">
+				{/if}
+			</span>
+			<span class="cerb-ui-pill cerb-ui-pill--circle cerb-ui-pill--gray" title="{$type_pill_title}"><span class="cerb-icons cerb-icon-edit"></span></span>
+		</span>
 	</div>
 
 	<div style="display:block;margin-top:2px;overflow:hidden;">
-		<div style="line-height:1.4em;">
-			{$to = $draft->hint_to|default:$draft->getParam('to')}
-			{if $to}<b>{'message.header.to'|devblocks_translate|capitalize}:</b> {$to}<br>{/if}
-			{if $draft->params.cc}<b>{'message.header.cc'|devblocks_translate|capitalize}:</b> {$draft->getParam('cc')}<br>{/if}
-			{if $draft->params.bcc}<b>{'message.header.bcc'|devblocks_translate|capitalize}:</b> {$draft->getParam('bcc')}<br>{/if}
-			{if $draft->params.subject}<b>{'message.header.subject'|devblocks_translate|capitalize}:</b> {$draft->getParam('subject')}<br>{/if}
+		{$header_label_class = 'cerb-u-text-uppercase cerb-u-text-muted cerb-u-fs-n1'}
+		{$header_label_style = 'text-align:right;white-space:nowrap;'}
+		{$to = $draft->hint_to|default:$draft->getParam('to')}
+		<div style="display:grid;grid-template-columns:auto 1fr;gap:0.25em 0.6em;line-height:1.4em;align-items:baseline;">
+			{if $to}<span class="{$header_label_class}" style="{$header_label_style}">{'message.header.to'|devblocks_translate|capitalize}:</span><span>{$to}</span>{/if}
+			{if $draft->params.cc}<span class="{$header_label_class}" style="{$header_label_style}">{'message.header.cc'|devblocks_translate|capitalize}:</span><span>{$draft->getParam('cc')}</span>{/if}
+			{if $draft->params.bcc}<span class="{$header_label_class}" style="{$header_label_style}">{'message.header.bcc'|devblocks_translate|capitalize}:</span><span>{$draft->getParam('bcc')}</span>{/if}
+			{if $draft->params.subject}<span class="{$header_label_class}" style="{$header_label_style}">{'message.header.subject'|devblocks_translate|capitalize}:</span><span>{$draft->getParam('subject')}</span>{/if}
 			{if $draft->queue_delivery_date}
-				<b>{'message.header.date'|devblocks_translate|capitalize}:</b> {$draft->queue_delivery_date|devblocks_date} ({$draft->queue_delivery_date|devblocks_prettytime})<br>
+				<span class="{$header_label_class}" style="{$header_label_style}">{'message.header.date'|devblocks_translate|capitalize}:</span><span>{$draft->queue_delivery_date|devblocks_date} ({$draft->queue_delivery_date|devblocks_prettytime})</span>
 			{elseif $draft->updated}
-				<b>{'message.header.date'|devblocks_translate|capitalize}:</b> {$draft->updated|devblocks_date} ({$draft->updated|devblocks_prettytime})<br>
+				<span class="{$header_label_class}" style="{$header_label_style}">{'message.header.date'|devblocks_translate|capitalize}:</span><span>{$draft->updated|devblocks_date} ({$draft->updated|devblocks_prettytime})</span>
 			{/if}
 		</div>
 	</div>
@@ -105,14 +112,14 @@
 		{/if}
 
 		{if !$embed}
-		<div style="margin-top:10px;">
+		<div class="cerb-ui-toolbar-rail" style="margin-top:10px;">
 			{if $draft_is_writeable && !$draft->is_queued && (!$draft->worker_id || $draft->worker_id == $active_worker->id)}
 			<button type="button" class="cerb-button-resume"><span class="cerb-icons cerb-icon-restart"></span> {'common.resume'|devblocks_translate|capitalize}</button>
 			{/if}
 
 			<button type="button" class="cerb-sticky-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{CerberusContexts::CONTEXT_DRAFT} context.id:{$draft->id}"><span class="cerb-icons cerb-icon-comments"></span> {'common.comment'|devblocks_translate|capitalize}</button>
 			
-			<div data-cerb-toolbar style="display:inline-block;">
+			<div data-cerb-toolbar>
 			{$draft_dict = DevblocksDictionaryDelegate::instance([
 				'caller_name' => 'cerb.toolbar.draft.read',
 				
@@ -267,7 +274,9 @@ $(function() {
 		$profile_tab.triggerHandler(evt);
 	};
 
-	$toolbar.cerbToolbar({
+	let draft_toolbar_ul = $toolbar.find('ul.cerb-ui-toolbar')[0];
+	if(draft_toolbar_ul && window.CerbUI && CerbUI.Toolbar)
+	new CerbUI.Toolbar(draft_toolbar_ul, {
 		caller: {
 			name: 'cerb.toolbar.draft.read',
 			params: {

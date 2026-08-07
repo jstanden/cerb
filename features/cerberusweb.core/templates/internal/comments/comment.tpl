@@ -13,32 +13,43 @@
 {capture assign=reply_edit}context:{CerberusContexts::CONTEXT_COMMENT} context.id:{$comment->id}{if $reply_mention} comment:{$reply_mention}{/if}{/capture}
 
 <div class="block" style="position:relative;margin-bottom:10px;padding-left:10px;">
-	<span class="tag" style="background-color:rgb(71,133,210);color:white;margin-right:5px;">{'common.comment'|devblocks_translate|lower}</span>
+	{* When there's no avatar to badge, keep the comment pill inline as a fallback *}
+	{if !isset($owner_meta.context_ext->manifest->params.alias)}
+	<span class="cerb-ui-pill cerb-ui-pill--blue" style="margin-right:5px;" title="{'common.comment'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-comments"></span></span>
+	{/if}
 
-	<b>
+	<span style="display:inline-flex;align-items:baseline;gap:0.4em;flex-wrap:wrap;">
+	<b class="cerb-u-mr-1">
 		{if empty($owner_meta)}
 			(system)
 		{else}
-			{if $owner_meta.context_ext instanceof IDevblocksContextPeek} 
-			<a class="cerb-peek-trigger" style="font-size:1.2em;" data-context="{$comment->owner_context}" data-context-id="{$comment->owner_context_id}">{$owner_meta.name}</a>
-			{elseif !empty($owner_meta.permalink)} 
-			<a href="{$owner_meta.permalink}" target="_blank" rel="noopener">{$owner_meta.name}</a>
+			{if $owner_meta.context_ext instanceof IDevblocksContextPeek}
+			<a class="cerb-peek-trigger cerb-u-underline-hover" style="font-size:1.2em;" data-context="{$comment->owner_context}" data-context-id="{$comment->owner_context_id}">{$owner_meta.name}</a>
+			{elseif !empty($owner_meta.permalink)}
+			<a href="{$owner_meta.permalink}" target="_blank" rel="noopener" class="cerb-u-underline-hover">{$owner_meta.name}</a>
 			{else}
 			{$owner_meta.name}
 			{/if}
 		{/if}
 	</b>
-	
+
 	{if $comment->owner_context == CerberusContexts::CONTEXT_WORKER}
 		{$actor = $comment->getActorDictionary()}
-		&nbsp;
-		{$actor->title}
+		{if $actor->title}<span class="cerb-u-text-muted">{$actor->title}</span>{/if}
+	{elseif $comment->owner_context == CerberusContexts::CONTEXT_CONTACT}
+		{$comment_contact = DAO_Contact::get($comment->owner_context_id)}
+		{if $comment_contact && $comment_contact->title}<span class="cerb-u-text-muted">{$comment_contact->title}</span>{/if}
+		{if $comment_contact}{$comment_org = $comment_contact->getOrg()}{/if}
+		{if !empty($comment_org)}
+			<a class="cerb-ui-pill cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$comment_org->id}"><img src="{devblocks_url}c=avatars&context=org&context_id={$comment_org->id}{/devblocks_url}?v={$comment_org->updated}" style="height:16px;width:16px;border-radius:16px;">{$comment_org->name}</a>
+		{/if}
 	{else}
-		({$owner_meta.context_ext->manifest->name|lower})
+		<span class="cerb-u-text-muted">({$owner_meta.context_ext->manifest->name|lower})</span>
 	{/if}
+	</span>
 
 	{if !$embed}
-	<div class="toolbar">
+	<div class="toolbar toolbar-minmax">
 		<button type="button" class="cerb-edit-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="{$comment->id}" title="Open card popup (Shift+Click to edit)"><span class="cerb-icons cerb-icon-new-window"></span></button>
 		
 		{if $is_writeable}
@@ -55,16 +66,22 @@
 	
 	{if isset($owner_meta.context_ext->manifest->params.alias)}
 	<div style="float:left;margin:0 10px 10px 0;">
-		<img src="{devblocks_url}c=avatars&context={$owner_meta.context_ext->manifest->params.alias}&context_id={$owner_meta.id}{/devblocks_url}?v={$owner_meta.updated}" style="height:48px;width:48px;border-radius:48px;">
+		<span class="cerb-avatar-badged">
+			<span class="cerb-ui-avatar" style="width:48px;height:48px;">
+				<img src="{devblocks_url}c=avatars&context={$owner_meta.context_ext->manifest->params.alias}&context_id={$owner_meta.id}{/devblocks_url}?v={$owner_meta.updated}">
+			</span>
+			<span class="cerb-ui-pill cerb-ui-pill--circle cerb-ui-pill--blue" title="{'common.comment'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-comments"></span></span>
+		</span>
 	</div>
 	{/if}
 	
 	<div class="cerb-comment--content">
-        <div>
-            <b>{{'message.header.date'|devblocks_translate|capitalize}}: </b>
-            {$comment->created|devblocks_date}
-            (<abbr title="{$comment->created|devblocks_date}">{$comment->created|devblocks_prettytime}</abbr>)
-        </div>
+		{$header_label_class = 'cerb-u-text-uppercase cerb-u-text-muted cerb-u-fs-n1'}
+		{$header_label_style = 'text-align:right;white-space:nowrap;'}
+		<div style="display:grid;grid-template-columns:auto 1fr;gap:0.25em 0.6em;line-height:1.4em;align-items:baseline;">
+			<span class="{$header_label_class}" style="{$header_label_style}">{'message.header.date'|devblocks_translate|capitalize}:</span>
+			<span>{$comment->created|devblocks_date} (<abbr title="{$comment->created|devblocks_date}">{$comment->created|devblocks_prettytime}</abbr>)</span>
+		</div>
 
 		{if $comment->is_markdown}
 			<div class="commentBodyHtml" dir="auto">{$comment->getContent() nofilter}</div>
@@ -105,7 +122,18 @@
 		{/if}
 
 		{if !$embed && $active_worker->hasPriv('contexts.cerberusweb.contexts.comment.comment')}
-			<button type="button" class="cerb-sticky-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{CerberusContexts::CONTEXT_COMMENT} context.id:{$comment->id}"><span class="cerb-icons cerb-icon-comments"></span> {'common.comment'|devblocks_translate|capitalize}</button>
+			<div style="display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap;">
+				<div class="cerb-ui-toolbar-rail">
+					<button type="button" class="cerb-sticky-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="{$reply_edit}"><span class="cerb-icons cerb-icon-comments"></span> {'common.comment'|devblocks_translate|capitalize}</button>
+				</div>
+				{if DevblocksPlatform::isPluginEnabled('cerb.comment.reactions')}
+					{include file="devblocks:cerb.comment.reactions::internal/comments/reactions.tpl" context="{CerberusContexts::CONTEXT_COMMENT}" context_id=$comment->id reactions_class="cerb-u-mt-0"}
+				{/if}
+			</div>
+		{else}
+			{if DevblocksPlatform::isPluginEnabled('cerb.comment.reactions')}
+				{include file="devblocks:cerb.comment.reactions::internal/comments/reactions.tpl" context="{CerberusContexts::CONTEXT_COMMENT}" context_id=$comment->id}
+			{/if}
 		{/if}
 
 		<div id="comment{$comment->id}_notes" class="cerb-comments-thread">

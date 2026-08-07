@@ -795,32 +795,136 @@ TABLE.calendar {
 	}
 }
 
+// Minmax hover toolbar (top-right of a conversation message/draft) — a small CerbUI strip of icon buttons.
+// Container positioning + jQuery show/hide stay per-context (above); this adds the strip chrome + item look.
+.toolbar-minmax {
+	padding: 3px;
+	background: var(--cerb-color-background-contrast-240);
+	border: 1px solid var(--cerb-color-background-contrast-220);
+	border-radius: 6px;
+	white-space: nowrap;
+
+	button {
+		@include cerb-ui-toolbar-button;
+	}
+
+	// A pressed button (e.g. a comment's "pinned" toggle) gets the toolbar's active look instead of the
+	// legacy global .cerb-button-enabled fill, which the base mixin's transparent background would flatten.
+	button.cerb-button-enabled {
+		@include cerb-ui-toolbar-button-active;
+	}
+}
+
 .cerb-comments-thread {
 	margin: 10px 0 0 15px;
-	border-left:2px solid var(--cerb-color-background-contrast-200);
 
 	.cerb-comments-thread--comment {
+		position: relative;
+		margin-top: 8px;
+
 		&:first-child {
-			margin-top: 25px;
+			margin-top: 12px;
 		}
+	}
+}
 
-		position:relative;
-		margin-top:10px;
-		margin-left:-17px;
-		padding: 0;
-		border: 0;
+// Sticky note: an inline annotation pinned to a message (a CONTEXT_COMMENT whose target is a message,
+// not the ticket). Rendered as a chat bubble — avatar on the left, the body in a soft fill-only bubble
+// with a small tail pointing at the avatar; a compact author · time header and a hover-reveal action
+// toolbar pinned top-right (matching the convo timeline message/draft minmax toolbars). See note.tpl;
+// threaded by .cerb-comments-thread.
+.cerb-sticky-note {
+	display: flex;
+	gap: 0.6em;
+	align-items: flex-start;
 
-		H3 {
-			font-weight: bold;
-			font-size: 18px;
-			margin: 0;
-			color: var(--cerb-color-background-contrast-100);
+	&--avatar {
+		flex: 0 0 auto;
+		margin-top: 0.1em;
+	}
+
+	// The bubble surface — fill only, no border, quiet enough to sit in a thread of notes
+	&--main {
+		flex: 1 1 auto;
+		min-width: 0; // let the body wrap instead of overflowing
+		position: relative;
+		padding: 0.5em 0.75em;
+		background: var(--cerb-color-background-contrast-250);
+		border: 1px solid var(--cerb-color-background-contrast-200);
+		border-radius: 10px;
+
+		// Tail: a small rotated square of the same fill, pointing toward the avatar
+		&::before {
+			content: "";
+			position: absolute;
+			top: 11px;
+			left: -6px;
+			width: 9px;
+			height: 9px;
+			background: inherit;
+			transform: rotate(45deg);
+			border-left: 1px solid var(--cerb-color-background-contrast-200);
+			border-bottom: 1px solid var(--cerb-color-background-contrast-200);
 		}
 	}
 
-	.cerb-comments-thread--avatar {
-		float: left;
-		margin: 0 5px 10px 0;
+	&--header {
+		display: flex;
+		align-items: center;
+		line-height: 1.3;
+	}
+
+	// Author: page text color (links default to the link color). Size/weight from utilities.
+	&--author {
+		color: var(--cerb-color-text);
+		text-decoration: none;
+	}
+	// Only a clickable (anchor) author shows the interactive affordance (pointer + underline on hover) — a
+	// plain <span> author (system, an LLM "Thinking" note, a non-automation tool call) must not look clickable.
+	a#{&}--author {
+		cursor: pointer;
+
+		&:hover { text-decoration: underline; }
+	}
+
+	// Hover-revealed action toolbar pinned to the bubble's top-right. Buttons wear the public
+	// .cerb-ui-toolbar-strip / .cerb-ui-toolbar-button chrome (added in the markup). Leaves room for an
+	// inline "reply to this comment" button later.
+	&--toolbar {
+		zoom: 0.8; // a smaller action strip — the buttons are secondary to the note body
+		position: absolute;
+		top: 4px;
+		right: 4px;
+		opacity: 0;
+		pointer-events: none;
+		transition: opacity 0.1s ease;
+	}
+	&:hover &--toolbar {
+		opacity: 1;
+		pointer-events: auto;
+	}
+
+	&--body {
+		word-break: break-word;
+
+		// Plain-text bodies render as <pre class="emailbody"> — normalize to wrapped body text with no
+		// extra chrome inside the bubble
+		pre.emailbody {
+			margin: 0;
+			padding: 0;
+			white-space: pre-wrap;
+			font-family: inherit;
+			font-size: inherit;
+			color: inherit;
+			background: none;
+			border: 0;
+		}
+
+		// Trim the outer margins of rendered-markdown bodies so they sit flush in the bubble
+		.commentBodyHtml {
+			> :first-child { margin-top: 0; }
+			> :last-child { margin-bottom: 0; }
+		}
 	}
 }
 

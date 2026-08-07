@@ -30,8 +30,7 @@
 
 <fieldset class="peek">
 	<legend>Relay to:</legend>
-	<button type="button" class="chooser-abstract" data-field-name="address_ids[]" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query-required="worker.id:!0" data-query="" data-autocomplete="worker.id:!0"><span class="cerb-icons cerb-icon-search"></span></button>
-	<ul class="bubbles chooser-container"></ul>
+	<div class="cerb-ui-record-chooser" id="relayChooser{$message->id}"></div>
 </fieldset>
 
 <button type="button" class="ok"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.ok'|devblocks_translate|capitalize}</button>
@@ -52,10 +51,6 @@ $(function() {
 			genericAjaxPost('frmRelayMessage', null, null, function(json) {
 				// [TODO] On failure, display an error popup
 
-				// Reload the selected tab
-				var $tabs = $('#displayTabs');
-				$tabs.tabs('load', $tabs.tabs('option','active'));
-				
 				// Close the popup
 				genericAjaxPopupClose('relay');
 			});
@@ -66,7 +61,8 @@ $(function() {
 		});
 
 		// Chooser
-		$popup.find('.chooser-abstract').cerbChooserTrigger();
+		if(window.CerbUI && CerbUI.RecordChooser)
+			new CerbUI.RecordChooser($popup.find('#relayChooser{$message->id}')[0], { context: '{CerberusContexts::CONTEXT_ADDRESS}', name: 'address_ids', multiple: true, emptyIcon: 'mail', query: 'worker.id:!0' });
 	});
 });
 </script>

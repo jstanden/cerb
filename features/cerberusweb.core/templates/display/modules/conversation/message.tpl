@@ -31,41 +31,38 @@
 		</div>
 		{/if}
 
+		{if $message->was_encrypted}
 		<div style="display:inline;margin-right:5px;">
-			<span class="tag" style="color:white;{if !$is_outgoing}background-color:rgb(185,50,40);{else}background-color:rgb(100,140,25);{/if}">{if $is_outgoing}{if $is_not_sent}{'mail.saved'|devblocks_translate|lower}{else}{'mail.sent'|devblocks_translate|lower}{/if}{else}{'mail.received'|devblocks_translate|lower}{/if}</span>
-
-			{if $message->was_encrypted}
-			<span class="tag" style="background-color:rgb(250,220,74);color:rgb(165,100,33);" title="{'common.encrypted'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-lock"></span></span>
-			{/if}
+			<span class="cerb-ui-pill cerb-ui-pill--orange" title="{'common.encrypted'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-lock"></span></span>
 		</div>
+		{/if}
 
+		<span style="display:inline-flex;align-items:baseline;gap:0.4em;flex-wrap:wrap;">
 		{if $sender_worker}
-			<a class="cerb-peek-trigger" style="font-size:1.2em;font-weight:bold;" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$sender_worker->id}">{if 0 != strlen($sender_worker->getName())}{$sender_worker->getName()}{else}&lt;{$sender_worker->getEmailString()}&gt;{/if}</a>
-			&nbsp;
+			<a class="cerb-peek-trigger cerb-u-underline-hover cerb-u-mr-1" style="font-size:1.2em;font-weight:bold;" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$sender_worker->id}">{if 0 != strlen($sender_worker->getName())}{$sender_worker->getName()}{else}&lt;{$sender_worker->getEmailString()}&gt;{/if}</a>
 			{if $sender_worker->title}
-				{$sender_worker->title}
+				<span class="cerb-u-text-muted">{$sender_worker->title}</span>
 			{/if}
 		{else}
 			{if $sender_contact}
 				{$sender_org = $sender_contact->getOrg()}
-				<a class="cerb-peek-trigger" style="font-size:1.2em;font-weight:bold;" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-context-id="{$sender_contact->id}">{$sender_contact->getName()}</a>
-				&nbsp;
+				<a class="cerb-peek-trigger cerb-u-underline-hover cerb-u-mr-1" style="font-size:1.2em;font-weight:bold;" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-context-id="{$sender_contact->id}">{$sender_contact->getName()}</a>
 				{if $sender_contact->title}
-					{$sender_contact->title}
+					<span class="cerb-u-text-muted">{$sender_contact->title}</span>
 				{/if}
-				{if $sender_contact->title && $sender_org} at {/if}
+				{if $sender_contact->title && $sender_org}<span class="cerb-u-text-muted">at</span>{/if}
 				{if $sender_org}
-					<a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$sender_org->id}"><b>{$sender_org->name}</b></a>
+					<a class="cerb-ui-pill cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$sender_org->id}"><img src="{devblocks_url}c=avatars&context=org&context_id={$sender_org->id}{/devblocks_url}?v={$sender_org->updated}" style="height:16px;width:16px;border-radius:16px;">{$sender_org->name}</a>
 				{/if}
 			{else}
 				{$sender_org = $sender->getOrg()}
-				<a class="cerb-peek-trigger" style="font-size:1.2em;font-weight:bold;" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$sender_id}">&lt;{$sender->email}&gt;</a>
-				&nbsp;
+				<a class="cerb-peek-trigger cerb-u-underline-hover cerb-u-mr-1" style="font-size:1.2em;font-weight:bold;" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$sender_id}">&lt;{$sender->email}&gt;</a>
 				{if $sender_org}
-					<a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$sender_org->id}"><b>{$sender_org->name}</b></a>
+					<a class="cerb-ui-pill cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$sender_org->id}"><img src="{devblocks_url}c=avatars&context=org&context_id={$sender_org->id}{/devblocks_url}?v={$sender_org->updated}" style="height:16px;width:16px;border-radius:16px;">{$sender_org->name}</a>
 				{/if}
 			{/if}
 		{/if}
+		</span>
 
 		{if !$message->is_outgoing}
 			{if $sender->is_banned}
@@ -93,37 +90,60 @@
 			{/if}
 		{/if}
 
-		<div style="float:left;margin:0 10px 10px 0;">
-			{if $sender_worker}
-				<img src="{devblocks_url}c=avatars&context=worker&context_id={$sender_worker->id}{/devblocks_url}?v={$sender_worker->updated}" style="height:48px;width:48px;border-radius:48px;">
+		{if $is_outgoing}
+			{$type_pill_color = 'cerb-ui-pill--green'}
+			{if $is_not_sent}
+				{$type_pill_icon = 'save'}
+				{$type_pill_title = 'mail.saved'|devblocks_translate|capitalize}
 			{else}
-				{if $sender_contact}
-				<img src="{devblocks_url}c=avatars&context=contact&context_id={$sender_contact->id}{/devblocks_url}?v={$sender_contact->updated_at}" style="height:48px;width:48px;border-radius:48px;">
-				{else}
-				<img src="{devblocks_url}c=avatars&context=address&context_id={$sender->id}{/devblocks_url}?v={$sender->updated}" style="height:48px;width:48px;border-radius:48px;">
-				{/if}
+				{$type_pill_icon = 'send'}
+				{$type_pill_title = 'mail.sent'|devblocks_translate|capitalize}
 			{/if}
+		{else}
+			{$type_pill_color = 'cerb-ui-pill--red'}
+			{$type_pill_icon = 'mail'}
+			{$type_pill_title = 'mail.received'|devblocks_translate|capitalize}
+		{/if}
+		<div style="float:left;margin:0 10px 10px 0;">
+			<span class="cerb-avatar-badged">
+				<span class="cerb-ui-avatar" style="width:48px;height:48px;">
+					{if $sender_worker}
+						<img src="{devblocks_url}c=avatars&context=worker&context_id={$sender_worker->id}{/devblocks_url}?v={$sender_worker->updated}">
+					{else}
+						{if $sender_contact}
+						<img src="{devblocks_url}c=avatars&context=contact&context_id={$sender_contact->id}{/devblocks_url}?v={$sender_contact->updated_at}">
+						{else}
+						<img src="{devblocks_url}c=avatars&context=address&context_id={$sender->id}{/devblocks_url}?v={$sender->updated}">
+						{/if}
+					{/if}
+				</span>
+				<span class="cerb-ui-pill cerb-ui-pill--circle {$type_pill_color}" title="{$type_pill_title}"><span class="cerb-icons cerb-icon-{$type_pill_icon}"></span></span>
+			</span>
 		</div>
 	{/if}
 
 	<div {if !$embed}id="{$message->id}sh"{/if} style="display:block;margin-top:2px;overflow:hidden;">
-		<div style="line-height:1.4em;">
-			{if isset($headers.from)}<b>{'message.header.from'|devblocks_translate|capitalize}:</b> {$headers.from|escape|nl2br nofilter}<br>{/if}
-			{if isset($headers.to)}<b>{'message.header.to'|devblocks_translate|capitalize}:</b> {$headers.to|escape|nl2br nofilter}<br>{/if}
-			{if isset($headers.cc)}<b>{'message.header.cc'|devblocks_translate|capitalize}:</b> {$headers.cc|escape|nl2br nofilter}<br>{/if}
-			{if isset($headers.bcc)}<b>{'message.header.bcc'|devblocks_translate|capitalize}:</b> {$headers.bcc|escape|nl2br nofilter}<br>{/if}
-			{if isset($headers.subject)}<b>{'message.header.subject'|devblocks_translate|capitalize}:</b> {$headers.subject}<br>{/if}
-			<b>{'message.header.date'|devblocks_translate|capitalize}:</b> {$message->created_date|devblocks_date} (<abbr title="{$headers.date}">{$message->created_date|devblocks_prettytime}</abbr>)
-
-			{if !empty($message->response_time)}
-				<span style="margin-left:10px;color:var(--cerb-color-email-headers-meta);">Replied in {$message->response_time|devblocks_prettysecs:2}</span>
-			{/if}
+		{$header_label_class = 'cerb-u-text-uppercase cerb-u-text-muted cerb-u-fs-n1'}
+		{$header_label_style = 'text-align:right;white-space:nowrap;'}
+		<div style="display:grid;grid-template-columns:auto 1fr;gap:0.25em 0.6em;line-height:1.4em;align-items:baseline;">
+			{if isset($headers.from)}<span class="{$header_label_class}" style="{$header_label_style}">{'message.header.from'|devblocks_translate|capitalize}:</span><span>{$headers.from|escape|nl2br nofilter}</span>{/if}
+			{if isset($headers.to)}<span class="{$header_label_class}" style="{$header_label_style}">{'message.header.to'|devblocks_translate|capitalize}:</span><span>{$headers.to|escape|nl2br nofilter}</span>{/if}
+			{if isset($headers.cc)}<span class="{$header_label_class}" style="{$header_label_style}">{'message.header.cc'|devblocks_translate|capitalize}:</span><span>{$headers.cc|escape|nl2br nofilter}</span>{/if}
+			{if isset($headers.bcc)}<span class="{$header_label_class}" style="{$header_label_style}">{'message.header.bcc'|devblocks_translate|capitalize}:</span><span>{$headers.bcc|escape|nl2br nofilter}</span>{/if}
+			{if isset($headers.subject)}<span class="{$header_label_class}" style="{$header_label_style}">{'message.header.subject'|devblocks_translate|capitalize}:</span><span>{$headers.subject}</span>{/if}
+			<span class="{$header_label_class}" style="{$header_label_style}">{'message.header.date'|devblocks_translate|capitalize}:</span>
+			<span>
+				{$message->created_date|devblocks_date} (<abbr title="{$headers.date}">{$message->created_date|devblocks_prettytime}</abbr>)
+				{if !empty($message->response_time)}
+					<span style="margin-left:10px;color:var(--cerb-color-email-headers-meta);">Replied in {$message->response_time|devblocks_prettysecs:2}</span>
+				{/if}
+			</span>
 		</div>
 
 		{if !$expanded}
 		<div style="margin-top:0.5em;">
-			<div class="cerb-code-editor-toolbar" style="display:inline-block;">
-				<button data-cerb-message-button-read-expand class="cerb-code-editor-toolbar-button"><span class="cerb-icons cerb-icon-file"></span> Read message ({$message->storage_size|devblocks_prettybytes})</button>
+			<div class="cerb-ui-toolbar-strip">
+				<button data-cerb-message-button-read-expand class="cerb-ui-toolbar-button"><span class="cerb-icons cerb-icon-file"></span> Read message ({$message->storage_size|devblocks_prettybytes})</button>
 			</div>
 		</div>
 		{/if}
@@ -148,44 +168,44 @@
 
 		{if $html_body}
 			{if !$embed}
-			<div class="cerb-code-editor-toolbar" style="margin:0 0 10px 0;display:inline-block;">
+			<div class="cerb-ui-toolbar-strip" style="margin:0 0 10px 0;">
 				{if $filtering_results && $filtering_results.counts.blockedImage}
 					{if !$sender->is_trusted}
-					<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-button="display-images" data-message-id="{$message->id}">
+					<button type="button" class="cerb-ui-toolbar-button" data-cerb-button="display-images" data-message-id="{$message->id}">
 						<span class="cerb-icons cerb-icon-picture"></span>
 						Display images
 					</button>
 					{/if}
-					<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-button="email-images" data-message-id="{$message->id}">
+					<button type="button" class="cerb-ui-toolbar-button" data-cerb-button="email-images" data-message-id="{$message->id}">
 						<div class="badge-count badge-red" style="border:0;">{$filtering_results.counts.blockedImage}</div>
 						Blocked images
 					</button>
 				{/if}
 				{if $filtering_results && $filtering_results.counts.blockedLink}
-					<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-button="email-links" data-message-id="{$message->id}">
+					<button type="button" class="cerb-ui-toolbar-button" data-cerb-button="email-links" data-message-id="{$message->id}">
 						<div class="badge-count badge-red" style="border:0;">{$filtering_results.counts.blockedLink}</div>
 						Blocked links
 					</button>
 				{/if}
 				{if $filtering_results && $filtering_results.counts.proxiedImage}
-					<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-button="email-images" data-message-id="{$message->id}">
+					<button type="button" class="cerb-ui-toolbar-button" data-cerb-button="email-images" data-message-id="{$message->id}">
 						<div class="badge-count" style="border:0;">{$filtering_results.counts.proxiedImage}</div>
 						Images
 					</button>
 				{/if}
 				{if $filtering_results && $filtering_results.counts.redirectedLink}
-					<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-button="email-links" data-message-id="{$message->id}">
+					<button type="button" class="cerb-ui-toolbar-button" data-cerb-button="email-links" data-message-id="{$message->id}">
 						<div class="badge-count" style="border:0;">{$filtering_results.counts.redirectedLink}</div>
 						Links
 					</button>
 				{/if}
 				{if $pref_dark_mode && !$always_bright}
-					<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-button="email-html-light" data-message-id="{$message->id}">
+					<button type="button" class="cerb-ui-toolbar-button" data-cerb-button="email-html-light" data-message-id="{$message->id}">
 						<span class="cerb-icons cerb-icon-sun"></span>
 						Bright mode
 					</button>
 				{/if}
-				<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-button="email-plaintext" data-message-id="{$message->id}">
+				<button type="button" class="cerb-ui-toolbar-button" data-cerb-button="email-plaintext" data-message-id="{$message->id}">
 					<span class="cerb-icons cerb-icon-file"></span>
 					View plaintext
 				</button>
@@ -196,8 +216,8 @@
 			</div>
 		{else}
 			{if $message->html_attachment_id}
-				<div class="cerb-code-editor-toolbar" style="margin:0 0 10px 0;display:inline-block;">
-					<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-button="email-html" data-message-id="{$message->id}">
+				<div class="cerb-ui-toolbar-strip" style="margin:0 0 10px 0;">
+					<button type="button" class="cerb-ui-toolbar-button" data-cerb-button="email-html" data-message-id="{$message->id}">
 						<span class="cerb-icons cerb-icon-file"></span>
 						View HTML
 					</button>
@@ -239,8 +259,9 @@
 		<table width="100%" cellpadding="0" cellspacing="0" border="0" class="cerb-no-print">
 			<tr>
 				<td align="left" id="{$message->id}act">
+					<div class="cerb-ui-toolbar-rail">
 					{if $widget}
-						<div data-cerb-toolbar style="display:inline-block;vertical-align:middle;">
+						<div data-cerb-toolbar>
 						{* Use pre-expanded dictionaries *}
 						{$message_dict = DevblocksDictionaryDelegate::instance([
 							'caller_name' => 'cerb.toolbar.mail.read'
@@ -261,9 +282,10 @@
 						{/if}
 
 						{if !array_key_exists('reply', $toolbar) && CerberusContexts::isWriteableByActor(CerberusContexts::CONTEXT_TICKET, $ticket, $active_worker) && $active_worker->hasPriv('core.display.actions.reply')}
-							<button type="button" class="reply split-left" title="{if 2 == $mail_reply_button}{'display.reply.only_these_recipients'|devblocks_translate}{elseif 1 == $mail_reply_button}{'display.reply.no_quote'|devblocks_translate}{else}{'display.reply.quote'|devblocks_translate}{/if}"><span class="cerb-icons cerb-icon-send"></span> {'common.reply'|devblocks_translate|capitalize}</button><!--
-						--><button data-cerb-message-button-reply-menu type="button" class="split-right"><span class="cerb-icons cerb-icon-chevron-down"></span></button>
-							<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;">
+							<span class="cerb-ui-button--split">
+								<button type="button" class="cerb-ui-button reply" title="{if 2 == $mail_reply_button}{'display.reply.only_these_recipients'|devblocks_translate}{elseif 1 == $mail_reply_button}{'display.reply.no_quote'|devblocks_translate}{else}{'display.reply.quote'|devblocks_translate}{/if}"><span class="cerb-icons cerb-icon-send"></span> {'common.reply'|devblocks_translate|capitalize}</button><button data-cerb-message-button-reply-menu type="button" class="cerb-ui-button"><span class="cerb-icons cerb-icon-chevron-down"></span></button>
+							</span>
+							<ul data-cerb-reply-menu-items hidden>
 								<li><a class="cerb-button-reply-quote">{'display.reply.quote'|devblocks_translate}</a></li>
 								<li><a class="cerb-button-reply-only-these">{'display.reply.only_these_recipients'|devblocks_translate}</a></li>
 								<li><a class="cerb-button-reply-noquote">{'display.reply.no_quote'|devblocks_translate}</a></li>
@@ -374,7 +396,9 @@
 									$profile_tab.triggerHandler(evt);
 								};
 
-								$toolbar.cerbToolbar({
+								let message_toolbar_ul = $toolbar.find('ul.cerb-ui-toolbar')[0];
+								if(message_toolbar_ul && window.CerbUI && CerbUI.Toolbar)
+								new CerbUI.Toolbar(message_toolbar_ul, {
 									caller: {
 										name: 'cerb.toolbar.mail.read',
 										params: {
@@ -392,6 +416,21 @@
 					{/if}
 
 					<button data-cerb-message-button-more type="button" title="{'common.more'|devblocks_translate|capitalize}"><span class="cerb-icons cerb-icon-more"></span></button>
+					</div>
+
+					{* The `more` (⋯) CerbUI.Menu source — selecting a row clicks the matching hidden form button below. *}
+					<ul data-cerb-more-menu-items hidden>
+						<li data-value="headers" data-icon="mail">{'message.headers'|devblocks_translate|capitalize}</li>
+						{if $ticket->first_message_id != $message->id && $active_worker->hasPriv('core.display.actions.split')}
+							<li data-value="split" data-icon="duplicate">{'display.button.split_ticket'|devblocks_translate|capitalize}</li>
+						{/if}
+						{if $message->is_outgoing && CerberusContexts::isWriteableByActor(CerberusContexts::CONTEXT_TICKET, $ticket, $active_worker) && $active_worker->hasPriv('core.display.actions.reply')}
+							<li data-value="resend" data-icon="repeat">Send Again</li>
+						{/if}
+						{if $attachments && extension_loaded('zip') && $active_worker->hasPriv('core.display.actions.attachments.download')}
+							<li data-value="download-all" data-icon="cloud-download">Download all (.zip)</li>
+						{/if}
+					</ul>
 
 					<form id="{$message->id}options" style="padding-top:10px;display:none;" method="post" action="{devblocks_url}{/devblocks_url}">
 						<input type="hidden" name="c" value="profiles">
@@ -480,10 +519,34 @@ $(function() {
 		genericAjaxPopup('permalink', 'c=internal&a=invoke&module=records&action=showPermalinkPopup&url=' + encodeURIComponent(url));
 	});
 
-	$msg.find('[data-cerb-message-button-more]').on('click', function(e) {
-		e.stopPropagation();
-		$options.toggle();
-	});
+	// `more` (⋯) → a CerbUI.Menu; selecting a row clicks its matching hidden form button (handlers below),
+	// so headers/split/resend/download dispatch is untouched (split still submits the form it lives in).
+	(function() {
+		let caret = $msg.find('[data-cerb-message-button-more]')[0];
+		let menuUl = $msg.find('[data-cerb-more-menu-items]')[0];
+
+		if(caret && menuUl && window.CerbUI && CerbUI.Menu) {
+			let menu = new CerbUI.Menu(menuUl, {
+				onRenderItem: function(li, src) {
+					let name = src.dataset.icon;
+					if(name) {
+						let ico = document.createElement('span');
+						ico.className = 'cerb-icons cerb-icon-' + name;
+						ico.style.marginRight = '0.5em';
+						li.insertBefore(ico, li.firstChild);
+					}
+				},
+				onSelect: function(renderedLi, sourceLi) {
+					$options.find('[data-cerb-message-button-' + sourceLi.getAttribute('data-value') + ']').trigger('click');
+				}
+			});
+
+			$(caret).on('click', function(e) {
+				e.stopPropagation();
+				menu.isOpen() ? menu.close() : menu.open(caret);
+			});
+		}
+	})();
 
 	$msg.find('[data-cerb-message-button-read-expand]').on('click', function(e) {
 		e.stopPropagation();
@@ -657,35 +720,26 @@ $(function() {
 	});
 	{/if}
 	
-	$actions
-		.find('ul.cerb-popupmenu')
-		.hover(
-			function() { },
-			function() { $(this).hide(); }
-		)
-		.find('> li')
-		.click(function(e) {
-			$(this).closest('ul.cerb-popupmenu').hide();
-	
-			e.stopPropagation();
-			if(!$(e.target).is('li'))
-			return;
-	
-			$(this).find('a').trigger('click');
-		})
-		;
-	
 	{if $active_worker->hasPriv('core.display.actions.reply')}
-	$actions.find('[data-cerb-message-button-reply-menu]').on('click', function(e) {
-		e.stopPropagation();
-		let $ul = $(this).next('ul');
-		$ul.toggle();
-		if($ul.is(':hidden')) {
-			$ul.blur();
-		} else {
-			$ul.find('a:first').focus();
+	// Reply split-button caret → a CerbUI.Menu over the hidden source <ul>; selecting a row clicks its
+	// existing <a> handler (a.cerb-button-reply-*), so the reply/forward/relay dispatch is untouched.
+	(function() {
+		let caret = $actions.find('[data-cerb-message-button-reply-menu]')[0];
+		let menuUl = $actions.find('[data-cerb-reply-menu-items]')[0];
+
+		if(caret && menuUl && window.CerbUI && CerbUI.Menu) {
+			let menu = new CerbUI.Menu(menuUl, {
+				onSelect: function(renderedLi, sourceLi) {
+					$(sourceLi).find('a').trigger('click');
+				}
+			});
+
+			$(caret).on('click', function(e) {
+				e.stopPropagation();
+				menu.isOpen() ? menu.close() : menu.open(caret);
+			});
 		}
-	});
+	})();
 
 	$actions.find('button.reply')
  		.on('click', $.throttle(500, function(e) {
