@@ -601,6 +601,56 @@ abstract class Extension_DevblocksLlmProvider {
 		return null;
 	}
 
+	// Render this provider's native image content part from a neutral image block (mime_type + base64 data).
+	// The default is the OpenAI-compatible `image_url` data-uri (most providers are OpenAI-spec wrappers);
+	// Anthropic-family providers override. Returns null for an empty/invalid image.
+	protected function _nativeImagePart(string $mime_type, string $data) : ?array {
+		if('' === $mime_type || '' === $data)
+			return null;
+
+		return [
+			'type' => 'image_url',
+			'image_url' => ['url' => 'data:' . $mime_type . ';base64,' . $data],
+		];
+	}
+
+	// If a stored/neutral message carries an `images:` list [{mime_type, data}], expand it into the provider's
+	// native content parts — images PREPENDED before the text (the APIs recommend images-first) — and drop the
+	// `images` key. A message with no images is returned unchanged. Providers call this from sanitizeMessages().
+	function expandMessageImages(array $message) : array {
+		$images = $message['images'] ?? null;
+
+		// An empty/invalid `images` is a no-op — strip the key so a stray `images: []` never reaches the
+		// provider API (which rejects unknown message fields with "Extra inputs are not permitted").
+		if(!is_array($images) || !$images) {
+			unset($message['images']);
+			return $message;
+		}
+
+		$parts = [];
+
+		// Resolve descriptors (cerb: resource uris → base64) transiently, for THIS send only — the stored
+		// message keeps its uris (we favor resource references over base64 blobs in history/continuations).
+		foreach(DevblocksPlatform::services()->llm()->resolveImageDescriptors($images) as $image) {
+			if(($part = $this->_nativeImagePart($image['mime_type'], $image['data'])))
+				$parts[] = $part;
+		}
+
+		// Text follows the images. `content` is normally a string here; if a provider already made it a parts
+		// array, append those after the images.
+		$content = $message['content'] ?? '';
+
+		if(is_string($content) && '' !== $content)
+			$parts[] = ['type' => 'text', 'text' => $content];
+		elseif(is_array($content))
+			$parts = array_merge($parts, $content);
+
+		unset($message['images']);
+		$message['content'] = $parts;
+
+		return $message;
+	}
+
 	// Map a provider's native "why generation stopped" token onto a neutral one. Normalized at WRITE time, by the
 	// provider that knows its own vocabulary, because a) consumers must not carry a per-provider mapping table, and
 	// b) cross-provider replay means one session can hold messages written by different providers — a native value
@@ -661,6 +711,47 @@ abstract class Extension_DevblocksLlmProvider {
 			$response->pushThinking($reasoning);
 		}
 	}
+
+	// Surface a stored message's neutral `images:` descriptors (mime_type + resource uri) onto the response as
+	// displayable image blocks (mime_type + a lazy render URL) — for the transcript viewer. Called by each
+	// provider's convertToGenericMessage(). Accepts a bare uri/token string or a {mime_type?, uri} descriptor.
+	protected function _pushMessageImages(array $message, DevblocksLlmChatResponse $response) : void {
+		$images = $message['images'] ?? null;
+
+		if(!is_array($images))
+			return;
+
+		$url_writer = DevblocksPlatform::services()->url();
+
+		foreach($images as $image) {
+			if(is_string($image)) {
+				$uri = $image;
+				$mime_type = '';
+			} elseif(is_array($image)) {
+				$uri = strval($image['uri'] ?? '');
+				$mime_type = strval($image['mime_type'] ?? '');
+			} else {
+				continue;
+			}
+
+			if('' === $uri)
+				continue;
+
+			// Durable attachment → the ACL-gated file endpoint; legacy resource token → the lazy image endpoint.
+			if(DevblocksPlatform::strStartsWith($uri, 'cerb:attachment:')) {
+				$url = $url_writer->write(sprintf('c=files&id=%d&name=image', intval(substr($uri, strlen('cerb:attachment:')))), true);
+			} else {
+				$token = DevblocksPlatform::strStartsWith($uri, 'cerb:automation_resource:')
+					? substr($uri, strlen('cerb:automation_resource:'))
+					: $uri;
+
+				$url = $url_writer->write(sprintf('c=ui&a=image&token=%s', urlencode($token)), true);
+			}
+
+			$response->pushImage($mime_type, $url);
+		}
+	}
+
 	protected function _authenticateRequest(mixed $authentication_uri, Request &$request, array &$request_options, &$error=null) : bool {
 		$actor = [CerberusContexts::CONTEXT_APPLICATION, 0];
 		$uri_parts = DevblocksPlatform::services()->ui()->parseURI($authentication_uri);
