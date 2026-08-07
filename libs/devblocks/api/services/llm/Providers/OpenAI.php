@@ -281,25 +281,33 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 		$request_options = [
 			'http_errors' => false,
 		];
+		// A caller running OFF-request (the async agent worker) may raise the per-turn timeout above the HTTP
+		// service's 30s default for a long, non-streamed turn; 0/unset keeps the default.
+		if(($request_timeout = intval($this->getParam('request_timeout', 0))) > 0)
+			$request_options['timeout'] = $request_timeout;
 		$error = null;
-		
+
 		// Authenticate the request if required
 		if($authentication_uri) {
 			if(!$this->_authenticateRequest($authentication_uri, $request, $request_options, $error))
 				throw new Exception_DevblocksAutomationError($error);
 		}
-		
+
+		// No response at all (connect refused, DNS, cURL timeout) → status 0, a transient/retryable class.
 		if(false === ($response = $http->sendRequest($request, $request_options, $error)))
-			throw new Exception_DevblocksAutomationError($error);
-		
+			throw new Exception_DevblocksLlmApiError($error, 0);
+
 		if(false === ($response_json = $http->getResponseAsJson($response, $error)))
 			throw new Exception_DevblocksAutomationError($error);
-		
+
+		// A non-2xx carries the HTTP status so the caller classifies retry-vs-surface (429/503/5xx vs 401/400).
 		if(200 != $response->getStatusCode()) {
-			if($response_json['error']['message'] ?? null)
-				throw new Exception_DevblocksAutomationError($response_json['error']['message']);
-			
-			throw new Exception_DevblocksAutomationError('HTTP status code: ' . $response->getStatusCode());
+			$status_code = $response->getStatusCode();
+
+			throw new Exception_DevblocksLlmApiError(
+				$this->_getApiErrorMessage($response_json, $status_code),
+				$status_code
+			);
 		}
 
 		// Neutral token usage. OpenAI's prompt_tokens INCLUDES cached, so fresh input = prompt − cached;
