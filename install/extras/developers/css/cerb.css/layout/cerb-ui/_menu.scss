@@ -81,6 +81,15 @@
 	// In a filtered (pathed) row the leaf label sizes to content so the muted path can sit beside it
 	&--item-pathed > &--label { flex: 0 1 auto; }
 
+	// Keyboard shortcut hint (from a source li's data-keyboard): muted, right-aligned after the label
+	&--shortcut {
+		flex-shrink: 0;
+		margin-left: auto;
+		padding-left: 1.5em;
+		color: var(--cerb-color-background-contrast-150);
+		font-size: 0.85em;
+	}
+
 	&--arrow {
 		flex-shrink: 0;
 		margin-left: 8px;
@@ -201,11 +210,6 @@
 		width: 100%;
 	}
 
-	.cerb-ui-menu--panel {
-		max-width: none;
-		min-height: 3em;
-	}
-
 	// Larger, comfortable search box at the top. Keep just a bottom divider — the global INPUT[type=search]
 	// border (accent on :focus) is overridden here (the :focus rule needs the extra specificity to win) so
 	// focus shows nothing but the blinking cursor.
@@ -232,6 +236,89 @@
 
 	.cerb-ui-menu--filterrow .cerb-ui-menu--filter {
 		padding-left: 2.7em;
+	}
+}
+
+// Tile-row styling for command-bar panels. Applied via the menu's `panelClass` option to EVERY panel
+// Bucket picker: on a type-to-filter (flattened) match, show the group avatar + a two-line cell —
+// the group name as a muted eyebrow on top, the bucket name below. Only the filtered rows go two-line
+// (cascade rows stay single height), so the fixed-row virtualization isn't engaged for the small list.
+.cerb-bucket-menu {
+	.cerb-ui-menu--item-pathed {
+		height: auto;
+		min-height: 40px;
+		align-items: center;
+		gap: 0.6em;
+	}
+
+	.cerb-bucket-menu--avatar { flex: 0 0 auto; }
+
+	.cerb-bucket-menu--text {
+		display: flex;
+		flex-direction: column;
+		min-width: 0;
+		line-height: 1.2;
+	}
+
+	.cerb-bucket-menu--eyebrow {
+		font-size: 0.78em;
+		text-transform: uppercase;
+		letter-spacing: 0.02em;
+		opacity: 0.7; // inherits the row color, so it stays legible on the accent active row
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.cerb-bucket-menu--main {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+}
+
+// Reusable rich two-line rows: an avatar on the left, an uppercase eyebrow over a main label. Opt in per
+// menu with panelClass:'cerb-ui-menu--rich' (+ itemHeight:40) and build the row in onRenderItem.
+.cerb-ui-menu--rich {
+	.cerb-ui-menu--item {
+		height: auto;
+		min-height: 40px;
+		align-items: center;
+		gap: 0.6em;
+	}
+
+	.cerb-ui-menu--avatar { flex: 0 0 auto; }
+
+	.cerb-ui-menu--text {
+		display: flex;
+		flex-direction: column;
+		min-width: 0;
+		line-height: 1.2;
+	}
+
+	.cerb-ui-menu--eyebrow {
+		font-size: 0.78em;
+		text-transform: uppercase;
+		letter-spacing: 0.02em;
+		opacity: 0.7; // inherits the row color, so it stays legible on the accent active row
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.cerb-ui-menu--main {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+}
+
+// <ul> — the inline root AND each floating submenu (which is appended to <body>, outside .cerb-command-bar).
+// Scoping to the panel class (not the .cerb-command-bar wrapper) is what lets nested submenus inherit it.
+.cerb-command-bar-menu {
+	&.cerb-ui-menu--panel {
+		max-width: none;
+		min-height: 3em;
 	}
 
 	// Tile rows: tall enough for an icon square + a two-line text column.
@@ -276,7 +363,6 @@
 		white-space: nowrap;
 		color: var(--cerb-color-background-contrast-125); // a touch darker than the most-muted text
 		font-weight: normal;
-		font-size: 0.85em;
 	}
 
 	// Trailing keyboard-shortcut caps: pinned to the right of the row.

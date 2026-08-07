@@ -3263,6 +3263,6 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		$interactions_menu = Toolbar_GlobalMenu::getInteractionsMenu();
 		
 		$tpl->assign('interactions_menu', $interactions_menu);
-		$tpl->display('devblocks:cerberusweb.core::automations/interactions/menu.tpl');
+		$tpl->display('devblocks:cerberusweb.core::automations/interactions/command_bar.tpl');
 	}
 }

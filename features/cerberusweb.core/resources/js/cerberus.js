@@ -3094,6 +3094,7 @@ var ajax = new cAjaxCalls();
 									;
 
 									$popup.html(json.html);
+									Devblocks.decorateInteractionDialog($popup, { label: ($trigger.attr('data-interaction-label') || $trigger.text() || '').trim() });
 
 									setTimeout(function() {
 										$popup.trigger('popup_open');

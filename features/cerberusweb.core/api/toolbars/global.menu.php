@@ -50,7 +50,7 @@ class Toolbar_GlobalMenu extends Extension_Toolbar {
 			$toolbar_kata = $toolbar->getKata();
 		
 		if($are_behaviors_enabled && $legacy_interactions) {
-			$legacy_kata = "\nmenu/legacy:\n  label: (Legacy Chat Bots)\n  items:\n";
+			$legacy_kata = "\nmenu/legacy:\n  label: (Legacy Chat Bots)\n  icon: bot-message\n  items:\n";
 			
 			foreach ($legacy_interactions as $interaction) {
 				$legacy_kata .= sprintf("    behavior/%s:\n      label: %s\n      id: %d\n      interaction: %s\n      image: %s\n      params:\n",
@@ -78,7 +78,125 @@ class Toolbar_GlobalMenu extends Extension_Toolbar {
 			'worker__context' => CerberusContexts::CONTEXT_WORKER,
 			'worker_id' => $active_worker->id,
 		]);
-		
-		return DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict);		
+
+		$menu = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict);
+
+		// Supply each item's `description` (the command-bar subtitle) from its automation's own description, when
+		// the KATA didn't set one explicitly. `description` is a first-class field so non-interaction entries we
+		// add later (e.g. "Compose email") can supply their own.
+		$automation_names = [];
+		self::_collectInteractionAutomationNames($menu, $automation_names);
+
+		if($automation_names) {
+			$descriptions = [];
+
+			foreach(DAO_Automation::getByUris(array_values($automation_names), 'cerb.trigger.interaction.worker') as $automation) {
+				if($automation->description)
+					$descriptions[$automation->name] = $automation->description;
+			}
+
+			if($descriptions)
+				self::_applyInteractionDescriptions($menu, $descriptions);
+		}
+
+		// Lead with the worker's own resumable interactions (closed but still awaiting) so they can pick one up.
+		$menu = self::_prependResumableInteractions($menu, $active_worker);
+
+		return $menu;
+	}
+
+	// The worker's parked worker-popup continuations become `resume` rows keyed by continuation token. Labeled by
+	// the automation's description (falling back to its name), subtitled with how long they've been idle.
+	private static function _prependResumableInteractions(array $menu, Model_Worker $active_worker) : array {
+		if(!($resumables = DAO_AutomationContinuation::getResumableByWorker($active_worker->id)))
+			return $menu;
+
+		// Shared with the agent pane's History (DAO_AutomationContinuation::getResumableLabels) so one
+		// conversation never reads as two different things depending on where it's listed.
+		$rows = DAO_AutomationContinuation::getResumableLabels($resumables);
+
+		$make_item = fn(Model_AutomationContinuation $continuation) : array =>
+			['type' => 'resume'] + ($rows[$continuation->token] ?? []);
+
+		$resume_items = [];
+
+		// The most recent handful inline; everything older tucks into a submenu so the bar stays scannable.
+		$inline = array_slice($resumables, 0, 4);
+		$overflow = array_slice($resumables, 4);
+
+		foreach($inline as $continuation)
+			$resume_items['resume/' . $continuation->token] = $make_item($continuation);
+
+		if($overflow) {
+			$overflow_items = [];
+
+			foreach($overflow as $continuation)
+				$overflow_items['resume/' . $continuation->token] = $make_item($continuation);
+
+			$resume_items['menu/resume-more'] = [
+				'type' => 'menu',
+				'label' => sprintf('%d more…', count($overflow)),
+				'icon' => 'more',
+				'items' => $overflow_items,
+			];
+		}
+
+		$resume_items['divider/resume'] = ['type' => 'divider'];
+
+		return $resume_items + $menu;
+	}
+
+	// Top-level parsed items are keyed by their bare sub-key and carry a `type`; nested `menu > items` keep their
+	// full `type/key` KATA keys and have no `type`. Resolve the type from whichever is present.
+	private static function _itemType(string $key, array $item) : string {
+		return $item['type'] ?? explode('/', $key, 2)[0];
+	}
+
+	// The bare automation name for an interaction URI. Top-level URIs are already stripped by the parser; nested
+	// ones keep the `cerb:automation:` prefix — normalize both the way the parser does.
+	private static function _automationNameFromUri(string $uri) : string {
+		if(DevblocksPlatform::strStartsWith($uri, 'cerb:')) {
+			if($uri_parts = DevblocksPlatform::services()->ui()->parseURI($uri))
+				return $uri_parts['context_id'] ?? '';
+			return '';
+		}
+		return $uri;
+	}
+
+	private static function _collectInteractionAutomationNames(array $items, array &$names) : void {
+		foreach($items as $key => $item) {
+			if(!is_array($item))
+				continue;
+
+			$type = self::_itemType($key, $item);
+
+			if('interaction' == $type) {
+				if(!empty($item['uri']) && ($name = self::_automationNameFromUri($item['uri'])))
+					$names[$name] = $name;
+			} else if('menu' == $type && !empty($item['items']) && is_array($item['items'])) {
+				self::_collectInteractionAutomationNames($item['items'], $names);
+			}
+		}
+	}
+
+	private static function _applyInteractionDescriptions(array &$items, array $descriptions) : void {
+		foreach($items as $key => &$item) {
+			if(!is_array($item))
+				continue;
+
+			$type = self::_itemType($key, $item);
+
+			if('interaction' == $type) {
+				if(empty($item['description']) && !empty($item['uri'])) {
+					$name = self::_automationNameFromUri($item['uri']);
+					if($name && !empty($descriptions[$name]))
+						$item['description'] = $descriptions[$name];
+				}
+			} else if('menu' == $type && !empty($item['items']) && is_array($item['items'])) {
+				self::_applyInteractionDescriptions($item['items'], $descriptions);
+			}
+		}
+
+		unset($item);
 	}
 }
