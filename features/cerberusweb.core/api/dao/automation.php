@@ -1513,7 +1513,163 @@ class Model_Automation extends DevblocksRecordModel {
 			'symbol_meta' => $graph['symbol_meta'],
 		];
 	}
-	
+
+	// Command id => ordered scope dimensions. Keys ARE the policy-enforced command set (the Actions that call
+	// $policy->isCommandAllowed(self::ID,...) — see libs/devblocks/api/services/automation/Action/*). A command NOT
+	// listed here isn't policy-gated (set/return/log*/var.*/await) and needs no rule; an EMPTY dim list means enforced
+	// but not statically scopable → a bare `allow`. Each dim: `param` = raw-params path to the literal we scope on,
+	// `subject` = the expression LHS, `style` = predicate shape, `label` = the deny rule's uniqueness tag.
+	// KEEP IN SYNC with the Action classes' isCommandAllowed() calls.
+	private static function _getPolicyScopeMap() : array {
+		$record  = [['param' => ['inputs','record_type'], 'subject' => 'inputs.record_type', 'style' => 'record_type', 'label' => 'type']];
+		$storage = [['param' => ['inputs','key'],          'subject' => 'inputs.key',         'style' => 'in_list',     'label' => 'key']];
+		$queue   = [['param' => ['inputs','queue_name'],   'subject' => 'inputs.queue_name',  'style' => 'in_list',     'label' => 'queue_name']];
+		$fileUri = [['param' => ['inputs','uri'],          'subject' => 'inputs.uri',          'style' => 'in_list',     'label' => 'uri']];
+		return [
+			'record.create' => $record, 'record.get' => $record, 'record.update' => $record,
+			'record.delete' => $record, 'record.search' => $record, 'record.upsert' => $record,
+			'http.request' => [
+				['param' => ['inputs','method'], 'subject' => 'inputs.method', 'style' => 'in_list',    'label' => 'method'],
+				['param' => ['inputs','url'],    'subject' => 'inputs.url',    'style' => 'url_prefix', 'label' => 'url'],
+			],
+			'api.command' => [['param' => ['inputs','name'], 'subject' => 'inputs.name', 'style' => 'in_list', 'label' => 'name']],
+			'storage.get' => $storage, 'storage.set' => $storage, 'storage.delete' => $storage,
+			'queue.push' => $queue, 'queue.pop' => $queue,
+			'metric.increment' => [['param' => ['inputs','metric_name'], 'subject' => 'inputs.metric_name', 'style' => 'in_list', 'label' => 'metric_name']],
+			'file.read' => $fileUri, 'file.write' => $fileUri,
+			'function' => [['param' => ['uri'], 'subject' => 'uri', 'style' => 'in_list', 'label' => 'uri']],
+			// `llm.router` scopes on the router NAME — unlike its llm.* siblings, which take a model block that
+			// isn't a single nameable thing. Omitting `router:` (the default-router path) reads as DYNAMIC and so
+			// grants unscoped, which is right: an automation that doesn't name a router should keep working when
+			// an admin changes which one is default.
+			'llm.router' => [['param' => ['inputs','router'], 'subject' => 'inputs.router', 'style' => 'in_list', 'label' => 'router']],
+			// Enforced but not statically scopable → bare allow.
+			'llm.chat' => [], 'llm.embed' => [], 'llm.agent' => [], 'data.query' => [],
+			'email.parse' => [], 'encrypt.pgp' => [], 'decrypt.pgp' => [],
+		];
+	}
+
+	// Generate the tightest-scoped `commands:` policy KATA that would still allow this automation's script (principle
+	// of least privilege). Walks the AST for every policy-enforced command it invokes and scopes each on the static
+	// literals it passes (record type, HTTP method/host, api.command name, storage key, queue/metric name, file/
+	// function uri); any dimension fed a {{placeholder}} can't be known statically, so that command is granted
+	// unscoped. Reusable server-side (build a Model_Automation from a script string and call this). Returns null on a
+	// parse error. Only `commands:` is generated — `settings:`/`callers:` are the author's to add.
+	public function generatePolicyKata(&$error=null) : ?string {
+		if(false === ($tree = $this->getSyntaxTree($error)))
+			return null;
+
+		$scope_map = self::_getPolicyScopeMap();
+		$string = DevblocksPlatform::services()->string();
+
+		// A value we can scope on: a non-empty scalar string with no scripting tags and no single quote (which would
+		// break the single-quoted emit). Anything else (a {{ }}/{% %} placeholder, an array, a missing value) is dynamic.
+		$isStatic = fn($v) => is_string($v) && $v !== '' && !str_contains($v, '{{') && !str_contains($v, '{%') && !str_contains($v, "'");
+
+		// Read a dotted path out of a node's RAW params (no dict → placeholders stay literal), tolerating @annotated keys.
+		$readParam = function($params, array $path) use ($string) {
+			$cur = $params;
+			foreach($path as $seg) {
+				if(!is_array($cur))
+					return null;
+				if(array_key_exists($seg, $cur)) { $cur = $cur[$seg]; continue; }
+				$match = null;
+				foreach($cur as $k => $v) {
+					if(is_string($k) && $seg === $string->strBefore($k, '@')) { $match = $v; break; }
+				}
+				if($match === null)
+					return null;
+				$cur = $match;
+			}
+			return $cur;
+		};
+
+		// cmd => label => ['values' => set, 'dynamic' => bool]
+		$used = [];
+
+		$walk = function(CerbAutomationAstNode $node) use (&$walk, &$used, $scope_map, $isStatic, $readParam) {
+			$cmd = $node->getNameType();
+			if($cmd !== null && array_key_exists($cmd, $scope_map)) {
+				if(!array_key_exists($cmd, $used))
+					$used[$cmd] = [];
+				$params = $node->getParams();
+				foreach($scope_map[$cmd] as $dim) {
+					if(!array_key_exists($dim['label'], $used[$cmd]))
+						$used[$cmd][$dim['label']] = ['values' => [], 'dynamic' => false];
+					$raw = $readParam($params, $dim['param']);
+					if($raw === null || !$isStatic($raw)) {
+						$used[$cmd][$dim['label']]['dynamic'] = true;
+					} elseif($dim['style'] === 'url_prefix') {
+						if(null === ($prefix = $this->_policyUrlPrefix($raw)))
+							$used[$cmd][$dim['label']]['dynamic'] = true;
+						else
+							$used[$cmd][$dim['label']]['values'][$prefix] = true;
+					} else {
+						$used[$cmd][$dim['label']]['values'][$raw] = true;
+					}
+				}
+			}
+			foreach($node->getChildren() as $child)
+				$walk($child);
+		};
+		$walk($tree);
+
+		// Emit deterministically (sorted commands + values).
+		$lines = ['commands:'];
+
+		if(!$used) {
+			$lines[] = '  # No privileged commands detected.';
+			return implode("\n", $lines);
+		}
+
+		ksort($used);
+		foreach($used as $cmd => $dims) {
+			$lines[] = '  ' . $cmd . ':';
+			foreach($scope_map[$cmd] as $dim) {
+				$slot = $dims[$dim['label']] ?? null;
+				if(!$slot)
+					continue;
+				if($slot['dynamic'] || !$slot['values']) {
+					// The command used this dimension but we couldn't pin it statically — leave it unscoped, flagged.
+					$lines[] = '    # ' . $dim['subject'] . ' is dynamic — scope manually';
+					continue;
+				}
+				$values = array_keys($slot['values']);
+				sort($values);
+				$lines[] = '    ' . $this->_policyDenyRule($dim, $values);
+			}
+			$lines[] = '    allow@bool: yes';
+		}
+
+		return implode("\n", $lines);
+	}
+
+	// Build a single `deny/<label>@bool: {{…}}` guard denying anything outside the allowed value set.
+	private function _policyDenyRule(array $dim, array $values) : string {
+		$q = fn($v) => "'" . $v . "'";   // values are pre-vetted quote-free by generatePolicyKata()'s $isStatic
+		switch($dim['style']) {
+			case 'record_type':
+				return sprintf('deny/%s@bool: {{%s is not record type (%s)}}', $dim['label'], $dim['subject'], implode(', ', array_map($q, $values)));
+			case 'url_prefix':
+				$conds = array_map(fn($v) => sprintf('%s is not prefixed (%s)', $dim['subject'], $q($v)), $values);
+				return sprintf('deny/%s@bool: {{%s}}', $dim['label'], implode(' and ', $conds));
+			case 'in_list':
+			default:
+				return sprintf('deny/%s@bool: {{%s not in [%s]}}', $dim['label'], $dim['subject'], implode(', ', array_map($q, $values)));
+		}
+	}
+
+	// Reduce a static URL to a scheme://host[:port]/ prefix to scope http.request; null if it isn't a usable absolute URL.
+	private function _policyUrlPrefix(string $url) : ?string {
+		$parts = @parse_url($url);
+		if(!is_array($parts) || empty($parts['scheme']) || empty($parts['host']))
+			return null;
+		$prefix = $parts['scheme'] . '://' . $parts['host'];
+		if(!empty($parts['port']))
+			$prefix .= ':' . $parts['port'];
+		return $prefix . '/';
+	}
+
 	/**
 	 * @param DevblocksDictionaryDelegate $dict
 	 * @param string $error

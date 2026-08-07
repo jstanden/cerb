@@ -54,6 +54,8 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 					return $this->_profileAction_editorVisualize();
 				case 'formBuilderPreview':
 					return $this->_profileAction_formBuilderPreview();
+				case 'generatePolicy':
+					return $this->_profileAction_generatePolicy();
 				case 'getAutocompleteJson':
 					return $this->_profileAction_getAutocompleteJson();
 				case 'getExtensionConfig':
@@ -588,6 +590,37 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 
 		$tpl->assign('graph', $graph);
 		$tpl->display('devblocks:cerberusweb.core::internal/automation/editor/tab_visualize.tpl');
+	}
+
+	// Generate a least-privilege `commands:` policy from the live script for the editor's Policy tab (the editor is
+	// admin-only). Returns JSON {policy_kata, error}.
+	private function _profileAction_generatePolicy() {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
+		if(!$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+
+		$script = DevblocksPlatform::importGPC($_POST['automation_script'] ?? null, 'string');
+		$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? null, 'string', '');
+
+		$automation = new Model_Automation();
+		$automation->script = $script;
+		$automation->extension_id = $extension_id;
+
+		$error = null;
+		$policy_kata = $automation->generatePolicyKata($error);
+
+		if(is_null($policy_kata)) {
+			echo json_encode(['policy_kata' => null, 'error' => $error ?: 'The script could not be parsed.']);
+			return;
+		}
+
+		echo json_encode(['policy_kata' => $policy_kata, 'error' => null]);
 	}
 	
 	function _profileAction_invokePrompt() {
