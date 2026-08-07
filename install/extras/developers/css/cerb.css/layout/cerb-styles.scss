@@ -1208,6 +1208,15 @@ SPAN.tag {
 	}
 }
 
+.cerb-field-cell-label {
+	margin-bottom: 0.25em;
+	color: var(--cerb-color-background-contrast-150);
+	font-size: 0.9em;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
 DIV.cerb-fields-container {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(150px,1fr));

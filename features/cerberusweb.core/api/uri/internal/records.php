@@ -153,6 +153,7 @@ class PageSection_InternalRecords extends Extension_PageSection {
 				'context' => $ext_id,
 				'label' => DevblocksPlatform::strTitleCase($aliases['plural']) ?? $context->name,
 				'count' => $count,
+				'icon' => $context->params['icon'] ?? 'collection',
 			];
 		}
 		

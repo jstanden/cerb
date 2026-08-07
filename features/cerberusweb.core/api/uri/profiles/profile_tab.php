@@ -243,49 +243,8 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 			return;
 		}
 
-		$view_class = $context_ext->getViewClass();
-		
-		if(null == ($view = new $view_class())) { /* @var $view C4_AbstractView */
-			echo json_encode(false);
-			return;
-		}
-		
-		$view->setAutoPersist(false);
-		
-		$results = [];
-		$columns_selected = $view->view_columns;
-		$columns_avail = $view->getColumnsAvailable();
-		
-		if(is_array($columns_avail))
-		foreach($columns_avail as $column) {
-			if(empty($column->db_label))
-				continue;
-			
-			$results[] = array(
-				'key' => $column->token,
-				'label' => mb_convert_case($column->db_label, MB_CASE_TITLE),
-				'type' => $column->type,
-				'is_selected' => in_array($column->token, $columns_selected),
-			);
-		}
-		
-		usort($results, function($a, $b) use ($columns_selected) {
-			if($a['is_selected'] == $b['is_selected']) {
-				if($a['is_selected']) {
-					$a_idx = array_search($a['key'], $columns_selected);
-					$b_idx = array_search($b['key'], $columns_selected);
-					return $a_idx < $b_idx ? -1 : 1;
-					
-				} else {
-					return $a['label'] < $b['label'] ? -1 : 1;
-				}
-				
-			} else {
-				return $a['is_selected'] ? -1 : 1;
-			}
-		});
-		
-		echo json_encode($results);
+		// Grouped columns (base + one group per custom fieldset); shared with the worklist widget's initial render
+		echo json_encode(ProfileWidget_Worklist::getContextColumnsGrouped($context_ext->id));
 	}
 	
 	private function _profileAction_getExtensionConfig() {
