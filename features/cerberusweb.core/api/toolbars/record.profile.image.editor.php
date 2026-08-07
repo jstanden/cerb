@@ -50,6 +50,14 @@ class Toolbar_RecordProfileImageEditor extends Extension_Toolbar {
 				'key' => 'image:url:',
 				'notes' => 'An image URL to load.',
 			],
+			[
+				'key' => 'image:icon:',
+				'notes' => 'A Cerb icon name to rasterize onto the canvas (over the background fill).',
+			],
+			[
+				'key' => 'image:color:',
+				'notes' => 'Optional tint color (hex) for `image:icon:`.',
+			],
 		];
 	}
 	function getInteractionAfterMeta() : array {

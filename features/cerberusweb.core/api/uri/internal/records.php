@@ -26,8 +26,6 @@ class PageSection_InternalRecords extends Extension_PageSection {
 					return $this->_internalAction_autocomplete();
 				case 'chooserOpen':
 					return $this->_internalAction_chooserOpen();
-				case 'chooserOpenAvatar':
-					return $this->_internalAction_chooserOpenAvatar();
 				case 'chooserOpenFile':
 					return $this->_internalAction_chooserOpenFile();
 				case 'chooserOpenFileAjaxUpload':
@@ -48,6 +46,8 @@ class PageSection_InternalRecords extends Extension_PageSection {
 					return $this->_internalAction_getCustomFieldSet();
 				case 'getLinkCountsJson':
 					return $this->_internalAction_getLinkCountsJson();
+				case 'imageEditor':
+					return $this->_internalAction_imageEditor();
 				case 'linksOpen':
 					return $this->_internalAction_linksOpen();
 				case 'renderMergePopup':
@@ -489,143 +489,48 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		echo json_encode($results);
 	}
 	
-	private function _internalAction_chooserOpenAvatar() {
-		$context = DevblocksPlatform::importGPC($_REQUEST['context'] ?? null,'string','');
-		$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'] ?? null, 'integer',0);
-		$defaults_string = DevblocksPlatform::importGPC($_REQUEST['defaults'] ?? null, 'string','');
-		$image_width = DevblocksPlatform::importGPC($_REQUEST['image_width'] ?? null, 'integer',0);
-		$image_height = DevblocksPlatform::importGPC($_REQUEST['image_height'] ?? null, 'integer',0);
-		
-		if(empty($image_width))
-			$image_width = 256;
-		
-		if(empty($image_height))
-			$image_height = 256;
-		
-		$url_writer = DevblocksPlatform::services()->url();
-		$tpl = DevblocksPlatform::services()->template();
-		
-		$tpl->assign('context', $context);
-		$tpl->assign('context_id', $context_id);
-		$tpl->assign('image_width', $image_width);
-		$tpl->assign('image_height', $image_height);
-		
-		if(($avatar = DAO_ContextAvatar::getByContext($context, $context_id))) {
-			$contents = 'data:' . $avatar->content_type . ';base64,' . base64_encode(Storage_ContextAvatar::get($avatar));
-			$tpl->assign('imagedata', $contents);
-		}
-		
-		$suggested_photos = [];
-		
-		// Suggest more extended content
-		
-		$defaults = [];
-		
-		$tokens = explode(' ', trim($defaults_string));
-		foreach($tokens as $token) {
-			list($k,$v) = array_pad(explode(':', $token, 2), 2, '');
-			$defaults[trim($k)] = trim($v);
-		}
-		
-		// Per context suggestions
-		
-		switch($context) {
-			case CerberusContexts::CONTEXT_CONTACT:
-				// Suggest from the address we're adding to the new contact
-				if(empty($context_id) && isset($defaults['email'])) {
-					$context_id = intval($defaults['email']);
-				}
-				
-				$suggested_photos[] = array(
-					'url' => $url_writer->write('c=resource&p=cerberusweb.core&f=images/avatars/person1.png', true),
-					'title' => 'Silhouette: Male #1',
-				);
-				$suggested_photos[] = array(
-					'url' => $url_writer->write('c=resource&p=cerberusweb.core&f=images/avatars/person3.png', true),
-					'title' => 'Silhouette: Male #2',
-				);
-				$suggested_photos[] = array(
-					'url' => $url_writer->write('c=resource&p=cerberusweb.core&f=images/avatars/person4.png', true),
-					'title' => 'Silhouette: Male #3',
-				);
-				
-				$suggested_photos[] = array(
-					'url' => $url_writer->write('c=resource&p=cerberusweb.core&f=images/avatars/person2.png', true),
-					'title' => 'Silhouette: Female #1',
-				);
-				$suggested_photos[] = array(
-					'url' => $url_writer->write('c=resource&p=cerberusweb.core&f=images/avatars/person5.png', true),
-					'title' => 'Silhouette: Female #2',
-				);
-				$suggested_photos[] = array(
-					'url' => $url_writer->write('c=resource&p=cerberusweb.core&f=images/avatars/person6.png', true),
-					'title' => 'Silhouette: Female #3',
-				);
-				
-				break;
-			
-			case CerberusContexts::CONTEXT_ORG:
-				$suggested_photos[] = array(
-					'url' => $url_writer->write('c=resource&p=cerberusweb.core&f=images/avatars/building1.png', true),
-					'title' => 'Building #1',
-				);
-				$suggested_photos[] = array(
-					'url' => $url_writer->write('c=resource&p=cerberusweb.core&f=images/avatars/building2.png', true),
-					'title' => 'Building #2',
-				);
-				$suggested_photos[] = array(
-					'url' => $url_writer->write('c=resource&p=cerberusweb.core&f=images/avatars/building3.png', true),
-					'title' => 'Building #3',
-				);
-				break;
-			
-			case CerberusContexts::CONTEXT_WORKER:
-				$suggested_photos[] = array(
-					'url' => $url_writer->write('c=resource&p=cerberusweb.core&f=images/avatars/person1.png', true),
-					'title' => 'Silhouette: Male #1',
-				);
-				$suggested_photos[] = array(
-					'url' => $url_writer->write('c=resource&p=cerberusweb.core&f=images/avatars/person3.png', true),
-					'title' => 'Silhouette: Male #2',
-				);
-				$suggested_photos[] = array(
-					'url' => $url_writer->write('c=resource&p=cerberusweb.core&f=images/avatars/person4.png', true),
-					'title' => 'Silhouette: Male #3',
-				);
-				
-				$suggested_photos[] = array(
-					'url' => $url_writer->write('c=resource&p=cerberusweb.core&f=images/avatars/person2.png', true),
-					'title' => 'Silhouette: Female #1',
-				);
-				$suggested_photos[] = array(
-					'url' => $url_writer->write('c=resource&p=cerberusweb.core&f=images/avatars/person5.png', true),
-					'title' => 'Silhouette: Female #2',
-				);
-				$suggested_photos[] = array(
-					'url' => $url_writer->write('c=resource&p=cerberusweb.core&f=images/avatars/person6.png', true),
-					'title' => 'Silhouette: Female #3',
-				);
-				
-				break;
-		}
-		
-		$tpl->assign('suggested_photos', $suggested_photos);
-		
+	// Seed data for CerbUI.ImageEditor: the current stored avatar (as a data URL, if any) + the rendered
+	// `record.profile.image.editor` toolbar HTML. The client builds the canvas editor around these.
+	private function _internalAction_imageEditor() {
+		$context = DevblocksPlatform::importGPC($_REQUEST['context'] ?? null, 'string', '');
+		$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'] ?? null, 'integer', 0);
+		$image_width = DevblocksPlatform::importGPC($_REQUEST['image_width'] ?? null, 'integer', 0) ?: 256;
+		$image_height = DevblocksPlatform::importGPC($_REQUEST['image_height'] ?? null, 'integer', 0) ?: 256;
+
+		$response = [
+			'imagedata' => null,
+			'toolbar' => '',
+		];
+
+		if(($avatar = DAO_ContextAvatar::getByContext($context, $context_id)))
+			$response['imagedata'] = 'data:' . $avatar->content_type . ';base64,' . base64_encode(Storage_ContextAvatar::get($avatar));
+
 		$toolbar_dict = DevblocksDictionaryDelegate::instance([
 			'record__context' => $context,
 			'record_id' => $context_id,
-			
 			'image_width' => $image_width,
 			'image_height' => $image_height,
 		]);
-		
-		if(($avatar_toolbar = DAO_Toolbar::getKataByName('record.profile.image.editor', $toolbar_dict))) {
-			$tpl->assign('avatar_toolbar', $avatar_toolbar);
-		}
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/choosers/avatar_chooser_popup.tpl');
+
+		if(($avatar_toolbar = DAO_Toolbar::getKataByName('record.profile.image.editor', $toolbar_dict)))
+			$response['toolbar'] = DevblocksPlatform::services()->ui()->toolbar()->fetch($avatar_toolbar);
+
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+		echo json_encode($response);
 	}
-	
+
+	// Who may view a record type's changesets. Superusers always; otherwise per-type opt-in (default: nobody, so
+	// every existing adopter stays superuser-only). 'behavior' opens its history to anyone who can edit it.
+	private function _canAccessChangesets(string $record_type, int $record_id, ?Model_Worker $worker) : bool {
+		if($worker && $worker->is_superuser)
+			return true;
+
+		if($record_type === 'behavior')
+			return CerberusContexts::isWriteableByActor(CerberusContexts::CONTEXT_BEHAVIOR, $record_id, $worker);
+
+		return false;
+	}
+
 	private function _internalAction_showChangesetsPopup() {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
