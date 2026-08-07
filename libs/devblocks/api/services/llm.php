@@ -880,6 +880,93 @@ class _DevblocksLlmService {
 		return $out;
 	}
 
+	/**
+	 * KATA autocomplete for `llm.agent:inputs:model:` — the `agent_model` reference grammar. Mirrors
+	 * getKataProviderAutocomplete(), but keyed by RECORD NAME instead of provider id: the level under `model:`
+	 * lists the model names we've configured, and under each name are that record's OWN provider knobs — the
+	 * record already supplies model + authentication, so those are dropped from the override hints.
+	 *
+	 * Rebuilt server-side per editor load (the automation editor regenerates its schema each render), so a
+	 * newly added model shows up on reload. Disabled records are omitted — they can't be referenced.
+	 *
+	 * Optional $extra_keys append to every per-model block and $extra_values add per-model value sub-paths
+	 * (used by the agentPrompt catalog for effort_choices / disabled / compaction), mirroring
+	 * getKataProviderAutocomplete().
+	 *
+	 * @param string $prefix e.g. `(.*):llm.agent:inputs:model:` (must end in `:`)
+	 */
+	function getKataAgentModelAutocomplete(string $prefix, array $extra_keys = [], array $extra_values = []) : array {
+		// The record already supplies `display:` from its own columns, but a per-invocation override is
+		// legitimate here for the same reason `context_window:` is.
+		$display = $this->_getDisplayKataAutocomplete();
+		$extra_keys = array_merge($extra_keys, $display['keys']);
+		$extra_values = array_merge($extra_values, $display['values']);
+
+		$out = [];
+		$names = [];
+		$blocks = []; // one provider block per id, reused across records of that provider
+
+		foreach(\DAO_AgentModel::getAll() as $model) {
+			if($model->is_disabled)
+				continue;
+
+			$provider_id = strval($model->provider);
+
+			$names[] = [
+				'caption' => $model->name . ':',
+				'snippet' => $model->name . ":\n\t",
+				'score' => 2000,
+				'docHTML' => sprintf('<b>%s</b> &mdash; %s%s. Overrides below apply in this model\'s provider grammar; the record already supplies its model and authentication.',
+					htmlspecialchars($model->name),
+					htmlspecialchars($provider_id ?: '(no provider)'),
+					('' !== strval($model->model)) ? ' <code>' . htmlspecialchars(strval($model->model)) . '</code>' : ''
+				),
+			];
+
+			// That record's provider block (keys + value sub-paths), cached per provider.
+			if(!array_key_exists($provider_id, $blocks)) {
+				$block = ['keys' => [], 'values' => []];
+
+				try {
+					$provider = $this->getProvider($provider_id, [], false);
+
+					if($provider instanceof \Cerb\LLM\Providers\Interfaces\Chat)
+						$block = $provider->getChatKataAutocomplete();
+
+				} catch(\Throwable $e) {}
+
+				$blocks[$provider_id] = $block;
+			}
+
+			$block = $blocks[$provider_id];
+
+			// preg_quote the name: schema keys are matched as anchored JS regexes (`^…$`), so a literal `.`/`-`
+			// in a name must be escaped or it would over-match.
+			//
+			// The trailing `(?:/[^:]*)?` accepts the ALIAS form `<name>/<alias>:`, which mounts the same record
+			// more than once with different auth/endpoint/knobs. Without it the anchored pattern built for the
+			// bare name wouldn't match an aliased key, and the editor would flag valid KATA as invalid. The
+			// record name is always the first segment, so one pattern covers every mount of that model.
+			$base = $prefix . preg_quote(strval($model->name)) . '(?:/[^:]*)?' . ':';
+
+			foreach(($block['values'] ?? []) as $subpath => $suggestions)
+				$out[$base . $subpath] = $suggestions;
+			foreach($extra_values as $subpath => $suggestions)
+				$out[$base . $subpath] = $suggestions;
+
+			// Drop the record-owned keys from the override hints, then append the caller's extras.
+			$keys = array_values(array_filter($block['keys'] ?? [], function($key) {
+				$caption = is_array($key) ? strval($key['caption'] ?? '') : strval($key);
+				return !in_array($caption, ['model:', 'authentication:'], true);
+			}));
+			$out[$base] = array_merge($keys, $extra_keys);
+		}
+
+		// The model-name list (least specific) at the prefix itself.
+		$out[$prefix] = $names;
+
+		return $out;
+	}
 
 	/**
 	 * The DEFAULT router's model map — the implicit fall-through when a command names no models and no agent.
@@ -979,6 +1066,72 @@ class _DevblocksLlmService {
 		}
 
 		return ($router = \DAO_AgentModelRouter::getDefault()) ? strval($router->name) : '';
+	}
+
+	/**
+	 * Resolve a `model:` input — `{<agent_model name>: <overrides>, …}` — to the `[provider, params]` block a
+	 * command reconciles/runs from, in the exact shape an inline `llm:` block supplies. Shared by `llm.agent:`
+	 * and `llm.chat:` so the grammar and precedence are identical.
+	 *
+	 * Multiple entries are a FALLBACK list in author order: the FIRST that resolves to an ENABLED record wins
+	 * (a not-found or disabled entry is skipped, so a fallback survives a deleted/retired primary). A later
+	 * `disabled@bool:` per-entry override for conditional selection is planned but not built.
+	 *
+	 * @return ?array [provider_id, params]; null (no error) when no `model:` was given; null WITH $error when
+	 *                the block matched no enabled record.
+	 */
+	function resolveModelInput(?array $model_input, ?string &$error=null) : ?array {
+		if(!is_array($model_input) || !$model_input)
+			return null;
+
+		$tried = [];
+
+		foreach($model_input as $key => $overrides) {
+			$key = strval($key);
+			$overrides = is_array($overrides) ? $overrides : [];
+
+			// `<name>/<alias>` mounts the same record more than once with different auth/endpoint/knobs. The
+			// record name is ALWAYS the first segment, so an alias can never point at a different record.
+			$name = DevblocksPlatform::services()->string()->strBefore($key, '/') ?: $key;
+
+			if(!($record = \DAO_AgentModel::getByName($name))) {
+				$tried[] = sprintf('%s (not found)', $key);
+				continue;
+			}
+
+			// `is_disabled` is governance (retired/unlicensed) — skip to the next fallback rather than run it.
+			if($record->is_disabled) {
+				$tried[] = sprintf('%s (disabled)', $key);
+				continue;
+			}
+
+			return $this->resolveAgentModelBlock($record, $overrides, $error);
+		}
+
+		$error = sprintf("`model:` matched no enabled agent model (tried: %s).", implode(', ', $tried));
+		return null;
+	}
+
+	/**
+	 * An `agent_model` record + inline overrides → the effective `[provider, params]` block. The record's own
+	 * columns + `params_kata` are the base (getProviderParams merges those); the inline overrides win on top,
+	 * nested-aware so a `thinking:`/`compaction:` sub-block deep-merges rather than clobbers. Pure (no DB) so
+	 * it's unit-testable with a synthetic model.
+	 *
+	 * @return ?array [provider_id, params], or null with $error set
+	 */
+	function resolveAgentModelBlock(\Model_AgentModel $record, array $overrides, ?string &$error=null) : ?array {
+		list($provider, $params) = $record->getProviderParams($error);
+
+		if('' === trim(strval($provider))) {
+			$error = $error ?: "The agent model has no provider.";
+			return null;
+		}
+
+		if($overrides)
+			$params = array_replace_recursive($params, $overrides);
+
+		return [$provider, $params];
 	}
 
 	// Resolve a message's `images:` descriptors into neutral image blocks [{mime_type, data(base64)}]. Each

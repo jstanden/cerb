@@ -1655,6 +1655,12 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 						'docHTML' => 'Run as an <b>AI worker</b> &mdash; whom the turn is attributed to, AND (via that agent\'s <b>model router</b>) where its models come from. Takes an <code>@mention</code>, a bare handle, a worker id, or a <code>cerb:worker:&lt;id|mention&gt;</code> URI.<br><br>An explicit <code>model:</code> or <code>llm:</code> still wins; naming an agent is what lets a <b>portable</b> automation avoid naming models at all. Omit everything and the system default router is used.',
 					],
 					[
+						'caption' => 'model:',
+						'snippet' => "model:",
+						'score' => 2001,
+						'docHTML' => 'Reference a first-class <b>agent model</b> record by name (the recommended way to source the provider block) &mdash; a model swap is one edit on the record instead of one per automation. Optional overrides ride under the name in that model\'s provider grammar; list several names as a fallback (the first enabled record wins). An explicit <code>llm:</code> block wins for this call (it\'s used as-is; <code>model:</code> is ignored when <code>llm:</code> is present).',
+					],
+					[
 						'caption' => 'llm:',
 						'snippet' => "llm:",
 						'score' => 2000,

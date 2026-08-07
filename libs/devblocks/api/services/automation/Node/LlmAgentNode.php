@@ -72,10 +72,22 @@ class LlmAgentNode extends AbstractNode {
 				
 				// Inputs validation
 				
+				// `llm:` (manual) always WINS: `model:` is consulted only when `llm:` is omitted (see
+				// _reconcileSession), so the two never merge and a provider mismatch can't arise.
+				//
+				// It is no longer REQUIRED. With no `session_id:`, no `llm:` and no `model:`, the DEFAULT agent
+				// model router supplies the models -- the zero-config path. That moves "no models anywhere" from
+				// a parse-time error to a runtime one, deliberately: whether any model exists isn't knowable when
+				// the script is validated.
 				$validation->addField('llm', 'llm:')
-					->array()
-					->setRequired(true);
-				
+					->array();
+
+				// `model: <agent_model name>: <overrides>` — the recommended way to source the provider block:
+				// reference a first-class model record instead of hand-authoring `llm:`. Resolved in
+				// _reconcileSession; `llm:` overrides it when both are present.
+				$validation->addField('model', 'model:')
+					->array();
+
 				$validation->addField('messages', 'messages:')
 					->array()
 					->setRequired(true);

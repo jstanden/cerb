@@ -5426,6 +5426,15 @@ class _CerbApplication_KataSchemas {
                         types:
                           object:
                             attributes:
+                              model:
+                                types:
+                                  object:
+                                    attributePatterns:
+                                      pattern/name:
+                                        match: *
+                                        attributes:
+                                          types:
+                                            list:
                               llm:
                                 types:
                                   object:
