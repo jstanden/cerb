@@ -141,6 +141,7 @@
 			<div>
 				<a class="menu"><span class="cerb-icons cerb-icon-console"></span> {'common.developers'|devblocks_translate|capitalize} <span class="cerb-icons cerb-icon-chevron-down"></span></a>
 				<ul hidden>
+					<li><a href="{devblocks_url}c=config&a=agent_filesystem_terminal{/devblocks_url}">Agent Filesystem Terminal</a></li>
 					<li><a href="{devblocks_url}c=config&a=automation_events{/devblocks_url}">Automation Events</a></li>
 					<li><a href="{devblocks_url}c=config&a=automation_logs{/devblocks_url}">Automation Logs</a></li>
 					<li><a href="{devblocks_url}c=config&a=bot_scripting_tester{/devblocks_url}">Automation Scripting Tester</a></li>
