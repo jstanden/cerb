@@ -47,10 +47,18 @@ class LlmChatAction extends AbstractAction {
 			
 			// Inputs validation
 			
+			// `llm:` (manual) always WINS. It is no longer REQUIRED: with neither `llm:` nor `model:`, the
+			// default agent model router supplies the models (see _resolveLlmBlock), which is the zero-config
+			// path. That moves "no models anywhere" from a parse-time error to a runtime one -- deliberately,
+			// since whether models exist isn't knowable when the script is validated.
 			$validation->addField('llm', 'llm:')
-				->array()
-				->setRequired(true);
-			
+				->array();
+
+			// `model: <agent_model name>: <overrides>` — reference a first-class model record instead of
+			// hand-authoring `llm:`. Multiple entries are a fallback list; the first enabled record wins.
+			$validation->addField('model', 'model:')
+				->array();
+
 			$validation->addField('messages', 'messages:')
 				->array()
 				->setRequired(true);
@@ -82,7 +90,7 @@ class LlmChatAction extends AbstractAction {
 			$llm_provider = $this->_getLlmProvider();
 			
 			if(!($llm_provider instanceof Chat)) {
-				$llm_id = array_key_first($this->_inputs['llm'] ?? []);
+				list($llm_id, ) = $this->_resolveLlmBlock();
 				$error = sprintf('LLM provider does not support chat completions: %s', $llm_id);
 				throw new Exception_DevblocksAutomationError($error);
 			}
@@ -113,10 +121,43 @@ class LlmChatAction extends AbstractAction {
 		return $this->node->getParent()->getId();
 	}
 	
+	/**
+	 * The effective `[provider_id, params]` to run: `llm:` (manual) wins and is used as-is; a `model:`
+	 * reference to an `agent_model` record is consulted only when `llm:` is omitted. Throws when neither
+	 * resolves (e.g. a `model:` list with no enabled record).
+	 */
+	private function _resolveLlmBlock() : array {
+		$llm = DevblocksPlatform::services()->llm();
+
+		if(is_array($this->_inputs['llm'] ?? null) && $this->_inputs['llm']) {
+			$provider_id = strval(array_key_first($this->_inputs['llm']));
+			$params = is_array($this->_inputs['llm'][$provider_id] ?? null) ? $this->_inputs['llm'][$provider_id] : [];
+			return [$provider_id, $params];
+		}
+
+		$error = null;
+
+		if(($resolved = $llm->resolveModelInput($this->_inputs['model'] ?? null, $error)))
+			return $resolved;
+
+		// An explicit `model:` that matched nothing is a MISTAKE, not an invitation to substitute something
+		// else -- running a model the author didn't ask for is worse than not running.
+		if($error)
+			throw new Exception_DevblocksAutomationError($error);
+
+		// Nothing named at all -> the default router. This is the zero-config path: an automation that says
+		// nothing about models runs on whatever the environment prefers.
+		if(($resolved = $llm->resolveModelInput($llm->getDefaultRouterModels($this->_dict), $error)))
+			return $resolved;
+
+		throw new Exception_DevblocksAutomationError(
+			"`llm.chat` has no models. Name an `llm:` block or a `model:` reference, or configure a default agent model router."
+		);
+	}
+
 	private function _getLlmProvider() : ?\Extension_DevblocksLlmProvider {
-		$llm_id = array_key_first($this->_inputs['llm']);
-		$llm_params = $this->_inputs['llm'][$llm_id] ?? [];
-		return DevblocksPlatform::services()->llm()->getProvider($llm_id, $llm_params);
+		list($provider_id, $params) = $this->_resolveLlmBlock();
+		return DevblocksPlatform::services()->llm()->getProvider($provider_id, $params);
 	}
 	
 	/**

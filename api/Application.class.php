@@ -5716,6 +5716,15 @@ class _CerbApplication_KataSchemas {
                                               role:
                                                 types:
                                                   string:
+                              model:
+                                types:
+                                  object:
+                                    attributePatterns:
+                                      pattern/name:
+                                        match: *
+                                        attributes:
+                                          types:
+                                            list:
                               system_prompt:
                                 types:
                                   string:

@@ -1930,6 +1930,12 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'(.*):llm.chat:' => $action_base,
 				'(.*):llm.chat:inputs:' => [
 					[
+						'caption' => 'model:',
+						'snippet' => "model:",
+						'score' => 2001,
+						'docHTML' => 'Reference a first-class <b>agent model</b> record by name (the recommended way to source the provider block) &mdash; a model swap is one edit on the record instead of one per automation. Optional overrides ride under the name in that model\'s provider grammar; list several names as a fallback (the first enabled record wins). An explicit <code>llm:</code> block wins for this call (it\'s used as-is; <code>model:</code> is ignored when <code>llm:</code> is present).',
+					],
+					[
 						'caption' => 'llm:',
 						'snippet' => "llm:",
 						'score' => 2000,
@@ -1948,6 +1954,9 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				// Per-provider `llm:<provider>:` params autocomplete (model lists + knobs) — sourced from the
 				// LLM provider extensions and looped by prefix, so it isn't duplicated here.
 				...DevblocksPlatform::services()->llm()->getKataProviderAutocomplete('(.*):llm.chat:inputs:llm:'),
+
+					// `model:` reference grammar — the configured `agent_model` names + each record's own provider knobs.
+					...DevblocksPlatform::services()->llm()->getKataAgentModelAutocomplete('(.*):llm.chat:inputs:model:'),
 				
 				'(.*):llm.chat:inputs:messages:' => [
 					[
