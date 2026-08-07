@@ -2,182 +2,120 @@
 {$comment_div = uniqid('comment_editor_')}
 {$is_html = !DAO_WorkerPref::get($active_worker->id,'comment_disable_formatting',0)}
 
-<fieldset id="{$comment_div}" class="peek">
-    <legend>
-        <label>
-            <input type="checkbox" name="comment_enabled" value="1">
+<div class="cerb-ui-panel cerb-ui-panel--spaced" id="{$comment_div}" data-cerb-comment>
+    <div class="cerb-ui-header cerb-ui-header--tight cerb-ui-header--center">
+        <div class="cerb-ui-header--title-sm">
+            <label class="cerb-ui-toggle">
+                <input type="checkbox" name="comment_enabled" value="1">
+                <span class="cerb-ui-toggle--slider"></span>
+            </label>
             {'common.comment'|devblocks_translate|capitalize}
-        </label>
-    </legend>
-
-    <div style="display:none;">
-        <div class="cerb-code-editor-toolbar">
-            <button type="button" title="Toggle formatting" class="cerb-code-editor-toolbar-button cerb-editor-toolbar-button--formatting" data-format="{if $is_html}html{else}plaintext{/if}">{if $is_html}Formatting on{else}Formatting off{/if}</button>
-
-            <div class="cerb-code-editor-subtoolbar-format-html" style="{if $is_html}display:inline-block;{else}display:none;{/if}">
-                <button type="button" title="Bold" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--bold"><span class="cerb-icons cerb-icon-bold"></span></button>
-                <button type="button" title="Italics" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--italic"><span class="cerb-icons cerb-icon-italic"></span></button>
-                <button type="button" title="Link" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--link"><span class="cerb-icons cerb-icon-link"></span></button>
-                <button type="button" title="Image" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--image"><span class="cerb-icons cerb-icon-picture"></span></button>
-                <button type="button" title="List" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--list"><span class="cerb-icons cerb-icon-list"></span></button>
-                <button type="button" title="Quote" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--quote"><span class="cerb-icons cerb-icon-quote"></span></button>
-                <button type="button" title="Code" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--code"><span class="cerb-icons cerb-icon-embed"></span></button>
-                <button type="button" title="Table" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--table"><span class="cerb-icons cerb-icon-table"></span></button>
-            </div>
-
-            <div class="cerb-code-editor-toolbar-divider"></div>
-
-            <button type="button" title="Insert @mention" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--mention"><span class="cerb-icons cerb-icon-mention"></span></button>
-            <div class="cerb-code-editor-toolbar-divider"></div>
-
-            <button type="button" title="Preview" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--preview"><span class="cerb-icons cerb-icon-eye-open"></span></button>
-        </div>
-
-        <input type="hidden" name="comment_is_markdown" value="1">
-        <textarea name="comment" placeholder="{'comment.notify.at_mention'|devblocks_translate}">{if is_a($model, 'Model_Comment')}{$model->comment}{/if}</textarea>
-
-        <div class="cerb-comment-attachments">
-            <button type="button" class="chooser_file"><span class="cerb-icons cerb-icon-paperclip"></span></button>
-            <ul class="chooser-container bubbles"></ul>
         </div>
     </div>
-</fieldset>
+
+    <div data-cerb-comment-body style="display:none;">
+        <input type="hidden" name="comment_is_markdown" value="{if $is_html}1{else}0{/if}">
+
+        {* Built-in formatting + markdown/plaintext toggle come from the editor; this host section (mention + preview)
+           merges in after the formatting buttons. *}
+        <ul class="cerb-ui-toolbar" data-cerb-editor-toolbar hidden>
+            <li data-value="mention" data-icon="mention" title="Insert @mention"></li>
+            <li></li>
+            <li data-value="preview" data-icon="eye-open" title="Preview"></li>
+        </ul>
+
+        <textarea name="comment" spellcheck="true" placeholder="{'comment.notify.at_mention'|devblocks_translate}">{if is_a($model, 'Model_Comment')}{$model->comment}{/if}</textarea>
+
+        <div class="cerb-comment-attachments">
+            <div class="cerb-ui-file-upload" data-name="comment_file_ids" data-multiple="1"></div>
+        </div>
+    </div>
+</div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-    var $container = $('#{$comment_div}');
-    var $form = $container.closest('form');
+    let $container = $('#{$comment_div}');
+    let $form = $container.closest('form');
 
-    // Drag/drop attachments
-    var $attachments = $container.find('.cerb-comment-attachments');
-    $attachments.cerbAttachmentsDropZone();
+    // Attachments
+    let fu = null;
+    if(window.CerbUI && CerbUI.FileUpload)
+        fu = new CerbUI.FileUpload($container.find('.cerb-ui-file-upload')[0], { name: 'comment_file_ids', multiple: true });
 
-    // Editor
-    var $editor = $container.find('textarea[name=comment]')
-        .cerbTextEditor()
-        .cerbTextEditorAutocompleteComments()
-    ;
+    if(!(window.CerbUI && CerbUI.MarkdownEditor))
+        return;
 
-    // Toggle
-    $container.find('input[name="comment_enabled"]')
-        .on('click', function() {
-            var $this = $(this);
+    // Markdown editor (replaces the legacy cerbTextEditor stack) — the built-in toolbar provides formatting +
+    // the markdown↔plaintext switcher. The host section adds @mention + Preview; onAction routes by value.
+    let previewComment = function() {
+        let formData = new FormData();
+        formData.set('c', 'profiles');
+        formData.set('a', 'invoke');
+        formData.set('module', 'comment');
+        formData.set('action', 'preview');
+        formData.set('comment', ed.getValue());
+        formData.set('is_markdown', $container.find('input:hidden[name=comment_is_markdown]').val());
+        genericAjaxPopup('comment_preview', formData, 'reuse', false);
+    };
 
-            if ($this.is(':checked')) {
-                $this.closest('legend').next('div').show();
-                $editor.focus();
-            } else {
-                $this.closest('legend').next('div').hide();
+    let ed = new CerbUI.MarkdownEditor($container.find('textarea[name=comment]')[0], {
+        mode: {if $is_html}'markdown'{else}'plaintext'{/if},
+        onAutocomplete: CerbUI.MarkdownEditor.mentionSource(),
+        onImage: function(info) {
+            // Add the uploaded/chosen file to the attachments component
+            if(fu) fu.add([{ id: info.file_id, name: info.file_name }]);
+            // A pasted image enables markdown mode — sync the toolbar switcher/flag/format buttons
+            if(ed._editorToolbar) ed._editorToolbar.setMode('markdown');
+        },
+        toolbar: {
+            // The switcher also keeps the comment_is_markdown flag in lockstep.
+            onMode: function(v) {
+                $container.find('input:hidden[name=comment_is_markdown]').val(v === 'markdown' ? '1' : '0');
+            },
+            sections: [ $container.find('[data-cerb-editor-toolbar]')[0] ],
+            onAction: function(value, ed) {
+                if(value === 'mention') { ed.insertText('@'); ed.openAutocomplete(); return true; }
+                if(value === 'preview') { previewComment(); return true; }
+                return false; // bold/italic/… run their built-in
             }
-        })
-    ;
-
-    // Comment editor toolbar
-
-    var $editor_toolbar = $container.find('.cerb-code-editor-toolbar')
-        .cerbTextEditorToolbarMarkdown()
-    ;
-
-    // Paste images
-
-    $editor.cerbTextEditorInlineImagePaster({
-        attachmentsContainer: $attachments,
-        toolbar: $editor_toolbar
-    });
-
-    // Formatting
-    $editor_toolbar.find('.cerb-editor-toolbar-button--formatting').on('click', function() {
-        var $button = $(this);
-
-        if('html' === $button.attr('data-format')) {
-            $editor_toolbar.triggerHandler($.Event('cerb-editor-toolbar-formatting-set', { enabled: false }));
-        } else {
-            $editor_toolbar.triggerHandler($.Event('cerb-editor-toolbar-formatting-set', { enabled: true }));
         }
     });
 
-    $editor_toolbar.on('cerb-editor-toolbar-formatting-set', function(e) {
-       var $button = $editor_toolbar.find('.cerb-editor-toolbar-button--formatting');
+    // Toggle (reveal/focus the editor when the comment toggle is enabled)
+    if(CerbUI.Toggle) {
+        let comment_toggle_el = $container.find('input[name="comment_enabled"]').closest('.cerb-ui-toggle')[0];
 
-       if(e.enabled) {
-           $container.find('input:hidden[name=comment_is_markdown]').val('1');
-           $button.attr('data-format', 'html');
-           $button.text('Formatting on');
-           $editor_toolbar.find('.cerb-code-editor-subtoolbar-format-html').css('display','inline-block');
-       } else {
-           $container.find('input:hidden[name=comment_is_markdown]').val('0');
-           $button.attr('data-format', 'plaintext');
-           $button.text('Formatting off');
-           $editor_toolbar.find('.cerb-code-editor-subtoolbar-format-html').css('display','none');
-       }
-    });
+        if(comment_toggle_el) {
+            new CerbUI.Toggle(comment_toggle_el, {
+                onChange: function(checked) {
+                    let $body = $container.find('[data-cerb-comment-body]');
 
-    // Upload image
-    $editor_toolbar.on('cerb-editor-toolbar-image-inserted', function(event) {
-        event.stopPropagation();
-
-        var new_event = $.Event('cerb-chooser-save', {
-            labels: event.labels,
-            values: event.values
-        });
-
-        $container.find('button.chooser_file').triggerHandler(new_event);
-
-        $editor.cerbTextEditor('insertText', '![inline-image](' + event.url + ')');
-
-        setTimeout(function() {
-            $editor.focus();
-        }, 100);
-    });
-
-    // Mention
-    $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--mention').on('click', function () {
-        var token = $editor.cerbTextEditor('getCurrentWord');
-
-        if(token !== '@') {
-            $editor.cerbTextEditor('insertText', '@');
+                    if(checked) {
+                        $body.show();
+                        ed.focus();
+                    } else {
+                        $body.hide();
+                    }
+                }
+            });
         }
-
-        $editor.autocomplete('search');
-    });
+    }
 
     {if $pref_keyboard_shortcuts}
+    let $editor_input = $container.find('textarea[name=comment]');
+
     // Save focus
-    $editor.bind('keydown', 'ctrl+return meta+return alt+return', function(e) {
+    $editor_input.bind('keydown', 'ctrl+return meta+return alt+return', function(e) {
         e.preventDefault();
         $form.find('button.submit').focus();
     });
 
     // Save click
-    $editor.bind('keydown', 'ctrl+shift+return meta+shift+return alt+shift+return', function(e) {
+    $editor_input.bind('keydown', 'ctrl+shift+return meta+shift+return alt+shift+return', function(e) {
         e.preventDefault();
         $form.find('button.submit').click();
     });
     {/if}
-
-    // Preview
-    $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--preview').on('click', function () {
-        var formData = new FormData();
-        formData.set('c', 'profiles');
-        formData.set('a', 'invoke');
-        formData.set('module', 'comment');
-        formData.set('action', 'preview');
-        formData.set('comment', $container.find('textarea[name=comment]').val());
-        formData.set('is_markdown', $container.find('input:hidden[name=comment_is_markdown]').val());
-
-        genericAjaxPopup(
-            'comment_preview',
-            formData,
-            'reuse',
-            false
-        );
-    });
-
-    // Attachments
-
-    $container.find('button.chooser_file').each(function() {
-        ajax.chooserFile(this,'comment_file_ids');
-    });
 });
 </script>
 {/if}
