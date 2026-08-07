@@ -750,20 +750,42 @@ class _DevblocksAutomationService {
 			$event_id = $node->getId() . ':on_tool';
 			$event_node = new CerbAutomationAstNode($event_id, 'event');
 			$node->addChild($event_node);
-			
+
 			if(array_key_exists('on_tool', $yaml)) {
 				$node->removeParam('on_tool');
-				
+
 				$states[] = 'on_tool';
-				
+
 				foreach($yaml['on_tool'] as $type => $child) {
 					if(false === ($this->_buildNode($event_node, $type, $child, $environment, $states, $error)))
 						return false;
 				}
-				
+
 				array_pop($states);
 			}
-		
+
+			// Command nodes don't route through _findActionEvents, so build the on_success/on_error/
+			// on_simulate branch nodes here (same as actions get for free).
+			foreach(['on_success', 'on_error', 'on_simulate'] as $event_key) {
+				if(!array_key_exists($event_key, $yaml))
+					continue;
+
+				$branch_node = new CerbAutomationAstNode($node->getId() . ':' . $event_key, 'event');
+				$node->addChild($branch_node);
+
+				$node->removeParam($event_key);
+
+				$states[] = $event_key;
+
+				if(is_array($yaml[$event_key]))
+					foreach($yaml[$event_key] as $type => $child) {
+						if(false === ($this->_buildNode($branch_node, $type, $child, $environment, $states, $error)))
+							return false;
+					}
+
+				array_pop($states);
+			}
+
 		} elseif ($node_type == 'outcome') {
 			$is_decision = 'decision' == $node->getParent()->getNameType();
 			

@@ -38,16 +38,21 @@ class LlmAgentNode extends AbstractNode {
 	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, ?string &$error=null) : string|false {
 		$this->_node_memory =& $node_memory;
 		$this->_dict = $dict;
-		
+
+		// Returning from an on_success/on_error/on_simulate branch (which ran to completion) — hand
+		// control back to the parent. Guarded here, before the fresh-activation check, so we don't
+		// re-invoke the LLM.
+		if(array_key_exists('completed', $this->_node_memory)) {
+			unset($this->_node_memory['completed']);
+			return $this->node->getParent()->getId();
+		}
+
 		@set_time_limit(30);
 		
 		try {
 			$params = $automation->getParams($this->node, $this->_dict);
 			$this->_inputs = $params['inputs'] ?? [];
 			$this->_output = $params['output'] ?? '';
-			
-			// If this is a new activation, invoke the LLM first
-			if(!array_key_exists('stack', $this->_node_memory)) {
 
 			// `agent:` names an AI worker whose record supplies the provider/model/auth defaults. Resolved
 			// BEFORE validation because it can satisfy the `llm:` requirement, and re-resolved every turn so a
@@ -142,7 +147,15 @@ class LlmAgentNode extends AbstractNode {
 					$error = "The automation policy does not allow the `llm.agent:` command.";
 					throw new Exception_DevblocksAutomationError($error);
 				}
-				
+
+				// Simulating: run the `on_simulate:` branch instead of calling the LLM (mirrors actions).
+				// The `completed` guard at the top of activate() returns to the parent afterward.
+				if($this->_dict->get('__simulate', false)
+					&& null != ($event_simulate = $this->node->getChild($this->node->getId() . ':on_simulate'))) {
+					$this->_node_memory['completed'] = true;
+					return $event_simulate->getId();
+				}
+
 				$this->_node_memory['stack'] = [
 					['llm', []],
 				];
@@ -375,18 +388,17 @@ class LlmAgentNode extends AbstractNode {
 					return false;
 				}
 				
-			// If we're done, recurse back
+			// Completed successfully.
 			} else {
 				unset($this->_node_memory['stack']);
-				
-				// [TODO] on_success, on_error ? (set activated when recursing down)
-				
-				/*
-				if (null != ($event_success = $this->node->getChild($this->node->getId() . ':on_success'))) {
+
+				// Run the `on_success:` branch once (if present); the `completed` guard at the top of
+				// activate() then hands control back to the parent when that branch finishes.
+				if(null != ($event_success = $this->node->getChild($this->node->getId() . ':on_success'))) {
+					$this->_node_memory['completed'] = true;
 					return $event_success->getId();
 				}
-				*/
-				
+
 				return $this->node->getParent()->getId();
 			}
 			
@@ -399,7 +411,11 @@ class LlmAgentNode extends AbstractNode {
 						'error' => $error,
 					]);
 				}
-				
+
+				// Run the on_error branch, then (via the `completed` guard) return to the parent —
+				// matching how actions handle on_error. Drop any partial stack first.
+				unset($this->_node_memory['stack']);
+				$this->_node_memory['completed'] = true;
 				return $event_error->getId();
 			}
 			
