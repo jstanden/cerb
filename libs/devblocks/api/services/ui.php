@@ -614,7 +614,20 @@ class DevblocksUiMap {
 			$map = array_merge($map, $map_data['map'] ?? []);
 			unset($map_data);
 		}
-		
+
+		// Projection-aware default scale — a projection: block (shallow-merged) drops the seeded scale, and the
+		// mercator default of 90 doesn't frame albersUsa (which needs a much larger scale).
+		if(is_array($map['projection'] ?? null)) {
+			$projection_scale = $map['projection']['scale'] ?? null;
+
+			if($projection_scale === null || $projection_scale === '') {
+				$map['projection']['scale'] = match($map['projection']['type'] ?? 'mercator') {
+					'albersUsa' => 670,
+					default => 90,
+				};
+			}
+		}
+
 		$resource_keys = [];
 		
 		if(null != ($map['resource']['uri'] ?? null)) {
