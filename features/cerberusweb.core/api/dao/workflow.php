@@ -671,6 +671,9 @@ class Model_Workflow extends DevblocksRecordModel {
       columns:
         text/_key:
           label: Key
+          params:
+            icon:
+              image_key: _icon
         card/_label:
           label: Record
           params:
@@ -719,6 +722,7 @@ class Model_Workflow extends DevblocksRecordModel {
 			return [];
 		
 		$record_types = [];
+		$record_exts = Extension_DevblocksContext::getAll();
 		
 		// Group records by type
 		foreach($resources['records'] as $record_key => $record_id) {
@@ -749,8 +753,15 @@ class Model_Workflow extends DevblocksRecordModel {
 					}
 
 					$record_types[$record_type][$record_name] = $dicts[$record_id];
+					
 					// Index dictionary keys
 					$record_types[$record_type][$record_name]->set('_key', $record_name);
+					
+					// Icon
+					$context = $dicts[$record_id]->get('_context', '');
+					if(array_key_exists($context, $record_exts)) {
+						$record_types[$record_type][$record_name]->set('_icon', $record_exts[$context]->params['icon'] ?? 'document');
+					}
 				} else {
 					// [TODO] A missing resource should be an error/alert
 					unset($record_types[$record_type][$record_name]);

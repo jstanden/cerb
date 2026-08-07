@@ -617,6 +617,9 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
                   label: Action
                 text/__key:
                   label: Key
+                  params:
+                    icon:
+                      image_key: _icon
                 card/_label:
                   label: Record
                   params:
@@ -794,6 +797,26 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 		}
 	}
 	
+	private static function _getChangeActionIcon(string $action) : string {
+		return match($action) {
+			'create' => 'circle-plus',
+			'update' => 'edit',
+			'delete' => 'trash',
+			'retain' => 'lock',
+			default => 'circle',
+		};
+	}
+
+	// A `--cerb-color-tag-*` name matching the diff-band colors (added/changed/removed) for the summary icons.
+	private static function _getChangeActionColor(string $action) : string {
+		return match($action) {
+			'create' => 'green',
+			'update' => 'blue',
+			'delete' => 'red',
+			default => 'gray',
+		};
+	}
+
 	private function _profileAction_saveConfigJson() {
 		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
 		$workflow_kata = DevblocksPlatform::importGPC($_POST['template']['kata'] ?? null, 'string', '');
@@ -803,155 +826,118 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		
 		$tpl = DevblocksPlatform::services()->template();
-		$kata = DevblocksPlatform::services()->kata();
-		$differ = new Differ(new UnifiedDiffOutputBuilder('', true));
-		
+
 		try {
 			if(!($active_worker = CerberusApplication::getActiveWorker()))
 				DevblocksPlatform::dieWithHttpError(null, 403);
-			
+
 			if('POST' != DevblocksPlatform::getHttpMethod())
 				DevblocksPlatform::dieWithHttpError(null, 405);
-			
+
 			if(!$active_worker->is_superuser)
 				DevblocksPlatform::dieWithHttpError(null, 403);
-			
+
 			if(!($was_workflow = DAO_Workflow::get($id)))
 				DevblocksPlatform::dieWithHttpError(null, 404);
-			
+
 			$new_workflow = clone $was_workflow;
 			$new_workflow->workflow_kata = $workflow_kata;
 			$new_workflow->setConfigValues($config_values);
-			
+
 			$resource_keys = [];
-			
-			$sheets = DevblocksPlatform::services()->sheet()->withDefaultTypes();
-			
+
 			// [TODO] Display that no changes will be made and disable 'next'
-			
-			// Summarize the changes that will be completed as a sheet
-			
-			$records_sheet_kata = <<< EOD
-              layout:
-                headings@bool: no
-                paging@bool: no
-                style: fieldsets
-              limit: 1000
-              columns:
-                markdown/label:
-                  #label: Diff
-                  params:
-                    value_template@raw:
-                      ##### [{{action}}] {{key}}
-                code/diff:
-                  #label: Diff
-                  params:
-                    syntax: diff
-                    value_template@raw: {{diff}}
-              EOD;
-			
-			if(!($records_sheet = $sheets->parse($records_sheet_kata, $error)))
-				throw new Exception_DevblocksAjaxValidationError('Sheet Parse Error: ' . $error);
-			
+
+			// The current saved template (left/before) vs the posted template (right/after) — the whole
+			// workflow KATA diffed in a single CerbUI.DiffViewer. A clickable summary of the resource-level
+			// changes (create/update/delete) jumps the panes to each resource's line in the template.
+
+			$was_kata = $was_workflow->workflow_kata;
+			$new_kata = $new_workflow->workflow_kata;
+
 			if($import_kata)
 				$was_workflow->importResources($import_kata);
-			
-			$was_workflow->getChangesAutomation($new_workflow, $resource_keys);
-			
-			// Include configuration changes
-			
-			$change_dicts = [];
-			
+
+			$error = null;
+
+			if(false === $was_workflow->getChangesAutomation($new_workflow, $resource_keys, $error))
+				throw new Exception_DevblocksAjaxValidationError($error ?: 'The workflow template could not be parsed.');
+
+			// Line index (0-based) of a resource/option key's declaration within a KATA document, for scroll-to.
+			$find_line = function(string $doc, string $key) : int {
+				foreach(explode("\n", $doc) as $i => $line) {
+					$t = ltrim($line);
+
+					if($t === $key || str_starts_with($t, $key . ':') || str_starts_with($t, $key . '@'))
+						return $i;
+				}
+
+				return 0;
+			};
+
+			// Config values are scalars, arrays (multiple choosers), or bools; render them as text.
+			$stringify = fn($v) => is_array($v)
+				? implode(', ', array_map('strval', $v))
+				: (is_bool($v) ? ($v ? 'yes' : 'no') : strval($v));
+
+			$summary = [];
+
+			// Configuration value changes (option declarations live in the template's `config:` block).
+			// These live in `config_kata`, not the diffed `workflow_kata`, so the summary carries the
+			// before/after values for the client to show in a detail panel instead of the diff panes.
 			foreach(array_keys($resource_keys['config'] ?? []) as $config_key) {
-				$old_value = $resource_keys['config'][$config_key]['old_value'] ?? '';
-				$new_value = $resource_keys['config'][$config_key]['new_value'] ?? '';
-				
-				$old_config_options = $was_workflow->getConfigOptions([$config_key => $old_value]) ?: [];
-				$new_config_options = $was_workflow->getConfigOptions([$config_key => $new_value]) ?: [];
-				
-				if('chooser' == ($old_config_options[$config_key]['type'] ?? null)) {
-					if(array_key_exists('record_label', $old_config_options[$config_key]['params'])) {
-						$old_value = $old_config_options[$config_key]['params']['record_label'];
-					} elseif(array_key_exists('record_labels', $old_config_options[$config_key]['params'])) {
-						$old_value = implode(', ', $old_config_options[$config_key]['params']['record_labels']);
-					}
-				}
-				
-				if('chooser' == ($new_config_options[$config_key]['type'] ?? null)) {
-					if(array_key_exists('record_label', $new_config_options[$config_key]['params'])) {
-						$new_value = $new_config_options[$config_key]['params']['record_label'];
-					} elseif(array_key_exists('record_labels', $new_config_options[$config_key]['params'])) {
-						$new_value = implode(', ', $new_config_options[$config_key]['params']['record_labels']);
-					}
-				}
-				
-				$change_dicts[] = DevblocksDictionaryDelegate::instance([
-					'key' => 'config/' . $config_key,
-					'action' => $resource_keys['config'][$config_key]['action'] ?? '',
-					'diff' => $differ->diff($old_value, $new_value),
-				]);
+				$action = $resource_keys['config'][$config_key]['action'] ?? '';
+
+				$summary[] = [
+					'name' => $config_key,
+					'action' => $action,
+					'action_icon' => self::_getChangeActionIcon($action),
+					'action_color' => self::_getChangeActionColor($action),
+					'type_icon' => 'gear',
+					'is_config' => true,
+					'old_value' => $stringify($resource_keys['config'][$config_key]['old_value'] ?? ''),
+					'new_value' => $stringify($resource_keys['config'][$config_key]['new_value'] ?? ''),
+					'line_left' => $find_line($was_kata, $config_key),
+					'line_right' => $find_line($new_kata, $config_key),
+				];
 			}
-			
+
+			// Record resources (declared in the template's `records:` block as `<type>/<name>:`).
 			foreach(array_keys($resource_keys['records'] ?? []) as $rk) {
 				$action = $resource_keys['records'][$rk]['action'];
-				
-				$was = '';
-				$new = '';
-				
-				if('update' == $action) {
-					$was_fields = array_intersect_key(
-						$resource_keys['templates']['was']['records'][$rk]['fields'] ?? [],
-						array_fill_keys($resource_keys['records'][$rk]['fields'] ?? [], true)
-					);
-					
-					$was = $kata->emit($was_fields);
-					
-					$new_fields = array_intersect_key(
-						$resource_keys['templates']['new']['records'][$rk]['fields'] ?? [],
-						array_fill_keys($resource_keys['records'][$rk]['fields'] ?? [], true)
-					);
-					
-					$new = $kata->emit($new_fields);
-				}
-				
-				$change_dicts[] = DevblocksDictionaryDelegate::instance([
-					'key' => $rk,
+				$record_type = $resource_keys['records'][$rk]['record_type'] ?? DevblocksPlatform::services()->string()->strBefore($rk, '/');
+
+				$summary[] = [
+					'name' => DevblocksPlatform::services()->string()->strAfter($rk, '/') ?: $rk,
 					'action' => $action,
-					'diff' => $differ->diff($was, $new),
-				]);
+					'action_icon' => self::_getChangeActionIcon($action),
+					'action_color' => self::_getChangeActionColor($action),
+					'type_icon' => Extension_DevblocksContext::getByAlias($record_type, false)?->params['icon'] ?? 'collection',
+					'line_left' => $find_line($was_kata, $rk),
+					'line_right' => $find_line($new_kata, $rk),
+				];
 			}
-			
-			// Include `extensions` changes
-			$extension_dicts = array_values(array_map(
-				function($rk) use ($resource_keys, $kata) {
-					$action = $resource_keys['extensions'][$rk]['action'];
-					$changes = '';
-					
-					if('update' == $action && ($resource_keys['extensions'][$rk]['delta'] ?? null)) {
-						$changes .= $kata->emit($resource_keys['extensions'][$rk]['delta']);
-					}
-					
-					return DevblocksDictionaryDelegate::instance([
-						'key' => $rk,
-						'action' => $action,
-						'diff' => $changes,
-					]);
-				},
-				array_keys($resource_keys['extensions'] ?? []),
-			));
-			
-			$dicts = array_merge($change_dicts, $extension_dicts);
-			
-			$record_layout = $sheets->getLayout($records_sheet);
-			$record_columns = $sheets->getColumns($records_sheet);
-			$record_rows = $sheets->getRows($records_sheet, $dicts);
-			
+
+			// Extension resources.
+			foreach(array_keys($resource_keys['extensions'] ?? []) as $rk) {
+				$action = $resource_keys['extensions'][$rk]['action'];
+
+				$summary[] = [
+					'name' => DevblocksPlatform::services()->string()->strAfter($rk, '/') ?: $rk,
+					'action' => $action,
+					'action_icon' => self::_getChangeActionIcon($action),
+					'action_color' => self::_getChangeActionColor($action),
+					'type_icon' => 'plug',
+					'line_left' => $find_line($was_kata, $rk),
+					'line_right' => $find_line($new_kata, $rk),
+				];
+			}
+
 			$tpl->assign('model', $new_workflow);
-			
-			$tpl->assign('layout', $record_layout);
-			$tpl->assign('columns', $record_columns);
-			$tpl->assign('rows', $record_rows);
-			
+			$tpl->assign('summary', $summary);
+			$tpl->assign('left_doc', $was_kata);
+			$tpl->assign('right_doc', $new_kata);
+
 			$html = $tpl->fetch('devblocks:cerberusweb.core::records/types/workflow/update_template/changes.tpl');
 			
 			echo json_encode([

@@ -3,8 +3,10 @@
 {$config_uniqid = uniqid('workflow_config_')}
 
 {if $config_options}
-<fieldset class="peek" id="{$config_uniqid}">
-    <legend>{{'common.configuration'|devblocks_translate|capitalize}}</legend>
+<div class="cerb-ui-panel cerb-ui-panel--spaced" id="{$config_uniqid}">
+    <div class="cerb-ui-header cerb-ui-header--tight">
+        <div class="cerb-ui-header--title-sm">{'common.configuration'|devblocks_translate|capitalize}</div>
+    </div>
 
     <div style="padding:0 1em;column-width:350px;column-count:2;">
     {foreach from=$config_options item=config_option}
@@ -54,7 +56,7 @@
         </div>
     {/foreach}
     </div>
-</fieldset>
+</div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
@@ -65,8 +67,11 @@ $(function() {
 {/if}
 
 {if $rows}
-<fieldset class="peek">
-    <legend>{{'common.resources'|devblocks_translate|capitalize}}</legend>
-    {include file="devblocks:cerberusweb.core::ui/sheets/render.tpl"}
-</fieldset>
+<div class="cerb-ui-panel cerb-ui-panel--spaced cerb-u-mt-4">
+    <div class="cerb-ui-header cerb-ui-header--tight">
+        <div class="cerb-ui-header--title-sm">{'common.resources'|devblocks_translate|capitalize}</div>
+    </div>
+
+    {include file="devblocks:cerberusweb.core::ui/sheets/render.tpl" layout=$layout columns=$columns rows=$rows}
+</div>
 {/if}

@@ -14,26 +14,19 @@
                 <b>{if $config_option.params.label}{$config_option.params.label}{else}{$config_option.key}:{/if}</b>
             </div>
             {if 'chooser' == $config_option.type}
-                <button type="button" data-cerb-chooser data-field-name="config_values[{$config_option.key}]{if $config_option.params.multiple}[]{/if}" data-context="{$config_option.params.record_type}" data-query="{$config_option.params.record_query}" {if !$config_option.params.multiple}data-single="true"{/if}><span class="cerb-icons cerb-icon-search"></span></button>
-                <ul class="bubbles chooser-container" style="display:inline-block;">
+                <div class="cerb-ui-record-chooser cerb-config-chooser" data-context="{$config_option.params.record_type}" data-name="config_values[{$config_option.key}]" data-query="{$config_option.params.record_query}"{if $config_option.params.multiple} data-multiple="true"{/if}>
                     {if $config_option.params.multiple}
                         {if is_array($config_option.value)}
                             {foreach from=$config_option.value item=v}
-                                <li>
-                                    {$config_option.params.record_labels[$v]|default:$v}
-                                    <input type="hidden" name="config_values[{$config_option.key}][]" value="{$v}">
-                                </li>
+                            <li data-context="{$config_option.params.record_type}" data-context-id="{$v}" data-label="{$config_option.params.record_labels[$v]|default:$v}"></li>
                             {/foreach}
                         {/if}
                     {else}
                         {if $config_option.value}
-                        <li>
-                            {$config_option.params.record_label|default:$config_option.value}
-                            <input type="hidden" name="config_values[{$config_option.key}]{if $config_option.params.multiple}[]{/if}" value="{$config_option.value}">
-                        </li>
+                        <li data-context="{$config_option.params.record_type}" data-context-id="{$config_option.value}" data-label="{$config_option.params.record_label|default:$config_option.value}"></li>
                         {/if}
                     {/if}
-                </ul>
+                </div>
             {elseif 'picklist' == $config_option.type}
                 {if $config_option.params.multiple}
                     {foreach from=$config_option.params.options item=option}
@@ -69,7 +62,15 @@
 $(function() {
     let $script = $('#{$script_id}');
     let $fieldset = $script.prev('fieldset');
-    $fieldset.find('[data-cerb-chooser]').cerbChooserTrigger();
+    if(window.CerbUI && CerbUI.RecordChooser)
+        $fieldset.find('.cerb-config-chooser').each(function() {
+            new CerbUI.RecordChooser(this, {
+                context: this.getAttribute('data-context'),
+                name: this.getAttribute('data-name'),
+                multiple: this.hasAttribute('data-multiple'),
+                query: this.getAttribute('data-query') || ''
+            });
+        });
 });
 </script>
 {/if}

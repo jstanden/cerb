@@ -8,20 +8,25 @@
     <input type="hidden" name="id" value="{$model->id}">
     <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-    <h1>Workflow Builder Schema: (KATA)</h1>
-
-    <div class="cerb-code-editor-toolbar">
-        <button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-magic title="{'common.autocomplete'|devblocks_translate|capitalize} (Ctrl+Space)"><span class="cerb-icons cerb-icon-autocomplete"></span></button>
+    <div class="cerb-ui-header">
+        <div>
+            <div class="cerb-ui-header--title">Workflow Builder Schema: (KATA)</div>
+        </div>
     </div>
 
-    <textarea name="workflow_builder_kata" data-editor-mode="ace/mode/cerb_kata" rows="5" cols="45">{$model->builder_kata}</textarea>
+    {* Integrated editor toolbar: a single "suggest" (autocomplete) button merged into the KataEditor's strip. *}
+    <ul class="cerb-ui-toolbar" data-cerb-editor-toolbar hidden>
+        <li data-value="suggest" data-icon="autocomplete" title="{'common.autocomplete'|devblocks_translate|capitalize} (Ctrl/⌘+Space)"></li>
+    </ul>
+
+    <textarea name="workflow_builder_kata" data-editor-lines="25" spellcheck="false">{$model->builder_kata}</textarea>
     <br>
 
     <button type="button" class="submit"><span class="cerb-icons cerb-icon-play"></span> {'common.build'|devblocks_translate|capitalize}</button>
 
     <div class="status" style="margin-top:10px;display:none;">
         <h2>Workflow KATA</h2>
-        <textarea class="cerb-workflow-builder-results" data-editor-mode="ace/mode/cerb_kata" rows="5" cols="45"></textarea>
+        <textarea class="cerb-workflow-builder-results" data-editor-lines="25" spellcheck="false"></textarea>
     </div>
 </form>
 
@@ -38,59 +43,52 @@ $(function() {
     $popup.one('popup_open', function () {
         $popup.dialog('option', 'title', 'Workflow Builder');
 
-        var $editor_results =
-            $frm.find('.cerb-workflow-builder-results')
-                .cerbCodeEditor()
-                .nextAll('pre.ace_editor')
-        ;
+        var editor_results = new CerbUI.KataEditor($frm.find('.cerb-workflow-builder-results')[0], { readOnly: true, minLines: 15 });
 
-        var $editor = $frm.find('textarea[name=workflow_builder_kata]')
-            .cerbCodeEditor()
-            .cerbCodeEditorAutocompleteKata({
-                autocomplete_suggestions: {
-                    '': [
-                        'export:'
-                    ],
-                    'export:': [
-                        'label_map:',
-                        'records:',
-                        'workflow:',
-                    ],
-                    'export:workflow:': [
-                        'description:',
-                        'instructions:',
-                        'name:',
-                        'requirements:',
-                        'version:',
-                        'website:',
-                    ],
-                    'export:records:': [
-                        'record_type/record_key:',
-                    ],
-                    'export:label_map:': [
-                        'record_type_and_id: record_key',
-                    ],
-                    '*': {
-                        'export:records:(.*?):': [
-                            'query: id:[1,2,3]',
-                            'include_children@bool: yes',
-                        ]
-                    }
+        var editor = new CerbUI.KataEditor($frm.find('textarea[name=workflow_builder_kata]')[0], {
+            minLines: 15,
+            onAutocomplete: CerbUI.KataEditor.kataFieldSource({
+                '': [
+                    'export:'
+                ],
+                'export:': [
+                    'label_map:',
+                    'records:',
+                    'workflow:',
+                ],
+                'export:workflow:': [
+                    'description:',
+                    'instructions:',
+                    'name:',
+                    'requirements:',
+                    'version:',
+                    'website:',
+                ],
+                'export:records:': [
+                    'record_type/record_key:',
+                ],
+                'export:label_map:': [
+                    'record_type_and_id: record_key',
+                ],
+                '*': {
+                    'export:records:(.*?):': [
+                        'query: id:[1,2,3]',
+                        'include_children@bool: yes',
+                    ]
                 }
-            })
-            .nextAll('pre.ace_editor')
-        ;
-
-        let editor = ace.edit($editor.attr('id'));
-
-        $frm.find('[data-cerb-editor-button-magic]').on('click', function (e) {
-            editor.commands.byName.startAutocomplete.exec(editor);
+            }),
+            toolbar: {
+                sections: [ $frm.find('[data-cerb-editor-toolbar]')[0] ],
+                onAction: function(value, ed) {
+                    if(value === 'suggest') { ed.openAutocomplete(); return true; }
+                    return false;
+                }
+            }
         });
 
         $button
             .click(function (e) {
                 e.stopPropagation();
-                var editor_results = ace.edit($editor_results.attr('id'));
 
                 Devblocks.clearAlerts();
 
