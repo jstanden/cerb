@@ -1,64 +1,68 @@
-<fieldset class="peek black">
-	<legend>Built-in URL</legend>
-	
-	<div style="margin-left:20px;">
-		<p>
-			The easiest way to access your portal is to use the built-in URL:
-			<br>
-			<a href="{$url}" target="_blank" rel="noopener">{$url}</a>
-		</p>
-		
-		<p>
-			Keep in mind that this discloses the location of your Cerb installation to portal users. 
-			This may not be an issue if this portal is intended for internal use.
-		</p>
-		
-		<p>
-			For production use, we recommend using the Cerb Cloud or Nginx deployment options.
-		</p>
+<style nonce="{DevblocksPlatform::getRequestNonce()}">
+	.cerb-portal-deploy-code { font-family: monospace; }
+</style>
+
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">Built-in URL</div>
 	</div>
-</fieldset>
 
-<fieldset class="peek black">
-	<legend>Cerb Cloud</legend>
-	
-	<div style="margin-left:20px;">
-		<p>
-			We can handle everything for you, including SSL, a content delivery network, and a personalized domain name (<tt>support.example.com</tt>).
-		</p>
-		
-		<p>
-			<a href="https://cerb.ai/try/" target="_blank" rel="noopener">https://cerb.ai/try/</a>
-		</p>
-	</div>
-</fieldset>
-
-<fieldset class="peek black">
-	<legend>Nginx</legend>
-
-	<div style="margin-left:20px;">
-		<p>
-			We recommend that you use Nginx as a reverse proxy when you want to host this portal yourself on a personalized domain name.
-		</p>
-		
-		<p>
-			See: <a href="https://cerb.ai/guides/portals/nginx-proxy/" target="_blank" rel="noopener">Host community portals using Nginx</a>
-		</p>
-	</div>
-</fieldset>
-
-<fieldset class="peek black">
-	<legend>Pure PHP reverse proxy script</legend>
-	
-	<div style="margin-left:20px;">
-		<p>
-			As a last resort, you can also host the portal on any PHP-enabled webserver with this script:
-		</p>
+	<p>
+		The easiest way to access your portal is to use the built-in URL:
 		<br>
-		
-		<b><tt>index.php</tt></b>:
-		<div>
-			<textarea rows="20" cols="80" style="width:98%;margin:10px;font-family:Courier;">&lt;?php
+		<a href="{$url}" target="_blank" rel="noopener">{$url}</a>
+	</p>
+
+	<p>
+		Keep in mind that this discloses the location of your Cerb installation to portal users.
+		This may not be an issue if this portal is intended for internal use.
+	</p>
+
+	<p>
+		For production use, we recommend using the Cerb Cloud or Nginx deployment options.
+	</p>
+</div>
+
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">Cerb Cloud</div>
+	</div>
+
+	<p>
+		We can handle everything for you, including SSL, a content delivery network, and a personalized domain name (<code>support.example.com</code>).
+	</p>
+
+	<p>
+		<a href="https://cerb.ai/try/" target="_blank" rel="noopener">https://cerb.ai/try/</a>
+	</p>
+</div>
+
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">Nginx</div>
+	</div>
+
+	<p>
+		We recommend that you use Nginx as a reverse proxy when you want to host this portal yourself on a personalized domain name.
+	</p>
+
+	<p>
+		See: <a href="https://cerb.ai/guides/portals/nginx-proxy/" target="_blank" rel="noopener">Host community portals using Nginx</a>
+	</p>
+</div>
+
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">Pure PHP reverse proxy script</div>
+	</div>
+
+	<p>
+		As a last resort, you can also host the portal on any PHP-enabled webserver with this script:
+	</p>
+
+	<div class="cerb-u-bold cerb-u-mb-2"><code>index.php</code></div>
+	<div>
+		<textarea rows="20" cols="80" class="cerb-portal-deploy-code cerb-u-w-100">&lt;?php
 define('REMOTE_PROTOCOL', '{if $is_ssl}https{else}http{/if}');
 define('REMOTE_HOST', '{$host}');
 define('REMOTE_PORT', '{if !empty($port) && 80!=$port}{$port}{else}80{/if}');
@@ -445,15 +449,15 @@ class DevblocksRouter {
 $router = new DevblocksRouter();
 $router->connect();
 {/literal}</textarea>
-		</div>
-	
-		<b><tt>.htaccess</tt></b>:
-		<div>
-			<p>
-				With Apache and mod_rewrite, use this .htaccess file to enable friendly URLs:
-			</p>
-			
-			<textarea rows="10" cols="80" style="width:98%;margin:10px;font-family:Courier;">{literal}
+	</div>
+
+	<div class="cerb-u-bold cerb-u-mb-2 cerb-u-mt-3"><code>.htaccess</code></div>
+	<div>
+		<p>
+			With Apache and mod_rewrite, use this .htaccess file to enable friendly URLs:
+		</p>
+
+		<textarea rows="10" cols="80" class="cerb-portal-deploy-code cerb-u-w-100">{literal}
 &lt;IfModule mod_rewrite.c&gt;
 RewriteEngine on
 
@@ -462,6 +466,5 @@ RewriteCond %{REQUEST_FILENAME}	   !-d
 
 RewriteRule . index.php [L]
 &lt;/IfModule&gt;{/literal}</textarea>
-		</div>
 	</div>
-</fieldset>
+</div>
