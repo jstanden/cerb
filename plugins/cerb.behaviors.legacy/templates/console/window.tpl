@@ -24,7 +24,7 @@ $(function() {
 		$popup.dialog('option','title', "{$bot_name|escape:'javascript' nofilter}");
 		
 		{if $bot_image_url}
-		$popup.closest('.ui-dialog').find('.ui-dialog-title')
+		$popup.closest('.cerb-ui-dialog').find('.cerb-ui-dialog--title')
 			.prepend(
 				$('<img/>')
 					.addClass('cerb-avatar')
@@ -36,26 +36,18 @@ $(function() {
 			;
 		{/if}
 		
-		$popup.closest('.ui-dialog').find('.ui-dialog-titlebar-close')
+		$popup.closest('.cerb-ui-dialog').find('.cerb-ui-dialog--btn[aria-label="Close"]')
 			.attr('tabindex', '-1')
 			;
 		
-		var $window = $popup.closest('div.ui-dialog');
 		var $chat_window_convo = $popup.find('div.bot-chat-window-convo');
 		var $chat_window_input_form = $('#{$layer} form.bot-chat-window-input-form');
 		var $chat_message = $chat_window_input_form.find('textarea[name=message]');
 		
 		// Responsive scaling
 		
-		$window.css('position', 'fixed');
-		
 		if($(window).height() <= 500) {
 			$chat_window_convo.css('height', ($(window).height() - 100) + 'px');
-		}
-		
-		if($(window).width() <= 600) {
-			$window.css('width', ($(window).width()) + 'px');
-			$window.position({ my: "middle bottom", at: "middle bottom", of: $(window) });
 		}
 		
 		// Message queue

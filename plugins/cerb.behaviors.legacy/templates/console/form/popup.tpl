@@ -9,7 +9,7 @@ $(function() {
         $popup.dialog('option','title', "{$bot_name|escape:'javascript' nofilter}");
 
         {if $bot_image_url}
-        $popup.closest('.ui-dialog').find('.ui-dialog-title')
+        $popup.closest('.cerb-ui-dialog').find('.cerb-ui-dialog--title')
             .prepend(
                 $('<img/>')
                     .addClass('cerb-avatar')
@@ -21,7 +21,7 @@ $(function() {
         ;
         {/if}
 
-        $popup.closest('.ui-dialog').find('.ui-dialog-titlebar-close')
+        $popup.closest('.cerb-ui-dialog').find('.cerb-ui-dialog--btn[aria-label="Close"]')
             .attr('tabindex', '-1')
         ;
     });

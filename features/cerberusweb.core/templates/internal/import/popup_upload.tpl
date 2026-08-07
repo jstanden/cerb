@@ -153,10 +153,5 @@ $(function() {
 			}
 		});
 	});
-	
-	$popup.one('dialogclose', function(event) {
-		event.stopPropagation();
-		genericAjaxPopupDestroy('{$layer}');
-	});
 });
 </script>

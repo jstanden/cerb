@@ -3260,11 +3260,7 @@ var ajax = new cAjaxCalls();
 					e.stopPropagation();
 				});
 				
-				$peek.closest('.ui-dialog').find('.ui-dialog-titlebar-close').on('click', function(e) {
-					$trigger.trigger('cerb-peek-aborted');
-				});
-
-				$peek.on('dialogclose', function() {
+				$peek.on('popup_close', function() {
 					$trigger.trigger('cerb-peek-closed');
 				});
 			});
@@ -3332,7 +3328,7 @@ var ajax = new cAjaxCalls();
 				
 				$trigger.trigger('cerb-search-opened');
 				
-				$peek.on('dialogclose', function(e) {
+				$peek.on('popup_close', function(e) {
 					$trigger.trigger('cerb-search-closed');
 				});
 			});

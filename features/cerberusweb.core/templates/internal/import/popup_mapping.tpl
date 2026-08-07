@@ -160,11 +160,5 @@ $(function() {
 			genericAjaxPopupDestroy('{$layer}');
 		});
 	});
-	
-	$popup.one('dialogclose', function(event) {
-		event.stopPropagation();
-		genericAjaxPopupDestroy('{$layer}');
-	});
-	
 });
 </script>

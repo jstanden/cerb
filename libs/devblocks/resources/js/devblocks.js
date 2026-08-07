@@ -906,7 +906,7 @@ function DevblocksClass() {
 						;
 						
 						// Body snatch
-						
+
 						var $new_popup = genericAjaxPopup(layer, popup_url, 'reuse', false);
 						$new_popup.focus();
 					}
@@ -1213,89 +1213,6 @@ function appendTextboxAsCsv(formName, field, oLink) {
 	txt.value = txt.value + sAppend;
 }
 
-$(document).keydown(function(e) {
-	var keycode = e.which || e.keyCode;
-	
-	if(27 === keycode) {
-		e.stopPropagation();
-		e.preventDefault();
-		
-		let dialogs = $(document).data('uiDialogInstances');
-		
-		if(!Array.isArray(dialogs))
-			return;
-		
-		if(0 === dialogs.length)
-			return;
-
-		if(dialogs[0].element.is('[cerb-popup-confirm]')) {
-			dialogs[0].element.dialog('close');
-			return;
-		}
-		
-		// If the top popup has inputs
-		if(dialogs[0].element.find('input:text,input:password,input:checkbox,input:radio,textarea').length > 0 
-			// But isn't a search popup
-			&& !dialogs[0].element.is('[id^=popupsearch],[id^=popuplinks_]')) {
-			confirmPopup(
-				'Discard changes',
-				'Are you sure you want to close this popup without saving?',
-				function () {
-					let popup = genericAjaxPopupFind(this.element);
-					
-					if(popup) {
-						genericAjaxPopupClose(popup, 'peek_aborted');
-					}
-				}.bind(dialogs[0])
-			);
-		} else {
-			let popup = genericAjaxPopupFind(dialogs[0].element);
-			genericAjaxPopupClose(popup, 'peek_aborted');
-		}
-	}
-});
-
-function confirmPopup(title, content, callbackOk, callbackCancel) {
-	if(null == title)
-		title = 'Confirm';
-	
-	if(null == content)
-		content = 'Are you sure?';
-	
-	if('function' !== typeof callbackOk)
-		callbackOk = function() {};
-	
-	if('function' !== typeof callbackCancel)
-		callbackCancel = function() {};
-	
-	$('<div/>')
-		.attr('cerb-popup-confirm', true)
-		.dialog({
-			open: function() {
-				let $dialog = $(this).closest('.ui-dialog');
-				$dialog.find('.ui-dialog-titlebar-close').hide();
-				$dialog.find('.ui-dialog-buttonpane').css('border', '0');
-			},
-			buttons: {
-				"Ok": function() {
-					callbackOk();
-					$(this).dialog('close');
-				},
-				"Cancel": function() {
-					callbackCancel();
-					$(this).dialog('close');
-				}
-			},
-			close: function(e, ui) {
-				$(this).remove();
-			},
-			closeOnEscape: false,
-			resizable: false,
-			title: title,
-			modal: true
-		}).text(content)
-	;
-}
 // The modal "Loading, please wait…" overlay — now backed by the singleton CerbUI.Dialog.Loading factory (the
 // jQuery-UI panel is retired). Both names + their no-arg call sites are preserved; show() takes an optional message.
 function showLoadingPanel(message) {
@@ -1308,6 +1225,52 @@ function hideLoadingPanel() {
 		CerbUI.Dialog.Loading.hide();
 }
 
+// CerbUI.Dialog pass-through shim for $.fn.dialog (transitional — Step 7 of the jQuery-UI -> Cerb UI migration).
+// Popups opened via genericAjaxPopup() are backed by CerbUI.Dialog, not jQuery-UI. This defines $.fn.dialog so the
+// legacy .dialog(...) calls those popups' templates still make (mostly .dialog('option','title',X) inside popup_open,
+// plus the genericAjaxPopupClose/Destroy helpers) route to the CerbUI instance. jQuery-UI has been removed, so this
+// IS the only $.fn.dialog now — every app popup is CerbUI. CerbUI loads after us and is resolved at call time, so the
+// load order is fine. (The captured _origDialog is undefined now that jQuery-UI is gone; the fallthrough is guarded.)
+(function() {
+	if(typeof $ === 'undefined' || !$.fn)
+		return;
+
+	let _origDialog = $.fn.dialog;
+
+	$.fn.dialog = function() {
+		let inst = (this[0] && window.CerbUI && CerbUI.Dialog) ? CerbUI.Dialog.from(this[0]) : null;
+
+		if(inst) {
+			let op = arguments[0], key = arguments[1], val = arguments[2];
+
+			if('option' === op && 'title' === key) {
+				inst.setTitle(val);
+			} else if('option' === op && 'close' === key && false === val) {
+				inst.opts.closable = false; // peek_error / merge_error: keep the popup from closing
+			} else if('close' === op) {
+				// Legacy programmatic closes (genericAjaxPopupClose, e.g. after a successful save) never prompted —
+				// only the Esc handler did. Clear the dirty flag so the close doesn't trip CerbUI's discard guard.
+				inst.markClean();
+				inst._programmaticClose = true; // code-driven close -> onClose suppresses its own peek_aborted
+				inst.close();
+			} else if('destroy' === op) {
+				inst.destroy();
+			} else if('open' === op) {
+				inst.open();
+			} else if('isOpen' === op) {
+				return inst.isOpen();
+			}
+			// resizable / minHeight / closeOnEscape and other legacy options -> harmless no-ops on CerbUI
+			return this;
+		}
+
+		// No CerbUI dialog backs this element. jQuery-UI is no longer bundled (every app popup is CerbUI), so there's
+		// nothing to fall through to; call the original only on the off chance some plugin still provides it.
+		if(typeof _origDialog === 'function')
+			return _origDialog.apply(this, arguments);
+		return this;
+	};
+})();
 
 function genericAjaxPopupFind($sel) {
 	var $devblocksPopups = $('#devblocksPopups');
@@ -1382,202 +1345,124 @@ function genericAjaxPopupRegister($layer, $popup) {
 	$('#devblocksPopups').data($layer, $popup);
 }
 
+// Opens an AJAX popup backed by CerbUI.Dialog (the jQuery-UI popup body has been removed). Same signature, same
+// return ($popup), same legacy event/registry contract. The $.fn.dialog shim above lets each popup's existing
+// template (popup_open -> .dialog('option','title',X), .dialog('close'), and the genericAjaxPopupFind/Close/Destroy
+// helpers) work unchanged against the CerbUI instance.
 function genericAjaxPopup($layer,request,target,modal,width,cb) {
-	// Default options
-	var options = {
-		title: "Loading...",
-		autoOpen : false,
-		closeOnEscape : false,
-		draggable : true,
-		modal : false,
-		resizable : true,
-		height: "auto",
-		width : Math.max(Math.floor($(window).width()/2), 500) + 'px', // Larger of 50% of browser width or 500px
-		dragStop: function(event, ui) {
-			var $popup = $(this);
-			var $dialog = $popup.closest('div.ui-dialog');
-			$popup.css('height', 'auto');
-			$dialog.css('height', 'auto');
-		},
-		resizeStop: function(event, ui) {
-			var $popup = $(this);
-			var $dialog = $popup.closest('div.ui-dialog');
-			$popup.css('height', 'auto');
-			$dialog.css('height', 'auto');
-		},
-		close: function(event) {
-			var $popup = $(this);
-			
-			if('object' == typeof event && event.currentTarget) {
-				if($(event.currentTarget).is('.ui-dialog-titlebar-close')) {
-					$popup.triggerHandler($.Event('peek_aborted'));
-				}
-			}
-			
-			$popup.triggerHandler($.Event('popup_close'));
-			$('#devblocksPopups').removeData($layer);
-			$popup.unbind().find(':focus').blur();
-			$popup.closest('.ui-dialog').remove();
-		}
-	};
-	
-	var $popup = null;
-	var $listener_holder = $('<div/>');
+	// Reuse: re-open in the same screen position as the current dialog for this layer (callers re-bind their own
+	// listeners via popup_open, so we only need to carry the position across — not jQuery-UI's manual listener copy).
+	var reuse_position = null;
 
-	// Restore position from previous dialog?
 	if(target === 'reuse') {
-		$popup = genericAjaxPopupFetch($layer);
-		if(null != $popup) {
-			try {
-				var offset = $popup.closest('div.ui-dialog').offset();
-				var left = offset.left - $(document).scrollLeft();
-				var top = offset.top - $(document).scrollTop();
-				options.position = { 
-					my: 'left top',
-					at: 'left+' + left + ' top+' + top 
-				};
-			} catch(e) { }
-			
-		} else {
-			options.position = {
-				my: "center top",
-				at: "center top+35"
-			};
+		var $prev = genericAjaxPopupFetch($layer);
+		var prev_inst = (null != $prev && $prev.length && window.CerbUI && CerbUI.Dialog) ? CerbUI.Dialog.from($prev[0]) : null;
+		if(prev_inst && prev_inst.el) {
+			var left = parseInt(prev_inst.el.style.left, 10);
+			var top = parseInt(prev_inst.el.style.top, 10);
+			if(!isNaN(left) && !isNaN(top))
+				reuse_position = { x: left, y: top };
 		}
 		target = null;
-
-		if(undefined !== $popup) {
-			var old_listeners = $._data($popup[0], 'events');
-
-			if (old_listeners)
-				$.each(old_listeners, function () {
-					$.each(this, function () {
-						var parent_event = this;
-						$listener_holder.each(function () {
-							$(this).bind(parent_event.type, parent_event.handler);
-						})
-					});
-				});
-		}
-		
-	} else if(target && typeof target == "object" && null != target.my && null != target.at) {
-		options.position = {
-			my: target.my,
-			at: target.at
-		};
-		
-	} else {
-		options.position = {
-			my: "center top",
-			at: "center top+35"
-		};
 	}
-	
-	// Reset (if exists)
+
+	// Reset (if exists) — closes + tears down any prior dialog for this layer (fires its popup_close).
 	genericAjaxPopupDestroy($layer);
-	
-	if(undefined != width && null != width) {
-		if(typeof width == 'string' && width.substr(-1) == '%') {
-			width = Math.floor($(window).width() * parseInt(width)/100);
-		}
-		
+
+	// Width: an explicit '<n>%' (and the no-width default of 80%) is passed through as a string so CerbUI keeps it
+	// relative and reflows it on viewport resize; an explicit number stays fixed px (legacy clamp: min 500, capped at
+	// viewport-30). The default is also capped at 1400px so it doesn't sprawl on ultrawide monitors.
+	var opt_width;
+	var opt_width_cap = null;
+
+	if(typeof width == 'string' && width.substr(-1) == '%') {
+		opt_width = width; // explicit % — relative, uncapped (the caller's choice)
+
+	} else if(undefined == width || null == width) {
+		opt_width = '80%'; // default — relative (mobile is 95%), capped below
+		opt_width_cap = 1400;
+
+	} else {
+		width = parseInt(width, 10); // explicit px — fixed
+
 		if(width < 500)
 			width = 500;
-		
+
 		if(width > window.innerWidth)
 			width = window.innerWidth - 30;
-		
-		options.width = width + 'px';
+
+		opt_width = width;
 	}
-	
-	if(null != modal)
-		options.modal = modal;
-	
-	$popup = $("#popup"+$layer);
+
+	// Position: reuse > element anchor > default (center, near top — CerbUI's default, matching legacy "center top+35").
+	var opt_position = reuse_position;
+
+	if(null == opt_position && null != target && !(typeof target == 'object' && null != target.my)) {
+		// An element (or jQuery) anchor. Legacy pinned the popup's bottom-right to the anchor's top-left; we
+		// approximate by placing the popup's top-left near the anchor (refined per-caller during the sweep).
+		var $anchor = (target instanceof jQuery) ? target : $(target);
+		if($anchor.length) {
+			var rect = $anchor[0].getBoundingClientRect();
+			opt_position = { x: Math.round(rect.left + window.scrollX), y: Math.round(rect.bottom + window.scrollY) };
+		}
+	}
+
+	// Build (or reuse) the content element — same #popup{layer}.devblocks-popup that the helpers resolve against.
+	var $popup = $("#popup"+$layer);
 
 	if(0 === $popup.length) {
 		$popup = $('<div/>')
 			.attr('id', 'popup' + $layer)
 			.addClass('devblocks-popup')
-			.hide()
 			.appendTo($('body'))
 			;
 	}
 
+	$popup.attr('data-layer', $layer);
+
 	// Persist
 	genericAjaxPopupRegister($layer, $popup);
 
-	// Target
-	if(null != target && null == target.at) {
-		options.position = {
-			my: "right bottom",
-			at: "left top",
-			of: target
-		};
-	}
+	// Search / links popups never warn on close (matches the legacy global Esc-handler exclusion).
+	var warn_unsaved = !/^popup(search|links_)/.test($popup.attr('id'));
 
-	// Render
-	$popup.dialog(options);
+	var dlg = new CerbUI.Dialog($popup[0], {
+		title: "Loading...",
+		modal: (null != modal) ? modal : false,
+		width: opt_width,
+		widthCap: opt_width_cap, // caps the relative default at 1400px (null for explicit % / fixed px)
+		autoHeight: true, // match the legacy resizeStop: an n/s drag refits height to content, keeping the new width
+		position: opt_position,
+		namespace: $layer,
+		closeWarnOnUnsavedChanges: warn_unsaved,
+		onClose: function() {
+			// Legacy event contract: peek_aborted only on a user-initiated close (x / Esc); the programmatic path
+			// (genericAjaxPopupClose/Destroy via the shim) already fired any event it wanted and flags itself.
+			var programmatic = dlg._programmaticClose;
+			dlg._programmaticClose = false;
 
-	// Layer
-	$popup.attr('data-layer', $layer);
+			if(!programmatic)
+				$popup.triggerHandler($.Event('peek_aborted'));
 
-	// Listeners
-	var copy_listeners = $._data($listener_holder[0], 'events');
+			$popup.triggerHandler($.Event('popup_close'));
+			$('#devblocksPopups').removeData($layer);
+		}
+	});
 
-	if(copy_listeners)
-		$.each(copy_listeners, function() {
-			$.each(this, function() {
-				var parent_event = this;
-				$popup.each(function() {
-					$(this).bind(parent_event.type, parent_event.handler);
-				})
-			});
-		});
+	// Tear the DOM down once closed (CerbUI unwraps + restores the content element; drop the leftover #popup div so
+	// re-opening this layer builds fresh — matching legacy's remove-on-close).
+	$popup[0].addEventListener('cerb-ui-dialog:close', function() {
+		dlg.destroy();
+		$popup.remove();
+	}, { once: true });
 
-	// Show a spinner
-	var $spinner = $('<a href="#" style="outline:none;"/>').append(Devblocks.getSpinner());
-	$popup.append($spinner);
+	// Show a spinner while loading (CerbUI's own; replaces the hand-rolled Devblocks.getSpinner append).
+	var $loading = $('<div class="cerb-ui-dialog--loading"/>');
+	if(window.CerbUI && CerbUI.Spinner)
+		$loading.append(CerbUI.Spinner.create(dlg.opts.spinner));
+	$popup.append($loading);
 
-	// Open
-	$popup.dialog('open');
-
-	// Popup min/max functionality
-	var $titlebar = $popup.closest('.ui-dialog')
-		.find('.ui-dialog-titlebar')
-	;
-
-	var $button_minmax = $("<button/>")
-		.addClass('ui-dialog-titlebar-minmax')
-		.button({
-			text: false,
-			icons: { primary: 'ui-icon-caret-1-n' }
-		})
-		.on('click', function() {
-			var $this = $(this);
-			var $dialog = $popup.closest('.ui-dialog');
-
-			if($popup.is(':hidden')) {
-				$dialog.css('position', $dialog.attr('data-position'));
-				$this.button('option', 'icons', { primary: 'ui-icon-caret-1-n' } );
-				$popup.dialog( "option", "position", { my: "center top", at: "center top+35", of: window } );
-				$popup.show();
-			} else {
-				$popup.hide();
-				$dialog.attr('data-position', $dialog.css('position'));
-				$dialog.css('position', 'fixed');
-				$popup.dialog( "option", "position", { my: "center top", at: "center top", of: window } );
-				$this.button('option', 'icons', { primary: 'ui-icon-caret-1-s' } );
-			}
-		})
-	;
-
-	$titlebar
-		.append($button_minmax)
-	;
-
-	if(null == options.position)
-		$popup.dialog('option', 'position', { my: 'center top', at: 'center top+20px', of: window } );
+	dlg.open();
 
 	var callback = function(html) {
 		// Handle response errors
@@ -1585,12 +1470,21 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 			genericAjaxPopupClose($popup);
 
 		} else {
-			$popup.closest('.ui-dialog').focus();
-			
-			// Set the content
+			// Set the content — jQuery .html() runs the response's <script nonce> under the page CSP.
 			$popup.html(html);
 
-			// Trigger event
+			// Convention: a top-level element of the fetched content may declare the dialog title via
+			// data-cerb-dialog-title — read it here so templates don't need a popup_open .dialog('option','title',…)
+			// call (and can drop the escape:'javascript' nofilter JS-string dance; an HTML attribute auto-escapes).
+			// setTitle() assigns via textContent (cerb-ui/dialog.js), so this is XSS-safe.
+			var $titled = $popup.children('[data-cerb-dialog-title]').first();
+			if($titled.length)
+				dlg.setTitle($titled.attr('data-cerb-dialog-title'));
+
+			// The response grew the dialog — re-pin its top + lengthen the page to reach it.
+			dlg.reflow();
+
+			// Trigger event (deferred so inline scripts in the loaded partial see the DOM).
 			setTimeout(function() {
 				$popup.trigger('popup_open');
 			},0);
@@ -1599,16 +1493,16 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 			try { cb(html); } catch(e) { }
 		}
 	};
-	
+
 	let hookError = function() {
 		genericAjaxPopupClose($popup);
 	}
 
 	if(null == request) {
-		
+
 	} else if('function' == typeof request) {
 		request();
-		
+
 	} else if(request instanceof FormData) {
 		request.set('layer', $layer);
 		genericAjaxPost(request, '', null, callback, {

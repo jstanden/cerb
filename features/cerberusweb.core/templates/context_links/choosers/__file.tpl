@@ -151,10 +151,5 @@ $(function() {
 		event.stopPropagation();
 		$popup.dialog('option','title','File Chooser');
 	});
-	
-	$popup.one('dialogclose', function(event) {
-		event.stopPropagation();
-		genericAjaxPopupDestroy('{$layer}');
-	});
 });
 </script>
