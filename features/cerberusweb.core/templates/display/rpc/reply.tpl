@@ -4,6 +4,7 @@
 
 <div class="reply_frame {if "inline" == $reply_format}block{/if}" style="margin:10px;">
 
+<div id="replyAgentMount{$message->id}" style="--cerb-agent-pane-height:72vh;">
 <form id="reply{$message->id}_form" method="post">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
@@ -313,6 +314,7 @@
 	<button type="button" class="cerb-ui-button cerb-ui-button--subtle discard"><span class="cerb-icons cerb-icon-trash"></span> {'display.ui.discard'|devblocks_translate|capitalize}</button>
 </div>
 </form>
+</div>{* #replyAgentMount — AgentPane wraps this in popup mode *}
 
 </div>
 
@@ -1415,6 +1417,72 @@ $(function() {
 			} catch(e) { }
 			{/foreach}
 		});
+		{/if}
+
+		{* Agent pane — a collapsible chat astride the WHOLE reply form so an interaction can drive the UI, not
+		   just the body. Popup mode only for now; built here (end of init) so the runCommand closure has `ed` +
+		   the form widgets. Two commands: getFields (all fields in one round-trip) + setField (one field by key).
+		   Empty toolbar → the pane hides its toggle. *}
+		{if !$reply_format}
+		if(window.CerbUI && CerbUI.AgentPane) {
+			let $replyDialogPopup = genericAjaxPopupFind($reply);
+			new CerbUI.AgentPane(document.getElementById('replyAgentMount{$message->id}'), {
+				component: 'mail_reply',
+				capabilities: 'getFields,setField',
+				mutatingCommands: 'setField',   // writes the reply fields → guard against accidental navigation loss
+				toolbarHtml: {$agent_toolbar_html_json|default:'""' nofilter},
+				storageKey: 'cerb-mail-reply-agent-chat',
+				fit: true, // popup: keep the form's natural height; just add a sidebar
+				// Put the toggle on the right of the editor's toolbar strip (falls back to an auto strip if absent).
+				toggleInto: (ed._editorToolbar && ed._editorToolbar.el) ? ed._editorToolbar.el : null,
+
+				onToggle: function(collapsed) {
+					// Widen the reply dialog to make room for the chat; restore on close.
+					let dlg = (CerbUI.Dialog && $replyDialogPopup.length) ? CerbUI.Dialog.from($replyDialogPopup[0]) : null;
+					if(!dlg) return;
+					dlg._widthPct = collapsed ? 70 : 95;
+					dlg.w = dlg._computeWidth();
+					dlg.el.style.width = dlg.w + 'px';
+					dlg._positionDefault();
+					CerbUI.Dialog._syncPageHeight();
+				},
+				runCommand: function(name, params) {
+					params = params || {};
+					let fmt = function() { return $frm.find('input[name=format]').val() === 'parsedown' ? 'markdown' : 'plaintext'; };
+					if(name === 'getFields') {
+						return JSON.stringify({
+							to:      $frm.find('input[name=to]').val(),
+							cc:      $frm.find('input[name=cc]').val(),
+							bcc:     $frm.find('input[name=bcc]').val(),
+							subject: $frm.find('input[name=subject]').val(),
+							format:  fmt(),
+							content: ed.getValue()
+						});
+					}
+					if(name === 'setField') {
+						let key = params.key, value = (params.value == null) ? '' : String(params.value);
+						switch(key) {
+							case 'to': case 'cc': case 'bcc': case 'subject':
+								$frm.find('input[name=' + key + ']').val(value);
+								return 'ok';
+							case 'content':
+								ed.setValue(value);
+								return 'ok';
+							case 'format': {
+								// setMode() alone doesn't run the toolbar onMode side-effects — replicate them.
+								let toMd = (value === 'markdown');
+								ed.setMode(toMd ? 'markdown' : 'plaintext');
+								$frm.find('input:hidden[name=format]').val(toMd ? 'parsedown' : '');
+								$frm.find('[data-cerb-reply-html-template]').css('display', toMd ? '' : 'none');
+								return 'ok';
+							}
+						}
+						return 'unknown field: ' + key;
+					}
+					return '';
+				}
+			});
+		}
 		{/if}
 	}
 
