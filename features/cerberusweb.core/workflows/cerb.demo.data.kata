@@ -1,6 +1,6 @@
 workflow:
   name: cerb.demo.data
-  version: 2025-02-21T00:00:00Z
+  version: 2026-08-07T00:00:00Z
   description: Realistic sample data for demonstration, testing, and development
   website: https://https://cerb.ai/workflows/cerb.demo.data/
   requirements:
@@ -933,7 +933,6 @@ records:
             recipients: demo@
           then:
             group: Demo
-      workflow_id: {{workflow_id}}
   ticket/ticket_demo_001:
     fields:
       group_id: {{records.group_demo.id}}
