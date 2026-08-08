@@ -63,6 +63,7 @@ $(function() {
 	});
 	{/if}
 	
+	{if $active_worker}
 	const $menu = $('#menuSignedIn');
 
 	// Bind the peek/search plugins onto the (hidden) source links that onSelect clicks
@@ -133,6 +134,7 @@ $(function() {
 			});
 		})
 	;
+	{/if}
 });
 </script>
 
