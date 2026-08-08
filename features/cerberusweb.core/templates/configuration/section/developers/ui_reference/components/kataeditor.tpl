@@ -69,9 +69,16 @@ ed.onChange((value) => { /* e.g. sync a diff editor */ });
 ed.fold(1);                                     // collapse the subtree under the header at row 1
 ed.unfold(1);                                   // expand it
 ed.toggleFold(1);
-ed.foldAll();                                   // collapse every foldable header
+ed.foldAll();                                   // collapse every foldable header (same as foldToDepth(1))
 ed.unfoldAll();
 ed.isFolded(1);                                 // true if the header at row 1 is collapsed
+ed.foldToDepth(2);                              // collapse to a structural level — 1-based NESTING, not indent
+                                                // width. REPLACES the fold set, so it unfolds shallower levels
+                                                // too and raising n walks the document open a level at a time.
+                                                // On the schema KATA: 1 = one line, 2 = table names,
+                                                // 3 = columns:/indexes:, 4 = field names
+ed.getMaxFoldDepth();                           // deepest level present (0 if nothing folds) — lets a toolbar
+                                                // build a 1..N control without hard-coding a guess
 
 // Keyboard shortcuts (e.g. to render a hint popup):
 ed.getShortcuts();                              // [{id, label, keys:['⌘D', …]}, …]

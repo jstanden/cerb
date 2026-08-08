@@ -474,12 +474,33 @@ CerbUI.KataEditor = class {
 
 	toggleFold(modelRow) { return this.isFolded(modelRow) ? this.unfold(modelRow) : this.fold(modelRow); }
 
-	foldAll() {
+	foldAll() { return this.foldToDepth(1); }
+
+	// Collapse the document to a structural level: every foldable header at `depth` or deeper folds, everything
+	// shallower stays open. `depth` is 1-based NESTING, not indent width, and the fold set is REPLACED — so this
+	// unfolds as well as folds, and walking depth upward opens the document a level at a time.
+	//
+	// Nested ranges inside a folded one are folded too (as foldAll does). Their rows are already hidden by the
+	// outer fold, but keeping them means expanding a header reveals its children still collapsed, rather than
+	// dumping the whole subtree at once.
+	//
+	// For the schema KATA (`tables:` > table > `columns:` > column) that reads:
+	//   1 = the whole document on one line   2 = table names   3 = columns:/indexes:   4 = field names
+	foldToDepth(depth) {
+		depth = Math.max(1, parseInt(depth, 10) || 1);
 		const caretM = this._viewOffsetToModelOffset(this.textarea.value, this.textarea.selectionStart);
-		this._folds = this._foldableRanges().map(r => ({ headerRow: r.headerRow, startRow: r.startRow, endRow: r.endRow }));
+		this._folds = this._foldableRanges()
+			.filter(r => r.depth >= depth)
+			.map(r => ({ headerRow: r.headerRow, startRow: r.startRow, endRow: r.endRow }));
 		this._folds.sort((a, b) => a.startRow - b.startRow);
 		this._rebuildProjection(caretM);
 		return this;
+	}
+
+	// Deepest nesting level present, so a caller can build a 1..N control without hard-coding a guess.
+	// 0 when nothing is foldable (an empty doc, all leaves, or opts.folding false).
+	getMaxFoldDepth() {
+		return this._foldableRanges().reduce((max, r) => Math.max(max, r.depth), 0);
 	}
 
 	unfoldAll() {
@@ -1952,6 +1973,10 @@ CerbUI.KataEditor = class {
 		const lines = this._modelLines();
 		const KEY = /^(\s*)(&?[\w.-]+)(\/[^\s:@]+)?((?:@[A-Za-z0-9_]+)(?:,[A-Za-z0-9_]+)*)?:/;
 		const out = [];
+		// `depth` is 1-based NESTING (not indent width): a stack of open endRows, popped as they close. Derived
+		// from containment rather than character indent so it survives any indent style. Ranges are discovered in
+		// document order and are properly nested by construction, so a stack is exact and O(n).
+		const open = [];
 		for(let r = 0; r < lines.length; r++) {
 			const m = lines[r].match(KEY);
 			if(!m) continue;
@@ -1963,7 +1988,11 @@ CerbUI.KataEditor = class {
 				if(lines[k].length - t.length > headerIndent) end = k; else break;
 			}
 			while(end > r && lines[end].trim().length === 0) end--;        // don't fold trailing blank lines
-			if(end > r) out.push({ headerRow: r, startRow: r, endRow: end });
+			if(end > r) {
+				while(open.length && open[open.length - 1] < r) open.pop();
+				out.push({ headerRow: r, startRow: r, endRow: end, depth: open.length + 1 });
+				open.push(end);
+			}
 		}
 		return out;
 	}
