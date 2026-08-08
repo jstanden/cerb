@@ -286,16 +286,27 @@ class _DevblocksDatabaseManager {
 			
 			$table_output['columns'] = array_map(
 				function($column) {
-					$column['collation'] = strval($column['collation']);
-					$column['default'] = strval($column['default']);
-					$column['nullable'] = strval($column['null']) == 'NO' ? 'NOT NULL' : 'NULL';
-					
-					// Normalize ints by removing length (MySQL 8+)
-					if(DevblocksPlatform::strStartsWith($column['type'], ['tinyint(','smallint(','int(','mediumint(','bigint('])) {
-						$column['type'] = preg_replace('#\(\d+\)#', '', $column['type']);
+					// `nullable` replaces the raw `null` in place; the schema reference orders keys
+					// field, type, collation, nullable, key, default, extra
+					$output = [];
+
+					foreach($column as $column_key => $column_value) {
+						if('null' == $column_key) {
+							$output['nullable'] = strval($column_value) == 'NO' ? 'NOT NULL' : 'NULL';
+						} else {
+							$output[$column_key] = $column_value;
+						}
 					}
-					
-					return $column;
+
+					$output['collation'] = strval($output['collation'] ?? '');
+					$output['default'] = strval($output['default'] ?? '');
+
+					// Normalize ints by removing length (MySQL 8+)
+					if(DevblocksPlatform::strStartsWith($output['type'] ?? '', ['tinyint(','smallint(','int(','mediumint(','bigint('])) {
+						$output['type'] = preg_replace('#\(\d+\)#', '', $output['type']);
+					}
+
+					return $output;
 				},
 				$table_data[0]
 			);
