@@ -52,30 +52,6 @@ if(!isset($tables['llm_agent_message'])) {
 }
 
 // ===========================================================================
-// Update package library
-
-$packages = [
-	'cerb_connected_service_airtable.json',
-	'cerb_connected_service_bluesky.json',
-	'cerb_connected_service_buttondown.json',
-	'cerb_connected_service_elevenlabs.json',
-	'cerb_connected_service_exa.json',
-	'cerb_connected_service_gemini.json',
-	'cerb_connected_service_groq.json',
-	'cerb_connected_service_linkup.json',
-	'cerb_connected_service_notion.json',
-	'cerb_connected_service_openweather.json',
-	'cerb_connected_service_pinecone.json',
-	'cerb_connected_service_sambanova.json',
-	'cerb_connected_service_stripe.json',
-	'cerb_connected_service_tavily.json',
-	'cerb_connected_service_telegram.json',
-	'cerb_connected_service_togetherai.json',
-];
-
-CerberusApplication::packages()->importToLibraryFromFiles($packages, APP_PATH . '/features/cerberusweb.core/packages/library/');
-
-// ===========================================================================
 // Convert saved search profile page 'Query' widgets from HTML/JS to sheet
 
 $db->ExecuteMaster(

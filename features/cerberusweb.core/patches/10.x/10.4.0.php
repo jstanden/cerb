@@ -211,22 +211,6 @@ if(!array_key_exists('cache_until', $columns)) {
 $db->ExecuteMaster("DELETE FROM package_library WHERE uri = 'cerb_workspace_widget_chart_categories'");
 $db->ExecuteMaster("DELETE FROM package_library WHERE uri = 'cerb_workspace_widget_chart_time_series'");
 
-$packages = [
-	'card_widget/cerb_card_widget_gpg_public_key_subkeys.json',
-	'cerb_connected_service_huggingface.json',
-	'cerb_connected_service_openai.json',
-	'cerb_connected_service_smartsheet.json',
-	'cerb_connected_service_stabilityai.json',
-	'cerb_profile_tab_ticket_overview.json',
-	'cerb_profile_widget_ticket_owner.json',
-	'cerb_profile_widget_ticket_status.json',
-	'cerb_workspace_page_home.json',
-	'cerb_workspace_widget_chart.json',
-	'cerb_workspace_widget_worklist.json',
-];
-
-CerberusApplication::packages()->importToLibraryFromFiles($packages, APP_PATH . '/features/cerberusweb.core/packages/library/');
-
 $db->ExecuteMaster("DELETE FROM package_library WHERE uri = 'cerb_connected_service_twitter'");
 
 // ===========================================================================

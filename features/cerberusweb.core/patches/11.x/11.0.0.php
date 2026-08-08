@@ -198,38 +198,6 @@ $db->ExecuteWriter("DELETE FROM worker_pref WHERE setting IN ('assist_mode')");
 $db->ExecuteMaster("DELETE FROM package_library WHERE uri = 'cerb_workspace_widget_chart_categories'");
 $db->ExecuteMaster("DELETE FROM package_library WHERE uri = 'cerb_workspace_widget_chart_time_series'");
 
-$packages = [
-	'card_widget/cerb_card_widget_gpg_public_key_subkeys.json',
-	'cerb_connected_service_airtable.json',
-	'cerb_connected_service_bluesky.json',
-	'cerb_connected_service_buttondown.json',
-	'cerb_connected_service_anthropic.json',
-	'cerb_connected_service_deepl.json',
-	'cerb_connected_service_elevenlabs.json',
-	'cerb_connected_service_exa.json',
-	'cerb_connected_service_groq.json',
-	'cerb_connected_service_ipstack.json',
-	'cerb_connected_service_linkup.json',
-	'cerb_connected_service_notion.json',
-	'cerb_connected_service_openweather.json',
-	'cerb_connected_service_pinecone.json',
-	'cerb_connected_service_sambanova.json',
-	'cerb_connected_service_slack.json',
-	'cerb_connected_service_stripe.json',
-	'cerb_connected_service_tavily.json',
-	'cerb_connected_service_telegram.json',
-	'cerb_connected_service_togetherai.json',
-	'cerb_profile_tab_ticket_overview.json',
-	'cerb_profile_widget_ticket_status.json',
-	'cerb_profile_widget_ticket_participants.json',
-	'cerb_project_board_kanban.json',
-	'cerb_workspace_page_home.json',
-	'cerb_workspace_widget_chart.json',
-	'cerb_workspace_widget_worklist.json',
-];
-
-CerberusApplication::packages()->importToLibraryFromFiles($packages, APP_PATH . '/features/cerberusweb.core/packages/library/');
-
 $db->ExecuteWriter("DELETE FROM package_library WHERE uri IN ('cerb_connected_service_nest')");
 
 // ===========================================================================

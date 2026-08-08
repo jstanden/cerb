@@ -782,18 +782,6 @@ $db->ExecuteMaster("DELETE FROM package_library WHERE uri = 'cerb_bot_behavior_a
 $db->ExecuteMaster("DELETE FROM package_library WHERE uri = 'cerb_profile_widget_ticket_draft_interaction'");
 $db->ExecuteMaster("DELETE FROM package_library WHERE uri = 'cerb_bot_behavior_action_ui_execute_jquery_script'");
 
-$packages = [
-	'card_widget/cerb_card_widget_address_compose.json',
-	'card_widget/cerb_card_widget_contact_compose.json',
-	'card_widget/cerb_card_widget_org_compose.json',
-	'cerb_profile_widget_ticket_participants.json',
-	'cerb_project_board_kanban.json',
-	'cerb_workspace_widget_map_usa.json',
-	'cerb_workspace_widget_map_world.json',
-];
-
-CerberusApplication::packages()->importToLibraryFromFiles($packages, APP_PATH . '/features/cerberusweb.core/packages/library/');
-
 // ===========================================================================
 // Finish up
 

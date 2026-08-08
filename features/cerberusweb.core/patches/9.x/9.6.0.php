@@ -3,27 +3,6 @@ $db = DevblocksPlatform::services()->database();
 $tables = $db->metaTables();
 
 // ===========================================================================
-// Update package library
-
-$packages = [
-	'cerb_bot_behavior_auto_reply.json',
-	'cerb_profile_widget_ticket_participants.json',
-	'cerb_project_board_kanban.json',
-	'cerb_workspace_page_reports.json',
-	'cerb_workspace_tab_dashboard_with_filters.json',
-	'cerb_workspace_widget_chart_sheet.json',
-	'card_widget/cerb_card_widget_address_compose.json',
-	'card_widget/cerb_card_widget_contact_compose.json',
-	'card_widget/cerb_card_widget_org_compose.json',
-	'card_widget/cerb_card_widget_gpg_public_key_ascii.json',
-	'card_widget/cerb_card_widget_gpg_public_key_subkeys.json',
-	'card_widget/cerb_card_widget_gpg_public_key_uids.json',
-	'card_widget/cerb_card_widget_snippet_content.json',
-];
-
-CerberusApplication::packages()->importToLibraryFromFiles($packages, APP_PATH . '/features/cerberusweb.core/packages/library/');
-
-// ===========================================================================
 // Convert `custom_field_stringvalue.field_value` to utf8mb4
 
 if(!isset($tables['custom_field_stringvalue']))

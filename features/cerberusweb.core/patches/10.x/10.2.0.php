@@ -683,17 +683,6 @@ if($changes) {
 }
 
 // ===========================================================================
-// Update package library
-
-$packages = [
-	'cerb_profile_tab_ticket_overview.json',
-	'cerb_profile_widget_ticket_owner.json',
-	'cerb_profile_widget_ticket_status.json',
-];
-
-CerberusApplication::packages()->importToLibraryFromFiles($packages, APP_PATH . '/features/cerberusweb.core/packages/library/');
-
-// ===========================================================================
 // Fix light/dark styles in widgets
 
 // Opp

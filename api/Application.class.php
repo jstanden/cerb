@@ -592,21 +592,7 @@ class CerberusApplication extends DevblocksApplication {
 	
 	static function initBundledResources($force=false) {
 		// Load packages
-		if($force || 0 == DAO_PackageLibrary::count()) {
-			$dir = new RecursiveDirectoryIterator(realpath(APP_PATH . '/features/cerberusweb.core/packages/library/'));
-			$iter = new RecursiveIteratorIterator($dir);
-			$regex = new RegexIterator($iter, '/^.+\.json/i', RecursiveRegexIterator::GET_MATCH);
-			
-			foreach($regex as $class_file => $o) {
-				if(is_null($o))
-					continue;
-				
-				if(false == ($package_json = file_get_contents($class_file)))
-					continue;
-				
-				CerberusApplication::packages()->importToLibraryFromString($package_json);
-			}
-		}
+		CerberusApplication::packages()->importToLibraryFromPath(APP_PATH . '/features/cerberusweb.core/packages/library/');
 		
 		// Load automations
 		if($force || 0 == DAO_Automation::count()) {
@@ -8250,14 +8236,37 @@ class _CerbApplication_Packages {
 		}
 	}
 	
-	function importToLibraryFromFiles(array $package_files, $package_basepath=null) {
+	// Sync the bundled library from disk, re-importing only the packages whose file contents changed.
+	// SHA2() on the stored `package_json` matches PHP hash(), so the comparison needs no extra column.
+	function importToLibraryFromPath($package_basepath=null) {
+		$db = DevblocksPlatform::services()->database();
+
 		if(is_null($package_basepath))
 			$package_basepath = APP_PATH . '/features/cerberusweb.core/packages/library/';
-		
-		foreach($package_files as $package_file) {
-			if(false == ($package_json = file_get_contents($package_basepath . $package_file)))
+
+		if(false === ($package_realpath = realpath($package_basepath)))
+			return;
+
+		$hashes = array_column(
+			$db->GetArrayMaster("SELECT uri, SHA2(package_json, 256) AS hash FROM package_library"),
+			'hash',
+			'uri'
+		);
+
+		$dir = new RecursiveDirectoryIterator($package_realpath);
+		$iter = new RecursiveIteratorIterator($dir);
+		$regex = new RegexIterator($iter, '/^.+\.json/i', RecursiveRegexIterator::GET_MATCH);
+
+		foreach($regex as $package_file => $o) {
+			if(false == ($package_json = file_get_contents($package_file)))
 				continue;
-			
+
+			if(!($package_uri = @json_decode($package_json, true)['package']['library']['uri'] ?? ''))
+				continue;
+
+			if(($hashes[$package_uri] ?? null) === hash('sha256', $package_json))
+				continue;
+
 			$this->importToLibraryFromString($package_json);
 		}
 	}

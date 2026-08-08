@@ -5,14 +5,6 @@ $tables = $db->metaTables();
 // ===========================================================================
 // Update package library
 
-$packages = [
-	'cerb_connected_service_google.json',
-	'cerb_profile_widget_ticket_participants.json',
-	'cerb_workspace_widget_chart_sheet.json',
-];
-
-CerberusApplication::packages()->importToLibraryFromFiles($packages, APP_PATH . '/features/cerberusweb.core/packages/library/');
-
 $sql = sprintf('DELETE FROM package_library WHERE uri = %s', $db->qstr('cerb_workspace_widget_chart_table'));
 $db->ExecuteMaster($sql);
 

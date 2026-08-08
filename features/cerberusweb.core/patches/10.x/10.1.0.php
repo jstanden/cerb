@@ -221,16 +221,6 @@ foreach($automation_files as $automation_file) {
 }
 
 // ===========================================================================
-// Update package library
-
-$packages = [
-	'cerb_profile_widget_ticket_participants.json',
-	'cerb_workspace_widget_chart_sheet.json',
-];
-
-CerberusApplication::packages()->importToLibraryFromFiles($packages, APP_PATH . '/features/cerberusweb.core/packages/library/');
-
-// ===========================================================================
 // Finish up
 
 return TRUE;
