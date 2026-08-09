@@ -41,7 +41,7 @@
 		"ext-simplexml": "*",
 		"ext-yaml": "*",
 		"ext-zip": "*",
-		"smarty/smarty" : "v4.5.6",
+		"smarty/smarty" : "v4.5.7",
 		"symfony/mailer": "v8.0.12",
 		"lcobucci/jwt": "5.6.0",
 		"lcobucci/clock": "3.5.0",
