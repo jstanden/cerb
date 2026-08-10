@@ -2585,7 +2585,16 @@ abstract class C4_AbstractView {
 					}
 					break;
 			}
-			
+
+			// Parameterized metric filters (usage:/activity:/records:): open the (...) group and offer
+			// in-parens sub-keys built from the worklist's series map (each series + its aggregate
+			// functions, plus since:/until:), instead of dumping naive value-form examples.
+			if(($metric_map = $this->getQuickSearchMetricFilterMap($query_field_key))) {
+				$suggestion = ['caption' => $suggestion_key, 'snippet' => $suggestion_key . '(${1})'];
+				$suggestions[$suggestion_key . '()'] = DAO_MetricValue::getMetricFilterSubkeySuggestions($metric_map);
+				unset($suggestions[$suggestion_key]); // drop the flat value-form bucket
+			}
+
 			// Tag the field-list row with a type icon/color (rendered by CerbUI.SearchQuery; older
 			// consumers ignore these keys). Deep-search/relationship virtuals (sender:, org:, links:…)
 			// report a generic 'virtual' type, so show them the context/relationship icon instead.
