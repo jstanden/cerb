@@ -796,27 +796,83 @@ class Controller_UI extends DevblocksControllerExtension {
 	}
 	
 	private function _uiAction_markdownPreview() {
-        if('POST' != DevblocksPlatform::getHttpMethod())
-            DevblocksPlatform::dieWithHttpError(null, 405);
-        
-        $tpl = DevblocksPlatform::services()->template();
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		$tpl = DevblocksPlatform::services()->template();
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$is_dark_mode = DAO_WorkerPref::get($active_worker->id, 'dark_mode', 0);
-
-        $content = DevblocksPlatform::importGPC($_POST['content'] ?? null, 'string','');
-        
-        $output = DevblocksPlatform::parseMarkdown($content);
-        
-        $filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
-        $output = DevblocksPlatform::purifyHTML($output, true, true, [$filter]);
-
-        $tpl->assign('is_inline', true);
-        $tpl->assign('css_class', $is_dark_mode ? 'emailBodyHtml' : 'emailBodyHtmlLight');
-        $tpl->assign('content', $output);
-        $tpl->display('devblocks:cerberusweb.core::internal/editors/preview_popup.tpl');
-    }
-    
+		
+		$content = DevblocksPlatform::importGPC($_POST['content'] ?? null, 'string','');
+		
+		// `inline` (default 1) embeds the fragment; `inline=0` runs the popup title script (a real Dialog title)
+		$is_inline = DevblocksPlatform::importGPC($_POST['inline'] ?? null, 'integer', 1) ? true : false;
+		
+		// Optional handling of a leading YAML frontmatter block (--- ... ---):
+		//   keep (default) | ignore (strip it) | code (render as a ```yaml block) | table (key/value table)
+		$frontmatter_mode = DevblocksPlatform::importGPC($_POST['frontmatter'] ?? null, 'string', 'keep');
+		$prefix_html = '';
+		
+		if('keep' != $frontmatter_mode && preg_match('/^---\r?\n(.*?)\r?\n---[ \t]*(?:\r?\n|$)/s', $content, $m)) {
+			$frontmatter = $m[1];
+			$content = substr($content, strlen($m[0]));
+			
+			if('ignore' == $frontmatter_mode) {
+				// strip it — render only the body
+			} else if('table' == $frontmatter_mode && '' !== ($prefix_html = self::_renderFrontmatterTable($frontmatter))) {
+				// rendered as a key/value table into $prefix_html
+			} else {
+				// code (or a table that failed to parse) — fold the raw YAML into a fenced code block
+				$content = "```yaml\n" . $frontmatter . "\n```\n\n" . $content;
+			}
+		}
+		
+		$output = DevblocksPlatform::parseMarkdown($content);
+		
+		$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
+		$output = DevblocksPlatform::purifyHTML($output, true, true, [$filter]);
+		
+		if('' !== $prefix_html)
+			$output = $prefix_html . $output;
+		
+		$tpl->assign('is_inline', $is_inline);
+		$tpl->assign('css_class', $is_dark_mode ? 'emailBodyHtml' : 'emailBodyHtmlLight');
+		$tpl->assign('content', $output);
+		$tpl->display('devblocks:cerberusweb.core::internal/editors/preview_popup.tpl');
+	}
+	
+	private static function _renderFrontmatterTable($yaml) : string {
+		$error = null;
+		$data = DevblocksPlatform::services()->string()->yamlParse($yaml, 0, $error);
+		
+		if(!is_array($data) || !$data)
+			return '';
+		
+		$rows = '';
+		
+		foreach($data as $k => $v) {
+			if(is_bool($v))
+				$v = $v ? 'true' : 'false';
+			else if(is_array($v))
+				$v = implode(', ', array_map(fn($x) => is_scalar($x) ? strval($x) : json_encode($x), $v));
+			else if(is_null($v))
+				$v = '';
+			else if(!is_scalar($v))
+				$v = json_encode($v);
+			
+			$rows .= sprintf('<tr><th style="text-align:left;vertical-align:top;padding:2px 12px 2px 0;white-space:nowrap;opacity:0.7;">%s</th><td style="padding:2px 0;">%s</td></tr>',
+				htmlspecialchars(strval($k), ENT_QUOTES),
+				nl2br(htmlspecialchars(strval($v), ENT_QUOTES))
+			);
+		}
+		
+		if('' === $rows)
+			return '';
+		
+		return '<table style="margin:0 0 1em 0;border-collapse:collapse;font-size:0.9em;">' . $rows . '</table>';
+	}
+	
 	private function _uiAction_queryFieldSuggestions() {
 		$of = DevblocksPlatform::importGPC($_REQUEST['of'] ?? null, 'string', '');
 		@$types = DevblocksPlatform::parseCsvString(DevblocksPlatform::importGPC($_REQUEST['types'], 'string', ''));
