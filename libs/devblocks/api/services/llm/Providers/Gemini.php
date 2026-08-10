@@ -54,6 +54,11 @@ class Gemini extends OpenAI {
 		return $base_url . '/embeddings';
 	}
 
+	// Gemini's base url already ends in the OpenAI-compatible prefix (/v1beta/openai)
+	function getChatModelsEndpointUrl(string $base_url) : string {
+		return $base_url . '/models';
+	}
+
 	function getChatModels() : array {
 		return [
 			'gemini-3-pro-preview',
@@ -66,6 +71,17 @@ class Gemini extends OpenAI {
 		];
 	}
 
+	// Gemini models are multimodal with large (~1M-token) windows. Powers the agent model editor's "default
+	// on select" (vision + context window) when a model is picked from the live list.
+	function getModelDefaults(string $model) : array {
+		if(!str_starts_with($model, 'gemini-'))
+			return [];
+
+		return [
+			'vision' => true,
+			'context_window' => 1000000,
+		];
+	}
 
 	// Hosted Gemini implicit caching is automatic with a short reuse window (no author-set TTL) → a soft 5m ring
 	// hint. A self-hosted / proxied endpoint (`api_endpoint_url`) has no wall-clock TTL we can predict, so no
@@ -75,6 +91,22 @@ class Gemini extends OpenAI {
 			return null;
 
 		return 300;
+	}
+
+	// The OpenAI-compatible `/models` list mixes in embeddings and media models (embedding-*, imagen-*, veo-*)
+	// with no type field, so filter by id the same way OpenAI does -- keep the `gemini-*` chat models, drop
+	// the rest. Best-effort: a free-text model string still works if something is misclassified.
+	protected function _parseChatModelsResponse(array $response_json) : array {
+		$models = parent::_parseChatModelsResponse($response_json);
+
+		$non_chat = ['embedding', 'imagen', 'veo', 'aqa'];
+
+		return array_values(array_filter($models, function($id) use ($non_chat) {
+			foreach($non_chat as $needle)
+				if(str_contains($id, $needle))
+					return false;
+			return true;
+		}));
 	}
 
 	function getChatKataAutocomplete() : array {

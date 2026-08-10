@@ -340,6 +340,17 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 		];
 	}
 
+	// The gpt-5.x family is multimodal with a 400K-token window. Powers the agent model editor's "default on
+	// select" (vision + context window) when a model is picked from the live list.
+	function getModelDefaults(string $model) : array {
+		if(!str_starts_with($model, 'gpt-'))
+			return [];
+
+		return [
+			'vision' => true,
+			'context_window' => 400000,
+		];
+	}
 
 	// The HOSTED OpenAI API auto-caches with a documented ~5-minute reuse window → a soft 5m ring hint. A
 	// self-hosted OpenAI-compatible endpoint (llama.cpp / vLLM / unsloth via `api_endpoint_url`) also caches —
@@ -350,6 +361,29 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 			return null;
 
 		return 300;
+	}
+
+	// `/v1/models` returns every model this key can see -- embeddings, tts, transcription, image, moderation
+	// -- with NO type field to tell them apart, so the only signal is the id. Drop the known non-chat families
+	// (best-effort: a mis-classified id just means a free-text model string still works). A local
+	// OpenAI-compatible endpoint keys off this same override, so its non-chat models are filtered too.
+	protected function _parseChatModelsResponse(array $response_json) : array {
+		$models = parent::_parseChatModelsResponse($response_json);
+
+		$non_chat = [
+			'text-embedding-', 'text-similarity-', 'text-search-', 'code-search-', // embeddings
+			'tts-', 'whisper-', 'gpt-4o-transcribe', 'gpt-4o-mini-transcribe', 'gpt-audio', // audio
+			'dall-e-', 'gpt-image-', 'sora', // image / video
+			'text-moderation-', 'omni-moderation-', // moderation
+			'davinci', 'curie', 'babbage', 'ada', // legacy completions/embeddings
+		];
+
+		return array_values(array_filter($models, function($id) use ($non_chat) {
+			foreach($non_chat as $needle)
+				if(str_contains($id, $needle))
+					return false;
+			return true;
+		}));
 	}
 
 	function getChatKataAutocomplete() : array {

@@ -303,6 +303,144 @@ abstract class Extension_DevblocksLlmProvider {
 	function getIconColor() : string {
 		return '';
 	}
+
+	// Per-model display/capability defaults (e.g. ['vision' => true, 'context_window' => 1000000]) used
+	// when the agentPrompt catalog omits them. Base returns none; providers may override for their models.
+	function getModelDefaults(string $model) : array {
+		return [];
+	}
+
+
+	/**
+	 * The endpoint that lists this provider's available chat models. Mirrors
+	 * OpenAI::getChatCompletionEndpointUrl() -- most providers are OpenAI-compatible, including the local
+	 * servers (llama.cpp, LM Studio, vLLM) that make a LIVE list far more useful than any list we ship.
+	 */
+	function getChatModelsEndpointUrl(string $base_url) : string {
+		return $base_url . '/v1/models';
+	}
+
+	// Extra headers the model endpoint needs beyond authentication (Anthropic's anthropic-version).
+	protected function _getChatModelsRequestHeaders() : array {
+		return [];
+	}
+
+	// OpenAI's `{data: [{id: ...}]}` -- which Anthropic's /v1/models also returns. Providers with another
+	// shape (Ollama's `{models: [{name: ...}]}`) override this.
+	protected function _parseChatModelsResponse(array $response_json) : array {
+		return array_values(array_filter(array_map(
+			fn($row) => strval($row['id'] ?? ''),
+			$response_json['data'] ?? []
+		)));
+	}
+
+	/**
+	 * Ask the provider which chat models this key can actually use, rather than guessing from a list we
+	 * hardcoded. That's the only way to know for a self-hosted OpenAI-compatible endpoint (llama.cpp, LM
+	 * Studio, vLLM, Ollama), where the model ids are whatever the operator loaded.
+	 *
+	 * The same seam as testConnection(): base class, so no interface changes and no provider is required to
+	 * participate. A provider whose endpoint doesn't exist just returns null with the error, and callers
+	 * fall back to getChatModels().
+	 *
+	 * @return ?string[] Model ids, or null with $error set
+	 */
+	function fetchChatModels(?string &$error=null) : ?array {
+		if(!($this instanceof \Cerb\LLM\Providers\Interfaces\Chat)) {
+			$error = 'This provider does not support chat completions.';
+			return null;
+		}
+
+		if(!($base_url = rtrim(strval($this->getParam('api_endpoint_url')), '/'))) {
+			$error = 'This provider has no API endpoint configured.';
+			return null;
+		}
+
+		$http = DevblocksPlatform::services()->http();
+
+		$request = new Request('GET', $this->getChatModelsEndpointUrl($base_url), $this->_getChatModelsRequestHeaders());
+		$request_options = ['http_errors' => false];
+
+		if($authentication_uri = $this->getParam('authentication', null)) {
+			if(!$this->_authenticateRequest($authentication_uri, $request, $request_options, $error))
+				return null;
+		}
+
+		if(false === ($response = $http->sendRequest($request, $request_options, $error)))
+			return null;
+
+		if(200 != ($status_code = $response->getStatusCode())) {
+			$error = sprintf('The provider returned HTTP %d when listing models.', $status_code);
+			return null;
+		}
+
+		if(false === ($response_json = $http->getResponseAsJson($response, $error)))
+			return null;
+
+		if(!is_array($response_json)) {
+			$error = 'The provider returned an unexpected model list.';
+			return null;
+		}
+
+		$models = $this->_parseChatModelsResponse($response_json);
+
+		sort($models, SORT_NATURAL | SORT_FLAG_CASE);
+
+		return $models;
+	}
+
+	/**
+	 * Verify this provider instance's credentials + model with the smallest real call there is: one
+	 * unrecorded chat turn. Powers the agent model editor's "Test" button, where the alternative is
+	 * discovering a bad key hours later inside an automation.
+	 *
+	 * Lives on the base class rather than the Chat interface on purpose -- adding an interface method would
+	 * break third-party providers that implement it. A provider needing a different probe (a region/ARN
+	 * handshake, an embedding-only provider) overrides this.
+	 *
+	 * @return ?array ['reply' => string, 'usage' => array, 'elapsed_ms' => int], or null with $error set
+	 */
+	function testConnection(?string &$error=null) : ?array {
+		if(!($this instanceof \Cerb\LLM\Providers\Interfaces\Chat)) {
+			$error = 'This provider does not support chat completions.';
+			return null;
+		}
+
+		$started_at = microtime(true);
+
+		try {
+			$response = $this->chatCompletion(
+				[
+					[
+						'role' => 'user',
+						'content' => 'Reply with the single word: OK',
+					]
+				],
+				'',
+				[],
+				new \Cerb\LLM\MemoryStore\NoHistory()
+			);
+
+		} catch(Throwable $e) {
+			// Two shapes land here: Exception_DevblocksAutomationError from the constructor (missing
+			// authentication:/model:) and Exception_DevblocksLlmApiError carrying the provider's own text
+			// (invalid_api_key, model_not_found, a 404 from a bad api_endpoint_url). Both are the answer.
+			$error = $e->getMessage();
+			return null;
+		}
+
+		$reply = '';
+
+		foreach($response->getMessages() as $block)
+			$reply .= strval($block['content'] ?? '');
+
+		return [
+			'reply' => trim($reply),
+			'usage' => $response->getUsage(),
+			'elapsed_ms' => intval(round((microtime(true) - $started_at) * 1000)),
+		];
+	}
+
 	// Does the configured model accept image input? Mirrors AgentPromptAwait::_buildModelEntry: explicit
 	// `vision@bool` param → provider getModelDefaults() → false. The params bag rides on the provider instance
 	// (constructed from provider_params), so a primed session resolves this directly off its provider.

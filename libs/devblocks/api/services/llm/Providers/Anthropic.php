@@ -454,12 +454,36 @@ class Anthropic extends Extension_DevblocksLlmProvider implements Chat {
 		return max(1024, min($budget, $ceiling));
 	}
 
+	// Anthropic's /v1/models returns OpenAI's `{data:[{id}]}` shape, so only the version header differs.
+	protected function _getChatModelsRequestHeaders() : array {
+		return ['anthropic-version' => '2023-06-01'];
+	}
+
 	function getChatModels() : array {
 		return [
 			'claude-opus-4-8',
 			'claude-sonnet-5',
 			'claude-haiku-4-5-20251001',
 			'claude-fable-5',
+		];
+	}
+
+	// Every current Claude model is multimodal; only the context window varies by tier. Powers the agent
+	// model editor's "default on select" (vision + context window) when a model is picked from the live list.
+	function getModelDefaults(string $model) : array {
+		if(!str_starts_with($model, 'claude-'))
+			return [];
+
+		$windows = [
+			'claude-fable-5' => 1000000,
+			'claude-opus-5' => 1000000,
+			'claude-sonnet-5' => 200000,
+			'claude-haiku-4-5-20251001' => 200000,
+		];
+
+		return [
+			'vision' => true,
+			'context_window' => $windows[$model] ?? 200000,
 		];
 	}
 

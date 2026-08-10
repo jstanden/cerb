@@ -237,6 +237,19 @@ class Ollama extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 		$memory->appendMessage($tool_message);
 	}
 
+	// Ollama lists what's actually PULLED locally -- its own API, not the OpenAI-compatible one, since
+	// `/api/tags` is the endpoint that exists on every version.
+	function getChatModelsEndpointUrl(string $base_url) : string {
+		return $base_url . '/api/tags';
+	}
+
+	protected function _parseChatModelsResponse(array $response_json) : array {
+		return array_values(array_filter(array_map(
+			fn($row) => strval($row['name'] ?? ''),
+			$response_json['models'] ?? []
+		)));
+	}
+
 	function getChatModels() : array {
 		return [
 			'llama3.2',
