@@ -186,6 +186,554 @@ tables:
             index_type: BTREE
             subpart@text:
             unique@text:
+  agent:
+    columns:
+      created_at:
+        field: created_at
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      model_router_id:
+        field: model_router_id
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key: MUL
+        default: 0
+        extra@text:
+      updated_at:
+        field: updated_at
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      worker_id:
+        field: worker_id
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key: PRI
+        default@text:
+        extra@text:
+    indexes:
+      PRIMARY:
+        columns:
+          worker_id:
+            column_name: worker_id
+            index_type: BTREE
+            subpart@text:
+            unique: 1
+      model_router_id:
+        columns:
+          model_router_id:
+            column_name: model_router_id
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+  agent_file:
+    columns:
+      content:
+        field: content
+        type: mediumtext
+        collation: utf8mb4_unicode_ci
+        nullable: NULL
+        key@text:
+        default@text:
+        extra@text:
+      created_at:
+        field: created_at
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      file_extension:
+        field: file_extension
+        type: varchar(32)
+        collation: utf8mb4_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
+      filesystem_id:
+        field: filesystem_id
+        type: bigint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key: MUL
+        default: 0
+        extra@text:
+      frontmatter_json:
+        field: frontmatter_json
+        type: text
+        collation: utf8mb4_unicode_ci
+        nullable: NULL
+        key@text:
+        default@text:
+        extra@text:
+      id:
+        field: id
+        type: bigint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key: PRI
+        default@text:
+        extra: auto_increment
+      import_uuid:
+        field: import_uuid
+        type: varchar(36)
+        collation: utf8mb4_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
+      name:
+        field: name
+        type: varchar(1024)
+        collation: utf8mb4_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
+      sha1:
+        field: sha1
+        type: varchar(40)
+        collation: utf8mb4_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
+      size:
+        field: size
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      updated_at:
+        field: updated_at
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key: MUL
+        default: 0
+        extra@text:
+    indexes:
+      PRIMARY:
+        columns:
+          id:
+            column_name: id
+            index_type: BTREE
+            subpart@text:
+            unique: 1
+      filesystem_file_extension:
+        columns:
+          filesystem_id:
+            column_name: filesystem_id
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+          file_extension:
+            column_name: file_extension
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+      filesystem_import_uuid:
+        columns:
+          filesystem_id:
+            column_name: filesystem_id
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+          import_uuid:
+            column_name: import_uuid
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+      filesystem_path:
+        columns:
+          filesystem_id:
+            column_name: filesystem_id
+            index_type: BTREE
+            subpart@text:
+            unique: 1
+          name:
+            column_name: name
+            index_type: BTREE
+            subpart: 700
+            unique: 1
+      updated_at:
+        columns:
+          updated_at:
+            column_name: updated_at
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+  agent_filesystem:
+    columns:
+      created_at:
+        field: created_at
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      description:
+        field: description
+        type: varchar(255)
+        collation: utf8mb4_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
+      file_count:
+        field: file_count
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      id:
+        field: id
+        type: bigint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key: PRI
+        default@text:
+        extra: auto_increment
+      is_disabled:
+        field: is_disabled
+        type: tinyint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      name:
+        field: name
+        type: varchar(255)
+        collation: utf8mb4_unicode_ci
+        nullable: NOT NULL
+        key: UNI
+        default@text:
+        extra@text:
+      total_bytes:
+        field: total_bytes
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      type:
+        field: type
+        type: varchar(64)
+        collation: utf8mb4_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
+      updated_at:
+        field: updated_at
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key: MUL
+        default: 0
+        extra@text:
+    indexes:
+      PRIMARY:
+        columns:
+          id:
+            column_name: id
+            index_type: BTREE
+            subpart@text:
+            unique: 1
+      name:
+        columns:
+          name:
+            column_name: name
+            index_type: BTREE
+            subpart@text:
+            unique: 1
+      updated_at:
+        columns:
+          updated_at:
+            column_name: updated_at
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+  agent_model:
+    columns:
+      api_endpoint_url:
+        field: api_endpoint_url
+        type: varchar(255)
+        collation: utf8mb4_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
+      connected_account_id:
+        field: connected_account_id
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      context_window:
+        field: context_window
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      created_at:
+        field: created_at
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      description:
+        field: description
+        type: varchar(255)
+        collation: utf8mb4_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
+      has_vision:
+        field: has_vision
+        type: tinyint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      icon:
+        field: icon
+        type: varchar(64)
+        collation: utf8mb4_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
+      icon_color:
+        field: icon_color
+        type: varchar(32)
+        collation: utf8mb4_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
+      id:
+        field: id
+        type: bigint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key: PRI
+        default@text:
+        extra: auto_increment
+      is_disabled:
+        field: is_disabled
+        type: tinyint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      label:
+        field: label
+        type: varchar(128)
+        collation: utf8mb4_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
+      model:
+        field: model
+        type: varchar(255)
+        collation: utf8mb4_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
+      name:
+        field: name
+        type: varchar(128)
+        collation: utf8mb4_unicode_ci
+        nullable: NOT NULL
+        key: UNI
+        default@text:
+        extra@text:
+      params_kata:
+        field: params_kata
+        type: text
+        collation: utf8mb4_unicode_ci
+        nullable: NULL
+        key@text:
+        default@text:
+        extra@text:
+      provider:
+        field: provider
+        type: varchar(32)
+        collation: utf8mb4_unicode_ci
+        nullable: NOT NULL
+        key: MUL
+        default@text:
+        extra@text:
+      updated_at:
+        field: updated_at
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key: MUL
+        default: 0
+        extra@text:
+    indexes:
+      PRIMARY:
+        columns:
+          id:
+            column_name: id
+            index_type: BTREE
+            subpart@text:
+            unique: 1
+      name:
+        columns:
+          name:
+            column_name: name
+            index_type: BTREE
+            subpart@text:
+            unique: 1
+      provider:
+        columns:
+          provider:
+            column_name: provider
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+      updated_at:
+        columns:
+          updated_at:
+            column_name: updated_at
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+  agent_model_router:
+    columns:
+      created_at:
+        field: created_at
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      description:
+        field: description
+        type: varchar(255)
+        collation: utf8mb4_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
+      id:
+        field: id
+        type: bigint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key: PRI
+        default@text:
+        extra: auto_increment
+      is_default:
+        field: is_default
+        type: tinyint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key: MUL
+        default: 0
+        extra@text:
+      is_disabled:
+        field: is_disabled
+        type: tinyint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      label:
+        field: label
+        type: varchar(128)
+        collation: utf8mb4_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
+      models_kata:
+        field: models_kata
+        type: text
+        collation: utf8mb4_unicode_ci
+        nullable: NULL
+        key@text:
+        default@text:
+        extra@text:
+      name:
+        field: name
+        type: varchar(128)
+        collation: utf8mb4_unicode_ci
+        nullable: NOT NULL
+        key: UNI
+        default@text:
+        extra@text:
+      updated_at:
+        field: updated_at
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key: MUL
+        default: 0
+        extra@text:
+    indexes:
+      PRIMARY:
+        columns:
+          id:
+            column_name: id
+            index_type: BTREE
+            subpart@text:
+            unique: 1
+      is_default:
+        columns:
+          is_default:
+            column_name: is_default
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+      name:
+        columns:
+          name:
+            column_name: name
+            index_type: BTREE
+            subpart@text:
+            unique: 1
+      updated_at:
+        columns:
+          updated_at:
+            column_name: updated_at
+            index_type: BTREE
+            subpart@text:
+            unique@text:
   attachment:
     columns:
       id:
@@ -490,12 +1038,28 @@ tables:
         key: MUL
         default: 0
         extra@text:
+      extension_id:
+        field: extension_id
+        type: varchar(255)
+        collation: utf8mb3_unicode_ci
+        nullable: NOT NULL
+        key: MUL
+        default@text:
+        extra@text:
       parent_token:
         field: parent_token
         type: varchar(64)
         collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
+        default@text:
+        extra@text:
+      resume_scope:
+        field: resume_scope
+        type: varchar(64)
+        collation: utf8mb3_unicode_ci
+        nullable: NOT NULL
+        key@text:
         default@text:
         extra@text:
       root_token:
@@ -509,6 +1073,14 @@ tables:
       state:
         field: state
         type: varchar(8)
+        collation: utf8mb3_unicode_ci
+        nullable: NOT NULL
+        key: MUL
+        default@text:
+        extra@text:
+      state_await:
+        field: state_await
+        type: varchar(32)
         collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key: MUL
@@ -546,6 +1118,14 @@ tables:
         key: MUL
         default@text:
         extra@text:
+      worker_id:
+        field: worker_id
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key: MUL
+        default: 0
+        extra@text:
     indexes:
       PRIMARY:
         columns:
@@ -561,12 +1141,31 @@ tables:
             index_type: BTREE
             subpart@text:
             unique@text:
+      extension_id:
+        columns:
+          extension_id:
+            column_name: extension_id
+            index_type: BTREE
+            subpart@text:
+            unique@text:
       parent_token:
         columns:
           parent_token:
             column_name: parent_token
             index_type: BTREE
             subpart: 4
+            unique@text:
+      resume_scope:
+        columns:
+          worker_id:
+            column_name: worker_id
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+          resume_scope:
+            column_name: resume_scope
+            index_type: BTREE
+            subpart@text:
             unique@text:
       root_token:
         columns:
@@ -582,6 +1181,13 @@ tables:
             index_type: BTREE
             subpart@text:
             unique@text:
+      state_await:
+        columns:
+          state_await:
+            column_name: state_await
+            index_type: BTREE
+            subpart@text:
+            unique@text:
       updated_at:
         columns:
           updated_at:
@@ -593,6 +1199,13 @@ tables:
         columns:
           uri:
             column_name: uri
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+      worker_id:
+        columns:
+          worker_id:
+            column_name: worker_id
             index_type: BTREE
             subpart@text:
             unique@text:
@@ -1927,6 +2540,14 @@ tables:
         type: text
         collation: utf8mb3_unicode_ci
         nullable: NULL
+        key@text:
+        default@text:
+        extra@text:
+      icon:
+        field: icon
+        type: varchar(64)
+        collation: utf8mb3_unicode_ci
+        nullable: NOT NULL
         key@text:
         default@text:
         extra@text:
@@ -3816,104 +4437,6 @@ tables:
             index_type: BTREE
             subpart@text:
             unique@text:
-  context_bulk_update:
-    columns:
-      actions_json:
-        field: actions_json
-        type: text
-        collation: utf8mb3_unicode_ci
-        nullable: NULL
-        key@text:
-        default@text:
-        extra@text:
-      batch_key:
-        field: batch_key
-        type: varchar(40)
-        collation: utf8mb3_unicode_ci
-        nullable: NOT NULL
-        key: MUL
-        default@text:
-        extra@text:
-      context:
-        field: context
-        type: varchar(128)
-        collation: utf8mb3_unicode_ci
-        nullable: NOT NULL
-        key@text:
-        default@text:
-        extra@text:
-      context_ids:
-        field: context_ids
-        type: text
-        collation: utf8mb3_unicode_ci
-        nullable: NULL
-        key@text:
-        default@text:
-        extra@text:
-      created_at:
-        field: created_at
-        type: int unsigned
-        collation@text:
-        nullable: NOT NULL
-        key@text:
-        default: 0
-        extra@text:
-      id:
-        field: id
-        type: int unsigned
-        collation@text:
-        nullable: NOT NULL
-        key: PRI
-        default@text:
-        extra: auto_increment
-      num_records:
-        field: num_records
-        type: int unsigned
-        collation@text:
-        nullable: NOT NULL
-        key@text:
-        default: 0
-        extra@text:
-      status_id:
-        field: status_id
-        type: tinyint unsigned
-        collation@text:
-        nullable: NOT NULL
-        key@text:
-        default: 0
-        extra@text:
-      view_id:
-        field: view_id
-        type: varchar(128)
-        collation: utf8mb3_unicode_ci
-        nullable: NOT NULL
-        key@text:
-        default@text:
-        extra@text:
-      worker_id:
-        field: worker_id
-        type: int unsigned
-        collation@text:
-        nullable: NOT NULL
-        key@text:
-        default: 0
-        extra@text:
-        references: worker.id
-    indexes:
-      PRIMARY:
-        columns:
-          id:
-            column_name: id
-            index_type: BTREE
-            subpart@text:
-            unique: 1
-      batch_key:
-        columns:
-          batch_key:
-            column_name: batch_key
-            index_type: BTREE
-            subpart: 4
-            unique@text:
   context_link:
     columns:
       from_context:
@@ -5339,7 +5862,6 @@ tables:
             index_type: BTREE
             subpart@text:
             unique@text:
-        references: devblocks_storage_profile.id
   email_signature:
     columns:
       id:
@@ -5641,367 +6163,6 @@ tables:
             index_type: BTREE
             subpart@text:
             unique: 1
-  fulltext_address:
-    columns:
-      content:
-        field: content
-        type: longtext
-        collation: utf8mb3_general_ci
-        nullable: NULL
-        key: MUL
-        default@text:
-        extra@text:
-      id:
-        field: id
-        type: int unsigned
-        collation@text:
-        nullable: NOT NULL
-        key: PRI
-        default: 0
-        extra@text:
-        references: address.id
-    indexes:
-      PRIMARY:
-        columns:
-          id:
-            column_name: id
-            index_type: BTREE
-            subpart@text:
-            unique: 1
-      content:
-        columns:
-          content:
-            column_name: content
-            index_type: FULLTEXT
-            subpart@text:
-            unique@text:
-  fulltext_automation:
-    columns:
-      content:
-        field: content
-        type: longtext
-        collation: utf8mb3_general_ci
-        nullable: NULL
-        key: MUL
-        default@text:
-        extra@text:
-      id:
-        field: id
-        type: int unsigned
-        collation@text:
-        nullable: NOT NULL
-        key: PRI
-        default: 0
-        extra@text:
-        references: automation.id
-    indexes:
-      PRIMARY:
-        columns:
-          id:
-            column_name: id
-            index_type: BTREE
-            subpart@text:
-            unique: 1
-      content:
-        columns:
-          content:
-            column_name: content
-            index_type: FULLTEXT
-            subpart@text:
-            unique@text:
-  fulltext_comment_content:
-    columns:
-      content:
-        field: content
-        type: longtext
-        collation: utf8mb3_general_ci
-        nullable: NULL
-        key: MUL
-        default@text:
-        extra@text:
-      context_crc32:
-        field: context_crc32
-        type: int unsigned
-        collation@text:
-        nullable: NULL
-        key@text:
-        default: 0
-        extra@text:
-      id:
-        field: id
-        type: int unsigned
-        collation@text:
-        nullable: NOT NULL
-        key: PRI
-        default: 0
-        extra@text:
-        references: comment.id
-    indexes:
-      PRIMARY:
-        columns:
-          id:
-            column_name: id
-            index_type: BTREE
-            subpart@text:
-            unique: 1
-      content:
-        columns:
-          content:
-            column_name: content
-            index_type: FULLTEXT
-            subpart@text:
-            unique@text:
-  fulltext_contact:
-    columns:
-      content:
-        field: content
-        type: longtext
-        collation: utf8mb3_general_ci
-        nullable: NULL
-        key: MUL
-        default@text:
-        extra@text:
-      id:
-        field: id
-        type: int unsigned
-        collation@text:
-        nullable: NOT NULL
-        key: PRI
-        default: 0
-        extra@text:
-        references: contact.id
-    indexes:
-      PRIMARY:
-        columns:
-          id:
-            column_name: id
-            index_type: BTREE
-            subpart@text:
-            unique: 1
-      content:
-        columns:
-          content:
-            column_name: content
-            index_type: FULLTEXT
-            subpart@text:
-            unique@text:
-  fulltext_kb_article:
-    columns:
-      content:
-        field: content
-        type: longtext
-        collation: utf8mb3_general_ci
-        nullable: NULL
-        key: MUL
-        default@text:
-        extra@text:
-      id:
-        field: id
-        type: int unsigned
-        collation@text:
-        nullable: NOT NULL
-        key: PRI
-        default: 0
-        extra@text:
-        references: kb_article.id
-    indexes:
-      PRIMARY:
-        columns:
-          id:
-            column_name: id
-            index_type: BTREE
-            subpart@text:
-            unique: 1
-      content:
-        columns:
-          content:
-            column_name: content
-            index_type: FULLTEXT
-            subpart@text:
-            unique@text:
-  fulltext_message_content:
-    columns:
-      content:
-        field: content
-        type: longtext
-        collation: utf8mb3_general_ci
-        nullable: NULL
-        key: MUL
-        default@text:
-        extra@text:
-      id:
-        field: id
-        type: int unsigned
-        collation@text:
-        nullable: NOT NULL
-        key: PRI
-        default: 0
-        extra@text:
-        references: message.id
-    indexes:
-      PRIMARY:
-        columns:
-          id:
-            column_name: id
-            index_type: BTREE
-            subpart@text:
-            unique: 1
-      content:
-        columns:
-          content:
-            column_name: content
-            index_type: FULLTEXT
-            subpart@text:
-            unique@text:
-  fulltext_message_header:
-    columns:
-      header_name:
-        field: header_name
-        type: varchar(255)
-        collation: utf8mb3_general_ci
-        nullable: NOT NULL
-        key: PRI
-        default@text:
-        extra@text:
-      header_value:
-        field: header_value
-        type: longtext
-        collation: utf8mb3_general_ci
-        nullable: NULL
-        key: MUL
-        default@text:
-        extra@text:
-      message_id:
-        field: message_id
-        type: int unsigned
-        collation@text:
-        nullable: NOT NULL
-        key: PRI
-        default: 0
-        extra@text:
-        references: message.id
-    indexes:
-      PRIMARY:
-        columns:
-          message_id:
-            column_name: message_id
-            index_type: BTREE
-            subpart@text:
-            unique: 1
-          header_name:
-            column_name: header_name
-            index_type: BTREE
-            subpart@text:
-            unique: 1
-      header_value:
-        columns:
-          header_value:
-            column_name: header_value
-            index_type: FULLTEXT
-            subpart@text:
-            unique@text:
-  fulltext_org:
-    columns:
-      content:
-        field: content
-        type: longtext
-        collation: utf8mb3_general_ci
-        nullable: NULL
-        key: MUL
-        default@text:
-        extra@text:
-      id:
-        field: id
-        type: int unsigned
-        collation@text:
-        nullable: NOT NULL
-        key: PRI
-        default: 0
-        extra@text:
-        references: contact_org.id
-    indexes:
-      PRIMARY:
-        columns:
-          id:
-            column_name: id
-            index_type: BTREE
-            subpart@text:
-            unique: 1
-      content:
-        columns:
-          content:
-            column_name: content
-            index_type: FULLTEXT
-            subpart@text:
-            unique@text:
-  fulltext_snippet:
-    columns:
-      content:
-        field: content
-        type: longtext
-        collation: utf8mb3_general_ci
-        nullable: NULL
-        key: MUL
-        default@text:
-        extra@text:
-      id:
-        field: id
-        type: int unsigned
-        collation@text:
-        nullable: NOT NULL
-        key: PRI
-        default: 0
-        extra@text:
-        references: snippet.id
-    indexes:
-      PRIMARY:
-        columns:
-          id:
-            column_name: id
-            index_type: BTREE
-            subpart@text:
-            unique: 1
-      content:
-        columns:
-          content:
-            column_name: content
-            index_type: FULLTEXT
-            subpart@text:
-            unique@text:
-  fulltext_worker:
-    columns:
-      content:
-        field: content
-        type: longtext
-        collation: utf8mb3_general_ci
-        nullable: NULL
-        key: MUL
-        default@text:
-        extra@text:
-      id:
-        field: id
-        type: int unsigned
-        collation@text:
-        nullable: NOT NULL
-        key: PRI
-        default: 0
-        extra@text:
-        references: worker.id
-    indexes:
-      PRIMARY:
-        columns:
-          id:
-            column_name: id
-            index_type: BTREE
-            subpart@text:
-            unique: 1
-      content:
-        columns:
-          content:
-            column_name: content
-            index_type: FULLTEXT
-            subpart@text:
-            unique@text:
   gpg_key_part:
     columns:
       key_context:
@@ -6204,46 +6365,6 @@ tables:
             index_type: BTREE
             subpart: 4
             unique@text:
-  group_setting:
-    columns:
-      group_id:
-        field: group_id
-        type: int unsigned
-        collation@text:
-        nullable: NOT NULL
-        key: PRI
-        default: 0
-        extra@text:
-        references: worker_group.id
-      setting:
-        field: setting
-        type: varchar(64)
-        collation: utf8mb3_unicode_ci
-        nullable: NOT NULL
-        key: PRI
-        default@text:
-        extra@text:
-      value:
-        field: value
-        type: mediumtext
-        collation: utf8mb3_unicode_ci
-        nullable: NULL
-        key@text:
-        default@text:
-        extra@text:
-    indexes:
-      PRIMARY:
-        columns:
-          group_id:
-            column_name: group_id
-            index_type: BTREE
-            subpart@text:
-            unique: 1
-          setting:
-            column_name: setting
-            index_type: BTREE
-            subpart@text:
-            unique: 1
   jira_issue:
     columns:
       created:
@@ -6755,57 +6876,107 @@ tables:
         field: created_at
         type: int unsigned
         collation@text:
-        null: NO
+        nullable: NOT NULL
         key@text:
         default: 0
         extra@text:
+      created_at_usec:
+        field: created_at_usec
+        type: mediumint unsigned
+        collation@text:
         nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
       data_json:
         field: data_json
         type: mediumtext
-        collation: utf8mb3_unicode_ci
-        null: YES
+        collation: utf8mb4_unicode_ci
+        nullable: NULL
         key@text:
         default@text:
         extra@text:
-        nullable: NULL
-      rating:
-        field: rating
+      finish_reason:
+        field: finish_reason
+        type: varchar(32)
+        collation: utf8mb4_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
+      is_streaming:
+        field: is_streaming
         type: tinyint unsigned
         collation@text:
-        null: NO
+        nullable: NOT NULL
         key@text:
         default: 0
         extra@text:
+      kind:
+        field: kind
+        type: varchar(32)
+        collation: utf8mb4_unicode_ci
         nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
+      parent_uuid:
+        field: parent_uuid
+        type: binary(16)
+        collation@text:
+        nullable: NULL
+        key: MUL
+        default@text:
+        extra@text:
+      role:
+        field: role
+        type: varchar(64)
+        collation: utf8mb4_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
       seq:
         field: seq
         type: int unsigned
         collation@text:
-        null: NO
+        nullable: NOT NULL
         key: UNI
         default@text:
         extra: auto_increment
-        nullable: NOT NULL
       session_uuid:
         field: session_uuid
         type: binary(16)
         collation@text:
-        null: NO
+        nullable: NOT NULL
         key: MUL
         default@text:
         extra@text:
-        nullable: NOT NULL
         references: llm_agent_session.uuid
+      token_est:
+        field: token_est
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      usage_json:
+        field: usage_json
+        type: text
+        collation: utf8mb4_unicode_ci
+        nullable: NULL
+        key@text:
+        default@text:
+        extra@text:
       uuid:
         field: uuid
         type: binary(16)
         collation@text:
-        null: NO
+        nullable: NOT NULL
         key: PRI
         default@text:
         extra@text:
-        nullable: NOT NULL
     indexes:
       PRIMARY:
         columns:
@@ -6814,6 +6985,13 @@ tables:
             index_type: BTREE
             subpart@text:
             unique: 1
+      parent_uuid:
+        columns:
+          parent_uuid:
+            column_name: parent_uuid
+            index_type: BTREE
+            subpart@text:
+            unique@text:
       seq:
         columns:
           seq:
@@ -6830,6 +7008,14 @@ tables:
             unique@text:
   llm_agent_session:
     columns:
+      agent_id:
+        field: agent_id
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
       automation_id:
         field: automation_id
         type: int unsigned
@@ -6855,6 +7041,22 @@ tables:
         key: MUL
         default: 0
         extra@text:
+      head_uuid:
+        field: head_uuid
+        type: binary(16)
+        collation@text:
+        nullable: NULL
+        key@text:
+        default@text:
+        extra@text:
+      id:
+        field: id
+        type: bigint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key: UNI
+        default@text:
+        extra: auto_increment
       is_read:
         field: is_read
         type: tinyint
@@ -6863,13 +7065,61 @@ tables:
         key@text:
         default: 0
         extra@text:
+      mounts_hash:
+        field: mounts_hash
+        type: char(64)
+        collation: ascii_general_ci
+        nullable: NULL
+        key@text:
+        default@text:
+        extra@text:
       provider:
         field: provider
         type: varchar(32)
-        collation: utf8mb3_unicode_ci
+        collation: utf8mb4_unicode_ci
         nullable: NOT NULL
         key@text:
         default@text:
+        extra@text:
+      provider_params:
+        field: provider_params
+        type: mediumtext
+        collation: utf8mb4_unicode_ci
+        nullable: NULL
+        key@text:
+        default@text:
+        extra@text:
+      system_prompt_hash:
+        field: system_prompt_hash
+        type: char(64)
+        collation: ascii_general_ci
+        nullable: NULL
+        key@text:
+        default@text:
+        extra@text:
+      token_usage:
+        field: token_usage
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      tools_hash:
+        field: tools_hash
+        type: char(64)
+        collation: ascii_general_ci
+        nullable: NULL
+        key@text:
+        default@text:
+        extra@text:
+      updated_at:
+        field: updated_at
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key: MUL
+        default: 0
         extra@text:
       user_id:
         field: user_id
@@ -6919,6 +7169,20 @@ tables:
             index_type: BTREE
             subpart@text:
             unique@text:
+      id:
+        columns:
+          id:
+            column_name: id
+            index_type: BTREE
+            subpart@text:
+            unique: 1
+      updated_at:
+        columns:
+          updated_at:
+            column_name: updated_at
+            index_type: BTREE
+            subpart@text:
+            unique@text:
       user:
         columns:
           user_type:
@@ -6931,6 +7195,32 @@ tables:
             index_type: BTREE
             subpart@text:
             unique@text:
+  llm_agent_session_property:
+    columns:
+      hash:
+        field: hash
+        type: char(64)
+        collation: ascii_general_ci
+        nullable: NOT NULL
+        key: PRI
+        default@text:
+        extra@text:
+      value:
+        field: value
+        type: mediumtext
+        collation: utf8mb4_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
+    indexes:
+      PRIMARY:
+        columns:
+          hash:
+            column_name: hash
+            index_type: BTREE
+            subpart@text:
+            unique: 1
   mail_delivery_log:
     columns:
       created_at:
@@ -7709,7 +7999,7 @@ tables:
         extra@text:
       num_fails:
         field: num_fails
-        type: tinyint
+        type: tinyint unsigned
         collation@text:
         nullable: NOT NULL
         key@text:
@@ -8705,6 +8995,14 @@ tables:
         key@text:
         default@text:
         extra@text:
+      icon:
+        field: icon
+        type: varchar(255)
+        collation: utf8mb3_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
       id:
         field: id
         type: int unsigned
@@ -8895,6 +9193,14 @@ tables:
         type: text
         collation: utf8mb3_unicode_ci
         nullable: NULL
+        key@text:
+        default@text:
+        extra@text:
+      icon:
+        field: icon
+        type: varchar(64)
+        collation: utf8mb3_unicode_ci
+        nullable: NOT NULL
         key@text:
         default@text:
         extra@text:
@@ -9480,15 +9786,10 @@ tables:
             index_type: BTREE
             subpart@text:
             unique: 1
-      job_id_id:
+      job_id:
         columns:
           job_id:
             column_name: job_id
-            index_type: BTREE
-            subpart@text:
-            unique@text:
-          id:
-            column_name: id
             index_type: BTREE
             subpart@text:
             unique@text:
@@ -9539,7 +9840,7 @@ tables:
         type: bigint unsigned
         collation@text:
         nullable: NOT NULL
-        key@text:
+        key: MUL
         default: 0
         extra@text:
         references: queue_job.id
@@ -9600,6 +9901,23 @@ tables:
             index_type: BTREE
             subpart@text:
             unique: 1
+      job_progress:
+        columns:
+          job_id:
+            column_name: job_id
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+          status_id:
+            column_name: status_id
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+          available_at:
+            column_name: available_at
+            index_type: BTREE
+            subpart@text:
+            unique@text:
       queue_claimed:
         columns:
           queue_id:
@@ -9619,6 +9937,23 @@ tables:
             unique@text:
           claim_id:
             column_name: claim_id
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+      queue_depth:
+        columns:
+          status_id:
+            column_name: status_id
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+          queue_id:
+            column_name: queue_id
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+          available_at:
+            column_name: available_at
             index_type: BTREE
             subpart@text:
             unique@text:
@@ -10686,6 +11021,14 @@ tables:
         key: MUL
         default: 0
         extra@text:
+      is_active:
+        field: is_active
+        type: tinyint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
       owner_id:
         field: owner_id
         type: int unsigned
@@ -10695,6 +11038,14 @@ tables:
         default: 0
         extra@text:
         references: worker.id
+      project_id:
+        field: project_id
+        type: bigint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key: MUL
+        default: 0
+        extra@text:
       reopen_at:
         field: reopen_at
         type: int unsigned
@@ -10756,10 +11107,95 @@ tables:
             index_type: BTREE
             subpart@text:
             unique@text:
+      project_lookup:
+        columns:
+          project_id:
+            column_name: project_id
+            index_type: BTREE
+            subpart@text:
+            unique@text:
       updated_date:
         columns:
           updated_date:
             column_name: updated_date
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+  task_project:
+    columns:
+      created_at:
+        field: created_at
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      id:
+        field: id
+        type: bigint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key: PRI
+        default@text:
+        extra: auto_increment
+      is_closed:
+        field: is_closed
+        type: tinyint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      name:
+        field: name
+        type: varchar(255)
+        collation: utf8mb4_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
+      owner_context:
+        field: owner_context
+        type: varchar(128)
+        collation: utf8mb4_unicode_ci
+        nullable: NOT NULL
+        key: MUL
+        default@text:
+        extra@text:
+      owner_context_id:
+        field: owner_context_id
+        type: int
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      updated_at:
+        field: updated_at
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+    indexes:
+      PRIMARY:
+        columns:
+          id:
+            column_name: id
+            index_type: BTREE
+            subpart@text:
+            unique: 1
+      owner_compound:
+        columns:
+          owner_context:
+            column_name: owner_context
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+          owner_context_id:
+            column_name: owner_context_id
             index_type: BTREE
             subpart@text:
             unique@text:
@@ -11891,6 +12327,14 @@ tables:
         key: PRI
         default@text:
         extra: auto_increment
+      is_ai:
+        field: is_ai
+        type: tinyint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
       is_disabled:
         field: is_disabled
         type: tinyint unsigned
@@ -12815,6 +13259,75 @@ tables:
             index_type: BTREE
             subpart@text:
             unique@text:
+  workflow_resource:
+    columns:
+      record_alias:
+        field: record_alias
+        type: varchar(255)
+        collation: utf8mb4_unicode_ci
+        nullable: NOT NULL
+        key: PRI
+        default@text:
+        extra@text:
+      record_id:
+        field: record_id
+        type: bigint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      record_type:
+        field: record_type
+        type: varchar(255)
+        collation: utf8mb4_unicode_ci
+        nullable: NOT NULL
+        key: PRI
+        default@text:
+        extra@text:
+      workflow_id:
+        field: workflow_id
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key: PRI
+        default@text:
+        extra@text:
+    indexes:
+      PRIMARY:
+        columns:
+          workflow_id:
+            column_name: workflow_id
+            index_type: BTREE
+            subpart@text:
+            unique: 1
+          record_type:
+            column_name: record_type
+            index_type: BTREE
+            subpart@text:
+            unique: 1
+          record_alias:
+            column_name: record_alias
+            index_type: BTREE
+            subpart@text:
+            unique: 1
+      reverse:
+        columns:
+          record_type:
+            column_name: record_type
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+          record_id:
+            column_name: record_id
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+          workflow_id:
+            column_name: workflow_id
+            index_type: BTREE
+            subpart@text:
+            unique@text:
   workspace_list:
     columns:
       columns_json:
@@ -13125,6 +13638,14 @@ tables:
         default@text:
         extra@text:
         references: cerb_extension.name
+      icon:
+        field: icon
+        type: varchar(64)
+        collation: utf8mb3_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
       id:
         field: id
         type: int unsigned
