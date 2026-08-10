@@ -14,6 +14,7 @@ INSERT INTO `automation_event` VALUES (13,'mail.reply.validate','Validate before
 INSERT INTO `automation_event` VALUES (14,'record.viewed','After a record profile or card is viewed by a worker','cerb.trigger.record.viewed',UNIX_TIMESTAMP());
 INSERT INTO `automation_event` VALUES (15,'mail.moved','After a ticket is moved to a new group/bucket','cerb.trigger.mail.moved',UNIX_TIMESTAMP());
 INSERT INTO `automation_event` VALUES (16,'record.merged','After a set of records has been merged','cerb.trigger.record.merged',UNIX_TIMESTAMP());
+INSERT INTO `automation_event` VALUES (17,'record.bulkUpdate','Fires for each batch of records during a bulk update, as well as once at the start and once at the end','cerb.trigger.record.bulkUpdate',UNIX_TIMESTAMP());
 
 INSERT INTO `automation_event_listener` VALUES (1,'Default','mail.filter',0,25,UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),'');
 INSERT INTO `automation_event_listener` VALUES (2,'Default','mail.route',0,25,UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),'');

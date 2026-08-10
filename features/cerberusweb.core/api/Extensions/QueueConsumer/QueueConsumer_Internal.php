@@ -36,8 +36,7 @@ class QueueConsumer_Internal extends Extension_QueueConsumer {
 			return $records->processExportQueue($queue, $stop_time, $count_hint, $queue_job);
 
 		} elseif($queue->name == 'cerb.records.bulk_update') {
-			$records = DevblocksPlatform::services()->records();
-			return $records->processBulkUpdateQueue($queue, $stop_time, $count_hint, $queue_job);
+			return \Cerb\Records\BulkUpdate::processQueue($queue, $stop_time, $count_hint, $queue_job);
 
 		} elseif($queue->name == 'cerb.search.index') {
 			$search = DevblocksPlatform::services()->search();
@@ -68,8 +67,7 @@ class QueueConsumer_Internal extends Extension_QueueConsumer {
 			$records->onExportJobComplete($queue_job);
 
 		} elseif($queue->name == 'cerb.records.bulk_update') {
-			$records = DevblocksPlatform::services()->records();
-			$records->onBulkUpdateJobComplete($queue_job);
+			\Cerb\Records\BulkUpdate::onJobComplete($queue_job);
 
 		} elseif($queue->name == 'cerb.search.index') {
 			// A reindex rebuilds the whole index table, so sample its record count immediately

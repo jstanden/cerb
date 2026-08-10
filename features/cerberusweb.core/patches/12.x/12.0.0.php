@@ -4069,6 +4069,17 @@ class CerbPatch_Core_v12_0_0 {
 
 		$this->_logger->info("[Patch] Removed the 'records.worklist.search' toolbar.");
 	}
+
+	private function patchAutomationEventRecordBulkUpdate() : void {
+		if(!$this->_db->GetOneMaster("SELECT 1 FROM automation_event WHERE name = 'record.bulkUpdate'")) {
+			$this->_db->ExecuteMaster(sprintf('INSERT IGNORE INTO automation_event (name, extension_id, description, updated_at) VALUES (%s,%s,%s,%d)',
+				$this->_db->qstr('record.bulkUpdate'),
+				$this->_db->qstr('cerb.trigger.record.bulkUpdate'),
+				$this->_db->qstr('Fires for each batch of records during a bulk update. Also fires once at the start and once at the end.'),
+				time()
+			));
+		}
+	}
 }
 
 $patch = new CerbPatch_Core_v12_0_0();
