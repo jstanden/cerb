@@ -45,7 +45,7 @@
 		"ext-simplexml": "*",
 		"ext-yaml": "*",
 		"ext-zip": "*",
-		"smarty/smarty" : "v4.5.6",
+		"smarty/smarty" : "v4.5.7",
 		"symfony/mailer": "v7.4.12",
 		"lcobucci/jwt": "4.3.0",
 		"dragonmantank/cron-expression": "2.3.1",
