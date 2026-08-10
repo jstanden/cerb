@@ -292,6 +292,13 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 
 		if(!empty($ids))
 			$tpl->assign('ids', $ids);
+		
+		$tpl->assign('bulk_automations', \Cerb\Records\BulkUpdate::getMenuItems(
+			CerberusContexts::CONTEXT_COMMENT,
+			$view_id,
+			'',
+			$active_worker
+		));
 
 		$tpl->display('devblocks:cerberusweb.core::internal/comments/bulk.tpl');
 	}
@@ -324,6 +331,18 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 		if(0 != strlen($status) && $status == 'deleted')
 			$do['delete'] = true;
 
+		// Do: Automations
+		$context = CerberusContexts::CONTEXT_COMMENT;
+		$error = null;
+		if(false === ($do = \Cerb\Records\BulkUpdate::handleBulkPost($do, $context, $view, $active_worker, $error))) {
+			DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+			echo json_encode([
+				'status' => false,
+				'error' => $error ?: 'Aborted by automation',
+			]);
+			return;
+		}
+		
 		switch($filter) {
 			// Checked rows
 			case 'checks':
@@ -347,13 +366,13 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 			], true);
 		}
 
-		// Create batches
-		$batch_key = DAO_ContextBulkUpdate::createFromView($view, $do);
+		// Enqueue a parallel bulk update job
+		$queue_job = \Cerb\Records\BulkUpdate::createJob($view, $do, $active_worker->id ?? 0);
 
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 
-		echo json_encode(array(
-			'cursor' => $batch_key,
-		));
+		echo json_encode([
+			'job_id' => $queue_job->id ?? 0,
+		]);
 	}
 }

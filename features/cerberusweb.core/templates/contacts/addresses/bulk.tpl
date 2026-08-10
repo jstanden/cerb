@@ -70,11 +70,13 @@
 </fieldset>
 {/if}
 
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/bulk_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_ADDRESS}
-
 {if $active_worker->hasPriv('contexts.cerberusweb.contexts.address.broadcast')}
 {include file="devblocks:cerberusweb.core::internal/views/bulk_broadcast.tpl" context=CerberusContexts::CONTEXT_ADDRESS}
 {/if}
+
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/bulk_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_ADDRESS}
+
+{include file="devblocks:cerberusweb.core::internal/views/bulk_automations.tpl"}
 
 {if $active_worker->hasPriv('contexts.cerberusweb.contexts.address.update')}
 	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>

@@ -29,21 +29,25 @@
 	</table>
 </fieldset>
 
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/bulk_custom_fieldsets.tpl" context=$bulk_context}
-
-{if $active_worker->hasPriv("contexts.{$bulk_context}.delete")}
-<fieldset class="peek" data-cerb-section-name="delete">
-	<legend><label><input type="checkbox" name="actions[]" value="delete"> {'common.delete'|devblocks_translate|capitalize}</label></legend>
-
-	<div style="display:none;margin-left:10px;">
-		The selected records will be permanently deleted.
-		<input type="hidden" name="params[delete]" value="1">
-	</div>
-</fieldset>
-{/if}
-
 {if $active_worker->hasPriv("contexts.{$bulk_context}.broadcast")}
 {include file="devblocks:cerberusweb.core::internal/views/bulk_broadcast.tpl" context=$bulk_context}
+{/if}
+
+{if $active_worker->hasPriv("contexts.{$bulk_context}.delete")}
+	<fieldset class="peek" data-cerb-section-name="delete">
+		<legend><label><input type="checkbox" name="actions[]" value="delete"> {'common.delete'|devblocks_translate|capitalize}</label></legend>
+
+		<div style="display:none;margin-left:10px;">
+			The selected records will be permanently deleted.
+			<input type="hidden" name="params[delete]" value="1">
+		</div>
+	</fieldset>
+{/if}
+
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/bulk_custom_fieldsets.tpl" context=$bulk_context}
+
+{if $bulk_automations}
+{include file="devblocks:cerberusweb.core::internal/views/bulk_automations.tpl"}
 {/if}
 
 {if $active_worker->hasPriv("contexts.{$bulk_context}.update")}
@@ -77,8 +81,7 @@ $(function() {
 				genericAjaxPopupClose($popup);
 			});
 		});
-		
-		
+
 		{include file="devblocks:cerberusweb.core::internal/views/bulk_broadcast_jquery.tpl"}
 	});
 });

@@ -241,6 +241,13 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		$placeholders = Extension_DevblocksContext::getPlaceholderTree($token_labels);
 		$tpl->assign('placeholders', $placeholders);
 		
+		$tpl->assign('bulk_automations', \Cerb\Records\BulkUpdate::getMenuItems(
+			CerberusContexts::CONTEXT_OPPORTUNITY,
+			$view_id,
+			'',
+			$active_worker
+		));
+
 		$tpl->display('devblocks:cerberusweb.crm::crm/opps/bulk.tpl');
 		return true;
 	}
@@ -384,6 +391,18 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		// Do: Custom fields
 		$do = DAO_CustomFieldValue::handleBulkPost($do);
 		
+		// Do: Automations
+		$context = CerberusContexts::CONTEXT_OPPORTUNITY;
+		$error = null;
+		if(false === ($do = \Cerb\Records\BulkUpdate::handleBulkPost($do, $context, $view, $active_worker, $error))) {
+			DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+			echo json_encode([
+				'status' => false,
+				'error' => $error ?: 'Aborted by automation',
+			]);
+			return;
+		}
+		
 		// If we have specific IDs, add a filter for those too
 		if(!empty($ids)) {
 			$view->addParams([
@@ -392,15 +411,12 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		}
 		
 		// Enqueue a parallel bulk update job
-		$queue_job = DevblocksPlatform::services()->records()
-			->createBulkUpdateJob($view, $do, $active_worker->id ?? 0);
+		$queue_job = \Cerb\Records\BulkUpdate::createJob($view, $do, $active_worker->id ?? 0);
 		
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		
 		echo json_encode([
 			'job_id' => $queue_job->id ?? 0,
 		]);
-		
-		return;
 	}
 }

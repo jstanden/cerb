@@ -64,6 +64,8 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 					return $this->_profileAction_generatePolicy();
 				case 'getAutocompleteJson':
 					return $this->_profileAction_getAutocompleteJson();
+				case 'getBulkUpdateFieldset':
+					return $this->_profileAction_getBulkUpdateFieldset();
 				case 'getExtensionConfig':
 					return $this->_profileAction_getExtensionConfig();
 				case 'getInteractionsMenu':
@@ -3427,10 +3429,73 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 	
 	private function _profileAction_getInteractionsMenu() {
 		$tpl = DevblocksPlatform::services()->template();
-		
+
 		$interactions_menu = Toolbar_GlobalMenu::getInteractionsMenu();
-		
+
 		$tpl->assign('interactions_menu', $interactions_menu);
 		$tpl->display('devblocks:cerberusweb.core::automations/interactions/command_bar.tpl');
+	}
+
+	private function _profileAction_getBulkUpdateFieldset() : void {
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if(!$active_worker)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
+		$handler_name = DevblocksPlatform::importGPC($_POST['handler'] ?? null, 'string', '');
+		$context = DevblocksPlatform::importGPC($_POST['context'] ?? null, 'string', '');
+		$idx = DevblocksPlatform::importGPC($_POST['idx'] ?? null, 'integer', 0);
+
+		if($handler_name === '' || $context === '')
+			DevblocksPlatform::dieWithHttpError(null, 400);
+
+		// Resolve the handler authoritatively from the event listeners — never trust a uri
+		// from the post. Only handlers defined and enabled for this worker are returned.
+		$handler = \Cerb\Records\BulkUpdate::getHandlersByName($context, $active_worker)[$handler_name] ?? null;
+
+		if(!$handler)
+			DevblocksPlatform::dieWithHttpError(null, 404);
+
+		$automation = DAO_Automation::getByUri((string) ($handler['data']['uri'] ?? ''), [AutomationTrigger_RecordBulkUpdate::ID]);
+
+		if(!$automation)
+			DevblocksPlatform::dieWithHttpError(null, 404);
+
+		// Inputs the handler binding fixes are forced overrides applied server-side at run
+		// time; omit them from the worker form entirely (don't surface or default them).
+		$override_keys = array_keys((array) ($handler['data']['inputs'] ?? []));
+
+		$inputs = [];
+
+		foreach($automation->getInputsMeta() as $input) {
+			if(in_array($input['key'] ?? '', $override_keys, true))
+				continue;
+
+			// Normalize `allowed_values` to a [value => label] map so the template
+			// can iterate without type-checking keys.
+			if(!empty($input['allowed_values']) && is_array($input['allowed_values'])) {
+				$normalized = [];
+				foreach($input['allowed_values'] as $opt_key => $opt_label) {
+					if(is_int($opt_key)) {
+						$normalized[(string) $opt_label] = (string) $opt_label;
+					} else {
+						$normalized[(string) $opt_key] = (string) $opt_label;
+					}
+				}
+				$input['allowed_values'] = $normalized;
+			}
+
+			$inputs[] = $input;
+		}
+
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('idx', $idx);
+		$tpl->assign('handler_key', $handler_name);
+		$tpl->assign('automation', $automation);
+		$tpl->assign('inputs', $inputs);
+		$tpl->display('devblocks:cerberusweb.core::internal/bulkupdate/automation_fieldset.tpl');
 	}
 }

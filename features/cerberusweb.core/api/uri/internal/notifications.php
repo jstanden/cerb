@@ -100,6 +100,13 @@ class PageSection_InternalNotifications extends Extension_PageSection {
 			$tpl->assign('ids', implode(',', $id_list));
 		}
 		
+		$tpl->assign('bulk_automations', \Cerb\Records\BulkUpdate::getMenuItems(
+			CerberusContexts::CONTEXT_NOTIFICATION,
+			$view_id,
+			'',
+			$active_worker
+		));
+
 		$tpl->display('devblocks:cerberusweb.core::internal/notifications/bulk.tpl');
 	}
 	
@@ -127,11 +134,23 @@ class PageSection_InternalNotifications extends Extension_PageSection {
 		// Task fields
 		$is_read = trim(DevblocksPlatform::importGPC($_POST['is_read'],'string',''));
 		
-		$do = array();
+		$do = [];
 		
 		// Do: Mark Read
 		if(0 != strlen($is_read))
 			$do['is_read'] = $is_read;
+		
+		// Do: Automations
+		$context = CerberusContexts::CONTEXT_NOTIFICATION;
+		$error = null;
+		if(false === ($do = \Cerb\Records\BulkUpdate::handleBulkPost($do, $context, $view, $active_worker, $error))) {
+			DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+			echo json_encode([
+				'status' => false,
+				'error' => $error ?: 'Aborted by automation',
+			]);
+			return;
+		}
 		
 		switch($filter) {
 			// Checked rows
@@ -155,8 +174,7 @@ class PageSection_InternalNotifications extends Extension_PageSection {
 		}
 		
 		// Enqueue a parallel bulk update job
-		$queue_job = DevblocksPlatform::services()->records()
-			->createBulkUpdateJob($view, $do, $active_worker->id ?? 0);
+		$queue_job = \Cerb\Records\BulkUpdate::createJob($view, $do, $active_worker->id ?? 0);
 		
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		

@@ -185,24 +185,30 @@
 </fieldset>
 {/if}
 
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/bulk_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TICKET}
-
 {if $active_worker->hasPriv('contexts.cerberusweb.contexts.ticket.broadcast')}
 {include file="devblocks:cerberusweb.core::internal/views/bulk_broadcast.tpl" context=CerberusContexts::CONTEXT_TICKET is_reply=true}
 {/if}
 
 {include file="devblocks:cerberusweb.core::internal/cards/editors/comment.tpl" peek_context=CerberusContexts::CONTEXT_TICKET}
 
-<fieldset class="peek">
-	<legend>{'common.options'|devblocks_translate|capitalize}</legend>
-	<label>
-		<input type="checkbox" name="options[skip_updated]" value="1">
-		Don't modify the updated timestamp
-	</label>
-</fieldset>
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/bulk_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TICKET}
 
-<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-<br>
+{if $bulk_automations}
+{include file="devblocks:cerberusweb.core::internal/views/bulk_automations.tpl"}
+{/if}
+
+<div style="display:flex;margin-top:1em;">
+	<div style="flex:1;min-width:0;">
+		<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	</div>
+
+	<div style="flex:0 0 auto;">
+		<label>
+			<input type="checkbox" name="options[skip_updated]" value="1">
+			Don't modify the updated timestamp
+		</label>
+	</div>
+</div>
 </form>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">

@@ -138,6 +138,13 @@ class PageSection_ProfilesQueueJob extends Extension_PageSection {
 		if(!empty($ids))
 			$tpl->assign('ids', $ids);
 
+		$tpl->assign('bulk_automations', \Cerb\Records\BulkUpdate::getMenuItems(
+			CerberusContexts::CONTEXT_QUEUE_JOB,
+			$view_id,
+			'',
+			$active_worker
+		));
+
 		$tpl->display('devblocks:cerberusweb.core::records/types/queue_job/bulk.tpl');
 	}
 
@@ -166,7 +173,19 @@ class PageSection_ProfilesQueueJob extends Extension_PageSection {
 
 		if($status === 'delete')
 			$do['delete'] = true;
-
+		
+		// Do: Automations
+		$context = CerberusContexts::CONTEXT_QUEUE_JOB;
+		$error = null;
+		if(false === ($do = \Cerb\Records\BulkUpdate::handleBulkPost($do, $context, $view, $active_worker, $error))) {
+			DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+			echo json_encode([
+				'status' => false,
+				'error' => $error ?: 'Aborted by automation',
+			]);
+			return;
+		}
+		
 		switch($filter) {
 			case 'checks':
 				$ids_str = DevblocksPlatform::importGPC($_POST['ids'] ?? null, 'string');
@@ -188,8 +207,7 @@ class PageSection_ProfilesQueueJob extends Extension_PageSection {
 			], true);
 		}
 
-		$queue_job = DevblocksPlatform::services()->records()
-			->createBulkUpdateJob($view, $do, $active_worker->id ?? 0);
+		$queue_job = \Cerb\Records\BulkUpdate::createJob($view, $do, $active_worker->id ?? 0);
 
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 

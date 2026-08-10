@@ -205,7 +205,7 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 		
 		// Filter: whole list or check
 		$filter = DevblocksPlatform::importGPC($_POST['filter'] ?? null, 'string','');
-		$ids = array();
+		$ids = [];
 		
 		// View
 		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string');
@@ -226,7 +226,7 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 		$category_ids = DevblocksPlatform::importGPC($_POST['category_ids'] ?? null, 'array', []);
 		
 		if(is_array($category_ids)) {
-			$do['category_delta'] = array();
+			$do['category_delta'] = [];
 			
 			foreach($category_ids as $cat_id) {
 				@$cat_mode = DevblocksPlatform::importGPC($_POST['category_ids_'.$cat_id],'string','');
@@ -270,16 +270,13 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 		}
 		
 		// Enqueue a parallel bulk update job
-		$queue_job = DevblocksPlatform::services()->records()
-			->createBulkUpdateJob($view, $do, $active_worker->id ?? 0);
+		$queue_job = \Cerb\Records\BulkUpdate::createJob($view, $do, $active_worker->id ?? 0);
 		
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		
 		echo json_encode([
 			'job_id' => $queue_job->id ?? 0,
 		]);
-		
-		return;
 	}
 	
 	private function _profileAction_getEditorHtmlPreview() {

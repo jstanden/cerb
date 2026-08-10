@@ -179,6 +179,13 @@ class PageSection_ProfilesAttachment extends Extension_PageSection {
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ATTACHMENT, false);
 		$tpl->assign('custom_fields', $custom_fields);
 		
+		$tpl->assign('bulk_automations', \Cerb\Records\BulkUpdate::getMenuItems(
+			CerberusContexts::CONTEXT_ATTACHMENT,
+			$view_id,
+			'',
+			$active_worker
+		));
+
 		$tpl->display('devblocks:cerberusweb.core::internal/attachments/bulk.tpl');
 	}
 	
@@ -229,6 +236,18 @@ class PageSection_ProfilesAttachment extends Extension_PageSection {
 		// Do: Custom fields
 		$do = DAO_CustomFieldValue::handleBulkPost($do);
 		
+		// Do: Automations
+		$context = CerberusContexts::CONTEXT_ATTACHMENT;
+		$error = null;
+		if(false === ($do = \Cerb\Records\BulkUpdate::handleBulkPost($do, $context, $view, $active_worker, $error))) {
+			DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+			echo json_encode([
+				'status' => false,
+				'error' => $error ?: 'Aborted by automation',
+			]);
+			return;
+		}
+		
 		switch($filter) {
 			// Checked rows
 			case 'checks':
@@ -253,8 +272,7 @@ class PageSection_ProfilesAttachment extends Extension_PageSection {
 		}
 		
 		// Enqueue a parallel bulk update job
-		$queue_job = DevblocksPlatform::services()->records()
-			->createBulkUpdateJob($view, $do, $active_worker->id ?? 0);
+		$queue_job = \Cerb\Records\BulkUpdate::createJob($view, $do, $active_worker->id ?? 0);
 		
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		

@@ -297,6 +297,13 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 		$html_templates = DAO_MailHtmlTemplate::getAll();
 		$tpl->assign('html_templates', $html_templates);
 		
+		$tpl->assign('bulk_automations', \Cerb\Records\BulkUpdate::getMenuItems(
+			CerberusContexts::CONTEXT_CONTACT,
+			$view_id,
+			'',
+			$active_worker
+		));
+
 		$tpl->display('devblocks:cerberusweb.core::internal/contact/bulk.tpl');
 	}
 	
@@ -335,9 +342,9 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 		$behavior_when = DevblocksPlatform::importGPC($_POST['behavior_when'] ?? null, 'string','');
 		$behavior_params = DevblocksPlatform::importGPC($_POST['behavior_params'] ?? null, 'array', []);
 		
-		$do = array();
+		$do = [];
 		
-			// Delete
+		// Delete
 		if(strlen($status) > 0) {
 			switch($status) {
 				case 'deleted':
@@ -383,7 +390,7 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 		}
 		
 		// Watchers
-		$watcher_params = array();
+		$watcher_params = [];
 		
 		$watcher_add_ids = DevblocksPlatform::importGPC($_POST['do_watcher_add_ids'] ?? null, 'array', []);
 		if(!empty($watcher_add_ids))
@@ -398,6 +405,18 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 		
 		// Do: Custom fields
 		$do = DAO_CustomFieldValue::handleBulkPost($do);
+		
+		// Do: Automations
+		$context = CerberusContexts::CONTEXT_CONTACT;
+		$error = null;
+		if(false === ($do = \Cerb\Records\BulkUpdate::handleBulkPost($do, $context, $view, $active_worker, $error))) {
+			DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+			echo json_encode([
+				'status' => false,
+				'error' => $error ?: 'Aborted by automation',
+			]);
+			return;
+		}
 		
 		// Broadcast: Compose
 		if($active_worker->hasPriv('contexts.cerberusweb.contexts.contact.broadcast')) {
@@ -455,8 +474,7 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 		}
 		
 		// Enqueue a parallel bulk update job
-		$queue_job = DevblocksPlatform::services()->records()
-			->createBulkUpdateJob($view, $do, $active_worker->id ?? 0);
+		$queue_job = \Cerb\Records\BulkUpdate::createJob($view, $do, $active_worker->id ?? 0);
 		
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		

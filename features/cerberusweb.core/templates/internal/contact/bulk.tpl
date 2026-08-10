@@ -123,6 +123,8 @@
 {include file="devblocks:cerberusweb.core::internal/views/bulk_broadcast.tpl" context=CerberusContexts::CONTEXT_CONTACT}
 {/if}
 
+{include file="devblocks:cerberusweb.core::internal/views/bulk_automations.tpl"}
+
 <button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 <br>
 </form>
