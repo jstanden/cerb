@@ -1,6 +1,6 @@
 workflow:
   name: cerb.tutorial
-  version: 2026-07-13T00:00:00Z
+  version: 2026-08-11T00:00:00Z
   description: A workspace with detailed descriptions and examples of Cerb functionality
   requirements:
     cerb_version: >=12.0 <12.1
@@ -517,9 +517,6 @@ records:
             headings@bool: no
             paging@bool: no
             filtering@bool: no
-            colors:
-              code_dark@csv: #000000, #FFFFFF
-              code@csv: #F3EFEC, #333333
 
           columns:
             markdown/instructions:
@@ -2986,15 +2983,10 @@ records:
             headings@bool: no
             paging@bool: no
             filtering@bool: no
-            colors:
-              code_dark@csv: #000000, #FFFFFF
-              code@csv: #F3EFEC, #333333
 
           columns:
             code/text:
               params:
-                color: code:0
-                text_color: code:1
                 text_size@raw: 120%
                 syntax: cerb
                 value@text:
@@ -3609,8 +3601,6 @@ records:
             filtering@bool: no
             colors:
               rainbow6@csv: #6e40aa, #ee4395, #ff8c38, #aff05b, #28ea8d, #2f96e0
-              code_dark@csv: #000000, #FFFFFF
-              code@csv: #F3EFEC, #333333
 
           columns:
             card/worker_id:
@@ -3626,8 +3616,6 @@ records:
               label: Code
               params:
                 syntax: kata
-                color: code:0
-                text_color: code:1
                 value@text:
                   start:
                     set:
@@ -5286,9 +5274,6 @@ records:
             headings@bool: no
             paging@bool: no
             filtering@bool: no
-            colors:
-              code_dark@csv: #000000, #FFFFFF
-              code@csv: #F3EFEC, #333333
 
           columns:
             markdown/instructions:
@@ -5304,8 +5289,6 @@ records:
             code/example:
               params:
                 syntax: kata
-                color: code:0
-                text_color: code:1
                 value@text:
                   start:
                     await/request:
@@ -5332,8 +5315,6 @@ records:
 
             code/return:
               params:
-                color: code:0
-                text_color: code:1
                 syntax: kata
                 value@text:
                   return:
@@ -5550,9 +5531,6 @@ records:
             headings@bool: no
             paging@bool: no
             filtering@bool: no
-            colors:
-              code_dark@csv: #000000, #FFFFFF
-              code@csv: #F3EFEC, #333333
 
           columns:
             markdown/instructions:
@@ -5568,8 +5546,6 @@ records:
             code/example:
               params:
                 syntax: kata
-                color: code:0
-                text_color: code:1
                 value@text:
                   interaction/example:
                     label: Interaction
@@ -6228,8 +6204,6 @@ records:
             code/example1:
               params:
                 syntax: twig
-                color: code:0
-                text_color: code:1
                 value@text:
                   Hi **{{first_name}}**,
 
@@ -6285,9 +6259,6 @@ records:
             headings@bool: no
             paging@bool: no
             filtering@bool: no
-            colors:
-              code_dark@csv: #000000, #FFFFFF
-              code@csv: #F3EFEC, #333333
 
           columns:
             markdown/text:
@@ -6307,8 +6278,6 @@ records:
             code/example:
               params:
                 syntax: kata
-                color: code:0
-                text_color: code:1
                 value@text:
                   checkbox/prompt_checkbox:
                     label: Checkbox:
@@ -6372,9 +6341,6 @@ records:
             headings@bool: no
             paging@bool: no
             filtering@bool: no
-            colors:
-              code_dark@csv: #000000, #FFFFFF
-              code@csv: #F3EFEC, #333333
 
           columns:
             markdown/instructions:
@@ -6388,8 +6354,6 @@ records:
             code/example:
               params:
                 syntax: kata
-                color: code:0
-                text_color: code:1
                 value@raw:
                   workflow:
                     name: example.newTask
@@ -6509,9 +6473,6 @@ records:
             headings@bool: no
             paging@bool: no
             filtering@bool: no
-            colors:
-              code_dark@csv: #000000, #FFFFFF
-              code@csv: #F3EFEC, #333333
 
           columns:
             markdown/instructions:
@@ -6526,8 +6487,6 @@ records:
 
             code/example:
               params:
-                color: code:0
-                text_color: code:1
                 syntax: json
                 value@raw:
                   {
@@ -6584,9 +6543,6 @@ records:
             headings@bool: no
             paging@bool: no
             filtering@bool: no
-            colors:
-              code_dark@csv: #000000, #FFFFFF
-              code@csv: #F3EFEC, #333333
 
           columns:
             markdown/text:
@@ -6600,8 +6556,6 @@ records:
             code/example:
               params:
                 syntax: json
-                color: code:0
-                text_color: code:1
                 value@text:
                   {
                     "package": {
@@ -6793,9 +6747,6 @@ records:
             headings@bool: no
             paging@bool: no
             filtering@bool: no
-            colors:
-              code_dark@csv: #000000, #FFFFFF
-              code@csv: #F3EFEC, #333333
 
           columns:
             markdown/instructions:
@@ -6808,8 +6759,6 @@ records:
             code/example:
               params:
                 syntax: python
-                color: code:0
-                text_color: code:1
                 value_template@raw:
                   import requests
 
@@ -6983,9 +6932,6 @@ records:
             headings@bool: no
             paging@bool: no
             filtering@bool: no
-            colors:
-              code_dark@csv: #000000, #FFFFFF
-              code@csv: #F3EFEC, #333333
 
           columns:
             markdown/instructions:
@@ -7001,8 +6947,6 @@ records:
             code/example:
               params:
                 syntax: kata
-                color: code:0
-                text_color: code:1
                 value@raw:
                   start:
                     queue.push:
@@ -7122,9 +7066,6 @@ records:
             headings@bool: no
             paging@bool: no
             filtering@bool: no
-            colors:
-              code_dark@csv: #000000, #FFFFFF
-              code@csv: #F3EFEC, #333333
 
           columns:
             markdown/instructions:
@@ -7145,8 +7086,6 @@ records:
             code/example:
               params:
                 syntax: kata
-                color: code:0
-                text_color: code:1
                 value@raw:
                   on_queue_messages:
                     automation/process:
