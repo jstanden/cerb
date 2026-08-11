@@ -4,7 +4,7 @@ workflow:
   description: A guided setup tour that walks administrators through initial Cerb configuration
   website: https://cerb.ai/workflows/cerb.quickstart/
   requirements:
-    cerb_version: >=11.2 <11.3
+    cerb_version: >=12.0 <12.1
     cerb_plugins: cerberusweb.core
 
 records:

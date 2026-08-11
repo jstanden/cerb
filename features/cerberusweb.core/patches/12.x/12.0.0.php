@@ -1,6 +1,6 @@
 <?php /** @noinspection PhpUnusedPrivateMethodInspection */
 
-class CerbPatch_Core_v11_2_0 {
+class CerbPatch_Core_v12_0_0 {
 	private ?_DevblocksDatabaseManager $_db;
 	private ?_DevblocksLogManager $_logger;
 	private array $_tables;
@@ -4056,5 +4056,5 @@ class CerbPatch_Core_v11_2_0 {
 	}
 }
 
-$patch = new CerbPatch_Core_v11_2_0();
+$patch = new CerbPatch_Core_v12_0_0();
 return $patch->run();

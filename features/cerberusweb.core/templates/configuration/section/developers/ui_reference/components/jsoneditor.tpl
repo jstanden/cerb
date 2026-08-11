@@ -9,7 +9,7 @@
 			<div class="cerb-uiref-demo">
 				<textarea id="uiref-jsoneditor-edit" data-editor-lines="16" spellcheck="false">{literal}{
   "name": "Cerb",
-  "version": 11.2,
+  "version": 12.0,
   "enabled": true,
   "tags": ["helpdesk", "automation"],
   "owner": {

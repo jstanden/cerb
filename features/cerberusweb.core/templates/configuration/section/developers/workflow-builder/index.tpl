@@ -66,7 +66,7 @@
                     'website:',
                 ],
                 'export:workflow:requirements:': [
-                    'cerb_version: >=11.0 <11.3',
+                    'cerb_version: >=12.0 <12.1',
                     'cerb_plugins: cerberusweb.core, ',
                 ],
                 'export:workflow:version:': [

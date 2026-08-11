@@ -4,14 +4,14 @@
 	<name>Support Center</name>
 	<description>Adds a Support Center community portal for public-facing support.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>11.2.0</version>
+	<version>12.0.0</version>
 	<link>https://cerb.ai/docs/plugins/cerberusweb.support_center/</link>
 	<image>plugin.png</image>
 
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="11.2" max="11.2.99" />
+		<app_version min="12.0" max="12.0.99" />
 	</requires>
 
 	<!-- Plugin Dependencies -->
