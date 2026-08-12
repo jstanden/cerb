@@ -47,66 +47,94 @@ class AwsBedrock extends Extension_DevblocksLlmProvider implements Chat, Embeddi
 			throw new Exception_DevblocksAutomationError('llm:inputs:llm:aws_bedrock:model: is required.');
 	}
 	
+	/**
+	 * Converse content blocks are keyed by SHAPE, not by a `type` discriminator: `{text:…}`, `{toolUse:{…}}`,
+	 * `{toolResult:{…}}`, `{reasoningContent:{…}}`, `{image:{…}}`. Anything unrecognized is skipped rather than
+	 * guessed at.
+	 */
 	public function convertToGenericMessage(array $message, ?string $message_uuid=null): DevblocksLlmChatResponse {
 		$chat_response = new DevblocksLlmChatResponse('', $message_uuid);
-		
+
 		if(array_key_exists('role', $message))
 			$chat_response->setRole($message['role']);
-		
-		if(
-			array_key_exists('content', $message)
-			&& is_string($message['content'])
-		) {
-			$message['content'] = [
-				[
-					'type' => 'text',
-					'text' => $message['content']
-				]
-			];
-		}
-		
-		foreach($message['content'] ?? [] as $message_content) {
-			if ('text' == ($message_content['type'] ?? null))
-				$chat_response->pushMessage($message_content['text']);
-			
-			if ('tool_use' == $message_content['type'] ?? null) {
-				if (!($message_content['id'] ?? null) || !($message_content['name'] ?? null))
+
+		// Converse always sends blocks, but a hand-authored message may still be a bare string.
+		if(is_string($message['content'] ?? null))
+			$message['content'] = [['text' => $message['content']]];
+
+		foreach($message['content'] ?? [] as $block) {
+			if(!is_array($block))
+				continue;
+
+			if(array_key_exists('text', $block)) {
+				$chat_response->pushMessage(strval($block['text']));
+
+			} elseif(is_array($block['toolUse'] ?? null)) {
+				$tool_use = $block['toolUse'];
+
+				if(!($tool_use['toolUseId'] ?? null) || !($tool_use['name'] ?? null))
 					continue;
-				
-				$tool = new DevblocksLlmChatResponse_Tool(
-					$message_content['name'] ?? '',
-					$message_content['input'] ?? [],
-					$message_content['id'],
-				);
-				
-				$chat_response->pushTool($tool);
-			}
-			
-			if('tool_result' == $message_content['type'] ?? null) {
+
+				$chat_response->pushTool(new DevblocksLlmChatResponse_Tool(
+					strval($tool_use['name']),
+					$tool_use['input'] ?? [],
+					strval($tool_use['toolUseId']),
+				));
+
+			} elseif(is_array($block['toolResult'] ?? null)) {
 				$chat_response->setRole('tool');
-				$chat_response->pushToolResult($message_content['tool_use_id'] ?? '', $message_content['content']);
+				$chat_response->pushToolResult(
+					strval($block['toolResult']['toolUseId'] ?? ''),
+					$this->_flattenToolResultContent($block['toolResult']['content'] ?? [])
+				);
+
+			} elseif(is_array($block['reasoningContent'] ?? null)) {
+				// The reason this provider moved to Converse: on `/invoke` the OpenAI-compat layer inlined
+				// reasoning into the answer text as `<reasoning>…</reasoning>`. Converse gives it its own block.
+				$chat_response->pushThinking(strval($block['reasoningContent']['reasoningText']['text'] ?? ''));
 			}
 		}
-		
+
 		// Surface any neutral `images:` (resource uris) for the transcript viewer.
 		$this->_pushMessageImages($message, $chat_response);
 
 		return $chat_response;
 	}
-	
+
+	// A Converse toolResult carries a LIST of blocks; the neutral model wants one scalar.
+	private function _flattenToolResultContent(mixed $content) : string {
+		if(is_string($content))
+			return $content;
+
+		if(!is_array($content))
+			return strval($content);
+
+		$out = '';
+
+		foreach($content as $block) {
+			if(is_string($block))
+				$out .= $block;
+			elseif(is_array($block) && array_key_exists('text', $block))
+				$out .= strval($block['text']);
+			elseif(is_array($block) && array_key_exists('json', $block))
+				$out .= json_encode($block['json']);
+		}
+
+		return $out;
+	}
+
 	function toNativeMessage(DevblocksLlmChatResponse $message) : array {
 		$tool_results = $message->getToolResults();
 
-		// Bedrock (Anthropic-on-Bedrock) tool results are user-role tool_result blocks.
+		// Converse tool results are user-role `toolResult` blocks, and their content is itself a block list.
 		if($tool_results) {
 			$blocks = [];
 
 			foreach($tool_results as $tool_id => $content) {
-				$blocks[] = [
-					'type' => 'tool_result',
-					'tool_use_id' => $tool_id,
-					'content' => is_array($content) ? json_encode($content) : strval($content),
-				];
+				$blocks[] = ['toolResult' => [
+					'toolUseId' => $tool_id,
+					'content' => [['text' => is_array($content) ? json_encode($content) : strval($content)]],
+				]];
 			}
 
 			return [[
@@ -119,16 +147,15 @@ class AwsBedrock extends Extension_DevblocksLlmProvider implements Chat, Embeddi
 
 		foreach($message->getMessages() as $block) {
 			if('' !== ($block['content'] ?? ''))
-				$blocks[] = ['type' => 'text', 'text' => $block['content']];
+				$blocks[] = ['text' => $block['content']];
 		}
 
 		foreach($message->getToolCalls() as $tool) {
-			$blocks[] = [
-				'type' => 'tool_use',
-				'id' => $tool->getId(),
+			$blocks[] = ['toolUse' => [
+				'toolUseId' => $tool->getId(),
 				'name' => $tool->getName(),
 				'input' => $tool->getParameters() ?: (object)[],
-			];
+			]];
 		}
 
 		$role = $message->getRole();
@@ -207,39 +234,49 @@ class AwsBedrock extends Extension_DevblocksLlmProvider implements Chat, Embeddi
 		$base_url = rtrim($this->getParam('api_endpoint_url'), '/');
 		$authentication_uri = $this->getParam('authentication', null);
 		$max_tokens = intval($this->getParam('max_tokens', 2048));
-		$anthropic_version = $this->getParam('anthropic_version', 'bedrock-2023-05-31');
 		$model = $this->getParam('model', 'us.anthropic.claude-haiku-4-5-20251001-v1:0');
-		
+
 		$body_payload = [
-			'anthropic_version' => $anthropic_version,
-			'max_tokens' => $max_tokens,
 			'messages' => $this->sanitizeMessages($messages),
+			'inferenceConfig' => ['maxTokens' => $max_tokens],
 		];
-		
+
+		// Converse takes `system` as a BLOCK LIST, not a scalar.
 		if($system_prompt)
-			$body_payload['system'] = $system_prompt;
-		
-		// Convert OpenAI format tools to Anthropic format
+			$body_payload['system'] = [['text' => $system_prompt]];
+
+		// OpenAI `{type:function, function:{name,description,parameters}}` -> Converse `{toolSpec:{name,
+		// description, inputSchema:{json}}}`. One format for every model, which is the whole point of Converse.
 		if($tools) {
-			$tools = array_map(function($tool){
-				$tool = $tool['function'];
-				
-				if($tool['parameters'] ?? null) {
-					$tool['input_schema'] = $tool['parameters'];
-					unset($tool['parameters']);
-				}
-				
-				return $tool;
-			}, $tools);
-			
-			$body_payload['tools'] = $tools;
+			$body_payload['toolConfig'] = ['tools' => array_values(array_filter(array_map(
+				function($tool) {
+					$fn = $tool['function'] ?? null;
+
+					if(!is_array($fn) || !($fn['name'] ?? null))
+						return null;
+
+					return ['toolSpec' => [
+						'name' => strval($fn['name']),
+						'description' => strval($fn['description'] ?? ''),
+						// An argument-less tool still needs a schema object, never `[]`.
+						'inputSchema' => ['json' => $fn['parameters'] ?: (object)['type' => 'object']],
+					]];
+				},
+				$tools
+			)))];
 		}
-		
+
+		// Must come AFTER `system`/`toolConfig` are set -- the prefix marker is appended to the system list,
+		// which caches tools+system together because they render first. Enabled by Cerb-primitive intent
+		// (agent-on, chat-off), which the provider API can't infer for us -- AND gated on the model actually
+		// supporting cachePoints, since sending one to a model that doesn't is a 403, not a no-op.
+		if($this->_getCacheIntent()['enabled'] && $this->_supportsPromptCaching($model))
+			$this->_applyPromptCache($body_payload);
+
 		$verb = 'POST';
-		$url = $base_url . '/model/' . $model . '/invoke';
+		$url = $base_url . '/model/' . $model . '/converse';
 		$headers = [
 			'Content-Type' => 'application/json',
-			'anthropic-version' => $anthropic_version,
 		];
 		$body = json_encode($body_payload);
 		
@@ -261,57 +298,85 @@ class AwsBedrock extends Extension_DevblocksLlmProvider implements Chat, Embeddi
 		if(false === ($response_json = $http->getResponseAsJson($response, $error)))
 			throw new Exception_DevblocksAutomationError($error);
 		
+		// Converse reports failures as a TOP-LEVEL `{message}`, not OpenAI's `{error:{message}}` -- reading only
+		// the nested key turned every validation error into a bare "HTTP status code: 400" with nothing to act
+		// on. _getApiErrorMessage() knows both shapes.
 		if(200 != $response->getStatusCode()) {
-			if($response_json['error']['message'] ?? null)
-				throw new Exception_DevblocksAutomationError($response_json['error']['message']);
-			
-			throw new Exception_DevblocksAutomationError('HTTP status code: ' . $response->getStatusCode());
-		}
-		
-		// Why generation stopped: `max_tokens` here normalizes to `length`.
-		$finish_reason = self::normalizeFinishReason($response_json['stop_reason'] ?? null);
-
-		// Add to the memory
-		if($response_json['content'] ?? null) {
-			$memory->appendMessage([
-				'role' => $response_json['role'],
-				'content' => $response_json['content'],
-			], finish_reason: $finish_reason);
+			throw new Exception_DevblocksAutomationError(
+				$this->_getApiErrorMessage($response_json, $response->getStatusCode())
+			);
 		}
 
-		$response = $this->convertToGenericMessage($response_json);
+		// Converse: one response shape for every model family. `output.message` is already the native
+		// {role, content:[blocks]} we persist and replay.
+		$native_message = $this->_stripToolControlMarkup($response_json['output']['message'] ?? []);
+		$native_usage = is_array($response_json['usage'] ?? null) ? $response_json['usage'] : [];
+
+		// Bedrock reports cache counters only on models that support caching, and ships BOTH spellings side by
+		// side on Anthropic (`cacheReadInputTokens` and `cacheReadInputTokenCount`) -- take either.
+		$usage = [
+			'input' => intval($native_usage['inputTokens'] ?? 0),
+			'output' => intval($native_usage['outputTokens'] ?? 0),
+			'cache_read' => intval($native_usage['cacheReadInputTokens'] ?? $native_usage['cacheReadInputTokenCount'] ?? 0),
+			'cache_write' => intval($native_usage['cacheWriteInputTokens'] ?? $native_usage['cacheWriteInputTokenCount'] ?? 0),
+		];
+
+		// `end_turn` / `tool_use` / `max_tokens` / `stop_sequence` / `content_filtered` / `guardrail_intervened`
+		$finish_reason = self::normalizeFinishReason($response_json['stopReason'] ?? null);
+
+		// Add to the memory (usage rides the assistant turn -- usage_json column, not the replayed data_json)
+		if($native_message['content'] ?? null) {
+			$memory->appendMessage($native_message, usage: $usage, finish_reason: $finish_reason);
+		}
+
+		// Outside the content guard on purpose: a turn that stops with zero content blocks persists no row,
+		// but it still spent tokens and still has a reason -- both belong on the response either way.
+		$response = $this->convertToGenericMessage($native_message);
+		$response->setUsage($usage);
 		$response->setFinishReason($finish_reason);
 
 		return $response;
 	}
 	
 	function sanitizeMessages(array $messages) : array {
+		// Converse requires the conversation to START on a user turn, and a leading `toolResult` is an orphan
+		// (its `toolUse` was pruned with the assistant turn above it).
 		while(!empty($messages)) {
 			$key = array_key_first($messages);
-			
+
 			if(
 				($messages[$key]['role'] ?? '') == 'user'
-				&& 'tool_result' != ($messages[$key]['content'][0]['type'] ?? '')
+				&& !is_array($messages[$key]['content'][0]['toolResult'] ?? null)
 			) break;
-			
+
 			// Prune non-user messages
 			unset($messages[$key]);
 		}
-		
+
+		// Converse has NO scalar-content shorthand -- `content` is always a block list, and a bare string is a
+		// 400 ("expected list, got string"). Callers hand us `content: "..."` all the time (every first user
+		// turn), and the Anthropic invoke API used to accept it, so normalize here rather than at each caller.
+		foreach($messages as $message_index => $message) {
+			if(is_string($message['content'] ?? null))
+				$messages[$message_index]['content'] = ('' === $message['content'])
+					? []
+					: [['text' => $message['content']]];
+		}
+
 		// Fix tool calls with no inputs
 		foreach($messages as $message_index => $message) {
 			if(!is_array($message['content'] ?? null))
 				continue;
-			
+
 			$messages[$message_index]['content'] = array_map(
 				function($content) {
 					// Fix tool use for empty inputs [] -> {}
 					if(
-						($content['type'] ?? null) == 'tool_use'
-						&& is_array($content['input'])
-						&& empty($content['input'])
-					) $content['input'] = (object)[];
-					
+						is_array($content['toolUse'] ?? null)
+						&& is_array($content['toolUse']['input'] ?? null)
+						&& empty($content['toolUse']['input'])
+					) $content['toolUse']['input'] = (object)[];
+
 					return $content;
 				},
 				$message['content']
@@ -322,33 +387,47 @@ class AwsBedrock extends Extension_DevblocksLlmProvider implements Chat, Embeddi
 		return array_map(fn($m) => $this->expandMessageImages($m), array_values($messages));
 	}
 
-	// Bedrock runs Anthropic models — native `image` source blocks (base64), like Anthropic.
+	// Converse blocks carry no `type` discriminator, so the shared image expander needs the bare-`{text}` shape.
+	protected function _nativeTextPart(string $text) : array {
+		return ['text' => $text];
+	}
+
+	// Converse image block: a FORMAT enum (not a mime type) plus base64 bytes.
 	protected function _nativeImagePart(string $mime_type, string $data) : ?array {
 		if('' === $mime_type || '' === $data)
 			return null;
 
+		$format = match(DevblocksPlatform::strLower($mime_type)) {
+			'image/png' => 'png',
+			'image/jpeg', 'image/jpg' => 'jpeg',
+			'image/gif' => 'gif',
+			'image/webp' => 'webp',
+			default => null,
+		};
+
+		// Converse rejects an unknown format outright, so drop the image rather than fail the whole turn.
+		if(is_null($format))
+			return null;
+
 		return [
-			'type' => 'image',
-			'source' => [
-				'type' => 'base64',
-				'media_type' => $mime_type,
-				'data' => $data,
+			'image' => [
+				'format' => $format,
+				'source' => ['bytes' => $data],
 			],
 		];
 	}
-	
+
 	function returnTool(DevblocksLlmChatResponse_Tool $tool, string $content, Extension_DevblocksLlmMemoryStore $memory): void {
 		$tool_message = [
 			'role' => 'user',
 			'content' => [
-				[
-					'type' => 'tool_result',
-					'tool_use_id' => $tool->getId(),
-					'content' => $content,
-				],
+				['toolResult' => [
+					'toolUseId' => $tool->getId(),
+					'content' => [['text' => $content]],
+				]],
 			],
 		];
-		
+
 		$memory->appendMessage($tool_message);
 	}
 
@@ -550,9 +629,9 @@ class AwsBedrock extends Extension_DevblocksLlmProvider implements Chat, Embeddi
 	function getChatKataAutocomplete() : array {
 		return [
 			'keys' => [
-				'anthropic_version: bedrock-2023-05-31',
 				'api_endpoint_url:',
 				'authentication:',
+				['caption' => 'cache@bool:', 'snippet' => 'cache@bool: yes', 'docHTML' => '<b>cache@bool:</b>Prompt caching. Defaults ON for <code>llm.agent</code> (multi-turn), OFF for <code>llm.chat</code> (one-shot). Bedrock cache points have a FIXED lifetime (~5 minutes), so there is no <code>cache_ttl</code> here. Only some models support caching; on the rest it is ignored.'],
 				'max_tokens@int: 2048',
 				['caption' => 'model:', 'snippet' => "# See: https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles-support.html\nmodel:", 'score' => 2000],
 			],

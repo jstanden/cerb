@@ -677,6 +677,12 @@ abstract class Extension_DevblocksLlmProvider {
 		];
 	}
 
+	// Render a plain text content part. Split out so a provider whose blocks aren't `{type, ...}`-tagged (AWS
+	// Bedrock's Converse API uses a bare `{text}`) can reshape it without duplicating expandMessageImages().
+	protected function _nativeTextPart(string $text) : array {
+		return ['type' => 'text', 'text' => $text];
+	}
+
 	// If a stored/neutral message carries an `images:` list [{mime_type, data}], expand it into the provider's
 	// native content parts — images PREPENDED before the text (the APIs recommend images-first) — and drop the
 	// `images` key. A message with no images is returned unchanged. Providers call this from sanitizeMessages().
@@ -704,7 +710,7 @@ abstract class Extension_DevblocksLlmProvider {
 		$content = $message['content'] ?? '';
 
 		if(is_string($content) && '' !== $content)
-			$parts[] = ['type' => 'text', 'text' => $content];
+			$parts[] = $this->_nativeTextPart($content);
 		elseif(is_array($content))
 			$parts = array_merge($parts, $content);
 
