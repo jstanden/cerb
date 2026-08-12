@@ -467,6 +467,45 @@ abstract class Extension_DevblocksLlmProvider {
 	}
 
 	/**
+	 * One authenticated GET against a provider's model catalog, decoded.
+	 *
+	 * Split out of fetchChatModels() so a provider whose catalog spans MORE than one endpoint can reuse the
+	 * request/auth/status/decode path instead of copying it — AWS Bedrock needs both `/foundation-models`
+	 * (the vendor catalog) and `/inference-profiles` (the ids most of those models are actually invoked by).
+	 *
+	 * @return ?array The decoded JSON body, or null with $error set
+	 */
+	protected function _fetchModelsJson(string $url, array $headers=[], ?string &$error=null) : ?array {
+		$http = DevblocksPlatform::services()->http();
+
+		$request = new Request('GET', $url, $headers);
+		$request_options = ['http_errors' => false];
+
+		if($authentication_uri = $this->getParam('authentication', null)) {
+			if(!$this->_authenticateRequest($authentication_uri, $request, $request_options, $error))
+				return null;
+		}
+
+		if(false === ($response = $http->sendRequest($request, $request_options, $error)))
+			return null;
+
+		if(200 != ($status_code = $response->getStatusCode())) {
+
+			return null;
+		}
+
+		if(false === ($response_json = $http->getResponseAsJson($response, $error)))
+			return null;
+
+		if(!is_array($response_json)) {
+			$error = 'The provider returned an unexpected model list.';
+			return null;
+		}
+
+		return $response_json;
+	}
+
+	/**
 	 * Ask the provider which chat models this key can actually use, rather than guessing from a list we
 	 * hardcoded. That's the only way to know for a self-hosted OpenAI-compatible endpoint (llama.cpp, LM
 	 * Studio, vLLM, Ollama), where the model ids are whatever the operator loaded.
@@ -488,31 +527,14 @@ abstract class Extension_DevblocksLlmProvider {
 			return null;
 		}
 
-		$http = DevblocksPlatform::services()->http();
+		$response_json = $this->_fetchModelsJson(
+			$this->getChatModelsEndpointUrl($base_url),
+			$this->_getChatModelsRequestHeaders(),
+			$error
+		);
 
-		$request = new Request('GET', $this->getChatModelsEndpointUrl($base_url), $this->_getChatModelsRequestHeaders());
-		$request_options = ['http_errors' => false];
-
-		if($authentication_uri = $this->getParam('authentication', null)) {
-			if(!$this->_authenticateRequest($authentication_uri, $request, $request_options, $error))
-				return null;
-		}
-
-		if(false === ($response = $http->sendRequest($request, $request_options, $error)))
+		if(null === $response_json)
 			return null;
-
-		if(200 != ($status_code = $response->getStatusCode())) {
-			$error = sprintf('The provider returned HTTP %d when listing models.', $status_code);
-			return null;
-		}
-
-		if(false === ($response_json = $http->getResponseAsJson($response, $error)))
-			return null;
-
-		if(!is_array($response_json)) {
-			$error = 'The provider returned an unexpected model list.';
-			return null;
-		}
 
 		$models = $this->_parseChatModelsResponse($response_json);
 
