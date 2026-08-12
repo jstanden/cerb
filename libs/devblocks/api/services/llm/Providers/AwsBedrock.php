@@ -301,12 +301,21 @@ class AwsBedrock extends Extension_DevblocksLlmProvider implements Chat, Embeddi
 					if(!is_array($fn) || !($fn['name'] ?? null))
 						return null;
 
-					return ['toolSpec' => [
+					$spec = [
 						'name' => strval($fn['name']),
-						'description' => strval($fn['description'] ?? ''),
 						// An argument-less tool still needs a schema object, never `[]`.
 						'inputSchema' => ['json' => $fn['parameters'] ?: (object)['type' => 'object']],
-					]];
+					];
+
+					// `description` is OPTIONAL to Converse but constrained to length >= 1, so an
+					// undescribed tool must OMIT the key rather than send "". Sending it empty fails the
+					// whole request -- "Value '' at 'toolConfig.tools.N.member.toolSpec.description' failed
+					// to satisfy constraint" -- taking every other tool down with it. The OpenAI-family
+					// endpoints accept the empty string, which is why this only bites here.
+					if('' !== ($description = trim(strval($fn['description'] ?? ''))))
+						$spec['description'] = $description;
+
+					return ['toolSpec' => $spec];
 				},
 				$tools
 			)))];
