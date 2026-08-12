@@ -13,6 +13,22 @@ class DevblocksStringTest extends TestCase {
 		$expected = null;
 		$actual = $strings->strAfter('user@host', '#');
 		$this->assertEquals($expected, $actual);
+
+		// A MULTI-CHARACTER marker consumes its whole length, not one byte. Every caller in the tree happens
+		// to pass a single character, which is why the old `$pos + 1` looked correct for years.
+		$expected = 'anthropic.claude-sonnet-5';
+		$actual = $strings->strAfter('arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-sonnet-5', 'foundation-model/');
+		$this->assertEquals($expected, $actual);
+
+		// Only the FIRST occurrence splits
+		$expected = 'b/c';
+		$actual = $strings->strAfter('a/b/c', '/');
+		$this->assertEquals($expected, $actual);
+
+		// Marker at the very end yields an empty string, not null (it WAS found)
+		$expected = '';
+		$actual = $strings->strAfter('user@', '@');
+		$this->assertEquals($expected, $actual);
 	}
 	
 	function testStrBefore() {

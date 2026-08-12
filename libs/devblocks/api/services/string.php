@@ -42,11 +42,14 @@ class _DevblocksStringService {
 		return implode(PHP_EOL, $lines);
 	}
 	
+	// Everything past the FIRST occurrence of $marker, or null when it isn't there. The offset advances by the
+	// marker's LENGTH -- it used to advance by 1, which was silently right for the single-character markers
+	// every caller happens to use ('/', '@', '.', '_', ':') and wrong for anything longer.
 	function strAfter($string, $marker) {
 		if(false === ($pos = strpos($string, $marker)))
 			return null;
-		
-		return substr($string, $pos+1);
+
+		return substr($string, $pos + strlen($marker));
 	}
 	
 	function strBefore($string, $marker) {
