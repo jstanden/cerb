@@ -127,7 +127,9 @@ class ServiceProvider_Aws extends Extension_ConnectedServiceProvider {
 			return false;
 		
 		$uri = $request->getUri();
-		$query_params = \GuzzleHttp\Psr7\parse_query($uri->getQuery());
+		// `\GuzzleHttp\Psr7\parse_query()` is a Guzzle 6 function; Guzzle 7 removed the procedural helpers, so
+		// this fataled on every call rather than returning false.
+		$query_params = \GuzzleHttp\Psr7\Query::parse($uri->getQuery());
 		
 		$request = $request->withHeader('Host', $uri->getHost());
 
