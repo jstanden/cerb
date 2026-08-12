@@ -329,6 +329,10 @@ class AwsBedrock extends Extension_DevblocksLlmProvider implements Chat, ChatStr
 		if($this->_getCacheIntent()['enabled'] && $this->_supportsPromptCaching($model))
 			$this->_applyPromptCache($body_payload);
 
+		// Reasoning knobs. Converse has no first-class field for them; they ride in
+		// `additionalModelRequestFields`, which it forwards to the model untouched.
+		$this->_applyAdditionalModelRequestFields($body_payload);
+
 		// ConverseStream takes the SAME body -- unlike Anthropic there is no `stream` field, the ENDPOINT is
 		// the switch. Gated on the catalog as well as the caller's request: a model that can't stream must
 		// fall back to sync silently rather than fail the turn (30 of 112 models in us-west-2 can't).
@@ -990,6 +994,118 @@ class AwsBedrock extends Extension_DevblocksLlmProvider implements Chat, ChatStr
 	}
 
 	/**
+	 * Collect the model-specific request params into Converse's `additionalModelRequestFields`.
+	 *
+	 * Converse is a MULTI-VENDOR envelope: its top-level fields are only the ones every model family shares
+	 * (`messages`, `system`, `toolConfig`, `inferenceConfig`). Anything family-specific goes in
+	 * `additionalModelRequestFields`, which Bedrock forwards to the model verbatim -- so the shapes here are
+	 * the SAME ones the native Anthropic Messages API takes (`thinking`, `output_config.effort`), nested one
+	 * level down rather than translated. Documented at:
+	 * https://docs.aws.amazon.com/bedrock/latest/userguide/claude-messages-adaptive-thinking.html
+	 *
+	 * ConverseStream takes the identical body, so streamed turns get this for free.
+	 *
+	 * OMITTED ENTIRELY when the author sets neither key. That silence is the model-family gate: `thinking`
+	 * reaching a Nova/Kimi/DeepSeek model is a validation error rather than an ignored field, and this
+	 * provider serves every vendor in the catalog. We don't classify the model to decide (ids are free-text
+	 * and the catalog changes weekly) -- an author who writes `thinking:` under a non-Anthropic model gets
+	 * Bedrock's own 400, which names the offending field.
+	 */
+	private function _applyAdditionalModelRequestFields(array &$body_payload) : void {
+		$fields = [];
+
+		$this->_applyThinking($fields);
+		$this->_applyEffort($fields);
+
+		if($fields)
+			$body_payload['additionalModelRequestFields'] = $fields;
+	}
+
+	/**
+	 * The grouped `thinking:` block -> Anthropic's native `thinking` shape (`type`/`display`).
+	 *
+	 * Mirrors Anthropic.php's method of the same name; the shapes are identical because Bedrock passes them
+	 * through. Kept separate rather than shared: the two providers don't share an ancestor, and hoisting
+	 * Anthropic-family semantics onto the vendor-neutral base class would be worse than this much repetition.
+	 *
+	 * Reasoning depth is NOT authored here -- it's the canonical top-level `effort:` key (see _applyEffort),
+	 * which the legacy `enabled` budget also derives from. No `thinking:` block -> no change.
+	 */
+	private function _applyThinking(array &$fields) : void {
+		$thinking = $this->getParam('thinking');
+
+		if(!is_array($thinking) || !$thinking)
+			return;
+
+		$type = DevblocksPlatform::strLower(trim(strval($thinking['type'] ?? '')));
+		$display = DevblocksPlatform::strLower(trim(strval($thinking['display'] ?? '')));
+
+		if('enabled' === $type) {
+			// Pre-4.6 models (Sonnet 4.5, Opus 4.5, and the default Haiku 4.5) don't support `adaptive` and
+			// reject `output_config`; they need a literal token budget instead. It has to fit inside
+			// inferenceConfig.maxTokens, which is the same `max_tokens` param chatCompletion reads.
+			$budget = $this->_effortToBudget($this->getEffort() ?? '', intval($this->getParam('max_tokens', 2048)));
+
+			if(!is_null($budget))
+				$fields['thinking'] = ['type' => 'enabled', 'budget_tokens' => $budget];
+
+			return;
+		}
+
+		if('disabled' === $type) {
+			$fields['thinking'] = ['type' => 'disabled'];
+		} elseif('adaptive' === $type) {
+			$fields['thinking'] = ['type' => 'adaptive'];
+
+			if('' !== $display)
+				$fields['thinking']['display'] = $display;
+		}
+	}
+
+	/**
+	 * The canonical top-level `effort:` -> `output_config.effort`, passed verbatim.
+	 *
+	 * `effort` is its own sibling object inside additionalModelRequestFields, NOT a member of `thinking` --
+	 * putting it there is a ValidationException. Skipped for legacy `thinking: {type: enabled}`, which
+	 * rejects output_config outright and takes its depth from budget_tokens instead. No effort -> no change.
+	 *
+	 * The level isn't validated here: which of low|medium|high|xhigh|max a given model accepts varies by
+	 * model and version (and disabling thinking caps it at `high`), so we let Bedrock be the authority.
+	 */
+	private function _applyEffort(array &$fields) : void {
+		if(null === ($effort = $this->getEffort()))
+			return;
+
+		$thinking = $this->getParam('thinking');
+		$type = is_array($thinking) ? DevblocksPlatform::strLower(trim(strval($thinking['type'] ?? ''))) : '';
+
+		if('enabled' === $type)
+			return;
+
+		$fields['output_config'] = array_merge($fields['output_config'] ?? [], ['effort' => $effort]);
+	}
+
+	// Map an effort level -> a legacy `budget_tokens` value, clamped so it's >=1024 and < max_tokens. Returns
+	// null when max_tokens can't fit a valid budget (skip legacy thinking rather than send a 400). Twin of
+	// Anthropic.php::_effortToBudget -- keep the table in sync.
+	private function _effortToBudget(string $effort, int $max_tokens) : ?int {
+		$budget = [
+			'low' => 4096,
+			'medium' => 8192,
+			'high' => 16384,
+			'xhigh' => 24576,
+			'max' => 32768,
+		][$effort] ?? 8192;
+
+		$ceiling = $max_tokens - 1;
+
+		if($ceiling < 1024)
+			return null;
+
+		return max(1024, min($budget, $ceiling));
+	}
+
+	/**
 	 * Bedrock has TWO hosts. `api_endpoint_url` points at the RUNTIME plane
 	 * (`bedrock-runtime.<region>.amazonaws.com`), where every `invoke` goes -- but the model catalog lives on
 	 * the CONTROL plane (`bedrock.<region>.amazonaws.com`). Listing against the runtime host is a 404, which
@@ -1198,11 +1314,18 @@ class AwsBedrock extends Extension_DevblocksLlmProvider implements Chat, ChatStr
 				['caption' => 'cache@bool:', 'snippet' => 'cache@bool: yes', 'docHTML' => '<b>cache@bool:</b>Prompt caching. Defaults ON for <code>llm.agent</code> (multi-turn), OFF for <code>llm.chat</code> (one-shot). Bedrock cache points have a FIXED lifetime (~5 minutes), so there is no <code>cache_ttl</code> here. Only some models support caching; on the rest it is ignored.'],
 				'max_tokens@int: 2048',
 				['caption' => 'model:', 'snippet' => "# See: https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles-support.html\nmodel:", 'score' => 2000],
+				['caption' => 'stream@bool:', 'snippet' => 'stream@bool: no', 'docHTML' => '<b>stream@bool:</b>Stream the response (default <code>yes</code>). Streaming replaces the request timeout with an inactivity cutoff, so a long turn is not killed partway through, and it lets a running turn be stopped. Models that do not support <code>ConverseStream</code> fall back to a single response automatically.'],
+				['caption' => 'thinking:', 'snippet' => "thinking:\n\ttype: adaptive", 'docHTML' => '<b>thinking:</b>Extended thinking, for Anthropic models only &mdash; sending it to another vendor fails the request. <code>type</code>: adaptive|enabled|disabled &middot; <code>display</code>: summarized|omitted. Modern models use <code>adaptive</code>; older models (Haiku 4.5, Sonnet 4.5, Opus 4.5) use <code>enabled</code>. Reasoning depth is the top-level <code>effort:</code> key.'],
+				['caption' => 'effort:', 'snippet' => "effort: high", 'docHTML' => '<b>effort:</b>Reasoning effort (empty = model default). Values: <code>low|medium|high|xhigh|max</code>, though which are accepted varies by model. On legacy <code>thinking: {type: enabled}</code> models it maps to a thinking budget instead.'],
 			],
 			'values' => [
 				'model:' => $this->getChatModels(),
 				'authentication:' => ['type' => 'cerb-uri', 'params' => ['connected_account' => null]],
 				'api_endpoint_url:' => $this->_getEndpointUrls(),
+				'thinking:' => ['type:', 'display:'],
+				'thinking:type:' => ['adaptive', 'enabled', 'disabled'],
+				'thinking:display:' => ['summarized', 'omitted'],
+				'effort:' => ['low', 'medium', 'high', 'xhigh', 'max'],
 			],
 		];
 	}
