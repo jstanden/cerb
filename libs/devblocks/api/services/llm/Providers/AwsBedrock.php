@@ -346,6 +346,24 @@ class AwsBedrock extends Extension_DevblocksLlmProvider implements Chat, Embeddi
 		$memory->appendMessage($tool_message);
 	}
 
+	/**
+	 * The regional runtime endpoints, us-east-1 first. Bedrock is the one provider where the endpoint is a
+	 * routine per-install choice rather than an override, so the whole list is worth offering -- both here in
+	 * the KATA editor and in the agent model editor's Endpoint URL field, which reads this same list out of
+	 * the provider catalog.
+	 */
+	private function _getEndpointUrls() : array {
+		$regions = [
+			'us-east-1', 'us-east-2', 'us-west-2',
+			'ca-central-1',
+			'eu-central-1', 'eu-west-1', 'eu-west-2', 'eu-west-3', 'eu-north-1',
+			'ap-northeast-1', 'ap-northeast-2', 'ap-northeast-3', 'ap-south-1', 'ap-southeast-1', 'ap-southeast-2',
+			'sa-east-1',
+		];
+
+		return array_map(fn($region) => sprintf('https://bedrock-runtime.%s.amazonaws.com', $region), $regions);
+	}
+
 	function getChatModels() : array {
 		return [
 			'us.anthropic.claude-opus-4-8',
@@ -367,7 +385,7 @@ class AwsBedrock extends Extension_DevblocksLlmProvider implements Chat, Embeddi
 			'values' => [
 				'model:' => $this->getChatModels(),
 				'authentication:' => ['type' => 'cerb-uri', 'params' => ['connected_account' => null]],
-				'api_endpoint_url:' => ['https://bedrock-runtime.us-east-1.amazonaws.com'],
+				'api_endpoint_url:' => $this->_getEndpointUrls(),
 			],
 		];
 	}
@@ -389,7 +407,7 @@ class AwsBedrock extends Extension_DevblocksLlmProvider implements Chat, Embeddi
 			'values' => [
 				'model:' => $this->getEmbeddingModels(),
 				'authentication:' => ['type' => 'cerb-uri', 'params' => ['connected_account' => null]],
-				'api_endpoint_url:' => ['https://bedrock-runtime.us-east-1.amazonaws.com'],
+				'api_endpoint_url:' => $this->_getEndpointUrls(),
 				'dimensions:' => ['256', '512', '1024'],
 			],
 		];

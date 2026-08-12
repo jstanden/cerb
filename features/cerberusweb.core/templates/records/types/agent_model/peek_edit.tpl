@@ -33,7 +33,7 @@
 			<div class="cerb-ui-form--field">
 				<label class="cerb-ui-form--label">{'dao.agent_model.api_endpoint_url'|devblocks_translate|capitalize}</label>
 				<input type="text" name="api_endpoint_url" value="{$model->api_endpoint_url}" id="endpointInput_{$form_id}" placeholder="(auto)" autocomplete="off" spellcheck="false">
-				<div class="cerb-ui-form--hint">Blank uses the provider's default endpoint. Override for a self-hosted or proxied endpoint.</div>
+				<div class="cerb-ui-form--hint">Blank uses the provider's default endpoint. Suggests the provider's own endpoints as you type; free text for a self-hosted or proxied one.</div>
 			</div>
 		</div>
 
@@ -219,6 +219,25 @@ $(function() {
 			if(!endpointEl) return;
 			const provider = currentProvider();
 			endpointEl.placeholder = (provider && provider.endpoint_default) ? provider.endpoint_default : '(auto)';
+		}
+
+		// The placeholder above only helps until you type. Every provider already ships the endpoints it
+		// actually serves -- its `api_endpoint_url:` KATA values, re-keyed into the catalog -- so suggest
+		// them. It earns its keep on AWS Bedrock, where the URL is a per-region host you'd otherwise have to
+		// remember. Still free text: a self-hosted or proxied endpoint just isn't in the list.
+		if(endpointEl && window.CerbUI && CerbUI.TextChooser) {
+			new CerbUI.TextChooser(endpointEl, {
+				icon: 'globe',
+				source: function(term) {
+					const provider = currentProvider();
+					const pool = (provider && provider.params) ? (provider.params['api_endpoint_url:'] || []) : [];
+					const needle = String(term || '').toLowerCase();
+
+					// A value list may hold a typed descriptor object (a `type` key, as `authentication:` does);
+					// only the plain strings are urls.
+					return pool.filter(url => typeof url === 'string' && url.toLowerCase().indexOf(needle) >= 0);
+				}
+			});
 		}
 
 		// Each option carries its provider's brand icon (data-cerb-ui-icon), which SelectMenu renders on both
