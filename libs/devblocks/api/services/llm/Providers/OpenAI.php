@@ -281,10 +281,8 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 		$request_options = [
 			'http_errors' => false,
 		];
-		// A caller running OFF-request (the async agent worker) may raise the per-turn timeout above the HTTP
-		// service's 30s default for a long, non-streamed turn; 0/unset keeps the default.
-		if(($request_timeout = intval($this->getParam('request_timeout', 0))) > 0)
-			$request_options['timeout'] = $request_timeout;
+		// Off-request callers (the async agent worker) may allow far longer than the 30s default.
+		$this->_applyRequestTimeout($request_options);
 		$error = null;
 
 		// Authenticate the request if required

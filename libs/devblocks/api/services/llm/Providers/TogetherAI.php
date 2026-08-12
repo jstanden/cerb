@@ -186,6 +186,8 @@ class TogetherAI extends Extension_DevblocksLlmProvider implements Chat, Embeddi
 		$request_options = [
 			'http_errors' => false,
 		];
+		// Off-request callers (the async agent worker) may allow far longer than the 30s default.
+		$this->_applyRequestTimeout($request_options);
 		$error = null;
 		
 		// Authenticate the request if required

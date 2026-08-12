@@ -467,6 +467,25 @@ abstract class Extension_DevblocksLlmProvider {
 	}
 
 	/**
+	 * Let an OFF-REQUEST caller raise the per-turn HTTP timeout above the service's 30s default.
+	 *
+	 * `nextSessionTurn()` puts `request_timeout` into the params bag for EVERY provider, but it only takes
+	 * effect where a provider reads it back — and a provider that doesn't dies at 30000ms mid-generation
+	 * after the tokens are already paid for, while the async worker sat there willing to wait minutes.
+	 * That silent asymmetry is why this is a shared helper rather than a line each provider remembers.
+	 *
+	 * CHAT ONLY. `embed()` deliberately keeps the 30s default: an embedding call is sub-second, so there the
+	 * timeout is a guardrail rather than a limitation.
+	 *
+	 * 0 / unset keeps the default, which is what the synchronous callers (the simulator, one-off `llm.chat`)
+	 * want — they are request-bound and must stay short.
+	 */
+	protected function _applyRequestTimeout(array &$request_options) : void {
+		if(($request_timeout = intval($this->getParam('request_timeout', 0))) > 0)
+			$request_options['timeout'] = $request_timeout;
+	}
+
+	/**
 	 * One authenticated GET against a provider's model catalog, decoded.
 	 *
 	 * Split out of fetchChatModels() so a provider whose catalog spans MORE than one endpoint can reuse the
