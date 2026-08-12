@@ -490,6 +490,16 @@ abstract class Extension_DevblocksLlmProvider {
 			return null;
 
 		if(200 != ($status_code = $response->getStatusCode())) {
+			// The provider's own text is the actionable part — AWS names the missing IAM action outright
+			// ("is not authorized to perform: bedrock:ListInferenceProfiles"), which a bare status code hides.
+			$body_error = null;
+			$body_json = $http->getResponseAsJson($response, $body_error);
+			$detail = $this->_getApiErrorMessage(is_array($body_json) ? $body_json : null, $status_code);
+
+			$error = sprintf('The provider returned HTTP %d when listing models.%s',
+				$status_code,
+				('HTTP status code: ' . $status_code) === $detail ? '' : (' ' . $detail)
+			);
 
 			return null;
 		}
