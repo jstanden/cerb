@@ -132,15 +132,41 @@ class _DevblocksHttpService {
 	 * @return ResponseInterfaceAlias|false
 	 */
 	function sendStreamingRequest(RequestInterface $request, array $options, callable $on_event, &$error=null, &$aborted=null) {
+		return $this->_sendWithSink($request, $options, new DevblocksHttpSseSink($on_event), $error, $aborted);
+	}
+
+	/**
+	 * The same contract as sendStreamingRequest(), for a response body in AWS's binary
+	 * `application/vnd.amazon.eventstream` framing rather than Server-Sent Events. AWS Bedrock's
+	 * ConverseStream speaks it.
+	 *
+	 * Separate entry point rather than a flag: the two differ ONLY in the decoder, and both hand the same
+	 * `fn(string $event, string $data) : bool` upward, so a provider's accumulator does not care which
+	 * transport delivered it.
+	 *
+	 * @param callable $on_event fn(string $event, string $data) : bool — return false to abort the transfer
+	 * @param bool $aborted set true only when WE stopped the transfer, false for any other failure
+	 * @return ResponseInterfaceAlias|false
+	 */
+	function sendEventStreamRequest(RequestInterface $request, array $options, callable $on_event, &$error=null, &$aborted=null) {
+		return $this->_sendWithSink($request, $options, new DevblocksHttpAwsEventStreamSink($on_event), $error, $aborted);
+	}
+
+	/**
+	 * Shared transport for the streaming sinks. Everything except the decoder is identical, and the two
+	 * safety behaviours below are the reason this isn't inlined per sink.
+	 *
+	 * @param DevblocksHttpSseSink|DevblocksHttpAwsEventStreamSink $sink
+	 * @return ResponseInterfaceAlias|false
+	 */
+	private function _sendWithSink(RequestInterface $request, array $options, $sink, &$error=null, &$aborted=null) {
 		$error = '';
 		$aborted = false;
 
-		$sink = new DevblocksHttpSseSink($on_event);
-
 		$options['sink'] = $sink;
 
-		// A non-2xx doesn't return SSE, it returns an error document. Without this the sink would try to
-		// parse it as events, find none, and hand the caller an empty stream instead of the reason why.
+		// A non-2xx doesn't return a stream, it returns an error document. Without this the sink would try
+		// to decode it as frames, find none, and hand the caller an empty stream instead of the reason why.
 		$options['on_headers'] = function(ResponseInterface $response) use ($sink) {
 			$sink->setPassthrough(200 != $response->getStatusCode());
 		};
@@ -268,6 +294,247 @@ class DevblocksHttpSseSink implements StreamInterface {
 	 * body. That's the seam a caller uses to recover when it asked for a stream and got an ordinary response:
 	 * an endpoint that ignores `stream`, a proxy that buffers, a gateway that answers in its own format.
 	 * Without it a non-SSE 200 reads as a successful, silently empty turn.
+	 */
+	private function _readable() : string {
+		return $this->_passthrough ? $this->_raw : $this->_buffer;
+	}
+
+	public function __toString(): string {
+		return $this->_readable();
+	}
+
+	public function getContents(): string {
+		$contents = substr($this->_readable(), $this->_read_pos);
+		$this->_read_pos = strlen($this->_readable());
+		return $contents;
+	}
+
+	public function read(int $length): string {
+		$chunk = substr($this->_readable(), $this->_read_pos, $length);
+		$this->_read_pos += strlen($chunk);
+		return $chunk;
+	}
+
+	public function eof(): bool {
+		return $this->_read_pos >= strlen($this->_readable());
+	}
+
+	public function getSize(): ?int {
+		return strlen($this->_readable());
+	}
+
+	public function tell(): int {
+		return $this->_read_pos;
+	}
+
+	public function rewind(): void {
+		$this->_read_pos = 0;
+	}
+
+	public function seek(int $offset, int $whence = SEEK_SET): void {
+		// Only the rewind case is meaningful for a sink; anything else is a no-op by design.
+		if(SEEK_SET === $whence)
+			$this->_read_pos = max(0, $offset);
+	}
+
+	public function close(): void {}
+
+	public function detach() {
+		return null;
+	}
+
+	public function isSeekable(): bool {
+		return false;
+	}
+
+	public function isWritable(): bool {
+		return true;
+	}
+
+	public function isReadable(): bool {
+		return true;
+	}
+
+	public function getMetadata(?string $key = null) {
+		return is_null($key) ? [] : null;
+	}
+}
+/**
+ * A write-only PSR-7 stream that decodes AWS's binary `application/vnd.amazon.eventstream` framing
+ * incrementally, handing each frame upward as `(event, payload_json)` -- the SAME callback contract
+ * DevblocksHttpSseSink uses, so a provider's accumulator is transport-agnostic.
+ *
+ * Frame layout, all integers BIG-ENDIAN:
+ *
+ *   [total_len:u32][headers_len:u32][prelude_crc:u32][headers][payload][message_crc:u32]
+ *
+ * `total_len` counts the WHOLE frame including both CRCs, so payload_len = total_len - headers_len - 16.
+ * A header entry is `[name_len:u8][name][value_type:u8][value]`, and while streaming only needs the
+ * string type (7), every type has to be SKIPPABLE by length or one unexpected header desynchronizes the
+ * rest of the buffer.
+ *
+ * **CRCs are deliberately NOT validated.** curl already guarantees TCP integrity, and a mismatch here
+ * would leave us no better recovery than the length-framing already provides. Stated rather than silently
+ * skipped, because "the CRC is ignored" is exactly the kind of thing that should be a decision on the
+ * record.
+ */
+class DevblocksHttpAwsEventStreamSink implements StreamInterface {
+	// The fixed bytes around a frame: 3 prelude u32s + the trailing message CRC u32.
+	const FRAME_OVERHEAD = 16;
+	const PRELUDE_LEN = 12;
+
+	private $_on_event;
+	private string $_buffer = '';
+	private string $_raw = '';
+	private int $_read_pos = 0;
+	private bool $_passthrough = false;
+	private bool $_aborted = false;
+
+	function __construct(callable $on_event) {
+		$this->_on_event = $on_event;
+	}
+
+	public function setPassthrough(bool $passthrough) : void {
+		$this->_passthrough = $passthrough;
+	}
+
+	public function isAborted() : bool {
+		return $this->_aborted;
+	}
+
+	public function write(string $string): int {
+		$len = strlen($string);
+
+		// Never short-return on an empty write; curl would read it as an abort.
+		if(0 == $len)
+			return 0;
+
+		if($this->_passthrough || $this->_aborted) {
+			$this->_raw .= $string;
+			return $len;
+		}
+
+		$this->_buffer .= $string;
+
+		while(true) {
+			// Not even a prelude yet -- wait for more bytes rather than guessing at a length.
+			if(strlen($this->_buffer) < self::PRELUDE_LEN)
+				break;
+
+			$prelude = unpack('Ntotal/Nheaders', substr($this->_buffer, 0, 8));
+			$total_len = intval($prelude['total'] ?? 0);
+			$headers_len = intval($prelude['headers'] ?? 0);
+
+			// A frame that can't be described by its own prelude means we've lost sync, and no amount of
+			// further buffering recovers it. Stop decoding and let the caller's no-events path handle it;
+			// what's left stays readable as unconsumed bytes.
+			if(
+				$total_len < self::FRAME_OVERHEAD
+				|| $headers_len < 0
+				|| $headers_len > $total_len - self::FRAME_OVERHEAD
+			) break;
+
+			// INCOMPLETE FRAME -- hold everything. curl chunk boundaries fall wherever they like, so a
+			// frame routinely arrives split mid-header or mid-payload; decoding early corrupts it.
+			if(strlen($this->_buffer) < $total_len)
+				break;
+
+			$frame = substr($this->_buffer, 0, $total_len);
+			$this->_buffer = substr($this->_buffer, $total_len);
+
+			$headers = $this->_parseHeaders(substr($frame, self::PRELUDE_LEN, $headers_len));
+			$payload = substr($frame, self::PRELUDE_LEN + $headers_len, $total_len - $headers_len - self::FRAME_OVERHEAD);
+
+			// An `exception` message-type carries the fault in `:exception-type` and must NOT read as a
+			// clean end of stream. Emitting that name as the event keeps one callback shape; Bedrock's
+			// exception names are distinctive (`modelStreamErrorException`, `throttlingException`), which
+			// is what lets the accumulator tell them from ordinary events.
+			$event = strval($headers[':event-type'] ?? $headers[':exception-type'] ?? $headers[':error-code'] ?? '');
+
+			if('' === $event && '' === $payload)
+				continue;
+
+			if(false === ($this->_on_event)($event, $payload)) {
+				$this->_aborted = true;
+				return 0;
+			}
+		}
+
+		return $len;
+	}
+
+	/**
+	 * Decode the header block. Only string values are used, but every type must be skipped by its correct
+	 * width -- a single mis-skipped header would misread every header after it.
+	 *
+	 * @return array<string,string> only the string-valued headers
+	 */
+	private function _parseHeaders(string $bytes) : array {
+		$out = [];
+		$at = 0;
+		$len = strlen($bytes);
+
+		while($at < $len) {
+			$name_len = ord($bytes[$at]);
+			$at++;
+
+			if($at + $name_len + 1 > $len)
+				break;
+
+			$name = substr($bytes, $at, $name_len);
+			$at += $name_len;
+
+			$type = ord($bytes[$at]);
+			$at++;
+
+			switch($type) {
+				case 0: // bool true
+				case 1: // bool false
+					break;
+				case 2: // byte
+					$at += 1;
+					break;
+				case 3: // short
+					$at += 2;
+					break;
+				case 4: // integer
+					$at += 4;
+					break;
+				case 5: // long
+				case 8: // timestamp
+					$at += 8;
+					break;
+				case 6: // byte array
+				case 7: // string
+					if($at + 2 > $len)
+						return $out;
+
+					$value_len = unpack('n', substr($bytes, $at, 2))[1] ?? 0;
+					$at += 2;
+
+					if(7 === $type)
+						$out[$name] = substr($bytes, $at, $value_len);
+
+					$at += $value_len;
+					break;
+				case 9: // uuid
+					$at += 16;
+					break;
+				default:
+					// An unknown type has no length we can trust, so skipping would desync everything
+					// after it. Return what we have.
+					return $out;
+			}
+		}
+
+		return $out;
+	}
+
+	/**
+	 * In passthrough (a non-2xx error document) this is the buffered body. Otherwise it's whatever arrived
+	 * that could NOT be consumed as complete frames -- which, when nothing decoded at all, is the entire
+	 * body. That's the seam a caller uses to recover when it asked for a stream and got an ordinary
+	 * response instead.
 	 */
 	private function _readable() : string {
 		return $this->_passthrough ? $this->_raw : $this->_buffer;

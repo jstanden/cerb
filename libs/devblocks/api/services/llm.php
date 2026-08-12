@@ -471,10 +471,28 @@ abstract class Extension_DevblocksLlmProvider {
 
 		$request_options['curl'] = ($request_options['curl'] ?? []) + [
 			CURLOPT_LOW_SPEED_LIMIT => 1,
-			CURLOPT_LOW_SPEED_TIME => max(5, intval($this->getParam('stream_stall_secs', 60))),
+			CURLOPT_LOW_SPEED_TIME => max(
+				$this->_minStreamStallSecs(),
+				intval($this->getParam('stream_stall_secs', 60))
+			),
 		];
 
 		return $request_options;
+	}
+
+	/**
+	 * The shortest silence this provider's transport can treat as "stuck" without false-positiving on a
+	 * healthy turn. A FLOOR, not a default: the async worker passes an explicit `stream_stall_secs`, so a
+	 * provider that needs more headroom cannot express it any other way.
+	 *
+	 * It differs per provider because it is a property of the TRANSPORT, not the model. Anthropic's SSE
+	 * emits `ping` frames while the model is thinking, so silence really does mean stuck and a few seconds
+	 * is plenty. A transport with NO keepalive is silent for the entire time-to-first-token -- and
+	 * `CURLOPT_LOW_SPEED_TIME` measures from the start of the transfer, so that silence spends the whole
+	 * budget before a single byte arrives.
+	 */
+	protected function _minStreamStallSecs() : int {
+		return 5;
 	}
 
 	/**
