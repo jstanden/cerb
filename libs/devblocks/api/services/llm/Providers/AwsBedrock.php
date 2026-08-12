@@ -409,6 +409,35 @@ class AwsBedrock extends Extension_DevblocksLlmProvider implements Chat, Embeddi
 					: [['text' => $message['content']]];
 		}
 
+		// Converse requires EVERY toolResult answering an assistant turn to sit in the ONE user message that
+		// follows it. The agent loop calls returnTool() once per tool and each call appends its own user
+		// message, so a PARALLEL tool call (Kimi routinely emits three) is stored as N consecutive user turns.
+		// Anthropic's API tolerates that shape -- there are hundreds of such turns in existing sessions --
+		// but Converse rejects it: "Expected toolResult blocks at messages.4.content for the following Ids: …".
+		//
+		// Merged at SEND time on purpose: storage keeps one row per result, which is the honest history and
+		// what returnTool() wrote, and it means sessions recorded before this fix replay correctly too.
+		$merged = [];
+
+		foreach($messages as $message) {
+			$prev = $merged ? array_key_last($merged) : null;
+
+			if(
+				null !== $prev
+				&& 'user' === ($message['role'] ?? '')
+				&& 'user' === ($merged[$prev]['role'] ?? '')
+				&& $this->_isAllToolResults($message['content'] ?? null)
+				&& $this->_isAllToolResults($merged[$prev]['content'] ?? null)
+			) {
+				$merged[$prev]['content'] = array_merge($merged[$prev]['content'], $message['content']);
+				continue;
+			}
+
+			$merged[] = $message;
+		}
+
+		$messages = $merged;
+
 		// Fix tool calls with no inputs
 		foreach($messages as $message_index => $message) {
 			if(!is_array($message['content'] ?? null))
@@ -431,6 +460,20 @@ class AwsBedrock extends Extension_DevblocksLlmProvider implements Chat, Embeddi
 		
 		// Expand any neutral `images:` into native content parts (images before text).
 		return array_map(fn($m) => $this->expandMessageImages($m), array_values($messages));
+	}
+
+	// A user turn that is NOTHING but tool results -- the only kind safe to merge with its neighbour. A turn
+	// mixing text with results is the author saying something alongside them, and must keep its own position.
+	private function _isAllToolResults(mixed $blocks) : bool {
+		if(!is_array($blocks) || !$blocks)
+			return false;
+
+		foreach($blocks as $block) {
+			if(!is_array($block) || !is_array($block['toolResult'] ?? null))
+				return false;
+		}
+
+		return true;
 	}
 
 	// Converse blocks carry no `type` discriminator, so the shared image expander needs the bare-`{text}` shape.
