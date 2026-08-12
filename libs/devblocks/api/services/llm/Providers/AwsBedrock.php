@@ -101,6 +101,52 @@ class AwsBedrock extends Extension_DevblocksLlmProvider implements Chat, Embeddi
 		return $chat_response;
 	}
 
+	/**
+	 * Strip a model's INTERNAL tool-call markup out of its visible text.
+	 *
+	 * DeepSeek narrates a tool call in its text block using its own DSML control markup, redundantly with the
+	 * structured `toolUse` block that carries the actual call. Bedrock then truncates the text where the call
+	 * begins, so what lands is an AMPUTATED opener with no `>` and no closing tag -- observed verbatim:
+	 *
+	 *   "I'll check the weather in Paris for you.\n\n<\u{FF5C}DSML\u{FF5C}function_calls"
+	 *
+	 * That shape is why the usual `<tag>...</tag>` scrub doesn't work here: there is no well-formed element to
+	 * match. Well-formed pairs are removed first (in case a model ever emits one), then any dangling opener
+	 * through end-of-string.
+	 *
+	 * Done at PARSE time, before the message is persisted, so storage / replay / display all agree. That also
+	 * keeps prompt caching safe: the bytes we store are the bytes we resend, so the prefix stays stable turn to
+	 * turn. Scrubbing at send time instead would risk a different prefix per turn and cost every cache read.
+	 * (`\u{FF5C}` is FULLWIDTH VERTICAL LINE, not an ASCII pipe -- the `u` flag is required.)
+	 */
+	private function _stripToolControlMarkup(array $message) : array {
+		if(!is_array($message['content'] ?? null))
+			return $message;
+
+		$blocks = [];
+
+		foreach($message['content'] as $block) {
+			if(is_array($block) && array_key_exists('text', $block)) {
+				$text = strval($block['text']);
+
+				$text = preg_replace('/<\x{FF5C}DSML\x{FF5C}.*?<\/\x{FF5C}DSML\x{FF5C}[^>]*>/su', '', $text);
+				$text = preg_replace('/<\x{FF5C}DSML\x{FF5C}.*$/su', '', $text);
+
+				// A block that was ONLY markup has nothing left to say; the toolUse block still carries the call
+				if('' === trim(strval($text)))
+					continue;
+
+				$block['text'] = rtrim($text);
+			}
+
+			$blocks[] = $block;
+		}
+
+		$message['content'] = $blocks;
+
+		return $message;
+	}
+
 	// A Converse toolResult carries a LIST of blocks; the neutral model wants one scalar.
 	private function _flattenToolResultContent(mixed $content) : string {
 		if(is_string($content))
