@@ -1,16 +1,18 @@
 <?php
 namespace Cerb\LLM\Providers;
 
-use Cerb\LLM\Providers\Interfaces\Chat;
-use DevblocksLlmChatResponse;
 use DevblocksLlmChatResponse_Tool;
-use DevblocksPlatform;
 use Exception_DevblocksAutomationError;
 use Extension_DevblocksLlmMemoryStore;
 use Extension_DevblocksLlmProvider;
-use GuzzleHttp\Psr7\Request;
 
-class Groq extends Extension_DevblocksLlmProvider implements Chat {
+/**
+ * Groq speaks the OpenAI chat-completions wire format, so it inherits the whole request/response path
+ * — including SSE streaming, `request_timeout`, `Exception_DevblocksLlmApiError` (which is what lets
+ * the queue tell a retryable failure from a permanent one) and neutral `images:` expansion, none of
+ * which its hand-copied chatCompletion() had.
+ */
+class Groq extends OpenAI {
 	const ID = 'groq';
 
 	function getIcon() : string {
@@ -25,151 +27,50 @@ class Groq extends Extension_DevblocksLlmProvider implements Chat {
 	 * @throws Exception_DevblocksAutomationError
 	 */
 	function __construct(array $params, bool $validate=true) {
-		parent::__construct($params);
-		
+		// Skip OpenAI's constructor, which would default the endpoint to api.openai.com.
+		Extension_DevblocksLlmProvider::__construct($params, false);
+
 		if(!$this->getParam('api_endpoint_url'))
 			$this->setParam('api_endpoint_url', 'https://api.groq.com/openai');
-		
+
 		if($validate && !$this->getParam('model'))
 			throw new Exception_DevblocksAutomationError('llm:inputs:llm:groq:model: is required.');
 	}
-	
-	public function convertToGenericMessage(array $message, ?string $message_uuid=null): DevblocksLlmChatResponse {
-		$chat_response = new DevblocksLlmChatResponse('', $message_uuid);
-		
-		if('tool' == $message['role'] ?? '') {
-			$chat_response->setRole('tool');
-			$chat_response->pushToolResult($message['tool_call_id'] ?? '', $message['content'] ?? '');
-			
-		} else {
-			if (array_key_exists('role', $message))
-				$chat_response->setRole($message['role']);
-			
-			if ($message['content'] ?? null)
-				$chat_response->pushMessage($message['content']);
-			
-			if ($message['tool_calls'] ?? null) {
-				foreach ($message['tool_calls'] as $tool_call) {
-					if (
-						!($tool_call['function']['name'] ?? null)
-						|| is_null($tool_call['id'] ?? null)
-					) continue;
-					
-					$tool_args = $tool_call['function']['arguments'] ?? [];
-					
-					$tool = new DevblocksLlmChatResponse_Tool(
-						$tool_call['function']['name'] ?? '',
-						is_string($tool_args) ? json_decode($tool_args, true) : $tool_args,
-						$tool_call['id'] ?? null,
-					);
-					
-					$chat_response->pushTool($tool);
-				}
-			}
-		}
 
-		// Reasoning models return their chain of thought in a sibling key, often with an empty `content`.
-		$this->_pushMessageReasoning($message, $chat_response);
-
-		// Surface any neutral `images:` (resource uris) for the transcript viewer.
-		$this->_pushMessageImages($message, $chat_response);
-
-		return $chat_response;
-	}
-	
 	/**
-	 * @throws Exception_DevblocksAutomationError
+	 * Groq has no embeddings endpoint, so the capability it would otherwise inherit from OpenAI has to
+	 * be declared away. Structural `instanceof Embedding` is the wrong answer for a subclass that shares
+	 * a dialect but not a product: without this Groq would be offered in `llm.embed:` autocomplete and
+	 * then 404 at run time, which is a worse failure than not being offered at all.
 	 */
-	function chatCompletion(array $messages, string $system_prompt, array $tools, Extension_DevblocksLlmMemoryStore $memory) : DevblocksLlmChatResponse {
-		$http = DevblocksPlatform::services()->http();
-		
-		$base_url = rtrim($this->getParam('api_endpoint_url'), '/');
-		$authentication_uri = $this->getParam('authentication', null);
-		
-		$model_messages = $this->sanitizeMessages($messages);
-		
-		// Always start with the system prompt
-		if($system_prompt) {
-			array_unshift($model_messages,
-				[
-					'role' => 'system',
-					'content' => $system_prompt,
-				]
-			);
-		}
-		
-		$verb = 'POST';
-		$url = $base_url . '/v1/chat/completions';
-		$headers = [
-			'Content-Type' => 'application/json',
-		];
-		$body_payload = [
-			'model' => $this->getParam('model', ''),
-			'stream' => false,
-			'messages' => $model_messages,
-		];
-		
-		if($tools)
-			$body_payload['tools'] = $tools;
-		
-		$body = json_encode($body_payload);
-		
-		$request = new Request($verb, $url, $headers, $body);
-		$request_options = [
-			'http_errors' => false,
-		];
-		// Off-request callers (the async agent worker) may allow far longer than the 30s default.
-		$this->_applyRequestTimeout($request_options);
-		$error = null;
-		
-		// Authenticate the request if required
-		if($authentication_uri) {
-			if(!$this->_authenticateRequest($authentication_uri, $request, $request_options, $error))
-				throw new Exception_DevblocksAutomationError($error);
-		}
-		
-		if(false === ($response = $http->sendRequest($request, $request_options, $error)))
-			throw new Exception_DevblocksAutomationError($error);
-		
-		if(false === ($response_json = $http->getResponseAsJson($response, $error)))
-			throw new Exception_DevblocksAutomationError($error);
-		
-		if(200 != $response->getStatusCode()) {
-			if($response_json['error']['message'] ?? null)
-				throw new Exception_DevblocksAutomationError($response_json['error']['message']);
-			
-			throw new Exception_DevblocksAutomationError('HTTP status code: ' . $response->getStatusCode());
-		}
-		
-		$message = $response_json['choices'][0]['message'] ?? null;
-
-		// Why generation stopped. A SIBLING of `message`, so it must ride along explicitly.
-		$finish_reason = self::normalizeFinishReason($response_json['choices'][0]['finish_reason'] ?? null);
-
-		// Add to the memory
-		$memory->appendMessage($message, finish_reason: $finish_reason);
-
-		$response = $this->convertToGenericMessage($message);
-		$response->setFinishReason($finish_reason);
-
-		return $response;
+	function supportsEmbeddings() : bool {
+		return false;
 	}
-	
-	function sanitizeMessages(array $messages) : array {
-		while(!empty($messages)) {
-			$key = array_key_first($messages);
-			
-			if(($messages[$key]['role'] ?? '') == 'user')
-				break;
-			
-			// Prune non-user messages
-			unset($messages[$key]);
-		}
-		
-		// Expand any neutral `images:` into native content parts (images before text).
-		return array_map(fn($m) => $this->expandMessageImages($m), array_values($messages));
+
+	/**
+	 * OpenAI renamed `system` to `developer`, but that rename is OpenAI's alone — the compatible
+	 * endpoints validate against a fixed role enum and hard-reject `developer` with a 400.
+	 */
+	function getSystemPromptRole() : string {
+		return 'system';
 	}
-	
+
+	/**
+	 * Deliberately empty, which preserves exactly what Groq was sent before it was reparented.
+	 *
+	 * OpenAI's version emits `reasoning_effort` from the canonical `effort:` key. Groq accepts that only
+	 * on some model families, so forwarding it here would be a behavior change smuggled in on a
+	 * streaming refactor. Worth revisiting on its own.
+	 *
+	 * Keeping it empty also neutralizes the inherited _applyToolReasoningGuardrail(): that helper
+	 * force-sets or unsets `reasoning_effort` for the gpt-5.x family, and since no Groq model id matches
+	 * its `^gpt-(\d+)` probe it would otherwise strip an author's effort on any tool-using turn.
+	 */
+	function getChatCompletionsParams() : array {
+		return [];
+	}
+
+	// Groq wants the tool NAME alongside the id on a tool result; OpenAI's base message omits it.
 	function returnTool(DevblocksLlmChatResponse_Tool $tool, string $content, Extension_DevblocksLlmMemoryStore $memory): void {
 		$tool_message = [
 			'role' => 'tool',
@@ -177,7 +78,7 @@ class Groq extends Extension_DevblocksLlmProvider implements Chat {
 			'tool_call_id' => $tool->getId(),
 			'content' => $content,
 		];
-		
+
 		$memory->appendMessage($tool_message);
 	}
 
@@ -193,12 +94,19 @@ class Groq extends Extension_DevblocksLlmProvider implements Chat {
 		];
 	}
 
+	// A hosted inference API with no documented wall-clock cache TTL: no ring, same as a local
+	// OpenAI-compatible server. (OpenAI's own 5m hint would be a guess here.)
+	function getCacheHintSeconds(array $params) : ?int {
+		return null;
+	}
+
 	function getChatKataAutocomplete() : array {
 		return [
 			'keys' => [
 				['caption' => 'model:', 'snippet' => 'model:', 'score' => 2000],
 				'api_endpoint_url:',
 				'authentication:',
+				['caption' => 'stream@bool:', 'snippet' => 'stream@bool: no', 'docHTML' => '<b>stream@bool:</b>Stream the response (default <code>yes</code>). Streaming replaces the request timeout with an inactivity cutoff, so a long turn is not killed partway through, and it lets a running turn be stopped.'],
 			],
 			'values' => [
 				'model:' => $this->getChatModels(),

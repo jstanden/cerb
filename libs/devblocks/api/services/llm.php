@@ -327,6 +327,254 @@ abstract class Extension_DevblocksLlmProvider {
 	}
 
 	/**
+	 * Does this provider actually offer an embeddings endpoint?
+	 *
+	 * Normally the same question as `instanceof Embedding`, and that stays the default. It needs its own
+	 * predicate because the OpenAI-compatible family inherits the interface along with the dialect: Groq
+	 * speaks OpenAI chat completions but ships no embeddings API, so a structural check would offer it in
+	 * `llm.embed:` autocomplete and then 404 at run time — a worse failure than not offering it.
+	 */
+	function supportsEmbeddings() : bool {
+		return $this instanceof \Cerb\LLM\Providers\Interfaces\Embedding;
+	}
+
+	// ---------------------------------------------------------------------------------------------
+	// Streaming. The state and the control flow are shared; only the EVENT GRAMMAR is per-provider.
+	//
+	// A provider opts in by implementing Cerb\LLM\Providers\Interfaces\ChatStreaming, which the two
+	// public methods below already satisfy, then overriding _streamAccumulator() (its grammar),
+	// _parseNonStreamedBody() (the non-SSE fallback's shape test), _streamErrorStatus() (its error
+	// map) and sanitizePartialContent() (its structural salvage rules).
+	// ---------------------------------------------------------------------------------------------
+
+	// Set by enableStreaming(); consumed and reset by the next chatCompletion().
+	protected bool $_streaming = false;
+	protected $_stream_progress = null;
+
+	// The last streamed turn's accumulated `['role'=>…,'content'=>…]`, readable after a failure or an
+	// abort so the caller can salvage a partial rather than lose the whole turn.
+	protected ?array $_streamed_partial = null;
+
+	function enableStreaming(?callable $on_progress = null) : void {
+		$this->_streaming = true;
+		$this->_stream_progress = $on_progress;
+		$this->_streamed_partial = null;
+	}
+
+	function getStreamedPartial() : ?array {
+		return $this->_streamed_partial;
+	}
+
+	// Is a streamed turn armed? Read while BUILDING the request (a provider that signals streaming in
+	// its body, like Anthropic's `stream` field, needs to know before _consumeStreamingFlag() runs).
+	protected function _isStreamingTurn() : bool {
+		return $this->_streaming;
+	}
+
+	/**
+	 * Take the one-shot streaming flag and hand back its progress callback.
+	 *
+	 * CALL THIS BEFORE ANYTHING THAT CAN THROW. The flag is deliberately one-shot: if a streamed turn
+	 * fails with the flag still set, the provider stays silently primed and streams the NEXT turn too
+	 * — a turn whose caller never opened a streaming row to receive it.
+	 */
+	protected function _consumeStreamingFlag() : ?callable {
+		$on_progress = $this->_stream_progress;
+
+		$this->_streaming = false;
+		$this->_stream_progress = null;
+
+		return $on_progress;
+	}
+
+	/**
+	 * Author-facing `stream@bool:`. Streaming is ON by default wherever the provider implements it;
+	 * this exists so a non-conforming OpenAI-compatible endpoint (a proxy that buffers, a local server
+	 * that ignores `stream`) can be pinned to the blocking path without a code change.
+	 */
+	function isStreamingEnabled() : bool {
+		$v = $this->getParam('stream');
+
+		if(is_null($v))
+			return true;
+
+		return DevblocksPlatform::services()->string()->toBool($v);
+	}
+
+	/**
+	 * The per-provider event grammar, as a bundle of closures over ONE accumulator's private state.
+	 * Closures rather than a state array because the state shape is entirely the provider's business
+	 * and never needs to be read from out here.
+	 *
+	 * @return array{
+	 *   on_event: callable(string,string):void,  Consume one SSE frame (event name may be '').
+	 *   snapshot: callable():array,              The turn SO FAR, in the shape that gets persisted.
+	 *   usage:    callable():array,              Native usage accumulated so far (may be empty).
+	 *   assemble: callable():array,              The finished `$response_json` the blocking path parses.
+	 *   error:    callable():?array,             An in-stream API error frame, or null. `{type,message}`.
+	 * }
+	 */
+	protected function _streamAccumulator() : array {
+		return [
+			'on_event' => function(string $event, string $data) : void {},
+			'snapshot' => fn() : array => [],
+			'usage' => fn() : array => [],
+			'assemble' => fn() : array => [],
+			'error' => fn() : ?array => null,
+		];
+	}
+
+	/**
+	 * The `$saw_event` fallback's shape test: is this decoded body an ORDINARY (non-streamed) response
+	 * from this provider? Returning it degrades cleanly to the blocking parse; null means we don't
+	 * recognize it and the caller throws.
+	 */
+	protected function _parseNonStreamedBody(array $body) : ?array {
+		return null;
+	}
+
+	/**
+	 * Map an in-stream error's `type` back onto the HTTP status it would have carried in a non-streamed
+	 * response, so the caller's retryable-vs-terminal classification keeps working even though the
+	 * transport returned 200. Unknown types should stay retryable (500).
+	 */
+	protected static function _streamErrorStatus(string $type) : int {
+		return 500;
+	}
+
+	/**
+	 * The transport. Overridable because not every streaming provider speaks Server-Sent Events —
+	 * Bedrock's ConverseStream returns `application/vnd.amazon.eventstream` binary frames and needs a
+	 * different sink handing the SAME `fn(string $event, string $data) : bool` contract upward.
+	 * See PLANS/PLAN-llm-bedrock-streaming.md.
+	 */
+	protected function _sendStream(Request $request, array $request_options, callable $on_event, &$error, &$aborted) {
+		return DevblocksPlatform::services()->http()->sendStreamingRequest(
+			$request, $request_options, $on_event, $error, $aborted
+		);
+	}
+
+	/**
+	 * Apply the streaming timeout profile to a request's options.
+	 *
+	 * The absolute ceiling MUST be explicit: omitting `timeout` doesn't mean "unbounded", it means the
+	 * HTTP service injects its 30s default and guillotines a healthy stream mid-generation.
+	 *
+	 * The real control is aborting on INACTIVITY rather than elapsed time. Measured worst-case gap
+	 * between chunks during extended thinking is ~6.5s, so the default leaves a wide margin. Note curl
+	 * treats this as an average-speed window rather than a silence timer, so the effective cutoff lands
+	 * somewhat later than the configured value — it's a floor, not a deadline.
+	 */
+	protected function _applyStreamTimeouts(array $request_options) : array {
+		if(!array_key_exists('timeout', $request_options))
+			$request_options['timeout'] = 900;
+
+		$request_options['curl'] = ($request_options['curl'] ?? []) + [
+			CURLOPT_LOW_SPEED_LIMIT => 1,
+			CURLOPT_LOW_SPEED_TIME => max(5, intval($this->getParam('stream_stall_secs', 60))),
+		];
+
+		return $request_options;
+	}
+
+	/**
+	 * Run the turn as a stream and rebuild the SAME `$response_json` array the blocking path parses, so
+	 * everything downstream — usage mapping, appendMessage(), convertToGenericMessage() — stays on one
+	 * code path. Adding a second parser per provider is how the two would silently drift.
+	 *
+	 * @throws Exception_DevblocksLlmApiError
+	 */
+	protected function _streamTurn(Request $request, array $request_options, ?callable $on_progress) : array {
+		$http = DevblocksPlatform::services()->http();
+
+		$request_options = $this->_applyStreamTimeouts($request_options);
+
+		$acc = $this->_streamAccumulator();
+
+		$aborted_by_caller = false;
+
+		// Did we receive ANY parseable frame? Distinguishes "the response wasn't a stream" from "the
+		// stream was legitimately empty" — see the fallback at the end.
+		$saw_event = false;
+
+		$on_event = function(string $event, string $data) use ($acc, &$aborted_by_caller, &$saw_event, $on_progress) : bool {
+			$saw_event = true;
+
+			($acc['on_event'])($event, $data);
+
+			if($on_progress && false === $on_progress(($acc['snapshot'])(), ($acc['usage'])())) {
+				$aborted_by_caller = true;
+				return false;
+			}
+
+			return true;
+		};
+
+		$error = null;
+		$aborted = false;
+		$response = $this->_sendStream($request, $request_options, $on_event, $error, $aborted);
+
+		// Always publish what we accumulated, even on failure — this is the salvage seam.
+		$this->_streamed_partial = ($acc['snapshot'])();
+
+		if(($api_error = ($acc['error'])())) {
+			throw new Exception_DevblocksLlmApiError(
+				$api_error['message'] ?? 'Streaming error.',
+				static::_streamErrorStatus($api_error['type'] ?? '')
+			);
+		}
+
+		if($aborted_by_caller || $aborted)
+			throw new Exception_DevblocksLlmApiError('The streamed turn was stopped before it finished.', 0);
+
+		if(false === $response)
+			throw new Exception_DevblocksLlmApiError($error, 0);
+
+		// A non-2xx never streams; the sink passes the error document through untouched.
+		if(200 != $response->getStatusCode()) {
+			$status_code = $response->getStatusCode();
+			$response_json = $http->getResponseAsJson($response, $error);
+
+			throw new Exception_DevblocksLlmApiError(
+				$this->_getApiErrorMessage($response_json, $status_code),
+				$status_code
+			);
+		}
+
+		// WE ASKED FOR A STREAM AND GOT SOMETHING ELSE. An endpoint that ignores `stream`, a proxy that
+		// buffers the body, a gateway that answers in its own shape — all return a perfectly good 200
+		// that simply isn't a stream. Nothing above notices: the parser finds no complete frames, so
+		// we'd return an empty turn, which then slips through silently (the empty-turn guard allowlists
+		// an unreported finish reason) AND strands the streaming row, because chatCompletion only
+		// finalizes it when there is content to append.
+		//
+		// `$saw_event` is the honest discriminator — NOT "did we accumulate content". A real stream that
+		// legitimately produced nothing still emits frames, and must stay an empty turn rather than
+		// being re-read as a non-stream.
+		if(!$saw_event) {
+			// The sink hands back whatever it couldn't consume as frames, which here is the entire body.
+			$fallback = $http->getResponseAsJson($response, $error);
+
+			// An ordinary response — exactly the shape the blocking path parses. Hand it straight back:
+			// same downstream code, same usage mapping, same persistence. Degrading to non-streamed is
+			// the correct outcome, not a failure.
+			if(is_array($fallback) && null !== ($parsed = $this->_parseNonStreamedBody($fallback)))
+				return $parsed;
+
+			if(is_array($fallback) && ($fallback['error'] ?? null))
+				throw new Exception_DevblocksLlmApiError($this->_getApiErrorMessage($fallback, 500), 500);
+
+			// Neither events nor a message we recognize. Throwing (rather than returning empty) is what
+			// lets the caller's salvage path discard the open row instead of leaving it streaming forever.
+			throw new Exception_DevblocksLlmApiError(
+				'The provider returned no streaming events and no recognizable response.', 0
+			);
+		}
+
+		return ($acc['assemble'])();
+	}
+
+	/**
 	 * Reverse of a provider's convertToGenericMessage(): render a neutral message back
 	 * into native wire format for cross-provider replay. The base emits the OpenAI chat
 	 * shape (most providers are OpenAI-compatible); Anthropic-family providers override
@@ -1022,9 +1270,10 @@ class _DevblocksLlmService {
 			$extra_values = array_merge($extra_values, $display['values']);
 		}
 
-		$interface = $is_embedding
-			? \Cerb\LLM\Providers\Interfaces\Embedding::class
-			: \Cerb\LLM\Providers\Interfaces\Chat::class;
+		// Embeddings ask the provider rather than its class hierarchy — see supportsEmbeddings().
+		$supports = $is_embedding
+			? fn($provider) => $provider->supportsEmbeddings()
+			: fn($provider) => $provider instanceof \Cerb\LLM\Providers\Interfaces\Chat;
 
 		$out = [];
 		$provider_list = [];
@@ -1036,7 +1285,7 @@ class _DevblocksLlmService {
 				continue;
 			}
 
-			if(!($provider instanceof $interface))
+			if(!$supports($provider))
 				continue;
 
 			$provider_list[] = $provider_id . ':';
@@ -2059,10 +2308,10 @@ class _DevblocksLlmService {
 
 		$was_interrupted = false;
 
-		// Stream when the caller asked AND this provider can. A provider that doesn't implement ChatStreaming
-		// simply takes the blocking path — no branch anywhere else, and no provider has to be changed to keep
-		// working.
-		if($stream && $provider instanceof \Cerb\LLM\Providers\Interfaces\ChatStreaming) {
+		// Stream when the caller asked, this provider can, and the author hasn't opted out with
+		// `stream@bool: no`. A provider that doesn't implement ChatStreaming simply takes the blocking
+		// path — no branch anywhere else, and no provider has to be changed to keep working.
+		if($stream && $provider instanceof \Cerb\LLM\Providers\Interfaces\ChatStreaming && $provider->isStreamingEnabled()) {
 			// Opened AFTER the inbound messages so the user turn is its parent, and BEFORE the call so it has a
 			// real uuid from the first delta — that uuid is what a reader addresses while the turn is running.
 			if(null !== ($streaming_uuid = $memory_store->beginStreamingMessage())) {

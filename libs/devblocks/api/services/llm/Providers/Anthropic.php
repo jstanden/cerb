@@ -15,14 +15,6 @@ use GuzzleHttp\Psr7\Request;
 class Anthropic extends Extension_DevblocksLlmProvider implements Chat, ChatStreaming {
 	const ID = 'anthropic';
 
-	// Set by enableStreaming(); consumed and reset by the next chatCompletion().
-	private bool $_streaming = false;
-	private $_stream_progress = null;
-
-	// The last streamed turn's accumulated `['role'=>…,'content'=>[…]]`, readable after a failure or an
-	// abort so the caller can salvage a partial rather than lose the whole turn.
-	private ?array $_streamed_partial = null;
-
 	function getIcon() : string {
 		return 'logo-claude';
 	}
@@ -160,7 +152,7 @@ class Anthropic extends Extension_DevblocksLlmProvider implements Chat, ChatStre
 		$body_payload = [
 			'model' => $this->getParam('model', ''),
 			'max_tokens' => $max_tokens,
-			'stream' => $this->_streaming,
+			'stream' => $this->_isStreamingTurn(),
 			'messages' => $this->sanitizeMessages($messages),
 		];
 		
@@ -219,14 +211,10 @@ class Anthropic extends Extension_DevblocksLlmProvider implements Chat, ChatStre
 				throw new Exception_DevblocksAutomationError($error);
 		}
 		
-		if($this->_streaming) {
+		if($this->_isStreamingTurn()) {
 			// Consume the one-shot flag before doing anything that can throw, so a failed streamed turn
 			// can't leave the provider silently primed to stream the next one too.
-			$this->_streaming = false;
-			$on_progress = $this->_stream_progress;
-			$this->_stream_progress = null;
-
-			$response_json = $this->_streamTurn($request, $request_options, $on_progress);
+			$response_json = $this->_streamTurn($request, $request_options, $this->_consumeStreamingFlag());
 
 		} else {
 			// No response at all (connect refused, DNS, cURL timeout) → status 0, a transient/retryable class.
@@ -275,14 +263,10 @@ class Anthropic extends Extension_DevblocksLlmProvider implements Chat, ChatStre
 		return $response;
 	}
 	
-	public function enableStreaming(?callable $on_progress = null) : void {
-		$this->_streaming = true;
-		$this->_stream_progress = $on_progress;
-		$this->_streamed_partial = null;
-	}
-
-	public function getStreamedPartial() : ?array {
-		return $this->_streamed_partial;
+	// An ordinary Anthropic message — what the blocking path parses. Used by the base's `$saw_event`
+	// fallback when we asked for a stream and got a normal body back.
+	protected function _parseNonStreamedBody(array $body) : ?array {
+		return array_key_exists('content', $body) ? $body : null;
 	}
 
 	public function sanitizePartialContent(array $message) : array {
@@ -338,38 +322,17 @@ class Anthropic extends Extension_DevblocksLlmProvider implements Chat, ChatStre
 	}
 
 	/**
-	 * Run the turn as a Server-Sent Event stream and rebuild the SAME `$response_json` array the blocking
-	 * path parses, so everything downstream — usage mapping, appendMessage(), convertToGenericMessage() —
-	 * stays on one code path. Adding a second parser here is how the two would silently drift.
-	 *
-	 * @throws Exception_DevblocksLlmApiError
+	 * Anthropic's Server-Sent Event grammar. The base class owns the transport, the abort, the error
+	 * classification and the non-SSE fallback; this owns only the shape of the events, and rebuilds the
+	 * SAME `$response_json` array the blocking path parses so everything downstream — usage mapping,
+	 * appendMessage(), convertToGenericMessage() — stays on one code path.
 	 */
-	private function _streamTurn(Request $request, array $request_options, ?callable $on_progress) : array {
-		$http = DevblocksPlatform::services()->http();
-
-		// The absolute ceiling MUST be explicit: omitting `timeout` doesn't mean "unbounded", it means the
-		// HTTP service injects its 30s default and guillotines a healthy stream mid-generation.
-		if(!array_key_exists('timeout', $request_options))
-			$request_options['timeout'] = 900;
-
-		// The real control: abort on INACTIVITY, not on elapsed time. Measured worst-case gap between
-		// chunks during extended thinking is ~6.5s, so the default leaves a wide margin. Note curl treats
-		// this as an average-speed window rather than a silence timer, so the effective cutoff lands
-		// somewhat later than the configured value — it's a floor, not a deadline.
-		$request_options['curl'] = ($request_options['curl'] ?? []) + [
-			CURLOPT_LOW_SPEED_LIMIT => 1,
-			CURLOPT_LOW_SPEED_TIME => max(5, intval($this->getParam('stream_stall_secs', 60))),
-		];
-
+	protected function _streamAccumulator() : array {
 		$blocks = [];
 		$partial_json = [];
 		$usage = [];
 		$stop_reason = null;
 		$api_error = null;
-		$aborted_by_caller = false;
-		// Did we receive ANY parseable SSE frame? Distinguishes "the response wasn't a stream" from "the
-		// stream was legitimately empty" — see the fallback at the end.
-		$saw_event = false;
 
 		// Snapshot in the shape that gets persisted, so a caller can write it straight through.
 		$snapshot = function() use (&$blocks) : array {
@@ -377,10 +340,8 @@ class Anthropic extends Extension_DevblocksLlmProvider implements Chat, ChatStre
 		};
 
 		$on_event = function(string $event, string $data) use (
-			&$blocks, &$partial_json, &$usage, &$stop_reason, &$api_error, &$aborted_by_caller, &$saw_event, $snapshot, $on_progress
-		) : bool {
-			$saw_event = true;
-
+			&$blocks, &$partial_json, &$usage, &$stop_reason, &$api_error
+		) : void {
 			$d = ('' === $data) ? null : json_decode($data, true);
 
 			switch($event) {
@@ -475,78 +436,25 @@ class Anthropic extends Extension_DevblocksLlmProvider implements Chat, ChatStre
 					// New event types are expected per the API versioning policy — ignore, don't fail.
 					break;
 			}
-
-			if($on_progress && false === $on_progress($snapshot(), $usage)) {
-				$aborted_by_caller = true;
-				return false;
-			}
-
-			return true;
 		};
 
-		$error = null;
-		$aborted = false;
-		$response = $http->sendStreamingRequest($request, $request_options, $on_event, $error, $aborted);
-
-		// Always publish what we accumulated, even on failure — this is the salvage seam.
-		$this->_streamed_partial = $snapshot();
-
-		if($api_error)
-			throw new Exception_DevblocksLlmApiError(
-				$api_error['message'] ?? 'Streaming error.',
-				self::_streamErrorStatus($api_error['type'] ?? '')
-			);
-
-		if($aborted_by_caller || $aborted)
-			throw new Exception_DevblocksLlmApiError('The streamed turn was stopped before it finished.', 0);
-
-		if(false === $response)
-			throw new Exception_DevblocksLlmApiError($error, 0);
-
-		// A non-2xx never streams; the sink passes the error document through untouched.
-		if(200 != $response->getStatusCode()) {
-			$status_code = $response->getStatusCode();
-			$response_json = $http->getResponseAsJson($response, $error);
-
-			if($response_json['error']['message'] ?? null)
-				throw new Exception_DevblocksLlmApiError($response_json['error']['message'], $status_code);
-
-			throw new Exception_DevblocksLlmApiError('HTTP status code: ' . $status_code, $status_code);
-		}
-
-		// WE ASKED FOR A STREAM AND GOT SOMETHING ELSE. An endpoint that ignores `stream`, a proxy that
-		// buffers the body, a gateway that answers in its own shape — all return a perfectly good 200 that
-		// simply isn't SSE. Nothing above notices: the parser finds no complete frames, so we'd return an
-		// empty turn, which then slips through silently (the empty-turn guard allowlists an unreported
-		// finish reason) AND strands the streaming row, because chatCompletion only finalizes it when there
-		// is content to append.
-		//
-		// `$saw_event` is the honest discriminator — NOT "did we accumulate content". A real stream that
-		// legitimately produced nothing still emits message_start/message_stop, and must stay an empty turn
-		// rather than being re-read as a non-stream.
-		if(!$saw_event) {
-			// The sink hands back whatever it couldn't consume as frames, which here is the entire body.
-			$fallback = $http->getResponseAsJson($response, $error);
-
-			// An ordinary Anthropic message — exactly the shape the blocking path parses. Hand it straight
-			// back: same downstream code, same usage mapping, same persistence. Degrading to non-streamed is
-			// the correct outcome, not a failure.
-			if(is_array($fallback) && array_key_exists('content', $fallback))
-				return $fallback;
-
-			if($fallback['error']['message'] ?? null)
-				throw new Exception_DevblocksLlmApiError($fallback['error']['message'], 500);
-
-			// Neither events nor a message we recognize. Throwing (rather than returning empty) is what lets
-			// the caller's salvage path discard the open row instead of leaving it streaming forever.
-			throw new Exception_DevblocksLlmApiError(
-				'The provider returned no Server-Sent Events and no recognizable response.', 0
-			);
-		}
-
-		return $snapshot() + [
-			'usage' => $usage,
-			'stop_reason' => $stop_reason,
+		// NB: `use (&$x)`, not `fn() => $x`. An arrow function captures BY VALUE at creation, which here is
+		// before a single event has landed — every one of these would report the empty initial state.
+		return [
+			'on_event' => $on_event,
+			'snapshot' => $snapshot,
+			'usage' => function() use (&$usage) : array {
+				return $usage;
+			},
+			'error' => function() use (&$api_error) : ?array {
+				return $api_error;
+			},
+			'assemble' => function() use ($snapshot, &$usage, &$stop_reason) : array {
+				return $snapshot() + [
+					'usage' => $usage,
+					'stop_reason' => $stop_reason,
+				];
+			},
 		];
 	}
 
@@ -555,7 +463,7 @@ class Anthropic extends Extension_DevblocksLlmProvider implements Chat, ChatStre
 	 * non-streamed response, so the caller's existing retryable-vs-terminal classification keeps working
 	 * unchanged even though the transport returned 200.
 	 */
-	private static function _streamErrorStatus(string $type) : int {
+	protected static function _streamErrorStatus(string $type) : int {
 		return match($type) {
 			'invalid_request_error' => 400,
 			'authentication_error' => 401,
@@ -819,6 +727,7 @@ class Anthropic extends Extension_DevblocksLlmProvider implements Chat, ChatStre
 				['caption' => 'effort:', 'snippet' => "effort: high", 'docHTML' => '<b>effort:</b>Reasoning effort (empty = provider default). Values: <code>low|medium|high|xhigh|max</code>. On legacy <code>thinking: {type: enabled}</code> models it maps to a thinking budget instead.'],
 				['caption' => 'cache@bool:', 'snippet' => 'cache@bool: yes', 'docHTML' => '<b>cache@bool:</b>Prompt caching. Defaults ON for <code>llm.agent</code> (multi-turn), OFF for <code>llm.chat</code> (one-shot). The stable prefix (tools+system) is always cached at 1h; the rolling tail uses <code>cache_ttl</code>.'],
 				['caption' => 'cache_ttl:', 'snippet' => 'cache_ttl: 1h', 'docHTML' => '<b>cache_ttl:</b>Rolling-tail cache lifetime. <code>5m</code> (default — a lapsed tail just re-parses the last turns) or <code>1h</code> (editor/coding-agent sessions with long pauses between turns). The prefix is always 1h regardless.'],
+				['caption' => 'stream@bool:', 'snippet' => 'stream@bool: no', 'docHTML' => '<b>stream@bool:</b>Stream the response (default <code>yes</code>). Streaming replaces the request timeout with an inactivity cutoff, so a long turn is not killed partway through, and it lets a running turn be stopped. Set <code>no</code> only to work around a proxy that buffers responses.'],
 			],
 			'values' => [
 				'model:' => $this->getChatModels(),

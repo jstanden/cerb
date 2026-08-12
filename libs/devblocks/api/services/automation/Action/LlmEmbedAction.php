@@ -74,7 +74,9 @@ class LlmEmbedAction extends AbstractAction {
 				throw new Exception_DevblocksAutomationError($error);
 			}
 			
-			if(!($llm_provider instanceof Embedding)) {
+			// Asks the provider, not its class hierarchy: an OpenAI-compatible subclass inherits the
+			// Embedding interface along with the dialect even when that vendor ships no embeddings API.
+			if(!($llm_provider instanceof Embedding) || !$llm_provider->supportsEmbeddings()) {
 				$llm_id = array_key_first($this->_inputs['llm'] ?? []);
 				$error = sprintf('LLM provider does not support vector embeddings: %s', $llm_id);
 				throw new Exception_DevblocksAutomationError($error);

@@ -2,6 +2,7 @@
 namespace Cerb\LLM\Providers;
 
 use Cerb\LLM\Providers\Interfaces\Chat;
+use Cerb\LLM\Providers\Interfaces\ChatStreaming;
 use Cerb\LLM\Providers\Interfaces\Embedding;
 use DevblocksLlmChatResponse;
 use DevblocksLlmChatResponse_Tool;
@@ -12,7 +13,7 @@ use Extension_DevblocksLlmMemoryStore;
 use Extension_DevblocksLlmProvider;
 use GuzzleHttp\Psr7\Request;
 
-class OpenAI extends Extension_DevblocksLlmProvider implements Chat, Embedding {
+class OpenAI extends Extension_DevblocksLlmProvider implements Chat, ChatStreaming, Embedding {
 	const ID = 'openai';
 
 	function getIcon() : string {
@@ -255,12 +256,21 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 		$headers = [
 			'Content-Type' => 'application/json',
 		];
+		$streaming = $this->_isStreamingTurn();
+
 		$body_payload = [
 			'model' => $this->getParam('model', ''),
-			'stream' => false,
+			'stream' => $streaming,
 			'messages' => $model_messages,
 		];
-		
+
+		// WITHOUT THIS, A STREAMED TURN REPORTS NO USAGE AT ALL. OpenAI omits the usage object entirely
+		// from a stream unless it's asked for, and the failure is silent: every streamed turn records
+		// zero tokens, so the session denorm, the context-window gauge and the transcript chips all go
+		// quietly wrong rather than visibly breaking.
+		if($streaming && null !== ($stream_options = $this->_getStreamOptions()))
+			$body_payload['stream_options'] = $stream_options;
+
 		if($tools)
 			$body_payload['tools'] = $tools;
 
@@ -291,21 +301,28 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 				throw new Exception_DevblocksAutomationError($error);
 		}
 
-		// No response at all (connect refused, DNS, cURL timeout) → status 0, a transient/retryable class.
-		if(false === ($response = $http->sendRequest($request, $request_options, $error)))
-			throw new Exception_DevblocksLlmApiError($error, 0);
+		if($streaming) {
+			// Consume the one-shot flag before doing anything that can throw, so a failed streamed turn
+			// can't leave the provider silently primed to stream the next one too.
+			$response_json = $this->_streamTurn($request, $request_options, $this->_consumeStreamingFlag());
 
-		if(false === ($response_json = $http->getResponseAsJson($response, $error)))
-			throw new Exception_DevblocksAutomationError($error);
+		} else {
+			// No response at all (connect refused, DNS, cURL timeout) → status 0, a transient/retryable class.
+			if(false === ($response = $http->sendRequest($request, $request_options, $error)))
+				throw new Exception_DevblocksLlmApiError($error, 0);
 
-		// A non-2xx carries the HTTP status so the caller classifies retry-vs-surface (429/503/5xx vs 401/400).
-		if(200 != $response->getStatusCode()) {
-			$status_code = $response->getStatusCode();
+			if(false === ($response_json = $http->getResponseAsJson($response, $error)))
+				throw new Exception_DevblocksAutomationError($error);
 
-			throw new Exception_DevblocksLlmApiError(
-				$this->_getApiErrorMessage($response_json, $status_code),
-				$status_code
-			);
+			// A non-2xx carries the HTTP status so the caller classifies retry-vs-surface (429/503/5xx vs 401/400).
+			if(200 != $response->getStatusCode()) {
+				$status_code = $response->getStatusCode();
+
+				throw new Exception_DevblocksLlmApiError(
+					$this->_getApiErrorMessage($response_json, $status_code),
+					$status_code
+				);
+			}
 		}
 
 		// Neutral token usage. OpenAI's prompt_tokens INCLUDES cached, so fresh input = prompt − cached;
@@ -335,7 +352,245 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 
 		return $response;
 	}
-	
+
+	/**
+	 * Ask for a usage frame on streamed turns. Overridable because it is an extra top-level body key,
+	 * and a stricter OpenAI-COMPATIBLE endpoint (llama.cpp, vLLM, a vendor's compat layer) may reject
+	 * what it doesn't recognize. Return null there and accept unreported usage.
+	 */
+	protected function _getStreamOptions() : ?array {
+		return ['include_usage' => true];
+	}
+
+	/**
+	 * The OpenAI-family streaming grammar. The base class owns the transport, the abort, the error
+	 * classification and the non-SSE fallback; this rebuilds the SAME `$response_json` the blocking
+	 * path parses (`choices[0].message` + `choices[0].finish_reason` + `usage`) so usage mapping,
+	 * appendMessage() and convertToGenericMessage() stay on one code path.
+	 *
+	 * Two shape differences from Anthropic drive everything here:
+	 *   - Frames carry NO `event:` name, so there is nothing to switch on — dispatch on the payload.
+	 *   - There is no per-block close event, so a tool call's completeness can only be judged from
+	 *     whether its accumulated `arguments` parse. See sanitizePartialContent().
+	 */
+	protected function _streamAccumulator() : array {
+		$content = '';
+		$reasoning = '';
+		// Which sibling key this server uses for reasoning; kept so the accumulated message round-trips
+		// through _pushMessageReasoning() exactly as the blocking response would have.
+		$reasoning_key = 'reasoning_content';
+		$tool_calls = [];
+		$finish_reason = null;
+		$usage = [];
+		$api_error = null;
+
+		$on_event = function(string $event, string $data) use (
+			&$content, &$reasoning, &$reasoning_key, &$tool_calls, &$finish_reason, &$usage, &$api_error
+		) : void {
+			$data = trim($data);
+
+			// The end-of-stream sentinel is a bare token, not JSON — decoding it yields null.
+			if('' === $data || '[DONE]' === $data)
+				return;
+
+			if(!is_array($d = json_decode($data, true)))
+				return;
+
+			// An API error can arrive INSIDE a 200. Record it and let the stream end; the base throws
+			// once the transfer closes, so this doesn't read as our own abort.
+			if(($err = $d['error'] ?? null)) {
+				$api_error = is_array($err) ? $err : ['type' => '', 'message' => strval($err)];
+				return;
+			}
+
+			// The usage frame arrives LAST and carries an EMPTY `choices`, so nothing below may assume
+			// `choices[0]` exists.
+			if(is_array($d['usage'] ?? null))
+				$usage = $d['usage'];
+
+			if(!is_array($choice = $d['choices'][0] ?? null))
+				return;
+
+			if(($reason = $choice['finish_reason'] ?? null))
+				$finish_reason = $reason;
+
+			if(!is_array($delta = $choice['delta'] ?? null))
+				return;
+
+			if(is_string($delta['content'] ?? null))
+				$content .= $delta['content'];
+
+			foreach(['reasoning_content', 'reasoning'] as $key) {
+				if(is_string($delta[$key] ?? null) && '' !== $delta[$key]) {
+					$reasoning_key = $key;
+					$reasoning .= $delta[$key];
+				}
+			}
+
+			// Tool calls arrive as INDEX-KEYED FRAGMENTS -- `id`, `function.name` and
+			// `function.arguments` each split across chunks, and only `index` ties them together.
+			foreach(($delta['tool_calls'] ?? []) as $fragment) {
+				if(!is_array($fragment))
+					continue;
+
+				$idx = intval($fragment['index'] ?? 0);
+
+				if(!array_key_exists($idx, $tool_calls)) {
+					$tool_calls[$idx] = [
+						'id' => '',
+						'type' => 'function',
+						'function' => ['name' => '', 'arguments' => ''],
+					];
+				}
+
+				if(is_string($fragment['id'] ?? null) && '' !== $fragment['id'])
+					$tool_calls[$idx]['id'] = $fragment['id'];
+
+				if(is_string($fragment['type'] ?? null) && '' !== $fragment['type'])
+					$tool_calls[$idx]['type'] = $fragment['type'];
+
+				if(!is_array($fn = $fragment['function'] ?? null))
+					continue;
+
+				// Appended, not assigned: the spec splits a name across chunks like anything else. It
+				// is sent once per call in practice, so appending is the safe reading of both cases.
+				if(is_string($fn['name'] ?? null))
+					$tool_calls[$idx]['function']['name'] .= $fn['name'];
+
+				if(is_string($fn['arguments'] ?? null))
+					$tool_calls[$idx]['function']['arguments'] .= $fn['arguments'];
+			}
+		};
+
+		// The turn so far, in the shape that gets persisted AND replayed to the API verbatim. `content`
+		// is a plain STRING here (not a block list), and NULL when the turn is nothing but tool calls —
+		// both shapes hasReplayableContent() already understands.
+		$snapshot = function() use (&$content, &$reasoning, &$reasoning_key, &$tool_calls) : array {
+			$message = [
+				'role' => 'assistant',
+				'content' => ('' !== $content) ? $content : null,
+			];
+
+			if('' !== $reasoning)
+				$message[$reasoning_key] = $reasoning;
+
+			if($tool_calls) {
+				// Fragments can interleave, so order by the index the API assigned rather than arrival.
+				ksort($tool_calls);
+				$message['tool_calls'] = array_values($tool_calls);
+			}
+
+			return $message;
+		};
+
+		// NB: `use (&$x)`, not `fn() => $x`. An arrow function captures BY VALUE at creation, which here
+		// is before a single event has landed — every one of these would report the empty initial state.
+		return [
+			'on_event' => $on_event,
+			'snapshot' => $snapshot,
+			'usage' => function() use (&$usage) : array {
+				return $usage;
+			},
+			'error' => function() use (&$api_error) : ?array {
+				return $api_error;
+			},
+			'assemble' => function() use ($snapshot, &$finish_reason, &$usage) : array {
+				return [
+					'choices' => [
+						[
+							'message' => $snapshot(),
+							'finish_reason' => $finish_reason,
+						],
+					],
+					'usage' => $usage,
+				];
+			},
+		];
+	}
+
+	// An ordinary chat completion — what the blocking path parses. Used by the base's `$saw_event`
+	// fallback when we asked for a stream and got a normal body back (an endpoint that ignores
+	// `stream`, a proxy that buffers). Degrading to non-streamed is the correct outcome, not a failure.
+	protected function _parseNonStreamedBody(array $body) : ?array {
+		return isset($body['choices'][0]['message']) ? $body : null;
+	}
+
+	/**
+	 * Map an in-stream error's `type` back onto the HTTP status it would have carried in a non-streamed
+	 * response, so the caller's retryable-vs-terminal classification keeps working even though the
+	 * transport returned 200. Compatible endpoints invent their own types, so unknown stays retryable.
+	 */
+	protected static function _streamErrorStatus(string $type) : int {
+		return match($type) {
+			'invalid_request_error' => 400,
+			'authentication_error', 'invalid_api_key' => 401,
+			'permission_error', 'insufficient_quota' => 403,
+			'not_found_error' => 404,
+			'rate_limit_error', 'rate_limit_exceeded', 'requests' => 429,
+			'overloaded_error' => 529,
+			// Unknown types included: treat as a server-side fault so a transient novelty stays retryable.
+			default => 500,
+		};
+	}
+
+	/**
+	 * Structural salvage rules for a turn cut short. Purely structural by contract — a worker killed
+	 * mid-stream is recovered on the session's NEXT turn by a different process that never saw the
+	 * stream, and (via resolveDanglingStream) by a provider built with no params at all.
+	 */
+	public function sanitizePartialContent(array $message) : array {
+		// Blank content becomes null rather than being dropped: that IS the native shape for a turn
+		// that is nothing but tool calls, and it is what gets replayed to the API.
+		$content = $message['content'] ?? null;
+		$message['content'] = (is_string($content) && '' !== trim($content)) ? $content : null;
+
+		foreach(['reasoning_content', 'reasoning'] as $key) {
+			if(!array_key_exists($key, $message))
+				continue;
+
+			// No signature to verify, unlike an Anthropic thinking block — the OpenAI family doesn't
+			// reject partial reasoning on replay, so a non-blank fragment is worth keeping.
+			if(!is_string($message[$key]) || '' === trim($message[$key]))
+				unset($message[$key]);
+		}
+
+		$kept = [];
+
+		foreach(($message['tool_calls'] ?? []) as $tool_call) {
+			if(!is_array($tool_call))
+				continue;
+
+			// No id means nothing can be paired against it, so it can neither be answered nor executed.
+			if('' === trim(strval($tool_call['id'] ?? '')))
+				continue;
+
+			if(!is_array($fn = $tool_call['function'] ?? null))
+				continue;
+
+			if('' === trim(strval($fn['name'] ?? '')))
+				continue;
+
+			$arguments = trim(strval($fn['arguments'] ?? ''));
+
+			// THE OPENAI EQUIVALENT OF ANTHROPIC'S ABSENT-`input` TELL. There is no per-call close event
+			// here, so the only structural evidence that arguments were severed mid-token is that they
+			// don't parse. A legitimate no-argument call sends '' or '{}'; a severed one sends a prefix
+			// like `{"path":"/et`. Nothing can rescue truncated JSON, and a tool call whose arguments we
+			// can't read can't be answered OR executed.
+			if('' !== $arguments && !is_array(json_decode($arguments, true)))
+				continue;
+
+			$kept[] = $tool_call;
+		}
+
+		if($kept)
+			$message['tool_calls'] = $kept;
+		else
+			unset($message['tool_calls']);
+
+		return $message;
+	}
+
 	function sanitizeMessages(array $messages) : array {
 		// The first message must be role:user
 		while(!empty($messages)) {
@@ -432,6 +687,7 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 				'api_endpoint_url:',
 				'authentication:',
 				['caption' => 'effort:', 'snippet' => "effort: medium", 'docHTML' => '<b>effort:</b>Reasoning effort (empty = provider default). Version-dependent values, e.g. <code>none|minimal|low|medium|high|xhigh|max</code>.'],
+				['caption' => 'stream@bool:', 'snippet' => 'stream@bool: no', 'docHTML' => '<b>stream@bool:</b>Stream the response (default <code>yes</code>). Streaming replaces the request timeout with an inactivity cutoff, so a long turn is not killed partway through, and it lets a running turn be stopped. Set <code>no</code> for an OpenAI-compatible endpoint that does not stream correctly.'],
 			],
 			'values' => [
 				'model:' => $this->getChatModels(),
