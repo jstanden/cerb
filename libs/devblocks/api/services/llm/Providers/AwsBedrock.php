@@ -432,6 +432,122 @@ class AwsBedrock extends Extension_DevblocksLlmProvider implements Chat, Embeddi
 	}
 
 	/**
+	 * Does this model accept `cachePoint` blocks?
+	 *
+	 * This has to be asked, not assumed: a cachePoint sent to a model that doesn't support caching is a hard
+	 * **403** ("You invoked an unsupported model or your request did not allow prompt caching"), NOT a
+	 * silently-ignored block. Sending them unconditionally broke every non-Claude/Nova model outright.
+	 *
+	 * The catalog is the authority (`explicitPromptCaching.isSupported`), so support is READ rather than
+	 * guessed from a vendor whitelist that would go stale the day AWS enables caching on another family.
+	 * It's cached for an hour because this sits on the chat path -- and every failure mode returns FALSE,
+	 * which only costs a cache miss. Losing caching is survivable; a 403 on every turn is not.
+	 */
+	private function _supportsPromptCaching(string $model) : bool {
+		$support = $this->_getPromptCachingSupport();
+
+		if(array_key_exists($model, $support))
+			return $support[$model];
+
+		// An inference profile (`us.anthropic.foo`) isn't in the foundation-model catalog under that id --
+		// resolve it to the model it fronts.
+		$bare = preg_replace('#^[a-z0-9-]+\.(?=[a-z0-9-]+\.)#i', '', $model);
+
+		return $support[$bare] ?? false;
+	}
+
+	/** @return array<string,bool> modelId => supports cachePoint */
+	private function _getPromptCachingSupport() : array {
+		if(!($base_url = rtrim(strval($this->getParam('api_endpoint_url')), '/')))
+			return [];
+
+		$cache = DevblocksPlatform::services()->cache();
+		$cache_key = 'bedrock_prompt_caching_' . sha1($base_url);
+
+		if(is_array($support = $cache->load($cache_key)))
+			return $support;
+
+		$error = null;
+		$response_json = $this->_fetchModelsJson($this->getChatModelsEndpointUrl($base_url), [], $error);
+
+		// No catalog (no `bedrock:ListFoundationModels`, network trouble) -> nobody gets cachePoints. Cached
+		// anyway so a broken lookup doesn't re-fire on every turn.
+		$support = [];
+
+		foreach(($response_json['modelSummaries'] ?? []) as $row) {
+			if(!is_array($row) || '' === ($model_id = strval($row['modelId'] ?? '')))
+				continue;
+
+			$support[$model_id] = (bool) (
+				($row['explicitPromptCaching']['isSupported'] ?? false)
+				|| ($row['featuresSupported']['promptCaching'] ?? false)
+			);
+		}
+
+		$cache->save($support, $cache_key, [], 3600);
+
+		return $support;
+	}
+
+	/**
+	 * Converse's prompt-cache marker is a `{cachePoint:{type:default}}` CONTENT BLOCK appended after the
+	 * content it covers -- a different mechanism from Anthropic's `cache_control` attribute, which is why this
+	 * provider has its own placement rather than sharing Anthropic's.
+	 *
+	 * Two cache points, mirroring the Anthropic policy:
+	 *   1. PREFIX — after the last `system` block. Tools+system render first, so this caches them together;
+	 *      its bytes are stable turn to turn, which is what makes it worth writing at all.
+	 *   2. TAIL — after the last content block of the last message. Advances each turn.
+	 *
+	 * There is deliberately no TTL knob: Bedrock cache points have a fixed lifetime (~5 minutes), so
+	 * `cache_ttl` is not offered for this provider. `cache_tail`/`cache_tail_skip` still apply.
+	 */
+	private function _applyPromptCache(array &$body_payload) : void {
+		$intent = $this->_getCacheIntent();
+		$cache_point = ['cachePoint' => ['type' => 'default']];
+
+		if($this->_isCacheable($body_payload['system'] ?? null))
+			$body_payload['system'][] = $cache_point;
+
+		if($intent['tail'] && is_array($body_payload['messages'] ?? null) && $body_payload['messages']) {
+			$keys = array_keys($body_payload['messages']);
+			$last = $keys[count($keys) - 1 - $intent['tail_skip']] ?? null;
+
+			if(is_null($last))
+				return;
+
+			if($this->_isCacheable($body_payload['messages'][$last]['content'] ?? null))
+				$body_payload['messages'][$last]['content'][] = $cache_point;
+		}
+	}
+
+	/**
+	 * Is there anything here for a cache point to mark?
+	 *
+	 * A cachePoint must FOLLOW real content. Appending one to an empty block list leaves a message whose only
+	 * block is the marker, which Bedrock rejects with "There is nothing available to cache" -- on every model,
+	 * Claude included. Empty lists reach here legitimately: sanitizeMessages() turns a `content: ""` into `[]`.
+	 * Also refuses to stack a second marker on a list that already ends in one.
+	 */
+	private function _isCacheable(mixed $blocks) : bool {
+		if(!is_array($blocks) || !$blocks)
+			return false;
+
+		// Already marked -- a second adjacent marker buys nothing and risks another "nothing to cache".
+		$last = end($blocks);
+
+		if(is_array($last) && array_key_exists('cachePoint', $last))
+			return false;
+
+		foreach($blocks as $block) {
+			if(is_array($block) && !array_key_exists('cachePoint', $block))
+				return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Bedrock has TWO hosts. `api_endpoint_url` points at the RUNTIME plane
 	 * (`bedrock-runtime.<region>.amazonaws.com`), where every `invoke` goes -- but the model catalog lives on
 	 * the CONTROL plane (`bedrock.<region>.amazonaws.com`). Listing against the runtime host is a 404, which
@@ -597,6 +713,12 @@ class AwsBedrock extends Extension_DevblocksLlmProvider implements Chat, Embeddi
 	// so that key is simply absent and the field keeps whatever's typed.
 	function getModelDefaults(string $model) : array {
 		return $this->_model_meta[$model] ?? [];
+	}
+
+	// Bedrock cache points have a fixed ~5 minute lifetime with no author knob, so this is a constant rather
+	// than a reading of `cache_ttl`. (Caller gates on cache being on.)
+	function getCacheHintSeconds(array $params) : ?int {
+		return 300;
 	}
 
 	/**
