@@ -6,6 +6,31 @@ use DevblocksPlatform;
 use Model_AutomationContinuation;
 
 class LlmTranscriptAwait extends AbstractAwait {
+	// The session row for this render. Loaded once and reused: the poll's caller already fetched it for
+	// its ownership check, and _prepare() would otherwise fetch the identical row a second time — each
+	// one a SELECT with three LEFT JOINs onto llm_agent_session_property, once per second per viewer.
+	private ?\Model_LlmAgentSession $_session = null;
+	private bool $_session_loaded = false;
+
+	/** Hand over an already-loaded session so this render doesn't re-query it. */
+	function setSession(?\Model_LlmAgentSession $session) : void {
+		$this->_session = $session;
+		$this->_session_loaded = true;
+	}
+
+	private function _getSession(string $session_id) : ?\Model_LlmAgentSession {
+		if(!$this->_session_loaded) {
+			$this->_session = \DAO_LlmAgentSession::get($session_id);
+			$this->_session_loaded = true;
+		}
+
+		// Guard the memo: a caller could hand us one session and then prepare a different transcript.
+		if($this->_session && strval($this->_session->uuid ?? '') !== $session_id)
+			return \DAO_LlmAgentSession::get($session_id);
+
+		return $this->_session;
+	}
+
 	function invoke(string $prompt_key, string $action, Model_AutomationContinuation $continuation) {
 		return match ($action) {
 			'echoTurn' => $this->_promptAction_echoTurn($continuation),
@@ -110,7 +135,7 @@ class LlmTranscriptAwait extends AbstractAwait {
 		if(!$transcript_id)
 			return false;
 
-		$transcript = \DAO_LlmAgentSession::get($transcript_id);
+		$transcript = $this->_getSession($transcript_id);
 		$tpl->assign('transcript', $transcript);
 
 		// A freshly-minted session_id (e.g. `{{uuid()}}`) has no row yet, and an unprimed session has no
@@ -428,8 +453,21 @@ class LlmTranscriptAwait extends AbstractAwait {
 	private function _promptAction_pollTurn(Model_AutomationContinuation $continuation) : bool {
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 
+		// CHEAP PATH FIRST. _prepare() walks the whole active path — a recursive CTE materializing full
+		// `data_json` for up to 250 messages, then a json_decode and a convertToGenericMessage() per row —
+		// and then throws all but the newest turn away. At one tick per second on a long session that is
+		// the single most expensive thing in the poll, and during a thinking phase (or ANY turn on a
+		// non-streaming provider) it renders markup byte-identical to the last tick, which the client
+		// discards. So answer "nothing moved" from the session head alone, before any of that runs.
+		if(($state = $this->_pollState($continuation))) {
+			if('' !== ($sent = strval($this->_data['fingerprint'] ?? '')) && $sent === $state['fingerprint']) {
+				echo json_encode($state + ['unchanged' => true]);
+				return true;
+			}
+		}
+
 		if(!$this->_prepare($continuation)) {
-			echo json_encode(['in_progress' => false, 'seq' => 0, 'html' => '']);
+			echo json_encode(['in_progress' => false, 'working' => false, 'streaming' => false, 'seq' => 0, 'html' => '']);
 			return true;
 		}
 
@@ -464,9 +502,79 @@ class LlmTranscriptAwait extends AbstractAwait {
 			// newest message made a growing turn miss the node already on screen and append a duplicate.
 			'seq' => $last ? intval(reset($last)['seq_first'] ?? 0) : 0,
 			'html' => $html,
+			// Lets the NEXT tick be answered from the session head alone when nothing has moved.
+			'fingerprint' => $state['fingerprint'] ?? '',
+			// Whether this session's provider streams at all. A non-streaming provider can never change
+			// this transcript mid-turn, so the client uses it to pick a slow cadence on the FIRST tick
+			// rather than discovering it by polling a second at a time for the length of the turn.
+			'can_stream' => $state['can_stream'] ?? false,
 		]);
 
 		return true;
+	}
+
+	/**
+	 * The poll's control fields, derived from the session head ALONE — one indexed row, no active-path
+	 * walk. Everything here is a property of the newest message plus the continuation, which is exactly
+	 * what `_prepare()` would compute from the tail of the path it just spent the CTE building.
+	 *
+	 * The fingerprint has to move whenever the newest turn's RENDERING could: a new message (head_uuid),
+	 * a streamed row growing in place (its content length), or that row finalizing (is_streaming).
+	 *
+	 * @return ?array{fingerprint:string,in_progress:bool,working:bool,streaming:bool,can_stream:bool}
+	 */
+	private function _pollState(Model_AutomationContinuation $continuation) : ?array {
+		if('' === ($session_id = strval($this->_data['session_id'] ?? '')))
+			return null;
+
+		if(!($session = $this->_getSession($session_id)))
+			return null;
+
+		// A legacy/unmigrated session has no head, and _prepare() answers it from a seq-linear read whose
+		// state this can't reproduce from one row. Decline rather than short-circuit on a fingerprint that
+		// would be stable while saying the wrong thing.
+		if('' === ($head_uuid = strval($session->head_uuid ?? '')))
+			return null;
+
+		if(!($head = \DAO_LlmAgentMessage::get($head_uuid)))
+			return null;
+
+		$is_streaming = boolval($head->is_streaming);
+
+		// Mirrors _prepare(): finished means the tip is a completed assistant text reply. A STREAMING row
+		// is role=assistant and classifies as kind=text, so without the flag it would read as finished the
+		// instant it was created — killing the Stop button and the poll exactly when both are needed.
+		$is_finished = 'assistant' === $head->role
+			&& 'text' === $head->kind
+			&& !$is_streaming;
+
+		$can_stream = false;
+
+		if($session->provider) {
+			try {
+				$provider = DevblocksPlatform::services()->llm()->getProvider($session->provider, [], false);
+
+				$can_stream = $provider instanceof \Cerb\LLM\Providers\Interfaces\ChatStreaming
+					&& $provider->isStreamingEnabled();
+
+			} catch(\Throwable $e) {
+				// An unknown/misconfigured provider just means "assume it can't stream" — the client falls
+				// back to the slow cadence, which is the safe direction to be wrong in.
+			}
+		}
+
+		return [
+			'fingerprint' => implode(':', [
+				$head_uuid,
+				$is_streaming ? 1 : 0,
+				strlen(json_encode($head->data)),
+			]),
+			'in_progress' => !$is_finished,
+			// Work is genuinely underway: a turn is being written, or one is queued and about to be.
+			'working' => $is_streaming || 'queue' === strval($continuation->state_await ?? ''),
+			'streaming' => $is_streaming,
+			'can_stream' => $can_stream,
+		];
 	}
 
 	// Design-time sample shown when there's no live session to render. Painted to look like a real

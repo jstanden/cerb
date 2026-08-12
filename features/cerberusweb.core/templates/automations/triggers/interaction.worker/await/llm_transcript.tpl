@@ -163,17 +163,68 @@ $(function() {
 
         const activity = $prompt.find('[data-cerb-transcript-activity]')[0];
         const stopRow = $prompt.find('[data-cerb-transcript-stop]')[0];
+
+        // Fast while a turn is genuinely being WRITTEN -- that's the only time this transcript can change
+        // between ticks. Slow otherwise: the gap while a tool runs, and every turn on a provider that
+        // doesn't stream at all, where the markup is byte-identical for the whole turn.
+        const POLL_STREAMING_MS = 1000;
+        const POLL_IDLE_MS = 5000;
+        // A backgrounded tab is not being read; keep watching, but stop paying for it every second.
+        const POLL_HIDDEN_MS = 15000;
+        // Give up after this many consecutive ticks with no work and no change.
+        const MAX_IDLE_TICKS = 30;
+
         let startedAt = 0;
         let inflight = false;
         let failures = 0;
         let timer = null;
         let lastHtml = '';
         let idle = 0;
+        // Opaque server token for "what I already have". Lets the server answer from the session head
+        // instead of walking the whole active path to rebuild markup we'd only throw away.
+        let fingerprint = '';
+        // Until the first response says otherwise, assume the provider streams: being wrong that way costs
+        // a few fast ticks, while the reverse would make a genuinely live turn look frozen.
+        let canStream = true;
+        // Owned by the poll's lifetime, not the render's -- both are torn down in stop(). A document-level
+        // listener left behind would stack one per render, and the elapsed ticker would outlive its clock.
+        let ticker = null;
+        let onVisible = null;
 
         const stop = function() {
-            if(timer) { clearInterval(timer); timer = null; }
+            if(timer) { clearTimeout(timer); timer = null; }
+            if(ticker) { clearInterval(ticker); ticker = null; }
+
+            if(onVisible) {
+                document.removeEventListener('visibilitychange', onVisible);
+                onVisible = null;
+            }
+
             container._cerbTranscriptPolling = false;
             if(activity) activity.style.display = 'none';
+        };
+
+        // Self-rescheduling rather than a fixed interval, so the cadence can follow what's actually
+        // happening. `inflight` still guards overlap; this decides how soon we ask again.
+        const schedule = function(delay) {
+            if(timer) clearTimeout(timer);
+            timer = setTimeout(poll, delay);
+        };
+
+        const nextDelay = function(json) {
+            if(document.visibilityState === 'hidden')
+                return POLL_HIDDEN_MS;
+
+            // Content is arriving right now -- this is the only case that earns a 1s cadence.
+            if(json && json.streaming)
+                return POLL_STREAMING_MS;
+
+            // The provider can't stream, so nothing will change mid-turn no matter how often we ask.
+            if(!canStream)
+                return POLL_IDLE_MS;
+
+            // Working but not streaming: a tool is running, or a turn is queued and about to start.
+            return (json && json.working) ? POLL_STREAMING_MS : POLL_IDLE_MS;
         };
 
         // Elapsed time is the honest liveness signal. During an extended-thinking phase there is genuinely
@@ -194,7 +245,13 @@ $(function() {
 
             tick();
 
-            if(inflight) return;
+            // Overlap guard. It MUST reschedule rather than just bail: this loop is a chain of setTimeouts,
+            // so any path that neither stops nor schedules kills it silently and forever. (Under the old
+            // fixed setInterval a bare `return` was harmless, which is exactly why it reads as safe.)
+            // Reachable via the visibility handler's schedule(0) landing on an in-flight request.
+            if(inflight)
+                return schedule(POLL_STREAMING_MS);
+
             inflight = true;
 
             // A dedicated profileAction, NOT invokePrompt: a turn only streams while the continuation is
@@ -214,6 +271,7 @@ $(function() {
             fd.set('tools', '{$tools|default:'summary'|escape:'javascript'}');
             fd.set('expand', '{$expand|default:'latest'|escape:'javascript'}');
             fd.set('tokens', '{if $show_tokens}1{else}0{/if}');
+            fd.set('fingerprint', fingerprint);
 
             genericAjaxPost(fd, null, null, function(json) {
                 inflight = false;
@@ -222,12 +280,28 @@ $(function() {
                 if(!document.contains(container))
                     return stop();
 
+                // An auth/not-found failure answers HTTP 200 with an `error` key, so the transport-level
+                // `fail` handler below never sees it. Without this a dead or expired continuation is polled
+                // for as long as the tab stays open.
+                if(json && json.error)
+                    return stop();
+
+                if(json && typeof json.can_stream === 'boolean')
+                    canStream = json.can_stream;
+
+                if(json && typeof json.fingerprint === 'string')
+                    fingerprint = json.fingerprint;
+
                 // Only touch the DOM when the markup actually changed. A turn spends long stretches producing
                 // content the transcript can't show (thinking blocks stream with EMPTY text under
                 // `display: omitted`), and rebuilding an identical turn every second would churn its bubbles
-                // and wreck text selection for a reader who is mid-sentence.
-                if(json && json.seq && json.html && json.html !== lastHtml) {
+                // and wreck text selection for a reader who is mid-sentence. `unchanged` is the server having
+                // reached the same conclusion before doing the work to render anything.
+                let changed = false;
+
+                if(json && !json.unchanged && json.seq && json.html && json.html !== lastHtml) {
                     lastHtml = json.html;
+                    changed = true;
 
                     // NO auto-scroll while streaming, deliberately. An "only follow if they're already at the
                     // bottom" rule isn't enough here: updateTurn REPLACES the turn node, which destroys the
@@ -249,14 +323,21 @@ $(function() {
                 // interaction can sit indefinitely with `in_progress` true and nothing ever arriving, and
                 // polling forever for a view nobody is waiting on is just noise. A real render detaches the
                 // container and ends it sooner anyway.
-                idle = (json && (json.working || json.html)) ? 0 : (idle + 1);
+                //
+                // Idle means NOTHING MOVED -- no work reported and the markup unchanged. The old test counted
+                // a tick as busy whenever `html` was merely PRESENT, and a session with any turn in it always
+                // renders something, so `idle` never incremented and the cutoff below could never fire.
+                idle = (json && (json.working || changed)) ? 0 : (idle + 1);
 
                 // The turn is done. The interaction's own gate poll owns what happens next — this only ever
                 // watches; it never advances the interaction.
                 if(json && !json.in_progress)
-                    stop();
-                else if(idle >= 30)
-                    stop();
+                    return stop();
+
+                if(idle >= MAX_IDLE_TICKS)
+                    return stop();
+
+                schedule(nextDelay(json));
 
             }, {
                 // A failed WATCH must stay silent. This runs alongside the interaction's own gate poll and the
@@ -268,7 +349,10 @@ $(function() {
                     inflight = false;
 
                     if(++failures >= 5)
-                        stop();
+                        return stop();
+
+                    // Back off while it's failing rather than retrying at the streaming cadence.
+                    schedule(POLL_IDLE_MS);
                 }
             });
         };
@@ -283,6 +367,8 @@ $(function() {
             startedAt = Date.now();
             idle = 0;
             lastHtml = '';
+            fingerprint = '';
+            failures = 0;
 
             if(stopRow) stopRow.style.display = '';
             if(activity) { activity.style.display = ''; tick(); }
@@ -290,7 +376,19 @@ $(function() {
             // No immediate tick: a submit fires the optimistic echo at the same moment, and that does a FULL
             // setTurns() replace. Polling in the same beat would race it — we'd patch a turn the echo is
             // about to wipe. One second late costs nothing and removes the race entirely.
-            timer = setInterval(poll, 1000);
+            schedule(POLL_STREAMING_MS);
+
+            // The CLOCK must keep moving at a steady rate even though the REQUESTS back off -- at a 5s
+            // cadence the elapsed readout would otherwise jump five seconds at a time.
+            ticker = setInterval(tick, 1000);
+
+            // Coming back to the tab should feel live again immediately, not whenever the slow timer expires.
+            onVisible = function() {
+                if('visible' === document.visibilityState && document.contains(container))
+                    schedule(0);
+            };
+
+            document.addEventListener('visibilitychange', onVisible);
         };
 
         container._cerbTranscriptStartPoll = startPoll;

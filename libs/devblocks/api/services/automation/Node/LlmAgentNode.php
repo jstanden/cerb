@@ -1177,6 +1177,8 @@ class LlmAgentNode extends AbstractNode {
 			$this->_dict->set('__return', [
 				'queue' => [
 					'messages' => $uuids,
+					// See _startLLMAsync(): lets the gate poll back off as the wait runs long.
+					'started_at' => time(),
 				],
 			]);
 
@@ -1308,6 +1310,10 @@ class LlmAgentNode extends AbstractNode {
 		$this->_dict->set('__return', [
 			'queue' => [
 				'messages' => $uuids,
+				// When the wait began. The gate poll re-emits its marker every cycle and the client re-reads
+				// it every cycle, so the server paces the poll from this — backing off as a turn runs long,
+				// because the pending state is a pure read and a faster poll discovers nothing.
+				'started_at' => time(),
 			],
 		]);
 

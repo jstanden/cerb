@@ -5,4 +5,5 @@
 <div data-cerb-await-queue
 	data-poll-ms="{$poll_ms}"
 	data-workers="{$workers}"
+	data-needs-worker="{$needs_worker|default:1}"
 	data-continuation-token="{$continuation_token}"></div>

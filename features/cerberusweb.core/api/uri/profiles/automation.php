@@ -16,6 +16,11 @@
 ***********************************************************************/
 
 class PageSection_ProfilesAutomation extends Extension_PageSection {
+	// Ceiling for the `await:queue:` gate poll's backoff. Deliberately small: once a turn's worker sidecar
+	// has been cut by the gateway, this timer is the only thing left that notices the turn landed, so the
+	// cap is a direct floor on how long the reader waits after it does.
+	const AWAIT_QUEUE_POLL_MS_MAX = 5000;
+
 	private array $_interaction_extensions = [
 		AutomationTrigger_InteractionInternal::ID,
 		AutomationTrigger_InteractionWorker::ID,
@@ -1843,7 +1848,16 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 
 		$data['tokens'] = DevblocksPlatform::importGPC($_POST['tokens'] ?? null, 'bit', 0);
 
+		// What the client already has on screen. When it still matches, the poll answers from the session
+		// head alone instead of walking the whole active path to render markup byte-for-byte identical to
+		// what the client would then discard.
+		$data['fingerprint'] = DevblocksPlatform::importGPC($_POST['fingerprint'] ?? null, 'string', '');
+
 		$await = new \Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\LlmTranscriptAwait('', '', $data);
+
+		// Reuse the row the ownership check above already loaded, rather than SELECTing it a second time.
+		$await->setSession($session);
+
 		$await->invoke('', 'pollTurn', $continuation);
 	}
 
@@ -2066,9 +2080,45 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		$poll_ms = max(500, intval($queue_state['poll_ms'] ?? 2000));
 		$workers = DevblocksPlatform::intClamp($queue_state['workers'] ?? 1, 1, 4);
 
+		// The gate re-emits this marker EVERY cycle and the client re-reads it every cycle, so the pacing
+		// belongs here rather than in the browser. A turn that has been running a while has almost
+		// certainly outlived its worker sidecar (a long turn's sidecar is cut by the gateway at ~30s and
+		// finishes off-request), and until it lands there is nothing for a faster poll to discover.
+		//
+		// Capped low ON PURPOSE: once the sidecar is gone this timer is the ONLY thing that notices the
+		// turn finished, so the ceiling is a direct floor on how long the reader waits afterwards. In the
+		// common case a live sidecar re-checks the gate the instant it completes, so the ramp costs
+		// nothing at all.
+		if(($started_at = intval($queue_state['started_at'] ?? 0)) > 0) {
+			$elapsed = max(0, time() - $started_at);
+			$poll_ms = min(self::AWAIT_QUEUE_POLL_MS_MAX, $poll_ms * (1 << intdiv($elapsed, 15)));
+		}
+
+		// Does this client need to run a worker sidecar at all? While the turn is IN_FLIGHT somewhere, a
+		// sidecar dequeues nothing and returns `{0,0}` in milliseconds — one wasted round trip per gate
+		// cycle for the whole turn. Only an AVAILABLE (unclaimed) message actually needs a worker.
+		$needs_worker = 1;
+
+		if(is_array($queue_state['messages'] ?? null) && $queue_state['messages']) {
+			$statuses = DAO_QueueMessage::getStatusesByUuids($queue_state['messages']);
+			$claimable = false;
+
+			foreach($statuses as $status) {
+				if(QueueMessageStatus::AVAILABLE->value === $status) {
+					$claimable = true;
+					break;
+				}
+			}
+
+			// Absent statuses mean we can't tell — spawn, because failing to drain is worse than one
+			// wasted request.
+			$needs_worker = ($claimable || count($statuses) < count($queue_state['messages'])) ? 1 : 0;
+		}
+
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('poll_ms', $poll_ms);
 		$tpl->assign('workers', $workers);
+		$tpl->assign('needs_worker', $needs_worker);
 		$tpl->assign('continuation_token', $continuation_token);
 		$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.worker/_await_queue.tpl');
 	}

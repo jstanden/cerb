@@ -32,10 +32,16 @@ $(function() {
 		_queuePoll = null;
 	}
 
+	// Throttle for respawning a sidecar that found claimable work but lost the claim. Named and bounded
+	// for the same reason job_monitor.tpl bounds its own: a no-op response returns in milliseconds, so an
+	// immediate respawn is a hot loop against the queue.
+	var _WORKER_RETRY_MS = 1500;
+	var _WORKER_MAX_RETRIES = 3;
+
 	function runQueuePoll(cfg) {
 		stopQueuePoll();
 
-		var poll = { active: true, timer: null, inflight: 0 };
+		var poll = { active: true, timer: null, inflight: 0, spawns: 0, retries: 0 };
 		_queuePoll = poll;
 
 		// The gated poll: a normal interaction re-POST. The server re-runs the script and the automation engine's
@@ -51,11 +57,22 @@ $(function() {
 
 		// A worker sidecar: advance the shared LLM queue by ONE turn, then (if it did) re-check the gate NOW so a
 		// slow turn adds no latency beyond its own processing time. If work is claimable but we lost the claim,
-		// retry immediately; otherwise let the poll_ms fallback re-check.
+		// retry -- throttled, because a no-op response comes back in milliseconds and an immediate respawn is a
+		// hot loop (see job_monitor.tpl, which handles the same case against the same queue).
 		function spawnWorker() {
 			if(!poll.active || poll.inflight >= cfg.workers)
 				return;
 
+			// Nothing claimable: the turn is already IN_FLIGHT somewhere, so a sidecar would dequeue nothing
+			// and return zeros in milliseconds -- one wasted round trip per gate cycle for the whole turn.
+			if(!cfg.needsWorker)
+				return;
+
+			// A backgrounded tab isn't being watched; it still needs to drain work, but not eagerly.
+			if(document.visibilityState === 'hidden' && poll.spawns >= 1)
+				return;
+
+			poll.spawns++;
 			poll.inflight++;
 
 			var fd = new FormData();
@@ -70,13 +87,29 @@ $(function() {
 				if(!poll.active)
 					return;
 
+				// An auth/not-found failure answers HTTP 200 with an `error` key and no counters, so it
+				// would otherwise read as "no work, nothing ready" forever. Stop instead of polling a
+				// dead continuation for as long as the tab stays open.
+				if(json && json.error) {
+					stopQueuePoll();
+					return;
+				}
+
 				var processed = (json && typeof json.processed === 'number') ? json.processed : 0;
 				var ready = (json && typeof json.ready === 'number') ? json.ready : 0;
 
-				if(processed > 0)
+				if(processed > 0) {
 					gatePoll();
-				else if(ready > 0)
-					spawnWorker();
+					return;
+				}
+
+				// Claimable work we didn't win. `ready` is queue-GLOBAL, so this can be somebody else's
+				// turn entirely -- retry a bounded number of times, throttled, then let the gate's own
+				// timer carry it rather than spinning against a queue we keep losing.
+				if(ready > 0 && poll.retries < _WORKER_MAX_RETRIES) {
+					poll.retries++;
+					setTimeout(spawnWorker, _WORKER_RETRY_MS);
+				}
 			}, {
 				// Expected, not an error: this sidecar deliberately outlives the gateway's ~30s request timeout
 				// (504, or 0 when the socket is simply closed). The queue worker finishes the turn off-request and
@@ -205,6 +238,9 @@ $(function() {
 				runQueuePoll({
 					pollMs: Math.max(500, parseInt($queue.attr('data-poll-ms'), 10) || 2000),
 					workers: Math.min(4, Math.max(1, parseInt($queue.attr('data-workers'), 10) || 1)),
+					// Absent attribute means an older marker -- spawn, since failing to drain the queue is
+					// worse than one wasted request.
+					needsWorker: '0' !== ($queue.attr('data-needs-worker') || '1'),
 					token: $queue.attr('data-continuation-token') || ''
 				});
 				return;
