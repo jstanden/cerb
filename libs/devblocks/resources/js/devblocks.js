@@ -239,11 +239,19 @@ function DevblocksClass() {
 	// worker sidecar, which is designed to outlive the gateway's request timeout — and delegate here for
 	// everything else.
 	this.ajaxFail = function(err, div) {
+		// An aborted request (navigating away, a torn-down popup) isn't a failure worth reporting, and
+		// clearing the alerts here would wipe a message the caller just posted.
+		if(0 === err.status)
+			return;
+
 		Devblocks.clearAlerts();
 		hideLoadingPanel();
 
+		// Restore the target's opacity (genericAjaxGet/Post faded it while the request was in flight) but
+		// KEEP its content. Blanking it turns any unhandled status into a silently empty region — e.g. a
+		// worklist that vanishes with no explanation. The alerts below are how a failure gets reported.
 		if(null != div) {
-			div.html('').fadeIn();
+			div.stop(true).fadeTo('fast', 1.0);
 		}
 
 		if(401 === err.status) {
@@ -1453,10 +1461,20 @@ function genericAjaxGet(divRef,args,cb,options) {
 		
 		options.success = function(html) {
 			if(null != div) {
+				let is_view = div.is('DIV[id^=view]');
+
+				// A rendered worklist is never empty — even a zero-row view emits its header table — so an
+				// empty body means the server failed to produce one (e.g. `worklists:refresh` couldn't load
+				// the view). Keep what's on screen instead of silently blanking the worklist.
+				if(is_view && ('string' !== typeof html || '' === html.trim())) {
+					div.fadeTo("fast", 1.0);
+					return;
+				}
+
 				div.html(html);
 				div.fadeTo("fast", 1.0);
-				
-				if(div.is('DIV[id^=view]'))
+
+				if(is_view)
 					div.trigger('view_refresh');
 			}
 		};
@@ -1577,10 +1595,18 @@ function genericAjaxPost(formRef,divRef,args,cb,options) {
 		
 		options.success = function(html) {
 			if(null != div && div instanceof jQuery) {
+				let is_view = div.is('DIV[id^=view]');
+
+				// See genericAjaxGet(): an empty body is a failed render, not an empty worklist.
+				if(is_view && ('string' !== typeof html || '' === html.trim())) {
+					div.fadeTo("fast", 1.0);
+					return;
+				}
+
 				div.html(html);
 				div.fadeTo("fast", 1.0);
-				
-				if(div.is('DIV[id^=view]'))
+
+				if(is_view)
 					div.trigger('view_refresh');
 			}
 		};

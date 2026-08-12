@@ -191,6 +191,8 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		// Query
 		if(!empty($query)) {
 			$view->addParamsWithQuickSearch($query, true);
+			// Record the query text too, so the popup's search field still shows it after a refresh
+			$view->setParamsQuery($query);
 			$view->renderPage = 0;
 		}
 		

@@ -63,32 +63,38 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		return false;
 	}
 	
+	// These three render a worklist in place. An unknown view id used to return an empty 200, which the
+	// client can't tell from "the worklist rendered as nothing" -- it replaced the container with the empty
+	// body and the list silently vanished. Fail with a 404 so the failure is reported instead.
 	private function _internalAction_refresh() {
 		$id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null);
 		
-		if(null != ($view = C4_AbstractViewLoader::getView($id))) {
-			$view->render();
-		}
+		if(null == ($view = C4_AbstractViewLoader::getView($id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		$view->render();
 	}
 	
 	private function _internalAction_sort() {
 		$id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null);
 		$sortBy = DevblocksPlatform::importGPC($_REQUEST['sortBy'] ?? null);
 		
-		if(null != ($view = C4_AbstractViewLoader::getView($id))) {
-			$view->doSortBy($sortBy);
-			$view->render();
-		}
+		if(null == ($view = C4_AbstractViewLoader::getView($id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		$view->doSortBy($sortBy);
+		$view->render();
 	}
 	
 	private function _internalAction_page() {
 		$id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null);
 		$page = DevblocksPlatform::importGPC(DevblocksPlatform::importGPC($_REQUEST['page'] ?? null));
 		
-		if(null != ($view = C4_AbstractViewLoader::getView($id))) {
-			$view->doPage($page);
-			$view->render();
-		}
+		if(null == ($view = C4_AbstractViewLoader::getView($id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		$view->doPage($page);
+		$view->render();
 	}
 	
 	private function _viewRenderInlineFilters($view, $is_custom=false, $add_mode=null) {
