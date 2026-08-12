@@ -82,7 +82,11 @@
 
 .cerb-ui-colorpicker--panel {
 	position: absolute;
-	z-index: 9100; // above .cerb-float (2500); aligns with datepicker/menu layering
+	// 10001 matches menu/chooser/datepicker/iconpicker — above jQuery UI dialogs (~100s), .cerb-float popups
+	// (2500), CerbUI.Dialog, and tooltips (10000). This was 9100, which only LOOKED safe: CerbUI.Dialog._zTop
+	// starts at 9000 and increments on every dialog open/focus, so the panel eventually opened BEHIND the
+	// dialog that spawned it (reproduced in the agent model peek, where the iconpicker beside it worked).
+	z-index: 10001;
 	box-sizing: border-box;
 	padding: 0.6em;
 	border: 1px solid var(--cerb-color-background-contrast-220);

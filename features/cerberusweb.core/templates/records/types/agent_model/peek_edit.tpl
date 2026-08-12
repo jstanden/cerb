@@ -262,9 +262,12 @@ $(function() {
 			});
 		}
 
+		// Swatch-only, like every other ColorPicker in the app: the hex belongs in the popup (which grows its
+		// own field in this mode), not sitting in the form next to the icon well. The <input> stays in the DOM
+		// and still posts `icon_color`.
 		if(iconColorEl && window.CerbUI && CerbUI.ColorPicker) {
 			new CerbUI.ColorPicker(iconColorEl, {
-				showInput: true
+				showInput: false
 			});
 		}
 
