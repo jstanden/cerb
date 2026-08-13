@@ -1041,7 +1041,6 @@ html.dark #{$dtb_id} .dtb-card--date-edit { background: #1f2937; border-color: r
 					'<div class="dtb-triage--head-right">' +
 						'<div class="dtb-triage--progress">Progress <b data-dtb-triage-pct>0%</b></div>' +
 						'<button type="button" class="dtb-triage--icon" data-dtb-triage="shuffle" title="Shuffle"><span class="cerb-icons cerb-icon-dice"></span></button>' +
-						'<button type="button" class="dtb-triage--icon" data-dtb-triage="help" title="Shortcuts"><span class="cerb-icons cerb-icon-circle-info"></span></button>' +
 						'<button type="button" class="dtb-triage--icon" data-dtb-triage="close" title="Close"><span class="cerb-icons cerb-icon-circle-remove"></span></button>' +
 					'</div>' +
 				'</div>' +
@@ -1281,7 +1280,6 @@ html.dark #{$dtb_id} .dtb-card--date-edit { background: #1f2937; border-color: r
 			stackEl.classList.add('dtb-triage--shake');
 			setTimeout(function() { stackEl.classList.remove('dtb-triage--shake'); }, 320);
 		});
-		root.querySelector('[data-dtb-triage="help"]').addEventListener('click', function() { root.classList.toggle('dtb-triage--show-help'); });
 
 		setDeltas(false);
 		document.addEventListener('keydown', onKey);
