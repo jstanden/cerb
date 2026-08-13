@@ -2564,6 +2564,7 @@ class _DevblocksLlmService {
 					if(!($response = $this->nextSessionTurn($session_id, $turn_messages, $error, $turn_timeout, stream: true, stall_secs: $turn_stall_secs, was_interrupted: $was_interrupted))) {
 						// A null return is a setup/config failure (unknown session/provider), never transient.
 						$queue_message->retry_count = self::RETRY_COUNT_TERMINAL;
+						$this->_stashTurnError($session_id, $error ?: 'The LLM turn could not run.', 0);
 						$queue_message->reportStatus(QueueMessageStatus::FAILED, $error ?: 'The LLM turn could not run.', [
 							'duration_ms' => $elapsed_ms(),
 						]);
@@ -2619,6 +2620,15 @@ class _DevblocksLlmService {
 						$e->getMessage()
 					));
 
+					// Leave the reason where the INTERACTION can read it. The awaiting `llm.agent` node resumes in a
+					// different request and reports this to the worker (rewinding the session and routing to
+					// `on_error:`), and there is nowhere on the message itself to put it — see turnErrorCacheKey().
+					$this->_stashTurnError(
+						$session_id,
+						$e->getMessage(),
+						($e instanceof \Exception_DevblocksLlmApiError) ? $e->statusCode : 0
+					);
+
 					$queue_message->reportStatus(QueueMessageStatus::FAILED, $e->getMessage(), [
 						'duration_ms' => $failed_after_ms,
 						'timed_out' => $timed_out,
@@ -2639,6 +2649,28 @@ class _DevblocksLlmService {
 		}
 
 		return $processed;
+	}
+
+	/**
+	 * Record WHY a turn failed, in the one place the interaction can read it: a session-keyed shared-cache slot
+	 * (see LlmAgentNode::turnErrorCacheKey). The worker and the interaction are different requests, `queue_message`
+	 * has no column for a reason, and reportStatus() metadata is dropped for job-less messages — which every LLM
+	 * turn is. Without this the interaction can only say "a queued agent turn failed", which is what it used to.
+	 *
+	 * Overwritten by each attempt (a retry's reason is the current one) and consumed by the node on read, so it
+	 * can't resurface against a later, unrelated failure. TTL is generous but finite: a cold slot degrades to a
+	 * generic sentence, never to a wrong one.
+	 */
+	private function _stashTurnError(string $session_id, string $message, int $status) : void {
+		if('' === $session_id)
+			return;
+
+		DevblocksPlatform::services()->cache()->save(
+			['message' => $message, 'status' => $status, 'at' => time()],
+			\Cerb\AutomationBuilder\Node\LlmAgentNode::turnErrorCacheKey($session_id),
+			[],
+			600
+		);
 	}
 
 	// A retry_count set at/above any sane retry_max, so DAO_QueueMessage::reportFailure()'s getRetryDisposition()

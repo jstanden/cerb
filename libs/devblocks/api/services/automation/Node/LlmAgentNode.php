@@ -19,6 +19,11 @@ class LlmAgentNode extends AbstractNode {
 	private array $_inputs = [];
 	private string $_output = '';
 
+	// Extra keys to merge into the output var when this activation throws. The catch replaces that var wholesale
+	// with `['error' => …]`, so a failure with something an author can branch on (a rate limit vs a bad request,
+	// the message that didn't send) has nowhere else to put it.
+	private array $_output_error_extra = [];
+
 	// The router that supplied this turn's model, when one did. Empty on a pure resume (nothing was chosen)
 	// and on an inline `llm:` / explicit `model:` turn. Surfaced in the node output so an implicit default is
 	// traceable -- "why did this run Haiku" has no answer otherwise.
@@ -38,6 +43,10 @@ class LlmAgentNode extends AbstractNode {
 	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, ?string &$error=null) : string|false {
 		$this->_node_memory =& $node_memory;
 		$this->_dict = $dict;
+
+		// Per-activation: the node instance outlives one activation within a run, and a later failure must not
+		// inherit an earlier one's detail.
+		$this->_output_error_extra = [];
 
 		// Returning from an on_success/on_error/on_simulate branch (which ran to completion) — hand
 		// control back to the parent. Guarded here, before the fresh-activation check, so we don't
@@ -63,6 +72,11 @@ class LlmAgentNode extends AbstractNode {
 			$is_new_turn = !array_key_exists('stack', $this->_node_memory);
 
 			if($is_new_turn) {
+				// Whatever the last failure handed back to the composer, this turn supersedes it — the worker is
+				// sending again. Cleared HERE rather than on success so a draft can't outlive the message it
+				// belongs to and re-seed a composer several turns later.
+				$this->_dict->unset('__llm_retry');
+
 				$validation = DevblocksPlatform::services()->validation();
 				
 				// Params validation
@@ -233,6 +247,12 @@ class LlmAgentNode extends AbstractNode {
 					return $this->node->getId();
 
 				} else if('command_done' == $state) {
+					// A failed command reaches us instead of ending the automation (see _resumeAwaitGate). Nothing
+					// to rewind — a command that failed didn't advance the head — so just report it through the
+					// author's `on_error:` rather than ending a chat over housekeeping.
+					if(($failure = $this->_getQueueFailure($state_params)))
+						$this->_failTurn($failure, []);
+
 					// The awaited command finished in a worker (the queue gate confirmed DONE). Nothing to
 					// reconstitute — a command produces no assistant turn. A moved head means the fold really
 					// happened; unchanged means it was a legitimate no-op, and the author's `on_success:` can
@@ -247,6 +267,13 @@ class LlmAgentNode extends AbstractNode {
 					return $this->node->getId();
 
 				} else if('llm_consume' == $state) {
+					// Did this turn leave an answer? Asked against the head we ENQUEUED on, not "is the head an
+					// assistant row" — for a fresh `llm` turn the head at enqueue time is already the PREVIOUS
+					// turn's answer (the user message rides the queue payload and is appended by the worker), so
+					// a turn that died before appending anything would otherwise read as landed and re-apply the
+					// last answer as this one's.
+					$turn_landed = $this->_turnLandedSince($state_params['head'] ?? null);
+
 					// A Stop raised while the turn was STREAMING, where nothing survived to consume. This is the
 					// ordinary case, not an exotic one: a turn can spend minutes thinking, and a thinking block cut
 					// before its signature can't be replayed — so the most likely moment to press Stop is also the
@@ -254,10 +281,10 @@ class LlmAgentNode extends AbstractNode {
 					// boundary does; letting a turn the user deliberately cancelled surface as "produced no
 					// assistant response" would report their own click back to them as a failure.
 					//
-					// Checked ONLY when there's no assistant head. With a salvaged partial we fall through, apply
-					// it (so its content and tool calls are handled), and the interrupt is honored a beat later at
+					// Checked ONLY when nothing landed. With a salvaged partial we fall through, apply it (so its
+					// content and tool calls are handled), and the interrupt is honored a beat later at
 					// `tools_done` — which keeps the partial in the node's output instead of discarding it here.
-					if(!$this->_hasAssistantHead() && $this->_consumeInterrupt()) {
+					if(!$turn_landed && $this->_consumeInterrupt()) {
 						unset($this->_node_memory['stack']);
 
 						if(null != ($event_success = $this->node->getChild($this->node->getId() . ':on_success'))) {
@@ -267,6 +294,12 @@ class LlmAgentNode extends AbstractNode {
 
 						return $this->node->getParent()->getId();
 					}
+
+					// The turn FAILED and left nothing behind (the gate handed control back rather than ending the
+					// automation — see _resumeAwaitGate). Put the session back the way it was and report it, so a
+					// transient provider failure costs the worker a click instead of their conversation.
+					if(!$turn_landed && ($failure = $this->_getQueueFailure($state_params)))
+						$this->_failTurn($failure, $state_params);
 
 					// The awaited queue turn landed on the session (the engine's queue gate confirmed DONE before
 					// resuming here). Reconstitute the response from the session head and run the shared back half.
@@ -407,9 +440,9 @@ class LlmAgentNode extends AbstractNode {
 			
 			if (null != ($event_error = $this->node->getChild($this->node->getId() . ':on_error'))) {
 				if ($this->_output) {
-					$this->_dict->set($this->_output, [
+					$this->_dict->set($this->_output, array_merge([
 						'error' => $error,
-					]);
+					], $this->_output_error_extra));
 				}
 
 				// Run the on_error branch, then (via the `completed` guard) return to the parent —
@@ -1171,7 +1204,15 @@ class LlmAgentNode extends AbstractNode {
 			// roomy context window produces (the tail budget can cover the whole conversation).
 			$head_before = ($session = \DAO_LlmAgentSession::get($session_id)) ? strval($session->head_uuid) : '';
 
-			$this->_node_memory['stack'][] = ['command_done', ['command' => $command, 'head' => $head_before]];
+			// See _startLLMAsync(): this command reports only its own failure, never a leftover one.
+			$this->_clearTurnError($session_id);
+
+			$this->_node_memory['stack'][] = ['command_done', [
+				'command' => $command,
+				'head' => $head_before,
+				// The uuids let the resume re-ask the gate whether this failed — see _getQueueFailure().
+				'queue_uuids' => $uuids,
+			]];
 
 			$this->_dict->set('__exit', 'await');
 			$this->_dict->set('__return', [
@@ -1179,6 +1220,9 @@ class LlmAgentNode extends AbstractNode {
 					'messages' => $uuids,
 					// See _startLLMAsync(): lets the gate poll back off as the wait runs long.
 					'started_at' => time(),
+					// See _startLLMAsync(): a failed `/compact` resumes into `command_done`, which reports it
+					// through `on_error:` rather than ending the chat over a housekeeping command.
+					'on_error' => 'resume',
 				],
 			]);
 
@@ -1301,7 +1345,23 @@ class LlmAgentNode extends AbstractNode {
 
 		// Resume into the consume half once the turn lands. The uuids ride the resume state for tracing; the gate
 		// on __return.queue.messages is what actually clears the await.
-		$this->_node_memory['stack'][] = ['llm_consume', ['queue_uuids' => $uuids]];
+		//
+		// `head` and `prompt` are what a FAILED turn needs and only this side knows. The head lets the resume tell
+		// "this turn landed" from "the head is the PREVIOUS turn's answer" — for a fresh `llm` turn they look
+		// identical, since the user message rides the payload and is appended by the worker. The prompt is handed
+		// back to the composer so a rate-limited turn costs the worker a click, not their paragraph.
+		$head_before = ($session = \DAO_LlmAgentSession::get($session_id)) ? strval($session->head_uuid) : '';
+
+		// Start clean, so this turn can only ever report ITS own failure. The worker writes that slot after we
+		// enqueue; a leftover from an earlier failure would otherwise be the one thing read if this turn's worker
+		// is hard-killed before it can write its own.
+		$this->_clearTurnError($session_id);
+
+		$this->_node_memory['stack'][] = ['llm_consume', [
+			'queue_uuids' => $uuids,
+			'head' => $head_before,
+			'prompt' => $this->_pendingPromptText($new_messages),
+		]];
 
 		// Suspend on the queue gate: the engine re-emits this await until every uuid is terminal-DONE, then
 		// resumes into `llm_consume`. The client keeps the transcript + its dots spinner up and polls in the
@@ -1314,6 +1374,10 @@ class LlmAgentNode extends AbstractNode {
 				// it every cycle, so the server paces the poll from this — backing off as a turn runs long,
 				// because the pending state is a pure read and a faster poll discovers nothing.
 				'started_at' => time(),
+				// WE handle a failed message, rather than the engine ending the automation at the gate. Without
+				// this the resume never happens and `on_error:` — which exists precisely so a chat doesn't
+				// dead-end — can never fire on an async turn. See _resumeAwaitGate().
+				'on_error' => 'resume',
 			],
 		]);
 
@@ -1327,10 +1391,18 @@ class LlmAgentNode extends AbstractNode {
 	 * calls, text blocks → messages), and usage_json carries the token vector — then run the shared back half.
 	 */
 	/**
-	 * Did the awaited turn actually leave an assistant message on the session? False means the turn produced
-	 * nothing usable — either it failed, or it was stopped and its partial was too incomplete to keep.
+	 * Did the awaited turn actually leave an answer on the session? False means it produced nothing usable —
+	 * it failed, or it was stopped and its partial was too incomplete to keep.
+	 *
+	 * ⚠️ Measured against the head we ENQUEUED on, not merely "the head is an assistant row". On a fresh `llm`
+	 * turn the head is ALREADY an assistant row when we enqueue (the previous turn's answer; this turn's user
+	 * message rides the queue payload and is appended by the worker). So a turn that died before the worker
+	 * appended anything leaves an assistant head that isn't ours, and treating it as landed would re-apply the
+	 * PREVIOUS answer as this turn's — a silent wrong answer rather than a visible failure.
+	 *
+	 * A null/absent `$head_before` (a resume state written before this was recorded) degrades to the old test.
 	 */
-	private function _hasAssistantHead() : bool {
+	private function _turnLandedSince(?string $head_before) : bool {
 		$session_id = strval($this->_dict->getKeyPath($this->_getSessionKey(), '', '::'));
 
 		if('' === $session_id)
@@ -1339,9 +1411,143 @@ class LlmAgentNode extends AbstractNode {
 		if(!($session = \DAO_LlmAgentSession::get($session_id)) || !$session->head_uuid)
 			return false;
 
-		$head = \DAO_LlmAgentMessage::get(strval($session->head_uuid));
+		$head_uuid = strval($session->head_uuid);
 
-		return $head && 'assistant' === $head->role;
+		// Nothing was appended since we enqueued, so whatever the head is, it isn't this turn's answer.
+		if(!is_null($head_before) && $head_uuid === strval($head_before))
+			return false;
+
+		$head = \DAO_LlmAgentMessage::get($head_uuid);
+
+		// A STREAMING head is a turn still being written (a worker died mid-stream and the gate went terminal
+		// before anything closed it), not one that landed. resolveDanglingStream() settles it on the next turn.
+		return $head && 'assistant' === $head->role && !$head->is_streaming;
+	}
+
+	/**
+	 * The shared-cache slot where the async worker leaves WHY a turn failed. Out-of-band for the same reason the
+	 * interrupt flag is: the failure happens in a different request, and there is nowhere on the queue message to
+	 * put it — `queue_message` has no message column, and `reportStatus()` metadata is dropped for job-less
+	 * messages ("fire-and-forget messages (job_id=0) skip logging"), which every LLM turn is.
+	 */
+	static function turnErrorCacheKey(string $session_id) : string {
+		return 'llm_agent_turn_error_' . $session_id;
+	}
+
+	private function _clearTurnError(?string $session_id) : void {
+		if(strlen(strval($session_id)))
+			DevblocksPlatform::services()->cache()->remove(self::turnErrorCacheKey(strval($session_id)));
+	}
+
+	/**
+	 * Did the awaited queue message(s) fail? Returns `{message, status}` (the worker's stash, consumed) or null.
+	 *
+	 * The gate already decided this — it only hands control back on a terminal failure when the descriptor says
+	 * we own it — but the node re-asks so a resume driven by anything else can't mistake a failure for a clear.
+	 */
+	private function _getQueueFailure(array $state_params) : ?array {
+		$uuids = (array) ($state_params['queue_uuids'] ?? []);
+
+		if(!$uuids || 'error' !== DevblocksPlatform::services()->queue()->awaitGate($uuids))
+			return null;
+
+		$session_id = strval($this->_dict->getKeyPath($this->_getSessionKey(), '', '::'));
+		$cache = DevblocksPlatform::services()->cache();
+		$key = self::turnErrorCacheKey($session_id);
+
+		// Consumed on read: one failure, one report. A stale stash surfacing on a later, unrelated failure would
+		// name the wrong provider error, which is worse than the generic sentence below.
+		$stash = ('' !== $session_id) ? $cache->load($key, true) : null;
+
+		if($session_id && $stash)
+			$cache->remove($key);
+
+		return [
+			'message' => is_array($stash) ? strval($stash['message'] ?? '') : '',
+			// 0 = no HTTP response at all (network/timeout), which is also the fallback when the stash is cold.
+			'status' => is_array($stash) ? intval($stash['status'] ?? 0) : 0,
+		];
+	}
+
+	/**
+	 * Hand a failed turn back to the chat: undo what it appended, keep the worker's message for the composer,
+	 * then throw so the author's `on_error:` runs (or, with no branch, so it surfaces exactly as an inline turn's
+	 * failure does — the async path matching the sync one, not being quietly more forgiving than it).
+	 *
+	 * @throws Exception_DevblocksAutomationError
+	 */
+	private function _failTurn(array $failure, array $state_params) : void {
+		$session_id = strval($this->_dict->getKeyPath($this->_getSessionKey(), '', '::'));
+		$message = $this->_formatTurnFailure(strval($failure['message'] ?? ''), intval($failure['status'] ?? 0));
+
+		// Put the branch back where it was before Send. The worker appends the user message (and, if it ran, this
+		// turn's compaction fold) BEFORE calling the provider, so a failed turn otherwise leaves the session
+		// carrying a message the model never answered — and resending the same text from the composer would
+		// duplicate it. Rewinding the head is enough: getActivePath() anchors there, so the abandoned rows become
+		// a dead branch that nothing reads (the same cursor-handback discardStreamingMessage() does).
+		//
+		// Only when the head actually MOVED, and only to a head we recorded — never blindly to ''.
+		if('' !== $session_id && array_key_exists('head', $state_params)) {
+			$head_before = strval($state_params['head']);
+
+			if(($session = \DAO_LlmAgentSession::get($session_id)) && strval($session->head_uuid) !== $head_before)
+				\DAO_LlmAgentSession::setHead($session_id, $head_before ?: null);
+		}
+
+		// The composer reads this on the next render (AgentPromptAwait), so the worker gets their message back
+		// instead of retyping it. A dict key rather than the cache: it belongs to THIS interaction, and it has to
+		// survive an eviction that would otherwise silently eat someone's paragraph.
+		$this->_dict->set('__llm_retry', [
+			'prompt' => strval($state_params['prompt'] ?? ''),
+			'error' => $message,
+			'at' => time(),
+		]);
+
+		// activate()'s catch replaces the output var wholesale with `['error' => …]`, so anything an author needs
+		// to branch on has to be handed to it here.
+		$this->_output_error_extra = [
+			'error_status' => intval($failure['status'] ?? 0),
+			'retryable' => in_array(intval($failure['status'] ?? 0), [0, 408, 425, 429, 500, 502, 503, 504, 529], true),
+			'retry_prompt' => strval($state_params['prompt'] ?? ''),
+		];
+
+		throw new Exception_DevblocksAutomationError($message);
+	}
+
+	// A failure a human can act on. The provider's own text is kept (it's often the only thing that names the
+	// model or the region), but the class comes first: `RateLimitReached` doesn't tell a worker to just wait.
+	private function _formatTurnFailure(string $message, int $status) : string {
+		$prefix = match(true) {
+			429 === $status => 'The model provider is rate limiting requests (429). Wait a moment and send again.',
+			in_array($status, [500, 502, 503, 504, 529], true) => sprintf('The model provider is unavailable (%d). Try again in a moment.', $status),
+			0 === $status => 'The model provider could not be reached, or the turn timed out.',
+			default => '',
+		};
+
+		$message = trim($message);
+
+		// Nothing was stashed (an evicted slot, or a worker killed before it could write). The classification is
+		// all we have; don't pad it with a second, emptier sentence.
+		if('' === $message)
+			return ('' !== $prefix) ? $prefix : sprintf('The agent turn failed%s.', $status ? sprintf(' (HTTP %d)', $status) : '');
+
+		return ('' !== $prefix) ? ($prefix . ' ' . $message) : $message;
+	}
+
+	// The text of the message this turn was sending, for the composer to hold onto if the turn fails. Only the
+	// prose: images are already linked to the session, and a restored model/effort pick would fight the picker's
+	// own persistence. Empty for a tool-loop continuation, which has no pending message.
+	private function _pendingPromptText(array $messages) : string {
+		foreach(array_reverse($messages) as $message) {
+			if(!is_array($message) || 'user' !== ($message['role'] ?? ''))
+				continue;
+
+			// A multimodal turn's content is a block list; only a plain-prose message is restorable.
+			if(is_string($message['content'] ?? null))
+				return $message['content'];
+		}
+
+		return '';
 	}
 
 	private function _consumeLLMAsync(array $state_params, ?string &$error=null) : bool {

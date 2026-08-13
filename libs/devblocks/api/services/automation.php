@@ -571,6 +571,17 @@ class _DevblocksAutomationService {
 			$uuids = (array)($return['queue']['messages'] ?? []);
 			$gate = DevblocksPlatform::services()->queue()->awaitGate($uuids);
 
+			// The awaiting node OWNS this failure: advance instead of terminating, and let it decide what a
+			// failed message means for its own state (`llm.agent` rewinds the session and routes to `on_error:`,
+			// so a rate-limited turn hands the composer back instead of ending the interaction). Declared by the
+			// descriptor rather than assumed, so a caller that hasn't been taught to handle failure — including an
+			// interaction parked on a continuation written before this existed — still terminates as it always did.
+			//
+			// Safe to advance because a failure here is TERMINAL: awaitGate() reads a message waiting out its
+			// retry backoff as AVAILABLE → 'pending', so nothing else is coming for these uuids.
+			if('error' === $gate && 'resume' === ($return['queue']['on_error'] ?? ''))
+				return 'clear';
+
 			if('error' === $gate && !$dict->getKeyPath('__error.message'))
 				$dict->setKeyPath('__error.message', 'A queued agent turn failed or is no longer available. Please try again.');
 

@@ -12,10 +12,11 @@ use Model_AutomationContinuation;
 
 /*
  * agentPrompt — an agentic chat input (CerbUI.AgentPrompt). Prose value plus structured extras:
- * the posted prompt is an array `prompts[<name>][text|model|attachments[]|mentions[]]`, split by
- * setValue() into `<name>` (text) and `<name>_model` / `<name>_attachments` / `<name>_mentions`
- * siblings so the automation can inherit the selected provider/model and expand references. The picked
- * model is also persisted to `<name>__model` so render() can re-seed the picker (no revert each turn).
+ * the posted prompt is an array `prompts[<name>][text|model|effort|images[]|mentions[]]`, split by
+ * setValue() into `<name>` (text) and `<name>_mentions` / `<name>__model` / `<name>__effort` /
+ * `<name>__llm` / `<name>__images` siblings so the automation can inherit the selected provider/model
+ * and expand references. The `<name>__` siblings survive the continuation save (only a leading `__` is
+ * dropped), so render() re-seeds the picker from them and the choice doesn't revert each turn.
  *
  * The model dropdown is inert until submit — no live server round-trip. A genuine provider change is
  * forked+rewritten once, at submit, by the llm.agent node (not here).
@@ -329,6 +330,20 @@ class AgentPromptAwait extends AbstractAwait {
 		$commands = $this->_getCommands();
 		$references = $this->_getReferences();
 
+		// A turn that failed hands its message back here (LlmAgentNode::_failTurn), so a rate-limited or timed-out
+		// send costs a click instead of a retyped paragraph. Written into the dict alongside `__llm_token_usage`
+		// and cleared by the next turn, so it can only ever describe the most recent failure.
+		//
+		// An explicit `default:` still wins — an author who seeds the composer means it, and silently overriding
+		// them would be a worse surprise than losing a draft.
+		$retry = $continuation->state_data['dict']['__llm_retry'] ?? null;
+
+		if(!is_array($retry))
+			$retry = [];
+
+		if(!strlen(strval($default ?? '')) && strlen(strval($retry['prompt'] ?? '')))
+			$default = strval($retry['prompt']);
+
 		// Progress bar: the durable running estimate the LLM node maintains after each turn
 		// (`__llm_token_usage` — window-aware, so it stays correct after a compaction). No re-summing.
 		$context_tokens = intval($continuation->state_data['dict']['__llm_token_usage'] ?? 0);
@@ -399,6 +414,7 @@ class AgentPromptAwait extends AbstractAwait {
 		$tpl->assign('var', $this->_key);
 		$tpl->assign('label', $label);
 		$tpl->assign('is_required', $is_required);
+		$tpl->assign('retry_error', $retry['error'] ?? '');
 		$tpl->assign('config_json', json_encode($config));
 
 		$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.worker/await/agent_prompt.tpl');

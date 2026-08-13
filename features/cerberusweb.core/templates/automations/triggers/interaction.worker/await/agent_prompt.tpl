@@ -3,6 +3,15 @@
 	<div data-cerb-agentprompt-composer>
 		{if $label}<h6>{$label}</h6>{/if}
 
+		{* The last turn failed and handed its message back to the composer above; say why, or the reader sees
+		   their own text return with no explanation. Rendered server-side and replaced with the element on the
+		   next render, so it can't outlive the failure it describes. *}
+		{if $retry_error}
+			<div class="cerb-form-builder-error cerb-u-mb-2">
+				<span class="cerb-icons cerb-icon-alert"></span> {$retry_error}
+			</div>
+		{/if}
+
 		<div>
 			<textarea class="cerb-ui-agentprompt--input"></textarea>
 			<div data-cerb-agentprompt-hidden style="display:none;"></div>
