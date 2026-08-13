@@ -194,11 +194,22 @@ class Ollama extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 		// Why generation stopped. Ollama reports it top-level, OUTSIDE the `message` the converter sees.
 		$finish_reason = self::normalizeFinishReason($response_json['done_reason'] ?? null);
 
-		// Add to the memory
+		// Neutral token usage. Ollama has no `usage` block -- the counts are top-level siblings of `message`,
+		// like `done_reason`. It reports no cache accounting at all, so both cache legs are 0 and the whole
+		// prompt always counts as fresh input.
+		$usage = [
+			'input' => intval($response_json['prompt_eval_count'] ?? 0),
+			'output' => intval($response_json['eval_count'] ?? 0),
+			'cache_read' => 0,
+			'cache_write' => 0,
+		];
+
+		// Add to the memory (usage rides the assistant turn -- usage_json column, not the replayed data_json)
 		if($response_json['message'] ?? null)
-			$memory->appendMessage($response_json['message'], finish_reason: $finish_reason);
+			$memory->appendMessage($response_json['message'], usage: $usage, finish_reason: $finish_reason);
 
 		$response = $this->convertToGenericMessage($response_json['message']);
+		$response->setUsage($usage);
 		$response->setFinishReason($finish_reason);
 
 		return $response;
