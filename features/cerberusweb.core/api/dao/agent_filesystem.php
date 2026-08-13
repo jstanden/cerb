@@ -127,6 +127,73 @@ class DAO_AgentFilesystem extends Cerb_ORMHelper {
 		parent::_updateWhere('agent_filesystem', $fields, $where);
 	}
 
+	private static bool $_defer_recount = false;
+
+	/** [filesystem_id => true] collected while deferred */
+	private static array $_deferred_recount_ids = [];
+
+	/**
+	 * Collect `recount()` calls instead of running them, until `flushRecount()`.
+	 *
+	 * For a bulk writer whose files go in one at a time (the ZIP importer writes a row per archive entry):
+	 * without this, a thousand-file archive would re-count the volume a thousand times. Mirrors
+	 * `search()->deferIndexQueue()`, which the same writers already wrap their batches in. ALWAYS flush in a
+	 * `finally` -- an abandoned window leaves the counters stale until the next write.
+	 */
+	static function deferRecount() : void {
+		self::$_defer_recount = true;
+	}
+
+	static function flushRecount() : void {
+		self::$_defer_recount = false;
+
+		$deferred = self::$_deferred_recount_ids;
+		self::$_deferred_recount_ids = [];
+
+		if($deferred)
+			self::recount(array_keys($deferred));
+	}
+
+	/**
+	 * Refresh the cached `file_count` / `total_bytes` for one or more volumes.
+	 *
+	 * These are a denormalization of `agent_file`, so they belong to whatever writes files -- and files are
+	 * written from four places (the ZIP importer, the VFS `write`/`rm` commands, the peek editor, and
+	 * `record.*` from an automation or a workflow import). Only the importer ever maintained them, so a volume
+	 * populated any other way read "0 files, 0 bytes" on its card, its profile, and in the `mounts:`
+	 * autocomplete. Hanging it off `DAO_AgentFile`'s write paths covers all four at once.
+	 *
+	 * Counted in SQL rather than read-modify-write: concurrent writers (an agent writing while an import runs)
+	 * would otherwise race, and the correct value is always one query away. A volume whose last file just went
+	 * is not returned by the subqueries at all -- `COUNT` of nothing is 0, which is exactly the answer.
+	 *
+	 * `updated_at` is deliberately NOT bumped: a counter refresh is bookkeeping, and bumping it would make
+	 * every agent file write look like an edit to the volume in "recently updated" worklists.
+	 */
+	static function recount($filesystem_ids) : void {
+		if(!is_array($filesystem_ids))
+			$filesystem_ids = [$filesystem_ids];
+
+		if(!($filesystem_ids = DevblocksPlatform::sanitizeArray($filesystem_ids, 'int', ['unique', 'nonzero'])))
+			return;
+
+		if(self::$_defer_recount) {
+			foreach($filesystem_ids as $filesystem_id)
+				self::$_deferred_recount_ids[$filesystem_id] = true;
+
+			return;
+		}
+
+		$db = DevblocksPlatform::services()->database();
+
+		$db->ExecuteMaster(sprintf("UPDATE agent_filesystem SET ".
+			"file_count = (SELECT COUNT(1) FROM agent_file WHERE filesystem_id = agent_filesystem.id), ".
+			"total_bytes = (SELECT COALESCE(SUM(size),0) FROM agent_file WHERE filesystem_id = agent_filesystem.id) ".
+			"WHERE id IN (%s)",
+			implode(',', $filesystem_ids)
+		));
+	}
+
 	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
 		if(!CerberusContexts::isActorAnAdmin($actor)) {
 			$error = DevblocksPlatform::translate('error.core.no_acl.admin');

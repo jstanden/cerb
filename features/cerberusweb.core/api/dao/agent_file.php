@@ -98,6 +98,10 @@ class DAO_AgentFile extends Cerb_ORMHelper {
 		if(!isset($fields[self::CREATED_AT]))
 			$fields[self::CREATED_AT] = time();
 
+		// Re-stating the volume the INSERT already used, so the volume's counter refresh fires from update()
+		// even for a create that carries no `content` -- the row exists either way, and it counts.
+		$fields[self::FILESYSTEM_ID] = $filesystem_id;
+
 		CerberusContexts::checkpointCreations(Context_AgentFile::ID, $id);
 
 		self::update($id, $fields);
@@ -206,6 +210,30 @@ class DAO_AgentFile extends Cerb_ORMHelper {
 		$context = Context_AgentFile::ID;
 		self::_updateAbstract($context, $ids, $fields);
 
+		// Which volumes' counters this write invalidates. Read BEFORE the write, because a `filesystem_id`
+		// change moves a file between two volumes and BOTH are now wrong -- the one losing it as much as the
+		// one gaining it. A rename or a bookkeeping write touches neither, so it doesn't ask.
+		$recount_filesystem_ids = [];
+
+		if(
+			$ids
+			&& (
+				array_key_exists(self::CONTENT, $fields)
+				|| array_key_exists(self::SIZE, $fields)
+				|| array_key_exists(self::FILESYSTEM_ID, $fields)
+			)
+		) {
+			$db = DevblocksPlatform::services()->database();
+
+			$recount_filesystem_ids = array_column($db->GetArrayMaster(sprintf(
+				"SELECT DISTINCT filesystem_id FROM agent_file WHERE id IN (%s)",
+				implode(',', DevblocksPlatform::sanitizeArray($ids, 'int'))
+			)), 'filesystem_id');
+
+			if(array_key_exists(self::FILESYSTEM_ID, $fields))
+				$recount_filesystem_ids[] = $fields[self::FILESYSTEM_ID];
+		}
+
 		$chunks = array_chunk($ids, 100, true);
 		while($batch_ids = array_shift($chunks)) {
 			if(empty($batch_ids))
@@ -228,6 +256,8 @@ class DAO_AgentFile extends Cerb_ORMHelper {
 			if(array_key_exists(self::CONTENT, $fields) || array_key_exists(self::NAME, $fields))
 				DevblocksPlatform::services()->search()->queueIndexRecords($context, $batch_ids);
 		}
+
+		DAO_AgentFilesystem::recount($recount_filesystem_ids);
 	}
 
 	// Bypasses the derived-column pass in update() (and markContextChanged), so never write `content` through
@@ -353,9 +383,17 @@ class DAO_AgentFile extends Cerb_ORMHelper {
 
 		parent::_deleteAbstractBefore($context, $ids);
 
+		// While the rows still exist to be asked
+		$filesystem_ids = array_column($db->GetArrayMaster(sprintf(
+			"SELECT DISTINCT filesystem_id FROM agent_file WHERE id IN (%s)",
+			$ids_list
+		)), 'filesystem_id');
+
 		$db->ExecuteMaster(sprintf("DELETE FROM agent_file WHERE id IN (%s)", $ids_list));
 
 		parent::_deleteAbstractAfter($context, $ids);
+
+		DAO_AgentFilesystem::recount($filesystem_ids);
 
 		return true;
 	}

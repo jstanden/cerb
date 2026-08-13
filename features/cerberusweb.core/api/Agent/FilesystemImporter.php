@@ -399,6 +399,9 @@ class FilesystemImporter {
 		$search = DevblocksPlatform::services()->search();
 		$search->deferIndexQueue();
 
+		// Same reason, for the volume's counters: one refresh per batch instead of one per file.
+		DAO_AgentFilesystem::deferRecount();
+
 		try {
 			foreach($entries as $name => $content) {
 				$sha1 = sha1($content);
@@ -441,6 +444,7 @@ class FilesystemImporter {
 
 		} finally {
 			$search->flushIndexQueue();
+			DAO_AgentFilesystem::flushRecount();
 		}
 
 		return $count;
@@ -479,15 +483,10 @@ class FilesystemImporter {
 				DAO_AgentFile::delete(array_map('intval', $chunk));
 		}
 
-		$stats = $db->GetRowReader(sprintf(
-			"SELECT COUNT(1) AS file_count, COALESCE(SUM(size),0) AS total_bytes FROM agent_file WHERE filesystem_id = %d",
-			$filesystem_id
-		));
-
-		DAO_AgentFilesystem::update($filesystem_id, [
-			DAO_AgentFilesystem::FILE_COUNT => intval($stats['file_count'] ?? 0),
-			DAO_AgentFilesystem::TOTAL_BYTES => intval($stats['total_bytes'] ?? 0),
-		]);
+		// Every write path keeps these current now, so this is belt-and-braces for the prune above rather than
+		// the only thing that maintains them. Same implementation either way -- two counts that can disagree
+		// is worse than none.
+		DAO_AgentFilesystem::recount($filesystem_id);
 
 		// Bookkeeping only — cleared without events so it never triggers a reindex
 		DAO_AgentFile::updateWhere(
