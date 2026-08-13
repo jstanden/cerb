@@ -1,0 +1,64 @@
+{
+  "package": {
+    "name": "Connected Service: Microsoft Foundry",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "12.0.0",
+      "plugins": []
+    },
+    "library": {
+      "name": "Microsoft Foundry",
+      "uri": "cerb_connected_service_microsoft_foundry",
+      "description": "Integration with Microsoft Foundry (and Azure OpenAI)",
+      "instructions": "# Instructions\r\n\r\n* In the Microsoft Foundry portal, open your resource and copy a key from **Keys and Endpoint**\r\n* Enter that key below\r\n* When you add an agent model, use this account for authentication and set the endpoint to your resource's OpenAI base URL:\r\n  * Microsoft Foundry: `https://YOUR-RESOURCE-NAME.services.ai.azure.com/openai/`\r\n  * Azure OpenAI: `https://YOUR-RESOURCE-NAME.openai.azure.com/openai`\r\n* On Foundry the last path segment varies by model family (e.g. `/anthropic`). Use the endpoint shown when you create the deployment.\r\n* The model is your **deployment name**, not the underlying model name\r\n\r\nFor OAuth2 with Microsoft 365 mailboxes (SMTP/POP3/IMAP), use the **Microsoft Entra ID** package instead.",
+      "point": "connected_service",
+      "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAACHCAMAAAAfrCTZAAADAFBMVEX///8wLsn9/P///v8xL8k0Mso2NMtTUtRBP85JR9FWVNVDQs9GRNA8Os05N8xmZdpbWtdZV9ZRT9ReXdg+PM5hX9ljYtpOTNNLStItKccpJb4rJsFpZ9tratwrJ8J5eOF7euGDguR2deBxb95+feJubd1zct+BgOOGheWene2LiueOjeeWleqQkOiYmOuwsPMnI7ksKMWTkumbm+wyMMmOkN+IiOaoqPCmp+phZM6jo+5fYc2zs/Q8OMVkZ89aW8yen+agoO2mpe+rq/GKjd6Gidxmac9/gdlvctJydtNpbNB6ftd3etVrb9GSlOGanOVcXs1XWMy2tfW4uPWChdq+vfdSUsosKMQzMcqWmOOio+hVVcuurfK7u/auru3Dw/mysu9GQ8coJsdRT9InIreqqutQT8pLSci5uetNTMnJyftIRsjGxvi2tvElIbX9/f/AwPjFxfpBPsYoJLw+O8WsrN2WlcZDQccoJLqenc+6uvK9vPQiHa4oJMDLy/ogHsX+/f8yMMofGqfo6P8jHrD8+/4sKsghHKslILEiIMaHhNskH6olIsYiHbUmJMcvLMkXEqQrJrAhHKgvK7UmIrAqJsDx8fspJ8ckILQvLMYkH7na2fYhHb5YV9QXEq8zMLv5+f7m5fgmIr85NcXs7PocGLAVEKliYNnT0/Y5Nb7HxvFzcd4uKsJLSdC6uvbd3fWIh+bCwfejou/P0PuameSQj+hDQcYRC6LV1PFtbN2KiOBvbtn29v709PwcGLjp6Pk/O8ZcWcE4Nsx7ed2Yl+jCwuy9vOqEg95OTcri4vcrJ8ClpemtrOxradqCgd89O82Yl91APs46OM11dN+ioc9iX8PLy+3Ew/KKieLBwPB+fd5ratS2tuw0MMVeW8+4t+OAfduAfc+hoNuams2qqfFvbt6hoOdmZNW0s+dyb8ukouKqqd4pJbtOTNFKSNNNSb2Skd9DP7jDw955edaDhtqtrfOUleI8OLFua8ZcWthQUMp3ddN7ecuwr+56d81IRMBMjxj0AAAATmVYSWZNTQAqAAAACAAEARoABQAAAAEAAAA+ARsABQAAAAEAAABGASgAAwAAAAEAAgAAAhMAAwAAAAEAAQAAAAAAAAAAAEgAAAABAAAASAAAAAFvySO6AAAIH0lEQVR42u3daVgTRxgH8CGbgBwKCtJqtYgniBYPLBRp1dr78KhVUttSEFSqYCpQpTU0DUIAE0hiAhgg3IfcNwJeiKJI1XpX6221J9r7PjcQMNBkd7P5MhP399UHnufP+87Mzu7sCgCDwWAwGAwGwwxgAKT9cHaTXu+d234gE8SbW97zZz/77D19zm4Sx8rEHWaVGAO5h2++q983176SbRfLYpsBy5zydnx5OFS/yx3fyrbHimW/5mr6wFwS19euCzOkVoEHjhXvumFGTZ25cZ0hYfUBsVrVgGcmDb21NmyjIW/Vf6cpsKbEv5nHKMbAnrcIvFP/p0y8vZe5lLh+ee07Bi3/4JxMnKBhJqMYA3lVywls2fhtX+BYRZo5TNSs2qo3DcP/rTRWzO+hLP4G/VGMgUy/qmUEqjwVCXF9gQ+YwSDOXfYKoSpfJT9Oi688inpiDOz82Y+IZ9UhfmJfYGXx14hPW/iS5OdJ6I1lrUWJfZTZ5xCvMF5gb883iCx85XrRhh1aG+IUhYjP07metxYS8vbbXRSyoU9I9pdIz9N4getueRN60u8LncDR2V+hvTCxPH2fJObrebVoRki/5NI9CPc0Bqrdfet8idQtWLgiOXpGv+h9HQiXGAPhsxeQcPd+O7n7XuDu7G3oLkwYKJztTqouKLk7ul938np0BzAPfDLLfTYZ94iM7sh7ujOa0V2KcxdMe4RcW8ZoHV37TqLa0zyQ2XhoGrmC/FTdwFlLUZ2mMRDgMW0WqekF+V2pOkZXHAUfIjplNU4n1Tjd40pM10M6KvatRnNhwqcst0YPUo1uV2Ie1lWRdQnRlZj1SM1Uch6uqof9B4gpQPJGDz5luU59lFTN1Ckq/5kDqASHUSwxDxybWONGrmaiauaoAVRZ1/+/MGHwT1lpNa5UuLlIB+YdJV11Klfvb4S8wGUurlMocB0/qMIqSdLQ5j1bBynMhb7Ch1wmUjGlfJTuAB61SmDXGPaBHmmQ581zGUfJxNsz701a/qp81Ynadcu3/N/76yDv6MDb41yoGNeisyKpsmy9w5aFv6/PFrhbOt6tfDwVZ1yO++tcc1SGbwkMNwDuAu8ce2YyFeXjx/Tn9c8PCgz/O9AQuAPPH1M+gZLJ9v2BY66sDDwWYBDci/DklkmUtExw7ts6dGWdCPRZbRjUBb5Y0jKWmpYS7bawK6sz4CMfAlBX+ELJ2DHUjHXU7oa78ltXryQCc96jzvZUjXFI1d7pCFo5nxDE+0JwbLi9M0X2Dn23di6tbFhMBOYxPP73kpEUOau1N7Mijyx+jRDMi7DNSEeqRtqMjuyOjBwdmTPnl0WEIA58aISjA1WOVtrb0aVzSMA7Ze11thlOmUNwz3MHPPBTJOCdsi7eHW5D2fA70TM0iTNKnyYBb0efuGtjRZnNnd6nhhmlP71KDNqO3m8VPIKyYKvKaG3gZ0nAuwgPCX6AuhF2IT0lzih9kQS0FZ5ke+dB6qzVOck9j/5zXiIB7e1oO2sjVJ6aMLfnyMOOnOdJwNrRDcOs7aizHjr5ZnZ0T+DnSEDa0PEOTna21NmdPp65Q3NeKTnnZRKQdvT5dtshRrA97Yj9qzm3lJzzAglIO/qIcIiTEU61q8GN7JAdG+JyniEB6b0d6/ahxviYowahPYEVT5CAs8CXRUOHGeO0UA0KFXGJiXGKx0jAOYR3i4ZZGqNdasMDB7KVeOC5xB6DsqPzLIUco1iKrOLByWJlIl+xhNC8S1B29OdJHLZRhOnBPNDMT8QDzyP0+o9QVlid4mVhFK9VwRhgfV+k5CuWEpm35iSMI7hZxLYwOjDeGP8UK/ny14ks7eyAsaPnCLi0Al8rVibIVxBZsyQNwoZmVabTqTAGCuUJCfI/1hi2omkRjAUuSxFa0AiMj4UDxXx559uGda6thjHwp0lcWoHxhWmXWL7WsM6o7+A7yYSBvUOMnrN6A7NAc2yCfL1Ba5uuQvhiAAuEGl/g3sAYwL6XyYMMWd/UlAnhUTUW2C2hGRjv6b92yTdvbtqsR1NQRFQZhHkxsN9SyqYZGF+Ydskj9Asq2HwexqOILOBDo6O1gTULk7gtSo+IqIqrR6E8eomBkcYvSn2BNQuTrO3xwaLaCiraGjAo8/JAtQUd2sDx4KYsYnDegorUtm15AM53PligQcClHxjfWJbmxwyUWjD36/34b4b1VKnVKi/6gfEqhl7fpqu14XCe5g8J6Ss9PLAznW1CS+s/HYxBW128o1tpdfS9wIDHGgziE9IYyLU2scJoYYEOidDivgp8MIl7HwXGQJqTiH0fBWaByzQLjGhgHmiR3E+BaW6U0A2Mb5QENAuMaoVpbZS0ga0QHMHVFrQJU9TIvVlJd6PUG1jijOAr//Q2Sj24SeWovUpKe6PUG1jQilpgFrhAv6PxwB8hFhgD8ZUmVFiYUoZYYFpPlPqxpZb7EZulaT1RQngZpvdESWeSPoJcR4dK6BfYgiu5iFzgchM6mi06tRetIYyBwtMmdfSnyBU4wIQCW3il1yN2YckD9iYMYa6kBLkL6TyO1ISOlpQh900WH1MuK5OOo7dTKpEI6V9lCdH79G41R0q7wByBD3ofg5tPv8AcwUEEt/7HaW8cOIIvAIKfzaqk+8CBK7DHUPycI72NA5sjSjoBkPx8ZbDI+LtZXhypwOkymnk19yuFbOpFZnsJhdIUgeWFNMBC9OOVB5NSRCKqeaWidEkKVz2/ECD8heHQ3ZVOFGdqdrut+qBPJv5D8ebz/wwxGAwGg8FgMDT+A5ko3hSL+chsAAAAAElFTkSuQmCC"
+    },
+    "configure": {
+      "placeholders": [],
+      "prompts": [
+        {
+          "type": "text",
+          "label": "API Key",
+          "key": "prompt_api_key",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your API Key)"
+          }
+        },
+        {
+          "type": "text",
+          "label": "Alias",
+          "key": "prompt_name",
+          "params": {
+            "default": "foundry",
+            "placeholder": "(enter a URI, a-z,0-9,_)"
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "service_microsoft_foundry",
+      "_context": "connected_service",
+      "name": "Microsoft Foundry",
+      "extension_id": "cerb.service.provider.token.bearer",
+      "params": {
+        "token_name": "Bearer"
+      }
+    },
+    {
+      "uid": "account_microsoft_foundry",
+      "_context": "connected_account",
+      "name": "Microsoft Foundry",
+      "service_id": "{{{uid.service_microsoft_foundry}}}",
+      "owner__context": "cerberusweb.contexts.app",
+      "owner_id": "0",
+      "uri": "{{{prompt_name}}}",
+      "params": {
+        "token": "{{{prompt_api_key}}}"
+      }
+    }
+  ]
+}
