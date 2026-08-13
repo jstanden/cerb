@@ -279,7 +279,8 @@ class Ollama extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 			'values' => [
 				'model:' => $this->getChatModels(),
 				'authentication:' => ['type' => 'cerb-uri', 'params' => ['connected_account' => null]],
-				'api_endpoint_url:' => ['http://localhost:11434', 'http://host.docker.internal:11434'],
+				// Ollama Cloud is the bare host; a path suffix like `/v1` switches it to OpenAI compatibility.
+				'api_endpoint_url:' => ['http://localhost:11434', 'https://ollama.com', 'http://host.docker.internal:11434'],
 			],
 		];
 	}
