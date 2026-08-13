@@ -1,0 +1,77 @@
+{
+  "package": {
+    "name": "Connected Service: Microsoft Entra ID",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "12.0.0",
+      "plugins": []
+    },
+    "library": {
+      "name": "Microsoft Entra ID",
+      "uri": "cerb_connected_service_microsoft_entra",
+      "description": "OAuth2 with Microsoft Entra ID (Microsoft 365 mail)",
+      "instructions": "# Instructions\r\n\r\n* See [**Cerb + Azure**](https://cerb.ai/solutions/integrations/azure/)\r\n* In [Microsoft Entra](https://entra.microsoft.com/), open **Applications » App registrations** and register an app\r\n* Set its redirect URI to `https://YOUR-CERB-HOSTNAME/oauth/callback` (no trailing slash; include `/index.php` if your URLs use it)\r\n* Copy the **Application (client) ID** and **Directory (tenant) ID** from the app's Overview\r\n* In **Certificates & secrets**, add a client secret and copy its **Value** (not the Secret ID)\r\n* Enter those below\r\n\r\nThe `offline_access` scope is required for Cerb to refresh the access token every hour. Client secrets expire in 6 months by default, so plan to rotate them.\r\n\r\n# Next steps\r\n\r\nAfter this package is imported, create a connected account from **Search » Connected Accounts** and link it to your Microsoft 365 account. Then select that account in the **XOAuth2** field of your email transport (`smtp.office365.com:587`, TLS) and mailbox (`outlook.office365.com:993`, IMAP), leaving their passwords blank.\r\n\r\nSee: [**Authenticate an Office365 mailbox using XOAUTH2**](https://cerb.ai/guides/integrations/azure/o365-xoauth/)",
+      "point": "connected_service",
+      "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAACHCAMAAAAfrCTZAAADAFBMVEX///8iUIZm3f/+/f9U0Ppc1vz//v+hc/EKS6JRzvqOWeigcfFe1/2QW+midPIrsu+aaO5AwvYHSqWXZOyARuFY0/tW0vsHS6YGTa1t5Ptk3P+ba+5n5Pz+/v8KTKWRXell4vsITamSX+sES62YZ+2kd/MKSqD9/P8FS6mLVec7vvQioN98QN9y5fxLyvhJyfkzuPIxt/Idnt8po98FTrCWY+x65/w9v/RJyPdCw/Y/wPQHTKmVYux/6Pxf2P2DSuNOzPlj2/5Gxvclod9+Q+E4vPNmx9+OWOj7/P41uvJq4/tg2v8jrO2MV+dg2f2CSeJa1PwwtvFi2v9h4fuGTuRb1fyfcPAttPB35/wmr+6jdvJV0fsfqu1/ReCdbfB6Pt5ixN5ExPajdfJ9QuCKVOYosO6UYepjxd8not+JUuYMSp115vtOy/hcwtyE6f0bQnYkUog1ufJgwt79/f9FxfZpyOB0zeQ3u/Nwy+KIUOSFTONw5PtryOH+//9syuLn3PsWRX5d4Putevgdp+t1Nt26mfEfTYMGSKOI6/0dSoACR55r5/8PTqIUW7F44PdawNxXv9sBR6zezvixje9s3fbt5fz59v6I4/n28f4IUbLf8/wWmt3Uv/fWwvdd2fJVvdtxMdsSpOsFR5mthfAAQapn3/+mefTPuPYAPaPFqvPP7vv0+v1b3PgyVpLi1fpRutgzVrd+oMy86Pqce+6qdPaqgu8wquIUQXCnfe7KsfV40Oes5Pply/Nv2Pksp+ACP5rq7/UFQ5um2/WO1/bs9/xltd9TteBax9zX4e/AofMqa7Z+1+vx6/0TltsQa7+MheuNcuincPQOOG5l1fcAQ6M4ZJR7neZaYMt6xexTSq9JfMOJzO90aNo0vvQiUK4vRYty0ebE1utk2v2sxORsiaxPwdg6iLm8ydkzd6lXwvKgtc+ka/JaqtlFl8Y3sOs5aprbyfcafslm3PltT8mCbOGTstxejctOo87Yxvh0lcpRdaBo4v+Q7fw6frJFt+9IvtTsFpR4AAAATmVYSWZNTQAqAAAACAAEARoABQAAAAEAAAA+ARsABQAAAAEAAABGASgAAwAAAAEAAgAAAhMAAwAAAAEAAQAAAAAAAAAAAEgAAAABAAAASAAAAAFvySO6AAAPQklEQVR42uzZfUwTaR7A8WelpUUQig0vWkYFSjEQeX8XCEL0UDmCGqq8pBESkACSgyqQKLhiCKQCLivKqxJ8Vzh1fSGCAucrqywvRqNGkXPZuFnPl4vGW92c691vZjrt9GVK/5u24WuCzZRoPn2ezvymRWi22WabbbbZZpttNgsJQ6jt2dc9XUHBd24kIqzC0r1y1P1kT1cXgNvbR3tvEC+AZXvb3nXtwQuC2kefWLgYvEldmSpwUBCILXlXY6j7HenNVIKDRp/Bq2C5XuxrV1ImEQX2Hb2BEi33/PyK8qrA8Ea+aqHiCgw9UXnVYN+goDOWKZajm11JFDhJvcK+QcFtliiWoxvgVZXpqyqhvbfb8i5OcnRhT5J+sG9e+x3M0sRydCYpKU3tTaODYY1vW9gAgsGABd40KnhMB8MaW9YAAgPH18ycNHqaYBA/s6ATF4asX2l5c5ISNMtrt5wBBLbqtUyHtBxaumAQX7AUMYaeZTrkaKUL9k2wkAEEBo5MB52SEvK0CvYdbLOEGwk5upqk63VIywumR4iD3lnAAAIDR5rDRh3vxhwtLP53cNAds78cw8DhoMcLYOUK5yUED/b2DoI6eHCwN6jEzC/HGLpV7LBRX9QKD/YGj74fG6uHxsbej7ab9+cBMHBE5azTC3ZQctvf17s2NjZ6QvAjpH7MnAcQ/I4/Z53+CHBv0Jhr41LXELJW+BPi2fiL2YorKtC1tABm8ODge/cad8gVT4luDfH82VzFGLrJ6A10CO7NGyO4mmJ8nX80TzHc8ecEBDIU4NDrW095CXEIVWtj/T/MUQwDh0MAU4EBgQngXeROJ1Pq1sZ73eZ3roYL8MaAYkZx8bt6Sd0iSEtMkFuPPTW7AUSO2ooDVhczFVA88Od1AqyX3Hrsd4Rh5nW+uhUeuLp4td7gcODAl5F7TGJXXPyDWW1qDCW+CixbzVRZ4IMvzf399xRKscrsqiK3HvuPGZ24YDNeW7eyjKmVgZwvtc2lIzvrDYhDzGgAgYGjf51P2Ur9lfkEFH6prW3uLx0pqZPU8fmUebkyV3zM9AzxNJ8BBAaOdT4rmfIpjqitLQIwiG9LDInNZQCBgSPQh7myrKLaIgCX4uJP1/lqsLbYTAYQuOMPMOBdGRUGXhwMlY+8vQ5LzKfUlHg5KT52L9H0z9UwcKz0CWfihvuEN+DeoiICXFo68qtBsekPIBhqi/IJZ86nqTaGBJcT4PL+P4fqJGqxmoybTX8AgYHj1fMo5nwGSG9MbYMSXNoPA4hE3yLj4pBTP5j02xgGjmsGvQ9qY8iKGsqVlVbWg1hJ5vNdiJaSeXq6mvQAgg8czyOjHBm4jj5OlJcGriwtqT8CYk3yUhX5mOkOIDBw3Hwe6chYuE1RjBpcWV5JVL7zxe26fH6+RKJC08muno0mO4DAwPE8i5EbGVUYQ6uhUtXOF2/y8yX5KrCLxrZ2bTTVAQRDV59nRTIWFREWE6YqpmGnWrzqxafrEomESXwMBhATvBzDwBGelRWpl4wf3tZA8+JgWqtevB3Kz6eZNciuJjmAwMDhmLUtizkNL4C3a4p/HeLn666yUnzK9AYQGDi2RW5jLrJJwxsW1rBdo1Wlvw3V5dNXeb4yUmxqAwgMHIWR8dvimYqcjinQAq/SBG+vhAGEFGtekl1IsWkNIPjAERnByI3PehBTsEkjAGtVubn+ej6RvpOX+ylTGkAqEBpwjIiPYCrLKaxAq0064C2VnXVHtMTqd/Ly5Q9NZwDBBw5HP0ZuRDxnU4EueIuu+E7+ERVYorWvly9dajIDCIZuGPD6x9sUFCzTATdt3qLd5vJPJPgInkIhwe8mVNvavcZUBhAYOLL8/BmLiNtRsEwnfeAtmyvfgjS/buo83lSdRKFQ8JVmED80jQEEBo54P+b8C9fo8S4raCrZrNPwcOXTx5MT6Seq8E7wJiYfT/EVivku5AXK/dQ9OftiGDgi/AoNiJsKdhgHHt58+9FFQnrihJeXF/zEH088Pl9Dkd1NYACBgaPQr5A5vw96vTsKmraWaDRc8mj80iUvr3QveuleYP4IZEr8O5Jj7Hq7Of5xhXFM+SUv26G3ZZrg4a2PLgL3hJduuPnjeUWNCylmdwDBkPyBv00cs5e7bIH+AExr+Pb4/WwvptLTq6omp8hFXsTqAAIDx4i/DXOFKTsYvAv2Nu2jeR9l26eDy0BVvPMKHOwyn80BBAYOfw6zN855wYKZwfuG943fT0/PNpy9V9XjmhpcXDOfvQGk4oIhrw141zC14MN3+8i23r54fyYuHq9qcj7+RobLcTdbK9ztZMNhzibjA7OYAn9HeO2NiVf1cVGN8sTFUlfjOAazSV3CJHb78B3RS/Da84zL9tJHYlc/rL/FEnjAxjA4g8NJXuPGAO4kwJ0X7+vA7Kn3ra54UkGIf2HHa+2UMWOclA1ubkvctFvidrgT7+X4a3DQ4tnb28oERCIZz179HP6IJ730+Ai/hj/E1p7mOGc4z1QGJ3aJ2xKdSPDLR681uMASCNL33z3Zcaij7+5RqUBGvRzEAkOXziv4/KE/WAI7G1WG0wd94HOd516+kdpqJpBWf99C/fNWB04eFYhIsUAkEMFfUt4EX8EeeMDZyagyuBv0gTs7x19LafFkorsHCKkczwp/+P1RsdRWKpWd3nV2vwgeEJt66F8svYebOSnGeFPgt3p0wedgQ9O9tuIrZwFrhd8cYJg1/hO/F+yQiXjiPvz/Oyoifm1KUfcjSyvc5pyaYmRO3N0b6C0B8LmLMqlMlVRYnUjcCmHK+yEruTV+94kOXBFLf0LeiagjFP/1+5NDT9m6Dls3Z9ilGllKSrIWGBZYRvOG3kXIG7j4Tk5saTmIq3GyN2q5LGrBj38OJV+fqZ9Zu3voHnCyS+UaWSq3R3OFJwQyEZVMWA1rSq7oyf1XeLbZl6s/HyQOgfjKAXx7H4qWEb+5n7WPPTB0a8DZjmt0qbHUvt694fD/3ghE6gTpB3GcFfqpWuQRKobLsDg6OrvPG190b3SgBVlTYJEgu4XN+/9mJ26snbFxuT27yQA8TgdHV4MLw9AhkYf6oNgDllau/FQHwMqnPD6z+QkAOjPgFGssOTaWG6skH4YdrU4UehlW0hr1LYYLLv2w+CzxxqbAxEGPanY/hE+8yuUmxxqdHSk+/EYsptEEuSfhX+tbLBLQj4pFQuEuZKX8tPDQYvLFEGYfZPdjLdTWkJo8nWxsscQi9/wRKtYod//pox4CsVaCaN5Bakt3LFY+LTzL7jctGLK+MG03vX6tka2PTe7ZfXg8VCykJRZ7zPMQaxwSigEomHeXPCkDeJ6APLz4JOvfPaBbzdy1K9YbnV1Pz0S0UDOxFhea55ELHVC+hzvmiZXgaoTYJ59pslthZOtjj//302JhqOGEobmnd+HBNYkEzxWTT3hcNolvEBOvJq+ds3DFwhmbXrj32m//zA2NNpxwbh810Sm39F+ExBOhHram8Z0aamuOXThnJu6Kabc5b//27d+jc1VF0xeWOh6dK25B3laQtfIs3fFXIfWMaXxNjJ+85qw9PsdgK47v7fz3t998Qwfnzv1/e+cT0jgWBvDXKTgQyGlyqoZAKZRArt4WQiGQgoRcwhwGQmATAjk10FMCS3toCqGwh5YWD5YtyFA6Q4XdobTCHjzJCJ4UYT0Jg6gMCwpedkeEfS//2mi7c1nYVPoD2/i9IP35vfe9l8REPgKLgtnNY1BMRxRBn94M2xJyZdwrXluZf1HOZBqnV65rmvXhD9kAHacmu6Ndj9HuhML1IC4MYj+9+GPYks0CkBzlDz8vTvKXh40/h9WUmUrVh1nKJ4vnYtNqZR0PmzCnOaX7TtCDOKUnRtgvXoXCXOXCK1is3DrUhQzDD581dkCejMiDrhYKU5pGRxh8GKXwHEgQXvGCSc481S00YLFyfd1UysQo3IPiw8Wjf9gP2hgeQsWIovzbJAmj4gV+O91qvP9SCKUzBZjdjcNbrzcHaKGAEAmTXm26MyK1BWgjkCyg8cEfh1uNxnukCrUfGo3C4Y3rTnVT9Xsc8xFiGQbtdTpsWQBuOAAkT/n68eqX01cbjUbjIfP74dWZ66ZmMN1zXPA/P+0Lr4FOC7KLaxg/Y4e28VgEw+CoT57xT6DzdzV1e/N49XhzZrpVOBU9E/ZnXi3IcBo4jCFJAiZMZ2VewAxLkGg+HquABFIE4PO3cdVFpFIxW0/4ghZ8jEAY9orXEs4LMTDp3V67T2kzId56m06iMCCh8tdh1XzqGozh0j3vTTqRMDqhtWlj9AwCxr5GF7/vJGEa5FkHJJQyCQ4uq+5c4/r4nNc0NNFavjCJztYdrxO0QGs+tKARkw5cXpLFnBUGNU2w90Bigem5PqumzHnCF4ZmGIamSRX//Kx3RrboSKIVpNIitAHKOwk6uoX29dCk9STfukWWQfHXetWc06XH97SFDJBwGtx10W8HSldauEggWN1pe4kvgn0x8jVoYoDO6yU6yZ+/Vevmc+ELw0LYULgM/mIraFd0OWn7buC0nP1mx78UARebrDVFwrcTfj/i/OJVL8EUw1lIslhPuKlqTfTufQXkvXEN+qJkSSEGd5TsBC8qXkj4AhlY3A4oFsGAk8R96JdGWc4j0IE/umbqcNIMLNVZhidePC9eULg0PpdsWxJ1OFQrAivZzCe0osiX/WulZB5lsplj4E4RFrOT/ATPLV5IuFSSbZa1ZWs0sQmbtSVVbMWmnHRzwskSO0ViRiANloMnxcsTHl94GiLDiN6GzSrc+tFdu5MG+U676+gqA2NTbFnYXp5HuMSLl5/h8TkrQljv1d9SFYbF9De6ICoKN23wGkVubzk69Jzi5QuXTs45f9YNQVoEp6qqTKCteJPSXyrfqHjVTdP0hE9OLg9aNZZ4jjgnRtQGy+YbFK9hFR5EnUDOruGI3K0RhPx9CBn6LuMDAmGSD75e3p4Nby+vYS+H3zo1leC+B6Ew/SV9ICLp/bXzx4+BPUmCPlfzhu1iZLmm7S1ff54ql6NXANbyoJ3rKbLKLEKVldqos7y+vvTMdApNBmJP4RboqkpP6IIl940DF0/HLblXg3pKHEZVaj1rUPyf797574HpOz4Ser1a3LcGI/p+52WlN+jiUKncbFEMcvSBG3LOQYvr/Bp4gZBeFtt955Ou2aIkvJk43bYXf+H/g2oNrFixYsWKFStWvAz+AYHlX6QZvYn7AAAAAElFTkSuQmCC"
+    },
+    "configure": {
+      "placeholders": [],
+      "prompts": [
+        {
+          "type": "text",
+          "label": "Client ID",
+          "key": "prompt_client_id",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your Application (client) ID)"
+          }
+        },
+        {
+          "type": "text",
+          "label": "Client Secret",
+          "key": "prompt_client_secret",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your Client Secret value)"
+          }
+        },
+        {
+          "type": "text",
+          "label": "Directory ID",
+          "key": "prompt_directory_id",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your Directory (tenant) ID)"
+          }
+        },
+        {
+          "type": "text",
+          "label": "Scope",
+          "key": "prompt_scope",
+          "params": {
+            "default": "email openid offline_access https://outlook.office.com/IMAP.AccessAsUser.All https://outlook.office.com/SMTP.Send",
+            "placeholder": "(space-delimited scopes)"
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "service_microsoft_entra",
+      "_context": "connected_service",
+      "name": "Microsoft Entra ID",
+      "extension_id": "cerb.service.provider.oauth2",
+      "params": {
+        "grant_type": "authorization_code",
+        "client_id": "{{{prompt_client_id}}}",
+        "client_secret": "{{{prompt_client_secret}}}",
+        "authorization_url": "https://login.microsoftonline.com/{{{prompt_directory_id}}}/oauth2/v2.0/authorize",
+        "access_token_url": "https://login.microsoftonline.com/{{{prompt_directory_id}}}/oauth2/v2.0/token",
+        "resource_owner_url": "",
+        "scope": "{{{prompt_scope}}}",
+        "approval_prompt": ""
+      }
+    }
+  ]
+}
