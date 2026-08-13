@@ -34,7 +34,9 @@
 				<li class="cerb-bot-resume-trigger"
 					data-continuation-token="{$item.token}"
 					{if array_key_exists('icon', $item) && $item.icon}data-icon="{$item.icon}"{/if}
-					{if array_key_exists('description', $item) && $item.description}data-subtitle="{$item.description}"{/if}
+					{if array_key_exists('color', $item) && $item.color}data-icon-color="{$item.color}"{/if}
+					{if array_key_exists('preview', $item) && $item.preview}data-subtitle="{$item.preview}"{/if}
+					{if array_key_exists('description', $item) && $item.description}data-meta="{$item.description}"{/if}
 					>{$item.label}</li>
 			{/if}
 		{/if}
@@ -67,7 +69,9 @@
 				<li class="cerb-bot-resume-trigger"
 					data-continuation-token="{$item.token}"
 					{if array_key_exists('icon', $item) && $item.icon}data-icon="{$item.icon}"{/if}
-					{if array_key_exists('description', $item) && $item.description}data-subtitle="{$item.description}"{/if}
+					{if array_key_exists('color', $item) && $item.color}data-icon-color="{$item.color}"{/if}
+					{if array_key_exists('preview', $item) && $item.preview}data-subtitle="{$item.preview}"{/if}
+					{if array_key_exists('description', $item) && $item.description}data-meta="{$item.description}"{/if}
 					>{$item.label}</li>
 			{elseif 'menu' == $item.type}
 				<li{if array_key_exists('icon', $item) && $item.icon} data-icon="{$item.icon}"{/if}>{$item.label}

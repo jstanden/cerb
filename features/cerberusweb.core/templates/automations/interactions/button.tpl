@@ -81,6 +81,18 @@ $(function() {
 				tile.appendChild(icon);
 			}
 
+			// A row carrying its own color (a resumed conversation wearing its provider's brand mark) fills the
+			// tile with it, matching how the agent pane draws the same conversation. Inline, so it also survives
+			// the accent-filled active row.
+			//
+			// Always a WHITE glyph, never a contrast-picked one: brand marks are drawn white on their own color
+			// everywhere else (`_avatar.scss` does exactly this), so computing per-color legibility here would
+			// make the same conversation look different in the pane and the command bar.
+			if(ds.iconColor) {
+				tile.style.backgroundColor = ds.iconColor;
+				tile.style.color = '#fff';
+			}
+
 			rendered.insertBefore(tile, rendered.firstChild);
 		}
 
@@ -93,10 +105,29 @@ $(function() {
 			rendered.insertBefore(text, label);
 			text.appendChild(label);
 
-			if(ds.subtitle) {
+			// One subtitle line, up to two parts: what the row is about, then a dimmer trailing note (how long a
+			// conversation has been idle). Kept on one line rather than stacked -- a three-line row makes the
+			// palette scroll instead of scan.
+			if(ds.subtitle || ds.meta) {
 				let subtitle = document.createElement('span');
 				subtitle.className = 'cerb-command-bar--subtitle';
-				subtitle.textContent = ds.subtitle;
+
+				// A real element, not a bare text node: the meta separator keys off `:not(:first-child)`, and CSS
+				// child matching ignores text nodes -- so an unwrapped string leaves meta as the first ELEMENT
+				// child and the two run together ("Agent Chat9 secs ago").
+				if(ds.subtitle) {
+					let text = document.createElement('span');
+					text.textContent = ds.subtitle;
+					subtitle.appendChild(text);
+				}
+
+				if(ds.meta) {
+					let meta = document.createElement('span');
+					meta.className = 'cerb-command-bar--meta';
+					meta.textContent = ds.meta;
+					subtitle.appendChild(meta);
+				}
+
 				text.appendChild(subtitle);
 			}
 		}
@@ -153,7 +184,14 @@ $(function() {
 				if(window.CerbUI && CerbUI.Dialog && CerbUI.Dialog.focusByInput('continuation_token', token))
 					return;
 
-				Devblocks.resumeInteraction(token, { 'label': $(this).text().trim(), 'done': interactionDone });
+				// The SAME caller the launch path posts above. The server re-derives `resume_scope` from it and
+				// refuses a mismatch, so omitting it resolved to '' and every reopen failed with "That
+				// conversation belongs to a different workspace."
+				Devblocks.resumeInteraction(token, {
+					'label': $(this).text().trim(),
+					'caller': { 'name': 'cerb.toolbar.global.menu', 'params': {} },
+					'done': interactionDone
+				});
 			});
 
 			// Build the menu while detached so the dialog opens fully populated (no empty-then-filled flash).

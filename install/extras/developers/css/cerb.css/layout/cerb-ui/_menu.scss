@@ -365,6 +365,17 @@
 		font-weight: normal;
 	}
 
+	// A trailing note on the subtitle line (e.g. idle time). Dot-separated only when something precedes it, so a
+	// row with no subtitle text of its own doesn't lead with a stray separator.
+	.cerb-command-bar--meta {
+		color: var(--cerb-color-background-contrast-150);
+
+		&:not(:first-child)::before {
+			content: '\00b7';
+			margin: 0 0.4em;
+		}
+	}
+
 	// Trailing keyboard-shortcut caps: pinned to the right of the row.
 	.cerb-command-bar--keys {
 		flex-shrink: 0;
@@ -381,7 +392,8 @@
 			color: var(--cerb-color-action-primary);
 		}
 
-		.cerb-command-bar--subtitle {
+		.cerb-command-bar--subtitle,
+		.cerb-command-bar--meta {
 			color: var(--cerb-color-action-primary-text);
 			opacity: 0.85;
 		}
