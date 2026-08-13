@@ -103,6 +103,18 @@
 		}
 	}
 
+	// The last prompt, as a one-line glance at where the conversation left off. Clamped rather than wrapped: in a
+	// sidebar this narrow a two-line preview pushes the idle time out of sight, which is the other half of picking.
+	&--tile-preview {
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+	}
+
+	&--tile-meta {
+		color: var(--cerb-color-background-contrast-150);
+	}
+
 	// Separates the launcher tiles above from resumable past conversations below. An eyebrow label — the one
 	// sanctioned reason to set a font-size — so it reads as a section marker rather than another tile.
 	&--history-head {

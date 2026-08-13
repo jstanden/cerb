@@ -338,6 +338,10 @@ CerbUI.AgentPane = class {
 				avatar.setAttribute('data-avatar-icon', item.icon || 'history');
 				avatar.setAttribute('data-avatar-seed', item.token || '');
 				avatar.setAttribute('data-avatar-size', '40');
+				// A conversation that declared its own color (its provider's brand mark, usually) keeps it; one
+				// that didn't falls back to the token-seeded hash, so rows stay visually distinct either way.
+				if(item.color)
+					avatar.setAttribute('data-avatar-color', item.color);
 
 				const text = document.createElement('div');
 				text.className = 'cerb-ui-tile--text';
@@ -347,9 +351,16 @@ CerbUI.AgentPane = class {
 				name.textContent = item.label || 'Conversation';
 				text.appendChild(name);
 
+				if(item.preview) {
+					const preview = document.createElement('div');
+					preview.className = 'cerb-ui-tile--body cerb-agent-pane--tile-preview';
+					preview.textContent = item.preview;
+					text.appendChild(preview);
+				}
+
 				if(item.description) {
 					const sub = document.createElement('div');
-					sub.className = 'cerb-ui-tile--body';
+					sub.className = 'cerb-ui-tile--body cerb-agent-pane--tile-meta';
 					sub.textContent = item.description;
 					text.appendChild(sub);
 				}
