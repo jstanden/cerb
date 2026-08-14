@@ -70,7 +70,11 @@
         {/if}
 
         {if 'user' != $turn.role}
-            {capture name="turn_markdown"}{foreach from=$turn.messages item=message}{foreach from=$message->getMessages() item=content}{if 'text' == $content.type}{$content.content}{/if}{/foreach}{/foreach}{/capture}
+            {* nofilter: keep the capture RAW -- the single {$smarty.capture.turn_markdown} output below auto-escapes
+               it once. Without this the variable filter escapes here AND on output, and the surviving layer is
+               literal text: the copy shortcut and the Text view hand back `&#039;` instead of an apostrophe.
+               (Same fix as the Setup->Developers viewer, which captures raw for exactly this reason.) *}
+            {capture name="turn_markdown"}{foreach from=$turn.messages item=message}{foreach from=$message->getMessages() item=content}{if 'text' == $content.type}{$content.content nofilter}{/if}{/foreach}{/foreach}{/capture}
             {if $smarty.capture.turn_markdown|trim}
                 <pre data-cerb-transcript-source>{$smarty.capture.turn_markdown}</pre>
             {/if}
