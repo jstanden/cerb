@@ -1466,6 +1466,9 @@ class LlmAgentNode extends AbstractNode {
 			'message' => is_array($stash) ? strval($stash['message'] ?? '') : '',
 			// 0 = no HTTP response at all (network/timeout), which is also the fallback when the stash is cold.
 			'status' => is_array($stash) ? intval($stash['status'] ?? 0) : 0,
+			// The provider's own `Retry-After`, in seconds. NULL means it didn't say — kept distinct from 0 so
+			// the composer can stay vague instead of inventing a number.
+			'retry_after' => (is_array($stash) && !is_null($stash['retry_after'] ?? null)) ? intval($stash['retry_after']) : null,
 		];
 	}
 
@@ -1478,7 +1481,8 @@ class LlmAgentNode extends AbstractNode {
 	 */
 	private function _failTurn(array $failure, array $state_params) : void {
 		$session_id = strval($this->_dict->getKeyPath($this->_getSessionKey(), '', '::'));
-		$message = $this->_formatTurnFailure(strval($failure['message'] ?? ''), intval($failure['status'] ?? 0));
+		$retry_after = is_null($failure['retry_after'] ?? null) ? null : intval($failure['retry_after']);
+		$message = $this->_formatTurnFailure(strval($failure['message'] ?? ''), intval($failure['status'] ?? 0), $retry_after);
 
 		// Put the branch back where it was before Send. The worker appends the user message (and, if it ran, this
 		// turn's compaction fold) BEFORE calling the provider, so a failed turn otherwise leaves the session
@@ -1507,8 +1511,16 @@ class LlmAgentNode extends AbstractNode {
 		// to branch on has to be handed to it here.
 		$this->_output_error_extra = [
 			'error_status' => intval($failure['status'] ?? 0),
+			// DELIBERATELY broader than _DevblocksLlmService::TURN_RETRY_STATUSES, which answers a different
+			// question: whether we may silently re-run a turn nobody asked us to re-run, and so admits only the
+			// classes that cost nothing. This one answers "would sending this again plausibly work?" for a human
+			// who has seen the error and is choosing to pay for another attempt. A timeout qualifies here and not
+			// there, and that gap is the point.
 			'retryable' => in_array(intval($failure['status'] ?? 0), [0, 408, 425, 429, 500, 502, 503, 504, 529], true),
 			'retry_prompt' => strval($state_params['prompt'] ?? ''),
+			// Seconds the provider asked us to wait, or 0 when it didn't say. Any automatic attempts this class
+			// was entitled to are already spent by the time an author sees this.
+			'retry_after' => intval($retry_after),
 		];
 
 		throw new Exception_DevblocksAutomationError($message);
@@ -1516,10 +1528,16 @@ class LlmAgentNode extends AbstractNode {
 
 	// A failure a human can act on. The provider's own text is kept (it's often the only thing that names the
 	// model or the region), but the class comes first: `RateLimitReached` doesn't tell a worker to just wait.
-	private function _formatTurnFailure(string $message, int $status) : string {
+	//
+	// `$retry_after` is the provider's own answer in seconds, or null when it didn't give one — and the
+	// difference is visible on purpose. "Try again in 47 seconds" is only worth saying when someone actually
+	// said 47; the rest of the time "wait a moment" is the honest version.
+	private function _formatTurnFailure(string $message, int $status, ?int $retry_after = null) : string {
+		$wait = ($retry_after > 0) ? sprintf(' Try again in %s.', $this->_formatWait($retry_after)) : '';
+
 		$prefix = match(true) {
-			429 === $status => 'The model provider is rate limiting requests (429). Wait a moment and send again.',
-			in_array($status, [500, 502, 503, 504, 529], true) => sprintf('The model provider is unavailable (%d). Try again in a moment.', $status),
+			429 === $status => 'The model provider is rate limiting requests (429).' . ($wait ?: ' Wait a moment and send again.'),
+			in_array($status, [500, 502, 503, 504, 529], true) => sprintf('The model provider is unavailable (%d).', $status) . ($wait ?: ' Try again in a moment.'),
 			0 === $status => 'The model provider could not be reached, or the turn timed out.',
 			default => '',
 		};
@@ -1532,6 +1550,17 @@ class LlmAgentNode extends AbstractNode {
 			return ('' !== $prefix) ? $prefix : sprintf('The agent turn failed%s.', $status ? sprintf(' (HTTP %d)', $status) : '');
 
 		return ('' !== $prefix) ? ($prefix . ' ' . $message) : $message;
+	}
+
+	// A wait a person reads rather than parses. Rounded UP to the minute past 90s, because coming back early
+	// to the same rate limit is the failure this sentence exists to prevent.
+	private function _formatWait(int $secs) : string {
+		if($secs <= 90)
+			return sprintf('%d second%s', $secs, 1 === $secs ? '' : 's');
+
+		$mins = intval(ceil($secs / 60));
+
+		return sprintf('%d minute%s', $mins, 1 === $mins ? '' : 's');
 	}
 
 	// The text of the message this turn was sending, for the composer to hold onto if the turn fails. Only the

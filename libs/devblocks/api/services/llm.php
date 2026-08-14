@@ -2,6 +2,7 @@
 
 use Cerb\LLM\MemoryStore\DatabaseHistory;
 use GuzzleHttp\Psr7\Request;
+use Psr\Http\Message\ResponseInterface;
 
 abstract class Extension_DevblocksLlmMemoryStore {
 	private string $_session_id;
@@ -548,14 +549,17 @@ abstract class Extension_DevblocksLlmProvider {
 		if(false === $response)
 			throw new Exception_DevblocksLlmApiError($error, 0);
 
-		// A non-2xx never streams; the sink passes the error document through untouched.
+		// A non-2xx never streams; the sink passes the error document through untouched. Headers are intact
+		// here (unlike the in-stream `error` frame above, which rides inside a 200), so this is the one
+		// streaming path where the provider's own Retry-After survives.
 		if(200 != $response->getStatusCode()) {
 			$status_code = $response->getStatusCode();
 			$response_json = $http->getResponseAsJson($response, $error);
 
 			throw new Exception_DevblocksLlmApiError(
 				$this->_getApiErrorMessage($response_json, $status_code),
-				$status_code
+				$status_code,
+				$this->_getRetryAfterSecs($response)
 			);
 		}
 
@@ -707,6 +711,37 @@ abstract class Extension_DevblocksLlmProvider {
 			$message = sprintf('%s (%s)', $message, $code);
 
 		return $message;
+	}
+
+	/**
+	 * How long the provider asked us to wait, in whole seconds, or NULL when it didn't say.
+	 *
+	 * `Retry-After` is commonly sent on a 429 and MUST NOT be assumed — a rate limit without one is
+	 * ordinary, and inventing a number would be worse than admitting we don't have it. Two spellings are
+	 * accepted because the OpenAI family answers throttling with a millisecond header alongside (or instead
+	 * of) the RFC one, and rounding 300ms down to 0 loses the only useful part of it.
+	 *
+	 * RFC 9110 allows either a delta-seconds integer or an HTTP-date; both appear in the wild (Azure sends
+	 * seconds, some gateways send a date). A date in the past, or a clock skewed the wrong way, is clamped
+	 * to 0 rather than turned into a negative wait.
+	 *
+	 * The 86400 ceiling is a sanity bound on a malformed header, not the retry policy — the caller decides
+	 * what wait is too long to hold an interaction open for (see _DevblocksLlmService::RETRY_AFTER_MAX_SECS).
+	 */
+	protected function _getRetryAfterSecs(ResponseInterface $response) : ?int {
+		if('' !== ($ms = trim($response->getHeaderLine('retry-after-ms'))) && is_numeric($ms))
+			return min(86400, max(0, intval(ceil(floatval($ms) / 1000))));
+
+		if('' === ($value = trim($response->getHeaderLine('Retry-After'))))
+			return null;
+
+		if(is_numeric($value))
+			return min(86400, max(0, intval(ceil(floatval($value)))));
+
+		if(false === ($when = strtotime($value)))
+			return null;
+
+		return min(86400, max(0, $when - time()));
 	}
 
 	/**
@@ -2586,10 +2621,8 @@ class _DevblocksLlmService {
 						continue;
 					}
 
-					// retry_count MUST be set before reportStatus() — reportFailure() buffers a clone of this model to
-					// make the retry decision, so a terminal flag set afterwards is never seen.
-					if(!$this->_isRetryableLlmError($e))
-						$queue_message->retry_count = self::RETRY_COUNT_TERMINAL;
+					$status_code = ($e instanceof \Exception_DevblocksLlmApiError) ? $e->statusCode : 0;
+					$retry_after = ($e instanceof \Exception_DevblocksLlmApiError) ? $e->retryAfter : null;
 
 					// `landed_despite_error` is the forensic signal for the class of bug the check above now absorbs:
 					// the turn reached the session but this attempt still reported failure. If it shows up, the throw is
@@ -2605,29 +2638,65 @@ class _DevblocksLlmService {
 					$stalled = !$timed_out && str_contains($e->getMessage(), 'Operation too slow');
 					$landed = $this->_sessionTurnAlreadyLanded($session_id);
 
+					// Retry, or hand it to the human? The whole decision is in one pure function, and it can only
+					// ever say yes to a failure that cost nothing — see getTurnRetryDelaySecs().
+					$retry_delay = self::getTurnRetryDelaySecs($status_code, $queue_message->retry_count, $retry_after, $landed);
+
 					// Straight to the error log, NOT just reportStatus() metadata: `_bufferLogEntry()` drops anything on
 					// a job-less message ("fire-and-forget messages (job_id=0) skip logging"), and every LLM turn is
 					// job-less — so the metadata alone would silently go nowhere. A failed turn is rare and expensive
 					// enough to deserve a line; this is the only durable record of how long we actually waited.
+					// `retry_after` is logged even when we didn't act on it: it's the only place the provider's real
+					// numbers accumulate, and it's what a longer blind backoff would have to be sized from. A REQUEUED
+					// attempt is logged too, or a turn that silently succeeded on its third try looks like it succeeded
+					// on its first.
 					DevblocksPlatform::logError(sprintf(
-						'[llm.turn] session=%s failed after %dms (timed_out=%s, stalled=%s, landed_despite_error=%s, retry_count=%d): %s',
+						'[llm.turn] session=%s failed after %dms (timed_out=%s, stalled=%s, landed_despite_error=%s, status=%d, retry_after=%s, attempt=%d/%d): %s -- %s',
 						$session_id,
 						$failed_after_ms,
 						$timed_out ? 'yes' : 'no',
 						$stalled ? 'yes' : 'no',
 						$landed ? 'yes' : 'no',
-						$queue_message->retry_count,
+						$status_code,
+						is_null($retry_after) ? 'n/a' : $retry_after . 's',
+						$queue_message->retry_count + 1,
+						self::TURN_RETRY_MAX_ATTEMPTS,
+						is_null($retry_delay) ? 'surfacing to the interaction' : sprintf('requeued in %ds', $retry_delay),
 						$e->getMessage()
 					));
 
 					// Leave the reason where the INTERACTION can read it. The awaiting `llm.agent` node resumes in a
 					// different request and reports this to the worker (rewinding the session and routing to
 					// `on_error:`), and there is nowhere on the message itself to put it — see turnErrorCacheKey().
-					$this->_stashTurnError(
-						$session_id,
-						$e->getMessage(),
-						($e instanceof \Exception_DevblocksLlmApiError) ? $e->statusCode : 0
-					);
+					// Written on EVERY attempt, overwriting: a requeue that later succeeds leaves a stale slot, but the
+					// node clears it at enqueue, and if the retries do run out this holds the final attempt's reason.
+					$this->_stashTurnError($session_id, $e->getMessage(), $status_code, $retry_after);
+
+					// A cheap rejection goes back on the queue under its OWN uuid — which is what keeps the
+					// interaction's `await:queue:` gate (it holds those uuids) waiting instead of erroring, and reads
+					// as `pending` so the composer stays in its working state. Deliberately NOT reportStatus(): a
+					// requeued message has not failed, and routing it through reportFailure() would hand the decision
+					// to the queue's `retry_max` — which is 0 here precisely so an expensive turn can never retry.
+					if(!is_null($retry_delay)) {
+						// Say why, where the interaction's await marker can find it. Without this the wait is a
+						// silent gap in the chat, indistinguishable from a slow model. Reason only — the marker
+						// states the timing itself off `available_at`, so this can't go stale.
+						$queue_service->setRetryNotice(
+							$queue_message->uuid,
+							self::turnRetryReason($status_code),
+							$retry_delay + 60
+						);
+
+						$queue_service->requeueMessage($queue_message, $retry_delay);
+						continue;
+					}
+
+					// Surfacing. Force terminal on the way out so this consumer is the SOLE authority on whether an
+					// agent turn re-runs: even if an admin raises `retry_max` on this queue in Setup, reportFailure()
+					// still can't resurrect a turn we decided not to pay for twice.
+					// MUST be set before reportStatus() — reportFailure() buffers a clone of this model to make the
+					// retry decision, so a flag set afterwards is never seen.
+					$queue_message->retry_count = self::RETRY_COUNT_TERMINAL;
 
 					$queue_message->reportStatus(QueueMessageStatus::FAILED, $e->getMessage(), [
 						'duration_ms' => $failed_after_ms,
@@ -2661,12 +2730,12 @@ class _DevblocksLlmService {
 	 * can't resurface against a later, unrelated failure. TTL is generous but finite: a cold slot degrades to a
 	 * generic sentence, never to a wrong one.
 	 */
-	private function _stashTurnError(string $session_id, string $message, int $status) : void {
+	private function _stashTurnError(string $session_id, string $message, int $status, ?int $retry_after = null) : void {
 		if('' === $session_id)
 			return;
 
 		DevblocksPlatform::services()->cache()->save(
-			['message' => $message, 'status' => $status, 'at' => time()],
+			['message' => $message, 'status' => $status, 'retry_after' => $retry_after, 'at' => time()],
 			\Cerb\AutomationBuilder\Node\LlmAgentNode::turnErrorCacheKey($session_id),
 			[],
 			600
@@ -2679,16 +2748,95 @@ class _DevblocksLlmService {
 	// (the terminal path writes status only, not retry_count); it only drives the disposition.
 	const RETRY_COUNT_TERMINAL = 255;
 
-	// Classify a thrown provider error: worth retrying? Only a structured Exception_DevblocksLlmApiError with a
-	// TRANSIENT status — 0 (network/timeout, no response), 408/425/429, or 5xx (incl. Anthropic 529 Overloaded).
-	// Everything else (401/403/400/404/413/422, a bad-JSON automation error, or any other Throwable = a bug) is
-	// futile → surface, don't loop.
-	private function _isRetryableLlmError(\Throwable $e) : bool {
-		if(!($e instanceof \Exception_DevblocksLlmApiError))
-			return false;
+	/**
+	 * The ONLY statuses an agent turn may be silently re-run for: a REJECTION, where the request never reached
+	 * a model, so nothing was generated and nothing was billed.
+	 *
+	 * The question is not "will the condition clear?" but "what did the failed attempt COST?" — because a
+	 * retry is not a re-run of deterministic work, it's a fresh dice roll at full price. The same turn has been
+	 * measured producing 19,881 output tokens on one attempt and running to the 32000 cap on another.
+	 *
+	 * So NOT 0 (network/timeout — which is OUR OWN hang-up as often as a refused connection, on a turn the
+	 * provider generated and charged for in full: the >5m and >10m timeouts that got queue retries switched off
+	 * in patch rev 1549), NOT 408/425, NOT 500/502/504 (a gateway fault can land mid-generation), and NOT 503
+	 * (vaguer than it looks; gateways emit it for reasons other than "we didn't take your request").
+	 */
+	const TURN_RETRY_STATUSES = [429, 529];
 
-		return 0 === $e->statusCode
-			|| in_array($e->statusCode, [408, 425, 429, 500, 502, 503, 504, 529], true);
+	// Total provider calls for one turn, INCLUDING the first. 3 = up to two silent requeues.
+	const TURN_RETRY_MAX_ATTEMPTS = 3;
+
+	// Waits used ONLY when the provider sent no `Retry-After`, indexed by attempts already made. A guess, and
+	// labelled as one — a provider that tells us the answer always wins over this.
+	//
+	// TO LENGTHEN: raise THESE and RETRY_AFTER_MAX_SECS, not TURN_RETRY_MAX_ATTEMPTS. Microsoft Foundry
+	// enforces per-MINUTE windows, so a blind 5s retry can be too eager for it; more attempts at the same
+	// spacing just burns the budget inside one window, whereas longer spacing actually waits for the bucket.
+	// Before pushing the total much past ~20s, give the worker something to look at — an invisible minute
+	// behind a bare spinner is a worse experience than a visible failure (see the plan's follow-up note).
+	const TURN_RETRY_BLIND_BACKOFF_SECS = [5, 15];
+
+	// The longest provider-supplied wait we'll hold an interaction open for. Beyond it, hand the human the
+	// number and let them decide, rather than parking them behind a spinner for minutes.
+	const RETRY_AFTER_MAX_SECS = 60;
+
+	/**
+	 * How long to wait before re-running this turn, or NULL to surface the failure to the interaction.
+	 *
+	 * The whole retry decision for an agent turn, in one pure function — deliberately NOT a queue `retry_max`.
+	 * `cerb.llm.agent.requests` is pinned at `retry_max = 0` (patch rev 1549), which means an expensive failure
+	 * is STRUCTURALLY unable to retry: `getRetryDisposition($n, 0, …)` returns `will_retry = false` whatever
+	 * this function does, so a bug here can only ever fail to retry something cheap. A queue-wide policy would
+	 * invert that — the expensive classes would retry by default and stay safe only while the classifier
+	 * remained correct — and it would apply to `compact` messages and anything an automation's `queue.push`
+	 * dropped on the same queue, none of which asked for it.
+	 *
+	 * Pure and public so the DB-less platform suite can test it; the DB-bound half is only the write.
+	 *
+	 * @param int $status HTTP status from Exception_DevblocksLlmApiError (0 = no response at all)
+	 * @param int $attempts_made This message's persisted `retry_count` — 0 on the first failure
+	 * @param ?int $retry_after The provider's own `Retry-After` in seconds, or null if it didn't say
+	 * @param bool $landed Whether the turn reached the session anyway, despite reporting failure
+	 */
+	public static function getTurnRetryDelaySecs(int $status, int $attempts_made, ?int $retry_after, bool $landed) : ?int {
+		if(!in_array($status, self::TURN_RETRY_STATUSES, true))
+			return null;
+
+		// The turn IS on the session — an in-stream rejection that arrived after real generation, salvaged by
+		// _salvageStreamedTurn(). We've been billed for it and the node will consume it as the answer, so
+		// re-running would pay twice for a turn we already have.
+		if($landed)
+			return null;
+
+		if($attempts_made + 1 >= self::TURN_RETRY_MAX_ATTEMPTS)
+			return null;
+
+		// It answered, but with a wait too long to sit through. Surface it WITH the number.
+		if(!is_null($retry_after) && $retry_after > self::RETRY_AFTER_MAX_SECS)
+			return null;
+
+		// Its number beats our guess: the party enforcing the limit is the only one that knows when the bucket
+		// refills. Floored at 1s so a `Retry-After: 0` can't spin.
+		if(!is_null($retry_after))
+			return max(1, $retry_after);
+
+		$blind = self::TURN_RETRY_BLIND_BACKOFF_SECS;
+
+		return $blind[$attempts_made] ?? end($blind);
+	}
+
+	/**
+	 * Why a turn is waiting, for the interaction to show while it waits — present tense, and NOT the same
+	 * sentence as a failure. "Wait a moment and send again" is wrong here: nobody has to do anything, it's
+	 * already handled. Deliberately says nothing about timing; the marker owns that (it reads `available_at`,
+	 * so its number stays true however long the notice sits in cache).
+	 */
+	public static function turnRetryReason(int $status) : string {
+		return match($status) {
+			429 => 'The model provider is rate limiting requests.',
+			529 => 'The model provider is overloaded.',
+			default => 'The model provider could not take the request.',
+		};
 	}
 
 	/**

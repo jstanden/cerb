@@ -83,6 +83,74 @@ class _DevblocksQueueService {
 	}
 
 	/**
+	 * Put a claimed message back on the queue, to be re-claimed in `$delay_secs`, WITHOUT it counting as a
+	 * failure.
+	 *
+	 * The third disposition, beside reportSuccess() and reportFailure(). Those two are terminal-ish judgements
+	 * governed by the QUEUE's `retry_max`; this one is the consumer saying "I know what this failure cost, and
+	 * it cost nothing, so let me have another go." That distinction is why it can't be expressed by turning
+	 * `retry_max` on: a queue-wide policy retries whatever fails, including the failures that already billed us
+	 * for a full turn, and it applies to every OTHER kind of message on the same queue too.
+	 *
+	 * Writes IMMEDIATELY rather than buffering. There's no batching win for a single message, and the
+	 * interactive worker sidecar reads countAvailable() straight after publish(), so the row has to be visible
+	 * by then. It also increments nothing else: no status buffer entry, and no `cerb.queue.messages.processed`
+	 * increment, because the message has not been processed.
+	 *
+	 * @param int $delay_secs Seconds from now before a worker may claim it again; floored at 0.
+	 */
+	public function requeueMessage(Model_QueueMessage $message, int $delay_secs) : void {
+		if('' === $message->uuid)
+			return;
+
+		DAO_QueueMessage::requeue(
+			[$message->uuid],
+			time() + max(0, $delay_secs),
+			$message->retry_count + 1
+		);
+	}
+
+	private static function _retryNoticeCacheKey(string $message_uuid) : string {
+		return 'queue_msg_retry_notice_' . $message_uuid;
+	}
+
+	/**
+	 * WHY a message is sitting in a retry wait, in one human sentence, for whatever is watching it.
+	 *
+	 * A requeued message is invisible by construction: the row says AVAILABLE with a future `available_at` and
+	 * nothing else, so a UI polling it can see THAT it's waiting and for how long, but never what happened.
+	 * Left un-said, a silent 10-second gap in a chat is indistinguishable from a slow model — which is exactly
+	 * the complaint that prompted this ("invisible to the user, but also no indication").
+	 *
+	 * Deliberately generic and out-of-band: `queue_message` has no column for it, the writer (a consumer, in
+	 * another request) and the reader (an await marker) never meet, and any consumer that requeues can leave a
+	 * sentence here without the poller knowing anything about that consumer. The reader states the timing
+	 * itself, from `available_at`, so this holds the REASON only and can't go stale against the clock.
+	 *
+	 * Best-effort by design: an evicted slot degrades to a generic "waiting to retry", never to a wrong reason.
+	 */
+	public function setRetryNotice(string $message_uuid, string $notice, int $ttl_secs) : void {
+		if('' === $message_uuid || '' === trim($notice))
+			return;
+
+		DevblocksPlatform::services()->cache()->save(
+			trim($notice),
+			self::_retryNoticeCacheKey($message_uuid),
+			[],
+			max(60, $ttl_secs)
+		);
+	}
+
+	public function getRetryNotice(string $message_uuid) : string {
+		if('' === $message_uuid)
+			return '';
+
+		$notice = DevblocksPlatform::services()->cache()->load(self::_retryNoticeCacheKey($message_uuid), true);
+
+		return is_string($notice) ? $notice : '';
+	}
+
+	/**
 	 * @param string $queue_name
 	 * @param array $messages
 	 * @param string|null $error

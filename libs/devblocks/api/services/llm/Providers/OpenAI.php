@@ -314,13 +314,15 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, ChatStreami
 			if(false === ($response_json = $http->getResponseAsJson($response, $error)))
 				throw new Exception_DevblocksAutomationError($error);
 
-			// A non-2xx carries the HTTP status so the caller classifies retry-vs-surface (429/503/5xx vs 401/400).
+			// A non-2xx carries the HTTP status so the caller classifies retry-vs-surface (429/503/5xx vs 401/400),
+			// plus the provider's own Retry-After when it sent one.
 			if(200 != $response->getStatusCode()) {
 				$status_code = $response->getStatusCode();
 
 				throw new Exception_DevblocksLlmApiError(
 					$this->_getApiErrorMessage($response_json, $status_code),
-					$status_code
+					$status_code,
+					$this->_getRetryAfterSecs($response)
 				);
 			}
 		}

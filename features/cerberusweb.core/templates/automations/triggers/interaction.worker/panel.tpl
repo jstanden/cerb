@@ -19,7 +19,24 @@ $(function() {
 	// any real content replaces $data.
 	var _queuePoll = null;
 
+	// A one-line status beside the spinner, used only when the server has something to say that the spinner
+	// can't: a turn requeued after a rate limit is a silent 10-second gap otherwise, indistinguishable from a
+	// slow model. Detached whenever there's nothing to say, so an ordinary turn looks exactly as it did.
+	var $queueNotice = $('<div class="cerb-u-text-muted" style="padding:0.5em;"/>');
+
+	function setQueueNotice(text) {
+		if(!text) {
+			$queueNotice.detach();
+			return;
+		}
+
+		// .text() — this is server prose, not markup, and it carries a provider's own error text.
+		$queueNotice.text(text).insertAfter($data);
+	}
+
 	function stopQueuePoll() {
+		setQueueNotice('');
+
 		// Deactivate before dropping the reference: a worker sidecar still in flight from this cycle would
 		// otherwise call gatePoll() and fire a stray submit after the interaction has moved on.
 		if(_queuePoll) {
@@ -205,6 +222,9 @@ $(function() {
 		if(_submitTimes.length > _SUBMIT_MAX) {
 			_submitTimes = [];
 			$spinner.detach();
+			// A "retrying in 10 secs" line left standing under a stop message would promise something that is
+			// no longer going to happen.
+			setQueueNotice('');
 			$data.html('<div class="cerb-form-builder-error">This interaction was stopped after too many automatic steps without input (a possible loop). Check the automation.</div>').fadeIn();
 			return;
 		}
@@ -236,6 +256,9 @@ $(function() {
 					$data.html('<div class="cerb-u-text-muted" style="padding:0.5em;">Picking up a reply that was already in progress…</div>').fadeIn();
 
 				runQueuePoll({
+					// A retry wait deliberately exceeds the usual ramp ceiling: nothing can happen until the
+					// message is claimable, so the server tells us to sleep through it rather than re-running
+					// the script every couple of seconds to be told the same thing.
 					pollMs: Math.max(500, parseInt($queue.attr('data-poll-ms'), 10) || 2000),
 					workers: Math.min(4, Math.max(1, parseInt($queue.attr('data-workers'), 10) || 1)),
 					// Absent attribute means an older marker -- spawn, since failing to drain the queue is
@@ -243,6 +266,11 @@ $(function() {
 					needsWorker: '0' !== ($queue.attr('data-needs-worker') || '1'),
 					token: $queue.attr('data-continuation-token') || ''
 				});
+
+				// AFTER runQueuePoll(), which re-arms via stopQueuePoll() and would otherwise clear this right
+				// back off. Recomputed server-side every cycle, so it appears when a wait starts and disappears
+				// on its own when the turn resumes.
+				setQueueNotice($queue.attr('data-notice') || '');
 				return;
 			}
 

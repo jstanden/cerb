@@ -2096,30 +2096,72 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 
 		// Does this client need to run a worker sidecar at all? While the turn is IN_FLIGHT somewhere, a
 		// sidecar dequeues nothing and returns `{0,0}` in milliseconds — one wasted round trip per gate
-		// cycle for the whole turn. Only an AVAILABLE (unclaimed) message actually needs a worker.
+		// cycle for the whole turn. Only a message a worker could CLAIM RIGHT NOW needs one, which is
+		// narrower than AVAILABLE: a turn waiting out a retry backoff (a 429 requeued with the provider's
+		// own Retry-After) is AVAILABLE with `available_at` in the future, and dequeue() skips it.
 		$needs_worker = 1;
 
+		// Seconds until the soonest requeued message can be claimed, and why it's waiting — 0/'' when nothing
+		// is in a retry wait.
+		$retry_in = 0;
+		$retry_notice = '';
+
 		if(is_array($queue_state['messages'] ?? null) && $queue_state['messages']) {
-			$statuses = DAO_QueueMessage::getStatusesByUuids($queue_state['messages']);
+			$states = DAO_QueueMessage::getPollStateByUuids($queue_state['messages']);
+			$now = time();
 			$claimable = false;
 
-			foreach($statuses as $status) {
-				if(QueueMessageStatus::AVAILABLE->value === $status) {
+			foreach($states as $uuid => $state) {
+				if(QueueMessageStatus::AVAILABLE->value !== $state['status_id'])
+					continue;
+
+				if($state['available_at'] <= $now) {
 					$claimable = true;
-					break;
+					continue;
+				}
+
+				// Deferred, and only a consumer's own requeue does that (this queue never retries on its own),
+				// so there is something worth saying. Report the SOONEST wait: with several messages the first
+				// one due is when anything can happen next.
+				$wait = $state['available_at'] - $now;
+
+				if(0 === $retry_in || $wait < $retry_in) {
+					$retry_in = $wait;
+					$retry_notice = DevblocksPlatform::services()->queue()->getRetryNotice(strval($uuid));
 				}
 			}
 
 			// Absent statuses mean we can't tell — spawn, because failing to drain is worse than one
 			// wasted request.
-			$needs_worker = ($claimable || count($statuses) < count($queue_state['messages'])) ? 1 : 0;
+			$needs_worker = ($claimable || count($states) < count($queue_state['messages'])) ? 1 : 0;
 		}
+
+		// Nothing CAN happen until the wait expires, so sleep through it instead of re-running the whole script
+		// every couple of seconds to be told the same thing. This is the one case the ramp's low ceiling doesn't
+		// apply to — that cap exists because the timer is otherwise the only thing that notices a turn landed,
+		// and during a known wait no turn can land. Bounded anyway so one bad `available_at` can't park the poll,
+		// and the +250ms keeps us from waking a tick early and burning a cycle.
+		if($retry_in > 0)
+			$poll_ms = min(15000, ($retry_in * 1000) + 250);
 
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('poll_ms', $poll_ms);
 		$tpl->assign('workers', $workers);
 		$tpl->assign('needs_worker', $needs_worker);
 		$tpl->assign('continuation_token', $continuation_token);
+
+		// One sentence for the reader: what happened, and when it resumes. The reason is best-effort (a
+		// consumer may not have left one, or its slot may have aged out); the timing is always ours.
+		// ALWAYS assigned — the template service is a singleton, so a conditional assign would leave the
+		// previous render's notice standing on the render after the wait clears.
+		$tpl->assign('notice', ($retry_in > 0)
+			? trim(sprintf('%s Retrying in %s.',
+				$retry_notice ?: 'The request could not be sent.',
+				DevblocksPlatform::strSecsToString($retry_in, 1)
+			))
+			: ''
+		);
+
 		$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.worker/_await_queue.tpl');
 	}
 	

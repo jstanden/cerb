@@ -166,15 +166,24 @@ class DAO_QueueMessage {
 		// One re-enqueue per (available_at, new retry_count) group
 		foreach($retries as $key => $group_uuids) {
 			[$available_at, $new_retry_count] = explode(':', $key);
-			self::_reEnqueueForRetry($group_uuids, intval($available_at), intval($new_retry_count));
+			self::requeue($group_uuids, intval($available_at), intval($new_retry_count));
 		}
 	}
 
 	/**
-	 * Return failed messages to AVAILABLE with a cleared claim and incremented retry count,
-	 * deferred until `available_at` so dequeue() re-claims them after the backoff.
+	 * Return messages to AVAILABLE with a cleared claim and a given retry count, deferred until
+	 * `available_at` so dequeue() re-claims them once it passes.
+	 *
+	 * PUBLIC because the queue's own retry policy is not the only legitimate reason to put a message back. A
+	 * consumer that knows its failure cost NOTHING — an LLM turn rejected with a 429, where the request never
+	 * reached a model — can requeue deliberately, which is the only way to retry at all on a queue whose
+	 * `retry_max` is 0 by design. Consumers should call _DevblocksQueueService::requeueMessage() rather than
+	 * this directly.
+	 *
+	 * Requeuing is NOT reporting a status: nothing here touches the service's status buffer, so a caller that
+	 * requeues a message must not also call reportStatus() for it.
 	 */
-	private static function _reEnqueueForRetry(array $message_uuids, int $available_at, int $retry_count) : void {
+	static function requeue(array $message_uuids, int $available_at, int $retry_count) : void {
 		$db = DevblocksPlatform::services()->database();
 
 		if(!$message_uuids)
@@ -233,6 +242,46 @@ class DAO_QueueMessage {
 
 		foreach($rows as $row)
 			$out[$row['uuid']] = intval($row['status_id']);
+
+		return $out;
+	}
+
+	/**
+	 * Everything a poller needs about specific messages: their status, when a worker may claim them, and how
+	 * many attempts they've already had.
+	 *
+	 * Richer than getStatusesByUuids() because "is it AVAILABLE?" stopped being the useful question once a
+	 * consumer could requeue: a message waiting out a retry is AVAILABLE with `available_at` in the FUTURE, and
+	 * dequeue() skips it. A poller reading status alone spawns a worker per cycle for the whole wait, finds
+	 * nothing each time, and can say nothing about how long it will be. `available_at` answers both.
+	 *
+	 * Master read, for the same reason getStatusesByUuids() is: this runs right after a status was written.
+	 *
+	 * @param string[] $uuids 32-hex (or dashed) message uuids
+	 * @return array<string,array{status_id:int,available_at:int,retry_count:int}> Absent uuid = no longer exists
+	 */
+	static function getPollStateByUuids(array $uuids) : array {
+		$db = DevblocksPlatform::services()->database();
+
+		if(!$uuids)
+			return [];
+
+		$literals = array_map(fn($uuid) => '0x' . str_replace('-', '', $db->escape($uuid)), $uuids);
+
+		$rows = $db->GetArrayMaster(sprintf(
+			"SELECT LOWER(HEX(uuid)) AS uuid, status_id, available_at, retry_count FROM queue_message WHERE uuid IN (%s)",
+			implode(',', $literals)
+		));
+
+		$out = [];
+
+		foreach($rows as $row) {
+			$out[$row['uuid']] = [
+				'status_id' => intval($row['status_id']),
+				'available_at' => intval($row['available_at']),
+				'retry_count' => intval($row['retry_count']),
+			];
+		}
 
 		return $out;
 	}

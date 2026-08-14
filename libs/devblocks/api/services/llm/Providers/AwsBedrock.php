@@ -8,6 +8,7 @@ use DevblocksLlmChatResponse;
 use DevblocksLlmChatResponse_Tool;
 use DevblocksPlatform;
 use Exception_DevblocksAutomationError;
+use Exception_DevblocksLlmApiError;
 use Extension_DevblocksLlmMemoryStore;
 use Extension_DevblocksLlmProvider;
 use GuzzleHttp\Psr7\Request;
@@ -369,8 +370,9 @@ class AwsBedrock extends Extension_DevblocksLlmProvider implements Chat, ChatStr
 			// the model can't -- leaving it armed would stream the NEXT turn, to a caller expecting sync.
 			$this->_consumeStreamingFlag();
 
+			// No response at all (connect refused, DNS, cURL timeout) -> status 0, a transient class.
 			if(false === ($response = $http->sendRequest($request, $request_options, $error)))
-				throw new Exception_DevblocksAutomationError($error);
+				throw new Exception_DevblocksLlmApiError($error, 0);
 
 			if(false === ($response_json = $http->getResponseAsJson($response, $error)))
 				throw new Exception_DevblocksAutomationError($error);
@@ -378,9 +380,17 @@ class AwsBedrock extends Extension_DevblocksLlmProvider implements Chat, ChatStr
 			// Converse reports failures as a TOP-LEVEL `{message}`, not OpenAI's `{error:{message}}` -- reading
 			// only the nested key turned every validation error into a bare "HTTP status code: 400" with nothing
 			// to act on. _getApiErrorMessage() knows both shapes.
+			//
+			// Typed, like every other chat provider: a ThrottlingException answers 429, and throwing the untyped
+			// automation error here meant a Bedrock rate limit reached the interaction with status 0 -- classified
+			// futile, worded as "could not be reached", and carrying no Retry-After to wait on.
 			if(200 != $response->getStatusCode()) {
-				throw new Exception_DevblocksAutomationError(
-					$this->_getApiErrorMessage($response_json, $response->getStatusCode())
+				$status_code = $response->getStatusCode();
+
+				throw new Exception_DevblocksLlmApiError(
+					$this->_getApiErrorMessage($response_json, $status_code),
+					$status_code,
+					$this->_getRetryAfterSecs($response)
 				);
 			}
 		}

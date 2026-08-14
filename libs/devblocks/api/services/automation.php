@@ -15,11 +15,18 @@ class Exception_DevblocksAutomationError extends Exception_Devblocks {
 // response), so a caller can decide retry-vs-surface by error CLASS — 429/503/5xx/timeout are transient (retry),
 // 401/400/403 are futile (surface). Subclass of the automation error so existing
 // `catch (Exception_DevblocksAutomationError)` sites (the llm.agent node, etc.) still handle it unchanged.
+//
+// `retryAfter` is the provider's own answer to "how long?" (seconds), taken from the `Retry-After` header on a
+// 429/503. NULL means it didn't say — which is the common case and must degrade to our own backoff, never to a
+// guess presented as fact. An in-stream error frame arrives inside a 200 with no headers to read, so it is
+// always null there.
 class Exception_DevblocksLlmApiError extends Exception_DevblocksAutomationError {
 	public int $statusCode;
+	public ?int $retryAfter;
 
-	public function __construct(string $message = "", int $status_code = 0) {
+	public function __construct(string $message = "", int $status_code = 0, ?int $retry_after = null) {
 		$this->statusCode = $status_code;
+		$this->retryAfter = $retry_after;
 		parent::__construct($message);
 	}
 }

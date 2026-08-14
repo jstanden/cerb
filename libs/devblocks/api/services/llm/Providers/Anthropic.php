@@ -224,14 +224,16 @@ class Anthropic extends Extension_DevblocksLlmProvider implements Chat, ChatStre
 			if(false === ($response_json = $http->getResponseAsJson($response, $error)))
 				throw new Exception_DevblocksAutomationError($error);
 
-			// A non-2xx carries the HTTP status so the caller classifies retry-vs-surface (429/503/5xx vs 401/400).
+			// A non-2xx carries the HTTP status so the caller classifies retry-vs-surface (429/503/5xx vs 401/400),
+			// plus the provider's own Retry-After when it sent one.
 			if(200 != $response->getStatusCode()) {
 				$status_code = $response->getStatusCode();
+				$retry_after = $this->_getRetryAfterSecs($response);
 
 				if($response_json['error']['message'] ?? null)
-					throw new Exception_DevblocksLlmApiError($response_json['error']['message'], $status_code);
+					throw new Exception_DevblocksLlmApiError($response_json['error']['message'], $status_code, $retry_after);
 
-				throw new Exception_DevblocksLlmApiError('HTTP status code: ' . $status_code, $status_code);
+				throw new Exception_DevblocksLlmApiError('HTTP status code: ' . $status_code, $status_code, $retry_after);
 			}
 		}
 

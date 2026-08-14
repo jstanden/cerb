@@ -7,6 +7,7 @@ use DevblocksLlmChatResponse;
 use DevblocksLlmChatResponse_Tool;
 use DevblocksPlatform;
 use Exception_DevblocksAutomationError;
+use Exception_DevblocksLlmApiError;
 use Extension_DevblocksLlmMemoryStore;
 use Extension_DevblocksLlmProvider;
 use GuzzleHttp\Psr7\Request;
@@ -178,19 +179,26 @@ class Ollama extends Extension_DevblocksLlmProvider implements Chat, Embedding {
 				throw new Exception_DevblocksAutomationError($error);
 		}
 		
+		// No response at all (connect refused, DNS, cURL timeout) -> status 0, a transient class.
 		if(false === ($response = $http->sendRequest($request, $request_options, $error)))
-			throw new Exception_DevblocksAutomationError($error);
-		
+			throw new Exception_DevblocksLlmApiError($error, 0);
+
 		if(false === ($response_json = $http->getResponseAsJson($response, $error)))
 			throw new Exception_DevblocksAutomationError($error);
-		
+
+		// Typed, like every other chat provider: without the status a failed Ollama turn reached the interaction
+		// classified as futile and worded as unreachable, whatever actually went wrong. Ollama Cloud is a hosted
+		// endpoint with its own rate limits, so this is no longer only a localhost provider.
 		if(200 != $response->getStatusCode()) {
+			$status_code = $response->getStatusCode();
+			$retry_after = $this->_getRetryAfterSecs($response);
+
 			if($response_json['error']['message'] ?? null)
-				throw new Exception_DevblocksAutomationError($response_json['error']['message']);
-			
-			throw new Exception_DevblocksAutomationError('HTTP status code: ' . $response->getStatusCode());
+				throw new Exception_DevblocksLlmApiError($response_json['error']['message'], $status_code, $retry_after);
+
+			throw new Exception_DevblocksLlmApiError('HTTP status code: ' . $status_code, $status_code, $retry_after);
 		}
-		
+
 		// Why generation stopped. Ollama reports it top-level, OUTSIDE the `message` the converter sees.
 		$finish_reason = self::normalizeFinishReason($response_json['done_reason'] ?? null);
 
