@@ -45,6 +45,9 @@
  * A ready-made onAutocomplete for real worklist contexts (lazy-loads from the existing endpoints):
  *   onAutocomplete: CerbUI.SearchQuery.queryFieldSource('cerberusweb.contexts.ticket')
  *
+ * The left search icon opens the suggestion menu on click (Ctrl/Cmd+Space still works); passing `agent` puts an
+ * LLM agent on the --right slot that can read, rewrite, and run the query -- see _mountAgent().
+ *
  * CSS lives in cerb.css (.cerb-ui-searchquery--*) — this component never injects styles.
  */
 CerbUI.SearchQuery = class {
@@ -55,7 +58,14 @@ CerbUI.SearchQuery = class {
 	// The default --right action a self-built shell gets: a "suggestions" button. Marked with
 	// data-cerb-editor-action so the constructor self-wires ONLY shells it built (legacy author markup that wires
 	// its own [data-action] button stays untouched).
-	static _defaultRightHTML() {
+	//
+	// With `agent` set the slot instead carries the agent trigger, because manual suggestions have moved to the
+	// LEFT search icon -- the two affordances then bracket the field instead of crowding one end of it. (Authored
+	// markup emits its own --right, so a template like quick_search.tpl writes the same <a> itself.)
+	static _defaultRightHTML(opts = {}) {
+		if(opts.agent)
+			return '<a data-cerb-editor-action="agent" style="cursor:pointer;" title="Ask an agent"><span class="cerb-icons cerb-icon-bot-message"></span></a>';
+
 		return '<a data-cerb-editor-action="autocomplete" style="cursor:pointer;" title="Suggestions (Ctrl/⌘+Space)"><span class="cerb-icons cerb-icon-autocomplete"></span></a>';
 	}
 
@@ -65,7 +75,7 @@ CerbUI.SearchQuery = class {
 		return CerbUI.editorCore.enhanceEditor(this, field, opts, {
 			singleLine: true, gutter: false,
 			leftIcon: (opts.icon != null) ? opts.icon : 'search',
-			rightHTML: (opts.rightHTML != null) ? opts.rightHTML : CerbUI.SearchQuery._defaultRightHTML(),
+			rightHTML: (opts.rightHTML != null) ? opts.rightHTML : CerbUI.SearchQuery._defaultRightHTML(opts),
 		});
 	}
 
@@ -77,6 +87,7 @@ CerbUI.SearchQuery = class {
 		minChars: 0,              // min length of the whole query before typing-triggered suggestions fire
 		maxHeight: 160,           // px the textarea grows to before scrolling (auto-grow)
 		placeholder: null,        // overrides the textarea's own placeholder when set
+		agent: null,              // mount an agent chat on this field -- see _mountAgent()
 	};
 
 	constructor(el, opts = {}) {
@@ -85,7 +96,7 @@ CerbUI.SearchQuery = class {
 		el = CerbUI.editorCore.resolveEditorEl(el, CerbUI.SearchQuery._NS, {
 			singleLine: true, gutter: false,
 			leftIcon: (opts.icon != null) ? opts.icon : 'search',
-			rightHTML: (opts.rightHTML != null) ? opts.rightHTML : CerbUI.SearchQuery._defaultRightHTML(),
+			rightHTML: (opts.rightHTML != null) ? opts.rightHTML : CerbUI.SearchQuery._defaultRightHTML(opts),
 		});
 		if(!el) return;
 
@@ -141,6 +152,16 @@ CerbUI.SearchQuery = class {
 			btn.addEventListener('click', (e) => { e.preventDefault(); this.openAutocomplete(); });
 		});
 
+		// The LEFT search icon is also a manual-suggestions trigger, on EVERY SearchQuery -- it's the affordance
+		// nearest the thing it acts on, and it frees the --right slot for a per-host action (the agent trigger).
+		// Ctrl/Cmd+Space is unaffected. Scoped to a direct child so a nested editor's icon is never hijacked.
+		const iconEl = el.querySelector(':scope > .cerb-ui-searchquery--icon');
+		if(iconEl) {
+			iconEl.classList.add('cerb-ui-searchquery--icon--action');
+			iconEl.title = 'Suggestions (Ctrl/⌘+Space)';
+			iconEl.addEventListener('click', (e) => { e.preventDefault(); this.focus(); this.openAutocomplete(); });
+		}
+
 		// Placeholder scope (widget-config peek strip): a wrapper tagged `.placeholders` opts into the FULL
 		// floating strip (placeholders + test + help) on focus. The provider resolves at focus time.
 		if(CerbUI.placeholders && CerbUI.placeholders.hasScope(el) && el.classList.contains('placeholders')) {
@@ -155,6 +176,81 @@ CerbUI.SearchQuery = class {
 
 		// Core editor-family hook: a caller can add extensible toolbar `sections` to any editor (opt-in via opts.toolbar).
 		CerbUI.editorCore.attachToolbar(this, this.opts);
+
+		this._mountAgent();
+	}
+
+	// ── Agent chat ──────────────────────────────────────────────────────
+	// Give this field an LLM agent that can read the query, rewrite it, and run it. The chat floats in a
+	// CerbUI.Dialog (a search bar has nothing to split, and a worklist wants its full width), triggered from the
+	// --right agent link. It lives here rather than in each host so that ANY search field can host an agent --
+	// authoring the `agent.pane` toolbar is the real gate, and an unauthored toolbar hides the trigger entirely.
+	//
+	//   agent: { component, capabilities, toolbarHtml, callerParams, storageKey, mutatingCommands, chatTitle,
+	//            onToggle, runCommand }
+	_mountAgent() {
+		const a = this.opts.agent;
+
+		if(!a || !this.el || !(window.CerbUI && CerbUI.AgentPane))
+			return;
+
+		const trigger = this.el.querySelector(':scope > .cerb-ui-searchquery--right [data-cerb-editor-action=agent]');
+		if(!trigger)
+			return;
+
+		// AgentPane hides a toggle whose toolbar has no launchable items, so an empty `agent.pane` toolbar
+		// costs nothing here beyond the (invisible) link.
+		this._agentPane = new CerbUI.AgentPane(this.el, {
+			float: true,
+			toggleEl: trigger,
+			component: a.component || '',
+			capabilities: a.capabilities || '',
+			toolbarHtml: a.toolbarHtml || '',
+			callerParams: a.callerParams || null,
+			storageKey: a.storageKey || 'cerb-searchquery-agent-chat',
+			mutatingCommands: a.mutatingCommands || '',
+			chatTitle: a.chatTitle || 'New Agent Chat',
+			onToggle: a.onToggle || null,
+			runCommand: (name, params) => this._agentCommand(name, params),
+		});
+	}
+
+	// The `uiCommand` bridge. Deliberately THREE commands, not one per field: the agent learns the shape from
+	// getFields, so new state later means new keys, not new commands.
+	//
+	// Results are NOT exposed here. An interaction reads them server-side from its own `on_tool:` branches
+	// (`data.query type:worklist.records` / `worklist.subtotals` off the record type it was handed), which is
+	// replay-safe and immune to per-record-type view.tpl markup drift.
+	_agentCommand(name, params) {
+		const a = this.opts.agent || {};
+		params = params || {};
+
+		// The host bridge is consulted first and wins whatever it handles; returning `undefined` falls through,
+		// so a host extends the vocabulary without restating the three commands every field already knows.
+		if(typeof a.runCommand === 'function') {
+			const handled = a.runCommand(name, params);
+			if(handled !== undefined) return handled;
+		}
+
+		switch(name) {
+			case 'getFields':
+				return JSON.stringify({ query: this.getValue(), record_type: this.opts.context || '' });
+
+			case 'setField':
+				if('query' !== params.key) return 'unknown field: ' + params.key;
+				this.setValue(params.value ?? '').focus();
+				return 'ok';
+
+			case 'runSearch':
+				if(typeof this.opts.onSearch !== 'function') return 'error: this field has no search handler';
+				this.opts.onSearch(this.getValue());
+				// onSearch is async (an AJAX worklist refresh) while the uiCommand bridge fills synchronously, so
+				// this can only report that the search STARTED. The agent sees the results on its next turn, by
+				// which time the refresh has long landed.
+				return 'ok';
+		}
+
+		return 'unknown command: ' + name;
 	}
 
 	// ── Public API ──────────────────────────────────────────────────────
@@ -232,6 +328,9 @@ CerbUI.SearchQuery = class {
 
 	destroy() {
 		if(this._editorToolbar && typeof this._editorToolbar.destroy === 'function') this._editorToolbar.destroy();
+		// The float chat is parented to document.body, so it has to be torn down explicitly or it outlives the
+		// field and keeps a command bridge pointed at a dead textarea.
+		if(this._agentPane && typeof this._agentPane.destroy === 'function') this._agentPane.destroy();
 		this._ac.destroy();
 		CerbUI.SearchQuery._instances.delete(this.el);
 		if(this.textarea) {

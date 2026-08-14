@@ -30,6 +30,20 @@
         color: var(--cerb-color-background-contrast-150);
     }
 
+    // The left icon doubles as the manual-autocomplete trigger. The modifier is added by the JS that binds the
+    // click, so an icon in markup the component never wired stays inert rather than advertising a dead affordance.
+    &--icon--action {
+        cursor: pointer;
+
+        &:hover { color: var(--cerb-color-background-contrast-100); }
+    }
+
+    // The --right agent trigger, while its chat is open. Same treatment as an icon hover, held rather than
+    // transient, so the bar shows at a glance which field the floating chat is driving.
+    &--right .cerb-agent-pane--toggle--active {
+        color: var(--cerb-color-background-contrast-100);
+    }
+
     // The positioning context for the overlay + the caret anchor.
     &--field {
         position: relative;
