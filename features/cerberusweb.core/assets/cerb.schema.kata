@@ -1054,6 +1054,22 @@ tables:
         key: MUL
         default@text:
         extra@text:
+      resume_label:
+        field: resume_label
+        type: varchar(255)
+        collation: utf8mb4_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
+      resume_metadata:
+        field: resume_metadata
+        type: text
+        collation: utf8mb4_unicode_ci
+        nullable: NULL
+        key@text:
+        default@text:
+        extra@text:
       resume_scope:
         field: resume_scope
         type: varchar(64)
