@@ -71,7 +71,7 @@ CerbUI.IconBuilder = class {
 		this._render = this._render.bind(this);
 
 		// Local revision history (in-memory): a snapshot of the geometry each time it's REPLACED wholesale (a
-		// set_geometry command, the picker, or the seed) — navigable to compare, with the SVG code + preview riding
+		// setGeometry command, the picker, or the seed) — navigable to compare, with the SVG code + preview riding
 		// along. Typing between snapshots edits the current slot in place, so no keystroke spawns a revision.
 		this.revisions = [];
 		this.revIndex = -1;
@@ -223,8 +223,8 @@ CerbUI.IconBuilder = class {
 		// the get/set-geometry command bridge into the live editor. Its toggle button rides the toolbar row.
 		this.agentPane = new CerbUI.AgentPane(this.el, {
 			component: 'icon',
-			capabilities: 'get_geometry,set_geometry,get_icon_geometry',
-			mutatingCommands: 'set_geometry',   // writes the editor → guard against accidental navigation loss
+			capabilities: 'getGeometry,setGeometry,getIconGeometry',
+			mutatingCommands: 'setGeometry',   // writes the editor → guard against accidental navigation loss
 			toolbarHtml: this.opts.agentToolbarHtml,
 			storageKey: 'cerb-icon-builder-chat',
 			toggleInto: this.el.querySelector('.cerb-icon-builder--toolbar'),
@@ -253,7 +253,7 @@ CerbUI.IconBuilder = class {
 	}
 
 	// ── Revision history ────────────────────────────────────────────────────────
-	// Append a wholesale-replacement snapshot (set_geometry / picker / seed), point at it, and load it. Older
+	// Append a wholesale-replacement snapshot (setGeometry / picker / seed), point at it, and load it. Older
 	// snapshots stay navigable; typing edits the current one (see _syncCurrentRevision).
 	_pushRevision(geom) {
 		this.revisions.push(geom || '');
@@ -306,9 +306,9 @@ CerbUI.IconBuilder = class {
 	_runAgentCommand(name, params) {
 		params = params || {};
 		switch(name) {
-			case 'get_geometry':      return this.editor.getValue();
-			case 'set_geometry':      this._pushRevision(params.geometry || ''); return 'ok'; // new revision → live preview
-			case 'get_icon_geometry': return CerbUI.IconBuilder.geometryForIcon(params.name) || '';
+			case 'getGeometry':      return this.editor.getValue();
+			case 'setGeometry':      this._pushRevision(params.geometry || ''); return 'ok'; // new revision → live preview
+			case 'getIconGeometry': return CerbUI.IconBuilder.geometryForIcon(params.name) || '';
 		}
 		return '';
 	}

@@ -58,7 +58,7 @@ class AutomationTrigger_InteractionInternal extends AutomationTrigger_Interactio
 		$suggestions['*']['(.*):await:form:elements:uiCommand:'] = [
 			[
 				'caption' => 'command:',
-				'snippet' => "command: \${1:get_geometry}",
+				'snippet' => "command: \${1:getGeometry}",
 				'description' => "The host command to run (must be in the caller's ui_capabilities)",
 			],
 			[

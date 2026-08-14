@@ -16,7 +16,7 @@
  * Usage:
  *   new CerbUI.AgentPane(hostEl, {
  *     component: 'icon',
- *     capabilities: 'get_geometry,set_geometry',
+ *     capabilities: 'getGeometry,setGeometry',
  *     toolbarHtml: '<ul class="cerb-ui-toolbar">…</ul>',
  *     storageKey: 'cerb-icon-builder-chat',
  *     toggleInto: someToolbarRowEl,           // optional; else an auto toggle-strip atop the main pane
