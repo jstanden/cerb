@@ -31,6 +31,28 @@ class LlmTranscriptAwait extends AbstractAwait {
 		return $this->_session;
 	}
 
+	/**
+	 * Is a composer being rendered alongside this transcript? If so the interaction is parked waiting for the
+	 * reader, which means no turn can be running no matter what the tip of the transcript looks like.
+	 *
+	 * Cheap and exact: a live turn suspends on `await:queue:`, whose `__return` carries no form at all, and an
+	 * `on_tool:` render replaces the composer -- so the element is present only in the states where the agent
+	 * has already handed control back.
+	 */
+	private function _hasComposer(Model_AutomationContinuation $continuation) : bool {
+		$elements = $continuation->state_data['dict']['__return']['form']['elements'] ?? [];
+
+		if(!is_array($elements))
+			return false;
+
+		foreach(array_keys($elements) as $element_key) {
+			if(str_starts_with(strval($element_key), 'agentPrompt/'))
+				return true;
+		}
+
+		return false;
+	}
+
 	function invoke(string $prompt_key, string $action, Model_AutomationContinuation $continuation) {
 		return match ($action) {
 			'echoTurn' => $this->_promptAction_echoTurn($continuation),
@@ -322,12 +344,18 @@ class LlmTranscriptAwait extends AbstractAwait {
 		// A STREAMING row is role=assistant + kind=text and would otherwise read as "finished" the instant it's
 		// created — hiding the Stop button and stopping the poll at exactly the moment a long turn needs both.
 		// It is the opposite of finished: it's the only state where we KNOW work is happening right now.
+		//
+		// The tip alone can't close the window, though: an honored Stop yields mid-tool-loop, so the newest
+		// message stays a tool_result -- "not finished" forever -- while control is already back with the reader.
+		// A COMPOSER in the same form is the positive proof that no turn is running (see _hasComposer), and it
+		// is also what makes "exactly one brake" structural rather than a client-side race: the agentPrompt's
+		// own Stop covers the submit window, ours covers the renders where the composer is gone.
 		$last_message = $raw_messages ? $raw_messages[array_key_last($raw_messages)] : null;
 		$is_finished = $last_message
 			&& 'assistant' === $last_message->role
 			&& 'text' === $last_message->kind
 			&& !$last_message->is_streaming;
-		$is_in_progress = $last_message && !$is_finished;
+		$is_in_progress = $last_message && !$is_finished && !$this->_hasComposer($continuation);
 		$tpl->assign('is_in_progress', $is_in_progress);
 		$tpl->assign('session_id', $transcript_id);
 
@@ -569,7 +597,10 @@ class LlmTranscriptAwait extends AbstractAwait {
 				$is_streaming ? 1 : 0,
 				strlen(json_encode($head->data)),
 			]),
-			'in_progress' => !$is_finished,
+			// Mirrors _prepare() on BOTH counts, or the cheap path would keep a poll alive that the full render
+			// has already ended -- the fingerprint only moves when a MESSAGE does, and the yield that brings the
+			// composer back writes nothing.
+			'in_progress' => !$is_finished && !$this->_hasComposer($continuation),
 			// Work is genuinely underway: a turn is being written, or one is queued and about to be.
 			'working' => $is_streaming || 'queue' === strval($continuation->state_await ?? ''),
 			'streaming' => $is_streaming,

@@ -202,6 +202,11 @@ $(function() {
 
             container._cerbTranscriptPolling = false;
             if(activity) activity.style.display = 'none';
+
+            // The brake goes with the clock: this row is revealed only by startPoll(), so leaving it up outlives
+            // the turn it could stop. A Stop button under a finished turn does nothing when clicked, and the next
+            // submit would put the agentPrompt's own brake beside it -- two buttons for one interrupt.
+            if(stopRow) stopRow.style.display = 'none';
         };
 
         // Self-rescheduling rather than a fixed interval, so the cadence can follow what's actually
@@ -361,9 +366,10 @@ $(function() {
         // lives on the persistent form and re-discovers whichever transcript is live at fire time, so the
         // guard has to be readable from outside here. The container dies with each render, which resets it.
         const startPoll = function() {
-            if(container._cerbTranscriptPolling) return;
-            container._cerbTranscriptPolling = true;
-
+            // Per-turn state, reset BEFORE the idempotence guard: a poll can still be alive from the previous
+            // turn (it gives up on its own schedule, not the turn's), and the clock is the one thing that must
+            // not survive that. Counting a new turn from the old turn's start reads as minutes of work seconds
+            // in -- the same lie the clock follows `working` to avoid.
             startedAt = Date.now();
             idle = 0;
             lastHtml = '';
@@ -372,6 +378,9 @@ $(function() {
 
             if(stopRow) stopRow.style.display = '';
             if(activity) { activity.style.display = ''; tick(); }
+
+            if(container._cerbTranscriptPolling) return;
+            container._cerbTranscriptPolling = true;
 
             // No immediate tick: a submit fires the optimistic echo at the same moment, and that does a FULL
             // setTurns() replace. Polling in the same beat would race it — we'd patch a turn the echo is
