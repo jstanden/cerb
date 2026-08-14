@@ -105,33 +105,34 @@ class Toolbar_GlobalMenu extends Extension_Toolbar {
 		return $menu;
 	}
 
-	// The worker's parked worker-popup continuations become `resume` rows keyed by continuation token. Labeled by
-	// the automation's description (falling back to its name), subtitled with how long they've been idle.
+	// The worker's parked worker-popup continuations become `resume` rows keyed by continuation token. Named by the
+	// automation's own `await:form: resume:` block, with the last prompt as a preview and how long it's been idle.
 	private static function _prependResumableInteractions(array $menu, Model_Worker $active_worker) : array {
-		if(!($resumables = DAO_AutomationContinuation::getResumableByWorker($active_worker->id)))
+		// Shared with the agent pane's History (DAO_AutomationContinuation::getResumableRowsForScopes) so one
+		// conversation never reads as two different things depending on where it's listed. The menu we're about
+		// to prepend to IS the launcher list, so a resumed row can inherit the label and icon of the item that
+		// started it -- for free, and still correct after the toolbar is edited.
+		$identity = DAO_AutomationContinuation::launcherIdentityFromToolbarItems($menu);
+
+		if(!($rows = DAO_AutomationContinuation::getResumableRows($active_worker->id, 25, $identity)))
 			return $menu;
 
-		// Shared with the agent pane's History (DAO_AutomationContinuation::getResumableLabels) so one
-		// conversation never reads as two different things depending on where it's listed.
-		$rows = DAO_AutomationContinuation::getResumableLabels($resumables);
-
-		$make_item = fn(Model_AutomationContinuation $continuation) : array =>
-			['type' => 'resume'] + ($rows[$continuation->token] ?? []);
+		$make_item = fn(array $row) : array => ['type' => 'resume'] + $row;
 
 		$resume_items = [];
 
 		// The most recent handful inline; everything older tucks into a submenu so the bar stays scannable.
-		$inline = array_slice($resumables, 0, 4);
-		$overflow = array_slice($resumables, 4);
+		$inline = array_slice($rows, 0, 4, true);
+		$overflow = array_slice($rows, 4, null, true);
 
-		foreach($inline as $continuation)
-			$resume_items['resume/' . $continuation->token] = $make_item($continuation);
+		foreach($inline as $token => $row)
+			$resume_items['resume/' . $token] = $make_item($row);
 
 		if($overflow) {
 			$overflow_items = [];
 
-			foreach($overflow as $continuation)
-				$overflow_items['resume/' . $continuation->token] = $make_item($continuation);
+			foreach($overflow as $token => $row)
+				$overflow_items['resume/' . $token] = $make_item($row);
 
 			$resume_items['menu/resume-more'] = [
 				'type' => 'menu',

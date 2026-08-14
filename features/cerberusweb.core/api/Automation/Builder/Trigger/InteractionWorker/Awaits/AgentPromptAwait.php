@@ -294,6 +294,11 @@ class AgentPromptAwait extends AbstractAwait {
 			// `<name>__effort` seeds the effort selector on re-render (like `__model`) so it doesn't revert.
 			$key . '__effort' => $effort,
 			$key . '__llm' => $this->_getLlmBlock(strval($model), $effort),
+			// The picked provider's brand mark, so an automation can label its own conversation with it
+			// (`await:form: resume: icon:`) without needing a provider-to-icon map it has no way to write.
+			// Empty for a provider with no brand color, which is the caller's cue to fall back.
+			$key . '__llm_icon' => $this->_getLlmProviderMark(strval($model), 'icon'),
+			$key . '__llm_color' => $this->_getLlmProviderMark(strval($model), 'color'),
 			// `<name>__images` = the picked images (empty when none / non-vision model).
 			$key . '__images' => $images,
 		];
@@ -672,6 +677,21 @@ class AgentPromptAwait extends AbstractAwait {
 			$params['effort'] = $effort;
 
 		return [$m['provider'] => $params];
+	}
+
+	// The picked model's provider brand mark: a `cerb-icons` name or a hex background color. The catalog entry's
+	// own `icon` already honors a `display:` override, so that wins for the icon; color has no such override and
+	// comes straight from the provider.
+	private function _getLlmProviderMark(string $id, string $which) : string {
+		$models = $this->_getModels();
+
+		if(!($m = $models[$id] ?? null) || !$m['provider'])
+			return '';
+
+		if('icon' === $which)
+			return strval($m['icon'] ?? '');
+
+		return DevblocksPlatform::services()->llm()->getProviderIconColor($m['provider']);
 	}
 
 	/*

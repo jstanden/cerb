@@ -3666,9 +3666,10 @@ class CerbPatch_Core_v12_0_0 {
 	private function patchAutomationContinuationStateAwait() : void {
 		// ===========================================================================
 		// `state_await`: the await SUB-STATE of a parked continuation, derived from `__return` when the record is
-		// minted/updated — the await-type key (form/interaction/duration/draft/record) plus `@resumable` when a form
-		// opts into durability (`await:form: resumable@bool: yes`). Drives the command bar's Resume list and the
-		// pause/end close menu. Pure record metadata — never written back into automation state.
+		// minted/updated -- the await-type key (form/interaction/duration/draft/record/queue). Answers READINESS:
+		// is this parked somewhere a UI can re-enter. Pure record metadata -- never written back into automation
+		// state. (An earlier revision appended `@resumable` here to carry a per-form opt-in; that suffix is gone,
+		// stripped by patchAutomationContinuationResumeScope below.)
 		
 		if ($this->_revision < 1530) {
 			list($columns,) = $this->_db->metaTable('automation_continuation');
@@ -3884,6 +3885,34 @@ class CerbPatch_Core_v12_0_0 {
 			$this->_db->ExecuteMaster("UPDATE automation_continuation SET resume_scope = 'commandbar' WHERE resume_scope = '' AND state_await LIKE '%@resumable'");
 			$this->_db->ExecuteMaster("UPDATE automation_continuation SET state_await = REPLACE(state_await, '@resumable', '') WHERE state_await LIKE '%@resumable'");
 		}
+	}
+
+	private function patchAutomationContinuationResumeFields() : void {
+		// ===========================================================================
+		// The resume DESCRIPTOR: how a parked conversation reads in the agent pane's History and the command bar.
+		// Decoration, never a gate -- `resume_scope` alone answers whether a conversation is resumable, and it
+		// fails closed for anything but the two conversational launchers (the command bar and an editor's agent
+		// pane). These columns compose themselves from the launching toolbar item and the transcript; an optional
+		// `await:form: resume:` block overrides a value where the author knows a better one.
+		//
+		// Split on purpose. `resume_label` is the conversation's name and gets its own column so a future
+		// `/rename` can write it with a SINGLE-COLUMN statement: `invokePrompt` is deliberately read-only on the
+		// continuation, which is what lets it run beside a live turn, and a read-modify-write would give that up.
+		// Everything else (preview/icon/color) is display payload nothing filters or sorts on, so it rides in one
+		// blob and its shape can keep moving without a migration per key.
+		//
+		// utf8mb4 per column, on an otherwise-utf8mb3 table: these hold a worker's own prose (and, later, an
+		// LLM-generated title), and MySQL REJECTS a 4-byte character rather than truncating it -- so an emoji
+		// would fail the write instead of shortening a string. Same treatment as `message.subject`.
+
+		list($columns,) = $this->_db->metaTable('automation_continuation');
+
+		if (!array_key_exists('resume_label', $columns)) {
+			$this->_db->ExecuteMaster("ALTER TABLE automation_continuation ADD COLUMN resume_label VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT ''");
+		}
+
+		if (!array_key_exists('resume_metadata', $columns))
+			$this->_db->ExecuteMaster("ALTER TABLE automation_continuation ADD COLUMN resume_metadata TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
 	}
 
 	private function patchTableAgentModel() : void {

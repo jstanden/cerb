@@ -800,11 +800,10 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 			return;
 		}
 
-		$state_data = $continuation->state_data;
-		$state_data['name'] = mb_substr($name, 0, 255);
-
+		// A single-column write, never a read-modify-write of `state_data`: that blob is rewritten whole with no
+		// guard by every turn, so merging into it here would race the conversation this is naming.
 		$fields = [
-			DAO_AutomationContinuation::STATE_DATA => json_encode($state_data),
+			DAO_AutomationContinuation::RESUME_LABEL => DAO_AutomationContinuation::normalizeResumeText($name),
 			DAO_AutomationContinuation::UPDATED_AT => time(),
 		];
 
@@ -909,11 +908,24 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 			return;
 		}
 
-		$continuations = DAO_AutomationContinuation::getResumableByWorkerForScopes($active_worker->id, [$scope]);
+		// The same toolbar the pane rendered its launcher tiles from, re-parsed here so a resumed conversation can
+		// inherit the label and icon of the tile that started it. Scoped by `component`, exactly as the host page
+		// section builds it, so an item hidden from this editor can't name a row in its History.
+		$identity = [];
+
+		$toolbar_dict = DevblocksDictionaryDelegate::instance([
+			'component' => strval($caller['params']['component'] ?? ''),
+			'caller_name' => Toolbar_AgentPane::CALLER_NAME,
+			'worker_id' => $active_worker->id,
+			'worker__context' => CerberusContexts::CONTEXT_WORKER,
+		]);
+
+		if(($toolbar = DAO_Toolbar::getKataByName('agent.pane', $toolbar_dict)))
+			$identity = DAO_AutomationContinuation::launcherIdentityFromToolbarItems($toolbar);
 
 		echo json_encode([
 			'status' => true,
-			'items' => array_values(DAO_AutomationContinuation::getResumableLabels($continuations)),
+			'items' => array_values(DAO_AutomationContinuation::getResumableRowsForScopes($active_worker->id, [$scope], 25, $identity)),
 		]);
 	}
 
@@ -1272,19 +1284,26 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 				DAO_AutomationContinuation::URI => $automation->name,
 				DAO_AutomationContinuation::EXTENSION_ID => $automation->extension_id,
 				DAO_AutomationContinuation::WORKER_ID => $active_worker->id,
-				// WHERE this may later be reopened — and whether at all. The LAUNCHER opts in by having a scope;
-				// a caller we don't recognize resolves to '' and its interactions simply aren't resumable.
+				// WHERE this may later be reopened -- and whether at all. The LAUNCHER opts in by having a scope;
+				// a caller we don't recognize resolves to '' and its interactions simply aren't resumable. Only the
+				// command bar and an editor's agent pane resolve to anything, and both host real conversations, so
+				// this allowlist is the whole gate -- an editor-local chooser never reaches a list.
 				DAO_AutomationContinuation::RESUME_SCOPE => DAO_AutomationContinuation::resumeScopeFor($caller),
 				DAO_AutomationContinuation::STATE_DATA => json_encode($state_data),
 				DAO_AutomationContinuation::EXPIRES_AT => time()+3600, // 1hr
 				DAO_AutomationContinuation::UPDATED_AT => time(),
 			]);
-			
+
 		} else {
-			DAO_AutomationContinuation::update($continuation_token, [
-				DAO_AutomationContinuation::STATE_DATA => json_encode($state_data),
-				DAO_AutomationContinuation::UPDATED_AT => time(),
-			]);
+			// Re-seeding an existing token is a RESTART, so the old descriptor goes with it -- its name describes a
+			// conversation that no longer exists. The restarted flow re-stamps on its next opted-in await.
+			DAO_AutomationContinuation::update($continuation_token, array_merge(
+				DAO_AutomationContinuation::resumeFieldsCleared(),
+				[
+					DAO_AutomationContinuation::STATE_DATA => json_encode($state_data),
+					DAO_AutomationContinuation::UPDATED_AT => time(),
+				]
+			));
 		}
 		
 		return [
@@ -2209,7 +2228,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 
 		// `state_await` is the await SUB-STATE (which kind of await this is parked on), derived from the current
 		// `__return`. Decided here at RENDER time and stored on the continuation — never written into automation
-		// state. It answers READINESS; whether this can be reopened at all is the launcher's `resume_scope`.
+		// state. It answers READINESS; whether this can be reopened at all is `resume_scope`.
 		$state_await = DAO_AutomationContinuation::stateAwaitFor($automation_results->getKeyPath('__return', []));
 
 		// The marker that drives the pause/end close menu: a durable interaction parked somewhere a UI can
@@ -2288,14 +2307,18 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		$trigger_extension = $continuation->getAutomation()?->getTriggerExtension();
 		$this->_renderFormElements($elements, $automation_results, $continuation, $trigger_extension);
 
-		// Save session scope
-		DAO_AutomationContinuation::update($continuation->token, [
-			DAO_AutomationContinuation::STATE => $exit_code,
-			DAO_AutomationContinuation::STATE_DATA => json_encode($continuation->state_data),
-			DAO_AutomationContinuation::EXPIRES_AT => $continuation->expires_at,
-			DAO_AutomationContinuation::UPDATED_AT => time(),
-			DAO_AutomationContinuation::STATE_AWAIT => $state_await,
-		]);
+		// Save session scope. The resume descriptor is refreshed here and nowhere else: this is the only await
+		// responder that sees a form, and the values are sticky, so every other await leaves them alone.
+		DAO_AutomationContinuation::update($continuation->token, array_merge(
+			[
+				DAO_AutomationContinuation::STATE => $exit_code,
+				DAO_AutomationContinuation::STATE_DATA => json_encode($continuation->state_data),
+				DAO_AutomationContinuation::EXPIRES_AT => $continuation->expires_at,
+				DAO_AutomationContinuation::UPDATED_AT => time(),
+				DAO_AutomationContinuation::STATE_AWAIT => $state_await,
+			],
+			DAO_AutomationContinuation::resumeFieldsFromAwait($automation_results, $continuation)
+		));
 	}
 
 	/**

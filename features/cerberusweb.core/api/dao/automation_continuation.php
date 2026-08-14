@@ -3,6 +3,8 @@ class DAO_AutomationContinuation extends Cerb_ORMHelper {
 	const EXPIRES_AT = 'expires_at';
 	const EXTENSION_ID = 'extension_id';
 	const PARENT_TOKEN = 'parent_token';
+	const RESUME_LABEL = 'resume_label';
+	const RESUME_METADATA = 'resume_metadata';
 	const RESUME_SCOPE = 'resume_scope';
 	const ROOT_TOKEN = 'root_token';
 	const STATE = 'state';
@@ -12,6 +14,10 @@ class DAO_AutomationContinuation extends Cerb_ORMHelper {
 	const UPDATED_AT = 'updated_at';
 	const URI = 'uri';
 	const WORKER_ID = 'worker_id';
+
+	// How many recent user turns to look through for a preview before giving up. Tool results wear `role=user`
+	// too, and on some providers they slip past the `kind` filter, so the newest candidate isn't always prose.
+	const RESUME_PREVIEW_SCAN_DEPTH = 10;
 	
 	private function __construct() {}
 	
@@ -36,6 +42,16 @@ class DAO_AutomationContinuation extends Cerb_ORMHelper {
 			->addField(self::PARENT_TOKEN)
 			->string()
 			->setMaxLength(40)
+			;
+		$validation
+			->addField(self::RESUME_LABEL)
+			->string()
+			->setMaxLength(255)
+			;
+		$validation
+			->addField(self::RESUME_METADATA)
+			->string()
+			->setMaxLength(65535)
 			;
 		$validation
 			->addField(self::RESUME_SCOPE)
@@ -144,7 +160,7 @@ class DAO_AutomationContinuation extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT token, uri, state, state_data, parent_token, root_token, expires_at, updated_at, extension_id, worker_id, state_await, resume_scope ".
+		$sql = "SELECT token, uri, state, state_data, parent_token, root_token, expires_at, updated_at, extension_id, worker_id, state_await, resume_scope, resume_label, resume_metadata ".
 			"FROM automation_continuation ".
 			$where_sql.
 			$sort_sql.
@@ -264,81 +280,415 @@ class DAO_AutomationContinuation extends Cerb_ORMHelper {
 	}
 
 	/**
-	 * Display rows for a set of resumable continuations, keyed by token: the name the worker gave it on pause,
-	 * else the automation's description, else its uri — plus how long it's been idle.
-	 *
-	 * Shared by the global command bar and the agent pane's History so the two can't drift into describing the
-	 * same conversation differently. Batches the automation lookup rather than one query per row.
-	 *
-	 * @param Model_AutomationContinuation[] $continuations
+	 * The `await:form: resume:` keys an automation may set. `label` is promoted to its own column (a single-column
+	 * write keeps `/rename` safe beside a live turn); the rest ride in `resume_metadata` as display payload, so
+	 * the shape can keep moving without a migration per key.
 	 */
-	static function getResumableLabels(array $continuations) : array {
-		if(!$continuations)
-			return [];
+	static function getResumeMetadataKeys() : array {
+		return ['preview', 'icon', 'color'];
+	}
 
-		$labels = [];
+	/**
+	 * Title-normalize one resume value. Multibyte-aware `mb_substr` on purpose: `substr()` would cut mid-codepoint
+	 * and hand MySQL invalid UTF-8, failing the whole write instead of shortening a string nobody reads in full.
+	 * A clipped label is a non-event; a rejected one loses the name.
+	 */
+	static function normalizeResumeText(mixed $value) : string {
+		if(!is_scalar($value))
+			return '';
 
-		foreach(DAO_Automation::getByUris(array_values(array_unique(array_map(fn($c) => $c->uri, $continuations)))) as $automation) {
-			if($automation->description)
-				$labels[$automation->name] = $automation->description;
+		// These are titles, not prose -- collapse any whitespace run (newlines included) to one space.
+		$out = trim(preg_replace('/\s+/u', ' ', strval($value)));
+
+		// Drop the quotes a model likes to wrap a generated title in, but only a MATCHED pair at both ends:
+		// `trim($out, "\"'")` would eat the closing quote of `move the antenna "tip"` and leave it unbalanced.
+		if(mb_strlen($out) > 1) {
+			$quote = mb_substr($out, 0, 1);
+
+			if(('"' === $quote || "'" === $quote) && $quote === mb_substr($out, -1))
+				$out = trim(mb_substr($out, 1, -1));
 		}
 
+		return mb_substr($out, 0, 255);
+	}
+
+	/**
+	 * Describe a parked conversation from the form it's parked on: what it should be called, previewed by, and
+	 * marked with in the agent pane's History and the command bar.
+	 *
+	 * This is NOT an opt-in -- `resume_scope` already answers whether a conversation is resumable, and it fails
+	 * closed for anything but the two conversational launchers (the command bar and an editor's agent pane). An
+	 * editor-local chooser resolves to no scope and was never listed, so requiring an author to declare
+	 * resumability a second time only meant every automation had to be edited before its rows read properly.
+	 *
+	 * An optional `await:form: resume:` block overrides any of it, for the rare case where the author knows a
+	 * better value than the toolbar or the transcript.
+	 *
+	 * Values are STICKY: a key that resolves to nothing leaves the stored one alone, so an await that says
+	 * nothing can't blank a name the conversation already has.
+	 *
+	 * @return array Partial `update()` fields; empty when nothing changed.
+	 */
+	static function resumeFieldsFromAwait(DevblocksDictionaryDelegate $results, Model_AutomationContinuation $continuation) : array {
+		$form = $results->getKeyPath('__return.form', []);
+
+		if(!is_array($form))
+			return [];
+
+		$resume = is_array($form['resume'] ?? null) ? $form['resume'] : [];
+
+		// What the form can tell us about itself. The explicit keys below win over all of it.
+		$derived = self::_resumeDerivedFromForm($form);
+
+		$fields = [];
+
+		if('' !== ($label = self::normalizeResumeText($resume['label'] ?? null)))
+			$fields[self::RESUME_LABEL] = $label;
+
+		$metadata = $continuation->resume_metadata;
+
+		foreach(self::getResumeMetadataKeys() as $key) {
+			$value = self::normalizeResumeText($resume[$key] ?? null);
+
+			if('' === $value)
+				$value = self::normalizeResumeText($derived[$key] ?? null);
+
+			if('' !== $value)
+				$metadata[$key] = $value;
+		}
+
+		if($metadata !== $continuation->resume_metadata)
+			$fields[self::RESUME_METADATA] = json_encode($metadata);
+
+		return $fields;
+	}
+
+	/**
+	 * What a form can say about itself without the author spelling it out: the form's own `title:` as a preview,
+	 * upgraded to the live transcript's provider mark and latest prompt when the form shows one.
+	 *
+	 * The session is read ONLY from an `llmTranscript` element. An `agentPrompt` also carries a `session_id`, but
+	 * it carries one from the very first render -- before anything has been sent -- so trusting it would decorate
+	 * a conversation that doesn't exist yet. A transcript element is rendered once there's something to show.
+	 */
+	private static function _resumeDerivedFromForm(array $form) : array {
+		$elements = $form['elements'] ?? [];
+
+		// Not a chat at all: the form's own title is the best short answer to "where is this parked" -- a
+		// multi-step flow sitting on "Choose recipients" says something useful.
+		//
+		// "Is a chat" is decided by the COMPOSER (`agentPrompt`), not by the transcript, because the transcript
+		// is typically rendered only once there's something to show. Asking the transcript would make a brand-new
+		// chat look like a plain form and print its screen title as the preview.
+		if(!self::_formHasElementType($elements, 'agentPrompt') && !self::_formHasElementType($elements, 'llmTranscript'))
+			return ['preview' => strval($form['title'] ?? '')];
+
+		// A chat is previewed by what was said in it, or by NOTHING until something is -- falling back to the
+		// title would print the screen's name under the launcher's name, and a chat nobody has spoken in would
+		// look identical to one that had.
+		if(!($session_uuid = self::_sessionUuidFromFormElements($elements)))
+			return [];
+
+		return array_filter(self::_resumeFromTranscript($session_uuid), fn($v) => '' !== $v);
+	}
+
+	// Does this `await:form: elements:` map contain an element of `$type`? Keys are `<type>/<var>` (or a bare
+	// `<type>`), with any `@annotation` stripped.
+	private static function _formHasElementType(mixed $elements, string $type) : bool {
+		if(!is_array($elements))
+			return false;
+
+		foreach(array_keys($elements) as $element_key) {
+			list($element_type,) = array_pad(explode('/', preg_replace('/@.*$/', '', strval($element_key)), 2), 2, null);
+
+			if($type === $element_type)
+				return true;
+		}
+
+		return false;
+	}
+
+	// The `session_id` of the first `llmTranscript` element in an `await:form: elements:` map, if any.
+	private static function _sessionUuidFromFormElements(mixed $elements) : string {
+		if(!is_array($elements))
+			return '';
+
+		foreach($elements as $element_key => $element) {
+			if(!is_array($element))
+				continue;
+
+			list($type,) = array_pad(explode('/', preg_replace('/@.*$/', '', strval($element_key)), 2), 2, null);
+
+			if('llmTranscript' === $type && '' !== ($uuid = trim(strval($element['session_id'] ?? ''))))
+				return $uuid;
+		}
+
+		return '';
+	}
+
+	/**
+	 * The provider mark and latest prompt for a live transcript, in one round trip.
+	 *
+	 * ⚠ `role = 'user'` is NOT the same as "something a person typed" -- every tool RESULT is also a user-role
+	 * message, and on a working agent they outnumber real prompts two to one. A preview taken from the newest
+	 * user row reads `ok`, or a raw SVG path.
+	 *
+	 * ⚠ And `kind` alone does NOT sort them out. It's the right first filter (`text` plus legacy `''`, never
+	 * `tool_result` or `summary` -- a compaction artifact, not something anybody said), but AWS Bedrock records
+	 * Converse-shaped `toolResult` blocks under a passing `kind`. The PROVIDER decides the rest: its own
+	 * `convertToGenericMessage()` already knows its wire format, and every converter flags a tool result by
+	 * setting the neutral role to `tool`. Walk the newest handful of candidates and take the first that yields
+	 * prose.
+	 */
+	private static function _resumeFromTranscript(string $session_uuid) : array {
+		$db = DevblocksPlatform::services()->database();
 		$out = [];
 
-		foreach($continuations as $continuation) {
-			$name = $continuation->state_data['name'] ?? '';
+		try {
+			if(!($row = $db->GetRowReader(sprintf("SELECT provider, provider_params FROM llm_agent_session WHERE uuid = UUID_TO_BIN(%s)",
+				$db->qstr($session_uuid)
+			))))
+				return $out;
 
-			$out[$continuation->token] = [
-				'token' => $continuation->token,
-				'label' => $name ?: ($labels[$continuation->uri] ?? $continuation->uri),
-				'icon' => 'history',
-				'description' => sprintf('Last active %s', DevblocksPlatform::strPrettyTime($continuation->updated_at)),
-				'updated_at' => intval($continuation->updated_at),
-			];
+			// Bounded: a preview is a nicety, and a session whose last few user turns are all tool results has
+			// nothing worth showing anyway.
+			$candidates = $db->GetArrayReader(sprintf("SELECT data_json FROM llm_agent_message ".
+				"WHERE session_uuid = UUID_TO_BIN(%s) AND role = 'user' AND kind IN ('text','') ".
+				"ORDER BY seq DESC LIMIT %d",
+				$db->qstr($session_uuid),
+				self::RESUME_PREVIEW_SCAN_DEPTH
+			));
+
+		} catch(Throwable $e) {
+			DevblocksPlatform::logException($e);
+			return $out;
+		}
+
+		// The model's stamped `display:` block wins over the provider's own mark, mirroring
+		// AgentPromptAwait::_buildModelEntry(). The provider is the TRANSPORT, not the model: Bedrock serving
+		// Kimi is still Kimi, and an OpenAI-compatible endpoint fronting someone else's model is the case
+		// `display:` exists for. Reading it off `provider_params` covers both entry paths, since a
+		// record-resolved model and a session fallback both carry the block in that bag.
+		$llm = DevblocksPlatform::services()->llm();
+
+		$params = json_decode(strval($row['provider_params'] ?? ''), true);
+		$display = (is_array($params) && is_array($params['display'] ?? null)) ? $params['display'] : [];
+
+		$icon = trim(strval($display['icon'] ?? ''));
+		$color = trim(strval($display['icon_color'] ?? ''));
+
+		// An unprimed session has no provider yet; `getProviderIcon` would answer `bot` for it, which would
+		// out-rank the launching toolbar's own icon for no reason.
+		if('' !== ($provider_id = strval($row['provider'] ?? ''))) {
+			$icon = $icon ?: $llm->getProviderIcon($provider_id);
+			$color = $color ?: $llm->getProviderIconColor($provider_id);
+		}
+
+		if('' !== $icon)
+			$out['icon'] = $icon;
+
+		if('' !== $color)
+			$out['color'] = $color;
+
+		// `validate: false` builds the provider as a PARSER -- no credentials, no connected account, no
+		// network. The same form the transcript viewer and `AgentPromptAwait::_boundaryText()` use.
+		$provider = ('' !== $provider_id) ? $llm->getProvider($provider_id, [], false) : null;
+
+		if(!($provider instanceof \Cerb\LLM\Providers\Interfaces\Chat))
+			return $out;
+
+		foreach($candidates as $candidate) {
+			if('' !== ($text = self::_messageTextFromJson($provider, $candidate['data_json'] ?? null))) {
+				$out['preview'] = $text;
+				break;
+			}
 		}
 
 		return $out;
 	}
 
 	/**
-	 * A worker's own non-terminal continuations that the GLOBAL command bar offers to resume.
-	 * @return Model_AutomationContinuation[]
+	 * A message's prose, or '' when it isn't prose at all.
+	 *
+	 * The stored shape is whatever the provider sends, and each one differs -- a bare `content` string on a
+	 * fresh prompt, Anthropic's `{type:text}` blocks, Bedrock's typeless `{text:…}` Converse blocks. Rather
+	 * than re-deriving that here, hand the row to the provider that wrote it: `convertToGenericMessage()` is
+	 * the same reader the transcript viewer uses, so this can never drift from what a reader sees.
+	 *
+	 * A tool result is rejected on the neutral ROLE, which every converter sets to `tool` when it meets one
+	 * (Anthropic `tool_result`, Bedrock `toolResult`, OpenAI's `role: tool`).
 	 */
-	static function getResumableByWorker(int $worker_id, int $limit=25) : array {
-		return self::getResumableByWorkerForScopes($worker_id, self::getGlobalResumeScopes(), $limit);
+	private static function _messageTextFromJson(\Cerb\LLM\Providers\Interfaces\Chat $provider, ?string $json) : string {
+		if(!$json || !is_array($data = json_decode($json, true)))
+			return '';
+
+		try {
+			$message = $provider->convertToGenericMessage($data);
+		} catch(Throwable $e) {
+			DevblocksPlatform::logException($e);
+			return '';
+		}
+
+		if('tool' === $message->getRole())
+			return '';
+
+		$text = '';
+
+		foreach($message->getMessages() as $block)
+			$text .= strval($block['content'] ?? '');
+
+		return trim($text);
 	}
 
 	/**
-	 * A worker's own non-terminal continuations reopenable from one or more launcher scopes.
-	 * @return Model_AutomationContinuation[]
+	 * Blank the descriptor. A `reset@bool: yes` submit restarts the conversation inside the same continuation,
+	 * so its old name and preview describe a flow that no longer exists; the next form await re-derives them.
+	 *
+	 * `resume_scope` is deliberately NOT cleared -- it belongs to the launcher, which hasn't changed, and
+	 * blanking it would make the restarted conversation unresumable.
 	 */
-	static function getResumableByWorkerForScopes(int $worker_id, array $scopes, int $limit=25) : array {
+	static function resumeFieldsCleared() : array {
+		return [
+			self::RESUME_LABEL => '',
+			self::RESUME_METADATA => '',
+		];
+	}
+
+	/**
+	 * Display rows for a worker's opted-in conversations in the GLOBAL command bar's scopes.
+	 */
+	static function getResumableRows(int $worker_id, int $limit=25, array $launcher_identity=[]) : array {
+		return self::getResumableRowsForScopes($worker_id, self::getGlobalResumeScopes(), $limit, $launcher_identity);
+	}
+
+	/**
+	 * Display rows for a worker's opted-in conversations reopenable from one or more launcher scopes, newest
+	 * first and keyed by token.
+	 *
+	 * Deliberately NOT built on `getWhere()`: that always selects `state_data`, a mediumtext holding the whole
+	 * serialized automation dict, so listing ten conversations deserialized ten full dicts to print ten labels.
+	 * Everything the list needs now lives in its own columns.
+	 *
+	 * Shared by the global command bar and the agent pane's History so the two can't drift into describing the
+	 * same conversation differently. Batches the automation lookup rather than one query per row.
+	 */
+	/**
+	 * `uri => {label, icon}` for every interaction a toolbar can launch, so a resumed conversation can wear the
+	 * identity of the tile that started it. Recurses into submenu `items:`.
+	 *
+	 * Resolved from the CALLER's live toolbar at render time rather than stamped onto the continuation at launch:
+	 * it costs no storage, and renaming a toolbar item retitles its past conversations instead of leaving a list
+	 * of names that no longer exist anywhere in the UI.
+	 */
+	static function launcherIdentityFromToolbarItems(mixed $items) : array {
+		$out = [];
+
+		if(!is_array($items))
+			return $out;
+
+		foreach($items as $item) {
+			if(!is_array($item))
+				continue;
+
+			if(array_key_exists('items', $item))
+				$out += self::launcherIdentityFromToolbarItems($item['items']);
+
+			if('' === ($uri = trim(strval($item['uri'] ?? ''))) || array_key_exists($uri, $out))
+				continue;
+
+			$out[$uri] = [
+				'label' => trim(strval($item['label'] ?? '')),
+				'icon' => trim(strval($item['icon'] ?? '')),
+			];
+		}
+
+		return $out;
+	}
+
+	static function getResumableRowsForScopes(int $worker_id, array $scopes, int $limit=25, array $launcher_identity=[]) : array {
 		if($worker_id < 1 || !($scopes = array_filter(array_map('strval', $scopes), fn($s) => '' !== $s)))
 			return [];
 
 		$db = DevblocksPlatform::services()->database();
 
-		return self::getWhere(
-			sprintf("%s = %d AND %s IN (%s) AND %s IN (%s) AND %s = '' AND %s IN (%s) AND %s = %s AND (%s = 0 OR %s > %d)",
-				self::WORKER_ID,
-				$worker_id,
-				self::RESUME_SCOPE,
-				implode(',', $db->qstrArray(array_values($scopes))),
-				self::STATE_AWAIT,
-				implode(',', $db->qstrArray(self::getResumableAwaitTypes())),
-				self::PARENT_TOKEN,
-				self::EXTENSION_ID,
-				implode(',', $db->qstrArray(self::getWorkerResumableExtensionIds())),
-				self::STATE,
-				$db->qstr('await'),
-				self::EXPIRES_AT,
-				self::EXPIRES_AT,
-				time()
-			),
+		$sql = sprintf("SELECT token, uri, resume_label, resume_metadata, updated_at ".
+			"FROM automation_continuation ".
+			"WHERE %s = %d AND %s IN (%s) AND %s IN (%s) AND %s = '' AND %s IN (%s) AND %s = %s AND (%s = 0 OR %s > %d) ".
+			"ORDER BY %s DESC ".
+			"LIMIT %d",
+			self::WORKER_ID,
+			$worker_id,
+			self::RESUME_SCOPE,
+			implode(',', $db->qstrArray(array_values($scopes))),
+			self::STATE_AWAIT,
+			implode(',', $db->qstrArray(self::getResumableAwaitTypes())),
+			self::PARENT_TOKEN,
+			self::EXTENSION_ID,
+			implode(',', $db->qstrArray(self::getWorkerResumableExtensionIds())),
+			self::STATE,
+			$db->qstr('await'),
+			self::EXPIRES_AT,
+			self::EXPIRES_AT,
+			time(),
 			self::UPDATED_AT,
-			false,
-			$limit
+			max(1, $limit)
 		);
+
+		if(!(($rs = $db->QueryReader($sql)) instanceof mysqli_result))
+			return [];
+
+		$rows = [];
+
+		while($row = mysqli_fetch_assoc($rs)) {
+			@$metadata = json_decode(strval($row['resume_metadata'] ?? ''), true);
+
+			$rows[$row['token']] = [
+				'token' => $row['token'],
+				'uri' => $row['uri'],
+				'label' => strval($row['resume_label'] ?? ''),
+				'metadata' => is_array($metadata) ? $metadata : [],
+				'updated_at' => intval($row['updated_at']),
+			];
+		}
+
+		mysqli_free_result($rs);
+
+		if(!$rows)
+			return [];
+
+		// A row that opted in but never named itself still needs to read as something: the automation's own
+		// description, then its uri.
+		$descriptions = [];
+
+		foreach(DAO_Automation::getByUris(array_values(array_unique(array_column($rows, 'uri')))) as $automation) {
+			if($automation->description)
+				$descriptions[$automation->name] = $automation->description;
+		}
+
+		$out = [];
+
+		foreach($rows as $token => $row) {
+			$metadata = $row['metadata'];
+			$launcher = $launcher_identity[$row['uri']] ?? [];
+
+			// Precedence, most specific first. The author's explicit keys win; then what the transcript knows
+			// about itself; then the tile that launched it; then the automation's own description.
+			$out[$token] = [
+				'token' => $token,
+				'label' => $row['label']
+					?: ($launcher['label'] ?? '')
+					?: ($descriptions[$row['uri']] ?? $row['uri']),
+				'preview' => strval($metadata['preview'] ?? ''),
+				'icon' => strval($metadata['icon'] ?? '')
+					?: ($launcher['icon'] ?? '')
+					?: 'history',
+				'color' => strval($metadata['color'] ?? ''),
+				'description' => DevblocksPlatform::strPrettyTime($row['updated_at']),
+				'updated_at' => $row['updated_at'],
+			];
+		}
+
+		return $out;
 	}
 
 	/**
@@ -398,9 +748,13 @@ class DAO_AutomationContinuation extends Cerb_ORMHelper {
 			$object->worker_id = intval($row['worker_id']);
 			$object->state_await = $row['state_await'];
 			$object->resume_scope = strval($row['resume_scope'] ?? '');
-			
+			$object->resume_label = strval($row['resume_label'] ?? '');
+
 			@$state_data = json_decode($row['state_data'], true);
 			$object->state_data = $state_data ?: [];
+
+			@$resume_metadata = json_decode(strval($row['resume_metadata'] ?? ''), true);
+			$object->resume_metadata = is_array($resume_metadata) ? $resume_metadata : [];
 			
 			$objects[$object->token] = $object;
 		}
@@ -609,6 +963,10 @@ class Model_AutomationContinuation {
 	public $state_await = '';
 	// WHERE this may be reopened; '' = nowhere (not resumable). See DAO_AutomationContinuation::resumeScopeFor().
 	public $resume_scope = '';
+	// The conversation's name, from `await:form: resume: label:`. A working name until a proper `name` column lands.
+	public $resume_label = '';
+	// The rest of the resume descriptor (preview/icon/color) -- display payload only, nothing queries it.
+	public $resume_metadata = [];
 	
 	private ?Model_AutomationContinuation  $_parent = null;
 	private ?Model_AutomationContinuation  $_root = null;

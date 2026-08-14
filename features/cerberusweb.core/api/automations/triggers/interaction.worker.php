@@ -658,6 +658,41 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 						'snippet' => "elements:",
 						'score' => 1999,
 					],
+					[
+						'caption' => 'resume:',
+						'snippet' => "resume:",
+						'score' => 1998,
+					],
+				],
+				// Optional OVERRIDES for how this conversation reads in the agent pane's History and the command
+				// bar. None of it is required -- a resumable conversation is already named and iconed after the
+				// toolbar item that launched it, and picks up the model's brand mark plus an excerpt of the latest
+				// prompt from any `llmTranscript` element in the same form. Set a key here only when the author
+				// knows a better value. Whether a conversation is resumable at all is the launcher's business
+				// (`resume_scope`), not this block's.
+				// Values are STICKY: an await that omits a key leaves the stored one alone, so a long LLM turn
+				// parked on `await:queue:` can't blank the name the conversation was given.
+				'(.*):await:form:resume:' => [
+					[
+						'caption' => 'label:',
+						'snippet' => "label:",
+						'score' => 2000,
+					],
+					[
+						'caption' => 'preview:',
+						'snippet' => "preview:",
+						'score' => 1999,
+					],
+					[
+						'caption' => 'icon:',
+						'snippet' => "icon:",
+						'score' => 1998,
+					],
+					[
+						'caption' => 'color:',
+						'snippet' => "color:",
+						'score' => 1997,
+					],
 				],
 				'(.*):await:form:elements:' => [
 					[
