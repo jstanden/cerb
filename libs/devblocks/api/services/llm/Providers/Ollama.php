@@ -65,7 +65,7 @@ class Ollama extends Extension_DevblocksLlmProvider implements Chat, ChatStreami
 				foreach($message['tool_calls'] as $tool_call) {
 					$chat_response->pushTool(new DevblocksLlmChatResponse_Tool(
 						$tool_call['function']['name'] ?? '',
-						$tool_call['function']['arguments'] ?? [],
+						$this->_normalizeToolParameters($tool_call['function']['arguments'] ?? []),
 					));
 				}
 			}

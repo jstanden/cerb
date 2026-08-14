@@ -644,7 +644,10 @@ abstract class Extension_DevblocksLlmProvider {
 					'type' => 'function',
 					'function' => [
 						'name' => $tool->getName(),
-						'arguments' => json_encode($tool->getParameters()),
+						// `arguments` is an OBJECT in the OpenAI schema, and PHP encodes an empty array as `[]`
+						// -- so a no-argument call (the common case) would replay as the wrong JSON type. Cast
+						// the empty bag the way the Anthropic-family converters already do for `input`.
+						'arguments' => json_encode($tool->getParameters() ?: (object) []),
 					],
 				];
 			}
@@ -1066,6 +1069,23 @@ abstract class Extension_DevblocksLlmProvider {
 			// endpoint that motivated all this) landing in a varchar(32).
 			default => substr(strval(preg_replace('/[^a-z0-9_.-]/', '', $native)), 0, 32),
 		};
+	}
+
+	// Normalize a tool call's parameters into the bag DevblocksLlmChatResponse_Tool requires. A NO-ARGUMENT
+	// call has no single wire shape: '{}' from most of the OpenAI family, but '' from llama.cpp/Qwen -- and
+	// from our own streaming accumulator, which seeds `arguments` with '' and appends nothing when the model
+	// sends no fragment. `json_decode('')` is NULL, which isn't a legal $parameters, so the raw decode fataled
+	// on exactly the call sanitizePartialContent() deliberately keeps as legitimate. Anything else that fails
+	// to decode to a bag (a severed prefix, a scalar) degrades to empty for the same reason: every caller is a
+	// READ over already-persisted messages, where a fatal costs the whole transcript rather than one argument.
+	protected function _normalizeToolParameters(mixed $parameters) : array {
+		if(is_string($parameters))
+			$parameters = json_decode($parameters, true);
+
+		if(is_object($parameters))
+			$parameters = (array) $parameters;
+
+		return is_array($parameters) ? $parameters : [];
 	}
 
 	// Surface an OpenAI-shaped message's reasoning as neutral thinking blocks. Unlike Anthropic (where thinking

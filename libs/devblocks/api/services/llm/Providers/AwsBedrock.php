@@ -79,7 +79,7 @@ class AwsBedrock extends Extension_DevblocksLlmProvider implements Chat, ChatStr
 
 				$chat_response->pushTool(new DevblocksLlmChatResponse_Tool(
 					strval($tool_use['name']),
-					$tool_use['input'] ?? [],
+					$this->_normalizeToolParameters($tool_use['input'] ?? []),
 					strval($tool_use['toolUseId']),
 				));
 

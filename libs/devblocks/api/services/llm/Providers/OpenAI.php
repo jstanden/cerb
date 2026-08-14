@@ -78,11 +78,9 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, ChatStreami
 						|| is_null($tool_call['id'] ?? null)
 					) continue;
 					
-					$tool_args = $tool_call['function']['arguments'] ?? [];
-					
 					$tool = new DevblocksLlmChatResponse_Tool(
 						$tool_call['function']['name'] ?? '',
-						is_string($tool_args) ? json_decode($tool_args, true) : $tool_args,
+						$this->_normalizeToolParameters($tool_call['function']['arguments'] ?? []),
 						$tool_call['id'] ?? null,
 					);
 					

@@ -15,7 +15,9 @@ use Model_AutomationContinuation;
  * `<var>` (the element name) is the RETURN variable; `command:` names which host command to run — independent of
  * each other. Deliberately minimal: no consent/presentation knob (that's the `on_tool:` author's job to compose).
  * Always include a `submit:` (e.g. `is_automatic@bool: yes` for an auto round-trip). Advertised only on
- * `interaction.internal`.
+ * `interaction.worker.agent` -- on any other trigger the element is silently skipped at render, so the tool
+ * result comes back empty. (It briefly rode on `interaction.internal`, which was expedient and wrong: agent
+ * panes are the worker's own conversations, not Cerb's internal plumbing.)
  *
  * `disabled@bool: <expr>` renders the element INERT — it emits its (empty) return var so the field still validates
  * and `{{<var>}}` resolves to '', but it does NOT round-trip to the host. This lets ONE `await:form:` carry several

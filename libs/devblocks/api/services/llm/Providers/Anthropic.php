@@ -74,7 +74,7 @@ class Anthropic extends Extension_DevblocksLlmProvider implements Chat, ChatStre
 				
 				$tool = new DevblocksLlmChatResponse_Tool(
 					$message_content['name'] ?? '',
-					$message_content['input'] ?? [],
+					$this->_normalizeToolParameters($message_content['input'] ?? []),
 					$message_content['id'],
 				);
 				
