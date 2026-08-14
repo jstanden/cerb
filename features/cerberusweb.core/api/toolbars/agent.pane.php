@@ -1,7 +1,8 @@
 <?php
 /*
  * The toolbar hosted by an editor's agent pane (CerbUI.AgentPane) — Icon Builder, Data Query Tester, the mail
- * reply/compose editors, and later sheet/map/chart/workflow/draft composers. Its items launch interactions
+ * reply/compose editors, every worklist quick-search bar (`component: worklist`, fetched by
+ * C4_AbstractView::getAgentToolbar()), and later sheet/map/chart/workflow composers. Its items launch interactions
  * INLINE into the agent pane; a `{{component}}` state variable (which editor the pane is mounted on) lets one
  * shared toolbar offer different interactions per host — gate an item with `hidden@bool: {{ component !=
  * 'icon' }}`. The host supplies `command`/`ui_capabilities` through the toolbar's cerbBotTrigger options, so a
@@ -18,7 +19,35 @@ class Toolbar_AgentPane extends Extension_Toolbar {
 		return [
 			[
 				'key' => 'component',
-				'notes' => "The editor/component the agent pane is mounted on (e.g. `icon`, `data_query`, `mail_reply`, `mail_compose`). Gate items per host with `hidden@bool: {{ component != 'icon' }}`.",
+				'notes' => "The editor/component the agent pane is mounted on (e.g. `icon`, `data_query`, `mail_reply`, `mail_compose`, `worklist`). Gate items per host with `hidden@bool: {{ component != 'icon' }}`.",
+			],
+			[
+				'key' => 'worklist_record_type',
+				'notes' => 'The [record type](https://cerb.ai/docs/records/types/) alias of the worklist (e.g. `ticket`) -- what `data.query` `of:` expects. Set when `component` is `worklist`.',
+			],
+			[
+				'key' => 'worklist_record_context',
+				'notes' => 'The context id of the worklist record type (e.g. `cerberusweb.contexts.ticket`). Set when `component` is `worklist`.',
+			],
+			[
+				'key' => 'worklist_id',
+				'notes' => 'The id of the worklist (e.g. `cust_1234`). Set when `component` is `worklist`.',
+			],
+			[
+				'key' => 'worklist_query',
+				'notes' => 'The [query](https://cerb.ai/docs/search/) of the worklist (e.g. `status:o group:Support`). Set when `component` is `worklist`.',
+			],
+			[
+				'key' => 'worklist_query_required',
+				'notes' => 'The required [query](https://cerb.ai/docs/search/) of the worklist (e.g. `status:o group:Support`). Set when `component` is `worklist`.',
+			],
+			[
+				'key' => 'worklist_page',
+				'notes' => 'The current page of the worklist (e.g. `2`). Set when `component` is `worklist`.',
+			],
+			[
+				'key' => 'worklist_limit',
+				'notes' => 'The number of records per worklist page (e.g. `25`). Set when `component` is `worklist`.',
 			],
 			[
 				'key' => 'worker_*',
@@ -32,6 +61,14 @@ class Toolbar_AgentPane extends Extension_Toolbar {
 			[
 				'key' => 'component',
 				'notes' => 'The editor/component the agent pane is mounted on.',
+			],
+			[
+				'key' => 'worklist_id',
+				'notes' => 'The id of the displayed worklist. Set when `component` is `worklist`.',
+			],
+			[
+				'key' => 'worklist_record_type',
+				'notes' => 'The record type of the displayed worklist. Set when `component` is `worklist`.',
 			],
 			[
 				'key' => 'worker_*',

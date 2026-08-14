@@ -128,19 +128,32 @@ abstract class C4_AbstractView {
 		return $toolbar->getKata($toolbar_dict);
 	}
 
-	/** @noinspection PhpUnused */
-	function getSearchToolbar() : array {
-		$context = $this->getContext();
+	/**
+	 * The `agent.pane` toolbar, scoped to this worklist -- the launcher tiles a search bar's agent chat offers.
+	 * Fetched from the view (like getToolbar()) rather than assigned by a controller, because quick_search.tpl
+	 * is included at a dozen sites that would otherwise each need the same plumbing.
+	 *
+	 * @noinspection PhpUnused
+	 */
+	function getAgentToolbar() : array {
 		$active_worker = CerberusApplication::getActiveWorker();
 
-		if(!($toolbar = DAO_Toolbar::getByName('records.worklist.search')))
+		if(!($toolbar = DAO_Toolbar::getByName('agent.pane')))
 			return [];
 
-		// Unlike getToolbar(), set `caller_name` so parse-time caller policy matches the runtime caller.
+		// `worklist_record_type` is the record type ALIAS (`ticket`), not the context id -- that's what an author
+		// writes in `data.query ... of:` and what the pane sends as a caller param, so all three channels agree.
+		// (getToolbar() puts the context id under this same key; it predates the alias and has shipped that way.)
+		$record_type = $this->getRecordType() ?: $this->getContext();
+
+		// Unlike getToolbar(), set `caller_name` so parse-time caller policy matches the runtime caller. It must
+		// be the caller NAME the pane posts, not the extension id, or enforceCallerPolicy() hides every item.
 		$toolbar_dict = DevblocksDictionaryDelegate::instance([
-			'caller_name' => 'cerb.toolbar.records.worklist.search',
+			'caller_name' => Toolbar_AgentPane::CALLER_NAME,
+			'component' => 'worklist',
 			'worklist_id' => $this->id,
-			'worklist_record_type' => $context,
+			'worklist_record_type' => $record_type,
+			'worklist_record_context' => $this->getContext(),
 			'worklist_query' => $this->getParamsQuery(),
 			'worklist_query_required' => $this->getParamsRequiredQuery(),
 			'worklist_page' => $this->renderPage,

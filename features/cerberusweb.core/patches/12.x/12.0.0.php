@@ -3112,36 +3112,6 @@ class CerbPatch_Core_v12_0_0 {
 		$this->_logger->info("[Patch] Removed deprecated avatar_default_style settings.");
 	}
 	
-	private function patchToolbarWorklistSearch() : void {
-		// ===========================================================================
-		// Add the `records.worklist.search` toolbar (quick-search bar, --right slot)
-		
-		if (!$this->_db->GetOneMaster("SELECT 1 FROM toolbar WHERE name = 'records.worklist.search'")) {
-			$this->_db->ExecuteMaster(sprintf('INSERT IGNORE INTO toolbar (name, extension_id, description, created_at, updated_at) VALUES (%s,%s,%s,%d,%d)',
-				$this->_db->qstr('records.worklist.search'),
-				$this->_db->qstr('cerb.toolbar.records.worklist.search'),
-				$this->_db->qstr('Searching from above a record worklist'),
-				time(),
-				time()
-			));
-			$this->_logger->info("[Patch] Added the 'records.worklist.search' toolbar.");
-		}
-		
-		// Toolbars render from their (priority-ordered) sections, so seed a Default section too. Ship a
-		// commented example interaction so the toolbar is empty until an admin configures it.
-		if (!$this->_db->GetOneMaster("SELECT 1 FROM toolbar_section WHERE name = 'Default' AND toolbar_name = 'records.worklist.search'")) {
-			$this->_db->ExecuteMaster(sprintf('INSERT IGNORE INTO toolbar_section (name, toolbar_name, priority, toolbar_kata, created_at, updated_at) VALUES (%s,%s,%s,%s,%d,%d)',
-				$this->_db->qstr('Default'),
-				$this->_db->qstr('records.worklist.search'),
-				25,
-				$this->_db->qstr("# interaction/buildQuery:\n#   label: Build query\n#   icon: magic\n#   tooltip: Describe what you're looking for\n#   uri: cerb:automation:example.worklist.search.build_query\n#   inputs:\n#     worklist_record_type: {{worklist_record_type}}\n#   after:\n#     refresh_worklist@bool: yes"),
-				time(),
-				time()
-			));
-			$this->_logger->info("[Patch] Added the 'records.worklist.search' Default toolbar section.");
-		}
-	}
-	
 	private function patchWorkflowResourceTable() : void {
 		// ===========================================================================
 		// Workflow resources pivot table (hoisted from `workflow.resources_kata`)
@@ -4082,6 +4052,22 @@ class CerbPatch_Core_v12_0_0 {
 
 		if(!array_key_exists('is_streaming', $columns))
 			$this->_db->ExecuteMaster("ALTER TABLE llm_agent_message ADD COLUMN is_streaming TINYINT UNSIGNED NOT NULL DEFAULT 0");
+	}
+
+	private function patchRemoveToolbarWorklistSearch() : void {
+		// ===========================================================================
+		// Remove the `records.worklist.search` toolbar (superseded before it ever shipped)
+		//
+		// It was a generic interaction hook in the quick-search bar: an item launched an interaction that handed
+		// back a `query` string for the field. The agent pane does that and more from the SAME toolbar the other
+		// editors already use, so the search bar now renders `agent.pane` with `component: worklist` and the
+		// second toolbar is gone. This only has to clean up installs that ran the 12.0 seed during development;
+		// on a fresh install both DELETEs are no-ops.
+
+		$this->_db->ExecuteMaster("DELETE FROM toolbar_section WHERE toolbar_name = 'records.worklist.search'");
+		$this->_db->ExecuteMaster("DELETE FROM toolbar WHERE name = 'records.worklist.search'");
+
+		$this->_logger->info("[Patch] Removed the 'records.worklist.search' toolbar.");
 	}
 }
 

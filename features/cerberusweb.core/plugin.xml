@@ -84,7 +84,7 @@
 
 		<patch version="11.0.0" revision="1476" file="patches/11.x/11.0.0.php" />
 		<patch version="11.1.0" revision="1491" file="patches/11.x/11.1.0.php" />
-		<patch version="12.0.0" revision="1555" file="patches/12.x/12.0.0.php" />
+		<patch version="12.0.0" revision="1556" file="patches/12.x/12.0.0.php" />
 	</patches>
 
 	<!-- Exported Classes -->
@@ -5208,18 +5208,6 @@
 			</class>
 			<params>
 				<param key="icon" value="list" />
-			</params>
-		</extension>
-
-		<extension point="cerb.toolbar">
-			<id>cerb.toolbar.records.worklist.search</id>
-			<name>records.worklist.search</name>
-			<class>
-				<file>api/toolbars/records.worklist.search.php</file>
-				<name>Toolbar_RecordsWorklistSearch</name>
-			</class>
-			<params>
-				<param key="icon" value="search" />
 			</params>
 		</extension>
 
