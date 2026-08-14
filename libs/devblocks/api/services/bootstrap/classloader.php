@@ -215,6 +215,7 @@ class _DevblocksClassLoadManager {
 			'_DevblocksHttpService',
 			'DevblocksHttpSseSink',
 			'DevblocksHttpAwsEventStreamSink',
+			'DevblocksHttpNdjsonSink',
 		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/gpg.php', array(
 			'_DevblocksGPGService',

@@ -153,10 +153,25 @@ class _DevblocksHttpService {
 	}
 
 	/**
+	 * The same contract again, for newline-delimited JSON (NDJSON) — one complete JSON object per line,
+	 * with no event names and no frame header. Ollama's `/api/chat` speaks it.
+	 *
+	 * There is no event name to report, so every frame arrives as `('', $json)`. That is the same shape the
+	 * OpenAI family's accumulator already handles, since its SSE frames carry no `event:` line either.
+	 *
+	 * @param callable $on_event fn(string $event, string $data) : bool — return false to abort the transfer
+	 * @param bool $aborted set true only when WE stopped the transfer, false for any other failure
+	 * @return ResponseInterfaceAlias|false
+	 */
+	function sendNdjsonStreamRequest(RequestInterface $request, array $options, callable $on_event, &$error=null, &$aborted=null) {
+		return $this->_sendWithSink($request, $options, new DevblocksHttpNdjsonSink($on_event), $error, $aborted);
+	}
+
+	/**
 	 * Shared transport for the streaming sinks. Everything except the decoder is identical, and the two
 	 * safety behaviours below are the reason this isn't inlined per sink.
 	 *
-	 * @param DevblocksHttpSseSink|DevblocksHttpAwsEventStreamSink $sink
+	 * @param DevblocksHttpSseSink|DevblocksHttpAwsEventStreamSink|DevblocksHttpNdjsonSink $sink
 	 * @return ResponseInterfaceAlias|false
 	 */
 	private function _sendWithSink(RequestInterface $request, array $options, $sink, &$error=null, &$aborted=null) {
@@ -538,6 +553,184 @@ class DevblocksHttpAwsEventStreamSink implements StreamInterface {
 	 */
 	private function _readable() : string {
 		return $this->_passthrough ? $this->_raw : $this->_buffer;
+	}
+
+	public function __toString(): string {
+		return $this->_readable();
+	}
+
+	public function getContents(): string {
+		$contents = substr($this->_readable(), $this->_read_pos);
+		$this->_read_pos = strlen($this->_readable());
+		return $contents;
+	}
+
+	public function read(int $length): string {
+		$chunk = substr($this->_readable(), $this->_read_pos, $length);
+		$this->_read_pos += strlen($chunk);
+		return $chunk;
+	}
+
+	public function eof(): bool {
+		return $this->_read_pos >= strlen($this->_readable());
+	}
+
+	public function getSize(): ?int {
+		return strlen($this->_readable());
+	}
+
+	public function tell(): int {
+		return $this->_read_pos;
+	}
+
+	public function rewind(): void {
+		$this->_read_pos = 0;
+	}
+
+	public function seek(int $offset, int $whence = SEEK_SET): void {
+		// Only the rewind case is meaningful for a sink; anything else is a no-op by design.
+		if(SEEK_SET === $whence)
+			$this->_read_pos = max(0, $offset);
+	}
+
+	public function close(): void {}
+
+	public function detach() {
+		return null;
+	}
+
+	public function isSeekable(): bool {
+		return false;
+	}
+
+	public function isWritable(): bool {
+		return true;
+	}
+
+	public function isReadable(): bool {
+		return true;
+	}
+
+	public function getMetadata(?string $key = null) {
+		return is_null($key) ? [] : null;
+	}
+}
+
+/**
+ * A write-only PSR-7 stream that decodes newline-delimited JSON (NDJSON) incrementally, handing each
+ * object upward as `('', $json)` -- the SAME callback contract DevblocksHttpSseSink uses, so a provider's
+ * accumulator does not care which transport delivered it. Ollama's `/api/chat` streams in this format.
+ *
+ * There is no framing here beyond the newline, which makes WELL-FORMEDNESS the completeness test: a line
+ * is consumed only once it parses as a JSON object. That single rule covers the three ways bytes arrive:
+ *
+ *   - A line split across curl chunk boundaries doesn't parse yet, so it stays buffered (the NDJSON
+ *     equivalent of the SSE sink refusing to emit a frame before its blank-line terminator).
+ *
+ *   - A FINAL object with no trailing newline is still emitted, because the leftover buffer is decode-tested
+ *     after the line loop. That matters more here than it looks: Ollama carries `done_reason` and the whole
+ *     token accounting on the last chunk alone, so dropping it would silently cost every streamed turn its
+ *     usage and finish reason.
+ *
+ *   - A line that never parses is retained as unconsumed bytes rather than emitted as a broken frame, which
+ *     is what lets a NON-streamed answer (an endpoint ignoring `stream`, a proxy that buffers and
+ *     pretty-prints) surface intact through getContents() for the caller's degrade-to-blocking fallback.
+ */
+class DevblocksHttpNdjsonSink implements StreamInterface {
+	private $_on_event;
+	private string $_buffer = '';
+	private string $_unconsumed = '';
+	private string $_raw = '';
+	private int $_read_pos = 0;
+	private bool $_passthrough = false;
+	private bool $_aborted = false;
+
+	function __construct(callable $on_event) {
+		$this->_on_event = $on_event;
+	}
+
+	public function setPassthrough(bool $passthrough) : void {
+		$this->_passthrough = $passthrough;
+	}
+
+	public function isAborted() : bool {
+		return $this->_aborted;
+	}
+
+	public function write(string $string): int {
+		$len = strlen($string);
+
+		// Never short-return on an empty write; curl would read it as an abort.
+		if(0 == $len)
+			return 0;
+
+		if($this->_passthrough || $this->_aborted) {
+			$this->_raw .= $string;
+			return $len;
+		}
+
+		$this->_buffer .= $string;
+
+		while(false !== ($pos = strpos($this->_buffer, "\n"))) {
+			$line = substr($this->_buffer, 0, $pos);
+			$this->_buffer = substr($this->_buffer, $pos + 1);
+
+			if(!$this->_emit($line))
+				return 0;
+		}
+
+		// A complete trailing object that hasn't been newline-terminated yet. Emitting it early is harmless
+		// (it is the same object, just sooner) and it is the only way the last chunk of a stream that ends
+		// without a newline is ever seen. Incomplete JSON can't parse, so it stays buffered.
+		if('' !== trim($this->_buffer)) {
+			if(is_array(json_decode($this->_buffer, true))) {
+				$line = $this->_buffer;
+				$this->_buffer = '';
+
+				if(!$this->_emit($line))
+					return 0;
+			}
+		}
+
+		return $len;
+	}
+
+	/**
+	 * Hand one line upward if it is a complete JSON object; otherwise keep it as unconsumed bytes.
+	 *
+	 * @return bool false when the caller aborted the transfer
+	 */
+	private function _emit(string $line) : bool {
+		// CRLF is stripped HERE rather than by normalizing each write, because a curl chunk boundary can
+		// fall between the \r and the \n -- which leaves that one pair un-normalized and welds a stray \r
+		// onto the end of the frame. Both call sites below route through here for the same reason.
+		$line = rtrim($line, "\r");
+
+		if('' === trim($line))
+			return true;
+
+		// Not an object (yet) -- retain it, newline included, so an entire non-streamed body reassembles
+		// for the caller's fallback.
+		if(!is_array(json_decode($line, true))) {
+			$this->_unconsumed .= $line . "\n";
+			return true;
+		}
+
+		if(false === ($this->_on_event)('', $line)) {
+			$this->_aborted = true;
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * In passthrough (a non-2xx error document) this is the buffered body. Otherwise it's whatever arrived
+	 * that could NOT be consumed as JSON objects -- which, when nothing parsed at all, is the entire body.
+	 * That's the seam a caller uses to recover when it asked for a stream and got an ordinary response.
+	 */
+	private function _readable() : string {
+		return $this->_passthrough ? $this->_raw : ($this->_unconsumed . $this->_buffer);
 	}
 
 	public function __toString(): string {
