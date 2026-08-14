@@ -102,6 +102,43 @@ class Filesystem {
 	 */
 	public static function fromSpecs(array $specs, array $options = []) : self {
 		$mounts = [];
+
+		foreach(self::describeSpecs($specs) as $described) {
+			// A spec that names a volume which is gone or disabled simply doesn't mount. Deliberate -- one bad
+			// entry must not cost an agent the volumes that DO resolve. `describeSpecs()` is how a viewer can
+			// still report what was dropped.
+			if(self::MOUNT_OK !== $described['state'])
+				continue;
+
+			$mounts[] = [
+				'fs' => $described['filesystem'],
+				'at' => $described['at'],
+				'mode' => $described['mode'],
+			];
+		}
+
+		return new self($mounts, $options);
+	}
+
+	const MOUNT_OK = 'ok';
+	const MOUNT_DISABLED = 'disabled';
+	const MOUNT_MISSING = 'missing';
+
+	/**
+	 * Resolve mount specs to their volumes WITHOUT dropping the ones that fail.
+	 *
+	 * `fromSpecs()` is the consumer and can only mount what resolves, so it discards the rest -- which means a
+	 * session can carry a mount that silently reached nothing, and until this existed there was nowhere to see
+	 * that. Anything reporting on a mount set (the Setup transcript viewer) needs the failures precisely
+	 * because they're invisible everywhere else.
+	 *
+	 * `fromSpecs()` is built ON this rather than beside it: two resolvers applying "the same" name/id lookup
+	 * would drift, and the drift would show up as a viewer confidently listing a volume the agent never had.
+	 *
+	 * @return array[] one entry per spec: {ref, filesystem: ?Model_AgentFilesystem, at, mode, state}
+	 */
+	public static function describeSpecs(array $specs) : array {
+		$described = [];
 		$by_name = null;
 
 		foreach($specs as $spec) {
@@ -119,17 +156,26 @@ class Filesystem {
 				$model = $by_name[\DevblocksPlatform::strLower($key)] ?? null;
 			}
 
-			if(!$model || $model->is_disabled)
-				continue;
+			if(!$model) {
+				$state = self::MOUNT_MISSING;
+			} else if($model->is_disabled) {
+				$state = self::MOUNT_DISABLED;
+			} else {
+				$state = self::MOUNT_OK;
+			}
 
-			$mounts[] = [
-				'fs' => $model,
-				'at' => $spec['at'] ?? ('/' . $model->name),
+			$described[] = [
+				'ref' => strval($key ?? ''),
+				'filesystem' => $model,
+				// An unresolved spec has no record to name the default mountpoint after, so it falls back to the
+				// reference it was written with -- which is what the author typed, and what they'd search for.
+				'at' => $spec['at'] ?? ('/' . ($model?->name ?? strval($key ?? ''))),
 				'mode' => $spec['mode'] ?? self::MODE_RO,
+				'state' => $state,
 			];
 		}
 
-		return new self($mounts, $options);
+		return $described;
 	}
 
 	/** @return array[] the resolved mounts */

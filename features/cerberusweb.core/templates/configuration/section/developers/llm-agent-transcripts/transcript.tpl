@@ -85,6 +85,41 @@
 </div>
 {/if}
 
+{* The session's mounted volumes. Gated on `!== null`, NOT on the list being non-empty: an enabled filesystem
+   with no volumes is `[]` and still has /tmp plus the scripting pipeline, which is a real configuration and
+   the same rule getToolMap() uses to decide the `agent_fs` tool exists. *}
+{if $mount_map !== null}
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+    <div class="cerb-ui-header cerb-ui-header--tight">
+        {* +1 for /tmp: it's a real mount the agent can read and write, so a count that omitted it would
+           disagree with the chips right below it. *}
+        {$mount_total = $mount_map|count + 1}
+        <div class="cerb-ui-header--title-sm"><span class="cerb-icons cerb-icon-folder"></span> Filesystem Mounts ({$mount_total})</div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:0.6em;">
+        {foreach from=$mount_map item=mount}
+        <div class="cerb-ui-chip" style="flex:0 0 auto;">
+            <div class="cerb-ui-chip--head">{$mount.at}</div>
+            {if $mount.filesystem}
+                <div><div class="cerb-ui-chip--label">Volume</div><div class="cerb-ui-chip--value"><a data-context="cerb.contexts.agent.filesystem" data-context-id="{$mount.filesystem->id}" data-cerb-peek>{$mount.filesystem->name}</a>{if 'disabled' == $mount.state} <span class="cerb-ui-pill cerb-ui-pill--orange" title="This volume is disabled, so it did not mount — the agent had no access to it.">Disabled</span>{/if}</div></div>
+                <div><div class="cerb-ui-chip--label">Files</div><div class="cerb-ui-chip--value">{$mount.filesystem->file_count|number_format}</div></div>
+                <div><div class="cerb-ui-chip--label">Size</div><div class="cerb-ui-chip--value">{$mount.filesystem->total_bytes|devblocks_prettybytes}</div></div>
+            {else}
+                <div><div class="cerb-ui-chip--label">Volume</div><div class="cerb-ui-chip--value"><code class="cerb-u-text-muted">{$mount.ref}</code> <span class="cerb-ui-pill cerb-ui-pill--orange" title="No volume by this name or id exists, so it did not mount — the agent had no access to it.">Missing</span></div></div>
+            {/if}
+            <div><div class="cerb-ui-chip--label">Mode</div><div class="cerb-ui-chip--value">{if 'rw' == $mount.mode}Read-write{else}Read-only{/if}</div></div>
+        </div>
+        {/foreach}
+        {* Always present when the filesystem is enabled — it's the command scratch space, not a mounted record. *}
+        <div class="cerb-ui-chip" style="flex:0 0 auto;" title="Scratch space for command output that overflows the size cap. Per-run, not a stored volume.">
+            <div class="cerb-ui-chip--head">/tmp</div>
+            <div><div class="cerb-ui-chip--label">Volume</div><div class="cerb-ui-chip--value cerb-u-text-muted">scratch</div></div>
+            <div><div class="cerb-ui-chip--label">Mode</div><div class="cerb-ui-chip--value">Read-write</div></div>
+        </div>
+    </div>
+</div>
+{/if}
+
 {* Bare markup — CerbUI.AgentTranscript.enhance() (in index.tpl) builds the chrome. *}
 <div class="cerb-ui-agent-transcript" data-cerb-agent-transcript>
     {if $llm_session->system_prompt}

@@ -294,6 +294,15 @@ class PageSection_SetupDevelopersLlmAgentTranscripts extends Extension_PageSecti
 			$tpl->assign('tool_map', $tool_map);
 			$tpl->assign('tool_automations', $tool_automations);
 
+			// The volumes the `agent_fs` tool actually reached. Resolved through `describeSpecs()` rather than
+			// `fromSpecs()` so a mount whose volume was since deleted or disabled is REPORTED instead of
+			// vanishing — that's a silent loss of capability the agent never announced, and the transcript is
+			// the only place anyone would think to look for it.
+			$tpl->assign('mount_map', is_null($llm_session->mounts)
+				? null
+				: \Cerb\Agent\Filesystem::describeSpecs($llm_session->mounts)
+			);
+
 			$tpl->assign('llm_session', $llm_session);
 			$tpl->assign('llm_session_automation', $llm_session->getAutomation());
 			$tpl->assign('llm_session_user', $llm_session->getUser());
