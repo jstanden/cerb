@@ -90,7 +90,12 @@ class Toolbar_GlobalMenu extends Extension_Toolbar {
 		if($automation_names) {
 			$descriptions = [];
 
-			foreach(DAO_Automation::getByUris(array_values($automation_names), 'cerb.trigger.interaction.worker') as $automation) {
+			$interaction_triggers = [
+				AutomationTrigger_InteractionWorker::ID,
+				AutomationTrigger_InteractionWorkerAgent::ID,
+			];
+
+			foreach(DAO_Automation::getByUris(array_values($automation_names), $interaction_triggers) as $automation) {
 				if($automation->description)
 					$descriptions[$automation->name] = $automation->description;
 			}

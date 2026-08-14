@@ -603,6 +603,7 @@ class LlmAgentNode extends AbstractNode {
 		if(in_array($automation->extension_id, [
 			\AutomationTrigger_InteractionInternal::ID,
 			\AutomationTrigger_InteractionWorker::ID,
+			\AutomationTrigger_InteractionWorkerAgent::ID,
 			\AutomationTrigger_MailDraftValidate::ID,
 			\AutomationTrigger_MailReplyValidate::ID,
 		])) {
@@ -1315,6 +1316,7 @@ class LlmAgentNode extends AbstractNode {
 
 		return in_array($automation->extension_id, [
 			\AutomationTrigger_InteractionWorker::ID,
+			\AutomationTrigger_InteractionWorkerAgent::ID,
 			\AutomationTrigger_InteractionInternal::ID,
 		], true);
 	}

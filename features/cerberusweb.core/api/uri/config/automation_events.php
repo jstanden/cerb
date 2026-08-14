@@ -183,6 +183,7 @@ class PageSection_SetupDevelopersAutomationEvents extends Extension_PageSection 
 				'description' => 'Chat/interaction entry points for workers.',
 				'steps' => [
 					$trig('interaction.worker'),
+					$trig('interaction.worker.agent'),
 					$trig('interaction.worker.explore'),
 					['type' => 'legacy', 'event_point' => 'event.interactions.get.worker', 'label' => 'Get chat interactions for worker'],
 					['type' => 'legacy', 'event_point' => 'event.interaction.chat.worker', 'label' => 'Conversation with worker'],

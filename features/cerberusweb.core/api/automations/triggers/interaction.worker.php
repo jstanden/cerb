@@ -618,7 +618,8 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'params' => [
 						'automation' => [
 							'triggers' => [
-								'cerb.trigger.interaction.worker'
+								'cerb.trigger.interaction.worker',
+								'cerb.trigger.interaction.worker.agent'
 							]
 						]
 					]
@@ -1639,6 +1640,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 						'automation' => [
 							'triggers' => [
 								'cerb.trigger.interaction.worker',
+								'cerb.trigger.interaction.worker.agent',
 							]
 						]
 					]
@@ -1968,6 +1970,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 						'automation' => [
 							'triggers' => [
 								'cerb.trigger.interaction.worker',
+								'cerb.trigger.interaction.worker.agent',
 							]
 						]
 					]

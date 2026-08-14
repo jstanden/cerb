@@ -4777,7 +4777,8 @@ class _CerbApplication_KataAutocompletions {
 					'params' => [
 						'automation' => [
 							'triggers' => [
-								'cerb.trigger.interaction.worker'
+								'cerb.trigger.interaction.worker',
+								'cerb.trigger.interaction.worker.agent'
 							]
 						]
 					]

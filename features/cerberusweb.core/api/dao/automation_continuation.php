@@ -242,6 +242,7 @@ class DAO_AutomationContinuation extends Cerb_ORMHelper {
 	static function getWorkerResumableExtensionIds() : array {
 		return [
 			AutomationTrigger_InteractionWorker::ID,
+			AutomationTrigger_InteractionWorkerAgent::ID,
 			AutomationTrigger_InteractionInternal::ID,
 		];
 	}

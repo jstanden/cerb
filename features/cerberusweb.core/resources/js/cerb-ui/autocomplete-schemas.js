@@ -900,7 +900,8 @@ let cerbAutocompleteSuggestions = {
 				'params': {
 					'automation': {
 						'triggers': [
-							'cerb.trigger.interaction.worker'
+							'cerb.trigger.interaction.worker',
+							'cerb.trigger.interaction.worker.agent'
 						]
 					}
 				}
@@ -1316,7 +1317,8 @@ let cerbAutocompleteSuggestions = {
 			'params': {
 				'automation': {
 					'triggers': [
-						'cerb.trigger.interaction.worker'
+						'cerb.trigger.interaction.worker',
+						'cerb.trigger.interaction.worker.agent'
 					]
 				}
 			}
@@ -1575,7 +1577,8 @@ let cerbAutocompleteSuggestions = {
 				'params': {
 					'automation': {
 						'triggers': [
-							'cerb.trigger.interaction.worker'
+							'cerb.trigger.interaction.worker',
+							'cerb.trigger.interaction.worker.agent'
 						]
 					}
 				}

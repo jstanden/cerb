@@ -24,6 +24,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 	private array $_interaction_extensions = [
 		AutomationTrigger_InteractionInternal::ID,
 		AutomationTrigger_InteractionWorker::ID,
+		AutomationTrigger_InteractionWorkerAgent::ID,
 		AutomationTrigger_MailDraftValidate::ID,
 		AutomationTrigger_MailReplyValidate::ID,
 	];
@@ -269,7 +270,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 				// at runtime (newFormComponent() returns null → the element is silently skipped, so a
 				// uiCommand/agentPrompt/etc. never fires and its result comes back empty). Reject the save with an
 				// actionable message instead of leaving the author to debug empty results. `uiCommand`, for example,
-				// is only on `interaction.internal` — not the generic `interaction.worker`.
+				// is only on `interaction.worker.agent` -- not the generic `interaction.worker`.
 				if(method_exists($trigger_ext, 'getFormComponentMeta')) {
 					$advertised = array_keys($trigger_ext::getFormComponentMeta());
 					$unsupported = array_values(array_unique(array_diff(
@@ -278,7 +279,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 
 					if($unsupported) {
 						$hint = in_array('uiCommand', $unsupported)
-							? ' The `uiCommand` element requires the “Interaction (Internal)” trigger.' : '';
+							? ' The `uiCommand` element requires the “interaction.worker.agent” trigger.' : '';
 						throw new Exception_DevblocksAjaxValidationError(sprintf(
 							'The “%s” trigger does not support the `await:form:` element type%s: %s. They render as nothing at runtime.%s',
 							$trigger_ext->manifest->name,
@@ -663,17 +664,24 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		if(!array_key_exists($prompt_key, $form))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
-		$form_components = AutomationTrigger_InteractionWorker::getFormComponentMeta();
-		
+		// Read the component registry off THIS continuation's own trigger, not a hardcoded one: a subclass may
+		// advertise types the base worker trigger doesn't (interaction.worker.agent adds `uiCommand`), and
+		// newFormComponent() is the seam that keeps a differently-shaped Await constructor transparent.
+		$trigger_extension = $continuation->getAutomation()?->getTriggerExtension();
+
+		if(!$trigger_extension || !method_exists($trigger_extension, 'getFormComponentMeta'))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+
+		$form_components = $trigger_extension::getFormComponentMeta();
+
 		list($prompt_type, $prompt_name) = array_pad(explode('/', $prompt_key, 2), 2, null);
-		
+
 		if(!array_key_exists($prompt_type, $form_components))
 			DevblocksPlatform::dieWithHttpError(null, 404);
-		
-		if(!($component_class = AutomationTrigger_InteractionWorker::getFormComponentClass($prompt_type)))
+
+		if(!($component = $trigger_extension::newFormComponent($prompt_type, $prompt_name, null, $form[$prompt_key])))
 			DevblocksPlatform::dieWithHttpError(null, 404);
-		$component = new $component_class($prompt_name, null, $form[$prompt_key]);
-		
+
 		$component->invoke($prompt_key, $prompt_action, $continuation);
 	}
 	

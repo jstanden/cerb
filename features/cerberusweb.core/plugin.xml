@@ -4142,7 +4142,7 @@
 				<param key="description" value="An interactive AI agent that chats, uses tools, and can resume prior sessions." />
 				<param key="icon" value="bot-message" />
 				<param key="section" value="AI" />
-				<param key="trigger" value="cerb.trigger.interaction.worker" />
+				<param key="trigger" value="cerb.trigger.interaction.worker.agent" />
 				<param key="sort" value="10" />
 			</params>
 		</extension>
@@ -4550,6 +4550,26 @@
 			<params>
 				<param key="icon" value="gear" />
 				<param key="description" value="Worker interactions used and managed internally by Cerb" />
+				<param key="features">
+					<value>
+						<data key="await" />
+						<data key="callers" />
+						<data key="inputs" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<extension point="cerb.automation.trigger">
+			<id>cerb.trigger.interaction.worker.agent</id>
+			<name>interaction.worker.agent</name>
+			<class>
+				<file>api/automations/triggers/interaction.worker.agent.php</file>
+				<name>AutomationTrigger_InteractionWorkerAgent</name>
+			</class>
+			<params>
+				<param key="icon" value="bot" />
+				<param key="description" value="Worker interactions where an AI agent drives a host editor from an agent pane" />
 				<param key="features">
 					<value>
 						<data key="await" />

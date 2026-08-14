@@ -2603,7 +2603,8 @@ abstract class Extension_Toolbar extends DevblocksExtension {
 					'params' => [
 						'automation' => [
 							'triggers' => [
-								'cerb.trigger.interaction.worker'
+								'cerb.trigger.interaction.worker',
+								'cerb.trigger.interaction.worker.agent'
 							]
 						]
 					]
