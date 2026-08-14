@@ -65,6 +65,16 @@
 		&.cerb-ui-splitpane--pane { overflow: hidden; }
 	}
 
+	// Float mode (`float:true`): the chat is the content of a non-modal CerbUI.Dialog rather than the second pane
+	// of a split, so nothing upstream is sizing it -- it has to bound its own height. The dialog's own titlebar
+	// carries the title and the close/minimize controls, so the chat head is hidden here rather than doubled up.
+	&--float {
+		height: 60vh;
+		max-height: 60vh;
+
+		> .cerb-agent-pane--chat-head { display: none; }
+	}
+
 	&--chat-head {
 		display: flex;
 		align-items: center;

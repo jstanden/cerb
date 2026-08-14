@@ -13,6 +13,14 @@
  * the split's first pane. Named alongside CerbUI.AgentTranscript / CerbUI.AgentPrompt because it isn't
  * builder-specific — icon/data-query/chart/sheet builders and draft composers all mount the same pane.
  *
+ * TWO LAYOUTS, one of everything else:
+ *   - SPLIT (default) -- for a host that's a big rectangle worth dividing (the builders, an editor popup).
+ *   - FLOAT (`float:true`) -- the chat lives in a non-modal CerbUI.Dialog instead, and the host is never
+ *     restructured at all. For a host that CAN'T be split: a one-line worklist search bar has no common
+ *     wrapper around the field and the list, and a worklist is the widest thing on the page. Non-modal +
+ *     minimizable is the point -- you keep working the list while the chat stays live. A side benefit worth
+ *     knowing: the dialog lives at document.body, so the chat's form is never nested inside the host's.
+ *
  * Usage:
  *   new CerbUI.AgentPane(hostEl, {
  *     component: 'icon',
@@ -24,6 +32,7 @@
  *   });
  *
  * Requires: CerbUI.SplitPane, CerbUI.Avatar, jQuery.fn.cerbBotTrigger, the cerb-agent-pane CSS.
+ * Float mode additionally requires CerbUI.Dialog.
  */
 CerbUI.AgentPane = class {
 	static _instances = new WeakMap();
@@ -81,6 +90,10 @@ CerbUI.AgentPane = class {
 			runCommand: null,
 			onToggle: null,           // (collapsed) → host hook fired after the split toggles (e.g. widen a popup)
 			fit: false,               // size to content when the chat is closed (popup hosts); bound only when open
+			float: false,             // chat in a non-modal CerbUI.Dialog instead of a split (unsplittable hosts)
+			floatWidth: 460,          // float only: dialog width in px
+			toggleEl: null,           // adopt this element as the toggle (its own markup is kept) instead of building one
+			callerParams: null,       // extra caller.params merged under component/ui_capabilities (e.g. worklist_id)
 			storageKey: 'cerb-agent-pane',
 			chatTitle: 'New Agent Chat',
 			toggleLabel: 'Agent',
@@ -89,6 +102,9 @@ CerbUI.AgentPane = class {
 			min: 0.3,
 			mutatingCommands: '',     // comma list of runCommand names that WRITE host state → flag the nav guard
 		}, opts);
+
+		this._float = !!this.opts.float;
+		this.dialog = null;           // float only; built lazily on first open (see _ensureDialog)
 
 		this._mutating = new Set(String(this.opts.mutatingCommands || '')
 			.split(',').map(s => s.trim()).filter(Boolean));
@@ -103,23 +119,33 @@ CerbUI.AgentPane = class {
 	// ── DOM ─────────────────────────────────────────────────────────────────────
 	// Wrap the host's existing content in an outer horizontal split whose second pane is a collapsible agent
 	// chat. Done in JS (moving the existing nodes) so the host's own markup stays untouched.
+	//
+	// Float mode restructures NOTHING: no outer/main, no nodes moved (a one-line search bar has nothing sane to
+	// split). The host element serves purely as the identity + DOM-liveness anchor -- `_instances`, `_pruneDirty`,
+	// and markDirty's enclosing-dialog lookup all key off it -- while the chat subtree stays detached until
+	// CerbUI.Dialog adopts it on first open.
 	_buildDom() {
-		this.host.classList.add('cerb-agent-pane');
-		// Fit-content mode (popup hosts): size to the content when the chat is closed (no forced height/scrollbar),
-		// only bounding the height while the chat is open so the transcript scrolls. Builders omit it → fixed height.
-		if(this.opts.fit) this.host.classList.add('cerb-agent-pane--fit');
+		let outer = null;
+		let main = null;
 
-		const outer = document.createElement('div');
-		outer.className = 'cerb-agent-pane--outer';
+		if(!this._float) {
+			this.host.classList.add('cerb-agent-pane');
+			// Fit-content mode (popup hosts): size to the content when the chat is closed (no forced height/scrollbar),
+			// only bounding the height while the chat is open so the transcript scrolls. Builders omit it -> fixed height.
+			if(this.opts.fit) this.host.classList.add('cerb-agent-pane--fit');
 
-		const main = document.createElement('div');
-		main.className = 'cerb-agent-pane--main';
-		// Move whatever the host already rendered into the first (main) pane.
-		while(this.host.firstChild)
-			main.appendChild(this.host.firstChild);
+			outer = document.createElement('div');
+			outer.className = 'cerb-agent-pane--outer';
+
+			main = document.createElement('div');
+			main.className = 'cerb-agent-pane--main';
+			// Move whatever the host already rendered into the first (main) pane.
+			while(this.host.firstChild)
+				main.appendChild(this.host.firstChild);
+		}
 
 		const chat = document.createElement('div');
-		chat.className = 'cerb-agent-pane--chat';
+		chat.className = 'cerb-agent-pane--chat' + (this._float ? ' cerb-agent-pane--float' : '');
 		chat.innerHTML =
 			'<div class="cerb-agent-pane--chat-head">' +
 				'<div class="cerb-agent-pane--chat-title"><span class="cerb-icons cerb-icon-bot-message"></span> ' +
@@ -129,9 +155,11 @@ CerbUI.AgentPane = class {
 			'</div>' +
 			'<div class="cerb-agent-pane--chat-body"></div>';
 
-		outer.appendChild(main);
-		outer.appendChild(chat);
-		this.host.appendChild(outer);
+		if(!this._float) {
+			outer.appendChild(main);
+			outer.appendChild(chat);
+			this.host.appendChild(outer);
+		}
 
 		this.outerEl     = outer;
 		this.mainEl      = main;
@@ -139,39 +167,92 @@ CerbUI.AgentPane = class {
 		this.chatBodyEl  = chat.querySelector('.cerb-agent-pane--chat-body');
 		this.chatCloseEl = chat.querySelector('.cerb-agent-pane--chat-close');
 
-		// The toggle button — into a host-supplied anchor (e.g. an existing toolbar row) or an auto strip at
-		// the top of the main pane.
-		this.toggleEl = document.createElement('button');
-		this.toggleEl.type = 'button';
-		this.toggleEl.className = 'cerb-ui-button cerb-ui-button--subtle cerb-agent-pane--toggle';
-		this.toggleEl.title = 'Toggle the agent panel';
+		// (In float mode the dialog's titlebar carries the title and the close/minimize controls, so the chat head
+		// is hidden by the `--float` CSS rather than doubled up here.)
 
-		if(this.opts.toggleInto) {
-			this.opts.toggleInto.appendChild(this.toggleEl);
+		// The toggle -- a host-supplied element adopted as-is (`toggleEl`, so the host keeps its own icon markup),
+		// else a button built here and dropped into a host anchor (`toggleInto`) or an auto strip atop the main pane.
+		this._ownToggle = !this.opts.toggleEl;
+
+		if(!this._ownToggle) {
+			this.toggleEl = this.opts.toggleEl;
 		} else {
-			const strip = document.createElement('div');
-			strip.className = 'cerb-agent-pane--toggle-strip';
-			strip.appendChild(this.toggleEl);
-			main.insertBefore(strip, main.firstChild);
+			this.toggleEl = document.createElement('button');
+			this.toggleEl.type = 'button';
+			this.toggleEl.className = 'cerb-ui-button cerb-ui-button--subtle cerb-agent-pane--toggle';
+			this.toggleEl.title = 'Toggle the agent panel';
+
+			if(this.opts.toggleInto) {
+				this.opts.toggleInto.appendChild(this.toggleEl);
+			} else if(main) {
+				const strip = document.createElement('div');
+				strip.className = 'cerb-agent-pane--toggle-strip';
+				strip.appendChild(this.toggleEl);
+				main.insertBefore(strip, main.firstChild);
+			} else {
+				// Float with neither toggleEl nor toggleInto -- there's no main pane to strip, so append to the host.
+				this.host.appendChild(this.toggleEl);
+			}
 		}
 	}
 
 	_enhance() {
-		this.outerSplit = new CerbUI.SplitPane(this.outerEl, {
-			orientation: 'horizontal',
-			ratio: this.opts.ratio,
-			min: this.opts.min,
-			collapsed: 'second',              // chat hidden until summoned
-			storageKey: this.opts.storageKey,
-			onToggle: () => this._onToggle(),
-		});
+		if(!this._float) {
+			this.outerSplit = new CerbUI.SplitPane(this.outerEl, {
+				orientation: 'horizontal',
+				ratio: this.opts.ratio,
+				min: this.opts.min,
+				collapsed: 'second',              // chat hidden until summoned
+				storageKey: this.opts.storageKey,
+				onToggle: () => this._onToggle(),
+			});
 
-		this.toggleEl.addEventListener('click', () => this.toggle());
-		// Closing the chat resets it to the "New Agent Chat" selection (a new chat next open).
-		this.chatCloseEl.addEventListener('click', () => { this.outerSplit.collapse('second'); this.showSelect(); });
+			// Closing the chat resets it to the "New Agent Chat" selection (a new chat next open).
+			this.chatCloseEl.addEventListener('click', () => { this.outerSplit.collapse('second'); this.showSelect(); });
+		}
+
+		this.toggleEl.addEventListener('click', (e) => { e.preventDefault(); this.toggle(); });
 
 		this._setupAgent();
 		this._updateToggle();
+	}
+
+	// Float only: the chat's CerbUI.Dialog, built on first open rather than at construction. A search bar exists
+	// on nearly every page (13 include sites), and most are never asked for an agent -- so don't put a hidden
+	// dialog under document.body for each one just in case.
+	//
+	// Deliberately NOT given a `namespace`: Dialog treats one as a singleton identity, which would make a second
+	// search bar's bot icon focus the FIRST bar's chat -- a chat wired to a different field's command bridge.
+	// Each pane gets its own dialog (Dialog defaults the namespace to its uid).
+	_ensureDialog() {
+		if(this.dialog || !this._float || !(window.CerbUI && CerbUI.Dialog))
+			return this.dialog;
+
+		this.dialog = new CerbUI.Dialog(this.chatEl, {
+			title: this.opts.chatTitle,
+			header: 'bar',
+			modal: false,           // keep working the host while the chat stays live -- the whole point of float
+			minimizable: true,      // ...and dock it into the shared dialog tray rather than losing the transcript
+			draggable: true,
+			resizable: true,
+			scrollBody: true,
+			width: this.opts.floatWidth,
+			closeOnEscape: false,   // Escape belongs to the composer being typed in, not to discarding the chat
+		});
+
+		// Drive _onToggle off the dialog's own events rather than its onOpen/onClose hooks: `onClose` fires
+		// BEFORE the dialog flips its open flag, so isCollapsed() would still report "open" to the host.
+		this.chatEl.addEventListener('cerb-ui-dialog:open', () => this._onToggle());
+		this.chatEl.addEventListener('cerb-ui-dialog:close', () => { this.showSelect(); this._onToggle(); });
+
+		// A float chat is parented to document.body, not to the host -- so when the host itself lives in a popup
+		// (a chooser, the quick-search popup), closing that popup would otherwise strand a live chat driving a
+		// command bridge whose editor is gone. Resolved on first open, when the host is definitely placed.
+		const hostDialogEl = this.host.closest ? this.host.closest('.cerb-ui-dialog') : null;
+		if(hostDialogEl)
+			hostDialogEl.addEventListener('cerb-ui-dialog:close', () => this.destroy());
+
+		return this.dialog;
 	}
 
 	// ── Agent panel ───────────────────────────────────────────────────────────
@@ -184,14 +265,24 @@ CerbUI.AgentPane = class {
 	}
 
 	toggle() {
-		if(!this.outerSplit) return;
-		if(this.outerSplit.isCollapsed()) this.outerSplit.expand();
-		else this.outerSplit.collapse('second');
+		if(this.isCollapsed()) this.open();
+		else this.collapse();
 	}
 
-	open()      { if(this.outerSplit) this.outerSplit.expand(); }
-	collapse()  { if(this.outerSplit) this.outerSplit.collapse('second'); }
-	isCollapsed() { return !this.outerSplit || this.outerSplit.isCollapsed(); }
+	open() {
+		if(this._float) { const dlg = this._ensureDialog(); if(dlg) dlg.open(); return; }
+		if(this.outerSplit) this.outerSplit.expand();
+	}
+
+	collapse() {
+		if(this._float) { if(this.dialog) this.dialog.close(); return; }
+		if(this.outerSplit) this.outerSplit.collapse('second');
+	}
+
+	isCollapsed() {
+		if(this._float) return !this.dialog || !this.dialog.isOpen();
+		return !this.outerSplit || this.outerSplit.isCollapsed();
+	}
 
 	// If the toolbar has launchable items, show the "New Agent Chat" selection in the body and keep it pinned
 	// to the bottom as an interaction re-renders; else hide the toggle (nothing to summon).
@@ -290,10 +381,17 @@ CerbUI.AgentPane = class {
 	// requires the same value to reopen one, so a chat can only ever resume on a surface that can drive it.
 	// `ui_capabilities` rides along for the interaction but is deliberately NOT part of the scope — it grows as
 	// a host gains commands, and scoping on it would orphan history every time.
+	// `callerParams` lets a host name WHICH instance of its component this is (the worklist a search bar belongs
+	// to, say). It lands in the continuation's `caller_params`, NOT `inputs` -- an item that wants these as inputs
+	// declares them in its toolbar KATA off the server-side placeholders. `component`/`ui_capabilities` are
+	// applied last so a host can never accidentally shadow the two keys the framework routes on.
 	_caller() {
 		return {
 			name: 'agent.pane',
-			params: { component: this.opts.component, ui_capabilities: this.opts.capabilities },
+			params: Object.assign({}, this.opts.callerParams || {}, {
+				component: this.opts.component,
+				ui_capabilities: this.opts.capabilities,
+			}),
 		};
 	}
 
@@ -432,8 +530,18 @@ CerbUI.AgentPane = class {
 
 	// The Agent toggle reflects the pane state: closed → a leading left chevron (open it); open → a trailing
 	// right chevron (hide it). The `bot-message` icon (same as the chat pane's title) leads the label in both.
+	//
+	// A host-supplied toggle keeps its OWN markup -- it's the host's icon in the host's layout (a search bar's
+	// trailing bot glyph), so rewriting innerHTML would replace it with a chevron+label that doesn't fit there.
+	// It gets a state class instead.
 	_updateToggle() {
 		if(!this.toggleEl) return;
+
+		if(!this._ownToggle) {
+			this.toggleEl.classList.toggle('cerb-agent-pane--toggle--active', !this.isCollapsed());
+			return;
+		}
+
 		const label = '<span class="cerb-icons cerb-icon-bot-message"></span> ' + this._escape(this.opts.toggleLabel);
 		this.toggleEl.innerHTML = this.isCollapsed()
 			? '<span class="cerb-icons cerb-icon-chevron-left"></span> ' + label
@@ -457,6 +565,9 @@ CerbUI.AgentPane = class {
 	destroy() {
 		this.markClean();   // drop the nav guard if this pane held one
 		if(this.outerSplit && this.outerSplit.destroy) this.outerSplit.destroy();
+		// A float chat outlives its host's DOM otherwise -- the dialog lives at document.body, so a closed popup
+		// would leave a live chat behind holding a dead command bridge.
+		if(this.dialog && this.dialog.destroy) this.dialog.destroy();
 		if(this._scrollObserver) this._scrollObserver.disconnect();
 		if(this._scrollTimer) clearTimeout(this._scrollTimer);
 		CerbUI.AgentPane._instances.delete(this.host);
