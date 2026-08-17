@@ -1,14 +1,15 @@
 <?php
 namespace Cerb\Extensions\AutomationTemplate;
 
-use AutomationTrigger_InteractionWorker;
+use Cerb\Agent\Pane\Components;
 use DAO_Automation;
-use DAO_ConnectedAccount;
 use DevblocksPlatform;
 use Cerb\Extensions\Extension_AutomationTemplate;
 
-// "AI Agent Chat" — a code-driven CerbUI wizard (model cards + system prompt + tools) that GENERATES the
-// agent-loop KATA from the author's answers. Targets the interaction.worker trigger (declared in plugin.xml).
+// "AI Agent Chat" -- a code-driven CerbUI wizard (host component + system prompt + tools + filesystems) that
+// GENERATES the agent-loop KATA from the author's answers. Targets the interaction.worker.agent trigger
+// (declared in plugin.xml), which is the only one that advertises the `uiCommand` await -- so when the author
+// names a host component, the generated loop can drive that editor.
 class AgentChat extends Extension_AutomationTemplate {
 	const ID = 'cerb.automation.template.ai.agent_chat';
 
@@ -16,22 +17,30 @@ class AgentChat extends Extension_AutomationTemplate {
 		return true;
 	}
 
-	// The wizard: model cards + system prompt + tool selection (the model catalog comes from the trigger).
+	/**
+	 * The wizard asks only what is hard to type: where the chat lives, which tools it may call, and which
+	 * volumes it may mount. It does NOT ask for a system prompt or a model.
+	 *
+	 * The prompt is generated, because it depends on the location -- an agent in the Icon Builder needs
+	 * different orientation than one in the automation editor -- and on what actually got mounted. Asking
+	 * for it up front would collect text written before either was decided. Prose is also the one part the
+	 * author can fix afterwards in the editor with no KATA knowledge, so it is the cheapest thing to
+	 * generate and the most expensive thing to ask for. Models come from the default agent model router.
+	 */
 	function renderWizard() : string {
 		$tpl = DevblocksPlatform::services()->template();
 
-		$tpl->assign('agent_providers_json', json_encode(AutomationTrigger_InteractionWorker::getAgentProviders()));
-		$tpl->assign('model_presets_json', json_encode(AutomationTrigger_InteractionWorker::getAgentModelPresets()));
-		$tpl->assign('agent_models_json', json_encode(AutomationTrigger_InteractionWorker::getAgentModelChoices()));
-		$tpl->assign('account_uris_json', json_encode((object) $this->_connectedAccountUris()));
+		$tpl->assign('components_json', json_encode($this->_componentChoices()));
 
-		// Tools are added live via a CerbUI.RecordChooser scoped to `trigger:cerb.trigger.llm.tool`.
+		// Tools and filesystems are added live via CerbUI.RecordChooser -- there can be dozens of either, so
+		// neither is a list we can render up front.
 		return $tpl->fetch('devblocks:cerberusweb.core::internal/automation/editor/wizard_agent_chat.tpl');
 	}
 
 	function build(array $answers) : array {
 		// The loop is generated from the wizard's answers; the policy only ever needs to allow the agent turn
-		// (the tools are separate llm.tool automations with their own policies).
+		// (the tools are separate llm.tool automations with their own policies). No `callers:` block -- an
+		// absent one allows every caller, and restricting to `agent.pane` would just break a standalone chat.
 		$policy_kata = "commands:\n  llm.agent:\n    allow@bool: yes";
 
 		return [
@@ -41,100 +50,61 @@ class AgentChat extends Extension_AutomationTemplate {
 		];
 	}
 
-	// Generate the Agent Chat loop KATA from the wizard's answers (title / models / system prompt / tools baked in).
+	// The host components an agent pane can be mounted on, for the wizard's picker.
+	private function _componentChoices() : array {
+		$out = [];
+
+		foreach(Components::getAll() as $key => $component) {
+			$out[] = [
+				'key' => $key,
+				'label' => $component['label'],
+				'icon' => $component['icon'],
+				'description' => $component['description'],
+				'commands' => count($component['commands']),
+			];
+		}
+
+		return $out;
+	}
+
+	// Generate the Agent Chat loop KATA from the wizard's answers.
 	private function _generateAgentChatScript(array $answers) : string {
 		// The chat window title is single-line; strip newlines and fall back to a default.
 		$title = trim(preg_replace('/[\r\n]+/', ' ', strval($answers['title'] ?? '')));
 		if('' === $title)
 			$title = 'Agent Chat';
 
-		// System prompt (default if blank), each line indented under `system_prompt@text:` (16 spaces).
-		$system_prompt = trim(strval($answers['system_prompt'] ?? ''));
-		if('' === $system_prompt)
-			$system_prompt = 'You are a helpful AI agent.';
-		$sys_block = '';
-		foreach(preg_split('/\r?\n/', $system_prompt) as $line)
-			$sys_block .= '                ' . $line . "\n";
+		$component_key = trim(strval($answers['component'] ?? ''));
+		$component = Components::get($component_key);
 
-		// The client posts array/object answers (tools, models) as JSON strings — decode them.
-		$tools_answer = $answers['tools'] ?? [];
-		if(is_string($tools_answer))
-			$tools_answer = json_decode($tools_answer, true) ?: [];
-		$models_answer = $answers['models'] ?? [];
-		if(is_string($models_answer))
-			$models_answer = json_decode($models_answer, true) ?: [];
+		// The client posts array/object answers (tools, filesystems) as JSON strings -- decode them.
+		$tools_answer = $this->_decodeAnswer($answers['tools'] ?? []);
+		$filesystems_answer = $this->_decodeAnswer($answers['filesystems'] ?? []);
 
-		// Tools — each answer is { id, alias, label_summary, label_active }. Resolve id → automation name for
-		// the uri; key by the author's readable alias (default = the name) so the model sees `docs_search`,
-		// not `tool123`, and carry the transcript labels ("Searching…" / "Searched…").
-		$tools_block = '';
-		$tools_by_id = [];
-		foreach((array) $tools_answer as $t) {
-			if(!is_array($t))
-				continue;
-			$id = intval($t['id'] ?? 0);
-			if($id)
-				$tools_by_id[$id] = $t;
-		}
-		if($tools_by_id) {
-			$automations = DAO_Automation::getIds(array_keys($tools_by_id));
-			$tools_block .= "              tools:\n";
-			foreach($tools_by_id as $id => $t) {
-				if(!isset($automations[$id]))
-					continue;
-				$name = $automations[$id]->name;
-				$alias = $this->_toolAlias(strval($t['alias'] ?? '')) ?: $this->_toolAlias($name);
-				$tools_block .= "                automation/{$alias}:\n";
-				$tools_block .= "                  uri: cerb:automation:{$name}\n";
+		$mounts = $this->_mounts($filesystems_answer);
 
-				$active = trim(strval($t['label_active'] ?? ''));
-				$summary = trim(strval($t['label_summary'] ?? ''));
-				if('' !== $active || '' !== $summary) {
-					$tools_block .= "                  labels:\n";
-					if('' !== $active)
-						$tools_block .= "                    active: {$active}\n";
-					if('' !== $summary)
-						$tools_block .= "                    summary: {$summary}\n";
-				}
-			}
-		}
+		$system_prompt = $this->_systemPrompt($component, $filesystems_answer);
 
-		// Models — each answer REFERENCES an agent_model record by name, optionally overriding a few knobs. The
-		// record supplies provider/model/auth/vision/context window; we emit `models: <name>: <overrides>`.
-		$models = is_array($models_answer) ? $models_answer : [];
-		$models_block = "              models:\n";
-		$emitted = 0;
-		foreach($models as $m) {
-			$name = trim(strval($m['name'] ?? ''));
-			if('' === $name)
-				continue;
+		$tools_block = $this->_toolsBlock($component, $tools_answer);
 
-			$models_block .= "                {$name}:\n";
-
-			if('' !== ($cw = trim(strval($m['context_window'] ?? ''))) && ctype_digit($cw))
-				$models_block .= "                  context_window@int: {$cw}\n";
-			if('' !== ($effort_choices = trim(strval($m['effort_choices'] ?? ''))))
-				$models_block .= "                  effort_choices: {$effort_choices}\n";
-			if('' !== ($disabled = trim(strval($m['disabled'] ?? '')))) {
-				$expr = (str_starts_with($disabled, '{{')) ? $disabled : ('{{' . $disabled . '}}');
-				$models_block .= "                  disabled@bool: {$expr}\n";
-			}
-
-			$emitted++;
-		}
-		if(!$emitted) {
-			// No model configured — leave a working example the author must review.
-			$models_block .= "                # [TODO] Add at least one model (reference an agent_model record by name).\n";
-			$models_block .= "                claude-sonnet-5:\n";
-		}
+		// The `on_tool:` branch. With a host component this is the uiCommand round-trip; without one there's
+		// nothing to drive, so a single repaint-and-continue await is the whole story.
+		$on_tool_block = $component
+			? $this->_onToolBlockForComponent($component)
+			: $this->_onToolBlockPassthroughOnly();
 
 		$skeleton = <<<'KATA'
-# An interactive AI agent chat (generated by the Automation Builder). Each turn shows the transcript + a
-# prompt, sends your message to the agent (running any tools it calls), and loops. Resume an earlier
-# transcript by passing its Session ID.
+# An interactive AI agent chat (generated by the Automation Builder). Each turn shows the transcript and a
+# prompt, sends your message to the agent (running any tools it calls), and loops.
+#
+# Models come from the default agent model router, so this runs as-is. To pin them, uncomment the `agent:`
+# lines below and name an AI agent -- that stays portable, because the agent record carries the router.
+#
+# To offer this chat inside an editor's agent pane, add it to the `agent.pane` toolbar in Setup. That toolbar
+# ships with no items, so a freshly saved chat is not reachable from a pane until you do.
 
 start:
-  set:
+  set/init:
     prompt_agent@text:
     session_id: {{uuid()}}
 
@@ -142,86 +112,412 @@ start:
     if@bool: yes
     do:
       # If the user sent a message, run an agent turn (this also runs any tools the agent calls).
-      outcome/prompt:
+      outcome/hasPrompt:
         if@bool: {{prompt_agent}}
         then:
           llm.agent:
             output: results
             inputs:
+              # Name an AI agent to pin which models this chat may use. Omitted, the default router
+              # decides. (`llm.router:` can name a specific router instead, but its name is local to
+              # this environment -- so don't hardcode one in anything you ship.)
+              #agent: @your-agent
               session_id@key: session_id
-              system_prompt@text:
-__SYSTEM_PROMPT__
+              system_prompt@ref: system_prompt
               messages:
                 message:
                   role: user
                   content@key: prompt_agent
                   images@key,optional: prompt_agent__images
+              # The built-in `/commands` this agent honors. Opt-in and per-node: nothing is exposed
+              # that you didn't ask for.
+              commands:
+                command/compact:
+__MOUNTS__
 __TOOLS__
-            on_tool:
-              await:
-                form:
-                  elements:
-                    llmTranscript/prompt_preview:
-                      session_id@key: session_id
-                      thinking: raw
-                      tools: raw
-                    submit:
-                      is_automatic@bool: yes
+__ON_TOOL__
             on_success:
               set:
                 session_id: {{results.session_id}}
-            # Catch a failed turn (a bad/missing model, a provider error, or a transient timeout) so the chat
-            # doesn't dead-end: control falls back to the loop, the transcript + composer re-render, and the
-            # worker can retry — instead of the whole interaction ending on an error. To surface the reason,
-            # add an `await: form:` here with a `say` element (`{{results.error}}`); that costs an extra step.
+            # A failed turn (bad model, provider error, rate limit, timeout) returns to the chat instead
+            # of ending the interaction: the composer restores the message that didn't send and shows the
+            # reason above it. Branch here on {{results.error_status}}, {{results.retryable}}, and
+            # {{results.retry_after}} if you want to handle a class of failure differently. Do NOT use
+            # error:/return: here -- that ends the session and loses the transcript.
             on_error:
 
       # Show the transcript and prompt for the next message.
-      await:
+      await/chat:
         form:
           title: __TITLE__
           elements:
             llmTranscript/prompt_transcript:
               session_id: {{session_id}}
-              tools: raw
               thinking: raw
+              tools: raw
+              expand: none
+              layout: interleaved
+              tokens@bool: yes
             agentPrompt/prompt_agent:
               placeholder: Message the agent...
               session_id: {{session_id}}
               required@bool: yes
-              # What `@` autocompletes. Opt-in: without this block `@` completes nothing. Add
-              # `filesystems:` (keyed by volume name) to also complete `@<volume>/<path>` file
-              # references — independent of what the llm.agent above actually mounts.
+              #agent: @your-agent
+              # What the composer OFFERS -- deliberately separate from the `commands:`/`mounts:` above,
+              # which are what the agent ACTS on.
+              commands:
+                compact:
+                rewrite/flatten:
+                  description: Aggressively compact the thread
+                  text@text: /compact hard
+              # What `@` autocompletes. Opt-in: without this block `@` completes nothing.
               references:
                 workers:
-__MODELS__
+__REFERENCES__
             submit:
               continue@bool: no
               reset@bool: no
 
+&transcript_summary:
+  session_id: {{session_id}}
+  thinking: summary
+  tools: summary
+
+&system_prompt@text:
+__SYSTEM_PROMPT__
+
 KATA;
 
-		$script = str_replace('__TITLE__', $title, $skeleton);
-		$script = str_replace('__SYSTEM_PROMPT__' . "\n", $sys_block, $script);
-		$script = str_replace('__TOOLS__' . "\n", $tools_block, $script);
-		$script = str_replace('__MODELS__' . "\n", $models_block, $script);
+		$replacements = [
+			'__TITLE__' => $title,
+			"__MOUNTS__\n" => $this->_indent($mounts['mounts'], 14),
+			"__TOOLS__\n" => $tools_block,
+			"__ON_TOOL__\n" => $on_tool_block,
+			"__REFERENCES__\n" => $this->_indent($mounts['references'], 16),
+			"__SYSTEM_PROMPT__\n" => $this->_indent($system_prompt, 2),
+		];
 
-		return $script;
+		return str_replace(array_keys($replacements), array_values($replacements), $skeleton);
 	}
 
-	// A readable, KATA-safe alias (function name the model sees): lowercase, non-word → underscore.
+	/**
+	 * Indent every non-empty line of a block by $spaces, and guarantee a trailing newline when there's
+	 * content. Every generated block goes through this, so each nesting depth is stated once as a number
+	 * rather than baked into the leading whitespace of a dozen string literals -- which is what made the
+	 * previous generator's system-prompt splice break silently if the skeleton was ever re-indented.
+	 *
+	 * Blocks are built at depth 0 and indented on the way out, so they nest by composition: an inner
+	 * _indent() call is relative to its parent, not absolute.
+	 */
+	private function _indent(string $block, int $spaces) : string {
+		if('' === ($block = rtrim($block, "\n")))
+			return '';
+
+		$pad = str_repeat(' ', $spaces);
+		$out = '';
+
+		foreach(preg_split('/\r?\n/', $block) as $line)
+			$out .= ('' === trim($line)) ? "\n" : ($pad . $line . "\n");
+
+		return $out;
+	}
+
+	// The client stringifies array/object answers as JSON; accept either shape.
+	private function _decodeAnswer($answer) : array {
+		if(is_string($answer))
+			$answer = json_decode($answer, true);
+
+		return is_array($answer) ? $answer : [];
+	}
+
+	/**
+	 * The whole system prompt, generated: the location's own instructions, then the tool inventory that
+	 * location gives it, then what it can reach on disk.
+	 *
+	 * Generated rather than asked for because every part of it depends on answers the author gives LATER in
+	 * the same wizard -- the location supplies the opening, the location's command list supplies the
+	 * inventory, and the mount picker supplies the last paragraph. It is also the one section the author can
+	 * revise afterwards by typing into the automation editor, which is why it's the right thing to hand them
+	 * finished rather than blank.
+	 *
+	 * The tool inventory is spelled out even though the provider already sends tool schemas: a model that
+	 * isn't told in prose that it can read the editor tends to ask the user to paste instead.
+	 */
+	private function _systemPrompt(?array $component, array $filesystems) : string {
+		$system_prompt = $component
+			? trim(strval($component['instructions'] ?? ''))
+			: '';
+
+		if('' === $system_prompt)
+			$system_prompt = 'You are a helpful AI agent.';
+
+		$lines = [];
+
+		if($component) {
+			// The instructions above already say where the agent is; this just names the tools.
+			$lines[] = '';
+			$lines[] = 'You act on it through these tools:';
+
+			foreach($component['commands'] as $command)
+				$lines[] = sprintf('- %s -- %s', $command['tool'], $command['description']);
+
+			$lines[] = '';
+			$lines[] = 'Read before you write. Prefer acting over describing: make the change, then say briefly what changed and why.';
+		}
+
+		// `mounts:` is always emitted, so agent_terminal is always there -- describe it unconditionally. A model that
+		// isn't told it has /tmp won't invent the idea of using one.
+		$names = $this->_filesystemNames($filesystems);
+
+		$lines[] = '';
+		$lines[] = $names
+			? sprintf('You have these filesystems mounted: %s, plus a read-write /tmp.', implode(', ', $names))
+			: 'You have a read-write /tmp filesystem. Nothing else is mounted.';
+		// Models reliably try to shell out otherwise -- `cat`, `grep`, and `echo` all error, and the agent
+		// reads that as the mount being broken rather than the command not existing.
+		$lines[] = 'agent_terminal is NOT a Unix shell. It has only the documented commands (ls, find, search, read, write, append, edit, copy, rm) -- there is no echo, cat, grep, or awk. There is no working directory either; use absolute paths or @<filesystem>/path.';
+		$lines[] = '/tmp is a real compute surface, not just scratch space: write a string to it, then run Twig filter chains against any command with a trailing `|` to count, filter, or reshape text instead of eyeballing it -- `read /tmp/notes.txt | lines|filter(l => "error" in l)`. It is per-session and not indexed by search.';
+
+		return $system_prompt . "\n" . implode("\n", $lines);
+	}
+
+	// The volume names actually mounted, in the order the author listed them.
+	private function _filesystemNames(array $filesystems) : array {
+		$names = [];
+
+		foreach($filesystems as $filesystem) {
+			if(is_array($filesystem) && '' !== ($name = trim(strval($filesystem['name'] ?? ''))))
+				$names[] = $name;
+		}
+
+		return $names;
+	}
+
+	/**
+	 * The `mounts:` block (what the agent can actually read/write) and the matching `references: filesystems:`
+	 * block (what `@` completes for the human). Same answer, two blocks: they're decoupled on purpose, so a
+	 * volume can be mounted without cluttering the composer's autocomplete, or offered without being mounted.
+	 *
+	 * `mounts:` is ALWAYS emitted, even with nothing selected. Writing the key at all is what enables the
+	 * filesystem (LlmAgentNode::_isFilesystemEnabled tests the KEY, not its value), and an empty block means
+	 * `/tmp` only -- a read-write scratch area plus the `|` Twig pipeline, which is the difference between an
+	 * agent that can count and filter its own output and one that has to eyeball it. Cheap, and nothing is
+	 * exposed: `/tmp` is per-session and holds only what the agent puts there.
+	 *
+	 * @return array{mounts:string, references:string}
+	 */
+	private function _mounts(array $filesystems) : array {
+		$mounts = '';
+		$references = '';
+
+		foreach($filesystems as $filesystem) {
+			if(!is_array($filesystem))
+				continue;
+
+			if('' === ($name = trim(strval($filesystem['name'] ?? ''))))
+				continue;
+
+			$mounts .= $name . ":\n";
+
+			// Read-only is the default, so only say so when it isn't. The wizard's switcher speaks `ro`/`rw`
+			// (matching the filesystem terminal); the generated KATA spells it out, since both are accepted
+			// and the long form is the one an author reads correctly without checking.
+			if(in_array(strtolower(trim(strval($filesystem['mode'] ?? ''))), ['rw', 'read-write', 'readwrite'], true))
+				$mounts .= "  mode: read-write\n";
+
+			$references .= $name . ":\n";
+		}
+
+		// Nothing selected: keep the key, lose the children. The comment goes in the generated script because
+		// an apparently-empty block is exactly the kind of thing an author tidies away, and deleting it takes
+		// the agent's whole filesystem with it -- silently, since the tool simply stops being offered.
+		if('' === $mounts)
+			return [
+				'mounts' => "# An empty `mounts:` still enables the filesystem, mounting only a read-write\n"
+					. "# `/tmp`. Delete this key and the agent loses `agent_terminal` entirely; add volumes\n"
+					. "# under it (`<volume>:`, plus `mode: read-write` to allow writes) to mount more.\n"
+					. "mounts:\n",
+				'references' => '',
+			];
+
+		// `/tmp` rides along read-write alongside whatever else is declared; it doesn't need declaring here.
+		return [
+			'mounts' => "mounts:\n" . $this->_indent($mounts, 2),
+			'references' => "filesystems:\n" . $this->_indent($references, 2),
+		];
+	}
+
+	/**
+	 * The `tools:` block: the host component's UI commands as inline `tool/` definitions, plus any `llm.tool`
+	 * automations the author picked as `automation/` entries.
+	 */
+	private function _toolsBlock(?array $component, array $tools_answer) : string {
+		$block = '';
+
+		if($component) {
+			foreach($component['commands'] as $command) {
+				$block .= sprintf("tool/%s:\n", $command['tool']);
+				$block .= sprintf("  description: %s\n", $command['description']);
+				$block .= sprintf("  icon: %s\n", $command['icon']);
+				$block .= "  labels:\n";
+				$block .= sprintf("    active: %s\n", $command['labels']['active']);
+				$block .= sprintf("    summary: %s\n", $command['labels']['summary']);
+
+				if(!$command['parameters'])
+					continue;
+
+				$block .= "  parameters:\n";
+
+				foreach($command['parameters'] as $param_name => $param) {
+					$block .= sprintf("    string/%s:\n", $param_name);
+					$block .= sprintf("      description: %s\n", $param['description']);
+
+					if(($enum = $param['enum'] ?? []))
+						$block .= sprintf("      enum@csv: %s\n", implode(',', $enum));
+
+					$block .= sprintf("      required@bool: %s\n", ($param['required'] ?? false) ? 'yes' : 'no');
+				}
+			}
+		}
+
+		$block .= $this->_automationToolsBlock($tools_answer);
+
+		if('' === $block)
+			return '';
+
+		return $this->_indent("tools:\n" . $this->_indent($block, 2), 14);
+	}
+
+	/**
+	 * The author's picked `llm.tool` automations. Each answer is { id, alias, label_summary, label_active }.
+	 * Resolve id -> automation name for the uri; key by the author's readable alias (default = the name) so
+	 * the model sees `docs_search`, not `tool123`, and carry the transcript labels.
+	 */
+	private function _automationToolsBlock(array $tools_answer) : string {
+		$tools_by_id = [];
+
+		foreach($tools_answer as $tool) {
+			if(!is_array($tool))
+				continue;
+
+			if(($id = intval($tool['id'] ?? 0)))
+				$tools_by_id[$id] = $tool;
+		}
+
+		if(!$tools_by_id)
+			return '';
+
+		$block = '';
+		$automations = DAO_Automation::getIds(array_keys($tools_by_id));
+
+		foreach($tools_by_id as $id => $tool) {
+			if(!isset($automations[$id]))
+				continue;
+
+			$name = $automations[$id]->name;
+			$alias = $this->_toolAlias(strval($tool['alias'] ?? '')) ?: $this->_toolAlias($name);
+
+			$block .= sprintf("automation/%s:\n", $alias);
+			$block .= sprintf("  uri: cerb:automation:%s\n", $name);
+
+			$active = trim(strval($tool['label_active'] ?? ''));
+			$summary = trim(strval($tool['label_summary'] ?? ''));
+
+			if('' === $active && '' === $summary)
+				continue;
+
+			$block .= "  labels:\n";
+
+			if('' !== $active)
+				$block .= sprintf("    active: %s\n", $active);
+
+			if('' !== $summary)
+				$block .= sprintf("    summary: %s\n", $summary);
+		}
+
+		return $block;
+	}
+
+	/**
+	 * The `on_tool:` branch for a chat that drives a host editor.
+	 *
+	 * ONE await form serves every UI command, rather than a branch per tool: each `uiCommand` is aliased
+	 * `prompt_<tool>` and disabled unless it's the active tool (a disabled one renders an inert hidden input),
+	 * so a single `tool.return: content@key: prompt_{{__tool.name}}` picks up whichever actually ran. Adding a
+	 * command costs one element, not one branch.
+	 *
+	 * The default `outcome/passthrough:` catches tools that need no browser round-trip -- agent_terminal, and any
+	 * `automation/` tool -- and just repaints the transcript. No `tool.return:` there: the tool's own result
+	 * stands, and returning would overwrite it with an empty string.
+	 */
+	private function _onToolBlockForComponent(array $component) : string {
+		$tool_names = [];
+
+		foreach($component['commands'] as $command)
+			$tool_names[] = sprintf("'%s'", $command['tool']);
+
+		$elements = "llmTranscript/prompt_transcript@ref: transcript_summary\n";
+
+		foreach($component['commands'] as $bridge_name => $command) {
+			$elements .= sprintf("uiCommand/prompt_%s:\n", $command['tool']);
+			// `!=` and not `is not` -- Twig's `is not` runs a TEST, not an inequality, so `is not 'x'`
+			// silently never matches and every command would fire on every tool call.
+			$elements .= sprintf("  disabled@bool: {{__tool.name != '%s'}}\n", $command['tool']);
+			$elements .= sprintf("  command: %s\n", $bridge_name);
+
+			if(!$command['parameters'])
+				continue;
+
+			$elements .= "  params:\n";
+
+			foreach($command['parameters'] as $param_name => $param) {
+				// An optional parameter the model omitted must not render as an empty string -- @key,optional
+				// drops the key entirely instead.
+				$elements .= ($param['required'] ?? false)
+					? sprintf("    %s: {{__tool.parameters.%s}}\n", $param_name, $param_name)
+					: sprintf("    %s@key,optional: __tool.parameters.%s\n", $param_name, $param_name);
+			}
+		}
+
+		$elements .= "submit:\n  is_automatic@bool: yes\n";
+
+		$block = "on_tool:\n";
+		$block .= "  decision/managed:\n";
+		$block .= "    outcome/editor_tool:\n";
+		$block .= sprintf("      if@bool: {{__tool.name in [%s]}}\n", implode(',', $tool_names));
+		$block .= "      then:\n";
+		$block .= "        await:\n";
+		$block .= "          form:\n";
+		$block .= "            elements:\n";
+		$block .= $this->_indent($elements, 14);
+		$block .= "        tool.return:\n";
+		$block .= "          content@key: prompt_{{__tool.name}}\n";
+		$block .= "    outcome/passthrough:\n";
+		$block .= "      # Tools that need no browser round-trip (agent_terminal, automation tools). Repaint the\n";
+		$block .= "      # transcript and continue; the tool's own result stands.\n";
+		$block .= "      then:\n";
+		$block .= $this->_indent($this->_passthroughAwait(), 8);
+
+		return $this->_indent($block, 12);
+	}
+
+	// No host component: nothing to drive, so the branch is just a repaint between tool calls.
+	private function _onToolBlockPassthroughOnly() : string {
+		return $this->_indent("on_tool:\n" . $this->_indent($this->_passthroughAwait(), 2), 12);
+	}
+
+	private function _passthroughAwait() : string {
+		return "await:\n"
+			. "  form:\n"
+			. "    elements:\n"
+			. "      llmTranscript/prompt_transcript@ref: transcript_summary\n"
+			. "      submit:\n"
+			. "        is_automatic@bool: yes\n";
+	}
+
+	// A readable, KATA-safe alias (function name the model sees): lowercase, non-word -> underscore.
 	private function _toolAlias(string $name) : string {
 		$alias = trim(preg_replace('/[^a-z0-9_]+/', '_', strtolower($name)), '_');
 		return $alias ?: 'tool';
-	}
-
-	// Map of connected-account id → uri (for readable `cerb:connected_account:<uri>` auth refs).
-	private function _connectedAccountUris() : array {
-		$out = [];
-		foreach(DAO_ConnectedAccount::getAll() as $account) {
-			if(strlen(strval($account->uri ?? '')))
-				$out[$account->id] = $account->uri;
-		}
-		return $out;
 	}
 }

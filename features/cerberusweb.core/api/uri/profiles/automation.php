@@ -731,8 +731,20 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		if(!($template_ext = \Cerb\Extensions\Extension_AutomationTemplate::get($template_id)))
 			return;
 
-		/** @var $template_ext \Cerb\Extensions\Extension_AutomationTemplate */
-		echo $template_ext->renderWizard();
+		try {
+			/** @var $template_ext \Cerb\Extensions\Extension_AutomationTemplate */
+			echo $template_ext->renderWizard();
+
+		} catch(Throwable $e) {
+			// A wizard is plugin code that can reference classes the class loader hasn't registered yet (a new
+			// file under an existing loader dir still needs /update). Uncaught, that ends the whole request as a
+			// raw 500 with the popup mid-render. `applyTemplate` already catches; this is the other half.
+			DevblocksPlatform::logException($e);
+
+			echo sprintf('<div class="cerb-ui-panel--alert">%s</div>',
+				DevblocksPlatform::strEscapeHtml('This template could not build its setup form. If you just installed or upgraded a plugin, run Setup > Configure > Plugins > Update. The error was logged.')
+			);
+		}
 	}
 
 	// Automation Builder — turn a candidate's wizard answers into the editor seed. The client seeds the
