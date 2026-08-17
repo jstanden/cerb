@@ -534,8 +534,16 @@ class Model_LlmAgentSession {
 			$map[\Cerb\AutomationBuilder\Node\LlmAgentNode::TOOL_TERMINAL] = [
 				'type' => 'agent_terminal',
 				'uri' => '',
-				'icon' => 'folder',
 				'description' => 'Run a command in the agent terminal',
+				// One tool, but the verb says what it actually did — browsing, reading, editing, or asking
+				// Cerb about itself. Resolved per call against the command line (see LlmToolCall::getIcon),
+				// and anything unrecognized falls through to the terminal's own glyph.
+				'icon' => "{{ {'ls':'folder-open','dir':'folder-open','find':'folder-open',"
+					. "'search':'search','grep':'search',"
+					. "'read':'file-document','cat':'file-document',"
+					. "'write':'edit','append':'edit','edit':'edit',"
+					. "'copy':'copy','cp':'copy','rm':'trash',"
+					. "'cerb':'database'}[command|trim|split(' ')|first|lower]|default('console') }}",
 				'labels' => [
 					'summary' => 'Terminal: {{command}}',
 					'active' => 'Running `{{command}}`',

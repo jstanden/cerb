@@ -142,10 +142,20 @@ class DevblocksLlmChatResponse_Tool {
 		];
 	}
 
-	// The tool's icon from the session's tool map — a cerb-icons name. Empty lets the renderer pick its own
-	// default rather than baking one in here.
+	/**
+	 * The tool's icon from the session's tool map — a cerb-icons name. Empty lets the renderer pick its own
+	 * default rather than baking one in here.
+	 *
+	 * Templated against this call's parameters, exactly like the labels, so ONE tool can wear a different
+	 * glyph per invocation — the agent terminal is a filesystem, a search, and a CLI depending on the verb,
+	 * and a single folder icon for all three makes a transcript harder to skim than it needs to be.
+	 * A template that fails, or yields anything that isn't an icon name, falls back to the renderer's default
+	 * rather than emitting a broken class.
+	 */
 	function getIcon(?array $tool_map) : string {
-		return strval($tool_map[$this->getName()]['icon'] ?? '');
+		$icon = trim($this->_buildAgainstParams(strval($tool_map[$this->getName()]['icon'] ?? '')));
+
+		return preg_match('/^[a-z0-9-]+$/', $icon) ? $icon : '';
 	}
 	
 	function serialize() : array {
