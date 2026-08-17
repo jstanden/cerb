@@ -1753,11 +1753,47 @@ class LlmAgentNode extends AbstractNode {
 
 		} else {
 			$tool_response = [
-				'content' => 'ERROR: This tool does not exist.'
+				'content' => self::_unknownToolError($tool_spec->getName(), $tools)
 			];
 		}
 		
 		$llm_provider->returnTool($tool_spec, $tool_response['content'] ?? '', $memory_store);
 		return true;
+	}
+
+	/**
+	 * The reply to a tool call naming something that isn't a tool.
+	 *
+	 * A bare "this tool does not exist" costs the model a whole turn to recover from, and the most common way
+	 * to get here isn't a typo: the agent terminal documents a vocabulary of COMMANDS (`search`, `read`, `ls`,
+	 * `cerb`) inside its tool DESCRIPTION, which reads like a menu of callable things -- so a model calls
+	 * `search` as a tool, with the flags from the help text as its arguments. Naming the mistake and handing
+	 * back the shape that works turns a dead turn into a recovered one.
+	 *
+	 * The hint is deliberately generic rather than a list of known verbs: it stays correct for `cerb records`
+	 * and for any command added later, with nothing here to drift out of sync with Filesystem's dispatch.
+	 */
+	private static function _unknownToolError(string $name, array $tools) : string {
+		$lines = [sprintf('ERROR: There is no tool named `%s`.', $name)];
+
+		$terminal_name = '';
+
+		foreach($tools as $tool_name => $tool) {
+			if('agent_terminal' == ($tool['type'] ?? ''))
+				$terminal_name = strval($tool_name);
+		}
+
+		if('' !== $terminal_name) {
+			$lines[] = sprintf(
+				'If you meant to run a terminal command, that is the `%s` tool: pass the WHOLE command line as its `command` argument, with flags written as they would be typed -- command: "%s ..." -- not as separate tool arguments.',
+				$terminal_name,
+				DevblocksPlatform::strLower($name)
+			);
+		}
+
+		if($tools)
+			$lines[] = 'Available tools: ' . implode(', ', array_keys($tools)) . '.';
+
+		return implode("\n", $lines);
 	}
 }

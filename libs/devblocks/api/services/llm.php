@@ -116,30 +116,42 @@ class DevblocksLlmChatResponse_Tool {
 	// would shadow that and throw the number away). Built against THIS call's parameters, so `{{query}}`
 	// reflects what the agent actually asked for.
 	function getLabels(?array $tool_map) : array {
+		// A name absent from a map we DO have is a tool that doesn't exist -- most often a model calling a
+		// terminal COMMAND as though it were a tool. Falling through to empty labels lets the renderer print
+		// "Worked for 340ms" over a call that only ever returned an error, which is the one thing a transcript
+		// must not say. Guarded on a present, non-empty map: null or empty means we simply don't know.
+		if(is_array($tool_map) && $tool_map && !array_key_exists($this->getName(), $tool_map)) {
+			$unknown = sprintf('Unknown tool: %s', $this->getName());
+
+			return ['summary' => $unknown, 'active' => $unknown];
+		}
+
 		$labels = $tool_map[$this->getName()]['labels'] ?? [];
 
 		if(!is_array($labels))
 			$labels = [];
 
-		$build = function(string $str) : string {
-			if(!str_contains($str, '{{'))
-				return $str;
-
-			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-
-			if(false !== ($built = $tpl_builder->build($str, $this->getParameters())))
-				return $built;
-
-			return $str;
-		};
-
 		$summary = strval($labels['summary'] ?? '');
 		$active = strval($labels['active'] ?? '');
 
 		return [
-			'summary' => $build($summary ?: $active),
-			'active' => $build($active ?: $summary),
+			'summary' => $this->_buildAgainstParams($summary ?: $active),
+			'active' => $this->_buildAgainstParams($active ?: $summary),
 		];
+	}
+
+	// Resolve a tool-map string against THIS call's parameters. A plain string passes through untouched, so
+	// the common case costs nothing.
+	private function _buildAgainstParams(string $str) : string {
+		if(!str_contains($str, '{{'))
+			return $str;
+
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+
+		if(false !== ($built = $tpl_builder->build($str, $this->getParameters())))
+			return $built;
+
+		return $str;
 	}
 
 	/**
@@ -3045,7 +3057,12 @@ class _DevblocksLlmService {
 			}
 
 			$lead = [
-				"Browse the agent filesystems mounted below. Give one command line exactly as you would type it in a terminal.",
+				"Run ONE command line in the agent terminal, exactly as you would type it at a prompt.",
+				// Models otherwise read the command list below as a menu of tools and call `search` or `read`
+				// directly, with the documented flags as tool arguments. Say what the list IS before showing it.
+				"Everything in the command list below is a COMMAND, not a tool of its own -- there is no separate",
+				"`search` tool. Call THIS tool and put the whole line (verb, arguments and flags) in `command`:",
+				"command: \"search refunds --path /docs --lines\".",
 				"There is no working directory: use absolute paths (`/skills/cerb-dev/SKILL.md`) or `@<filesystem>/path`.",
 				"Prefer `search`/`find` to locate a file, then `read` only what you need. `/tmp` is a scratch area you",
 				"can write to; a command whose output is too large to return is saved there and referenced by path.",
@@ -3058,7 +3075,10 @@ class _DevblocksLlmService {
 				. "\nlist, or transform it with a `|` pipeline."];
 
 			$lead = [
-				"A scratch filesystem. Give one command line exactly as you would type it in a terminal.",
+				"Run ONE command line in the agent terminal, exactly as you would type it at a prompt.",
+				"Everything in the command list below is a COMMAND, not a tool of its own -- there is no separate",
+				"`read` tool. Call THIS tool and put the whole line (verb, arguments and flags) in `command`:",
+				"command: \"read /tmp/notes.md --limit 40\".",
 				"There is no working directory: use absolute paths (`/tmp/notes.md`).",
 				"Write text to `/tmp` and it stays out of this conversation until you read it back — so it's the place",
 				"to park a long intermediate result, then narrow it with a `|` pipeline instead of re-reading the whole",
@@ -3099,7 +3119,7 @@ class _DevblocksLlmService {
 					'properties' => [
 						'command' => [
 							'type' => 'string',
-							'description' => "The command line to run, e.g. `ls /skills`, `search prompt caching --ext md`, `find *.md --fields title`, `read @cerb-dev/SKILL.md --offset 40 --limit 60`, `write /me/notes.md`, or `edit /me/notes.md`. May end with a `| <twig filters>` pipeline.",
+							'description' => "The ENTIRE command line as one string -- verb, arguments and flags together, written as you would type them. Flags belong in here, never as separate arguments to this tool. E.g. `ls /skills`, `search prompt caching --ext md`, `find *.md --fields title`, `read @cerb-dev/SKILL.md --offset 40 --limit 60`, `write /me/notes.md`, or `edit /me/notes.md`. May end with a `| <twig filters>` pipeline.",
 						],
 						'script' => [
 							'type' => 'string',
