@@ -3061,6 +3061,15 @@ class _DevblocksLlmService {
 			? ['ls', 'find', 'search', 'read', 'write', 'append', 'edit', 'copy', 'rm', '|', '/tmp']
 			: ['ls', 'find', 'read', 'write', 'append', 'edit', 'copy', 'rm', '|', '/tmp'];
 
+		// The `cerb` CLI is opt-in, and this gate is why. help() is embedded verbatim below, so listing the
+		// verb unconditionally would change the description — and therefore bust the cached prompt prefix —
+		// for every agent that never asked for it.
+		if($fs->hasCli()) {
+			$verbs[] = 'cerb';
+
+			$lead[] = "`cerb` is a command line into this Cerb installation itself — run `cerb help` to see what it can answer.";
+		}
+
 		$description = implode("\n", [
 			...$lead,
 			"For a longer transform than fits on one line, put a Twig template in `script` instead of a trailing `|`.",

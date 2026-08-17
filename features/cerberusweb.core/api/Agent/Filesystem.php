@@ -22,6 +22,9 @@ class Filesystem {
 	const KIND_VOLUME = 'volume';
 	const KIND_TMP = 'tmp';
 
+	// NOT a mount kind: the reserved spec-list entry that carries the `cerb` CLI config alongside the mounts.
+	const KIND_CLI = 'cerb';
+
 	const TMP_AT = '/tmp';
 
 	/**
@@ -65,6 +68,7 @@ class Filesystem {
 			'max_bytes' => 65536,   // read/output byte cap
 			'context_lines' => 0,   // search: lines of context (future)
 			'tmp' => null,          // the host's scratch store; null = no /tmp mount at all
+			'cerb' => null,         // the `cerb` CLI's enabled namespaces; null = no CLI at all
 		], $options);
 
 		foreach($mounts as $mount) {
@@ -101,6 +105,15 @@ class Filesystem {
 	 * `filesystem` may be a name or an id. Unknown/disabled filesystems are skipped.
 	 */
 	public static function fromSpecs(array $specs, array $options = []) : self {
+		// The `cerb` CLI's config rides the SAME spec list as the mounts, as a reserved non-mount entry. That
+		// is what makes it persist with the session for free (setMounts() content-addresses the whole blob),
+		// and what makes the two hosts -- the cached tool description and the execution path, which both call
+		// fromSpecs($tool['mounts']) -- structurally unable to disagree about what's enabled.
+		foreach($specs as $spec) {
+			if(self::_isCliSpec($spec) && !array_key_exists('cerb', $options))
+				$options['cerb'] = $spec['cerb'] ?? [];
+		}
+
 		$mounts = [];
 
 		foreach(self::describeSpecs($specs) as $described) {
@@ -142,6 +155,12 @@ class Filesystem {
 		$by_name = null;
 
 		foreach($specs as $spec) {
+			// Reserved non-mount entries (the `cerb` CLI config) share this list but name no volume. Skipped
+			// HERE rather than only in fromSpecs() so every caller is covered -- the transcript viewer reads
+			// describeSpecs() directly and would otherwise render the CLI entry as a "Missing" volume.
+			if(self::_isCliSpec($spec))
+				continue;
+
 			$key = $spec['filesystem'] ?? null;
 			$model = null;
 
@@ -181,6 +200,16 @@ class Filesystem {
 	/** @return array[] the resolved mounts */
 	public function getMounts() : array {
 		return $this->_mounts;
+	}
+
+	/** The reserved spec entry carrying the `cerb` CLI config, rather than a volume to mount. */
+	private static function _isCliSpec($spec) : bool {
+		return is_array($spec) && self::KIND_CLI === ($spec['kind'] ?? '');
+	}
+
+	/** Does this instance have the `cerb` CLI? Drives whether the tool description advertises the verb. */
+	public function hasCli() : bool {
+		return Cli::isEnabled($this->_options['cerb']);
 	}
 
 	/**
@@ -225,8 +254,9 @@ class Filesystem {
 			'edit' => $this->_cmdEdit($parsed, $cwd, $find, $payload),
 			'copy', 'cp' => $this->_cmdCopy($parsed, $cwd),
 			'rm' => $this->_cmdRm($parsed, $cwd),
+			'cerb' => $this->_cmdCerb($parsed, $cwd),
 			'pwd' => $this->_result($cwd, $cwd),
-			'help' => $this->_result(self::help($parsed['args'][0] ?? null), $cwd),
+			'help' => $this->_result($this->_help($parsed['args'][0] ?? null), $cwd),
 			default => $this->_error(sprintf("%s: command not found. Try `help`.", $parsed['verb']), $cwd),
 		};
 
@@ -239,7 +269,7 @@ class Filesystem {
 		$template = null;
 
 		if(!is_null($pipeline) && '' !== $pipeline) {
-			$template = self::_pipelineTemplate($pipeline);
+			$template = self::_pipelineTemplate($pipeline, $result['data_alias'] ?? null);
 		} else if(!is_null($script) && '' !== trim($script)) {
 			$template = $script;
 		}
@@ -1347,6 +1377,36 @@ class Filesystem {
 		return $this->_result(sprintf("Removed %s", $path), $cwd);
 	}
 
+	/**
+	 * `cerb <namespace> ...` -- the Cerb CLI. Everything about it lives in Cerb\Agent\Cli; this evaluator
+	 * stays a filesystem and knows nothing about record types.
+	 *
+	 * The CLI has no cwd and no paths, so `$cwd` only rides through unchanged. `data`/`data_alias` are
+	 * forwarded so a `| chain` gets the command's ROWS, not just its rendered text.
+	 */
+	private function _cmdCerb(array $cmd, string $cwd) : array {
+		// With nothing enabled the verb doesn't exist at all -- same reply as any unknown command, matching
+		// the fact that `help` doesn't document it either. A "no commands are enabled" message here would
+		// advertise a capability this host wasn't given.
+		if(!$this->hasCli())
+			return $this->_error(sprintf("%s: command not found. Try `help`.", self::KIND_CLI), $cwd);
+
+		$result = Cli::exec($cmd['args'], $cmd['flags'], $this->_options['cerb']);
+
+		$out = ($result['error'] ?? false)
+			? $this->_error(strval($result['output'] ?? ''), $cwd)
+			: $this->_result(strval($result['output'] ?? ''), $cwd);
+
+		if(is_array($result['data'] ?? null)) {
+			$out['data'] = $result['data'];
+
+			if($result['data_alias'] ?? null)
+				$out['data_alias'] = strval($result['data_alias']);
+		}
+
+		return $out;
+	}
+
 	// ---------------------------------------------------------------------
 	// Path + mount resolution
 	// ---------------------------------------------------------------------
@@ -1751,9 +1811,20 @@ class Filesystem {
 	 * 2. Whatever the chain ENDS on is rendered for a terminal by renderPipedValue() -- a list of lines joins
 	 *    with newlines, a list of records prints as JSON. Bare `{{ }}` would print the literal string "Array",
 	 *    which is never what you wanted.
+	 *
+	 * The running command's own `data_alias` joins the recognized names, so a command that invents an alias
+	 * gets `| <alias>|...` for free. Hardcoding the whole list here instead would mean every new alias --
+	 * every `cerb` sub-command's rows -- had to be registered in the evaluator, and until it was, naming it
+	 * would fail as an unknown FILTER rather than an unknown binding.
 	 */
-	private static function _pipelineTemplate(string $pipeline) : string {
-		$expression = preg_match('/^\s*(output|lines|file|data|results|files)\b/', $pipeline)
+	private static function _pipelineTemplate(string $pipeline, ?string $data_alias = null) : string {
+		$names = ['output', 'lines', 'file', 'data', 'results', 'files'];
+
+		// Only a bare identifier can be a binding; anything else can't be one and must not reach the pattern.
+		if($data_alias && preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $data_alias))
+			$names[] = $data_alias;
+
+		$expression = preg_match(sprintf('/^\s*(%s)\b/', implode('|', array_unique($names))), $pipeline)
 			? $pipeline
 			: sprintf('output|%s', $pipeline);
 
@@ -1895,7 +1966,7 @@ class Filesystem {
 	 * the option, never a guess about what follows it. Guessing is how `find --long /tmp` ends up listing the
 	 * working directory, having read the path as the flag's value. `--flag=value` always works regardless.
 	 */
-	private const VALUE_FLAGS = ['path', 'ext', 'top', 'limit', 'offset', 'fields', 'name', 'type', 'depth'];
+	private const VALUE_FLAGS = ['path', 'ext', 'top', 'limit', 'offset', 'fields', 'name', 'type', 'depth', 'format', 'filter'];
 
 	/**
 	 * Tokenize + split a command line into verb/args/flags. Quoting is honored; nothing is expanded.
@@ -2024,22 +2095,7 @@ class Filesystem {
 	 * @param array|null $only restrict the list to these verbs (the agent tool has no cwd and no write access)
 	 */
 	public static function help(?string $verb = null, ?array $only = null) : string {
-		$help = [
-			'ls' => "ls [path] [-l] [--fields title,description]\n  List ONE directory, names only. At the root this lists the mounted filesystems, each tagged with its access\n  mode -- `[ro]` is read-only, `[rw]` accepts write/append/edit/rm. A glob in the last segment filters the\n  listing (`ls *.md`, `ls c*.md`, `ls /docs/*.md`); matching ACROSS directories is `find`'s job.\n  A path naming a FILE lists just that file -- `ls -l <file>` checks its size and modified time without\n  spending a `read` on the body.\n  -l (--long) adds that same mode tag to every row, plus the exact size in BYTES and the modified time\n  (`Mar 03 09:41` within the past year, `Mar 03  2024` beyond it). Directories show `-` for both: they're\n  virtual here, implied by the paths of the files under them.\n  --fields prints values from each file's own metadata (markdown frontmatter).",
-			'find' => "find [path] [pattern] [--name <glob>] [--type f|d] [--ext md] [--depth N] [-l] [--fields ...] [--limit N]\n  Find entries by NAME, recursively -- the counterpart to `search`, which matches CONTENT. A bare pattern\n  matches the basename at any depth (`find *.md`); a pattern with a `/` matches the relative path\n  (`find \"guides/*.md\"`). `*` stops at a `/`, `**` crosses them. --name is the same thing spelled as a flag.\n  --type d lists only directories (a recursive tree of them), --type f only files; the default is both.\n  --depth N counts levels BELOW the scope: 0 is this directory (so `find --depth 0` is `ls`), 1 adds one\n  level down; omit it for no limit. --ext md is shorthand for --name *.md.\n  Paths print relative to the scope, which is named once in the header. Listing never opens a file, so\n  metadata is free: --fields prints it, -l adds the `[ro]`/`[rw]` mode + byte sizes + modified times, and\n  piping gives you `files` records carrying the ABSOLUTE path plus name, filesystem, size, updated_at (epoch\n  seconds), ext, is_dir, mode, can_write, and meta.",
-			'cd' => "cd [path]\n  Change the working directory. Supports `..`, absolute `/paths`, and `@filesystem/path`.",
-			'search' => "search <query...> [--lines] [--path <path>] [--ext md] [--top K] [--limit N]\n  Search file contents. Prints one line per matching file -- hit count + path -- most hits first, so you can\n  pick what to read. --lines adds the numbered matching lines per file (pages of text; ask for it when you\n  need the context, not to choose a file).\n  Every word is part of the query (`search filled disc`); scope with --path (default: the working directory).\n  --top K keeps only the K most relevant files (default 25; --top 0 = all matches). --limit N caps printed lines.\n  Piping gives you `results` -- one record per file: path, name, filesystem, size, lines, hits, meta (the\n  file's own metadata, e.g. markdown frontmatter -- always a map, empty when it has none), matches, content.",
-			'read' => "read <path> [--offset N] [--limit N]\n  Print a file's contents. --offset/--limit page by line. This is the only command that returns a whole body.",
-			'write' => "write <path>\n  Replace a file's contents (read-write mounts only). Content is supplied out-of-band.",
-			'append' => "append <path>\n  Append to a file (read-write mounts only). Content is supplied out-of-band.",
-			'edit' => "edit <path>\n  Replace an EXACT snippet in a file (read-write mounts only). The find text must match exactly ONE place;\n  if it matches none or several you get an error -- add surrounding lines until it's unique. Find and replace\n  are supplied out-of-band. Use `write` for a full-file replacement, `append` to add to the end.",
-			'copy' => "copy <source> <destination> [-f]\n  Copy ONE file. The DESTINATION must be on a read-write mount; the source can be anywhere mounted, so\n  this is how you lift a file out of a read-only volume. A destination ending in `/`, or naming a directory\n  that already exists, keeps the source's filename.\n  Refuses an existing destination unless you pass -f. No patterns -- one file per command.\n  There is no `move`: copy, then `rm` the source.",
-			'rm' => "rm <path>\n  Delete a file (read-write mounts only).",
-			'pwd' => "pwd\n  Print the working directory.",
-			'help' => "help [command]\n  Show this list, or usage for one command.",
-			'|' => "<command> | <twig filter chain>\n  Pipe a command's output through Cerb scripting filters, in lieu of Unix pipes. Always available: `output`\n  (the text), `lines` (it pre-split), `file` ({path,size,lines}). Commands that return records add them as\n  `data`, plus a name of their own -- `results` (search), `files` (ls) -- e.g.\n    read /tmp/hits.txt | lines|filter(l => \"ERROR\" in l)\n    read notes.md | lines|length\n    search widgets | results|map(r => r.meta.title ?? r.path)\n    search widgets | results|filter(r => r.hits > 3)|column(\"path\")\n    ls /docs | files|filter(f => not f.is_dir)|column(\"name\")\n  A chain starting with a binding name uses it as the subject; otherwise the subject is `output`. Lines come\n  back as text, records as JSON. The pipeline runs on the FULL output, before any truncation. Quote a literal\n  `|` to protect it from the split.",
-			'/tmp' => "/tmp\n  A scratch area. Output too large to return is saved here whole and referenced by path, so you can page it\n  with `read --offset/--limit` or narrow it with a `|` pipeline. `ls -l /tmp` shows sizes + line counts; write\n  and rm work there too. It isn't indexed, so `search` doesn't reach it -- filter with a pipeline instead.",
-		];
+		$help = self::_helpEntries();
 
 		if($verb && array_key_exists($verb, $help))
 			return $help[$verb];
@@ -2053,5 +2109,48 @@ class Filesystem {
 			$out[] = '  ' . str_replace("\n  ", "\n      ", $text);
 
 		return implode("\n", $out);
+	}
+
+	/** Every documented verb, in help order. */
+	public static function helpVerbs() : array {
+		return array_keys(self::_helpEntries());
+	}
+
+	/**
+	 * Instance-aware help: hides verbs this instance can't actually run, so `help` never documents a command
+	 * whose only possible reply is an error. The agent tool does the same thing from the other side by passing
+	 * an explicit `$only` (llm.php's `$verbs`).
+	 */
+	private function _help(?string $verb = null) : string {
+		if($this->hasCli())
+			return self::help($verb);
+
+		if(self::KIND_CLI === $verb)
+			$verb = null;
+
+		return self::help($verb, array_values(array_diff(self::helpVerbs(), [self::KIND_CLI])));
+	}
+
+	private static function _helpEntries() : array {
+		return [
+			'ls' => "ls [path] [-l] [--fields title,description]\n  List ONE directory, names only. At the root this lists the mounted filesystems, each tagged with its access\n  mode -- `[ro]` is read-only, `[rw]` accepts write/append/edit/rm. A glob in the last segment filters the\n  listing (`ls *.md`, `ls c*.md`, `ls /docs/*.md`); matching ACROSS directories is `find`'s job.\n  A path naming a FILE lists just that file -- `ls -l <file>` checks its size and modified time without\n  spending a `read` on the body.\n  -l (--long) adds that same mode tag to every row, plus the exact size in BYTES and the modified time\n  (`Mar 03 09:41` within the past year, `Mar 03  2024` beyond it). Directories show `-` for both: they're\n  virtual here, implied by the paths of the files under them.\n  --fields prints values from each file's own metadata (markdown frontmatter).",
+			'find' => "find [path] [pattern] [--name <glob>] [--type f|d] [--ext md] [--depth N] [-l] [--fields ...] [--limit N]\n  Find entries by NAME, recursively -- the counterpart to `search`, which matches CONTENT. A bare pattern\n  matches the basename at any depth (`find *.md`); a pattern with a `/` matches the relative path\n  (`find \"guides/*.md\"`). `*` stops at a `/`, `**` crosses them. --name is the same thing spelled as a flag.\n  --type d lists only directories (a recursive tree of them), --type f only files; the default is both.\n  --depth N counts levels BELOW the scope: 0 is this directory (so `find --depth 0` is `ls`), 1 adds one\n  level down; omit it for no limit. --ext md is shorthand for --name *.md.\n  Paths print relative to the scope, which is named once in the header. Listing never opens a file, so\n  metadata is free: --fields prints it, -l adds the `[ro]`/`[rw]` mode + byte sizes + modified times, and\n  piping gives you `files` records carrying the ABSOLUTE path plus name, filesystem, size, updated_at (epoch\n  seconds), ext, is_dir, mode, can_write, and meta.",
+			'cd' => "cd [path]\n  Change the working directory. Supports `..`, absolute `/paths`, and `@filesystem/path`.",
+			'search' => "search <query...> [--lines] [--path <path>] [--ext md] [--top K] [--limit N]\n  Search file contents. Prints one line per matching file -- hit count + path -- most hits first, so you can\n  pick what to read. --lines adds the numbered matching lines per file (pages of text; ask for it when you\n  need the context, not to choose a file).\n  Every word is part of the query (`search filled disc`); scope with --path (default: the working directory).\n  --top K keeps only the K most relevant files (default 25; --top 0 = all matches). --limit N caps printed lines.\n  Piping gives you `results` -- one record per file: path, name, filesystem, size, lines, hits, meta (the\n  file's own metadata, e.g. markdown frontmatter -- always a map, empty when it has none), matches, content.",
+			'read' => "read <path> [--offset N] [--limit N]\n  Print a file's contents. --offset/--limit page by line. This is the only command that returns a whole body.",
+			'write' => "write <path>\n  Replace a file's contents (read-write mounts only). Content is supplied out-of-band.",
+			'append' => "append <path>\n  Append to a file (read-write mounts only). Content is supplied out-of-band.",
+			'edit' => "edit <path>\n  Replace an EXACT snippet in a file (read-write mounts only). The find text must match exactly ONE place;\n  if it matches none or several you get an error -- add surrounding lines until it's unique. Find and replace\n  are supplied out-of-band. Use `write` for a full-file replacement, `append` to add to the end.",
+			'copy' => "copy <source> <destination> [-f]\n  Copy ONE file. The DESTINATION must be on a read-write mount; the source can be anywhere mounted, so\n  this is how you lift a file out of a read-only volume. A destination ending in `/`, or naming a directory\n  that already exists, keeps the source's filename.\n  Refuses an existing destination unless you pass -f. No patterns -- one file per command.\n  There is no `move`: copy, then `rm` the source.",
+			'rm' => "rm <path>\n  Delete a file (read-write mounts only).",
+			'pwd' => "pwd\n  Print the working directory.",
+			'help' => "help [command]\n  Show this list, or usage for one command.",
+			// Deliberately says nothing about WHICH commands exist: this text is embedded in the cached prompt
+			// prefix, so naming sub-commands here would invalidate it for every agent each time one is added.
+			// `cerb help` answers that at runtime instead.
+			'cerb' => "cerb <command> [args] [--flags]\n  The Cerb command line: ask about THIS Cerb installation rather than guessing at it -- what record types\n  exist here, and which keys you can search or write them by. Run `cerb help` for the available commands,\n  and `cerb <command> help` for one command's usage. Output pipes like any other command.",
+			'|' => "<command> | <twig filter chain>\n  Pipe a command's output through Cerb scripting filters, in lieu of Unix pipes. Always available: `output`\n  (the text), `lines` (it pre-split), `file` ({path,size,lines}). Commands that return records add them as\n  `data`, plus a name of their own -- `results` (search), `files` (ls) -- e.g.\n    read /tmp/hits.txt | lines|filter(l => \"ERROR\" in l)\n    read notes.md | lines|length\n    search widgets | results|map(r => r.meta.title ?? r.path)\n    search widgets | results|filter(r => r.hits > 3)|column(\"path\")\n    ls /docs | files|filter(f => not f.is_dir)|column(\"name\")\n  A chain starting with a binding name uses it as the subject; otherwise the subject is `output`. Lines come\n  back as text, records as JSON. The pipeline runs on the FULL output, before any truncation. Quote a literal\n  `|` to protect it from the split.",
+			'/tmp' => "/tmp\n  A scratch area. Output too large to return is saved here whole and referenced by path, so you can page it\n  with `read --offset/--limit` or narrow it with a `|` pipeline. `ls -l /tmp` shows sizes + line counts; write\n  and rm work there too. It isn't indexed, so `search` doesn't reach it -- filter with a pipeline instead.",
+		];
 	}
 }

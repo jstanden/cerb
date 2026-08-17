@@ -1690,12 +1690,18 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 						'caption' => 'mounts:',
 						'snippet' => "mounts:",
 						'score' => 1996,
-						'docHTML' => 'Mount agent filesystems and give the agent an <code>agent_fs</code> tool to browse them. Each key is a filesystem name. Leave the block <b>empty</b> to mount nothing but <code>/tmp</code> — a scratch pad plus the <code>|</code> scripting pipeline, so the agent can park and transform text without spending context on it.',
+						'docHTML' => 'Mount agent filesystems and give the agent an <code>agent_terminal</code> tool to browse them. Each key is a filesystem name. Leave the block <b>empty</b> to mount nothing but <code>/tmp</code> — a scratch pad plus the <code>|</code> scripting pipeline, so the agent can park and transform text without spending context on it.',
+					],
+					[
+						'caption' => 'terminal:',
+						'snippet' => "terminal:\n\tcerb:\n\t\t\${1:records}:\n",
+						'score' => 1995,
+						'docHTML' => 'Configure the <code>agent_terminal</code> tool itself (<code>mounts:</code> says what it can <i>reach</i>). Its <code>cerb:</code> block names the CLI command namespaces this agent gets — a namespace you don\'t name is unreachable.<br><br><code>cerb records</code> answers what record types exist in <b>this</b> install and which keys you can search or write them by, so an agent can ground a query instead of guessing at it.<br><br>Authoring this block alone (no <code>mounts:</code>) still gives the agent <code>/tmp</code> and the <code>|</code> scripting pipeline.',
 					],
 					[
 						'caption' => 'session_id:',
 						'snippet' => "session_id: \${1}",
-						'score' => 1995,
+						'score' => 1994,
 						'docHTML' => 'Join an <b>existing</b> agent session instead of the one this node would start on its own. Mint an id once (<code>set: session_id: {{uuid()}}</code>) and pass the same one to the <code>agentPrompt</code> element and <code>llmTranscript</code>, so all three work on one conversation.<br><br>Render the <code>agentPrompt</code> <b>before</b> the turn runs: submitting it primes the session with the chosen model and the worker\'s message, so the agent resumes a conversation that already exists.<br><br>Only the <b>first</b> turn reads this. Once a session is attached to the node it stays attached to it for the life of the interaction, and that cached session wins over anything passed later.',
 					],
 				],
@@ -1812,6 +1818,30 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'yes',
 					'no',
 				],
+				'(.*):llm.agent:inputs:terminal:' => [
+					[
+						'caption' => 'cerb:',
+						'snippet' => "cerb:\n\t\${1:records}:\n",
+						'score' => 2000,
+						'docHTML' => 'The <code>cerb</code> command line the agent gets inside its terminal. Each key is a command namespace; one you don\'t name is unreachable.',
+					],
+				],
+				// Each key IS a registered CLI namespace, and the set is tiny and static per release — baked in
+				// here for the same reason the filesystem list above is.
+				'(.*):llm.agent:inputs:terminal:cerb:' => array_values(
+					array_map(
+						function($summary, $name) {
+							return [
+								'caption' => $name . ':',
+								'snippet' => $name . ":\n",
+								'docHTML' => '<b>cerb ' . DevblocksPlatform::strEscapeHtml($name) . '</b><br>'
+									. DevblocksPlatform::strEscapeHtml($summary),
+							];
+						},
+						\Cerb\Agent\Cli::getNamespaces(),
+						array_keys(\Cerb\Agent\Cli::getNamespaces())
+					)
+				),
 				'(.*):llm.agent:inputs:tools:' => [
 					[
 						'caption' => 'automation:',

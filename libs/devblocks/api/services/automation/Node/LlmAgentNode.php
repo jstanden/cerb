@@ -127,6 +127,13 @@ class LlmAgentNode extends AbstractNode {
 				$validation->addField('mounts', 'mounts:')
 					->array();
 
+				// `terminal:` — configuration for the agent_terminal tool itself, as opposed to `mounts:`,
+				// which says what it can reach. Its `cerb:` block names the CLI namespaces this agent has.
+				// Nested rather than a top-level `cerb:` because a bare `cerb` key says nothing in a Cerb
+				// automation, and `commands:` already means the chat's /slash commands.
+				$validation->addField('terminal', 'terminal:')
+					->array();
+
 				// `commands:` — the built-in `/commands` this agent honors, opted in by bare key
 				// (`command/compact:`). OFF by default and per-node, so nothing is exposed that an author
 				// didn't ask for — notably `interaction.website` (anonymous visitors) simply never declares
@@ -761,11 +768,13 @@ class LlmAgentNode extends AbstractNode {
 	 */
 	private function _getMountSpecs(?string $session_id = null) : array {
 		$mounts_config = $this->_inputs['mounts'] ?? [];
+		$has_terminal = array_key_exists('terminal', $this->_inputs);
 
 		// Pure resume: the session stores the RESOLVED specs (an indexed list, not the authored map), so
 		// they're already in fromSpecs() shape — return them verbatim rather than re-normalizing. They carry the
-		// resolved `mode`, so a rw mount stays rw across the async await/resume.
-		if(!is_array($mounts_config) || !$mounts_config) {
+		// resolved `mode`, so a rw mount stays rw across the async await/resume. The reserved `cerb` entry
+		// rides along in that same stored list, so the CLI survives a resume with no extra plumbing.
+		if((!is_array($mounts_config) || !$mounts_config) && !$has_terminal) {
 			if($session_id && ($session = \DAO_LlmAgentSession::get($session_id)))
 				return $session->mounts ?? [];
 
@@ -773,6 +782,9 @@ class LlmAgentNode extends AbstractNode {
 		}
 
 		$specs = [];
+
+		if(!is_array($mounts_config))
+			$mounts_config = [];
 
 		foreach($mounts_config as $key => $mount) {
 			$key = DevblocksPlatform::services()->string()->strBefore(strval($key), '@');
@@ -805,7 +817,38 @@ class LlmAgentNode extends AbstractNode {
 			];
 		}
 
+		if($has_terminal && ($cli_spec = self::_getCliSpec(($this->_inputs['terminal'] ?? [])['cerb'] ?? null)))
+			$specs[] = $cli_spec;
+
 		return $specs;
+	}
+
+	/**
+	 * The authored `terminal: cerb:` block as a reserved spec entry, or null when it enables nothing.
+	 *
+	 * Each key is a CLI namespace (`records:`), its value that namespace's options. A namespace absent from
+	 * the block is not reachable -- this is the whole boundary in v1, so it's an allowlist, never a filter.
+	 * `<name>@bool: no` turns one off without deleting its config.
+	 */
+	private static function _getCliSpec($config) : ?array {
+		$namespaces = [];
+
+		if(is_array($config))
+		foreach($config as $key => $value) {
+			$key = DevblocksPlatform::services()->string()->strBefore(strval($key), '@');
+
+			if('' === $key)
+				continue;
+
+			if(is_bool($value) && !$value)
+				continue;
+
+			$namespaces[$key] = is_array($value) ? $value : [];
+		}
+
+		// An empty `cerb:` still enables the filesystem (see _isFilesystemEnabled) but adds no CLI, so don't
+		// persist a spec that would advertise a verb with nothing behind it.
+		return $namespaces ? ['kind' => \Cerb\Agent\Filesystem::KIND_CLI, 'cerb' => $namespaces] : null;
 	}
 
 	/**

@@ -35,6 +35,10 @@ class PageSection_SetupDevelopersAgentFilesystemTerminal extends Extension_PageS
 
 		$tpl->assign('context_agent_filesystem', Context_AgentFilesystem::ID);
 
+		// The `cerb` CLI's namespaces are a capability rather than a mount, so the page offers them separately
+		// and the client names the ones it wants -- same shape an `llm.agent` author writes in `cerb:`.
+		$tpl->assign('cerb_namespaces', Cerb\Agent\Cli::getNamespaces());
+
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/developers/agent_filesystem_terminal/index.tpl');
 	}
 
@@ -68,6 +72,7 @@ class PageSection_SetupDevelopersAgentFilesystemTerminal extends Extension_PageS
 		$payload = DevblocksPlatform::importGPC($_POST['payload'] ?? null, 'string', '');
 		$find = DevblocksPlatform::importGPC($_POST['find'] ?? null, 'string', '');
 		$tmp_json = DevblocksPlatform::importGPC($_POST['tmp'] ?? null, 'string', '{}');
+		$cerb_json = DevblocksPlatform::importGPC($_POST['cerb'] ?? null, 'string', '[]');
 
 		// The client owns the scratch store the same way it owns mounts + cwd -- the server stays stateless
 		// between commands. (An automation host keeps this on its dict instead, where it rides the continuation.)
@@ -93,8 +98,22 @@ class PageSection_SetupDevelopersAgentFilesystemTerminal extends Extension_PageS
 			}
 		}
 
+		// Which `cerb` CLI namespaces this session has. The client sends names; anything it doesn't name is
+		// unreachable, and naming nothing removes the `cerb` verb entirely rather than leaving an empty one.
+		$cerb = [];
+		$cerb_names = json_decode($cerb_json, true);
+
+		if(is_array($cerb_names)) {
+			$registered = Cerb\Agent\Cli::getNamespaces();
+
+			foreach($cerb_names as $name) {
+				if(is_string($name) && array_key_exists($name, $registered))
+					$cerb[$name] = [];
+			}
+		}
+
 		try {
-			$vfs = Cerb\Agent\Filesystem::fromSpecs($specs, ['tmp' => $tmp]);
+			$vfs = Cerb\Agent\Filesystem::fromSpecs($specs, ['tmp' => $tmp, 'cerb' => $cerb]);
 
 			// The Payload box is the out-of-band channel for THREE jobs, whichever the verb implies: file content
 			// for `write`/`append`, the REPLACEMENT text for `edit` (its search needle rides the Find box), and a

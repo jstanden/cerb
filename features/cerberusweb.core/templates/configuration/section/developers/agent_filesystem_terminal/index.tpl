@@ -58,6 +58,26 @@
 	<div id="afsMountsEmpty_{$form_id}" class="cerb-u-text-muted">Nothing mounted yet &mdash; add a filesystem to begin.</div>
 </div>
 
+{if !empty($cerb_namespaces)}
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-header--title-sm">Commands <small class="cerb-u-text-muted cerb-u-fw-400">(the <code>cerb</code> command line &mdash; a capability rather than a mount, so it needs nothing mounted. With none enabled the <code>cerb</code> verb disappears, exactly as it does for an agent whose <code>cerb:</code> block doesn't name it.)</small></div>
+	</div>
+
+	<div id="afsCerbNamespaces_{$form_id}" class="cerb-u-flex cerb-u-flex-wrap cerb-u-gap-3">
+		{foreach from=$cerb_namespaces key=cerb_name item=cerb_summary}
+		<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-2">
+			<label class="cerb-ui-toggle">
+				<input type="checkbox" class="afs-cerb-ns" id="afsCerb_{$form_id}_{$cerb_name}" data-namespace="{$cerb_name}" checked="checked">
+				<span class="cerb-ui-toggle--slider"></span>
+			</label>
+			<label for="afsCerb_{$form_id}_{$cerb_name}"><code>cerb {$cerb_name}</code> <span class="cerb-u-text-muted">{$cerb_summary}</span></label>
+		</div>
+		{/foreach}
+	</div>
+</div>
+{/if}
+
 <div class="cerb-ui-panel cerb-ui-panel--spaced">
 	<div class="cerb-ui-toolbar-strip cerb-u-mb-2">
 		<button type="button" class="cerb-ui-toolbar-button" id="afsClear_{$form_id}"><span class="cerb-icons cerb-icon-erase"></span> Clear</button>
@@ -98,6 +118,15 @@ $(function() {
 	const mountsEmptyEl = document.getElementById('afsMountsEmpty_' + uid);
 
 	const state = { mounts: [], cwd: '/', tmp: {} };
+
+	// The `cerb` CLI namespaces this session has, read from the toggles. Live rather than cached: unchecking
+	// one has to take the verb away on the very next command, the same way the server would for an agent.
+	function cerbNamespaces() {
+		return Array.prototype.slice
+			.call(document.querySelectorAll('#afsCerbNamespaces_' + uid + ' .afs-cerb-ns'))
+			.filter(el => el.checked)
+			.map(el => el.dataset.namespace);
+	}
 	// A history entry is the whole command line: the command plus its out-of-band boxes, since the server
 	// interprets payload/find by verb. Recalling one restores all three so a full command repeats verbatim.
 	const history = [];
@@ -176,6 +205,7 @@ $(function() {
 		formData.set('mounts', JSON.stringify(state.mounts.map(function(m) {
 			return { filesystem_id: m.id, mode: m.mode };
 		})));
+		formData.set('cerb', JSON.stringify(cerbNamespaces()));
 		formData.set('cwd', state.cwd);
 		formData.set('command', entry.command);
 		formData.set('payload', entry.payload);
@@ -221,6 +251,11 @@ $(function() {
 	// Kept here rather than fetched: the verbs are a fixed vocabulary (Cerb\Agent\Filesystem::exec), and
 	// parsing them back out of `help` would be worse than restating twelve words.
 	const COMMANDS = ['append', 'cat', 'cd', 'copy', 'cp', 'dir', 'edit', 'find', 'grep', 'help', 'ls', 'pwd', 'read', 'rm', 'search', 'write'];
+
+	// `cerb` completes only while it exists, so the terminal never offers a verb the server would reject.
+	function commands() {
+		return cerbNamespaces().length ? COMMANDS.concat(['cerb']).sort() : COMMANDS;
+	}
 	const COMPLETE_MAX_LIST = 100;
 	{literal}
 	// The listing script. It's a whole Twig template, so it carries its own moustaches — which is why this
@@ -292,7 +327,7 @@ $(function() {
 		const token = head.slice(start);
 
 		if('' === head.slice(0, start).trim()) {
-			applyCompletion(COMMANDS.filter(c => c.startsWith(token)), token, start, caret);
+			applyCompletion(commands().filter(c => c.startsWith(token)), token, start, caret);
 			return;
 		}
 
@@ -426,6 +461,9 @@ $(function() {
 		outputEl.replaceChildren();
 		commandEl.focus();
 	});
+
+	if(window.CerbUI && CerbUI.Toggle)
+		document.querySelectorAll('#afsCerbNamespaces_' + uid + ' .cerb-ui-toggle').forEach(function(el) { new CerbUI.Toggle(el); });
 
 	if(window.CerbUI && CerbUI.RecordChooser) {
 		const chooser = new CerbUI.RecordChooser(document.getElementById('afsAddMount_' + uid), {

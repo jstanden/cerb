@@ -5497,6 +5497,20 @@ class _CerbApplication_KataSchemas {
                                         multiple@bool: yes
                                         types:
                                           object:
+                              terminal:
+                                types:
+                                  object:
+                                    attributes:
+                                      cerb:
+                                        types:
+                                          object:
+                                            attributePatterns:
+                                              pattern/namespace:
+                                                match: *
+                                                attributes:
+                                                  types:
+                                                    bool:
+                                                    object:
                               mounts:
                                 types:
                                   object:
