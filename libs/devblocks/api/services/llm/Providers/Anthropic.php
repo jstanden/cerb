@@ -520,7 +520,7 @@ class Anthropic extends Extension_DevblocksLlmProvider implements Chat, ChatStre
 	// Two ephemeral breakpoints (of the 4 allowed), ordered longest-TTL-first per the render order
 	// tools -> system -> messages:
 	//   1. PREFIX — the last `system` block, ALWAYS 1h. Caches tools+system together (they render before it),
-	//      written once with byte-stable content, so 1h keeps the expensive prefix (tool schemas, agent_fs
+	//      written once with byte-stable content, so 1h keeps the expensive prefix (tool schemas, agent_terminal
 	//      overview, skill summaries) warm across a coding-agent's think/test pauses. This anchor also survives
 	//      the 20-block lookback that a rolling tail alone can lose on a >20-block turn. 1h is GA (no beta header),
 	//      so it's unconditional here.

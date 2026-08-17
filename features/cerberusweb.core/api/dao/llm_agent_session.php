@@ -527,17 +527,17 @@ class Model_LlmAgentSession {
 			];
 		}
 
-		// The agent filesystem tool isn't authored in `tools:` — the node synthesizes it from `mounts:` — so
+		// The agent terminal tool isn't authored in `tools:` — the node synthesizes it from `mounts:` — so
 		// give the transcript its display metadata here rather than falling back to the generic `hammer`.
 		// Not `if($this->mounts)`: an enabled-but-volumeless filesystem is `[]`, and it still has the tool.
 		if(!is_null($this->mounts)) {
-			$map[\Cerb\AutomationBuilder\Node\LlmAgentNode::TOOL_FS] = [
-				'type' => 'agent_fs',
+			$map[\Cerb\AutomationBuilder\Node\LlmAgentNode::TOOL_TERMINAL] = [
+				'type' => 'agent_terminal',
 				'uri' => '',
-				'description' => 'Browse the mounted agent filesystems',
 				'icon' => 'folder',
+				'description' => 'Run a command in the agent terminal',
 				'labels' => [
-					'summary' => 'Filesystem: {{command}}',
+					'summary' => 'Terminal: {{command}}',
 					'active' => 'Running `{{command}}`',
 				],
 			];

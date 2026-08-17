@@ -87,7 +87,7 @@
 
 {* The session's mounted volumes. Gated on `!== null`, NOT on the list being non-empty: an enabled filesystem
    with no volumes is `[]` and still has /tmp plus the scripting pipeline, which is a real configuration and
-   the same rule getToolMap() uses to decide the `agent_fs` tool exists. *}
+   the same rule getToolMap() uses to decide the `agent_terminal` tool exists. *}
 {if $mount_map !== null}
 <div class="cerb-ui-panel cerb-ui-panel--spaced">
     <div class="cerb-ui-header cerb-ui-header--tight">

@@ -7,7 +7,7 @@ namespace Cerb\Agent;
  * A PURE evaluator over `agent_file` rows: given a resolved mount set, a working directory, and one command
  * line, it returns compact text output plus the (possibly changed) cwd. It is NOT a shell -- it implements a
  * small, fixed command vocabulary (ls / cd / search / read / write / rm / help). The host owns cwd between
- * calls, so the same core backs both the human terminal and the agent's `agent_fs` tool.
+ * calls, so the same core backs both the human terminal and the agent's `agent_terminal` tool.
  *
  * Mounting is COMPOSITION: each mount maps a source filesystem onto a mountpoint at a mode (ro|rw), so a path
  * like /memory/team can be a curated ro volume while /memory/me is a per-worker rw one.
@@ -2017,8 +2017,8 @@ class Filesystem {
 	}
 
 	/**
-	 * The command vocabulary. Public because the `agent_fs` tool description reuses it verbatim -- one source
-	 * of truth, so the terminal's `help` and what an agent is told can't drift.
+	 * The command vocabulary. Public because the `agent_terminal` tool description reuses it verbatim -- one
+	 * source of truth, so the terminal's `help` and what an agent is told can't drift.
 	 *
 	 * @param string|null $verb usage for one command instead of the whole list
 	 * @param array|null $only restrict the list to these verbs (the agent tool has no cwd and no write access)

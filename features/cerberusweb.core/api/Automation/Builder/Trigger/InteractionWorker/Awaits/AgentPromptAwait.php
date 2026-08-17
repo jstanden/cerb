@@ -174,7 +174,7 @@ class AgentPromptAwait extends AbstractAwait {
 	 * A filesystem reference stays TEXT — `{path: 'cerb-dev/guides/setup.md'}` — and is never resolved to a
 	 * record id. It doesn't need to be: the reference can name a whole volume or a directory (which is virtual,
 	 * derived from path prefixes, and has no record at all), and the agent dereferences a path itself through
-	 * its `agent_fs` tool. Resolving would also mean validating, and this element deliberately isn't responsible
+	 * its `agent_terminal` tool. Resolving would also mean validating, and this element deliberately isn't responsible
 	 * for a reference being correct — a stale path just rides through as text the agent says it can't find.
 	 *
 	 * Worker handles and explicit `@type:id` record pairs keep their existing shapes.

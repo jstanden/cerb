@@ -12,9 +12,10 @@ use Model_Automation;
 class LlmAgentNode extends AbstractNode {
 	const ID = 'llm.agent';
 
-	// The synthesized agent-filesystem tool. ONE tool regardless of how many volumes are mounted, under a
-	// fixed name, so the tool schema (and therefore the cached prompt prefix) is constant.
-	const TOOL_FS = 'agent_fs';
+	// The synthesized agent terminal tool. ONE tool regardless of how many volumes are mounted, under a
+	// fixed name, so the tool schema (and therefore the cached prompt prefix) is constant. Named for the
+	// terminal rather than the filesystem because it also hosts the `cerb` CLI.
+	const TOOL_TERMINAL = 'agent_terminal';
 
 	private array $_inputs = [];
 	private string $_output = '';
@@ -351,12 +352,12 @@ class LlmAgentNode extends AbstractNode {
 						
 						$llm_provider->returnTool($tool_spec, $tool_response['content'] ?? '', $memory_store);
 						
-					} elseif(in_array($tool_dict['type'] ?? '', ['tool', 'agent_fs'])) {
+					} elseif(in_array($tool_dict['type'] ?? '', ['tool', 'agent_terminal'])) {
 						// A custom tool's result: prefer a value set dynamically by `tool.return:` in the on_tool
 						// branch (stored on `__tool.content` by ToolReturnAction); else the tool's static `content:`
 						// from its definition. Without this the dynamic `tool.return` value is silently discarded and
 						// the model only ever sees the static content (empty for a browser-round-trip tool).
-						// `agent_fs` rides the same slot: _activateTool() ran the command and stashed its output
+						// `agent_terminal` rides the same slot: _activateTool() ran the command and stashed its output
 						// there before the branch, so an author who doesn't call `tool.return:` still returns it.
 						$content = array_key_exists('content', $tool_dict)
 							? $tool_dict['content']
@@ -640,11 +641,11 @@ class LlmAgentNode extends AbstractNode {
 			$tools[$tool_name] = $tool;
 		}
 
-		// Mounting a filesystem provisions the one shared `agent_fs` tool over the composed VFS. An author tool
-		// already using that name wins (we never silently replace it).
-		if($this->_isFilesystemEnabled($session_id) && !array_key_exists(self::TOOL_FS, $tools)) {
-			$tools[self::TOOL_FS] = [
-				'type' => 'agent_fs',
+		// Mounting a filesystem provisions the one shared `agent_terminal` tool over the composed VFS. An author
+		// tool already using that name wins (we never silently replace it).
+		if($this->_isFilesystemEnabled($session_id) && !array_key_exists(self::TOOL_TERMINAL, $tools)) {
+			$tools[self::TOOL_TERMINAL] = [
+				'type' => 'agent_terminal',
 				'mounts' => $this->_getMountSpecs($session_id),
 			];
 		}
@@ -730,7 +731,8 @@ class LlmAgentNode extends AbstractNode {
 	 * On resume the session answers, where `null` (never enabled) and `[]` (enabled, /tmp only) differ.
 	 */
 	private function _isFilesystemEnabled(?string $session_id = null) : bool {
-		if(array_key_exists('mounts', $this->_inputs))
+		// `terminal:` alone is a real configuration too: the CLI plus /tmp and the `|` pipeline, no volumes.
+		if(array_key_exists('mounts', $this->_inputs) || array_key_exists('terminal', $this->_inputs))
 			return true;
 
 		if($session_id && ($session = \DAO_LlmAgentSession::get($session_id)))
@@ -890,9 +892,9 @@ class LlmAgentNode extends AbstractNode {
 		}
 	}
 
-	// The continuation-scoped /tmp scratch store for this node's agent_fs tool. Keyed like the session slot
-	// (`::` delimiter keeps a dotted node id whole) so two llm.agent nodes don't share a scratch area. It rides
-	// the automation dict, so it survives awaits + the tool loop within a run; a fresh run starts empty.
+	// The continuation-scoped /tmp scratch store for this node's agent_terminal tool. Keyed like the session
+	// slot (`::` delimiter keeps a dotted node id whole) so two llm.agent nodes don't share a scratch area. It
+	// rides the automation dict, so it survives awaits + the tool loop within a run; a fresh run starts empty.
 	private function _getTmpKey() : string {
 		return sprintf('__agent_fs_tmp::%s', $this->node->getId());
 	}
@@ -968,7 +970,8 @@ class LlmAgentNode extends AbstractNode {
 		// _getMountSpecs() would just write back what it read.
 		// An EMPTY authored block persists `[]`, which is how a /tmp-only filesystem survives a resume — the
 		// column being NULL is what means "never enabled".
-		if(array_key_exists('mounts', $this->_inputs))
+		// `terminal:` rides the same stored list as a reserved entry, so authoring EITHER block is a reason to write.
+		if(array_key_exists('mounts', $this->_inputs) || array_key_exists('terminal', $this->_inputs))
 			\DAO_LlmAgentSession::setMounts($session_id, $this->_getMountSpecs());
 	}
 
@@ -1647,7 +1650,7 @@ class LlmAgentNode extends AbstractNode {
 					return true;
 				}
 
-			} elseif('agent_fs' == $tool_type) {
+			} elseif('agent_terminal' == $tool_type) {
 				// The filesystem command itself runs server-side, right here — there's no browser round trip to
 				// produce a result, so a transcript replay never re-runs it. There's no working directory (see
 				// the tool description): every command evaluates from the root, so `search` spans all mounts and

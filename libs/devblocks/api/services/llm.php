@@ -2895,7 +2895,7 @@ class _DevblocksLlmService {
 
 	/**
 	 * The provider tool schemas for a session, built from its stored `tools` (the authored map) + `mounts`
-	 * (resolved agent-filesystem specs → the synthesized `agent_fs` tool). Session-only: `llm.agent` persists
+	 * (resolved agent-filesystem specs → the synthesized `agent_terminal` tool). Session-only: `llm.agent` persists
 	 * both onto the session before a turn, so this matches what the node used to build inline from `inputs`.
 	 */
 	function getSessionToolSchemas(Model_LlmAgentSession $session) : array {
@@ -2905,7 +2905,7 @@ class _DevblocksLlmService {
 			$schema = match($tool['type'] ?? null) {
 				'automation' => $this->getToolSchemaForAutomation($tool_name, $tool),
 				'tool' => $this->_toolSchemaCustom($tool_name, $tool),
-				'agent_fs' => $this->_toolSchemaAgentFs($tool_name, $tool),
+				'agent_terminal' => $this->_toolSchemaAgentTerminal($tool_name, $tool),
 				default => null,
 			};
 
@@ -2917,7 +2917,7 @@ class _DevblocksLlmService {
 	}
 
 	// Normalize the session's stored `tools` (`<type>/<name>` keys, skip disabled) into a name→descriptor map,
-	// then synthesize the shared `agent_fs` tool from the stored mounts (an author tool of that name wins).
+	// then synthesize the shared `agent_terminal` tool from the stored mounts (an author tool of that name wins).
 	private function _sessionToolMap(Model_LlmAgentSession $session) : array {
 		$tools = [];
 
@@ -2937,12 +2937,12 @@ class _DevblocksLlmService {
 			$tools[$tool_name] = $tool;
 		}
 
-		$fs_name = \Cerb\AutomationBuilder\Node\LlmAgentNode::TOOL_FS;
+		$terminal_name = \Cerb\AutomationBuilder\Node\LlmAgentNode::TOOL_TERMINAL;
 
 		// `[]` is enabled-with-no-volumes (a /tmp-only filesystem); only NULL means the session never had one.
-		if(!is_null($session->mounts) && !array_key_exists($fs_name, $tools)) {
-			$tools[$fs_name] = [
-				'type' => 'agent_fs',
+		if(!is_null($session->mounts) && !array_key_exists($terminal_name, $tools)) {
+			$tools[$terminal_name] = [
+				'type' => 'agent_terminal',
 				'mounts' => $session->mounts,
 			];
 		}
@@ -3000,13 +3000,13 @@ class _DevblocksLlmService {
 	}
 
 	/**
-	 * The synthesized agent-filesystem tool: a `command` line + an optional out-of-band `script`. The
+	 * The synthesized agent terminal tool: a `command` line + an optional out-of-band `script`. The
 	 * description carries the command vocabulary + the mount overview (a shallow `ls` per volume), so it is
 	 * BUILT ONCE PER TURN and must be byte-identical across turns for a fixed mount set (or the cached prompt
 	 * prefix breaks). Lists only the mounted VOLUMES — never `/tmp`, whose contents change. Ported verbatim
 	 * from LlmAgentNode.
 	 */
-	private function _toolSchemaAgentFs(string $tool_name, array $tool) : ?array {
+	private function _toolSchemaAgentTerminal(string $tool_name, array $tool) : ?array {
 		$mounts = $tool['mounts'] ?? [];
 
 		if(!is_array($mounts))
