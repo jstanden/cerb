@@ -757,7 +757,7 @@ CerbUI.DatePicker = class {
  * CerbUI.DatePicker.FormInput — the full free-text date field (replaces the legacy jQuery `cerbDateInputHelper`).
  * Composes a CerbUI.DatePicker (calendar button) + a CerbUI.TextChooser token autocomplete (calendar/timezone
  * tokens) + a server-side natural-language parse: on blur/Enter the typed value (e.g. "+2 hours @Cal",
- * "next monday 5pm America/New York") is POSTed to calendars/parseDateJson and replaced with the resolved date.
+ * "next monday 5pm America/New_York") is POSTed to calendars/parseDateJson and replaced with the resolved date.
  * Fires a `cerb-date-changed` CustomEvent on the input after a successful parse (the one public event).
  *
  *   new CerbUI.DatePicker.FormInput(inputEl, { submit: fn });  // submit: optional, run on Ctrl+Shift+Enter
@@ -777,7 +777,9 @@ CerbUI.DatePicker.FormInput = class {
 		this._changed = false;            // value edited since the last parse — drives parse-on-blur/enter
 		this._suppressEnterParse = false; // a suggestion was just accepted via Enter — don't ALSO parse that Enter
 
-		this.inputEl.setAttribute('placeholder', '+2 hours; +4 hours @Calendar; Jan 15 2018 2pm; 5pm America/New York');
+		// The IANA name needs its underscore -- `America/New York` is REJECTED by the parser, and a failed parse
+		// blanks the field, so a user copying the hint would watch their input vanish.
+		this.inputEl.setAttribute('placeholder', '+2 hours; +4 hours @Calendar; Jan 15 2018 2pm; 5pm America/New_York');
 
 		// Calendar popup (button trigger). Picking a day marks the field changed so the next blur re-parses it
 		// (round-tripping the formatted date through the server parser + firing cerb-date-changed).

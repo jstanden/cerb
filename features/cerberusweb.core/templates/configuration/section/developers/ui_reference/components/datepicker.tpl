@@ -86,7 +86,7 @@ new CerbUI.DatePicker(buttonEl, {
 
 		{* Example: FormInput — the free-text natural-language date field (replaces legacy cerbDateInputHelper) *}
 		<div class="cerb-ui-header">
-			<div class="cerb-ui-header--label">FormInput &mdash; free-text date field: type <code>+2 hours</code>, <code>next monday 5pm America/New York</code>, or an <code>@Calendar</code> token (autocompleted); blur or <code>Enter</code> resolves it server-side. Fires <code>cerb-date-changed</code></div>
+			<div class="cerb-ui-header--label">FormInput -- free-text date field: type <code>+2 hours</code>, <code>next monday 5pm America/New_York</code>, or an <code>@Calendar</code> token (autocompleted); blur or <code>Enter</code> resolves it server-side. Fires <code>cerb-date-changed</code></div>
 		</div>
 		<div class="cerb-uiref-example">
 			<div class="cerb-uiref-demo">
