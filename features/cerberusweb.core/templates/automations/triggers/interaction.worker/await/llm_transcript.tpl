@@ -102,6 +102,15 @@ $(function() {
                 if(!inst)
                     return;
 
+                // No continuation, nothing to echo against. The simulator's form-state preview renders a
+                // WORKING composer (`is_automation_form_fill` deliberately opts out of the inert render) over
+                // an ephemeral continuation whose token is '', so this handler fires there too -- and
+                // `invokePrompt` answers an unknown token with a 404.
+                const token = container.getAttribute('data-cerb-transcript-echo-token') || '';
+
+                if(!token)
+                    return;
+
                 const fd = new FormData();
                 fd.set('c', 'profiles');
                 fd.set('a', 'invoke');
@@ -109,7 +118,7 @@ $(function() {
                 fd.set('action', 'invokePrompt');
                 fd.set('prompt_key', container.getAttribute('data-cerb-transcript-echo-key') || '');
                 fd.set('prompt_action', 'echoTurn');
-                fd.set('continuation_token', container.getAttribute('data-cerb-transcript-echo-token') || '');
+                fd.set('continuation_token', token);
                 fd.set('text', data.text || '');
                 (data.images || []).forEach(function(uri) { if(uri) fd.append('images[]', uri); });
 

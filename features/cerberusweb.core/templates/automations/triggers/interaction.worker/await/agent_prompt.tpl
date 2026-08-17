@@ -102,7 +102,17 @@ $(function() {
 		}
 
 		// Fire a server-side prompt action against this await (fork on model change, rewind, /command).
+		//
+		// Every action addresses a LIVE continuation by token. The simulator's form-state preview renders a
+		// working composer (`is_automation_form_fill` opts out of the inert render on purpose) over an
+		// ephemeral continuation whose token is '', so bail rather than 404. `fail` keeps a caller's promise
+		// from hanging -- `@` completion resolves to an empty menu, which is the right answer here anyway.
 		function invokePrompt(action, extra, cb, options) {
+			if(!cfg.continuation_token) {
+				if(options && options.fail) options.fail();
+				return;
+			}
+
 			var fd = new FormData();
 			fd.set('c', 'profiles');
 			fd.set('a', 'invoke');
@@ -146,6 +156,10 @@ $(function() {
 		// consumes it at its next tree-safe boundary (after a complete tool tuple, before the next turn) and yields
 		// control back here, which re-renders a fresh composer.
 		function interruptAgent() {
+			// Same reason as invokePrompt above: no live continuation, nothing to interrupt.
+			if(!cfg.continuation_token)
+				return;
+
 			var fd = new FormData();
 			fd.set('c', 'profiles');
 			fd.set('a', 'invoke');

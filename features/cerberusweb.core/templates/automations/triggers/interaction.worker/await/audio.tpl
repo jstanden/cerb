@@ -6,6 +6,11 @@
 	</div>
 </div>
 
+{* No live continuation to fetch the clip from: a preview render (builder palette, simulator form-fill) gets an
+   ephemeral continuation whose token is '', and `invokePrompt` 404s on an unknown token. Unlike the other
+   components this one fires on RENDER rather than on a click, so unguarded it 404s every time a preview paints.
+   The `<audio>` element above still renders, srcless, as the placeholder. *}
+{if $continuation_token}
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $prompt = $('#{$element_id}');
@@ -39,3 +44,4 @@ $(function() {
 	xhr.send(formData);
 });
 </script>
+{/if}

@@ -53,7 +53,22 @@ $(function() {
 		$item.css('color', 'red');
 	}
 
+	// Only the UPLOAD needs the continuation; the picker and the remove-chip handlers are pure client work and
+	// stay live in a preview, so this guard sits here rather than around the whole script.
+	const continuationToken = '{$continuation_token}';
+
 	let uploadFile = function(file) {
+		// A preview render (builder palette, simulator form-fill) has an ephemeral continuation whose token is
+		// '', so there's nothing to upload INTO. Say so instead of posting: `invokePrompt` 404s on an unknown
+		// token, and genericAjaxPost's default failure handler would drop a real error banner on the editor
+		// (and clear any unrelated alerts with it).
+		if(!continuationToken) {
+			let $preview_item = $('<li/>');
+			$preview_item.text(file.name + ' (uploads are disabled in this preview)');
+			$summary.append($preview_item);
+			return;
+		}
+
 		let $spinner = Devblocks.getSpinner().css('max-width', '16px').show();
 
 		let $item = $('<li/>');
@@ -68,7 +83,7 @@ $(function() {
 		formData.set('action', 'invokePrompt');
 		formData.set('prompt_key', 'fileUpload/{$var}');
 		formData.set('prompt_action', 'uploadFile');
-		formData.set('continuation_token', '{$continuation_token}');
+		formData.set('continuation_token', continuationToken);
 		formData.set('file', file);
 
 		genericAjaxPost(formData, null, null, function(json) {

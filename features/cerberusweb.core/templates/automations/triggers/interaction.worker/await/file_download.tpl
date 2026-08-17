@@ -10,6 +10,10 @@
 	</div>
 </div>
 
+{* A preview render (builder palette, simulator form-fill) has an ephemeral continuation whose token is '', and
+   `invokePrompt` 404s on an unknown token -- so don't bind the download at all there. The button still renders
+   exactly as it will live; it's just inert, matching how `sheet.tpl` treats its paging/refresh round-trips. *}
+{if $continuation_token}
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $prompt = $('#{$element_id}');
@@ -50,3 +54,4 @@ $(function() {
 	});
 });
 </script>
+{/if}
