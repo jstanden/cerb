@@ -1,12 +1,16 @@
 <?php
 /*
- * The toolbar hosted by an editor's agent pane (CerbUI.AgentPane) — Icon Builder, Data Query Tester, the mail
- * reply/compose editors, every worklist quick-search bar (`component: worklist`, fetched by
- * C4_AbstractView::getAgentToolbar()), and later sheet/map/chart/workflow composers. Its items launch interactions
- * INLINE into the agent pane; a `{{component}}` state variable (which editor the pane is mounted on) lets one
- * shared toolbar offer different interactions per host — gate an item with `hidden@bool: {{ component !=
- * 'icon' }}`. The host supplies `command`/`ui_capabilities` through the toolbar's cerbBotTrigger options, so a
- * launched interaction can read/write the live editor via `uiCommand` awaits.
+ * The toolbar hosted by an editor's agent pane (CerbUI.AgentPane) -- the automation editor, the Icon Builder,
+ * the Data Query and Scripting testers, the mail reply editor, and every worklist quick-search bar
+ * (`component: worklist`, fetched by C4_AbstractView::getAgentToolbar()); later sheet/map/chart/workflow
+ * composers. Its items launch interactions INLINE into the agent pane; a `{{component}}` state variable (which
+ * editor the pane is mounted on) lets one shared toolbar offer different interactions per host -- gate an item
+ * with `hidden@bool: {{ component != 'icon' }}`. The host supplies `command`/`ui_capabilities` through the
+ * toolbar's cerbBotTrigger options, so a launched interaction can read/write the live editor via `uiCommand`
+ * awaits.
+ *
+ * What each host will actually answer is catalogued server-side in `Cerb\Agent\Pane\Components` -- that's what
+ * the Automation Builder's "AI Agent Chat" template generates a bridge from.
  */
 class Toolbar_AgentPane extends Extension_Toolbar {
 	const ID = 'cerb.toolbar.agent.pane';
@@ -19,7 +23,7 @@ class Toolbar_AgentPane extends Extension_Toolbar {
 		return [
 			[
 				'key' => 'component',
-				'notes' => "The editor/component the agent pane is mounted on (e.g. `icon`, `data_query`, `mail_reply`, `mail_compose`, `worklist`). Gate items per host with `hidden@bool: {{ component != 'icon' }}`.",
+				'notes' => "The editor/component the agent pane is mounted on: `automation`, `bot_scripting`, `data_query`, `icon`, `mail_reply`, or `worklist`. Gate items per host with `hidden@bool: {{ component != 'icon' }}`.",
 			],
 			[
 				'key' => 'worklist_record_type',
