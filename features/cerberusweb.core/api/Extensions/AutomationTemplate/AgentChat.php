@@ -191,7 +191,23 @@ __SYSTEM_PROMPT__
 
 KATA;
 
+		// Every chat goes on the `agent.pane` toolbar, the command bar included -- its menu merges that toolbar's
+		// `commandbar` items with `global.menu`'s own. What differs is the GATE: an item with no `hidden@bool:`
+		// appears on every pane and in the command bar, which is rarely what a chat written for one editor
+		// wants, so the generated comment spells out the gate for the location that was picked.
+		$where_to_add = "# To offer this chat, add it to the `agent.pane` toolbar in Setup. That toolbar ships with no items,\n"
+			. "# so a freshly saved chat isn't reachable until you do.";
+
+		if($component_key)
+			$where_to_add .= sprintf(
+				"\n#\n# Without a gate it appears everywhere an agent pane does. To keep it to %s, give the toolbar item:\n"
+					. "#   hidden@bool: {{ component != '%s' }}",
+				$component['label'] ?? $component_key,
+				$component_key
+			);
+
 		$replacements = [
+			'__WHERE_TO_ADD__' => $where_to_add,
 			'__TITLE__' => $title,
 			"__MOUNTS__\n" => $this->_indent($mounts['mounts'], 14),
 			"__TOOLS__\n" => $tools_block,
@@ -235,16 +251,17 @@ KATA;
 
 	/**
 	 * The whole system prompt, generated: the location's own instructions, then the tool inventory that
-	 * location gives it, then what it can reach on disk.
+	 * location gives it.
 	 *
-	 * Generated rather than asked for because every part of it depends on answers the author gives LATER in
-	 * the same wizard -- the location supplies the opening, the location's command list supplies the
-	 * inventory, and the mount picker supplies the last paragraph. It is also the one section the author can
-	 * revise afterwards by typing into the automation editor, which is why it's the right thing to hand them
-	 * finished rather than blank.
+	 * Generated rather than asked for because both parts depend on an answer given LATER in the same wizard --
+	 * the location supplies the opening AND the inventory. It is also the one section the author can revise
+	 * afterwards by typing into the automation editor, which is why it's the right thing to hand them finished
+	 * rather than blank.
 	 *
 	 * The tool inventory is spelled out even though the provider already sends tool schemas: a model that
-	 * isn't told in prose that it can read the editor tends to ask the user to paste instead.
+	 * isn't told in prose that it can read the editor tends to ask the user to paste instead. That reasoning
+	 * is specific to the EDITOR tools, whose schemas are one line each -- it does not extend to the terminal,
+	 * whose schema is exhaustive (see the note at the end of this method).
 	 */
 	private function _systemPrompt(?array $component) : string {
 		$system_prompt = $component
@@ -336,8 +353,13 @@ KATA;
 	}
 
 	/**
-	 * The `tools:` block: the host component's UI commands as inline `tool/` definitions, plus any `llm.tool`
-	 * automations the author picked as `automation/` entries.
+	 * The `tools:` block: the `llm.tool` automations the author picked, as `automation/` entries.
+	 *
+	 * The host editor's own commands are NOT here. They're contributed by the trigger at runtime
+	 * (`AutomationTrigger_InteractionWorkerAgent::getLlmAgentTools()`, off `Cerb\Agent\Pane\Components`),
+	 * the same way `mounts:` provisions `agent_terminal`. Generating them was a tool definition and an await
+	 * element per command -- for the automation editor, sixteen blocks of boilerplate in every chat -- that
+	 * went stale the moment a host gained a command and that nobody could safely edit.
 	 */
 	private function _toolsBlock(array $tools_answer) : string {
 		if('' === ($block = $this->_automationToolsBlock($tools_answer)))
@@ -397,16 +419,15 @@ KATA;
 	}
 
 	/**
-	 * The `on_tool:` branch for a chat that drives a host editor.
+	 * The `on_tool:` branch: repaint the transcript between tool calls, then continue.
 	 *
-	 * ONE await form serves every UI command, rather than a branch per tool: each `uiCommand` is aliased
-	 * `prompt_<tool>` and disabled unless it's the active tool (a disabled one renders an inert hidden input),
-	 * so a single `tool.return: content@key: prompt_{{__tool.name}}` picks up whichever actually ran. Adding a
-	 * command costs one element, not one branch.
+	 * It runs BEFORE any tool that has to reach the browser, which is what makes it the place to put an
+	 * approval step -- render a confirmation here and answer with `tool.return:` to refuse, and the editor is
+	 * never touched. It also lets a turn BREATHE: an agent firing five commands would otherwise do it all in
+	 * one request and hit the time limit.
 	 *
-	 * The default `outcome/passthrough:` catches tools that need no browser round-trip -- agent_terminal, and any
-	 * `automation/` tool -- and just repaints the transcript. No `tool.return:` there: the tool's own result
-	 * stands, and returning would overwrite it with an empty string.
+	 * No `tool.return:` in the generated form. The tool's own result stands -- returning here would overwrite
+	 * it with an empty string.
 	 */
 	private function _onToolBlock() : string {
 		$block = "on_tool:\n"

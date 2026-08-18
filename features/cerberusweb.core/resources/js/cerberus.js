@@ -369,6 +369,15 @@ var ajax = new cAjaxCalls();
 									;
 
 									$popup.html(json.html);
+
+									// The same bridge as the inline branch above, and a POPUP interaction needs it
+									// just as much -- the command bar passes no `target`, so its agent chats come
+									// through here. Without it a `uiCommand` await returns an EMPTY result with no
+									// error anywhere, which reads as "the agent did nothing" rather than "nothing
+									// was wired".
+									if(options && 'function' == typeof options.command)
+										$popup.find('form.cerb-form-builder').each(function() { this._cerbInteractionCommand = options.command; });
+
 									Devblocks.decorateInteractionDialog($popup, { label: ($trigger.attr('data-interaction-label') || $trigger.text() || '').trim() });
 
 									setTimeout(function() {

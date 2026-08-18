@@ -31,6 +31,8 @@ namespace Cerb\Agent\Pane;
  *   worklist       features/cerberusweb.core/templates/search/quick_search.tpl
  *   mail_reply     features/cerberusweb.core/templates/display/rpc/reply.tpl
  *
+ * (`commandbar` has no row: it declares no commands, because its host has no command bridge yet.)
+ *
  * Adding a command to a host means adding it here too, BY HAND -- nothing checks. The two drift silently,
  * and the failure is quiet on both sides: a command listed here that the host doesn't implement returns '',
  * which reads as a model failure rather than a wiring bug, and a command the host gained but this file
@@ -455,6 +457,52 @@ class Components {
 							'value' => [
 								'description' => "The complete new value. For `format`, one of markdown or plaintext.",
 								'required' => true,
+							],
+						],
+					],
+				],
+			],
+
+			/*
+			 * The global command bar. The odd one out, deliberately: every component above is an EDITOR, and its
+			 * job is to read and write the document in front of the worker. This one has no document -- it is
+			 * app-wide and follows the worker from page to page -- so it has no `get_fields` and, for now, no
+			 * commands at all.
+			 *
+			 * Its commands ACT ON THE APP rather than on a document, so they are all one-way: it can put
+			 * something in front of the worker but cannot read anything back. That is why there is no
+			 * `get_fields` here and why every description says what the command does NOT return.
+			 *
+			 * Note the trigger is orthogonal: `interaction.worker` remains the right target for the command
+			 * bar's non-agentic shortcuts -- look up an IP, reload a website cache, renew a cert, make a DKIM
+			 * key -- and those keep working beside an `interaction.worker.agent` chat.
+			 */
+			'commandbar' => [
+				'label' => 'Command bar',
+				'icon' => 'console',
+				'description' => "The global command bar -- app-wide rather than tied to an editor. Opens things for the worker.",
+				'instructions' => "You are an assistant in Cerb's command bar. You are not attached to any editor: you help with whatever the worker is doing anywhere in Cerb -- answering questions, looking things up, and explaining how Cerb works.\n\nWhen the question is about where they are -- \"what is this page?\", \"what am I looking at\" -- call get_page rather than asking them to describe it, and use what it returns as search terms against any documentation you have. It tells you the page, never its contents, so anything ON the screen you still have to ask about.\n\nYou can also put things in front of them: open a search popup for any record type, with a query you have written. Prefer that over describing a query and asking them to paste it.\n\nWhen you don't know something about this particular installation -- whether a record type exists, what fields it has -- look it up rather than guessing at a name.",
+				'commands' => [
+					'getPage' => [
+						'tool' => 'get_page',
+						'description' => "Read where the worker is right now, as {page_uri, page_title, page_id, url, open_popups}. `page_uri` is the path Cerb ROUTED (e.g. `profiles/ticket/1234`), which is what they are actually looking at -- the browser `url` can say otherwise. Call this when they ask about \"this page\" or \"what am I looking at\", and use it as search terms against your documentation. It reports WHERE they are, never the contents.",
+						'icon' => 'compass',
+						'labels' => ['active' => 'Checking the page...', 'summary' => 'Checked the page'],
+						'parameters' => [],
+					],
+					'openSearch' => [
+						'tool' => 'open_search',
+						'description' => "Open a search popup in front of the worker, for one record type, optionally prefilled with a query. This SHOWS them results; it does not return any to you -- you will not see what matched, or how many. Say what you searched for and let them read it.",
+						'icon' => 'search',
+						'labels' => ['active' => 'Opening a search...', 'summary' => 'Opened a search'],
+						'parameters' => [
+							'record_type' => [
+								'description' => 'The record type to search, by alias (e.g. `ticket`, `worker`, `org`). An unknown alias opens nothing at all, so look the alias up rather than guessing it. Not every record type is searchable.',
+								'required' => true,
+							],
+							'record_query' => [
+								'description' => 'An optional Cerb search query to prefill (e.g. `status:open group:Support`). Omitted, the search opens unfiltered.',
+								'required' => false,
 							],
 						],
 					],

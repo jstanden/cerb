@@ -5,6 +5,13 @@ class Toolbar_GlobalMenu extends Extension_Toolbar {
 	function getPlaceholdersMeta() : array {
 		return [
 			[
+				'key' => 'component',
+				'notes' => "Always `commandbar` here. The command bar's menu is this toolbar PLUS the `agent.pane` "
+					. "toolbar's `commandbar` items, and this is what those gate on -- so a "
+					. "`hidden@bool: {{ component != 'commandbar' }}` written on `agent.pane` reads the same way it "
+					. "does on an editor pane. Items on THIS toolbar don't need it: they only ever appear here.",
+			],
+			[
 				'key' => 'worker_*',
 				'notes' => 'The active [worker](https://cerb.ai/docs/records/types/worker/#dictionary-placeholders) record. Supports key expansion.',
 			],
@@ -47,8 +54,10 @@ class Toolbar_GlobalMenu extends Extension_Toolbar {
 		$toolbar_kata = '';
 		
 		if(null != ($toolbar = DAO_Toolbar::getByName('global.menu')))
-			$toolbar_kata = $toolbar->getKata();
-		
+			$katas[] = $toolbar->getKata();
+
+		$toolbar_kata = Model_Toolbar::mergeKata($katas);
+
 		if($are_behaviors_enabled && $legacy_interactions) {
 			$legacy_kata = "\nmenu/legacy:\n  label: (Legacy Chat Bots)\n  icon: bot-message\n  items:\n";
 			

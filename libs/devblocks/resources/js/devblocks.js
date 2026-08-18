@@ -370,6 +370,13 @@ function DevblocksClass() {
 				;
 
 				$popup.html(json.html);
+
+				// Same bridge as the inline branch above. A resumed chat reopened as a POPUP (the command bar's)
+				// otherwise loses it, so its `uiCommand` awaits go quiet on resume even though they worked on the
+				// first turn -- the worst version of this failure, because nothing changed in the script.
+				if('function' == typeof options.command)
+					$popup.find('form.cerb-form-builder').each(function() { this._cerbInteractionCommand = options.command; });
+
 				Devblocks.decorateInteractionDialog($popup, { label: options.label });
 
 				setTimeout(function() {

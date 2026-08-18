@@ -1,4 +1,15 @@
-<div id="bot-chat-button" class="cerb-no-print">
+{*
+ * WHERE the worker is, stamped at PAGE-render time.
+ *
+ * `$response_uri` is the ROUTED path Devblocks resolved (`profiles/ticket/1234`), not the browser's address
+ * bar -- which is the point, since a controller can render something the URL doesn't describe.
+ *
+ * It has to be captured HERE. The command bar's menu and its interaction launches are both AJAX posts to
+ * `c=profiles&a=invoke`, so reading DevblocksPlatform::getHttpResponse() at either of those moments returns
+ * that endpoint rather than the page -- plausible-looking, and always the same wrong answer. This template
+ * renders inside the page (footer.tpl <- border.tpl), so it is the one place in this path that knows.
+ *}
+<div id="bot-chat-button" class="cerb-no-print" data-page-uri="{$response_uri|default:''}"{if !empty($page)} data-page-title="{$page->manifest->name|default:''}" data-page-id="{$page->manifest->id|default:''}"{/if}>
 	{if DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy')}
 	<div class="bot-chat-icon-badge" {if !$proactive_interactions_count}style="display:none;"{/if}><span class="cerb-icons cerb-icon-bot-message"></span></div>
 	{/if}
@@ -169,8 +180,86 @@ $(function() {
 			// rows so selecting a menu row clicks its source <li>.
 			$ul[0].hidden = true;
 
+			// The command bar's agent-pane bridge. It is the `commandbar` component, so an
+			// `interaction.worker.agent` chat launched here gets that component's tools automatically and drives
+			// them back through this callback. Kept in sync with Cerb\Agent\Pane\Components (a command
+			// catalogued there but missing here returns '' at runtime, which reads as a model failure).
+			//
+			// Unlike the six editor panes there is no document to read or write -- the command bar acts on the
+			// APP. Each command returns synchronously; a promise would lose the race with the await's auto-submit.
+			let commandBarRunCommand = function(name, params) {
+				params = params || {};
+
+				if('getPage' === name) {
+					// Read from the BUTTON's data attributes, stamped during the page render. Read live on every
+					// call, so the answer is still right after the worker navigates and resumes here.
+					let open = [];
+
+					if(window.CerbUI && CerbUI.Dialog && CerbUI.Dialog._openDialogs) {
+						CerbUI.Dialog._openDialogs.forEach(function(d) {
+							if(!d || !d._open) return;
+							open.push({
+								title: (d.titleEl && d.titleEl.textContent || '').trim(),
+								minimized: !!d.minimized
+							});
+						});
+					}
+
+					// Stringified because a uiCommand result is coerced through String() -- an object would
+					// arrive as "[object Object]".
+					return JSON.stringify({
+						page_uri: $interaction_container.attr('data-page-uri') || '',
+						page_title: $interaction_container.attr('data-page-title') || '',
+						page_id: $interaction_container.attr('data-page-id') || '',
+						url: window.location.href,
+						open_popups: open
+					});
+				}
+
+				if('openSearch' === name) {
+					let recordType = String(params.record_type || '').trim();
+
+					if(!recordType)
+						return 'ERROR: record_type is required.';
+
+					// Same mechanism `return:search:` uses (Devblocks.interactionWorkerPostActions), but
+					// mid-conversation rather than as the interaction's last act. The query is optional --
+					// cerbSearchTrigger skips an empty one and opens an unfiltered search.
+					$('<div/>')
+						.attr('data-context', recordType)
+						.attr('data-query', String(params.record_query || ''))
+						.cerbSearchTrigger()
+						.on('cerb-search-opened', function(e) {
+							e.stopPropagation();
+							$(this).remove();
+						})
+						.click()
+					;
+
+					// The popup loads over AJAX and we can't see whether the record type resolved, so this
+					// reports what was ASKED for. An unknown type opens nothing at all.
+					return 'Opened a search popup for `' + recordType + '`.';
+				}
+
+				return '';
+			};
+
+			// Page context is deliberately NOT here. It would be a snapshot from launch, and the obvious use for
+			// it -- naming the page in the system prompt -- is the one place it must never go: the system prompt
+			// is the most stable part of the cached prompt prefix, and `_persistSessionConfig()` rewrites it from
+			// the freshly-evaluated input every turn, so a value that ever changes invalidates the whole prefix.
+			// `get_page` reads it live instead, which is both cache-safe and correct after the worker moves.
+			let commandBarCaller = {
+				'name': 'cerb.toolbar.global.menu',
+				'params': {
+					'component': 'commandbar',
+					'ui_capabilities': 'openSearch,getPage'
+				}
+			};
+
 			$ul.find('li.cerb-bot-trigger').cerbBotTrigger({
-				'caller': { 'name': 'cerb.toolbar.global.menu', 'params': {} },
+				'caller': commandBarCaller,
+				'command': commandBarRunCommand,
 				'done': interactionDone
 			});
 
@@ -186,10 +275,12 @@ $(function() {
 
 				// The SAME caller the launch path posts above. The server re-derives `resume_scope` from it and
 				// refuses a mismatch, so omitting it resolved to '' and every reopen failed with "That
-				// conversation belongs to a different workspace."
+				// conversation belongs to a different workspace." The `command` bridge has to come along too, or
+				// a resumed chat's uiCommands go quiet even though they worked on the first turn.
 				Devblocks.resumeInteraction(token, {
 					'label': $(this).text().trim(),
-					'caller': { 'name': 'cerb.toolbar.global.menu', 'params': {} },
+					'caller': commandBarCaller,
+					'command': commandBarRunCommand,
 					'done': interactionDone
 				});
 			});
