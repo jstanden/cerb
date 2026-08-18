@@ -2927,6 +2927,11 @@ class _DevblocksLlmService {
 			$schema = match($tool['type'] ?? null) {
 				'automation' => $this->getToolSchemaForAutomation($tool_name, $tool),
 				'tool' => $this->_toolSchemaCustom($tool_name, $tool),
+				// Contributed by the trigger rather than authored: `ui_command` is answered by the host editor
+				// in the browser, `ui_server` by the trigger itself. Both are identical on the wire to a custom
+				// tool -- a name, a description, and string params -- since WHERE a result comes from is a
+				// dispatch concern the provider never sees.
+				'ui_command', 'ui_server' => $this->_toolSchemaCustom($tool_name, $tool),
 				'agent_terminal' => $this->_toolSchemaAgentTerminal($tool_name, $tool),
 				default => null,
 			};

@@ -11,9 +11,13 @@ namespace Cerb\Agent\Pane;
  * what it would answer, and the Automation Builder had no way to scaffold one at all.
  *
  * This is that missing half: the same six bridges, described well enough to GENERATE from -- a model-facing
- * tool name, a description the model reads, a transcript icon and labels, and the parameter schema. The
- * Automation Builder's "AI Agent Chat" wizard turns one entry into a full `tools:` block and the matching
- * `on_tool:` uiCommand dispatch.
+ * tool name, a description the model reads, a transcript icon and labels, and the parameter schema.
+ *
+ * `AutomationTrigger_InteractionWorkerAgent::getLlmAgentTools()` turns the live pane's entry into `llm.agent:`
+ * tools at RUNTIME (see getToolsFor()), the same way `mounts:` provisions `agent_terminal` -- so a chat drives
+ * whichever editor it sits beside with nothing in its script. It used to be generated into every chat as a
+ * `tool/` definition and an `on_tool:` await element per command, which went stale here the moment a host
+ * gained a command and which nobody could safely hand-edit.
  *
  * DELIBERATELY DEPENDENCY-FREE (no DAOs, no platform services, no extension base class) so it can be loaded
  * and diffed against the hosts headlessly.
@@ -30,7 +34,8 @@ namespace Cerb\Agent\Pane;
  * Adding a command to a host means adding it here too, BY HAND -- nothing checks. The two drift silently,
  * and the failure is quiet on both sides: a command listed here that the host doesn't implement returns '',
  * which reads as a model failure rather than a wiring bug, and a command the host gained but this file
- * didn't simply never reaches a model.
+ * didn't simply never reaches a model. That second direction now costs more than it used to: these entries
+ * ARE the agent's tools at runtime, not just a template the author can fix up afterwards.
  *
  * (`mail_compose` appears in Toolbar_AgentPane's placeholder notes but no host implements it. It is not
  * here, and should not be until one does.)
@@ -463,5 +468,64 @@ class Components {
 	 */
 	static function get(string $component) : ?array {
 		return self::getAll()[$component] ?? null;
+	}
+
+	/**
+	 * One component's tools as `llm.agent:` `tools:` entries.
+	 *
+	 * Two families, distinguished by their key prefix because that's how `llm.agent:` decides who answers:
+	 *
+	 *   ui_command/<tool>  a bridge command -- answered by the BROWSER, via a round-trip to the host editor.
+	 *                      Carries `command`, the camelCase name the host's `runCommand()` dispatches on.
+	 *   ui_server/<tool>   answered HERE, with no round-trip. Carries `handler`, which the trigger runs.
+	 *
+	 * Everything else is the shape the rest of the LLM subsystem already speaks -- the same `description` /
+	 * `icon` / `labels` / `parameters` an author writes by hand under `tool/<name>:` -- so the schema builder,
+	 * the transcript's label map, and the session's stored tool set read both families without knowing the
+	 * difference. Neither `command` nor `handler` is ever shown to the model.
+	 *
+	 * An unknown component returns `[]` rather than throwing: a chat opened somewhere with no editor to
+	 * drive is a standalone chat, not an error.
+	 */
+	static function getToolsFor(string $component) : array {
+		if(!($meta = self::get($component)))
+			return [];
+
+		$tools = [];
+
+		foreach($meta['commands'] as $bridge_name => $command) {
+			$tool = self::_toolEntry($command);
+			$tool['command'] = $bridge_name;
+
+			// Deliberately NOT under `parameters:` -- that's the model-facing schema, and these are exactly the
+			// arguments the model must never see or set.
+			if(($command_params = $command['command_params'] ?? []))
+				$tool['command_params'] = $command_params;
+
+			$tools['ui_command/' . $command['tool']] = $tool;
+		}
+
+		return $tools;
+	}
+
+	// The half of a `tools:` entry both families share.
+	private static function _toolEntry(array $command) : array {
+		$tool = [
+			'description' => $command['description'],
+			'icon' => $command['icon'],
+			'labels' => $command['labels'],
+		];
+
+		foreach($command['parameters'] as $param_name => $param) {
+			// `string/` because that's the only param type the provider schema builder emits
+			// (_DevblocksLlmService::_toolSchemaCustom); anything else is silently dropped.
+			$tool['parameters']['string/' . $param_name] = array_filter([
+				'description' => $param['description'],
+				'enum' => $param['enum'] ?? null,
+				'required' => $param['required'] ?? false,
+			]);
+		}
+
+		return $tool;
 	}
 }

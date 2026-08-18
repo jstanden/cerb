@@ -9,8 +9,9 @@
  * toolbar's cerbBotTrigger options, so a launched interaction can read/write the live editor via `uiCommand`
  * awaits.
  *
- * What each host will actually answer is catalogued server-side in `Cerb\Agent\Pane\Components` -- that's what
- * the Automation Builder's "AI Agent Chat" template generates a bridge from.
+ * What each host will actually answer is catalogued server-side in `Cerb\Agent\Pane\Components`. A launched
+ * `interaction.worker.agent` gets those commands as LLM tools automatically, resolved from `component` -- so a
+ * chat needs no `uiCommand` wiring of its own to drive the editor it opens beside.
  */
 class Toolbar_AgentPane extends Extension_Toolbar {
 	const ID = 'cerb.toolbar.agent.pane';

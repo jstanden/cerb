@@ -32,6 +32,11 @@ class LlmAgentNode extends AbstractNode {
 	private DevblocksDictionaryDelegate $_dict;
 	private array $_node_memory = [];
 
+	// This activation's automation. Held because `_getTools()` needs the TRIGGER — a trigger can contribute
+	// tools of its own (an agent pane's host editor supplies one per UI command), and _getTools() is reached
+	// from three places that don't all have the automation to hand.
+	private ?Model_Automation $_automation = null;
+
 	// The AI worker this turn runs AS, from `agent:`. 0 = anonymous (no agent named).
 	private int $_agent_worker_id = 0;
 	
@@ -44,6 +49,7 @@ class LlmAgentNode extends AbstractNode {
 	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, ?string &$error=null) : string|false {
 		$this->_node_memory =& $node_memory;
 		$this->_dict = $dict;
+		$this->_automation = $automation;
 
 		// Per-activation: the node instance outlives one activation within a run, and a later failure must not
 		// inherit an earlier one's detail.
@@ -338,6 +344,20 @@ class LlmAgentNode extends AbstractNode {
 					$tools = $this->_getTools($session_id);
 					$tool = $tools[$tool_spec->getName()] ?? null;
 					
+
+					// Component-contributed tools resolve HERE, after `on_tool:` — so if the branch answered via
+					// `tool.return:` that stands and nothing else runs. That is how a DENIED approval works, and
+					// it doubles as an author override when testing. (`agent_terminal` runs earlier, before the
+					// branch; these deliberately don't, so a gate is possible.)
+					if(!array_key_exists('content', $tool_dict)) {
+						// Answered by the BROWSER: suspend on the round-trip and resume at `ui_command_return`.
+						if('ui_command' == ($tool_dict['type'] ?? '')) {
+							$this->_startUiCommand($tool_spec, $tool);
+
+							return $this->node->getId();
+						}
+					}
+
 					if('automation' == $tool_dict['type']) {
 						$automator = DevblocksPlatform::services()->automation();
 						
@@ -359,13 +379,15 @@ class LlmAgentNode extends AbstractNode {
 						
 						$llm_provider->returnTool($tool_spec, $tool_response['content'] ?? '', $memory_store);
 						
-					} elseif(in_array($tool_dict['type'] ?? '', ['tool', 'agent_terminal'])) {
+					} elseif(in_array($tool_dict['type'] ?? '', ['tool', 'agent_terminal', 'ui_command', 'ui_server'])) {
 						// A custom tool's result: prefer a value set dynamically by `tool.return:` in the on_tool
 						// branch (stored on `__tool.content` by ToolReturnAction); else the tool's static `content:`
 						// from its definition. Without this the dynamic `tool.return` value is silently discarded and
 						// the model only ever sees the static content (empty for a browser-round-trip tool).
 						// `agent_terminal` rides the same slot: _activateTool() ran the command and stashed its output
 						// there before the branch, so an author who doesn't call `tool.return:` still returns it.
+						// `ui_command` rides it too, filled a beat later — by `ui_command_return` once the browser
+						// answered, or by the author's own `tool.return:` if `on_tool:` declined to let it run.
 						$content = array_key_exists('content', $tool_dict)
 							? $tool_dict['content']
 							: (is_array($tool) ? ($tool['content'] ?? '') : '');
@@ -378,9 +400,32 @@ class LlmAgentNode extends AbstractNode {
 					
 					$this->_dict->unset('__tool');
 					$this->_dict->scrubKeyPathPrefix('__state|memory', $this->node->getId() . ':on_tool', '|');
-					
+
 					return $this->node->getId();
-					
+
+				} else if('ui_command_return' == $state) {
+					// The browser answered the `uiCommand` await. Its value arrives as a TOP-LEVEL dict key named
+					// for the element (that's how every await form element reports), so take it, drop the key so a
+					// whole editor's contents don't linger in the chat dict, and hand it to `tool_return` on the
+					// same `__tool.content` slot `tool.return:` writes.
+					$var = strval($state_params['var'] ?? '');
+					$content = $var ? $this->_dict->get($var, '') : '';
+
+					if($var)
+						$this->_dict->unset($var);
+
+					// Providers reject an empty tool result, and '' is genuinely ambiguous here: a host that threw,
+					// a command it doesn't implement, and an honestly empty answer (`get_icon_geometry` on an
+					// unknown icon) are indistinguishable by the time the value reaches us. So say the same thing
+					// `agent_terminal` says for a command that produced nothing, and don't guess at a cause.
+					$content = strval($content) ?: '(no output)';
+
+					$tool_dict = $this->_dict->get('__tool', []);
+					$tool_dict['content'] = $content;
+					$this->_dict->set('__tool', $tool_dict);
+
+					return $this->node->getId();
+
 				} else if('tool' == $state) {
 					// [TODO] We can be given hallucinated tools
 
@@ -636,6 +681,8 @@ class LlmAgentNode extends AbstractNode {
 		if(!$tools_config && $session_id && ($session = \DAO_LlmAgentSession::get($session_id)))
 			$tools_config = $session->tools;
 
+		$tools_config = $this->_withTriggerTools($tools_config);
+
 		foreach($tools_config as $tool_key => $tool) {
 			list($tool_type, $tool_name) = array_pad(explode('/', $tool_key, 2), 2, null);
 			if (empty($tool_name)) $tool_name = $tool_type;
@@ -658,6 +705,49 @@ class LlmAgentNode extends AbstractNode {
 		}
 
 		return $tools;
+	}
+
+	/**
+	 * Overlay the tools contributed by this automation's TRIGGER onto a `tools:` config, keyed `<type>/<name>`
+	 * like any authored entry — so everything downstream (the flatten below, the provider schema, the
+	 * transcript's labels) reads them without knowing where they came from.
+	 *
+	 * Today that's an agent pane handing the chat one `ui_command/` tool per UI command its host editor
+	 * answers, which is what lets a chat beside an editor read and rewrite it with nothing in its script.
+	 *
+	 * Same rule as `agent_terminal`: an author tool of the same NAME wins, always — matched on the name rather
+	 * than the whole key, since `tool/get_fields` and `ui_command/get_fields` are one collision, not two tools.
+	 *
+	 * Duck-typed rather than an interface: this file is platform code and the only trigger that answers lives
+	 * in cerberusweb.core — the same arrangement `_renderFormElements()` uses for `getFormComponentMeta()`.
+	 */
+	private function _withTriggerTools(array $tools_config) : array {
+		if(!$this->_automation)
+			return $tools_config;
+
+		$trigger = $this->_automation->getTriggerExtension();
+
+		if(!$trigger || !method_exists($trigger, 'getLlmAgentTools'))
+			return $tools_config;
+
+		if(!is_array($trigger_tools = $trigger->getLlmAgentTools($this->_dict)) || !$trigger_tools)
+			return $tools_config;
+
+		$authored_names = [];
+
+		foreach(array_keys($tools_config) as $tool_key) {
+			list($tool_type, $tool_name) = array_pad(explode('/', strval($tool_key), 2), 2, null);
+			$authored_names[$tool_name ?: $tool_type] = true;
+		}
+
+		foreach($trigger_tools as $tool_key => $tool) {
+			list($tool_type, $tool_name) = array_pad(explode('/', strval($tool_key), 2), 2, null);
+
+			if(!array_key_exists($tool_name ?: $tool_type, $authored_names))
+				$tools_config[$tool_key] = $tool;
+		}
+
+		return $tools_config;
 	}
 
 	/**
@@ -1005,7 +1095,18 @@ class LlmAgentNode extends AbstractNode {
 		// On-change write.
 		$tools_config = $this->_inputs['tools'] ?? [];
 
-		if(is_array($tools_config) && $tools_config)
+		// A pure resume (no authored `tools:`) inherits the session's stored map rather than clobbering it with
+		// the trigger's contribution alone — the same fallback _getTools() makes.
+		if(!$tools_config && ($session = \DAO_LlmAgentSession::get($session_id)))
+			$tools_config = $session->tools ?? [];
+
+		// The trigger's tools ride the STORED map, not just the dispatch one, because the provider schema is
+		// built from the session alone (_DevblocksLlmService::getSessionToolSchemas) and an async turn runs in a
+		// queue worker with no dict and no continuation to resolve a host from. Re-derived every turn, so a host
+		// that gains a command reaches an existing conversation on its next turn.
+		$tools_config = $this->_withTriggerTools(is_array($tools_config) ? $tools_config : []);
+
+		if($tools_config)
 			\DAO_LlmAgentSession::setTools($session_id, $tools_config);
 
 		// Same on-change persistence for `mounts:` — but the RESOLVED specs (the shape fromSpecs() takes),
@@ -1322,6 +1423,88 @@ class LlmAgentNode extends AbstractNode {
 			'command' => $command,
 			'compacted' => $compacted,
 		], $this->_resolvedModelInfo($session_id)));
+	}
+
+	/**
+	 * Suspend on a `uiCommand` await so the browser can run a host editor's command and hand back its result.
+	 *
+	 * The mechanism is the same one `_startLLMAsync()` uses for the queue gate — push the resume state, set
+	 * `__exit`/`__return`, let the engine unwind — and the form it emits is indistinguishable from an authored
+	 * `await:form:`, because nothing in the render or submit path consults the AST: the renderer reads element
+	 * CONFIG straight back out of `__return.form.elements`.
+	 *
+	 * Two states are pushed, so the round-trip slots INTO the existing flow rather than duplicating its tail:
+	 * `tool_return` (re-entered afterwards, where the result is handed to the provider and `__tool` is cleaned
+	 * up) and, on top of it, `ui_command_return` (which lifts the browser's answer onto `__tool.content`).
+	 *
+	 * The transcript rides along because this await REPLACES the rendered panel. Without it the chat would go
+	 * blank for the length of the round-trip on every editor call.
+	 */
+	private function _startUiCommand(DevblocksLlmChatResponse_Tool $tool_spec, ?array $tool) : void {
+		// `command:` is the host's bridge name and the only thing that can't be inferred. It's always present on
+		// a trigger-contributed tool; a hand-authored `ui_command/` entry is the one way to get here without it,
+		// and there's nothing to round-trip TO, so answer the model instead of hanging the turn.
+		if(!is_array($tool) || '' === ($command = strval($tool['command'] ?? ''))) {
+			$tool_dict = $this->_dict->get('__tool', []);
+			$tool_dict['content'] = 'ERROR: This tool is not wired to a host editor command.';
+			$this->_dict->set('__tool', $tool_dict);
+
+			$this->_node_memory['stack'][] = ['tool_return', []];
+			return;
+		}
+
+		// Only the parameters this tool actually declares, and only those the model sent. An absent optional
+		// must be OMITTED rather than passed as '': the host distinguishes "no limit given" from "limit is
+		// empty", which is what the generated KATA's `@key,optional` was for.
+		$sent = $tool_spec->getParameters() ?? [];
+		$params = [];
+
+		foreach(array_keys($tool['parameters'] ?? []) as $param_key) {
+			list($param_type, $param_name) = array_pad(explode('/', strval($param_key), 2), 2, null);
+
+			if(empty($param_name))
+				$param_name = $param_type;
+
+			if(array_key_exists($param_name, $sent))
+				$params[$param_name] = $sent[$param_name];
+		}
+
+		// Named for the node so two agents in one interaction can't collide on the return var, and prefixed to
+		// stay clear of an author's own prompt names. Must be a legal Twig identifier or the submit handler
+		// drops the value silently (_applyAwaitFormPromptValues gates on isVariableName).
+		$var = '__ui_command_' . preg_replace('/[^a-z0-9_]+/', '_', DevblocksPlatform::strLower($this->node->getId()));
+
+		$elements = [];
+
+		// Same shape the generated `&transcript_summary` uses: this is a status repaint between tool calls, not
+		// the composer, so tool calls and thinking collapse to a line apiece.
+		if(($session_id = $this->_dict->getKeyPath($this->_getSessionKey(), '', '::'))) {
+			$elements['llmTranscript/' . $var . '_transcript'] = [
+				'session_id' => $session_id,
+				'thinking' => 'summary',
+				'tools' => 'summary',
+			];
+		}
+
+		$elements['uiCommand/' . $var] = [
+			'command' => $command,
+			'params' => $params,
+		];
+
+		$elements['submit'] = [
+			'is_automatic' => true,
+		];
+
+		// LIFO: `ui_command_return` pops first (lifting the answer), then `tool_return` finishes the call.
+		$this->_node_memory['stack'][] = ['tool_return', []];
+		$this->_node_memory['stack'][] = ['ui_command_return', ['var' => $var]];
+
+		$this->_dict->set('__exit', 'await');
+		$this->_dict->set('__return', [
+			'form' => [
+				'elements' => $elements,
+			],
+		]);
 	}
 
 	// The shared-cache key for a pending user interrupt of a given agent session. Cache (not the continuation
@@ -1692,6 +1875,18 @@ class LlmAgentNode extends AbstractNode {
 					$this->_node_memory['stack'][] = ['tool_branch', []];
 					return true;
 				}
+
+			} elseif(in_array($tool_type, ['ui_command', 'ui_server'])) {
+				// A tool the TRIGGER contributed — a host editor's command, or one the trigger answers itself.
+				// NOTHING has run yet: unlike `agent_terminal`, whose command executes server-side right here,
+				// these wait until after `on_tool:`, at `tool_return`. That ordering is the point. `on_tool:` is
+				// where an approval gate, a confirmation, or a policy check belongs, and running the tool first
+				// would leave nothing left to approve.
+				//
+				// Queued unconditionally, branch or no branch: `tool_branch` handles a missing `on_tool:` by
+				// falling straight through to `tool_return`, which is where both kinds are resolved.
+				$this->_node_memory['stack'][] = ['tool_branch', []];
+				return true;
 
 			} elseif('agent_terminal' == $tool_type) {
 				// The filesystem command itself runs server-side, right here — there's no browser round trip to
