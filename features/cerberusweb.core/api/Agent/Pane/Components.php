@@ -54,11 +54,14 @@ class Components {
 	 * Commands are keyed by the BRIDGE name (camelCase -- what `runCommand` dispatches on and what a
 	 * `uiCommand` element's `command:` must say). Each carries:
 	 *
-	 *   tool         the snake_case name the MODEL calls; also the `prompt_<tool>` await-element alias
-	 *   description  what the model reads to decide whether to call it
-	 *   icon         transcript icon -- MUST exist in getCerbIcons(); an invented name renders nothing
-	 *   labels       transcript strings: `active` while running, `summary` once done
-	 *   parameters   ordered map of name => {description, enum?, required}; [] for a no-argument command
+	 *   tool            the snake_case name the MODEL calls
+	 *   description     what the model reads to decide whether to call it
+	 *   icon            transcript icon -- MUST exist in getCerbIcons(); an invented name renders nothing
+	 *   labels          transcript strings: `active` while running, `summary` once done
+	 *   parameters      ordered map of name => {description, enum?, required}; [] for a no-argument command
+	 *   command_params  OPTIONAL constants passed to the bridge but never shown to the model, for when a
+	 *                   generic bridge command has one sensible use here. They also win over anything the
+	 *                   model sends under the same name, so a pinned argument stays pinned.
 	 *
 	 * @return array<string,array{label:string,icon:string,description:string,instructions:string,commands:array}>
 	 */
@@ -400,19 +403,17 @@ class Components {
 						'labels' => ['active' => 'Reading the search...', 'summary' => 'Read the search'],
 						'parameters' => [],
 					],
+					// The bridge is the generic `setField`, but a worklist has exactly ONE writable field, so `key`
+					// is pinned rather than asked for: an enum of one is an argument a model can only get wrong.
 					'setField' => [
-						'tool' => 'set_field',
+						'tool' => 'set_query',
 						'description' => "Write the search query. This only updates the field; call run_search to actually run it.",
 						'icon' => 'edit',
 						'labels' => ['active' => 'Updating the search...', 'summary' => 'Updated the search'],
+						'command_params' => ['key' => 'query'],
 						'parameters' => [
-							'key' => [
-								'description' => 'The field to update.',
-								'enum' => ['query'],
-								'required' => true,
-							],
 							'value' => [
-								'description' => 'The new search query.',
+								'description' => 'The complete Cerb search query to write into the field.',
 								'required' => true,
 							],
 						],

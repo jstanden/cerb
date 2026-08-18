@@ -343,7 +343,6 @@ class LlmAgentNode extends AbstractNode {
 
 					$tools = $this->_getTools($session_id);
 					$tool = $tools[$tool_spec->getName()] ?? null;
-					
 
 					// Component-contributed tools resolve HERE, after `on_tool:` — so if the branch answered via
 					// `tool.return:` that stands and nothing else runs. That is how a DENIED approval works, and
@@ -1468,6 +1467,12 @@ class LlmAgentNode extends AbstractNode {
 			if(array_key_exists($param_name, $sent))
 				$params[$param_name] = $sent[$param_name];
 		}
+
+		// Constants the tool pins on the bridge and never advertises — a generic host command with one sensible
+		// use here (a worklist's only writable field is its query). Applied LAST so a model that guesses at the
+		// name can't override one.
+		if(is_array($command_params = $tool['command_params'] ?? []))
+			$params = array_merge($params, $command_params);
 
 		// Named for the node so two agents in one interaction can't collide on the return var, and prefixed to
 		// stay clear of an author's own prompt names. Must be a legal Twig identifier or the submit handler
