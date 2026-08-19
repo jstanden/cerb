@@ -119,6 +119,240 @@ CerbUI.AgentTranscript = class {
 		onEnhance: null,         // (turnEl, ctx) — host-specific per-turn wiring
 	};
 
+	/*
+	 * ── Stick-to-bottom ──────────────────────────────────────────────────────────────────────────────
+	 *
+	 * A transcript that always jumps to the newest turn is right until someone scrolls up to re-read
+	 * something, at which point every poll tick yanks them back. These three helpers let a caller pin only
+	 * when the reader was already at the bottom.
+	 *
+	 * The intent is tracked on a SCROLL LISTENER rather than sampled around each update, because the pins
+	 * fire from a MutationObserver -- by then the DOM has already changed and there is nothing left to
+	 * measure.
+	 *
+	 * It is stored on a HOST element that outlives the scroll box: the interaction form, which survives the
+	 * inner re-renders (the same persistence `_cerbInteractionCommand` relies on), or the box itself when
+	 * there is no form above it (an AgentPane's chat body). So scrolling up to read survives a tool-loop
+	 * re-render instead of silently resetting.
+	 */
+
+	// Sub-pixel layout and fractional zoom mean scrollTop rarely lands exactly on the bottom, so an equality
+	// test reads as "scrolled up" when nobody moved. One line of slack.
+	static STICK_TOLERANCE_PX = 32;
+
+	static isAtBottom(el, tolerance) {
+		if(!el) return true;
+		const slack = (tolerance == null) ? CerbUI.AgentTranscript.STICK_TOLERANCE_PX : tolerance;
+		return (el.scrollHeight - el.scrollTop - el.clientHeight) <= slack;
+	}
+
+	/*
+	 * The element that ACTUALLY scrolls for a given transcript.
+	 *
+	 * Standalone, the transcript div is its own scroll box (max-height:75vh). Inside an AgentPane that cap is
+	 * dropped and the pane's chat body scrolls instead -- so pinning the transcript there sets scrollTop on an
+	 * element that cannot move, silently. Walk up to the first ancestor that genuinely overflows.
+	 */
+	static scrollBoxFor(el) {
+		if(!el) return el;
+
+		// Bounded deliberately. An unbounded walk would climb past a SHORT transcript into whatever scrolls
+		// above it -- the dialog, or the page itself -- and start yanking that instead. Only these two are ever
+		// the transcript's own scroller.
+		const isOwnScroller = (n) =>
+			n === el || (n.classList && n.classList.contains('cerb-agent-pane--chat-body'));
+
+		for(let n = el; n && n !== document.body && n !== document.documentElement; n = n.parentElement) {
+			if(!isOwnScroller(n))
+				continue;
+
+			if(n.scrollHeight <= n.clientHeight + 1)
+				continue;
+
+			const overflow = getComputedStyle(n).overflowY;
+
+			if(overflow === 'auto' || overflow === 'scroll' || overflow === 'overlay')
+				return n;
+		}
+
+		return el;
+	}
+
+	static _stickHost(el) {
+		return (el && el.closest && el.closest('form.cerb-form-builder')) || el;
+	}
+
+	// Idempotent: safe to call on every render, which is the point -- the box may be new each time while the
+	// host carrying the flag is not.
+	static trackStick(el) {
+		if(!el || el._cerbStickTracked) return;
+		el._cerbStickTracked = true;
+
+		CerbUI.AgentTranscript.attachJump(el);
+
+		/*
+		 * Detaching requires a real GESTURE, not merely a scroll event.
+		 *
+		 * The box gets scrolled by things that aren't the reader: `panel.tpl` focuses the first focusable after
+		 * every re-render and the browser scrolls it into view, which on an `on_tool:` render is a per-turn copy
+		 * button near the TOP. Reading that as "they scrolled up" recorded a near-zero offset and the next
+		 * render dutifully restored it -- so clicking "Jump to latest" held for exactly one tool step.
+		 *
+		 * A gesture opens a window; scroll events inside it count and extend it (trackpad momentum keeps firing
+		 * long after the fingers stop). Everything else moves the box without changing intent.
+		 */
+		const GESTURE_MS = 700;
+		const stamp = () => { el._cerbUserScrollAt = Date.now(); };
+
+		// Unambiguous: nothing else produces these.
+		el.addEventListener('wheel', stamp, { passive: true });
+		el.addEventListener('touchmove', stamp, { passive: true });
+
+		// Dragging the scrollbar gutter targets the container ITSELF. Any deeper target is a click on content
+		// -- and in an AgentPane the transcript's own copy buttons live in here, so counting those would let a
+		// click plus the focus-scroll that follows it read as "they scrolled away".
+		el.addEventListener('mousedown', (e) => { if(e.target === el) stamp(); }, { passive: true });
+
+		// Only keys that actually scroll, and never while typing -- an AgentPane keeps its composer inside this
+		// box, so counting every keystroke would let a re-render landing mid-sentence detach the reader.
+		const SCROLL_KEYS = ['PageUp', 'PageDown', 'Home', 'End', 'ArrowUp', 'ArrowDown', ' ', 'Spacebar'];
+
+		el.addEventListener('keydown', (e) => {
+			const t = e.target;
+			const editable = t && (t.isContentEditable || /^(input|textarea|select)$/i.test(t.tagName || ''));
+
+			if(!editable && SCROLL_KEYS.indexOf(e.key) !== -1)
+				stamp();
+		}, { passive: true });
+
+		el.addEventListener('scroll', () => {
+			const host = CerbUI.AgentTranscript._stickHost(el);
+			if(!host) return;
+
+			// The button is position-only, so keep it honest on every scroll however it was caused.
+			CerbUI.AgentTranscript.syncJump(el);
+
+			if((Date.now() - (el._cerbUserScrollAt || 0)) > GESTURE_MS)
+				return;
+
+			el._cerbUserScrollAt = Date.now(); // momentum is still the same gesture
+
+			host._cerbStickBottom = CerbUI.AgentTranscript.isAtBottom(el);
+			// Remembered for the case where the scroll box itself is replaced on the next render; the flag alone
+			// would only tell us NOT to jump to the bottom, which would leave the reader at the top instead.
+			host._cerbScrollTop = el.scrollTop;
+		}, { passive: true });
+	}
+
+	// Defaults to true: a reader who has never scrolled wants the newest turn.
+	static shouldStick(el) {
+		const host = CerbUI.AgentTranscript._stickHost(el);
+		return !host || host._cerbStickBottom !== false;
+	}
+
+	// Pin only if the reader hasn't scrolled away. Returns whether it pinned. For a scroll box that SURVIVES
+	// the update -- where a detached reader is already sitting at the right offset and doing nothing is correct.
+	static stickToBottom(el) {
+		if(!el) return false;
+
+		if(!CerbUI.AgentTranscript.shouldStick(el)) {
+			// Detached, and this call means new content just landed -- which is exactly when the reader needs
+			// to be told there is something below.
+			CerbUI.AgentTranscript.syncJump(el);
+			return false;
+		}
+
+		el.scrollTop = el.scrollHeight;
+		CerbUI.AgentTranscript.syncJump(el);
+		return true;
+	}
+
+	/*
+	 * "Jump to latest" — the signal that content is arriving below a reader who scrolled up.
+	 *
+	 * Appended to the SCROLL BOX itself (not the turns container), so `setTurns()` swapping the turns during a
+	 * streaming poll doesn't take it with them. It is `position: sticky` with zero height: a normal absolute
+	 * child would need a positioned wrapper around a container the interaction re-renders, and any real height
+	 * would extend the scrollable area, pushing the bottom away from itself so "at bottom" could never be true.
+	 */
+	static attachJump(el) {
+		if(!el || el._cerbJumpEl) return el && el._cerbJumpEl;
+
+		const strip = document.createElement('div');
+		strip.className = 'cerb-ui-transcript-jump';
+		strip.hidden = true;
+
+		const btn = document.createElement('button');
+		btn.type = 'button';
+		btn.innerHTML = '<span class="cerb-icons cerb-icon-down-arrow"></span> Jump to latest';
+		btn.addEventListener('click', () => {
+			CerbUI.AgentTranscript.resetStick(el);
+			el.scrollTop = el.scrollHeight;
+			CerbUI.AgentTranscript.syncJump(el);
+		});
+
+		strip.appendChild(btn);
+		el.appendChild(strip);
+		el._cerbJumpEl = strip;
+
+		return strip;
+	}
+
+	// Visible only while detached AND there is somewhere to go. Called from the scroll listener (the reader
+	// moved) and from each pin site (content arrived).
+	static syncJump(el) {
+		if(!el || !el._cerbJumpEl) return;
+
+		const overflows = el.scrollHeight > el.clientHeight;
+
+		el._cerbJumpEl.hidden = !(overflows && !CerbUI.AgentTranscript.isAtBottom(el));
+	}
+
+	/*
+	 * Re-arm sticking, from anywhere inside the conversation (the composer calls this on send).
+	 *
+	 * There can be TWO scroll boxes above a composer with two different hosts: the transcript element, whose
+	 * host is the interaction form, and -- inside an AgentPane -- the chat body, which CONTAINS that form and
+	 * is therefore its own host. Clearing just one leaves the other detached, so walk up and clear every
+	 * tracked box on the way as well as the form.
+	 */
+	static resetStick(el) {
+		const arm = (host) => {
+			if(!host) return;
+			host._cerbStickBottom = true;
+			host._cerbScrollTop = 0;
+		};
+
+		arm(CerbUI.AgentTranscript._stickHost(el));
+
+		for(let n = el; n; n = n.parentElement) {
+			if(n._cerbStickTracked) {
+				arm(CerbUI.AgentTranscript._stickHost(n));
+				if(n._cerbJumpEl) n._cerbJumpEl.hidden = true;
+			}
+		}
+	}
+
+	// For a scroll box REPLACED by the render (a fresh element at scrollTop 0): pin to the bottom, or put a
+	// detached reader back where they were. Doing nothing here would drop them at the top -- further from
+	// what they were reading than the bottom was.
+	static restoreScroll(el) {
+		if(!el) return;
+
+		if(CerbUI.AgentTranscript.stickToBottom(el))
+			return;
+
+		const host = CerbUI.AgentTranscript._stickHost(el);
+		const top = host && host._cerbScrollTop;
+
+		// Content shifts between renders, so this is an approximation -- clamped, since the new render may be
+		// shorter than the offset we saved.
+		if(top > 0)
+			el.scrollTop = Math.min(top, Math.max(0, el.scrollHeight - el.clientHeight));
+
+		CerbUI.AgentTranscript.syncJump(el);
+	}
+
 	// ── Batch-enhance every [data-cerb-agent-transcript] within a scope (element | selector | document) ──
 	static enhance(scope, selector, opts = {}) {
 		const root = (typeof scope === 'string') ? document.querySelector(scope) : (scope || document);

@@ -393,3 +393,47 @@
 		letter-spacing: 0.04em;
 	}
 }
+
+// ── Jump to latest ───────────────────────────────────────────────────────────────────────────────────
+//
+// Shown when the reader has scrolled up in a transcript that is still growing, so a streaming turn isn't
+// silently filling in below the fold. Owned by CerbUI.AgentTranscript's stick-to-bottom helpers.
+//
+// `position: sticky` rather than absolute: the button is a child of the SCROLL BOX itself, so sticky keeps
+// it pinned to the bottom edge without needing a positioned wrapper (which would mean restructuring a
+// container that the interaction re-renders out from under us).
+.cerb-ui-transcript-jump {
+	position: sticky;
+	bottom: 0.6em;
+	z-index: 5;
+	display: flex;
+	justify-content: center;
+	// Zero height so it never adds scrollable length -- otherwise it would push the bottom away from itself
+	// and the transcript could never reach "at bottom".
+	height: 0;
+	overflow: visible;
+	pointer-events: none; // only the button is clickable; the strip must not eat transcript clicks
+
+	> button {
+		pointer-events: auto;
+		transform: translateY(-100%);
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4em;
+		padding: 0.35em 0.9em;
+		border: 1px solid var(--cerb-color-background-contrast-215);
+		border-radius: 999px;
+		background: var(--cerb-color-background);
+		color: var(--cerb-color-text);
+		box-shadow: 0 2px 8px 1px var(--cerb-color-shadow-menu);
+		cursor: pointer;
+		white-space: nowrap;
+
+		&:hover {
+			background: var(--cerb-color-action-primary);
+			color: var(--cerb-color-action-primary-text);
+		}
+	}
+
+	&[hidden] { display: none; }
+}

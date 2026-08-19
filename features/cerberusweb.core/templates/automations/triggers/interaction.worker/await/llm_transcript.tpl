@@ -141,9 +141,21 @@ $(function() {
                         box.style.display = '';
 
                     // Land on the new turn, deferred a frame so it measures the rebuilt (and now visible) turns.
+                    // ONLY when the reader was already at the bottom -- this fires every poll tick while a turn
+                    // streams, so pinning unconditionally yanks anyone who scrolled up to re-read something.
+                    //
+                    // Pin the element that actually SCROLLS. Inside an AgentPane the transcript's own cap is
+                    // dropped and the pane's chat body scrolls instead, so pinning `box` there set scrollTop on
+                    // something that couldn't move -- which is why a streamed tool REQUEST never scrolled into
+                    // view while tool results and assistant turns (which arrive with a form re-render, and so
+                    // trip the pane's own observer) did.
                     requestAnimationFrame(function() {
-                        if(box && box.scrollHeight > box.clientHeight)
-                            box.scrollTop = box.scrollHeight;
+                        if(!box) return;
+
+                        const scroller = CerbUI.AgentTranscript.scrollBoxFor(box);
+
+                        CerbUI.AgentTranscript.trackStick(scroller);
+                        CerbUI.AgentTranscript.stickToBottom(scroller);
                     });
                 });
             });
@@ -317,13 +329,37 @@ $(function() {
                     lastHtml = json.html;
                     changed = true;
 
-                    // NO auto-scroll while streaming, deliberately. An "only follow if they're already at the
-                    // bottom" rule isn't enough here: updateTurn REPLACES the turn node, which destroys the
-                    // element the browser was scroll-anchored to, so a turn that grows — a new tool bubble,
-                    // say — shifts content under the reader on its own. Forcing the tail on top of that moved
-                    // text out from under someone mid-sentence. Letting it grow below the viewport is
-                    // predictable and never fights a reader; the cost is that following along is manual.
+                    // Follow the tail while it streams -- but only for a reader who hasn't scrolled away, and
+                    // HOLD their position when they have.
+                    //
+                    // Both halves are needed because updateTurn REPLACES the turn node, which destroys the
+                    // element the browser had scroll-anchored to: a growing turn shifts the view on its own,
+                    // with nobody touching the scrollbar. The old code sidestepped that by always slamming to
+                    // the bottom, which is why the drift was invisible until following became conditional.
+                    //
+                    // So: measure BEFORE the swap, and afterwards either pin (still following) or put the
+                    // scroll back exactly where it was (reading). Intent itself comes from real gestures, which
+                    // a node replacement can't fake -- see trackStick.
+                    const scroller = CerbUI.AgentTranscript.scrollBoxFor(
+                        container.closest('.cerb-form-builder-response-llm-transcript') || container
+                    );
+                    const wasSticking = CerbUI.AgentTranscript.shouldStick(scroller);
+                    const prevTop = scroller ? scroller.scrollTop : 0;
+
                     CerbUI.AgentTranscript.from(container).updateTurn(json.seq, json.html);
+
+                    requestAnimationFrame(function() {
+                        if(!scroller) return;
+
+                        CerbUI.AgentTranscript.trackStick(scroller);
+
+                        if(wasSticking)
+                            CerbUI.AgentTranscript.stickToBottom(scroller);
+                        else if(scroller.scrollTop !== prevTop)
+                            scroller.scrollTop = prevTop; // the swap moved us; the reader didn't
+
+                        CerbUI.AgentTranscript.syncJump(scroller);
+                    });
                 }
 
                 // The clock asserts that work is happening, so it follows `working` (a turn being written or
@@ -463,7 +499,11 @@ $(function() {
         if(el.scrollHeight <= el.clientHeight)
             return;
 
-        el.scrollTop = el.scrollHeight;
+        // This element is NEW on every render (scrollTop 0), but the flag lives on the form above it, which
+        // isn't — so a reader who scrolled up mid-turn stays where they were through a tool-loop re-render
+        // instead of being thrown back to the newest turn.
+        CerbUI.AgentTranscript.trackStick(el);
+        CerbUI.AgentTranscript.restoreScroll(el);
     };
 
     // Twice: once after layout, and again shortly after to catch late height changes (the deferred JSON

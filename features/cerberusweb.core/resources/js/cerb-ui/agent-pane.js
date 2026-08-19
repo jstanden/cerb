@@ -550,8 +550,29 @@ CerbUI.AgentPane = class {
 
 	// Pin the chat scroll to the bottom: once after layout (rAF) and again shortly after, to catch late height
 	// growth (avatar images / the transcript enhancer rebuilding turns).
+	//
+	// Only when the reader is already at the bottom. This fires on every interaction re-render -- each tool
+	// call in a loop -- so pinning unconditionally drags anyone who scrolled up to re-read something. The chat
+	// body survives those re-renders, so a detached reader simply keeps the offset they had.
 	_scrollToBottom() {
-		const pin = () => { if(this.chatBodyEl) this.chatBodyEl.scrollTop = this.chatBodyEl.scrollHeight; };
+		if(!this.chatBodyEl)
+			return;
+
+		// Idempotent, and the body outlives every re-render, so this binds once.
+		if(window.CerbUI && CerbUI.AgentTranscript)
+			CerbUI.AgentTranscript.trackStick(this.chatBodyEl);
+
+		const pin = () => {
+			if(!this.chatBodyEl) return;
+
+			// The transcript component owns this rule; fall back to always pinning if it isn't loaded (a host
+			// with a chat but no transcript element).
+			if(window.CerbUI && CerbUI.AgentTranscript)
+				CerbUI.AgentTranscript.stickToBottom(this.chatBodyEl);
+			else
+				this.chatBodyEl.scrollTop = this.chatBodyEl.scrollHeight;
+		};
+
 		requestAnimationFrame(pin);
 		if(this._scrollTimer) clearTimeout(this._scrollTimer);
 		this._scrollTimer = setTimeout(pin, 150);

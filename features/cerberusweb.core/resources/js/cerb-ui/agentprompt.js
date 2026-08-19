@@ -178,6 +178,12 @@ CerbUI.AgentPrompt = class {
 		const typed = this.getValue();
 		if(typed.trim() === '' && this._attachments.length === 0) return this;
 
+		// Sending re-arms the transcript's stick-to-bottom. A reader who scrolled up to re-read something stays
+		// put while the agent works (that's the point of the flag), but the moment they send they've asked for
+		// what comes next -- leaving them detached would hide their own message and the reply.
+		if(window.CerbUI && CerbUI.AgentTranscript)
+			CerbUI.AgentTranscript.resetStick(this.el);
+
 		// The host may rewrite the text before it's serialized (`/command` expansion). It happens HERE rather
 		// than in onSubmit so mentions are extracted from what's actually SENT — an expansion carrying
 		// `@volume/path` has to resolve like a typed one, and the miss would be silent.
