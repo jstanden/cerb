@@ -1243,6 +1243,7 @@ class _DevblocksLlmService {
 			'huggingface',
 			'ollama',
 			'openai',
+			'openrouter',
 			'pinecone',
 			'qwen',
 			'together',
@@ -1293,6 +1294,7 @@ class _DevblocksLlmService {
 			'docker' => 'Docker',
 			'zai' => 'z.ai',
 			'qwen' => 'Qwen Cloud',
+			'openrouter' => 'OpenRouter',
 		];
 
 		$out = [];
@@ -1331,7 +1333,7 @@ class _DevblocksLlmService {
 				[
 					'caption' => 'display:',
 					'snippet' => "display:\n\ticon: \${1:bot}",
-					'docHTML' => '<b>display:</b> Override the brand mark and name this model reads as in transcripts and pickers. Useful when an OpenAI-compatible endpoint (llama.cpp, z.ai, Qwen) serves another vendor\'s model, so the provider id can\'t name it. Never sent to the provider.',
+					'docHTML' => '<b>display:</b> Override the brand mark and name this model reads as in transcripts and pickers. Useful when the provider id can\'t name the model: a self-hosted OpenAI-compatible server (llama.cpp, LM Studio, vLLM), where the brand says nothing about which model answers; or a gateway (OpenRouter, AWS Bedrock) that fronts another vendor\'s model and paints its own mark. Never sent to the provider.',
 				],
 			],
 			'values' => [
@@ -1796,6 +1798,7 @@ class _DevblocksLlmService {
 			'huggingface' => new Cerb\LLM\Providers\HuggingFace($params, $validate),
 			'ollama' => new Cerb\LLM\Providers\Ollama($params, $validate),
 			'openai' => new Cerb\LLM\Providers\OpenAI($params, $validate),
+			'openrouter' => new Cerb\LLM\Providers\OpenRouter($params, $validate),
 			'pinecone' => new Cerb\LLM\Providers\Pinecone($params, $validate),
 			'together' => new Cerb\LLM\Providers\TogetherAI($params, $validate),
 			'voyage' => new Cerb\LLM\Providers\VoyageAI($params, $validate),

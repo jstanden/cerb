@@ -11,8 +11,12 @@ use Extension_DevblocksLlmProvider;
  *
  * Without it, a GLM model has to be configured as `provider: openai` with a hand-typed endpoint, and every
  * icon in the product paints the OpenAI logo — which is the exact problem the `display:` override exists to
- * paper over. A first-class provider fixes it at the source; keep `display:` for endpoints that genuinely
- * can't be known (llama.cpp, LM Studio, vLLM, and gateways like OpenRouter that front many vendors).
+ * paper over. A first-class provider fixes it at the source.
+ *
+ * The test is whether the endpoint and the brand can be KNOWN, not how many vendors sit behind them: AWS
+ * Bedrock and OpenRouter each front a whole catalog and both are first class. `display:` stays the answer
+ * for endpoints that have neither — llama.cpp, LM Studio, vLLM — where the address is wherever you started
+ * the server and the brand says nothing about which model answers.
  */
 class ZAi extends OpenAI {
 	const ID = 'zai';

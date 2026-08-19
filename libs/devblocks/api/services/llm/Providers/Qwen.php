@@ -11,7 +11,7 @@ use Extension_DevblocksLlmProvider;
  * The extension id is `qwen`, not the vendor's own `qwen_cloud`: the id names the PROVIDER (where the call
  * goes), and Qwen *models* are also served by other routers. Keeping the id short and the label explicit
  * ("Qwen Cloud") keeps that distinction legible — a `qwen3.7-plus` reached through OpenRouter is
- * `provider: openai` + a `display:` override, not this.
+ * `provider: openrouter` with a namespaced `qwen/...` model id, not this.
  *
  * Note it also serves DeepSeek models, which is why getModelDefaults() matches both namespaces.
  */
