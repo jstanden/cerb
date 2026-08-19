@@ -48,7 +48,9 @@
 				<td class="cerb-records-table--icon"><span class="cerb-icons cerb-icon-{$row.icon} cerb-u-fs" style="color:var(--cerb-color-tag-{$row.color});" title="{$row.type}"></span></td>
 				<td>
 					<code>{$row.key}</code>
-					<div class="cerb-records-keynote cerb-u-text-muted cerb-u-fs-n3">{$row.label}</div>
+					{* `notes` says what the type can't: a Record Link's target type, a Picklist's valid values.
+					   Already escaped into safe inline HTML by _noteToHtml(), same as every other note here. *}
+					<div class="cerb-records-keynote cerb-u-text-muted cerb-u-fs-n3">{$row.label}{if $row.notes} - {$row.notes nofilter}{/if}</div>
 				</td>
 			</tr>
 		{/foreach}

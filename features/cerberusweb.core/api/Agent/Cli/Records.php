@@ -319,10 +319,7 @@ class Records implements Command {
 			$out[] = '';
 			$out[] = "## Custom fields";
 			$out[] = '';
-			$out[] = $this->_table(
-				['key', 'type', 'field'],
-				array_map(fn($r) => [strval($r['key'] ?? ''), strval($r['type'] ?? ''), strval($r['label'] ?? '')], $described['custom'])
-			);
+			$out[] = $this->_customFieldTable($described['custom']);
 		}
 
 		foreach(($described['fieldsets'] ?? []) as $fieldset) {
@@ -332,10 +329,7 @@ class Records implements Command {
 			$out[] = '';
 			$out[] = sprintf("## Custom fieldset: %s", strval($fieldset['name'] ?? ''));
 			$out[] = '';
-			$out[] = $this->_table(
-				['key', 'type', 'field'],
-				array_map(fn($r) => [strval($r['key'] ?? ''), strval($r['type'] ?? ''), strval($r['label'] ?? '')], $fieldset['fields'])
-			);
+			$out[] = $this->_customFieldTable($fieldset['fields']);
 		}
 
 		return implode("\n", $out);
@@ -345,6 +339,32 @@ class Records implements Command {
 	 * A markdown table. Chosen over JSON as the default because this data is tabular and JSON repeats every
 	 * key name on every row -- roughly 40% more tokens on a long filter list, for output nothing parses.
 	 */
+	/**
+	 * Custom fields, with the `notes` column carried only when something in this set has any.
+	 *
+	 * `type` alone is a dead end for two of them: a Record Link doesn't say WHICH type it points at, and a
+	 * Picklist doesn't say what its values are -- so a reader can't write a value or a filter without
+	 * guessing. SchemaBuilder answers both in `notes`; a set with none (all plain text and numbers) keeps
+	 * the narrower table.
+	 */
+	private function _customFieldTable(array $rows) : string {
+		$has_notes = (bool) array_filter($rows, fn($r) => '' !== trim(strval($r['notes'] ?? '')));
+
+		$headers = $has_notes ? ['key', 'type', 'field', 'notes'] : ['key', 'type', 'field'];
+
+		return $this->_table(
+			$headers,
+			array_map(function($r) use ($has_notes) {
+				$row = [strval($r['key'] ?? ''), strval($r['type'] ?? ''), strval($r['label'] ?? '')];
+
+				if($has_notes)
+					$row[] = $this->_cell($r['notes'] ?? '');
+
+				return $row;
+			}, $rows)
+		);
+	}
+
 	private function _table(array $headers, array $rows) : string {
 		$lines = [
 			'| ' . implode(' | ', $headers) . ' |',

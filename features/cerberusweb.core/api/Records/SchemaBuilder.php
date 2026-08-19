@@ -83,6 +83,7 @@ class SchemaBuilder {
 					'type' => $cf_type_labels[$field->type] ?? ucwords((string)$field->type),
 					'icon' => $icon,
 					'color' => $color,
+					'notes' => self::_customFieldNotes($field),
 				];
 
 				if($field->custom_fieldset_id && isset($fieldsets[$field->custom_fieldset_id]))
@@ -175,6 +176,53 @@ class SchemaBuilder {
 			'custom' => $custom,
 			'fieldsets' => array_values($fieldsets),
 		];
+	}
+
+	/**
+	 * What a custom field's TYPE alone doesn't tell you.
+	 *
+	 * "Record Link" says the shape and not the target, and "Picklist" says there is a fixed set without
+	 * saying what's in it -- so a caller reading this schema can't write a value or a filter for either one
+	 * without guessing. Both answers are already sitting in the field's `params`; they were just never
+	 * surfaced.
+	 *
+	 * Returns '' for the types that need no explanation, so a caller can skip empty notes.
+	 */
+	private static function _customFieldNotes(Model_CustomField $field) : string {
+		$params = is_array($field->params) ? $field->params : [];
+
+		// `context` is the linked record type -- set by the built-in Record Link type and by the Record Links
+		// (multiple) type extension alike. Reported as the ALIAS, since that's what every other part of this
+		// schema speaks and what a search query or a `record.create` would use.
+		if('' !== ($context_id = trim(strval($params['context'] ?? '')))) {
+			$alias = $context_id;
+
+			// Manifest only (`false`) -- resolving an alias must not instantiate a context, which would drag in
+			// its DAO for every linked field on every type.
+			if(($linked_mft = Extension_DevblocksContext::get($context_id, false)))
+				$alias = trim(strval($linked_mft->params['alias'] ?? '')) ?: $context_id;
+
+			return sprintf('Links to `%s` records.', $alias);
+		}
+
+		// Picklist / Multiple Checkboxes: the valid values ARE the contract.
+		if(is_array($options = $params['options'] ?? []) && $options) {
+			$options = array_values(array_filter(array_map('strval', $options), fn($o) => '' !== trim($o)));
+
+			if(!$options)
+				return '';
+
+			// A long picklist would otherwise dominate the table it's described in. The cap is generous enough
+			// that most fields print in full, and the overflow count tells a reader the list continues.
+			$shown = array_slice($options, 0, 20);
+
+			return sprintf('One of: %s%s',
+				implode(', ', array_map(fn($o) => sprintf('`%s`', $o), $shown)),
+				count($options) > count($shown) ? sprintf(' (+%d more)', count($options) - count($shown)) : ''
+			);
+		}
+
+		return '';
 	}
 
 	/**

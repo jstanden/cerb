@@ -112,6 +112,20 @@ class PageSection_SetupRecords extends Extension_PageSection {
 		}
 		unset($param);
 
+		// Custom fields carry notes too -- a Record Link's target type, a Picklist's values -- and those come
+		// from WORKER-authored option text, so they take the same escape-then-mark-code pass as everything else
+		// rather than being handed to the template raw.
+		foreach($rt['custom'] as &$row)
+			$row['notes'] = $this->_noteToHtml($row['notes'] ?? '');
+		unset($row);
+
+		foreach($rt['fieldsets'] as &$fieldset) {
+			foreach($fieldset['fields'] as &$row)
+				$row['notes'] = $this->_noteToHtml($row['notes'] ?? '');
+			unset($row);
+		}
+		unset($fieldset);
+
 		return $rt;
 	}
 
