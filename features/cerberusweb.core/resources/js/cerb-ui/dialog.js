@@ -673,9 +673,11 @@ CerbUI.Dialog = class {
 		if(this.opts.position) {
 			this.x = this.opts.position.x;
 			this.y = this.opts.position.y;
+			this._clampIntoView(); // a supplied position may predate this dialog's width (anchor / 'reuse')
 		} else if(inheritedPos) {
 			this.x = inheritedPos.x;
 			this.y = inheritedPos.y;
+			this._clampIntoView();
 		} else {
 			this._positionDefault(); // centered horizontally, near the top (the default / restore position)
 		}
@@ -882,11 +884,11 @@ CerbUI.Dialog = class {
 	}
 
 	// Resolve the current pixel width from the spec: mobile forces 95%; a relative %/default scales with the
-	// viewport (optionally capped, never wider than the viewport); a fixed px width is returned as-is.
+	// viewport (optionally capped, never wider than the viewport); a fixed px width is clamped to it too.
 	_computeWidth() {
 		const vw = window.innerWidth;
 		if(vw <= CerbUI.Dialog._MOBILE_MAX) return Math.round(vw * 0.95);
-		if(this._widthPct == null) return this._widthPx;
+		if(this._widthPct == null) return Math.min(this._widthPx, vw - 20);
 		let w = Math.round(vw * this._widthPct / 100);
 		if(this._widthCap != null) w = Math.min(w, this._widthCap);
 		return Math.min(w, vw - 20);
