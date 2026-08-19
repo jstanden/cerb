@@ -496,6 +496,50 @@ class Model_Toolbar extends DevblocksRecordModel {
 	}
 	
 	/**
+	 * Concatenate several KATA fragments into one toolbar, renaming a top-level `interaction/` or `menu/` key
+	 * that a later fragment reuses -- otherwise the KATA parser keeps only the last one and an item silently
+	 * disappears. The rename is arbitrary because nothing downstream reads these keys: `parse()` re-keys
+	 * everything by the bare sub-key and stamps `type` itself.
+	 *
+	 * Written for a toolbar's own SECTIONS (each of which may come from a different event listener), and
+	 * shared with `Toolbar_GlobalMenu`, which merges whole toolbars the same way -- the command bar's menu is
+	 * `agent.pane` plus `global.menu`. Same problem, one level up.
+	 *
+	 * @param string[] $katas In the order they should appear.
+	 */
+	static function mergeKata(array $katas) : string {
+		$katas = array_values(array_filter($katas, fn($kata) => '' !== trim(strval($kata))));
+
+		// One source can't collide with itself -- skip the line-by-line pass entirely.
+		if(1 == count($katas))
+			return $katas[0];
+
+		$toolbar_kata = '';
+		$toolbar_kata_keys = [];
+
+		foreach($katas as $kata) {
+			$lines = DevblocksPlatform::parseCrlfString($kata, true, false);
+
+			foreach($lines as $line) {
+				if(DevblocksPlatform::strStartsWith($line, ['interaction/','menu/'])) {
+					// Check for dupe bindings from the sources
+					if(array_key_exists($line, $toolbar_kata_keys)) {
+						$line = sprintf("%s_%s:",
+							rtrim($line,': '),
+							substr(sha1(random_bytes(128)), 0, 8)
+						);
+					}
+					$toolbar_kata_keys[$line] = true;
+				}
+
+				$toolbar_kata .= $line . "\n";
+			}
+		}
+
+		return $toolbar_kata;
+	}
+
+	/**
 	 * @param ?DevblocksDictionaryDelegate $dict
 	 * @param string|null $error
 	 * @return array|string|false
@@ -506,37 +550,8 @@ class Model_Toolbar extends DevblocksRecordModel {
 		// Sort by priority
 		uasort($toolbar_sections, fn($a,$b) => $a->priority <=> $b->priority);
 		
-		$toolbar_kata = '';
-		
-		// If we only have one listener we don't need to merge dupe key names
-		if(1 == count($toolbar_sections)) {
-			if(($section = current($toolbar_sections)))
-				$toolbar_kata = $section->toolbar_kata;
-			
-		} else {
-			// If we have more than one listener we need to check for dupe binding keys
-			$toolbar_kata_keys = [];
-			
-			foreach($toolbar_sections as $section) {
-				$lines = DevblocksPlatform::parseCrlfString($section->toolbar_kata, true, false);
-				
-				foreach($lines as $line) {
-					if(DevblocksPlatform::strStartsWith($line, ['interaction/','menu/'])) {
-						// Check for dupe bindings from the sections
-						if(array_key_exists($line, $toolbar_kata_keys)) {
-							$line = sprintf("%s_%s:",
-								rtrim($line,': '),
-								substr(sha1(random_bytes(128)), 0, 8)
-							);
-						}
-						$toolbar_kata_keys[$line] = true;
-					}
-					
-					$toolbar_kata .= $line . "\n";
-				}
-			}
-		}
-		
+		$toolbar_kata = self::mergeKata(array_map(fn($section) => $section->toolbar_kata, $toolbar_sections));
+
 		if(is_null($dict))
 			return $toolbar_kata;
 		

@@ -51,8 +51,25 @@ class Toolbar_GlobalMenu extends Extension_Toolbar {
 			$legacy_interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('global', [], $active_worker);
 		}
 		
-		$toolbar_kata = '';
-		
+		// The command bar's menu is TWO toolbars. Agent chats for the command bar are authored on `agent.pane`
+		// alongside the six editor panes -- `commandbar` is one of its components -- so an author manages every
+		// agent chat in one place instead of remembering that this one surface is different. `global.menu` keeps
+		// the non-agentic shortcuts it always had: look up an IP, reload a website cache, renew a cert.
+		//
+		// Merged as RAW KATA and parsed once, which is why `getKata()` is called with no dict (a dict makes it
+		// return a parsed tree instead). Agents lead, then this toolbar's own items, then the legacy shim
+		// appended below. Model_Toolbar::mergeKata() renames a top-level key the second toolbar reuses, exactly
+		// as it does for two sections of one toolbar.
+		//
+		// `agent.pane` items are gated by `hidden@bool: {{ component != 'commandbar' }}`, which resolves against
+		// the `component` in the parse dict below -- an editor-only chat comes back flagged hidden and is
+		// dropped. An UNGATED item shows here as it shows on every pane; that's the author's call, same as
+		// anywhere else on that toolbar.
+		$katas = [];
+
+		if(null != ($agent_toolbar = DAO_Toolbar::getByName('agent.pane')))
+			$katas[] = $agent_toolbar->getKata();
+
 		if(null != ($toolbar = DAO_Toolbar::getByName('global.menu')))
 			$katas[] = $toolbar->getKata();
 
@@ -83,12 +100,24 @@ class Toolbar_GlobalMenu extends Extension_Toolbar {
 			$toolbar_kata .= $legacy_kata;
 		}
 		
+		// `component` is what the merged `agent.pane` items gate on: their `hidden@bool: {{ component != … }}`
+		// resolves here, so an editor-only chat is flagged hidden and dropped below. It's the same placeholder
+		// name the agent.pane toolbar uses on every editor pane, so a gate reads identically wherever it's
+		// written -- the command bar is simply the pane whose component is `commandbar`.
 		$toolbar_dict = DevblocksDictionaryDelegate::instance([
+			'component' => 'commandbar',
 			'worker__context' => CerberusContexts::CONTEXT_WORKER,
 			'worker_id' => $active_worker->id,
 		]);
 
 		$menu = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict);
+
+		// `parse()` FLAGS hidden items, it doesn't remove them -- only the renderer skips them. That was
+		// harmless while every item was meant for this menu, but the merged `agent.pane` toolbar arrives mostly
+		// hidden (one chat per editor), and the two passes below don't check the flag: they'd look up
+		// descriptions for automations nobody can launch here, and register a hidden item as the launcher
+		// identity a resumed conversation inherits its label and icon from.
+		$menu = self::_dropHiddenItems($menu);
 
 		// Supply each item's `description` (the command-bar subtitle) from its automation's own description, when
 		// the KATA didn't set one explicitly. `description` is a first-class field so non-interaction entries we
@@ -159,6 +188,38 @@ class Toolbar_GlobalMenu extends Extension_Toolbar {
 		$resume_items['divider/resume'] = ['type' => 'divider'];
 
 		return $resume_items + $menu;
+	}
+
+	/**
+	 * Drop items `parse()` flagged hidden, recursing into submenus, and drop a `menu` left empty by that.
+	 *
+	 * The renderer already skips hidden items, so this is about everything BETWEEN parse and render: the
+	 * description lookup and the launcher-identity map both walk the tree without checking the flag.
+	 */
+	private static function _dropHiddenItems(array $items) : array {
+		$out = [];
+
+		foreach($items as $key => $item) {
+			if(!is_array($item)) {
+				$out[$key] = $item;
+				continue;
+			}
+
+			if($item['hidden'] ?? false)
+				continue;
+
+			if('menu' == self::_itemType($key, $item) && !empty($item['items'])) {
+				$item['items'] = self::_dropHiddenItems($item['items']);
+
+				// A submenu whose every child was gated away is an empty label; don't render it.
+				if(!$item['items'])
+					continue;
+			}
+
+			$out[$key] = $item;
+		}
+
+		return $out;
 	}
 
 	// Top-level parsed items are keyed by their bare sub-key and carry a `type`; nested `menu > items` keep their
