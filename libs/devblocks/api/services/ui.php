@@ -207,6 +207,7 @@ class _DevblocksUiManager {
 			'logo-moonshot',
 			'logo-ollama',
 			'logo-openai',
+			'logo-openrouter',
 			'logo-qwen',
 			'logo-xai',
 			'logo-z-ai',
