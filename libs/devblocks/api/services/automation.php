@@ -1062,11 +1062,16 @@ class CerbAutomationPolicy {
 	
 	public function isCallerAllowed($caller_name, DevblocksDictionaryDelegate $dict) {
 		$rules = [];
-		
+
 		// We're not restricting the caller at all
 		if(!$this->_callers)
 			return true;
-		
+
+		// A caller can legitimately be unknown -- a toolbar that parses without a `caller_name` in its dict
+		// passes null -- and null is not a legal array key, so PHP 8.4+ deprecates looking one up. It matches
+		// nothing either way; '' just says so without the notice.
+		$caller_name = strval($caller_name ?? '');
+
 		if(array_key_exists($caller_name, $this->_callers))
 			$rules = $this->_callers[$caller_name];
 		
