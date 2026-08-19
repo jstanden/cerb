@@ -4080,6 +4080,18 @@ class CerbPatch_Core_v12_0_0 {
 			));
 		}
 	}
+
+	private function patchLlmAgentSessionIsReadIndex() : void {
+		// The transcript viewer tallies Active vs Archived on every list load. Without this the count is a
+		// full scan of every session ever recorded, which is the one table that grows per agent turn.
+		if(!array_key_exists('llm_agent_session', $this->_tables))
+			return;
+		
+		list(, $indexes) = $this->_db->metaTable('llm_agent_session');
+		
+		if(!array_key_exists('is_read', $indexes))
+			$this->_db->ExecuteMaster("ALTER TABLE llm_agent_session ADD INDEX is_read (is_read)");
+	}
 }
 
 $patch = new CerbPatch_Core_v12_0_0();

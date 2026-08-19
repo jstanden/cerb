@@ -7078,7 +7078,7 @@ tables:
         type: tinyint
         collation@text:
         nullable: NOT NULL
-        key@text:
+        key: MUL
         default: 0
         extra@text:
       mounts_hash:
@@ -7192,6 +7192,13 @@ tables:
             index_type: BTREE
             subpart@text:
             unique: 1
+      is_read:
+        columns:
+          is_read:
+            column_name: is_read
+            index_type: BTREE
+            subpart@text:
+            unique@text:
       updated_at:
         columns:
           updated_at:
