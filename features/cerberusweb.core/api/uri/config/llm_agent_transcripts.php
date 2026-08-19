@@ -38,6 +38,7 @@ class PageSection_SetupDevelopersLlmAgentTranscripts extends Extension_PageSecti
 		
 		$tpl->assign('limit', $limit);
 		$tpl->assign('transcripts', $transcripts);
+		$tpl->assign('transcript_counts', $this->_transcriptCounts());
 		$tpl->assign('transcript_id', $transcript_id);
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/developers/llm-agent-transcripts/index.tpl');
 	}
@@ -68,6 +69,29 @@ class PageSection_SetupDevelopersLlmAgentTranscripts extends Extension_PageSecti
 		return false;
 	}
 	
+	/**
+	 * The Open/Archived scope totals in display form: an abbreviated `label` for the switcher badge (a
+	 * six-figure tally has no room to spell itself out at that size) plus the exact `title` for its tooltip.
+	 * Formatted here rather than in JS so there's one implementation of the abbreviation, not two that drift.
+	 */
+	private function _transcriptCounts() : array {
+		$counts = [];
+		
+		foreach(DAO_LlmAgentSession::getCounts() as $scope => $count) {
+			// One decimal so a large tally still reads as `1.2M` instead of flattening to `1M`. A count is
+			// always a whole number, though, so a round one has no fraction worth showing -- drop the trailing
+			// `.0` (`1.0K` -> `1K`). Only the abbreviated forms carry a decimal; under 1,000 is printed as-is.
+			$label = preg_replace('/\.0(?=[KMBT]$)/', '', DevblocksPlatform::strPrettyNumber($count, 1));
+			
+			$counts[$scope] = [
+				'label' => $label,
+				'title' => number_format($count),
+			];
+		}
+		
+		return $counts;
+	}
+	
 	private function _configAction_loadTranscripts(): void {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -93,9 +117,11 @@ class PageSection_SetupDevelopersLlmAgentTranscripts extends Extension_PageSecti
 			$tpl->assign('transcripts', $transcripts);
 			$html = $tpl->fetch('devblocks:cerberusweb.core::configuration/section/developers/llm-agent-transcripts/transcripts.tpl');
 			
+			// Scope totals ride the list response so the switcher badges stay honest without a second trip.
 			echo json_encode([
 				'status' => true,
 				'html' => $html,
+				'counts' => $this->_transcriptCounts(),
 			]);
 			
 		} catch (Throwable $e) {
@@ -716,6 +742,7 @@ class PageSection_SetupDevelopersLlmAgentTranscripts extends Extension_PageSecti
 			
 			echo json_encode([
 				'status' => true,
+				'counts' => $this->_transcriptCounts(),
 			]);
 			return;
 			
@@ -757,6 +784,7 @@ class PageSection_SetupDevelopersLlmAgentTranscripts extends Extension_PageSecti
 			
 			echo json_encode([
 				'status' => true,
+				'counts' => $this->_transcriptCounts(),
 			]);
 			return;
 			

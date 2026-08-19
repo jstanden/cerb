@@ -15,8 +15,8 @@
                     <button type="button" class="cerb-ui-toolbar-button" data-cerb-button="refresh" title="{{'common.refresh'|devblocks_translate|capitalize}}"><span class="cerb-icons cerb-icon-refresh"></span></button>
                 </div>
                 <div class="cerb-ui-switcher" data-cerb-transcript-scope style="margin-left:auto;">
-                    <button type="button" class="cerb-ui-switcher--active" data-value="active">Active</button>
-                    <button type="button" data-value="archived">Archived</button>
+                    <button type="button" class="cerb-ui-switcher--active" data-value="active">Open<span class="cerb-ui-switcher--badge" data-cerb-transcript-count="active" title="{$transcript_counts.active.title}">{$transcript_counts.active.label}</span></button>
+                    <button type="button" data-value="archived">Archived<span class="cerb-ui-switcher--badge" data-cerb-transcript-count="archived" title="{$transcript_counts.archived.title}">{$transcript_counts.archived.label}</span></button>
                 </div>
             </div>
         </div>
@@ -212,6 +212,24 @@ $(function() {
         }
     };
 
+    // Scope totals for the Open/Archived switcher badges. Every response that can move a transcript
+    // between scopes (list, mark-read, delete) returns them, so the badges never drift from the list. The
+    // server sends both forms (abbreviated label + exact tooltip) so the abbreviation isn't reimplemented here.
+    const funcUpdateCounts = function(counts) {
+        if(!counts || typeof counts != 'object')
+            return;
+
+        $sidebar.find('[data-cerb-transcript-count]').each(function() {
+            let key = this.getAttribute('data-cerb-transcript-count');
+
+            if(!(key in counts))
+                return;
+
+            this.textContent = counts[key].label;
+            this.title = counts[key].title;
+        });
+    };
+
     const funcUpdatePager = function(count) {
         let limit = parseInt($sidebar.attr('data-cerb-sidebar-limit'), 10) || 100;
         $pager.css('display', count >= limit ? '' : 'none');
@@ -259,6 +277,7 @@ $(function() {
                         $list.html($items);
 
                     funcUpdatePager(count);
+                    funcUpdateCounts(json.counts);
                 }
             }
         });
@@ -339,6 +358,7 @@ $(function() {
 
                             } else {
                                 $viewer.empty();
+                                funcUpdateCounts(json.counts);
 
                                 let $item = $current_transcript;
                                 let $next = ($item && $item.length) ? $item.nextAll('li[data-cerb-transcript-id]').first() : $();
@@ -376,6 +396,7 @@ $(function() {
 
                     } else {
                         $viewer.empty();
+                        funcUpdateCounts(json.counts);
 
                         let $item = $current_transcript;
 

@@ -347,6 +347,29 @@ class DAO_LlmAgentSession {
 	}
 	
 	/**
+	 * Session totals by list scope, matching `search()`'s `$is_read` split: `active` (unarchived) and
+	 * `archived`. One grouped pass so the caller doesn't run two counts.
+	 *
+	 * @return array{active:int,archived:int}
+	 */
+	public static function getCounts() : array {
+		$db = DevblocksPlatform::services()->database();
+		
+		$counts = ['active' => 0, 'archived' => 0];
+		
+		try {
+			$rows = $db->GetArrayReader("SELECT `is_read`, COUNT(*) AS `hits` FROM llm_agent_session GROUP BY `is_read`");
+		} catch (Exception_DevblocksDatabaseQueryTimeout) {
+			return $counts;
+		}
+		
+		foreach($rows as $row)
+			$counts[$row['is_read'] ? 'archived' : 'active'] = intval($row['hits']);
+		
+		return $counts;
+	}
+	
+	/**
 	 * @return Model_LlmAgentSession[]
 	 */
 	// $is_read: false = active/unarchived only (is_read=0, default), true = archived only (is_read=1),
