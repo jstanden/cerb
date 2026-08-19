@@ -91,6 +91,7 @@ let twigAutocompleteSuggestions = {
 		{ value: "merge", meta: "filter" },
 		{ value: "nl2br", meta: "filter" },
 		{ value: "number_format(2, '.', ',')", meta: "filter" },
+		{ value: "number_pretty", snippet: "number_pretty(${1:1})", meta: "filter" },
 		{ value: "parse_csv", meta: "filter" },
 		{ value: "parse_emails", meta: "filter" },
 		{ value: "parse_url", meta: "filter" },

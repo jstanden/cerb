@@ -131,6 +131,7 @@ class _DevblocksTemplateManager {
 			$instance->registerPlugin('modifier','devblocks_markdown_to_html', ['_DevblocksTemplateManager', 'modifier_devblocks_markdown_to_html']);
 			$instance->registerPlugin('modifier','devblocks_prettytime', ['_DevblocksTemplateManager', 'modifier_devblocks_prettytime']);
 			$instance->registerPlugin('modifier','devblocks_prettybytes', ['_DevblocksTemplateManager', 'modifier_devblocks_prettybytes']);
+			$instance->registerPlugin('modifier','devblocks_prettynumber', ['_DevblocksTemplateManager', 'modifier_devblocks_prettynumber']);
 			$instance->registerPlugin('modifier','devblocks_prettysecs', ['_DevblocksTemplateManager', 'modifier_devblocks_prettysecs']);
 			$instance->registerPlugin('modifier','devblocks_prettyjson', ['_DevblocksTemplateManager', 'modifier_devblocks_prettyjson']);
 			$instance->registerPlugin('modifier','devblocks_rangy_deserialize', ['_DevblocksTemplateManager', 'modifier_devblocks_rangy_deserialize']);
@@ -387,6 +388,10 @@ class _DevblocksTemplateManager {
 
 	static function modifier_devblocks_prettybytes($string, $precision='0') {
 		return DevblocksPlatform::strPrettyBytes($string, $precision);
+	}
+	
+	static function modifier_devblocks_prettynumber($string, $precision='0') {
+		return DevblocksPlatform::strPrettyNumber($string, $precision);
 	}
 	
 	static function modifier_devblocks_hyperlinks($string) {

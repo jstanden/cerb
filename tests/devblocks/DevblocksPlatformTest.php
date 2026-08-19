@@ -1605,6 +1605,41 @@ class DevblocksPlatformTest extends TestCase {
 		$this->assertEquals($expected, $actual);
 	}
 	
+	public function testStrPrettyNumber() {
+		// Below the first divisor, unchanged
+		$this->assertEquals('0', DevblocksPlatform::strPrettyNumber('0'));
+		$this->assertEquals('512', DevblocksPlatform::strPrettyNumber('512'));
+		$this->assertEquals('999', DevblocksPlatform::strPrettyNumber('999'));
+		
+		// K -- truncated, so a 32,768-token window reads as the "32K" everyone calls it
+		$this->assertEquals('1K', DevblocksPlatform::strPrettyNumber('1000'));
+		$this->assertEquals('32K', DevblocksPlatform::strPrettyNumber('32768'));
+		$this->assertEquals('128K', DevblocksPlatform::strPrettyNumber('128000'));
+		$this->assertEquals('200K', DevblocksPlatform::strPrettyNumber('200000'));
+		
+		// Truncation keeps this off the nonsensical "1000K" that rounding would produce
+		$this->assertEquals('999K', DevblocksPlatform::strPrettyNumber('999999'));
+		
+		// M / B / T
+		$this->assertEquals('1M', DevblocksPlatform::strPrettyNumber('1000000'));
+		$this->assertEquals('1M', DevblocksPlatform::strPrettyNumber('1048576'));
+		$this->assertEquals('2M', DevblocksPlatform::strPrettyNumber('2900000'));
+		$this->assertEquals('5B', DevblocksPlatform::strPrettyNumber('5000000000'));
+		$this->assertEquals('3T', DevblocksPlatform::strPrettyNumber('3000000000000'));
+		
+		// Precision
+		$this->assertEquals('2.9M', DevblocksPlatform::strPrettyNumber('2900000', 1));
+		$this->assertEquals('1.04M', DevblocksPlatform::strPrettyNumber('1048576', 2));
+		$this->assertEquals('32.7K', DevblocksPlatform::strPrettyNumber('32768', 1));
+		
+		// Negatives
+		$this->assertEquals('-200K', DevblocksPlatform::strPrettyNumber('-200000'));
+		
+		// Non-numeric
+		$this->assertEquals('', DevblocksPlatform::strPrettyNumber(''));
+		$this->assertEquals('', DevblocksPlatform::strPrettyNumber('abc'));
+	}
+	
 	public function testStrPrettyTime() {
 		// just now
 		$expected = 'just now';

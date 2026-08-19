@@ -248,6 +248,7 @@ class _DevblocksTemplateBuilder {
 				'kata_encode',
 				'markdown_to_html',
 				'md5',
+				'number_pretty',
 				'parse_csv',
 				'parse_emails',
 				'parse_user_agent',
@@ -2089,6 +2090,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFilter('kata_encode', [$this, 'filter_kata_encode']),
 			new \Twig\TwigFilter('markdown_to_html', [$this, 'filter_markdown_to_html']),
 			new \Twig\TwigFilter('md5', [$this, 'filter_md5']),
+			new \Twig\TwigFilter('number_pretty', [$this, 'filter_number_pretty']),
 			new \Twig\TwigFilter('parse_csv', [$this, 'filter_parse_csv']),
 			new \Twig\TwigFilter('parse_emails', [$this, 'filter_parse_emails']),
 			new \Twig\TwigFilter('parse_url', [$this, 'filter_parse_url']),
@@ -2420,6 +2422,16 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			return '';
 		
 		return md5($string);
+	}
+	
+	function filter_number_pretty($string, $precision=0) {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
+		if(!is_numeric($string))
+			return '';
+		
+		return DevblocksPlatform::strPrettyNumber($string, $precision);
 	}
 	
 	function filter_parse_csv($string, $separator=',', $enclosure='"', $escape='') {

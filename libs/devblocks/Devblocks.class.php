@@ -2266,6 +2266,47 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	/**
+	 * A big number the way a reader says it out loud: 200000 -> "200K", 1000000 -> "1M".
+	 *
+	 * @param string $string
+	 * @param integer $precision
+	 * @return string
+	 * @test DevblocksPlatformTest
+	 */
+	static function strPrettyNumber($string, $precision='0') {
+		if(!is_numeric($string))
+			return '';
+		
+		$is_negative = (intval($string) < 0) ? true : false;
+		$number = abs(intval($string));
+		$precision = intval($precision);
+		$out = '';
+		
+		// Truncate rather than round (the one place this parts ways with strPrettyBytes): a
+		// 32,768-token context window is universally called "32K", never "33K". It also keeps
+		// 999,999 from rounding up into a nonsensical "1000K". The round() guards binary
+		// representation, where 2.9*10 is 28.999999999999996 and would floor a digit too far.
+		$truncate = function($value) use ($precision) {
+			$scale = pow(10, $precision);
+			return number_format(floor(round($value * $scale, 6)) / $scale, $precision);
+		};
+		
+		if($number >= 1000000000000) {
+			$out = $truncate($number/1000000000000) . 'T';
+		} elseif($number >= 1000000000) {
+			$out = $truncate($number/1000000000) . 'B';
+		} elseif($number >= 1000000) {
+			$out = $truncate($number/1000000) . 'M';
+		} elseif($number >= 1000) {
+			$out = $truncate($number/1000) . 'K';
+		} else {
+			$out = strval($number);
+		}
+		
+		return (($is_negative) ? '-' : '') . $out;
+	}
+	
+	/**
 	 * Takes a comma-separated value string and returns an array of tokens.
 	 *
 	 * @param string $string
