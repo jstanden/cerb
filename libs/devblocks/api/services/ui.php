@@ -75,6 +75,7 @@ class _DevblocksUiManager {
 			'calendar',
 			'camera',
 			'cart',
+			'cerb',
 			'chart-area',
 			'chart-axis-x',
 			'chart-axis-y',
