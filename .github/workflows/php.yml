@@ -4,9 +4,11 @@ on:
   push:
     branches:
     - "11.*"
+    - "12.*"
   pull_request:
     branches:
     - "11.*"
+    - "12.*"
 
 permissions:
   contents: read
