@@ -451,6 +451,8 @@ class SearchFields_AgentModel extends DevblocksSearchFields {
 	const PROVIDER = 'a_provider';
 	const UPDATED_AT = 'a_updated_at';
 
+	const VIRTUAL_CONNECTED_ACCOUNT_SEARCH = '*_connected_account_search';
+
 	static private $_fields = null;
 
 	static function getTableName() : string {
@@ -477,6 +479,9 @@ class SearchFields_AgentModel extends DevblocksSearchFields {
 
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
+			case self::VIRTUAL_CONNECTED_ACCOUNT_SEARCH:
+				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_CONNECTED_ACCOUNT, 'agent_model.connected_account_id');
+
 			default:
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
@@ -491,12 +496,38 @@ class SearchFields_AgentModel extends DevblocksSearchFields {
 
 	static function getLabelsForKeyValues($key, $values) {
 		switch($key) {
+			case self::CONNECTED_ACCOUNT_ID:
+				$models = DAO_ConnectedAccount::getIds($values);
+				$label_map = array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+
+				// The column is optional -- a local provider (ollama, docker) authenticates with nothing
+				if(in_array(0, $values))
+					$label_map[0] = DevblocksPlatform::translate('common.none');
+
+				return $label_map;
+
 			case self::ID:
 				$models = DAO_AgentModel::getIds($values);
 				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+
+			case self::PROVIDER:
+				// The vendor names a reader knows ("AWS Bedrock", not `aws_bedrock`). Embedding-only
+				// providers (voyage, pinecone) aren't in this map, so they fall back to their raw id.
+				$labels = array_column(DevblocksPlatform::services()->llm()->getAgentProviders(), 'label', 'id');
+				return array_intersect_key($labels, array_flip($values));
 		}
 
 		return parent::getLabelsForKeyValues($key, $values);
+	}
+
+	static function getFieldForSubtotalKey($key, $context, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+			case 'authentication':
+				$key = 'authentication.id';
+				break;
+		}
+
+		return parent::getFieldForSubtotalKey($key, $context, $query_fields, $search_fields, $primary_key);
 	}
 
 	static function getFields() {
@@ -525,6 +556,8 @@ class SearchFields_AgentModel extends DevblocksSearchFields {
 			self::NAME => new DevblocksSearchField(self::NAME, 'agent_model', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::PROVIDER => new DevblocksSearchField(self::PROVIDER, 'agent_model', 'provider', $translate->_('dao.agent_model.provider'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'agent_model', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
+
+			self::VIRTUAL_CONNECTED_ACCOUNT_SEARCH => new DevblocksSearchField(self::VIRTUAL_CONNECTED_ACCOUNT_SEARCH, '*', 'connected_account_search', null, null, false),
 		];
 
 		if(($virtual_columns = DevblocksSearchField::getVirtualFields()))
@@ -680,6 +713,7 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 
 		$this->addColumnsHidden([
 			SearchFields_AgentModel::ID,
+			SearchFields_AgentModel::VIRTUAL_CONNECTED_ACCOUNT_SEARCH,
 		]);
 
 		$this->doResetCriteria();
@@ -737,6 +771,17 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 			$pass = false;
 
 			switch($field_key) {
+				// Low-cardinality only. `model`, `label`, and `description` are near-unique per row,
+				// so grouping by them would just re-list the worklist.
+				case SearchFields_AgentModel::API_ENDPOINT_URL:
+				case SearchFields_AgentModel::CONNECTED_ACCOUNT_ID:
+				case SearchFields_AgentModel::CONTEXT_WINDOW:
+				case SearchFields_AgentModel::HAS_VISION:
+				case SearchFields_AgentModel::IS_DISABLED:
+				case SearchFields_AgentModel::PROVIDER:
+					$pass = true;
+					break;
+
 				default:
 					if(DevblocksPlatform::strStartsWith($field_key, 'cf_')) {
 						$pass = $this->_canSubtotalCustomField($field_key);
@@ -762,6 +807,42 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 			return [];
 
 		switch($column) {
+			case SearchFields_AgentModel::HAS_VISION:
+			case SearchFields_AgentModel::IS_DISABLED:
+				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
+				break;
+
+			case SearchFields_AgentModel::API_ENDPOINT_URL:
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
+				break;
+
+			case SearchFields_AgentModel::PROVIDER:
+				$label_map = function(array $values) use ($column) {
+					return SearchFields_AgentModel::getLabelsForKeyValues($column, $values);
+				};
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
+				break;
+
+			case SearchFields_AgentModel::CONNECTED_ACCOUNT_ID:
+				$label_map = function(array $values) use ($column) {
+					return SearchFields_AgentModel::getLabelsForKeyValues($column, $values);
+				};
+				$counts = $this->_getSubtotalCountForNumberColumn($context, $column, $label_map, 'in');
+				break;
+
+			case SearchFields_AgentModel::CONTEXT_WINDOW:
+				// Group by the size a reader recognizes (`200K`) rather than the raw token count
+				$label_map = function(array $values) {
+					$map = [];
+
+					foreach($values as $value)
+						$map[$value] = DevblocksPlatform::strPrettyNumber($value);
+
+					return $map;
+				};
+				$counts = $this->_getSubtotalCountForNumberColumn($context, $column, $label_map);
+				break;
+
 			default:
 				if(DevblocksPlatform::strStartsWith($column, 'cf_')) {
 					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
@@ -781,10 +862,44 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_AgentModel::getFields();
 
+		// Whatever providers this install actually has, so the autocomplete can't offer a dead id
+		$provider_labels = array_column(DevblocksPlatform::services()->llm()->getAgentProviders(), 'label', 'id');
+
 		$fields = [
+			'apiEndpointUrl' => [
+				'type' => DevblocksSearchCriteria::TYPE_TEXT,
+				'options' => ['param_key' => SearchFields_AgentModel::API_ENDPOINT_URL, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL],
+			],
+			// Named for the column's own label ("Authentication"), which is what the worklist header,
+			// the peek, and the profile all say -- not for the record type behind it.
+			'authentication' => [
+				'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+				'options' => [
+					'param_key' => SearchFields_AgentModel::VIRTUAL_CONNECTED_ACCOUNT_SEARCH,
+					'select_key' => 'agent_model.connected_account_id',
+				],
+				'examples' => [
+					['type' => 'search', 'context' => CerberusContexts::CONTEXT_CONNECTED_ACCOUNT, 'q' => ''],
+				]
+			],
+			'authentication.id' => [
+				'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+				'options' => ['param_key' => SearchFields_AgentModel::CONNECTED_ACCOUNT_ID],
+				'examples' => [
+					['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_CONNECTED_ACCOUNT, 'q' => ''],
+				]
+			],
+			'contextWindow' => [
+				'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+				'options' => ['param_key' => SearchFields_AgentModel::CONTEXT_WINDOW],
+			],
 			'created' => [
 				'type' => DevblocksSearchCriteria::TYPE_DATE,
 				'options' => ['param_key' => SearchFields_AgentModel::CREATED_AT],
+			],
+			'description' => [
+				'type' => DevblocksSearchCriteria::TYPE_TEXT,
+				'options' => ['param_key' => SearchFields_AgentModel::DESCRIPTION, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL],
 			],
 			'fieldset' => [
 				'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
@@ -793,6 +908,14 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 					['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . Context_AgentModel::ID],
 				]
 			],
+			'hasVision' => [
+				'type' => DevblocksSearchCriteria::TYPE_BOOL,
+				'options' => ['param_key' => SearchFields_AgentModel::HAS_VISION],
+			],
+			'icon' => [
+				'type' => DevblocksSearchCriteria::TYPE_TEXT,
+				'options' => ['param_key' => SearchFields_AgentModel::ICON],
+			],
 			'id' => [
 				'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 				'options' => ['param_key' => SearchFields_AgentModel::ID],
@@ -800,9 +923,28 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 					['type' => 'chooser', 'context' => Context_AgentModel::ID, 'q' => ''],
 				]
 			],
+			'isDisabled' => [
+				'type' => DevblocksSearchCriteria::TYPE_BOOL,
+				'options' => ['param_key' => SearchFields_AgentModel::IS_DISABLED],
+			],
+			'label' => [
+				'type' => DevblocksSearchCriteria::TYPE_TEXT,
+				'options' => ['param_key' => SearchFields_AgentModel::LABEL, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL],
+			],
+			'model' => [
+				'type' => DevblocksSearchCriteria::TYPE_TEXT,
+				'options' => ['param_key' => SearchFields_AgentModel::MODEL, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL],
+			],
 			'name' => [
 				'type' => DevblocksSearchCriteria::TYPE_TEXT,
 				'options' => ['param_key' => SearchFields_AgentModel::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL],
+			],
+			'provider' => [
+				'type' => DevblocksSearchCriteria::TYPE_TEXT,
+				'options' => ['param_key' => SearchFields_AgentModel::PROVIDER],
+				'examples' => [
+					['type' => 'list', 'values' => $provider_labels],
+				]
 			],
 			'updated' => [
 				'type' => DevblocksSearchCriteria::TYPE_DATE,
@@ -827,6 +969,9 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
+			case 'authentication':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_AgentModel::VIRTUAL_CONNECTED_ACCOUNT_SEARCH);
+
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
 
@@ -852,12 +997,32 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 		$custom_fields = DAO_CustomField::getByContext(Context_AgentModel::ID);
 		$tpl->assign('custom_fields', $custom_fields);
 
+		// Resolved in ONE query here so the Authentication cell can print a NAME instead of an id.
+		// Never from the template: a per-row lookup there is a query per row. There are only ever a
+		// handful of connected accounts, so getAll() is cheaper than collecting ids off the rows.
+		if(in_array(SearchFields_AgentModel::CONNECTED_ACCOUNT_ID, $this->view_columns))
+			$tpl->assign('connected_accounts', DAO_ConnectedAccount::getAll());
+
 		$tpl->assign('view_template', 'devblocks:cerberusweb.core::records/types/agent_model/view.tpl');
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
 
 	function renderCriteriaParam($param) {
 		switch($param->field) {
+			case SearchFields_AgentModel::CONNECTED_ACCOUNT_ID:
+			case SearchFields_AgentModel::PROVIDER:
+				$field = $param->field;
+				$label_map = function($values) use ($field) {
+					return SearchFields_AgentModel::getLabelsForKeyValues($field, $values);
+				};
+				parent::_renderCriteriaParamString($param, $label_map);
+				break;
+
+			case SearchFields_AgentModel::HAS_VISION:
+			case SearchFields_AgentModel::IS_DISABLED:
+				parent::_renderCriteriaParamBoolean($param);
+				break;
+
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -866,6 +1031,13 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 
 	function renderVirtualCriteria($param) : void {
 		switch($param->field) {
+			case SearchFields_AgentModel::VIRTUAL_CONNECTED_ACCOUNT_SEARCH:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('dao.agent_model.connected_account_id')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
+				break;
+
 			default:
 				$this->_renderVirtualCriteria($param);
 				break;
@@ -887,14 +1059,23 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 
 			case SearchFields_AgentModel::CONNECTED_ACCOUNT_ID:
 			case SearchFields_AgentModel::CONTEXT_WINDOW:
-			case SearchFields_AgentModel::HAS_VISION:
 			case SearchFields_AgentModel::ID:
-			case SearchFields_AgentModel::IS_DISABLED:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
+				break;
+
+			// A bit column posts its value as `bool`, not `value` -- that's the payload
+			// _getSubtotalCountForBooleanColumn() builds when a subtotal row is clicked.
+			case SearchFields_AgentModel::HAS_VISION:
+			case SearchFields_AgentModel::IS_DISABLED:
+				$bool = DevblocksPlatform::importGPC($_POST['bool'] ?? null, 'integer', 1);
+				$criteria = new DevblocksSearchCriteria($field, $oper, $bool);
 				break;
 
 			case SearchFields_AgentModel::API_ENDPOINT_URL:
 			case SearchFields_AgentModel::DESCRIPTION:
+			case SearchFields_AgentModel::ICON:
+			case SearchFields_AgentModel::ICON_COLOR:
+			case SearchFields_AgentModel::LABEL:
 			case SearchFields_AgentModel::MODEL:
 			case SearchFields_AgentModel::NAME:
 			case SearchFields_AgentModel::PROVIDER:
@@ -962,8 +1143,9 @@ class Context_AgentModel extends Extension_DevblocksContext implements IDevblock
 
 		$properties['connected_account_id'] = [
 			'label' => mb_ucfirst($translate->_('dao.agent_model.connected_account_id')),
-			'type' => Model_CustomField::TYPE_NUMBER,
+			'type' => Model_CustomField::TYPE_LINK,
 			'value' => $model->connected_account_id,
+			'params' => ['context' => CerberusContexts::CONTEXT_CONNECTED_ACCOUNT],
 		];
 
 		$properties['context_window'] = [
@@ -986,7 +1168,7 @@ class Context_AgentModel extends Extension_DevblocksContext implements IDevblock
 
 		$properties['has_vision'] = [
 			'label' => mb_ucfirst($translate->_('dao.agent_model.has_vision')),
-			'type' => Model_CustomField::TYPE_NUMBER,
+			'type' => Model_CustomField::TYPE_CHECKBOX,
 			'value' => $model->has_vision,
 		];
 
@@ -1004,7 +1186,7 @@ class Context_AgentModel extends Extension_DevblocksContext implements IDevblock
 
 		$properties['is_disabled'] = [
 			'label' => mb_ucfirst($translate->_('dao.agent_model.is_disabled')),
-			'type' => Model_CustomField::TYPE_NUMBER,
+			'type' => Model_CustomField::TYPE_CHECKBOX,
 			'value' => $model->is_disabled,
 		];
 

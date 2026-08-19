@@ -104,6 +104,32 @@
 						<span class="cerb-icons cerb-icon-ban" title="{'common.disabled'|devblocks_translate|capitalize}"></span>
 					{/if}
 				</td>
+			{elseif $column == "a_has_vision"}
+				{* Same treatment as Disabled next door: the state, not a bare 0/1. Blank for "no" --
+				   an absence reads faster in a column than the word, and `circle-ok` is what every
+				   other worklist uses for a true bit. *}
+				<td data-column="{$column}" style="text-align:center;">
+					{if $result.$column}
+						<span class="cerb-icons cerb-icon-circle-ok" title="{'dao.agent_model.has_vision'|devblocks_translate|capitalize}"></span>
+					{/if}
+				</td>
+			{elseif $column == "a_connected_account_id"}
+				{* $connected_accounts is preloaded by View_AgentModel::render() -- never load records here *}
+				<td data-column="{$column}">
+					{$account_id = $result.$column}
+					{if $account_id && isset($connected_accounts.$account_id)}
+						<a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}" data-context-id="{$account_id}">{$connected_accounts.$account_id->name}</a>
+					{elseif $account_id}
+						{* A dangling id stays visible rather than blanking the cell *}
+						{$account_id}
+					{/if}
+				</td>
+			{elseif $column == "a_context_window"}
+				{* `200K` scans; `200000` next to `1000000` and `32768` does not. The exact count rides
+				   the tooltip so nothing is lost. *}
+				<td data-column="{$column}">
+					{if $result.$column}<span title="{$result.$column|number_format}">{$result.$column|devblocks_prettynumber}</span>{/if}
+				</td>
 			{elseif in_array($column, ["a_created_at", "a_updated_at"])}
 				<td>
 					{if !empty($result.$column)}
