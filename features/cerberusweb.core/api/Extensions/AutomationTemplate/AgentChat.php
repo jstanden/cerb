@@ -273,13 +273,29 @@ KATA;
 
 		$lines = [];
 
+		// Both families, since the model can't tell them apart and shouldn't have to: `commands` are answered by
+		// the browser, `server_tools` here. A component may have neither -- the command bar is a real place
+		// whose host has no command bridge yet -- and then there is no inventory to write. Saying "you act
+		// through these tools:" above an empty list, and then telling it to make changes, would contradict
+		// instructions that just said it can't see the screen.
+		$tools = [];
+
 		if($component) {
+			// Bridge commands carry their model-facing name in `tool`; a server tool IS its key.
+			foreach($component['commands'] as $command)
+				$tools[$command['tool']] = $command['description'];
+
+			foreach($component['server_tools'] ?? [] as $tool_name => $server_tool)
+				$tools[$tool_name] = $server_tool['description'];
+		}
+
+		if($tools) {
 			// The instructions above already say where the agent is; this just names the tools.
 			$lines[] = '';
 			$lines[] = 'You act on it through these tools:';
 
-			foreach($component['commands'] as $command)
-				$lines[] = sprintf('- %s -- %s', $command['tool'], $command['description']);
+			foreach($tools as $tool_name => $description)
+				$lines[] = sprintf('- %s -- %s', $tool_name, $description);
 
 			$lines[] = '';
 			$lines[] = 'Read before you write. Prefer acting over describing: make the change, then say briefly what changed and why.';

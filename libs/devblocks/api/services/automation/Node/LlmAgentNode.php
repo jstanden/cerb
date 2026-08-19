@@ -355,6 +355,12 @@ class LlmAgentNode extends AbstractNode {
 
 							return $this->node->getId();
 						}
+
+						// Answered HERE, by the trigger — no round-trip, so fill the same slot and fall through.
+						if('ui_server' == ($tool_dict['type'] ?? '')) {
+							$tool_dict['content'] = $this->_runTriggerTool($tool_spec, $tool);
+							$this->_dict->set('__tool', $tool_dict);
+						}
 					}
 
 					if('automation' == $tool_dict['type']) {
@@ -1422,6 +1428,32 @@ class LlmAgentNode extends AbstractNode {
 			'command' => $command,
 			'compacted' => $compacted,
 		], $this->_resolvedModelInfo($session_id)));
+	}
+
+	/**
+	 * Run a SERVER-side trigger tool (`ui_server/`) and return what the model should see.
+	 *
+	 * The trigger owns the vocabulary — the node only knows that a tool carries a `handler` and that the
+	 * trigger can run one. Mirrors how `agent_terminal` delegates to `Cerb\Agent\Filesystem`, except the
+	 * handler set is per-host rather than global.
+	 */
+	private function _runTriggerTool(DevblocksLlmChatResponse_Tool $tool_spec, ?array $tool) : string {
+		$handler = is_array($tool) ? strval($tool['handler'] ?? '') : '';
+
+		$trigger = $this->_automation?->getTriggerExtension();
+
+		if('' === $handler || !$trigger || !method_exists($trigger, 'runLlmAgentTool'))
+			return sprintf('ERROR: The `%s` tool is not available here.', $tool_spec->getName());
+
+		$content = $trigger->runLlmAgentTool($handler, $tool_spec->getParameters() ?? []);
+
+		// null means the trigger didn't recognize the handler — a catalog/trigger mismatch. Say so rather than
+		// answering with nothing, which the model reads as a real (empty) result.
+		if(is_null($content))
+			return sprintf('ERROR: The `%s` tool is not implemented.', $tool_spec->getName());
+
+		// Providers reject an empty tool result; same substitute `agent_terminal` uses.
+		return strval($content) ?: '(no output)';
 	}
 
 	/**

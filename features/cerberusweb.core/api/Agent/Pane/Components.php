@@ -44,6 +44,13 @@ namespace Cerb\Agent\Pane;
  */
 class Components {
 	/**
+	 * Handler ids for SERVER-side component tools (`server_tools`) -- the ones answered here rather than by a
+	 * round-trip to the editor. The catalog names a handler; the trigger runs it. That split is what keeps this
+	 * file dependency-free, and it means a component can offer a tool the host's JS knows nothing about.
+	 */
+	const HANDLER_ICONS_LIST = 'icons.list';
+
+	/**
 	 * Every component, keyed by its `component` string (the value the host passes to CerbUI.AgentPane and the
 	 * one `{{component}}` gates on in the `agent.pane` toolbar).
 	 *
@@ -357,6 +364,22 @@ class Components {
 				'icon' => 'sparkles',
 				'description' => "The Setup icon builder -- reads and writes the SVG geometry of the icon being drawn.",
 				'instructions' => "You are an assistant embedded in Cerb's icon builder. You help draw icons for Cerb's icon set: SVG geometry on a 24x24 viewBox, rendered as a CSS mask and tinted by currentColor.\n\nBecause it is a mask, only the shape matters -- fill and stroke colors in the geometry are discarded. Read the current geometry before editing, and use get_icon_geometry to look at a shipped icon when you need the set's existing conventions for weight, corner radius, or optical sizing.",
+				// Naming an existing icon is most of this job, and `get_icon_geometry` can only look one up once
+				// you know it exists -- so the set has to be enumerable.
+				'server_tools' => [
+					'list_icons' => [
+						'handler' => self::HANDLER_ICONS_LIST,
+						'description' => "List the names of every icon already in the Cerb set, one per line. Use it to find a related icon to match, or to check whether a name is taken. Narrow a long list with `filter`.",
+						'icon' => 'search',
+						'labels' => ['active' => 'Listing icons...', 'summary' => 'Listed icons'],
+						'parameters' => [
+							'filter' => [
+								'description' => 'Optional substring to match against icon names (e.g. "arrow").',
+								'required' => false,
+							],
+						],
+					],
+				],
 				'commands' => [
 					'getGeometry' => [
 						'tool' => 'get_geometry',
@@ -379,7 +402,7 @@ class Components {
 					],
 					'getIconGeometry' => [
 						'tool' => 'get_icon_geometry',
-						'description' => "Read another icon's geometry from the existing Cerb set, by name -- use it to match the house style before drawing. Returns an empty string when no such icon exists.",
+						'description' => "Read another icon's geometry from the existing Cerb set, by name -- use it to match the house style before drawing. Returns no output when no such icon exists.",
 						'icon' => 'search',
 						'labels' => ['active' => 'Looking up an icon...', 'summary' => 'Looked up an icon'],
 						'parameters' => [
@@ -552,6 +575,13 @@ class Components {
 				$tool['command_params'] = $command_params;
 
 			$tools['ui_command/' . $command['tool']] = $tool;
+		}
+
+		foreach($meta['server_tools'] ?? [] as $tool_name => $command) {
+			$tool = self::_toolEntry($command);
+			$tool['handler'] = $command['handler'];
+
+			$tools['ui_server/' . $tool_name] = $tool;
 		}
 
 		return $tools;

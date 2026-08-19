@@ -55,6 +55,44 @@ class AutomationTrigger_InteractionWorkerAgent extends AutomationTrigger_Interac
 
 		return \Cerb\Agent\Pane\Components::getToolsFor(strval($caller_params['component'] ?? ''));
 	}
+
+	/**
+	 * Answer a SERVER-side component tool (`ui_server/`) -- the ones that need no browser round-trip because
+	 * the answer is already here.
+	 *
+	 * `llm.agent:` calls this the way it calls the terminal: run it, put the result on the tool, done. Kept on
+	 * the trigger rather than in the catalog so `Cerb\Agent\Pane\Components` stays dependency-free -- it names
+	 * a handler, this runs it.
+	 *
+	 * Returns null when the handler is unknown, which the caller reports to the model rather than silently
+	 * answering with nothing.
+	 */
+	function runLlmAgentTool(string $handler, array $params) : ?string {
+		return match($handler) {
+			\Cerb\Agent\Pane\Components::HANDLER_ICONS_LIST => $this->_runIconsList($params),
+			default => null,
+		};
+	}
+
+	/**
+	 * Every icon name in the set, one per line. Straight off the UI service rather than through the
+	 * `ui.icons` data provider: that provider is a parser and a paginator wrapped around this same call, and
+	 * a tool result wants neither.
+	 */
+	private function _runIconsList(array $params) : string {
+		$filter = trim(strval($params['filter'] ?? ''));
+
+		$icons = DevblocksPlatform::services()->ui()->getCerbIcons(null, 0, $filter ?: null);
+
+		if(!$icons)
+			return sprintf('No icon names match `%s`.', $filter);
+
+		// Deliberately just the names. There are hundreds, and the geometry of any one of them is a
+		// `get_icon_geometry` away -- returning them all would spend the context window on shapes nobody asked
+		// to see.
+		return implode("\n", $icons);
+	}
+
 	public static function getFormComponentMeta() : array {
 		return array_merge(parent::getFormComponentMeta(), [
 			'uiCommand' => ['class' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\UiCommandAwait', 'icon' => 'console'],
