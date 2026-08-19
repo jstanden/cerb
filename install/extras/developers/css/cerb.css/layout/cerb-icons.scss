@@ -288,9 +288,20 @@ $icons: (
 
 $cerb-icon-svg-tag: "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>";
 
+// Only the geometry varies per icon, so each `.cerb-icon-*` rule carries just the data URI in a custom
+// property. The invariant mask setup lives once on `.cerb-icons` and reads that var twice (prefixed +
+// unprefixed) instead of emitting the URI twice per icon. Mirrors `cerb-ui/_icon-builder.scss`.
 @mixin icon-svg($svg) {
-  -webkit-mask-image: url("data:image/svg+xml;utf8,#{$cerb-icon-svg-tag}#{$svg}</svg>");
-  mask-image: url("data:image/svg+xml;utf8,#{$cerb-icon-svg-tag}#{$svg}</svg>");
+  --cerb-icon: url("data:image/svg+xml;utf8,#{$cerb-icon-svg-tag}#{$svg}</svg>");
+}
+
+.cerb-icons {
+  // Placeholder until a `.cerb-icon-*` class supplies the geometry: an unset var resolves mask-image to
+  // `none`, which fills the whole box with currentColor (a solid square).
+  --cerb-icon: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'/%3E");
+
+  -webkit-mask-image: var(--cerb-icon);
+  mask-image: var(--cerb-icon);
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
   -webkit-mask-position: center;
@@ -298,9 +309,7 @@ $cerb-icon-svg-tag: "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'
   -webkit-mask-size: contain;
   mask-size: contain;
   background-color: currentColor;
-}
 
-.cerb-icons {
   width: 1em;
   height: 1em;
   display: inline-block;
