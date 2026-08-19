@@ -64,12 +64,14 @@
 		? new CerbUI.AgentPrompt.ToolPicker(root.querySelector('[data-cerb-agent-tool-picker]'), { context: 'cerb.contexts.automation', query: 'trigger:cerb.trigger.llm.tool' })
 		: null;
 
-	// Which editor the chat drives. Picking one generates the whole uiCommand bridge -- a tool per command
-	// plus the on_tool dispatch -- so the agent can read and write that editor.
+	// Which editor the chat is written FOR. This shapes the system prompt only -- the orientation an agent in
+	// the Icon Builder needs differs from one in the automation editor. The tools themselves are contributed
+	// by the trigger at runtime, off whichever pane the chat is actually opened in, so the answer here is
+	// guidance rather than a lock.
 	//
-	// Blank is the DEFAULT and is not "nowhere": a chat with no bridge still goes on any toolbar you add it
-	// to, it just has no editor to touch. Hosts that advertise no uiCommands yet (the command bar) land here
-	// too, so the option is named for where the chat runs rather than for what it lacks.
+	// Blank is the DEFAULT and is not "nowhere": a chat still goes on any toolbar you add it to, it just gets
+	// a generic prompt. Hosts that advertise no uiCommands yet (the command bar) land here too, so the option
+	// is named for where the chat runs rather than for what it lacks.
 	const componentEl = root.querySelector('[data-cerb-wizard-component]');
 	const hintEl = root.querySelector('[data-cerb-wizard-component-hint]');
 
@@ -98,9 +100,15 @@
 
 	const syncHint = function() {
 		const c = COMPONENTS.filter(x => x.key === componentEl.value)[0];
+		const noTools = 'It gets no editor tools, so it can talk but not touch what is on screen.';
+
+		// A catalogued component with no commands is a real place whose host has no command bridge yet, so say
+		// what it can't do rather than boasting "0 tools".
 		hintEl.textContent = c
-			? c.description + ' The agent gets ' + c.commands + ' tool' + (c.commands === 1 ? '' : 's') + ' for it.'
-			: 'Add it to any toolbar and it runs there. It gets no editor tools, so it can talk but not touch what is on screen.';
+			? c.description + ' ' + (c.commands
+				? ('The agent gets ' + c.commands + ' tool' + (c.commands === 1 ? '' : 's') + ' for it.')
+				: noTools)
+			: 'Add it to any toolbar and it runs there. ' + noTools;
 	};
 
 	componentEl.addEventListener('change', syncHint);

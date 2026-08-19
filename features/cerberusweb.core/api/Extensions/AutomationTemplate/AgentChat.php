@@ -55,7 +55,13 @@ class AgentChat extends Extension_AutomationTemplate {
 		];
 	}
 
-	// The host components an agent pane can be mounted on, for the wizard's picker.
+	/**
+	 * The host components an agent pane can be mounted on, for the wizard's picker.
+	 *
+	 * Alphabetized by the label the author reads, not by the catalog's own order -- the catalog groups the
+	 * editors together and puts the odd one out last, which is the right order for reading the file and the
+	 * wrong one for finding your location in a menu.
+	 */
 	private function _componentChoices() : array {
 		$out = [];
 
@@ -65,9 +71,12 @@ class AgentChat extends Extension_AutomationTemplate {
 				'label' => $component['label'],
 				'icon' => $component['icon'],
 				'description' => $component['description'],
-				'commands' => count($component['commands']),
+				// Both families: what the agent gets for picking this location, browser-answered or not.
+				'commands' => count($component['commands']) + count($component['server_tools'] ?? []),
 			];
 		}
+
+		usort($out, fn($a, $b) => strcasecmp($a['label'], $b['label']));
 
 		return $out;
 	}
