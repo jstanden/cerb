@@ -83,7 +83,8 @@ $(function() {
 						layer,
 						'c=internal&a=invoke&module=records&action=showPeekPopup&context={CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}&context_id=0&view_id={$view_id}',
 						'reuse',
-						false
+						false,
+						'50%'
 					);
 				}
 			})
