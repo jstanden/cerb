@@ -317,8 +317,14 @@
 // Scoping to the panel class (not the .cerb-command-bar wrapper) is what lets nested submenus inherit it.
 .cerb-command-bar-menu {
 	&.cerb-ui-menu--panel {
-		max-width: none;
 		min-height: 3em;
+
+		// Only the INLINE root drops the base 320px cap: it sits inside the 640px command-bar dialog, which
+		// already constrains it. A floating submenu (the "N more..." overflow) is appended to <body> with
+		// nothing to constrain it, so lifting the cap there let it stretch to the full page width. Only the
+		// root gets --inline (CerbUI.Menu adds it at depth 0), while panelClass reaches every panel.
+		&.cerb-ui-menu--inline { max-width: none; }
+		&:not(.cerb-ui-menu--inline) { min-width: 320px; max-width: 560px; }
 	}
 
 	// Tile rows: tall enough for an icon square + a two-line text column.
