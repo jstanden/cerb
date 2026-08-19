@@ -18,6 +18,22 @@
 &lt;/div&gt;</pre>
 			</div>
 
+			<div class="cerb-uiref-demo">
+				<div class="cerb-ui-switcher" id="uiref-toggle-badges-demo">
+					<button type="button" class="cerb-ui-switcher--active" data-value="active">Active<span class="cerb-ui-switcher--badge">12</span></button>
+					<button type="button" data-value="archived">Archived<span class="cerb-ui-switcher--badge">348</span></button>
+				</div>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>&lt;!-- Optional: a per-segment count badge --&gt;
+&lt;div class="cerb-ui-switcher"&gt;
+	&lt;button type="button" class="cerb-ui-switcher--active" data-value="active"&gt;Active&lt;span class="cerb-ui-switcher--badge"&gt;12&lt;/span&gt;&lt;/button&gt;
+	&lt;button type="button" data-value="archived"&gt;Archived&lt;span class="cerb-ui-switcher--badge"&gt;348&lt;/span&gt;&lt;/button&gt;
+&lt;/div&gt;</pre>
+			</div>
+
 			<div class="cerb-uiref-code">
 				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
 				<pre data-cerb-uiref-source>// Optional: wire behavior with the component (bare HTML above works without it)
@@ -39,5 +55,9 @@ new CerbUI.Switcher(el, {
 			onSelect: function(value) { toggleOut.textContent = value; }
 		});
 	}
+
+	const badgesEl = document.getElementById('uiref-toggle-badges-demo');
+	if(badgesEl && window.CerbUI && CerbUI.Switcher)
+		new CerbUI.Switcher(badgesEl);
 })();
 </script>

@@ -64,6 +64,25 @@
 			color: var(--cerb-color-text-inverse);
 		}
 
+		// An inline count on a segment (e.g. how many records each scope holds), sized to inherit the
+		// segment's text. Outlined rather than filled -- a solid pill out-weighs the label it belongs to and
+		// fights the active segment's own fill; a ring plus muted text reads as a tally while the label stays
+		// the loudest thing on the segment. On the active segment it can't use the neutral chrome (that sits
+		// muddily on blue), so the ring and text ride the inverse color at low alpha.
+		.cerb-ui-switcher--badge {
+			min-width: 1.7em;
+			padding: 0 0.4em;
+			border: 1px solid var(--cerb-color-background-contrast-220);
+			border-radius: 999px;
+			color: var(--cerb-color-text-muted);
+			text-align: center;
+		}
+
+		&.cerb-ui-switcher--active .cerb-ui-switcher--badge {
+			border-color: rgba(255,255,255,0.45);
+			color: inherit;
+		}
+
 		// Keyboard focus ring: the container clips with overflow:hidden, so an outward outline would be cut
 		// off. Inset it (negative offset) and lift it above the adjacent segment borders so it's fully visible.
 		&:focus-visible {
