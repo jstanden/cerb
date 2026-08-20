@@ -66,13 +66,18 @@ class AgentPromptAwait extends AbstractAwait {
 					return false;
 				}
 
+				// An out-of-range level is an ERROR, including when the model offers no levels at all. The
+				// `$allowed &&` short-circuit that used to sit here made the empty case fall through to
+				// _resolveEffort(), which quietly returned '' -- so the turn ran at the provider's default while
+				// the UI showed the level the worker picked. Reasoning silently off is the one failure here
+				// nobody can see from the outside; fail loudly instead.
 				if('' !== $effort && '' !== $model_id && ($m = $models[$model_id] ?? null)) {
 					$allowed = is_array($m['effort_choices'] ?? null) ? $m['effort_choices'] : [];
 					$default = strval($m['default_effort'] ?? '');
 					if('' !== $default && !in_array($default, $allowed, true))
 						$allowed[] = $default;
 
-					if($allowed && !in_array($effort, $allowed, true)) {
+					if(!in_array($effort, $allowed, true)) {
 						$error = sprintf("was sent an unavailable effort level (%s).", $effort);
 						return false;
 					}
@@ -688,14 +693,18 @@ class AgentPromptAwait extends AbstractAwait {
 
 		$has_thinking = $strings->toBool($params['has_thinking'] ?? false);
 
-		// A thinking model nobody hand-declared choices for still gets a submenu, seeded from the provider's own
-		// vocabulary. Without this the picker has nothing to offer, _resolveEffort() returns '' for anything the
-		// client posts, and the level is dropped on the floor between here and the wire -- silently, since the
-		// validator below only rejects an out-of-range level when the range is non-empty. Hand-declared
-		// `effort_choices` still wins; `has_thinking` gates it so a plainly non-reasoning model isn't offered
-		// levels its API would reject.
+		// A thinking model nobody hand-declared choices for still gets a submenu, seeded from what the provider
+		// knows about THAT MODEL. Without a list the picker has nothing to offer, _resolveEffort() returns ''
+		// for anything the client posts, and the level is dropped on the floor between here and the wire.
+		//
+		// Deliberately getModelDefaults() and not getEffortLevels(): the latter answers for the provider, and
+		// on an OpenAI-compatible endpoint that means a local Qwen would be offered `xhigh`/`max` off the GPT
+		// scale and 400 when someone picked one. A model the provider doesn't recognize yields no list, so the
+		// picker offers nothing and the record has to say -- an empty submenu beats a wrong one.
+		//
+		// Hand-declared `effort_choices` still wins; `has_thinking` gates the whole fallback.
 		if(!$effort_choices && $has_thinking && $provider_ext && $provider_ext->supportsReasoning())
-			$effort_choices = $provider_ext->getEffortLevels();
+			$effort_choices = $this->_parseEffortChoices($defaults['effort_levels'] ?? null);
 
 		// Prompt-cache lifetime (seconds) for the composer's cache TimeRing. The agentPrompt drives `llm.agent`,
 		// where cache defaults ON (LlmAgentNode::_defaultCache), so gate on that here — the provider only reports

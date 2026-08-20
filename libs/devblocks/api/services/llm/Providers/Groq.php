@@ -55,19 +55,18 @@ class Groq extends OpenAI {
 		return 'system';
 	}
 
-	/**
-	 * Deliberately empty, which preserves exactly what Groq was sent before it was reparented.
-	 *
-	 * OpenAI's version emits `reasoning_effort` from the canonical `effort:` key. Groq accepts that only
-	 * on some model families, so forwarding it here would be a behavior change smuggled in on a
-	 * streaming refactor. Worth revisiting on its own.
-	 *
-	 * Keeping it empty also neutralizes the inherited _applyToolReasoningGuardrail(): that helper
-	 * force-sets or unsets `reasoning_effort` for the gpt-5.x family, and since no Groq model id matches
-	 * its `^gpt-(\d+)` probe it would otherwise strip an author's effort on any tool-using turn.
-	 */
-	function getChatCompletionsParams() : array {
-		return [];
+	// OpenAI's own /v1/chat/completions refuses tools on a reasoning turn; Groq's endpoint doesn't, and no
+	// Groq model id matches the `^gpt-(\d+)` probe that rule keys on, so leaving it armed would strip the
+	// author's effort on every tool-using turn here.
+	protected function _appliesToolReasoningGuardrail(string $model) : bool {
+		return false;
+	}
+
+	// Groq spans families that read `reasoning_effort` very differently (gpt-oss takes the graded scale,
+	// Qwen3 treats it as a thinking on/off switch), and plenty of its catalog ignores it outright. The union
+	// is what's offered; which one a given model honors is Groq's call, not ours.
+	function getEffortLevels() : array {
+		return ['none', 'low', 'medium', 'high'];
 	}
 
 	// Groq wants the tool NAME alongside the id on a tool result; OpenAI's base message omits it.
@@ -107,11 +106,13 @@ class Groq extends OpenAI {
 				'api_endpoint_url:',
 				'authentication:',
 				['caption' => 'stream@bool:', 'snippet' => 'stream@bool: no', 'docHTML' => '<b>stream@bool:</b>Stream the response (default <code>yes</code>). Streaming replaces the request timeout with an inactivity cutoff, so a long turn is not killed partway through, and it lets a running turn be stopped.'],
+				['caption' => 'effort:', 'snippet' => 'effort: ${1:medium}', 'docHTML' => '<b>effort:</b> Reasoning effort, passed through as the OpenAI-compatible <code>reasoning_effort</code>. Support varies by family here (gpt-oss reads the graded scale, Qwen3 treats it as thinking on/off, others ignore it). Validated by the provider, not here.'],
 			],
 			'values' => [
 				'model:' => $this->getChatModels(),
 				'authentication:' => ['type' => 'cerb-uri', 'params' => ['connected_account' => null]],
 				'api_endpoint_url:' => ['https://api.groq.com/openai'],
+				'effort:' => $this->getEffortLevels(),
 			],
 		];
 	}

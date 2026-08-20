@@ -200,6 +200,13 @@ class OpenRouter extends OpenAI {
 		return null;
 	}
 
+	// OpenRouter fronts every vendor at once, so it advertises the union and normalizes per upstream. Spelled
+	// out rather than inherited even though it currently matches OpenAI's: this list tracks what the ROUTER
+	// accepts across all its upstreams, which has no reason to follow OpenAI's own model roadmap.
+	function getEffortLevels() : array {
+		return ['none', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max'];
+	}
+
 	function getChatKataAutocomplete() : array {
 		return [
 			'keys' => [
@@ -217,7 +224,7 @@ class OpenRouter extends OpenAI {
 				'model:' => $this->getChatModels(),
 				'authentication:' => ['type' => 'cerb-uri', 'params' => ['connected_account' => null]],
 				'api_endpoint_url:' => ['https://openrouter.ai/api'],
-				'effort:' => ['none', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max'],
+				'effort:' => $this->getEffortLevels(),
 			],
 		];
 	}

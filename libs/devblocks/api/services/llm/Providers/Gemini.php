@@ -40,19 +40,29 @@ class Gemini extends OpenAI {
 	
 	function getChatCompletionsParams() : array {
 		$params = [];
-		
+
 		if($this->getParam('thinking_include')) {
 			$params['extra_body']['google']['thinking_config']['include_thoughts'] = true;
 		}
-		
-		// Canonical `effort:` → the OpenAI-compat `reasoning_effort` wire param. minimal, low, medium, high
-		// (verbatim — validated by the API, not here). The legacy `thinking_level:` authoring key was removed
-		// in 11.2 (standardized on `effort:`).
-		if(($effort = $this->getEffort())) {
-			$params['reasoning_effort'] = $effort;
-		}
 
 		return $params;
+	}
+
+	/**
+	 * OpenAI's tool-vs-reasoning refusal belongs to OpenAI's endpoint, not to the dialect Gemini borrows.
+	 *
+	 * This is the fix for a live bug, not a precaution: `_supportsReasoningEffortNone()` probes for `^gpt-`,
+	 * which no `gemini-*` id can match, so the guardrail took its else branch and UNSET `reasoning_effort`
+	 * on every tool-using Gemini turn -- silently reasoning-off any agent loop with tools attached.
+	 */
+	protected function _appliesToolReasoningGuardrail(string $model) : bool {
+		return false;
+	}
+
+	// Gemini's OpenAI-compat layer documents minimal|low|medium|high -- no xhigh/max, so the inherited
+	// OpenAI vocabulary would offer two levels this API rejects.
+	function getEffortLevels() : array {
+		return ['minimal', 'low', 'medium', 'high'];
 	}
 	
 	function getEmbeddingsEndpointUrl(string $base_url) : string {
@@ -82,10 +92,22 @@ class Gemini extends OpenAI {
 		if(!str_starts_with($model, 'gemini-'))
 			return [];
 
-		return [
+		$defaults = [
 			'vision' => true,
 			'context_window' => 1000000,
 		];
+
+		// Reasoning support splits by LINE here, which is why this can't come from the provider vocabulary:
+		// 2.5 takes no effort at all, 3 Pro takes only the two ends, and 3 Flash takes the full graded set.
+		// Omitting the key entirely (rather than sending an empty list) is what tells the caller to offer
+		// nothing, so a 2.5 model gets no effort submenu instead of one the API would reject.
+		if(!str_starts_with($model, 'gemini-2')) {
+			$defaults['effort_levels'] = str_contains($model, 'pro')
+				? ['low', 'high']
+				: ['minimal', 'low', 'medium', 'high'];
+		}
+
+		return $defaults;
 	}
 
 	// Hosted Gemini implicit caching is automatic with a short reuse window (no author-set TTL) → a soft 5m ring
@@ -127,7 +149,7 @@ class Gemini extends OpenAI {
 				'model:' => $this->getChatModels(),
 				'authentication:' => ['type' => 'cerb-uri', 'params' => ['connected_account' => null]],
 				'api_endpoint_url:' => ['https://generativelanguage.googleapis.com/v1beta/openai'],
-				'effort:' => ['minimal', 'low', 'medium', 'high'],
+				'effort:' => $this->getEffortLevels(),
 			],
 		];
 	}

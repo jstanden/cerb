@@ -58,21 +58,24 @@ class HuggingFace extends OpenAI {
 		return sprintf('%s/models/%s/v1/chat/completions', $base_url, $model);
 	}
 
-	/**
-	 * `max_tokens`, and nothing else.
-	 *
-	 * Deliberately NOT calling parent::, which emits `reasoning_effort` from the canonical `effort:` key
-	 * — support varies wildly across the models served here, so forwarding it would be a behavior change
-	 * smuggled in on a streaming refactor. Worth revisiting on its own.
-	 *
-	 * Leaving `reasoning_effort` out also neutralizes the inherited _applyToolReasoningGuardrail(): that
-	 * helper force-sets or unsets it for the gpt-5.x family, and since no model id here matches its
-	 * `^gpt-(\d+)` probe it would otherwise strip an author's effort on any tool-using turn.
-	 */
+	// `max_tokens`, and nothing else. Reasoning rides its own seam (_getReasoningParams), so this override
+	// no longer costs the author their `effort:`.
 	function getChatCompletionsParams() : array {
 		return [
 			'max_tokens' => intval($this->getParam('max_tokens', 2048)),
 		];
+	}
+
+	// OpenAI's tool-vs-reasoning refusal is its own endpoint's rule, and no model id served here matches the
+	// `^gpt-(\d+)` probe it keys on -- armed, it would strip the author's effort on every tool-using turn.
+	protected function _appliesToolReasoningGuardrail(string $model) : bool {
+		return false;
+	}
+
+	// Support varies wildly across the open models served here -- this is the graded scale the reasoning-capable
+	// ones read, offered as a vocabulary. Which models honor it is the serving backend's call, not ours.
+	function getEffortLevels() : array {
+		return ['low', 'medium', 'high'];
 	}
 
 	/**
@@ -211,11 +214,13 @@ class HuggingFace extends OpenAI {
 				'authentication:',
 				'max_tokens@int: 2048',
 				['caption' => 'stream@bool:', 'snippet' => 'stream@bool: no', 'docHTML' => '<b>stream@bool:</b>Stream the response (default <code>yes</code>). Streaming replaces the request timeout with an inactivity cutoff, so a long turn is not killed partway through, and it lets a running turn be stopped.'],
+				['caption' => 'effort:', 'snippet' => 'effort: ${1:medium}', 'docHTML' => '<b>effort:</b> Reasoning effort, passed through as the OpenAI-compatible <code>reasoning_effort</code>. Support varies widely across the open models served here. Validated by the provider, not here.'],
 			],
 			'values' => [
 				'model:' => $this->getChatModels(),
 				'authentication:' => ['type' => 'cerb-uri', 'params' => ['connected_account' => null]],
 				'api_endpoint_url:' => ['https://api-inference.huggingface.co'],
+				'effort:' => $this->getEffortLevels(),
 			],
 		];
 	}

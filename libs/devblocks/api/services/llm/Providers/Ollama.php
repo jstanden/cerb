@@ -167,9 +167,14 @@ class Ollama extends Extension_DevblocksLlmProvider implements Chat, ChatStreami
 		
 		if($tools)
 			$body_payload['tools'] = $tools;
-		
+
+		// Ollama needs to be ASKED to reason. Without this the `thinking` the accumulator below is written to
+		// collect never arrives, and an authored `effort:` did nothing at all here.
+		if(null !== ($think = $this->_getThinkParam()))
+			$body_payload['think'] = $think;
+
 		$body = json_encode($body_payload);
-		
+
 		$request = new Request($verb, $url, $headers, $body);
 		$request_options = [
 			'http_errors' => false,
@@ -458,6 +463,41 @@ class Ollama extends Extension_DevblocksLlmProvider implements Chat, ChatStreami
 		];
 	}
 
+	/**
+	 * The canonical `effort:` -> Ollama's native `think`, which is NOT a graded scale like everyone else's.
+	 *
+	 * It's a tri-state: `false` turns reasoning off, `true` turns it on at the model's own depth, and newer
+	 * builds also accept a `low|medium|high` string for the models that expose depth (gpt-oss). So this is a
+	 * translation, not a pass-through -- the same arrangement as the Anthropic-family `_effortToBudget()`,
+	 * where the native shape has its own vocabulary and sending ours verbatim would just be a 400.
+	 *
+	 * `none` is the off switch. Levels outside Ollama's three clamp to the nearest end rather than being
+	 * forwarded to be rejected; a level we can't place at all falls back to `true` (reason, depth unspecified),
+	 * which is the safe reading of "the author asked for reasoning".
+	 *
+	 * Returns null when no effort was authored, so the key is omitted and the model's default stands.
+	 */
+	protected function _getThinkParam() : bool|string|null {
+		if(null === ($effort = $this->getEffort()))
+			return null;
+
+		if('none' === $effort)
+			return false;
+
+		return match($effort) {
+			'minimal', 'low' => 'low',
+			'medium' => 'medium',
+			'high', 'xhigh', 'max' => 'high',
+			default => true,
+		};
+	}
+
+	// Ollama's own vocabulary (see _getThinkParam) -- `none` is its `think: false`, and the graded three are
+	// what a depth-exposing local model reads.
+	function getEffortLevels() : array {
+		return ['none', 'low', 'medium', 'high'];
+	}
+
 	function getChatKataAutocomplete() : array {
 		return [
 			'keys' => [
@@ -465,12 +505,14 @@ class Ollama extends Extension_DevblocksLlmProvider implements Chat, ChatStreami
 				'api_endpoint_url:',
 				'authentication:',
 				['caption' => 'stream@bool:', 'snippet' => 'stream@bool: no', 'docHTML' => '<b>stream@bool:</b>Stream the response (default <code>yes</code>). Streaming replaces the request timeout with an inactivity cutoff, so a long turn is not killed partway through, and it lets a running turn be stopped. Set <code>no</code> for a proxy in front of Ollama that buffers responses.'],
+				['caption' => 'effort:', 'snippet' => 'effort: ${1:medium}', 'docHTML' => '<b>effort:</b>Reasoning effort, translated to Ollama\'s native <code>think</code>. <code>none</code> disables reasoning; <code>low|medium|high</code> set the depth on models that expose one. Omit for the model\'s own default.'],
 			],
 			'values' => [
 				'model:' => $this->getChatModels(),
 				'authentication:' => ['type' => 'cerb-uri', 'params' => ['connected_account' => null]],
 				// Ollama Cloud is the bare host; a path suffix like `/v1` switches it to OpenAI compatibility.
 				'api_endpoint_url:' => ['http://localhost:11434', 'https://ollama.com', 'http://host.docker.internal:11434'],
+				'effort:' => $this->getEffortLevels(),
 			],
 		];
 	}

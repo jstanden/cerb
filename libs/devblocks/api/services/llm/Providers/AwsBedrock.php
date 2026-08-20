@@ -1095,24 +1095,10 @@ class AwsBedrock extends Extension_DevblocksLlmProvider implements Chat, ChatStr
 		$fields['output_config'] = array_merge($fields['output_config'] ?? [], ['effort' => $effort]);
 	}
 
-	// Map an effort level -> a legacy `budget_tokens` value, clamped so it's >=1024 and < max_tokens. Returns
-	// null when max_tokens can't fit a valid budget (skip legacy thinking rather than send a 400). Twin of
-	// Anthropic.php::_effortToBudget -- keep the table in sync.
-	private function _effortToBudget(string $effort, int $max_tokens) : ?int {
-		$budget = [
-			'low' => 4096,
-			'medium' => 8192,
-			'high' => 16384,
-			'xhigh' => 24576,
-			'max' => 32768,
-		][$effort] ?? 8192;
-
-		$ceiling = $max_tokens - 1;
-
-		if($ceiling < 1024)
-			return null;
-
-		return max(1024, min($budget, $ceiling));
+	// Which levels a given Bedrock model accepts varies by model and version (and disabling thinking caps
+	// it at `high`), so this is the vocabulary, not a whitelist -- Bedrock stays the authority.
+	function getEffortLevels() : array {
+		return ['low', 'medium', 'high', 'xhigh', 'max'];
 	}
 
 	/**
@@ -1335,7 +1321,7 @@ class AwsBedrock extends Extension_DevblocksLlmProvider implements Chat, ChatStr
 				'thinking:' => ['type:', 'display:'],
 				'thinking:type:' => ['adaptive', 'enabled', 'disabled'],
 				'thinking:display:' => ['summarized', 'omitted'],
-				'effort:' => ['low', 'medium', 'high', 'xhigh', 'max'],
+				'effort:' => $this->getEffortLevels(),
 			],
 		];
 	}

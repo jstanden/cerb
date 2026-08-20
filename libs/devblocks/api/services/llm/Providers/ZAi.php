@@ -85,7 +85,19 @@ class ZAi extends OpenAI {
 		return [
 			'vision' => str_ends_with($model, 'v'),
 			'context_window' => 200000,
+			'effort_levels' => $this->getEffortLevels(),
 		];
+	}
+
+	// OpenAI's tool-vs-reasoning refusal is its own endpoint's rule, and no z.ai model id matches the
+	// `^gpt-(\d+)` probe it keys on -- armed, it would strip the author's effort on every tool-using turn.
+	protected function _appliesToolReasoningGuardrail(string $model) : bool {
+		return false;
+	}
+
+	// z.ai's OpenAI-compatible layer takes the OpenAI vocabulary minus the newer top end.
+	function getEffortLevels() : array {
+		return ['none', 'minimal', 'low', 'medium', 'high'];
 	}
 
 	function getChatKataAutocomplete() : array {
@@ -104,7 +116,7 @@ class ZAi extends OpenAI {
 				'model:' => $this->getChatModels(),
 				'authentication:' => ['type' => 'cerb-uri', 'params' => ['connected_account' => null]],
 				'api_endpoint_url:' => ['https://api.z.ai/api/paas/v4'],
-				'effort:' => ['none', 'minimal', 'low', 'medium', 'high'],
+				'effort:' => $this->getEffortLevels(),
 			],
 		];
 	}

@@ -42,17 +42,8 @@ class TogetherAI extends OpenAI {
 		return 'system';
 	}
 
-	/**
-	 * Together's optional moderation model, and nothing else.
-	 *
-	 * Deliberately NOT calling parent::, which emits `reasoning_effort` from the canonical `effort:` key
-	 * — Together's support for it varies by model, so forwarding it would be a behavior change smuggled
-	 * in on a streaming refactor. Worth revisiting on its own.
-	 *
-	 * Leaving `reasoning_effort` out also neutralizes the inherited _applyToolReasoningGuardrail(): that
-	 * helper force-sets or unsets it for the gpt-5.x family, and since no Together model id matches its
-	 * `^gpt-(\d+)` probe it would otherwise strip an author's effort on any tool-using turn.
-	 */
+	// Together's optional moderation model. Reasoning rides its own seam (_getReasoningParams), so this
+	// override no longer costs the author their `effort:`.
 	function getChatCompletionsParams() : array {
 		$params = [];
 
@@ -60,6 +51,18 @@ class TogetherAI extends OpenAI {
 			$params['safety_model'] = $safety_model;
 
 		return $params;
+	}
+
+	// OpenAI's tool-vs-reasoning refusal is its own endpoint's rule, and no Together model id matches the
+	// `^gpt-(\d+)` probe it keys on -- armed, it would strip the author's effort on every tool-using turn.
+	protected function _appliesToolReasoningGuardrail(string $model) : bool {
+		return false;
+	}
+
+	// Together fronts many vendors' open models and support for the param varies across them; the graded
+	// scale is what its reasoning-capable families read. Which models honor it is Together's call.
+	function getEffortLevels() : array {
+		return ['low', 'medium', 'high'];
 	}
 
 	// Together rejects an assistant turn carrying an EMPTY `tool_calls` array, which cross-provider
@@ -177,12 +180,14 @@ class TogetherAI extends OpenAI {
 				'authentication:',
 				'safety_model:',
 				['caption' => 'stream@bool:', 'snippet' => 'stream@bool: no', 'docHTML' => '<b>stream@bool:</b>Stream the response (default <code>yes</code>). Streaming replaces the request timeout with an inactivity cutoff, so a long turn is not killed partway through, and it lets a running turn be stopped.'],
+				['caption' => 'effort:', 'snippet' => 'effort: ${1:medium}', 'docHTML' => '<b>effort:</b> Reasoning effort, passed through as the OpenAI-compatible <code>reasoning_effort</code>. Support varies by model across the vendors served here. Validated by the provider, not here.'],
 			],
 			'values' => [
 				'model:' => $this->getChatModels(),
 				'authentication:' => ['type' => 'cerb-uri', 'params' => ['connected_account' => null]],
 				'api_endpoint_url:' => ['https://api.together.xyz'],
 				'safety_model:' => ['Meta-Llama/Llama-Guard-7b'],
+				'effort:' => $this->getEffortLevels(),
 			],
 		];
 	}

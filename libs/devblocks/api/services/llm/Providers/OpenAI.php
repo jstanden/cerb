@@ -161,19 +161,40 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, ChatStreami
 		return $base_url . '/v1/chat/completions';
 	}
 	
+	/**
+	 * Provider-specific body knobs. Reasoning is NOT among them -- see _getReasoningParams().
+	 *
+	 * Keeping the two apart is what makes effort survive a subclass. This method is the grab-bag every
+	 * OpenAI-compatible provider overrides to change ITS knobs, and while effort was mixed in here, three of
+	 * them (Groq, Together, HuggingFace) silently dropped the author's level as collateral damage of an
+	 * override that was only ever about something else.
+	 */
 	function getChatCompletionsParams() : array {
-		$params = [];
-
-		// Canonical `effort:` → OpenAI's `reasoning_effort` wire param. Verbatim — levels are version-dependent
-		// (GPT-5: minimal|low|medium|high; GPT-5.4 adds none|xhigh; GPT-5.6 adds max) and validated by the API,
-		// not here. The legacy `reasoning_effort:` authoring key was removed in 11.2 (standardized on `effort:`).
-		if(($effort = $this->getEffort())) {
-			$params['reasoning_effort'] = $effort;
-		}
-
-		return $params;
+		return [];
 	}
-	
+
+	/**
+	 * Canonical `effort:` -> OpenAI's `reasoning_effort` wire param. Verbatim -- levels are version-dependent
+	 * (GPT-5: minimal|low|medium|high; GPT-5.4 adds none|xhigh; GPT-5.6 adds max) and validated by the API,
+	 * not here. The legacy `reasoning_effort:` authoring key was removed in 11.2 (standardized on `effort:`).
+	 *
+	 * Merged separately from getChatCompletionsParams() so the whole OpenAI-compatible family inherits effort
+	 * whether or not it overrides its knobs. A provider whose endpoint has no reasoning param at all overrides
+	 * this to return [] AND declares supportsReasoning() false, so the UI stops offering levels too.
+	 */
+	protected function _getReasoningParams() : array {
+		if(!($effort = $this->getEffort()))
+			return [];
+
+		return ['reasoning_effort' => $effort];
+	}
+
+	// The union across GPT-5.x. `none` and `xhigh` arrived in 5.4, `max` in 5.6, so an older model rejects the
+	// top of this list -- it's the vocabulary to offer, not a per-model whitelist.
+	function getEffortLevels() : array {
+		return ['none', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max'];
+	}
+
 	/**
 	 * Does this model know `none` as a reasoning level? GPT-5 shipped minimal|low|medium|high; `none` arrived
 	 * in GPT-5.4. Parsed out of the id rather than whitelisted — free-text model ids are deliberate here, so a
@@ -181,13 +202,21 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, ChatStreami
 	 * 400, while not sending one is at worst the status quo.
 	 */
 	protected function _supportsReasoningEffortNone(string $model) : bool {
-		if(!preg_match('/^gpt-(\d+)(?:\.(\d+))?/', DevblocksPlatform::strLower(trim($model)), $matches))
+		if(null === ($v = $this->_parseGptVersion($model)))
 			return false;
 
-		$major = intval($matches[1]);
-		$minor = intval($matches[2] ?? 0);
+		[$major, $minor] = $v;
 
 		return $major > 5 || (5 === $major && $minor >= 4);
+	}
+
+	// `gpt-5.6-sol` -> [5, 6]. Null for anything that isn't a parseable `gpt-<major>[.<minor>]` id, which is
+	// the signal to assert NOTHING about it rather than guess.
+	protected function _parseGptVersion(string $model) : ?array {
+		if(!preg_match('/^gpt-(\d+)(?:\.(\d+))?/', DevblocksPlatform::strLower(trim($model)), $matches))
+			return null;
+
+		return [intval($matches[1]), intval($matches[2] ?? 0)];
 	}
 
 	/**
@@ -209,6 +238,9 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, ChatStreami
 		if(!$tools)
 			return $params;
 
+		if(!$this->_appliesToolReasoningGuardrail($model))
+			return $params;
+
 		if($this->_supportsReasoningEffortNone($model)) {
 			$params['reasoning_effort'] = 'none';
 		} else {
@@ -216,6 +248,24 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, ChatStreami
 		}
 
 		return $params;
+	}
+
+	/**
+	 * Is the tool-vs-reasoning refusal THIS endpoint's rule?
+	 *
+	 * It belongs to OpenAI's own /v1/chat/completions, not to the dialect. Left unguarded it misfires on every
+	 * compatible subclass at once: the `^gpt-(\d+)` probe in _supportsReasoningEffortNone() can't match a
+	 * `gemini-3-pro` or a `moonshotai/kimi-k3`, so each one takes the else branch and has the author's effort
+	 * silently STRIPPED on any tool-using turn -- an endpoint that never had the limitation refusing to reason
+	 * because OpenAI's does.
+	 *
+	 * That was survivable only while Groq/Together/HuggingFace blanked effort outright; now that the whole
+	 * family forwards it, the rule has to say which endpoints it governs. Compatible providers override to
+	 * false. OpenRouter is the one true-but-narrowed case -- it fronts OpenAI's own models among others, so it
+	 * gates on the `openai/` namespace in its own override instead.
+	 */
+	protected function _appliesToolReasoningGuardrail(string $model) : bool {
+		return true;
 	}
 
 	/**
@@ -272,9 +322,10 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, ChatStreami
 		if($tools)
 			$body_payload['tools'] = $tools;
 
-		// Add provider-specific body params, then reconcile reasoning effort with tools (see the guardrail)
+		// Add provider-specific body params + the canonical reasoning level (separate seams so a subclass's
+		// knobs override can't drop effort), then reconcile that level with tools (see the guardrail).
 		$provider_params = $this->_applyToolReasoningGuardrail(
-			$this->getChatCompletionsParams(),
+			array_merge($this->getChatCompletionsParams(), $this->_getReasoningParams()),
 			$tools,
 			$this->getParam('model', '')
 		);
@@ -640,10 +691,32 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, ChatStreami
 		if(!str_starts_with($model, 'gpt-'))
 			return [];
 
-		return [
+		$defaults = [
 			'vision' => true,
 			'context_window' => 400000,
 		];
+
+		// Per-MODEL levels, narrowed by version. `reasoning_effort` is a GPT-5-era param, so anything below 5
+		// (and any id we can't parse) gets NO list -- the picker then offers nothing rather than levels the
+		// model has no notion of. Within 5.x: `none`/`xhigh` arrived in 5.4 and `max` in 5.6, so handing over
+		// the whole provider vocabulary would offer an older model levels it rejects.
+		if(null !== ($v = $this->_parseGptVersion($model))) {
+			[$major, $minor] = $v;
+
+			if($major >= 5) {
+				$levels = ['minimal', 'low', 'medium', 'high'];
+
+				if($major > 5 || $minor >= 4)
+					$levels = array_merge(['none'], $levels, ['xhigh']);
+
+				if($major > 5 || $minor >= 6)
+					$levels[] = 'max';
+
+				$defaults['effort_levels'] = $levels;
+			}
+		}
+
+		return $defaults;
 	}
 
 	// The HOSTED OpenAI API auto-caches with a documented ~5-minute reuse window → a soft 5m ring hint. A
@@ -693,7 +766,7 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, ChatStreami
 				'model:' => $this->getChatModels(),
 				'authentication:' => ['type' => 'cerb-uri', 'params' => ['connected_account' => null]],
 				'api_endpoint_url:' => ['https://api.openai.com', 'http://host.docker.internal:8080'],
-				'effort:' => ['none', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max'],
+				'effort:' => $this->getEffortLevels(),
 			],
 		];
 	}

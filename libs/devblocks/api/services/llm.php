@@ -361,6 +361,64 @@ abstract class Extension_DevblocksLlmProvider {
 		return $this instanceof \Cerb\LLM\Providers\Interfaces\Embedding;
 	}
 
+	/**
+	 * Does this provider forward the canonical `effort:` to its API at all?
+	 *
+	 * A PROVIDER-level question, not a model-level one: it asks whether there is a wire param to put the
+	 * level in, not whether the model behind it reasons. Which of getEffortLevels() a given model accepts
+	 * stays the API's call (see getEffort) -- a chat provider that forwards effort answers true even when
+	 * most of its catalog ignores the param.
+	 *
+	 * Every chat provider forwards it, so `instanceof Chat` is the default; an embeddings-only provider is
+	 * false for free. Kept as a predicate rather than a structural check for the same reason as
+	 * supportsEmbeddings(): the OpenAI-compatible family inherits the dialect, so a subclass that genuinely
+	 * has nowhere to put the level needs a way to declare that.
+	 */
+	function supportsReasoning() : bool {
+		return $this instanceof \Cerb\LLM\Providers\Interfaces\Chat;
+	}
+
+	/**
+	 * The reasoning levels this provider DOCUMENTS, shallowest first -- the vocabulary, not a whitelist.
+	 *
+	 * Nothing validates against this: `getEffort()` still passes the author's level verbatim and the API is
+	 * still the authority (levels vary by model and version, and a new release has to work the day it ships).
+	 * It exists so the UI can OFFER levels for a model whose entry never hand-declared `effort_choices`.
+	 * Without it the agentPrompt picker has nothing to show and silently sends no effort at all.
+	 *
+	 * Base returns [] = "no vocabulary to advertise"; chat providers override with their own set.
+	 */
+	function getEffortLevels() : array {
+		return [];
+	}
+
+	/**
+	 * Map a reasoning level -> a literal `budget_tokens` value, clamped so it's >=1024 and < max_tokens.
+	 *
+	 * For the legacy Anthropic-family shape (`thinking: {type: enabled}`) that predates a named effort scale
+	 * and wants a token budget instead. Returns null when max_tokens can't fit a valid budget -- skip legacy
+	 * thinking rather than send a request the API will reject.
+	 *
+	 * Lives on the base because Anthropic and AwsBedrock speak the same dialect and MUST agree: the two had
+	 * drifted apart before, kept in step only by a "keep the table in sync" comment on each copy.
+	 */
+	protected function _effortToBudget(string $effort, int $max_tokens) : ?int {
+		$budget = [
+			'low' => 4096,
+			'medium' => 8192,
+			'high' => 16384,
+			'xhigh' => 24576,
+			'max' => 32768,
+		][$effort] ?? 8192;
+
+		$ceiling = $max_tokens - 1;
+
+		if($ceiling < 1024)
+			return null;
+
+		return max(1024, min($budget, $ceiling));
+	}
+
 	// ---------------------------------------------------------------------------------------------
 	// Streaming. The state and the control flow are shared; only the EVENT GRAMMAR is per-provider.
 	//
@@ -694,8 +752,21 @@ abstract class Extension_DevblocksLlmProvider {
 		return '';
 	}
 
-	// Per-model display/capability defaults (e.g. ['vision' => true, 'context_window' => 1000000]) used
-	// when the agentPrompt catalog omits them. Base returns none; providers may override for their models.
+	/**
+	 * Per-model display/capability defaults used when the agentPrompt catalog omits them:
+	 * `vision` (bool), `context_window` (int), `effort_levels` (string[]).
+	 *
+	 * PER-MODEL is the point. `getEffortLevels()` answers for the provider, which is the right grain for KATA
+	 * autocomplete but the wrong one for a picker: an OpenAI-compatible endpoint serving an arbitrary local
+	 * model would advertise the whole GPT scale for something that tops out at `high`. Answer here only for
+	 * ids this provider actually recognizes.
+	 *
+	 * An unrecognized model returns [] -- assert nothing rather than guess. Same for an individual key: OMIT
+	 * `effort_levels` for a model that takes no reasoning level, since an empty list and a missing one both
+	 * mean "offer nothing" and neither invents a level the API would reject.
+	 *
+	 * Base returns none; providers override for their own models.
+	 */
 	function getModelDefaults(string $model) : array {
 		return [];
 	}

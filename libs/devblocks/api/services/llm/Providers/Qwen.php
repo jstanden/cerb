@@ -87,7 +87,20 @@ class Qwen extends OpenAI {
 		return [
 			'vision' => false,
 			'context_window' => 1000000,
+			// Every model on this platform is thinking-capable (see above), so the whole vocabulary applies.
+			'effort_levels' => $this->getEffortLevels(),
 		];
+	}
+
+	// OpenAI's tool-vs-reasoning refusal is its own endpoint's rule, and no DashScope model id matches the
+	// `^gpt-(\d+)` probe it keys on -- armed, it would strip the author's effort on every tool-using turn.
+	protected function _appliesToolReasoningGuardrail(string $model) : bool {
+		return false;
+	}
+
+	// DashScope's OpenAI-compatible layer takes the OpenAI vocabulary minus the newer top end.
+	function getEffortLevels() : array {
+		return ['none', 'minimal', 'low', 'medium', 'high'];
 	}
 
 	function getChatKataAutocomplete() : array {
@@ -106,7 +119,7 @@ class Qwen extends OpenAI {
 				'model:' => $this->getChatModels(),
 				'authentication:' => ['type' => 'cerb-uri', 'params' => ['connected_account' => null]],
 				'api_endpoint_url:' => ['https://dashscope-us.aliyuncs.com/compatible-mode/v1'],
-				'effort:' => ['none', 'minimal', 'low', 'medium', 'high'],
+				'effort:' => $this->getEffortLevels(),
 			],
 		];
 	}
