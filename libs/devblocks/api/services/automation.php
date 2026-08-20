@@ -989,10 +989,33 @@ class CerbAutomationPolicy {
 			return false;
 		
 		if(array_key_exists('settings', $policy_data) && is_iterable($policy_data['settings'])) {
-			$time_limit_ms = $policy_data['settings']['time_limit_ms'] ?? null;
-			
-			if($time_limit_ms && is_numeric($time_limit_ms)) {
-				$this->_settings['time_limit_ms'] = DevblocksPlatform::intClamp($time_limit_ms, 0, 120000); 
+			// The whole policy is parsed with kata->parse() and NOT formatTree(), because a
+			// `callers:`/`commands:` rule carries `{{...}}` that has to be evaluated against the
+			// ACTION's dict -- so those are stored key-and-annotation intact and formatted one
+			// rule at a time at check time (isCallerAllowed/isCommandAllowed below).
+			//
+			// `settings:` is the one block that depends on nothing, so format it ONCE here and
+			// let the KATA layer apply annotations the normal way. Without this, the annotation
+			// stays glued to the key (`time_limit_ms@int` never becomes `time_limit_ms`), the
+			// lookup misses, and the setting silently falls back to its default -- while the
+			// KATA validator accepts it, so it reads as configured when it isn't. Annotated keys
+			// are the norm everywhere else in a policy (`allow@bool:`), so that spelling is the
+			// one authors reach for first.
+			//
+			// The dict is EMPTY on purpose: settings are resolved once, at construct, with
+			// nothing from the request in scope.
+			$settings = DevblocksPlatform::services()->kata()->formatTree(
+				$policy_data['settings'],
+				DevblocksDictionaryDelegate::instance([])
+			);
+
+			// A malformed setting shouldn't take the policy down with it; keep the defaults.
+			if(is_array($settings)) {
+				$time_limit_ms = $settings['time_limit_ms'] ?? null;
+
+				if($time_limit_ms && is_numeric($time_limit_ms)) {
+					$this->_settings['time_limit_ms'] = DevblocksPlatform::intClamp($time_limit_ms, 0, 120000);
+				}
 			}
 		}
 		
