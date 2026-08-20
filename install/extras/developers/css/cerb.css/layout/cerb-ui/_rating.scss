@@ -1,0 +1,63 @@
+// Rating: an ordinal 1-N control drawn as a row of repeated glyphs, filled from the left UP TO the
+// selected value (the familiar star-rating read). Distinct from cerb-ui/_pip — that's a status dot.
+//
+// The host owns the glyph (any .cerb-icons) and the stored scale; this only paints state. States are
+// applied to the BUTTONS, matching .cerb-ui-switcher--active's shape:
+//   --on       the stored value's fill; persists
+//   --preview  a transient hover fill, replacing --on while the pointer is inside
+//
+// Retint per instance with --cerb-ui-rating-color (e.g. an axis where "more" isn't "better").
+.cerb-ui-rating {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.1em;
+
+	--cerb-ui-rating-color: var(--cerb-color-tag-orange);
+	// Muted end. ⚠ Only steps that EXIST in the contrast ramp -- an undefined one (215, 120, …)
+	// silently invalidates the whole declaration and the control renders with inherited button colors.
+	--cerb-ui-rating-color-off: var(--cerb-color-background-contrast-225);
+
+	button,
+	button:hover,
+	button:has(> span.cerb-icons):hover {
+		// The legacy global BUTTON:hover and button:has(> span.cerb-icons):hover rules hijack BOTH color
+		// and background, and the `background` shorthand resets the icon mask fill -- so every state has
+		// to re-assert both. height:auto beats the global BUTTON { height: 2.4em } that would clip these.
+		background: none;
+		border: 0;
+		box-shadow: none;
+		height: auto;
+		padding: 0.1em;
+		margin: 0;
+		line-height: 1;
+		cursor: pointer;
+		color: var(--cerb-ui-rating-color-off);
+	}
+
+	// Doubled selectors to outrank `button:has(> span.cerb-icons):hover` (0,2,2) in every state.
+	button#{&}--on,
+	button#{&}--on:hover,
+	button:has(> span.cerb-icons)#{&}--on:hover {
+		background: none;
+		color: var(--cerb-ui-rating-color);
+	}
+
+	button#{&}--preview,
+	button#{&}--preview:hover,
+	button:has(> span.cerb-icons)#{&}--preview:hover {
+		background: none;
+		color: var(--cerb-ui-rating-color);
+		opacity: 0.55;
+	}
+
+	.cerb-icons {
+		width: 1.15em;
+		height: 1.15em;
+	}
+}
+
+// The current tier's name, beside the glyphs. contrast-150 matches .cerb-ui-form--hint; no font-size,
+// so it inherits from whatever hosts it.
+.cerb-ui-rating--label {
+	color: var(--cerb-color-background-contrast-150);
+}

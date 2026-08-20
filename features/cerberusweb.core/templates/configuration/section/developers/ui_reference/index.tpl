@@ -121,6 +121,7 @@
 						<li data-target="toggle" data-icon="toggle">Toggle</li>
 						<li data-target="slider" data-icon="slider">Slider</li>
 						<li data-target="switcher" data-icon="adjust">Switcher</li>
+						<li data-target="rating" data-icon="star">Rating</li>
 						<li data-target="form" data-icon="form">Form</li>
 						<li data-target="datepicker" data-icon="calendar">Datepicker</li>
 						<li data-target="colorpicker" data-icon="color-palette">ColorPicker</li>
@@ -222,6 +223,7 @@
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/toggle.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/slider.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/switcher.tpl"}
+			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/rating.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/form.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/datepicker.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/colorpicker.tpl"}
