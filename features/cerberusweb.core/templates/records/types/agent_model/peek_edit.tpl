@@ -84,15 +84,18 @@
 				<div class="cerb-ui-form--hint">Referenced as <code>cerb:agent_model:&lt;name&gt;</code>. Copied from the model you pick &mdash; edit freely.</div>
 			</div>
 
+			{$status = 0}{if $model->is_disabled}{$status = 2}{/if}
 			<div class="cerb-ui-form--field">
 				<label class="cerb-ui-form--label">{'common.status'|devblocks_translate|capitalize}</label>
 				<div>
-					<input type="hidden" name="is_disabled" id="isDisabled_{$form_id}" value="{$model->is_disabled}">
-					<div class="cerb-ui-switcher" data-cerb-input="isDisabled_{$form_id}">
-						<button type="button" data-value="0"{if !$model->is_disabled} class="cerb-ui-switcher--active"{/if}><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.enabled'|devblocks_translate|capitalize}</button>
-						<button type="button" data-value="1"{if $model->is_disabled} class="cerb-ui-switcher--active"{/if}><span class="cerb-icons cerb-icon-ban"></span> {'common.disabled'|devblocks_translate|capitalize}</button>
+					<input type="hidden" name="status" id="status_{$form_id}" value="{$status}">
+					<div class="cerb-ui-switcher" data-cerb-input="status_{$form_id}">
+						<button type="button" data-value="0"{if $status == 0} class="cerb-ui-switcher--active"{/if}><span class="cerb-icons cerb-icon-circle-ok"></span> Available</button>
+						<button type="button" data-value="1"{if $status == 1} class="cerb-ui-switcher--active"{/if}><span class="cerb-icons cerb-icon-lock"></span> Unlisted</button>
+						<button type="button" data-value="2"{if $status == 2} class="cerb-ui-switcher--active"{/if}><span class="cerb-icons cerb-icon-ban"></span> {'common.disabled'|devblocks_translate|capitalize}</button>
 					</div>
 				</div>
+				<div class="cerb-ui-form--hint"><b>Available</b> is offered by routers. <b>Unlisted</b> is skipped by routers but still runs when an automation names it. <b>Disabled</b> refuses every request.</div>
 			</div>
 		</div>
 
