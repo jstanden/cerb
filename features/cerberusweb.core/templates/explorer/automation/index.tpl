@@ -32,8 +32,7 @@
 		<!-- Application -->
 		<link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=cerberusweb.core&f=css/cerb.css{/devblocks_url}?v={$smarty.const.APP_BUILD}&pl=0">
 		<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerberus.js{/devblocks_url}?v={$smarty.const.APP_BUILD}&pl=0"></script>
-
-		{include file="devblocks:cerberusweb.core::cerb_ui_scripts.tpl"}
+		<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerb-ui.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
 
 		<style type="text/css">
 			BODY { margin:0; padding:0; }
