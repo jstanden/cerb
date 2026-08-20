@@ -3,10 +3,9 @@ class DAO_AgentModelRouter extends Cerb_ORMHelper {
 	const CREATED_AT = 'created_at';
 	const DESCRIPTION = 'description';
 	const ID = 'id';
-	const IS_DEFAULT = 'is_default';
-	const IS_DISABLED = 'is_disabled';
 	const LABEL = 'label';
 	const MODELS_KATA = 'models_kata';
+	const MODELS_QUERY = 'models_query';
 	const NAME = 'name';
 	const UPDATED_AT = 'updated_at';
 
@@ -29,16 +28,6 @@ class DAO_AgentModelRouter extends Cerb_ORMHelper {
 			->id()
 			->setEditable(false)
 			;
-		// The system default -- the router used when nothing names one. Single-winner: setDefault() clears the
-		// others, so this is set through that method rather than by writing the column directly.
-		$validation
-			->addField(self::IS_DEFAULT)
-			->bit()
-			;
-		$validation
-			->addField(self::IS_DISABLED)
-			->bit()
-			;
 		// A friendly display name for pickers -- `name` is the URI handle (`default`), this is what a reader
 		// should see ("Default"). Blank falls back to `name`. Same split as `agent_model`.
 		$validation
@@ -59,6 +48,29 @@ class DAO_AgentModelRouter extends Cerb_ORMHelper {
 
 				if(false === DevblocksPlatform::services()->kata()->parse($value, $parse_error)) {
 					$error = 'must be valid KATA: ' . $parse_error;
+					return false;
+				}
+
+				return true;
+			})
+			;
+		// The `agent_model` search that decides membership. Validated by RUNNING it through the same parser
+		// the worklist uses, so `hasVison:y` fails here rather than silently matching nothing at the first turn.
+		$validation
+			->addField(self::MODELS_QUERY)
+			->string()
+			->setMaxLength(65535)
+			->addValidator(function($value, &$error=null) {
+				if('' === trim(strval($value)))
+					return true;
+
+				if(!($context_ext = Extension_DevblocksContext::get(Context_AgentModel::ID, true)))
+					return true;
+
+				$view = $context_ext->getTempView();
+
+				if(false === $view->getParamsFromQuickSearch($value, [], $query_error)) {
+					$error = 'must be a valid agent model search: ' . $query_error;
 					return false;
 				}
 
@@ -114,46 +126,30 @@ class DAO_AgentModelRouter extends Cerb_ORMHelper {
 
 		self::update($id, $fields);
 
-		// The FIRST router becomes the default, so an environment is never router-less and nothing has to be
-		// told to pick one. Checked after the insert (the new row is present), so "is there any other default"
-		// is the real question -- not "is this the first row".
-		if(!$db->GetOneMaster(sprintf("SELECT id FROM agent_model_router WHERE is_default = 1 AND id != %d LIMIT 1", $id)))
-			self::setDefault($id);
-
 		return $id;
 	}
 
+	/** The name that IS the default. No flag column: uniqueness on `name` already guarantees one. */
+	const DEFAULT_NAME = 'default';
+
 	/**
-	 * The system default router -- what resolves when nothing names one. There is always exactly one (create()
-	 * auto-flags the first, and setDefault() is single-winner), so callers never have to handle "none".
+	 * The router that resolves when nothing names one -- the record literally named `default`.
+	 *
+	 * There is no `is_default` column. A single-winner flag needs a clear-all-then-set write, an auto-flag on
+	 * the first insert, and an auto-promote on delete, and it can still be edited into a state with none or
+	 * two. A unique name can't. Deleting `default` is a missing default and errors clearly, which beats
+	 * silently promoting an unrelated router whose policy nobody chose.
 	 *
 	 * @return Model_AgentModelRouter|null
 	 */
 	static function getDefault() {
-		$objects = self::getWhere(sprintf("%s = 1", self::IS_DEFAULT), self::NAME, true, 1);
-		return reset($objects) ?: null;
-	}
-
-	/**
-	 * Single-winner flip. Same two-statement shape as DAO_Group::setDefaultGroup() -- clear every row, then set
-	 * one. Raw SQL rather than update() on purpose: clearing the previous default is bookkeeping, not a change
-	 * anyone asked for, so it shouldn't fire change events on an unrelated record.
-	 */
-	static function setDefault($id) {
-		$db = DevblocksPlatform::services()->database();
-
-		$db->ExecuteMaster("UPDATE agent_model_router SET is_default = 0");
-		$db->ExecuteMaster(sprintf("UPDATE agent_model_router SET is_default = 1 WHERE id = %d", $id));
-
-		DevblocksPlatform::markContextChanged(Context_AgentModelRouter::ID, $id);
+		return self::getByName(self::DEFAULT_NAME);
 	}
 
 	/**
 	 * Type-to-search for record choosers. Prefix match on `name` (house convention -- see
 	 * `references/record-choosers.md`); an empty term returns the first 25, so the picker opens populated.
 	 *
-	 * Disabled routers are omitted: they can't be resolved, so offering one would let someone pick something
-	 * that silently falls back to the default.
 	 */
 	static function autocomplete($term, $as='models') {
 		$db = DevblocksPlatform::services()->database();
@@ -161,7 +157,7 @@ class DAO_AgentModelRouter extends Cerb_ORMHelper {
 
 		$results = $db->GetArrayReader(sprintf("SELECT id ".
 			"FROM agent_model_router ".
-			"WHERE is_disabled = 0 AND name LIKE %s ".
+			"WHERE name LIKE %s ".
 			"ORDER BY name ASC ".
 			"LIMIT 25 ",
 			$db->qstr($term.'%')
@@ -217,10 +213,86 @@ class DAO_AgentModelRouter extends Cerb_ORMHelper {
 
 			parent::_update($batch_ids, 'agent_model_router', $fields);
 
+			self::clearQueryModelsCache();
+
 			if($check_deltas) {
 				DevblocksPlatform::markContextChanged($context, $batch_ids);
 			}
 		}
+	}
+
+	private const _CACHE_QUERY_MODELS = 'cerb:agent_model_router:query_models';
+
+	/**
+	 * The `agent_model` NAMES a router's `models_query` matches, in the query's own sort order.
+	 *
+	 * Cached as one map of `{router_id => [name, ...]}` -- names rather than models, because getModels()
+	 * re-reads each record anyway to check its status. Busted by CRUD on either record type; the TTL is
+	 * insurance for a query with a time-dependent term (`updated:`, and later `usage:`), which no
+	 * write-triggered invalidation can catch.
+	 *
+	 * @return string[]
+	 */
+	static function getQueryModelNames(int $router_id) : array {
+		$cache = DevblocksPlatform::services()->cache();
+
+		if(!is_array($map = $cache->load(self::_CACHE_QUERY_MODELS)))
+			$map = [];
+
+		if(array_key_exists($router_id, $map))
+			return $map[$router_id];
+
+		$router = self::get($router_id);
+		$names = $router ? self::resolveQueryModelNames(strval($router->models_query)) : [];
+
+
+		$map[$router_id] = $names;
+		$cache->save($map, self::_CACHE_QUERY_MODELS, [], 300);
+
+		return $names;
+	}
+
+	/**
+	 * Run an `agent_model` query and return the matching NAMES in its own sort order.
+	 *
+	 * **The query is OPTIONAL.** Blank means every available model -- the zero-config router, and what makes
+	 * a fresh `default` work with nothing typed into it. Narrowing is the opt-in, not the baseline.
+	 *
+	 * Uncached on purpose: the editor's preview calls this with an UNSAVED query, so it has to reflect what's
+	 * on screen rather than what's stored.
+	 *
+	 * @return string[]
+	 */
+	static function resolveQueryModelNames(string $query, ?string &$error=null) : array {
+		if(!($context_ext = Extension_DevblocksContext::get(Context_AgentModel::ID, true)))
+			return [];
+
+		$view = $context_ext->getTempView();
+
+		// Membership is enforced HERE, not in each router's query, so no query author can forget it and no
+		// shipped router has to mention status.
+		$view->addParamsRequiredWithQuickSearch(sprintf('status.id:%d', DAO_AgentModel::STATUS_AVAILABLE), true);
+
+		if('' !== trim($query) && !$view->addParamsWithQuickSearch($query, true, [], $error))
+			return [];
+
+		// Every match, unpaged. The query's own `sort:` (if any) already set renderSortBy.
+		$view->renderLimit = 0;
+		$view->renderTotal = false;
+		$view->renderSubtotals = null;
+
+		list($models,) = $view->getData();
+
+		$names = [];
+
+		foreach($models as $row)
+			$names[] = strval($row[SearchFields_AgentModel::NAME] ?? '');
+
+		return array_values(array_filter($names));
+	}
+
+	static function clearQueryModelsCache() : void {
+		DevblocksPlatform::services()->cache()->remove(self::_CACHE_QUERY_MODELS);
 	}
 
 	static function updateWhere($fields, $where) {
@@ -245,7 +317,7 @@ class DAO_AgentModelRouter extends Cerb_ORMHelper {
 
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 
-		$sql = "SELECT created_at, description, id, is_default, is_disabled, label, models_kata, name, updated_at " .
+		$sql = "SELECT created_at, description, id, label, models_kata, models_query, name, updated_at " .
 			"FROM agent_model_router " .
 			$where_sql .
 			$sort_sql .
@@ -311,10 +383,9 @@ class DAO_AgentModelRouter extends Cerb_ORMHelper {
 			$object->created_at = intval($row['created_at']);
 			$object->description = $row['description'];
 			$object->id = intval($row['id']);
-			$object->is_default = intval($row['is_default']);
-			$object->is_disabled = intval($row['is_disabled']);
 			$object->label = $row['label'];
 			$object->models_kata = $row['models_kata'];
+			$object->models_query = $row['models_query'];
 			$object->name = $row['name'];
 			$object->updated_at = intval($row['updated_at']);
 			$objects[$object->id] = $object;
@@ -344,15 +415,9 @@ class DAO_AgentModelRouter extends Cerb_ORMHelper {
 
 		$db->ExecuteMaster(sprintf("DELETE FROM agent_model_router WHERE id IN (%s)", $ids_list));
 
-		parent::_deleteAbstractAfter($context, $ids);
+		self::clearQueryModelsCache();
 
-		// Deleting the default would otherwise leave the system with no router to fall back to. Promote another
-		// rather than refusing the delete: the admin's intent (remove this one) is honored, and the invariant
-		// "there is always a default" survives. Oldest first, so it's the least surprising survivor.
-		if(!$db->GetOneMaster("SELECT id FROM agent_model_router WHERE is_default = 1 LIMIT 1")) {
-			if(($next_id = $db->GetOneMaster("SELECT id FROM agent_model_router ORDER BY id LIMIT 1")))
-				self::setDefault($next_id);
-		}
+		parent::_deleteAbstractAfter($context, $ids);
 
 		return true;
 	}
@@ -366,17 +431,15 @@ class DAO_AgentModelRouter extends Cerb_ORMHelper {
 			"agent_model_router.created_at as %s, " .
 			"agent_model_router.description as %s, " .
 			"agent_model_router.id as %s, " .
-			"agent_model_router.is_default as %s, " .
-			"agent_model_router.is_disabled as %s, " .
 			"agent_model_router.label as %s, " .
+			"agent_model_router.models_query as %s, " .
 			"agent_model_router.name as %s, " .
 			"agent_model_router.updated_at as %s",
 			SearchFields_AgentModelRouter::CREATED_AT,
 			SearchFields_AgentModelRouter::DESCRIPTION,
 			SearchFields_AgentModelRouter::ID,
-			SearchFields_AgentModelRouter::IS_DEFAULT,
-			SearchFields_AgentModelRouter::IS_DISABLED,
 			SearchFields_AgentModelRouter::LABEL,
+			SearchFields_AgentModelRouter::MODELS_QUERY,
 			SearchFields_AgentModelRouter::NAME,
 			SearchFields_AgentModelRouter::UPDATED_AT
 		);
@@ -418,9 +481,8 @@ class SearchFields_AgentModelRouter extends DevblocksSearchFields {
 	const CREATED_AT = 'a_created_at';
 	const DESCRIPTION = 'a_description';
 	const ID = 'a_id';
-	const IS_DEFAULT = 'a_is_default';
-	const IS_DISABLED = 'a_is_disabled';
 	const LABEL = 'a_label';
+	const MODELS_QUERY = 'a_models_query';
 	const NAME = 'a_name';
 	const UPDATED_AT = 'a_updated_at';
 
@@ -486,9 +548,8 @@ class SearchFields_AgentModelRouter extends DevblocksSearchFields {
 			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'agent_model_router', 'created_at', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
 			self::DESCRIPTION => new DevblocksSearchField(self::DESCRIPTION, 'agent_model_router', 'description', $translate->_('common.description'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::ID => new DevblocksSearchField(self::ID, 'agent_model_router', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
-			self::IS_DEFAULT => new DevblocksSearchField(self::IS_DEFAULT, 'agent_model_router', 'is_default', $translate->_('common.default'), Model_CustomField::TYPE_CHECKBOX, true),
-			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'agent_model_router', 'is_disabled', $translate->_('common.disabled'), Model_CustomField::TYPE_CHECKBOX, true),
 			self::LABEL => new DevblocksSearchField(self::LABEL, 'agent_model_router', 'label', $translate->_('common.label'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::MODELS_QUERY => new DevblocksSearchField(self::MODELS_QUERY, 'agent_model_router', 'models_query', $translate->_('common.query'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'agent_model_router', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'agent_model_router', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 		];
@@ -511,10 +572,9 @@ class Model_AgentModelRouter extends DevblocksRecordModel {
 	public $created_at;
 	public $description;
 	public $id;
-	public $is_default;
-	public $is_disabled;
 	public $label;
 	public $models_kata;
+	public $models_query;
 	public $name;
 	public $updated_at;
 
@@ -537,6 +597,51 @@ class Model_AgentModelRouter extends DevblocksRecordModel {
 	 * @return array `{<key> => <overrides>}`; empty when nothing resolves
 	 */
 	public function getModels(?DevblocksDictionaryDelegate $dict=null, ?string &$error=null) : array {
+		$overrides = $this->_getKataOverrides($dict, $error);
+
+		// Membership is ALWAYS the query. Blank matches every available model, so a router with nothing
+		// configured still resolves -- `models_kata` only decorates what the query already found.
+		$names = DAO_AgentModelRouter::getQueryModelNames($this->id);
+
+		$out = [];
+
+		foreach($names as $name) {
+			$name = strval($name);
+
+			// `<name>/<alias>` mounts one record more than once. A query yields each record once, so an
+			// aliased entry is the only additive form the KATA still contributes.
+			$record_name = DevblocksPlatform::services()->string()->strBefore($name, '/') ?: $name;
+
+			if(!($record = DAO_AgentModel::getByName($record_name)))
+				continue;
+
+			// Re-checked against the RECORD every time, so a cached name can never resurrect a model that
+			// has since been unlisted or disabled.
+			if(!$record->isAvailable())
+				continue;
+
+			$out[$name] = $overrides[$name] ?? [];
+		}
+
+		// Aliased entries can't come from a query; carry them over so multi-mount survives one.
+		foreach($overrides as $key => $params) {
+			if(isset($out[$key]) || !str_contains($key, '/'))
+				continue;
+
+			$record_name = DevblocksPlatform::services()->string()->strBefore($key, '/') ?: $key;
+
+			if(($record = DAO_AgentModel::getByName($record_name)) && $record->isAvailable())
+				$out[$key] = $params;
+		}
+
+		return $out;
+	}
+
+	/**
+	 * `models_kata` parsed to `{<key> => <overrides>}`. With a query set these are overrides only -- an entry
+	 * naming a model the query didn't match contributes nothing (except an alias, see getModels()).
+	 */
+	private function _getKataOverrides(?DevblocksDictionaryDelegate $dict=null, ?string &$error=null) : array {
 		if('' === trim(strval($this->models_kata)))
 			return [];
 
@@ -556,24 +661,8 @@ class Model_AgentModelRouter extends DevblocksRecordModel {
 
 		$out = [];
 
-		foreach($models as $key => $overrides) {
-			$key = strval($key);
-			$overrides = is_array($overrides) ? $overrides : [];
-
-			// `<name>/<alias>` -- the record name is the part before the slash. Same `type/name` split the
-			// automation engine uses for node names.
-			$model_name = DevblocksPlatform::services()->string()->strBefore($key, '/') ?: $key;
-
-			if(!($record = DAO_AgentModel::getByName($model_name)))
-				continue;
-
-			// Routers offer Available models only. Unlisted is reachable by naming it, not by routing;
-			// disabled is refused everywhere. Entries stay in the doc either way, so position survives.
-			if(!$record->isAvailable())
-				continue;
-
-			$out[$key] = $overrides;
-		}
+		foreach($models as $key => $params)
+			$out[strval($key)] = is_array($params) ? $params : [];
 
 		return $out;
 	}
@@ -623,9 +712,8 @@ class View_AgentModelRouter extends C4_AbstractView implements IAbstractView_Sub
 		// multi-line document -- it reads as noise in a cell, so it's available but off by default.
 		$this->view_columns = [
 			SearchFields_AgentModelRouter::NAME,
+			SearchFields_AgentModelRouter::MODELS_QUERY,
 			SearchFields_AgentModelRouter::DESCRIPTION,
-			SearchFields_AgentModelRouter::IS_DEFAULT,
-			SearchFields_AgentModelRouter::IS_DISABLED,
 			SearchFields_AgentModelRouter::UPDATED_AT,
 		];
 
@@ -751,6 +839,10 @@ class View_AgentModelRouter extends C4_AbstractView implements IAbstractView_Sub
 				'type' => DevblocksSearchCriteria::TYPE_TEXT,
 				'options' => ['param_key' => SearchFields_AgentModelRouter::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL],
 			],
+			'query' => [
+				'type' => DevblocksSearchCriteria::TYPE_TEXT,
+				'options' => ['param_key' => SearchFields_AgentModelRouter::MODELS_QUERY, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL],
+			],
 			'updated' => [
 				'type' => DevblocksSearchCriteria::TYPE_DATE,
 				'options' => ['param_key' => SearchFields_AgentModelRouter::UPDATED_AT],
@@ -833,13 +925,12 @@ class View_AgentModelRouter extends C4_AbstractView implements IAbstractView_Sub
 				break;
 
 			case SearchFields_AgentModelRouter::ID:
-			case SearchFields_AgentModelRouter::IS_DEFAULT:
-			case SearchFields_AgentModelRouter::IS_DISABLED:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 
 			case SearchFields_AgentModelRouter::DESCRIPTION:
 			case SearchFields_AgentModelRouter::LABEL:
+			case SearchFields_AgentModelRouter::MODELS_QUERY:
 			case SearchFields_AgentModelRouter::NAME:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
@@ -921,22 +1012,16 @@ class Context_AgentModelRouter extends Extension_DevblocksContext implements IDe
 			'value' => $model->id,
 		];
 
-		$properties['is_default'] = [
-			'label' => mb_ucfirst($translate->_('common.default')),
-			'type' => Model_CustomField::TYPE_NUMBER,
-			'value' => $model->is_default,
-		];
-
-		$properties['is_disabled'] = [
-			'label' => mb_ucfirst($translate->_('common.disabled')),
-			'type' => Model_CustomField::TYPE_NUMBER,
-			'value' => $model->is_disabled,
-		];
-
 		$properties['label'] = [
 			'label' => mb_ucfirst($translate->_('common.label')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'value' => $model->label,
+		];
+
+		$properties['models_query'] = [
+			'label' => mb_ucfirst($translate->_('common.query')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->models_query,
 		];
 
 		$properties['models_kata'] = [
@@ -997,8 +1082,6 @@ class Context_AgentModelRouter extends Extension_DevblocksContext implements IDe
 		return [
 			'label',
 			'description',
-			'is_default',
-			'is_disabled',
 			'updated_at',
 		];
 	}
@@ -1028,10 +1111,9 @@ class Context_AgentModelRouter extends Extension_DevblocksContext implements IDe
 			'updated_at' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 			'description' => $prefix.$translate->_('common.description'),
-			'is_default' => $prefix.$translate->_('common.default'),
-			'is_disabled' => $prefix.$translate->_('common.disabled'),
 			'label' => $prefix.$translate->_('common.label'),
 			'models_kata' => $prefix.$translate->_('common.models'),
+			'models_query' => $prefix.$translate->_('common.query'),
 		];
 
 		$token_types = [
@@ -1042,10 +1124,9 @@ class Context_AgentModelRouter extends Extension_DevblocksContext implements IDe
 			'updated_at' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,
 			'description' => Model_CustomField::TYPE_SINGLE_LINE,
-			'is_default' => Model_CustomField::TYPE_SINGLE_LINE,
-			'is_disabled' => Model_CustomField::TYPE_SINGLE_LINE,
 			'label' => Model_CustomField::TYPE_SINGLE_LINE,
 			'models_kata' => Model_CustomField::TYPE_SINGLE_LINE,
+			'models_query' => Model_CustomField::TYPE_SINGLE_LINE,
 		];
 
 		if(false !== ($custom_field_labels = $this->_getTokenLabelsFromCustomFields($fields, $prefix)) && is_array($custom_field_labels))
@@ -1072,10 +1153,9 @@ class Context_AgentModelRouter extends Extension_DevblocksContext implements IDe
 			$token_values['created_at'] = $agent_model_router->created_at;
 			$token_values['updated_at'] = $agent_model_router->updated_at;
 			$token_values['description'] = $agent_model_router->description;
-			$token_values['is_default'] = $agent_model_router->is_default;
-			$token_values['is_disabled'] = $agent_model_router->is_disabled;
 			$token_values['label'] = $agent_model_router->label;
 			$token_values['models_kata'] = $agent_model_router->models_kata;
+			$token_values['models_query'] = $agent_model_router->models_query;
 			$token_values = $this->_importModelCustomFieldsAsValues($agent_model_router, $token_values);
 
 			$url_writer = DevblocksPlatform::services()->url();
@@ -1092,10 +1172,9 @@ class Context_AgentModelRouter extends Extension_DevblocksContext implements IDe
 			'created_at' => DAO_AgentModelRouter::CREATED_AT,
 			'description' => DAO_AgentModelRouter::DESCRIPTION,
 			'id' => DAO_AgentModelRouter::ID,
-			'is_default' => DAO_AgentModelRouter::IS_DEFAULT,
-			'is_disabled' => DAO_AgentModelRouter::IS_DISABLED,
 			'label' => DAO_AgentModelRouter::LABEL,
 			'models_kata' => DAO_AgentModelRouter::MODELS_KATA,
+			'models_query' => DAO_AgentModelRouter::MODELS_QUERY,
 			'name' => DAO_AgentModelRouter::NAME,
 			'updated_at' => DAO_AgentModelRouter::UPDATED_AT,
 			'links' => '_links',
@@ -1221,11 +1300,6 @@ class Context_AgentModelRouter extends Extension_DevblocksContext implements IDe
 			// newly added model shows up here on the next popup with no change to this form.
 			$tpl->assign('models_autocomplete_json', json_encode(self::_getModelsAutocomplete()));
 
-			// A NEW router starts prefilled with every enabled model, so nobody has to type a list they already
-			// have -- reorder with Alt+Up/Down and drop with Alt+D (KataEditor's own bindings). Only for new
-			// records: prefilling an existing one would silently re-add models its author deliberately removed.
-			if(!$context_id)
-				$tpl->assign('models_kata_default', self::_getEnabledModelsKata());
 
 			$tpl->assign('id', $context_id);
 			$tpl->assign('view_id', $view_id);
@@ -1265,23 +1339,4 @@ class Context_AgentModelRouter extends Extension_DevblocksContext implements IDe
 		];
 	}
 
-	/**
-	 * Every enabled model as a starting document, in name order -- what a NEW router opens with.
-	 *
-	 * The point is that nobody types a list they already have: open the editor, reorder with Alt+Up/Down, drop
-	 * what you don't want with Alt+D, save. Bare keys with no overrides, because the record already supplies
-	 * provider/model/auth and an override is the exception.
-	 */
-	private static function _getEnabledModelsKata() : string {
-		$out = '';
-
-		foreach(DAO_AgentModel::getAll() as $model) {
-			if(!$model->isAvailable())
-				continue;
-
-			$out .= sprintf("%s:\n", $model->name);
-		}
-
-		return $out;
-	}
 };

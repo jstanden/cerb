@@ -1424,16 +1424,13 @@ class _DevblocksLlmService {
 		$out = [];
 
 		foreach(\DAO_AgentModelRouter::getAll() as $router) {
-			if($router->is_disabled)
-				continue;
-
 			$out[] = [
 				'caption' => $router->name,
 				'snippet' => $router->name,
-				'score' => $router->is_default ? 2000 : 1000,
+				'score' => (\DAO_AgentModelRouter::DEFAULT_NAME === $router->name) ? 2000 : 1000,
 				'docHTML' => sprintf('<b>%s</b>%s%s',
 					htmlspecialchars($router->getDisplayName()),
-					$router->is_default ? ' &mdash; <b>the default</b>. Omit <code>router:</code> entirely to use it.' : '',
+					(\DAO_AgentModelRouter::DEFAULT_NAME === $router->name) ? ' &mdash; <b>the default</b>. Omit <code>router:</code> entirely to use it.' : '',
 					('' !== trim(strval($router->description))) ? '<br>' . htmlspecialchars($router->description) : ''
 				),
 			];
@@ -1567,7 +1564,7 @@ class _DevblocksLlmService {
 	 */
 	function getAgentRouterModels(int $worker_id, ?DevblocksDictionaryDelegate $dict=null, ?string &$error=null) : array {
 		if($worker_id && ($router_id = \DAO_Agent::getModelRouterId($worker_id))) {
-			if(($router = \DAO_AgentModelRouter::get($router_id)) && !$router->is_disabled)
+			if(($router = \DAO_AgentModelRouter::get($router_id)))
 				return $router->getModels($dict, $error);
 
 			// A router that's been deleted or disabled since it was assigned: fall through to the default
@@ -1624,7 +1621,7 @@ class _DevblocksLlmService {
 	 */
 	function getResolvedRouterName(int $worker_id) : string {
 		if($worker_id && ($router_id = \DAO_Agent::getModelRouterId($worker_id))) {
-			if(($router = \DAO_AgentModelRouter::get($router_id)) && !$router->is_disabled)
+			if(($router = \DAO_AgentModelRouter::get($router_id)))
 				return strval($router->name);
 		}
 

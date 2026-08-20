@@ -163,10 +163,6 @@ class LlmRouterAction extends AbstractAction {
 		if(!($router = DAO_AgentModelRouter::getByName($ref)))
 			throw new Exception_DevblocksAutomationError(sprintf("`router: %s` doesn't match an agent model router.", $ref));
 
-		// A disabled router is an explicit "don't use this" -- resolving it anyway would make the flag meaningless.
-		if($router->is_disabled)
-			throw new Exception_DevblocksAutomationError(sprintf("The `%s` agent model router is disabled.", $router->name));
-
 		return $router;
 	}
 }

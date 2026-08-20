@@ -15,6 +15,8 @@ class PageSection_ProfilesAgentModelRouter extends Extension_PageSection {
 	function handleActionForPage(string $action, ?string $scope=null) {
 		if('profileAction' == $scope) {
 			switch($action) {
+				case 'previewModelsJson':
+					return $this->_profileAction_previewModelsJson();
 				case 'savePeekJson':
 					return $this->_profileAction_savePeekJson();
 				case 'viewExplore':
@@ -69,20 +71,17 @@ class PageSection_ProfilesAgentModelRouter extends Extension_PageSection {
 				$label = DevblocksPlatform::importGPC($_POST['label'] ?? null, 'string', '');
 				$description = DevblocksPlatform::importGPC($_POST['description'] ?? null, 'string', '');
 				$models_kata = DevblocksPlatform::importGPC($_POST['models_kata'] ?? null, 'string', '');
-				$is_default = DevblocksPlatform::importGPC($_POST['is_default'] ?? null, 'bit', 0);
-				$is_disabled = DevblocksPlatform::importGPC($_POST['is_disabled'] ?? null, 'bit', 0);
+				$models_query = DevblocksPlatform::importGPC($_POST['models_query'] ?? null, 'string', '');
 
 				$error = null;
 
-				// `is_default` is deliberately NOT in $fields: it's single-winner, so it goes through
-				// DAO::setDefault() after the save, which clears every other router in the same pass.
 				$fields = [
 					DAO_AgentModelRouter::UPDATED_AT => time(),
 					DAO_AgentModelRouter::NAME => $name,
 					DAO_AgentModelRouter::LABEL => $label,
 					DAO_AgentModelRouter::DESCRIPTION => $description,
 					DAO_AgentModelRouter::MODELS_KATA => $models_kata,
-					DAO_AgentModelRouter::IS_DISABLED => $is_disabled,
+					DAO_AgentModelRouter::MODELS_QUERY => $models_query,
 				];
 
 				if(empty($id)) { // New
@@ -112,9 +111,6 @@ class PageSection_ProfilesAgentModelRouter extends Extension_PageSection {
 
 				// Promote AFTER the save so the row exists. Only on the way ON: unchecking doesn't demote, because
 				// that would leave the system with no default at all -- you change the default by promoting another.
-				if($id && $is_default)
-					DAO_AgentModelRouter::setDefault($id);
-
 				if($id) {
 					// Custom field saves
 					$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
@@ -156,4 +152,78 @@ class PageSection_ProfilesAgentModelRouter extends Extension_PageSection {
 		$http_response = Cerb_ORMHelper::generateRecordExploreSet($view_id, $explore_from);
 		DevblocksPlatform::redirect($http_response);
 	}
+	/**
+	 * The models a query matches RIGHT NOW, in resolved order -- what the editor's preview shows.
+	 *
+	 * Runs the query on screen, not the saved one, so it answers "is this what I meant?" before a save.
+	 * Uncached for the same reason.
+	 */
+	private function _profileAction_previewModelsJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+
+		if(!$active_worker->is_superuser) {
+			echo json_encode(['status' => false, 'error' => DevblocksPlatform::translate('error.core.no_acl.admin')]);
+			return;
+		}
+
+		$query = DevblocksPlatform::importGPC($_POST['models_query'] ?? null, 'string', '');
+
+		$error = null;
+		$names = DAO_AgentModelRouter::resolveQueryModelNames($query, $error);
+
+		if($error) {
+			echo json_encode(['status' => false, 'error' => $error]);
+			return;
+		}
+
+		// The vendor names a reader knows ("AWS Bedrock", not `aws_bedrock`).
+		$provider_labels = array_column(DevblocksPlatform::services()->llm()->getAgentProviders(), 'label', 'id');
+
+		$scales = [];
+
+		foreach(Model_AgentModel::getRatings() as $rating)
+			$scales[$rating] = Model_AgentModel::getRatingScale($rating);
+
+		$models = [];
+
+		foreach($names as $name) {
+			if(!($record = DAO_AgentModel::getByName($name)))
+				continue;
+
+			$ratings = [];
+
+			foreach(Model_AgentModel::getRatings() as $rating) {
+				$value = intval($record->{'rating_' . $rating});
+
+				if($value)
+					$ratings[$rating] = $scales[$rating][$value] ?? '';
+			}
+
+			$models[] = [
+				'id' => $record->id,
+				'name' => $record->name,
+				'label' => $record->getDisplayName(),
+				'provider' => $provider_labels[$record->provider] ?? $record->provider,
+				'model' => $record->model,
+				'icon' => $record->getDisplayIcon(),
+				'icon_color' => $record->getDisplayIconColor(),
+				'has_vision' => $record->has_vision ? 1 : 0,
+				'has_thinking' => $record->has_thinking ? 1 : 0,
+				'context_window' => intval($record->context_window),
+				'ratings' => $ratings,
+			];
+		}
+
+		echo json_encode([
+			'status' => true,
+			'count' => count($models),
+			'models' => $models,
+		]);
+	}
+
 };

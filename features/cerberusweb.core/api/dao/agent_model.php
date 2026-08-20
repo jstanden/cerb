@@ -237,6 +237,8 @@ class DAO_AgentModel extends Cerb_ORMHelper {
 
 			parent::_update($batch_ids, 'agent_model', $fields);
 
+			DAO_AgentModelRouter::clearQueryModelsCache();
+
 			if($check_deltas) {
 				DevblocksPlatform::markContextChanged($context, $batch_ids);
 			}
@@ -477,6 +479,8 @@ class DAO_AgentModel extends Cerb_ORMHelper {
 		parent::_deleteAbstractBefore($context, $ids);
 
 		$db->ExecuteMaster(sprintf("DELETE FROM agent_model WHERE id IN (%s)", $ids_list));
+
+		DAO_AgentModelRouter::clearQueryModelsCache();
 
 		parent::_deleteAbstractAfter($context, $ids);
 
@@ -1161,9 +1165,22 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 
 		$ids = [];
 
+		$statuses = Model_AgentModel::getStatuses();
+
 		foreach($values as $value) {
-			foreach(Model_AgentModel::getStatuses() as $id => $label) {
-				if(0 === strncasecmp(strval($value), $label, 1))
+			$value = trim(strval($value));
+
+			// A raw id is accepted too -- `status.id:` is the documented numeric form, but nobody should get
+			// an empty result for typing the number here.
+			if(is_numeric($value)) {
+				if(array_key_exists(intval($value), $statuses))
+					$ids[] = intval($value);
+
+				continue;
+			}
+
+			foreach($statuses as $id => $label) {
+				if(0 === strncasecmp($value, $label, 1))
 					$ids[] = $id;
 			}
 		}

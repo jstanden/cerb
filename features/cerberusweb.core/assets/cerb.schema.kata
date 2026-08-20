@@ -689,22 +689,6 @@ tables:
         key: PRI
         default@text:
         extra: auto_increment
-      is_default:
-        field: is_default
-        type: tinyint unsigned
-        collation@text:
-        nullable: NOT NULL
-        key: MUL
-        default: 0
-        extra@text:
-      is_disabled:
-        field: is_disabled
-        type: tinyint unsigned
-        collation@text:
-        nullable: NOT NULL
-        key@text:
-        default: 0
-        extra@text:
       label:
         field: label
         type: varchar(128)
@@ -715,6 +699,14 @@ tables:
         extra@text:
       models_kata:
         field: models_kata
+        type: text
+        collation: utf8mb4_unicode_ci
+        nullable: NULL
+        key@text:
+        default@text:
+        extra@text:
+      models_query:
+        field: models_query
         type: text
         collation: utf8mb4_unicode_ci
         nullable: NULL
@@ -745,13 +737,6 @@ tables:
             index_type: BTREE
             subpart@text:
             unique: 1
-      is_default:
-        columns:
-          is_default:
-            column_name: is_default
-            index_type: BTREE
-            subpart@text:
-            unique@text:
       name:
         columns:
           name:

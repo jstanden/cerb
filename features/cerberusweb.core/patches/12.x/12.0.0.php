@@ -4003,25 +4003,43 @@ class CerbPatch_Core_v12_0_0 {
 				`name` varchar(128) NOT NULL DEFAULT '',
 				`label` varchar(128) NOT NULL DEFAULT '',
 				`description` varchar(255) NOT NULL DEFAULT '',
+				`models_query` text,
 				`models_kata` text,
-				`is_default` tinyint(1) unsigned NOT NULL DEFAULT 0,
-				`is_disabled` tinyint(1) unsigned NOT NULL DEFAULT 0,
 				`created_at` int unsigned NOT NULL DEFAULT 0,
 				`updated_at` int unsigned NOT NULL DEFAULT 0,
 				PRIMARY KEY (`id`),
 				UNIQUE KEY `name` (`name`),
-				INDEX `is_default` (`is_default`),
 				INDEX `updated_at` (`updated_at`)
 				) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 			") or die("[MySQL Error] " . $this->_db->ErrorMsgMaster());
 
 			$this->_tables['agent_model_router'] = 'agent_model_router';
+
+		} else {
+			list($columns,) = $this->_db->metaTable('agent_model_router');
+
+			// Membership as an `agent_model` search rather than a hand-maintained list.
+			if(!array_key_exists('models_query', $columns))
+				$this->_db->ExecuteMaster("ALTER TABLE agent_model_router ADD COLUMN models_query text AFTER description");
+
+			// The default is the record NAMED `default` -- a unique name can't drift into "none" or "two" the
+			// way a single-winner flag can, and it needs no auto-promote on delete.
+			if(array_key_exists('is_default', $columns)) {
+				if(!$this->_db->GetOneMaster("SELECT id FROM agent_model_router WHERE name = 'default'")) {
+					if(($default_id = $this->_db->GetOneMaster("SELECT id FROM agent_model_router WHERE is_default = 1 LIMIT 1")))
+						$this->_db->ExecuteMaster(sprintf("UPDATE agent_model_router SET name = 'default' WHERE id = %d", $default_id));
+				}
+
+				$this->_db->ExecuteMaster("ALTER TABLE agent_model_router DROP COLUMN is_default");
+			}
+
+			// A router's availability is entirely its query: one that matches nothing already errors. A second
+			// off-switch could only contradict the first.
+			if(array_key_exists('is_disabled', $columns))
+				$this->_db->ExecuteMaster("ALTER TABLE agent_model_router DROP COLUMN is_disabled");
 		}
 
-		// No seed row. A fresh 11.2 install has no `agent_model` records yet, so a shipped router would be an
-		// empty record on every install worldwide that nothing can use. Instead the FIRST router anyone creates
-		// gets `is_default` automatically (DAO_AgentModelRouter::create()), and its editor opens prefilled with
-		// whatever models exist at that moment -- so the list is never typed by hand either way.
+		// No seed row yet -- see the plan's 4h. The default is whichever record is named `default`.
 	}
 
 	private function patchTableAgent() : void {

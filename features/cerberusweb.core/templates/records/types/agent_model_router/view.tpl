@@ -62,9 +62,7 @@
 	{else}
 		{$tableRowClass = "odd"}
 	{/if}
-	{* `is_disabled` is in the DAO's fixed SELECT, not just the visible columns, so the row treatment holds even
-	   when an operator drops the Disabled column from the worklist. *}
-	<tbody style="cursor:pointer;" {if $result.a_is_disabled}class="cerb-worklist-row--disabled"{/if}>
+	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
 			<td data-column="*_watchers" align="center" nowrap="nowrap" style="padding:5px;">
 				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$view_context context_id=$result.a_id}
@@ -85,29 +83,15 @@
 					data-avatar-color="{$view->getRowIconColor($result)}"
 				></span>
 				<a href="{devblocks_url}c=profiles&type=agent_model_router&id={$result.a_id}-{$result.a_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.a_name}</a>
-				{* The default router is the one that runs when nothing names one -- worth seeing at a glance,
-				   and it's also in the fixed SELECT so it shows even without the Default column. *}
-				{if $result.a_is_default}
+				{* The router named `default` is the one that runs when nothing names one. *}
+				{if $result.a_name == 'default'}
 					<span class="cerb-icons cerb-icon-star" style="vertical-align:middle;margin-left:0.3em;" title="{'common.default'|devblocks_translate|capitalize}"></span>
-				{/if}
-				{if $result.a_is_disabled}
-					<span class="cerb-icons cerb-icon-ban" style="vertical-align:middle;margin-left:0.3em;" title="{'common.disabled'|devblocks_translate|capitalize}"></span>
 				{/if}
 				<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.a_id}"><span class="cerb-icons cerb-icon-new-window"></span></button>
 			</td>
-			{elseif $column == "a_is_default"}
-				{* The raw checkbox value renders as a bare 0/1. Show the STATE instead: a star on the default,
-				   nothing on the rest -- there's only ever one, so it shouldn't be a column of "No". *}
-				<td data-column="{$column}" style="text-align:center;">
-					{if $result.$column}
-						<span class="cerb-icons cerb-icon-star" title="{'common.default'|devblocks_translate|capitalize}"></span>
-					{/if}
-				</td>
-			{elseif $column == "a_is_disabled"}
-				<td data-column="{$column}" style="text-align:center;">
-					{if $result.$column}
-						<span class="cerb-icons cerb-icon-ban" title="{'common.disabled'|devblocks_translate|capitalize}"></span>
-					{/if}
+			{elseif $column == "a_models_query"}
+				<td data-column="{$column}">
+					{if $result.$column}<code>{$result.$column}</code>{/if}
 				</td>
 			{elseif in_array($column, ["a_created_at", "a_updated_at"])}
 				<td>
