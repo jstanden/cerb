@@ -1383,7 +1383,43 @@ class Context_QueueJob extends Extension_DevblocksContext implements IDevblocksC
 
 	function getKeyMeta($with_dao_fields=true) {
 		$keys = parent::getKeyMeta($with_dao_fields);
+
+		$keys['count_total']['notes'] = "The number of work units this job represents. Displayed on the [worklist](/docs/records/types/queue_job/) and in the `done / total` readout on card widgets. The monitor's progress bar does NOT read this -- it counts live from the job's messages -- so a job whose messages are enqueued separately can leave this at `0` without breaking the bar";
+		$keys['metadata']['notes'] = "An object of job configuration read by the queue's consumer. The shape is the consumer's to define; a bulk update stores its record type, worklist query, and actions here";
+		$keys['name']['notes'] = "The name of the job, shown in the worklist and the monitor";
+		$keys['queue_id']['notes'] = "The [queue](/docs/records/types/queue/) whose consumer processes this job's messages";
+		$keys['singleton_key']['notes'] = "An optional dedupe key. Creating a job with a `singleton_key` that matches an already-open job on the same queue returns that job instead of making a second one; leave blank to always create";
+		$keys['status_id']['notes'] = "`0` running, `1` paused, `2` done, `3` canceled. Only a **running** job's messages are claimed by a consumer, and only a running job can transition to done -- so create a job `1` (paused) if you intend to enqueue its messages afterward, then set it `0` to release the work";
+		$keys['worker_id']['notes'] = "The [worker](/docs/records/types/worker/) who started this job. They can read the job and are notified when it completes";
+
 		return $keys;
+	}
+
+	function getKeyAutocompleteSuggestions() : array {
+		return [
+			'status_id' => [
+				[
+					'caption' => '0',
+					'snippet' => '0',
+					'docHTML' => '<b>0 &mdash; Running</b><br>Consumers may claim this job\'s messages. The only status a job can complete from.',
+				],
+				[
+					'caption' => '1',
+					'snippet' => '1',
+					'docHTML' => '<b>1 &mdash; Paused</b><br>No consumer will claim this job\'s messages, and it can\'t transition to <i>done</i> while paused. Create a job paused when you enqueue its messages in more than one step, so it can\'t finish between batches; set it <code>0</code> to release the work.',
+				],
+				[
+					'caption' => '2',
+					'snippet' => '2',
+					'docHTML' => '<b>2 &mdash; Done</b><br>Terminal. Set by the platform once the last message resolves, after the consumer\'s completion hook has run. Don\'t set this by hand -- doing so skips the hook.',
+				],
+				[
+					'caption' => '3',
+					'snippet' => '3',
+					'docHTML' => '<b>3 &mdash; Canceled</b><br>Terminal. Canceling through the monitor also deletes the job\'s remaining unclaimed messages; setting this alone does not.',
+				],
+			],
+		];
 	}
 
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
