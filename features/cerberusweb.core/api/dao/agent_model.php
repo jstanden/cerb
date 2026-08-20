@@ -243,6 +243,89 @@ class DAO_AgentModel extends Cerb_ORMHelper {
 		}
 	}
 
+	static function bulkUpdate(Model_ContextBulkUpdate $update) : bool {
+		$do = $update->actions;
+		$ids = $update->context_ids;
+
+		if(empty($ids) || empty($do))
+			return false;
+
+		$context = Context_AgentModel::ID;
+
+		$change_fields = [];
+		$custom_fields = [];
+		$deleted = false;
+
+		foreach($do as $k => $v) {
+			switch($k) {
+				case 'delete':
+					$deleted = true;
+					break;
+
+				case 'connected_account_id':
+					$change_fields[self::CONNECTED_ACCOUNT_ID] = intval($v);
+					break;
+
+				case 'has_thinking':
+					$change_fields[self::HAS_THINKING] = intval($v) ? 1 : 0;
+					break;
+
+				case 'has_vision':
+					$change_fields[self::HAS_VISION] = intval($v) ? 1 : 0;
+					break;
+
+				case 'rating_cost':
+					$change_fields[self::RATING_COST] = intval($v);
+					break;
+
+				case 'rating_intelligence':
+					$change_fields[self::RATING_INTELLIGENCE] = intval($v);
+					break;
+
+				case 'rating_privacy':
+					$change_fields[self::RATING_PRIVACY] = intval($v);
+					break;
+
+				case 'rating_speed':
+					$change_fields[self::RATING_SPEED] = intval($v);
+					break;
+
+				case 'status':
+					$change_fields[self::STATUS] = DevblocksPlatform::intClamp(intval($v), 0, 2);
+					break;
+
+				default:
+					if(DevblocksPlatform::strStartsWith($k, 'cf_')) {
+						$custom_fields[substr($k,3)] = $v;
+					}
+					break;
+			}
+		}
+
+		if($deleted) {
+			CerberusContexts::logActivityRecordDelete($context, $ids);
+
+			self::delete($ids);
+
+			return true;
+		}
+
+		DevblocksPlatform::markContextChanged($context, $ids);
+
+		if(!empty($change_fields))
+			self::update($ids, $change_fields, false);
+
+		if(!empty($custom_fields))
+			C4_AbstractView::_doBulkSetCustomFields($context, $custom_fields, $ids);
+
+		if(isset($do['watchers']))
+			C4_AbstractView::_doBulkChangeWatchers($context, $do['watchers'], $ids);
+
+		CerberusContexts::checkpointChanges($context, $ids);
+
+		return true;
+	}
+
 	static function updateWhere($fields, $where) {
 		parent::_updateWhere('agent_model', $fields, $where);
 	}

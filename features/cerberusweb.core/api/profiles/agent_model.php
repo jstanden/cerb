@@ -19,6 +19,10 @@ class PageSection_ProfilesAgentModel extends Extension_PageSection {
 					return $this->_profileAction_savePeekJson();
 				case 'modelsJson':
 					return $this->_profileAction_modelsJson();
+				case 'showBulkPopup':
+					return $this->_profileAction_showBulkPopup();
+				case 'startBulkUpdateJson':
+					return $this->_profileAction_startBulkUpdateJson();
 				case 'testJson':
 					return $this->_profileAction_testJson();
 				case 'viewExplore':
@@ -330,6 +334,158 @@ class PageSection_ProfilesAgentModel extends Extension_PageSection {
 				'error' => "An unexpected error occurred.",
 			]);
 		}
+	}
+
+	private function _profileAction_showBulkPopup() {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if(!$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
+		$ids = DevblocksPlatform::importGPC($_REQUEST['ids'] ?? null, 'string', '');
+		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null, 'string', '');
+
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('view_id', $view_id);
+
+		if(!empty($ids)) {
+			$id_list = DevblocksPlatform::parseCsvString($ids);
+			$tpl->assign('ids', implode(',', $id_list));
+		}
+
+		$custom_fields = DAO_CustomField::getByContext(Context_AgentModel::ID, false);
+		$tpl->assign('custom_fields', $custom_fields);
+
+		$tpl->assign('statuses', Model_AgentModel::getStatuses());
+
+		$rating_scales = [];
+
+		foreach(Model_AgentModel::getRatings() as $rating)
+			$rating_scales[$rating] = Model_AgentModel::getRatingScale($rating);
+
+		$tpl->assign('rating_scales', $rating_scales);
+
+		$tpl->assign('bulk_automations', \Cerb\Records\BulkUpdate::getMenuItems(
+			Context_AgentModel::ID,
+			$view_id,
+			'',
+			$active_worker
+		));
+
+		$tpl->display('devblocks:cerberusweb.core::records/types/agent_model/bulk.tpl');
+	}
+
+	private function _profileAction_startBulkUpdateJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+
+		if(!$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
+		$context = Context_AgentModel::ID;
+
+		$filter = DevblocksPlatform::importGPC($_POST['filter'] ?? null, 'string', '');
+		$ids = [];
+
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
+
+		if(!($view = C4_AbstractViewLoader::getView($view_id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+
+		$view->setAutoPersist(false);
+
+		$actions = DevblocksPlatform::importGPC($_POST['actions'] ?? null, 'array', []);
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
+
+		$do = [];
+
+		foreach($actions as $action) {
+			switch($action) {
+				case 'delete':
+					if($active_worker->hasPriv(sprintf('contexts.%s.delete', $context)))
+						$do['delete'] = true;
+					break;
+
+				case 'connected_account_id':
+				case 'has_thinking':
+				case 'has_vision':
+				case 'rating_cost':
+				case 'rating_intelligence':
+				case 'rating_privacy':
+				case 'rating_speed':
+				case 'status':
+					// An unset chooser posts nothing; that's a deliberate "clear it", not a skip.
+					$do[$action] = intval($params[$action] ?? 0);
+					break;
+
+				case 'watchers_add':
+				case 'watchers_remove':
+					if(!isset($params[$action]))
+						break;
+
+					if(!isset($do['watchers']))
+						$do['watchers'] = [];
+
+					$do['watchers'][substr($action, 9)] = $params[$action];
+					break;
+			}
+		}
+
+		if($active_worker->hasPriv(sprintf('contexts.%s.comment', $context))) {
+			$comment_enabled = DevblocksPlatform::importGPC($_POST['comment_enabled'] ?? null, 'bit', 0);
+			$comment_text = DevblocksPlatform::importGPC($_POST['comment'] ?? null, 'string', '');
+
+			if($comment_enabled && '' !== $comment_text) {
+				$do['comment'] = [
+					'message' => $comment_text,
+					'is_markdown' => DevblocksPlatform::importGPC($_POST['comment_is_markdown'] ?? null, 'bit', 0),
+					'file_ids' => DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['comment_file_ids'] ?? null, 'array', []), 'integer', ['nonzero','unique']),
+				];
+			}
+		}
+
+		$do = DAO_CustomFieldValue::handleBulkPost($do);
+
+		$error = null;
+		if(false === ($do = \Cerb\Records\BulkUpdate::handleBulkPost($do, $context, $view, $active_worker, $error))) {
+			DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+			echo json_encode([
+				'status' => false,
+				'error' => $error ?: 'Aborted by automation',
+			]);
+			return;
+		}
+
+		switch($filter) {
+			case 'checks':
+				$ids_str = DevblocksPlatform::importGPC($_POST['ids'] ?? null, 'string', '');
+				$ids = DevblocksPlatform::parseCsvString($ids_str);
+				break;
+
+			case 'sample':
+				$sample_size = min(DevblocksPlatform::importGPC($_POST['filter_sample_size'] ?? null, 'integer', 0), 9999);
+				$ids = $view->getDataSample($sample_size);
+				break;
+
+			default:
+				break;
+		}
+
+		if(!empty($ids)) {
+			$view->addParams([
+				new DevblocksSearchCriteria(SearchFields_AgentModel::ID, 'in', $ids)
+			], true);
+		}
+
+		$queue_job = \Cerb\Records\BulkUpdate::createJob($view, $do, $active_worker->id ?? 0);
+
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+
+		echo json_encode([
+			'job_id' => $queue_job->id ?? 0,
+		]);
 	}
 
 	private function _profileAction_viewExplore() {
