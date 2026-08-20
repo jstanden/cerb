@@ -168,7 +168,8 @@ class LlmChatAction extends AbstractAction {
 		$llm_provider = $this->_getLlmProvider(); /* @var $llm_provider Chat */
 		$llm = DevblocksPlatform::services()->llm();
 
-		// Resolve any per-message `images:` (resource uris → base64) + drop them if the model lacks vision.
+		// Resolve any per-message `images:` (resource uris → base64). Throws if the model lacks vision; the
+		// caller's catch turns that into the command's `on_error`.
 		$messages = [];
 		foreach($this->_inputs['messages'] ?? [] as $message) {
 			$messages[] = is_array($message) ? $llm->normalizeMessageImages($message, $llm_provider) : $message;

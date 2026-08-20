@@ -1836,8 +1836,8 @@ class _DevblocksLlmService {
 		return $out;
 	}
 
-	// Prepare one inbound message for storage/send: DROP its `images:` when the provider's model lacks vision,
-	// else keep the descriptors AS-IS — cerb: resource uris, NOT base64 (we store uris in history/continuations
+	// Prepare one inbound message for storage/send: THROWS when the message carries images and the provider's
+	// model lacks vision, else keeps the descriptors AS-IS — cerb: resource uris, NOT base64 (we store uris in history/continuations
 	// and expand to base64 only at send, in expandMessageImages). Normalizes a map (image/0, …) to a list.
 	// Shared by `llm.agent` (before appendMessage) and `llm.chat` (before chatCompletion).
 	function normalizeMessageImages(array $message, Extension_DevblocksLlmProvider $provider) : array {
@@ -1847,9 +1847,14 @@ class _DevblocksLlmService {
 			return $message;
 		}
 
+		// Vision is a HARD requirement, so a model that lacks it must FAIL rather than answer as though no
+		// image were sent. Dropping the images silently produced a confident answer about nothing: no throw,
+		// no log, and the composer's paperclip gate only fires after the model is already chosen.
 		if(!$provider->supportsVision()) {
-			unset($message['images']);
-			return $message;
+			throw new Exception_DevblocksAutomationError(sprintf(
+				"The `%s` model can't accept images. Choose a model with vision, or remove the images.",
+				$provider->getParam('model') ?: 'selected'
+			));
 		}
 
 		$message['images'] = array_values($message['images']);
@@ -2459,11 +2464,19 @@ class _DevblocksLlmService {
 		// added, and finalizing it would bury a truncated turn under a newer one.
 		$memory_store->resolveDanglingStream();
 
-		// Append the inbound messages to the managed history first, so the send-list build sees them. Resolve/drop
-		// `images:` per the model's vision support so the STORED message carries only supportable blocks.
+		// Append the inbound messages to the managed history first, so the send-list build sees them. A message
+		// carrying images for a model without vision fails the turn rather than being quietly stripped.
 		foreach($messages as $new_message) {
-			if(is_array($new_message))
-				$new_message = $this->normalizeMessageImages($new_message, $provider);
+			// nextSessionTurn() reports failures through $error rather than by throwing, so an unsupported
+			// image is converted here instead of escaping to callers that only check the return value.
+			try {
+				if(is_array($new_message))
+					$new_message = $this->normalizeMessageImages($new_message, $provider);
+
+			} catch(Exception_DevblocksAutomationError $e) {
+				$error = $e->getMessage();
+				return null;
+			}
 
 			$memory_store->appendMessage($new_message);
 		}
