@@ -369,6 +369,8 @@ class AgentPromptAwait extends AbstractAwait {
 				'icon' => $m['icon'],
 				'provider' => $m['provider'],
 				'vision' => $m['vision'],
+				'thinking' => $m['thinking'],
+				'ratings' => $this->_filterRatingMeters($m['ratings']),
 				'context_window' => $m['context_window'],
 				'context_ratio' => $m['context_ratio'],
 				'cache_ttl' => $m['cache_ttl'],
@@ -581,6 +583,69 @@ class AgentPromptAwait extends AbstractAwait {
 
 	// Normalize a model: server `params` bag (kept whole) + display fields, with the vision/context_window
 	// default cascade (explicit → provider-ext per-model default → global) and auto-derived icon/label.
+	/**
+	 * Narrow the meters to the element's `ratings:` list, in ITS order -- so an author shows only what
+	 * actually informs the choice here, leftmost first.
+	 *
+	 * Omitted = all of them (what the picker did before this existed, so nothing changes by default). An
+	 * explicitly EMPTY list draws no meters at all, which collapses the rows back to one line -- the right
+	 * shape for a portal chat where a rating is an internal judgement the end user shouldn't be reading.
+	 *
+	 * ⚠ This is DISPLAY, never enforcement. A rating that must be honored is a router query
+	 * (`privacy:>=zdr`) -- that's what keeps a non-compliant model out of the catalog entirely. Hiding a
+	 * meter hides information; it permits nothing and forbids nothing.
+	 */
+	private function _filterRatingMeters(array $meters) : array {
+		if(!array_key_exists('ratings', $this->_data))
+			return $meters;
+
+		$allowed = $this->_data['ratings'];
+		$allowed = is_array($allowed) ? $allowed : DevblocksPlatform::parseCsvString(strval($allowed));
+		$allowed = array_values(array_filter(array_map(fn($k) => DevblocksPlatform::strLower(trim(strval($k))), $allowed)));
+
+		if(!$allowed)
+			return [];
+
+		$by_key = array_column($meters, null, 'key');
+		$out = [];
+
+		foreach($allowed as $key) {
+			if(array_key_exists($key, $by_key))
+				$out[] = $by_key[$key];
+		}
+
+		return $out;
+	}
+
+	/**
+	 * Stored rating tiers -> what the picker draws: one meter per axis, `level` of `of`, with the tier's own
+	 * word for the tooltip. Resolved HERE rather than on the client so `Model_AgentModel::getRatingScale()`
+	 * stays the single place a stored value becomes a label.
+	 *
+	 * Every axis is emitted, rated or not -- an unrated axis draws an EMPTY track, which is what keeps the
+	 * columns comparable down the list instead of leaving a hole.
+	 */
+	private function _buildRatingMeters(mixed $ratings) : array {
+		$ratings = is_array($ratings) ? $ratings : [];
+		$out = [];
+
+		foreach(\Model_AgentModel::getRatings() as $key) {
+			$scale = \Model_AgentModel::getRatingScale($key);
+			$tiers = array_keys($scale);
+			$value = intval($ratings[$key] ?? 0);
+			$level = $value ? (array_search($value, $tiers, true) + 1) : 0;
+
+			$out[] = [
+				'key' => $key,
+				'level' => $level ?: 0,
+				'of' => count($tiers),
+				'label' => $scale[$value] ?? '',
+			];
+		}
+
+		return $out;
+	}
+
 	private function _buildModelEntry(string $id, string $provider, array $params) : array {
 		$strings = DevblocksPlatform::services()->string();
 		$provider_ext = DevblocksPlatform::services()->llm()->getProvider($provider, [], false);
@@ -621,6 +686,17 @@ class AgentPromptAwait extends AbstractAwait {
 		$effort_choices = $this->_parseEffortChoices($params['effort_choices'] ?? null);
 		$default_effort = DevblocksPlatform::strLower(trim(strval($params['effort'] ?? '')));
 
+		$has_thinking = $strings->toBool($params['has_thinking'] ?? false);
+
+		// A thinking model nobody hand-declared choices for still gets a submenu, seeded from the provider's own
+		// vocabulary. Without this the picker has nothing to offer, _resolveEffort() returns '' for anything the
+		// client posts, and the level is dropped on the floor between here and the wire -- silently, since the
+		// validator below only rejects an out-of-range level when the range is non-empty. Hand-declared
+		// `effort_choices` still wins; `has_thinking` gates it so a plainly non-reasoning model isn't offered
+		// levels its API would reject.
+		if(!$effort_choices && $has_thinking && $provider_ext && $provider_ext->supportsReasoning())
+			$effort_choices = $provider_ext->getEffortLevels();
+
 		// Prompt-cache lifetime (seconds) for the composer's cache TimeRing. The agentPrompt drives `llm.agent`,
 		// where cache defaults ON (LlmAgentNode::_defaultCache), so gate on that here — the provider only reports
 		// its rolling-tail TTL. null = caching off or this provider does no cacheable prompt (→ no ring).
@@ -634,6 +710,8 @@ class AgentPromptAwait extends AbstractAwait {
 			'label' => $label,
 			'icon' => $icon,
 			'vision' => $vision,
+			'thinking' => $has_thinking,
+			'ratings' => $this->_buildRatingMeters($params['ratings'] ?? null),
 			'context_window' => $context_window,
 			'context_ratio' => $context_ratio,
 			'cache_ttl' => $cache_ttl,

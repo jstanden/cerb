@@ -810,7 +810,19 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 							'snippet' => "references:",
 							'docHTML' => 'What <code>@</code> autocompletes, <b>opt-in</b> — with no <code>references:</code> block <code>@</code> completes nothing. Add <code>workers:</code> for <code>@handle</code> mentions and <code>filesystems:</code> (keyed by volume name) for <code>@&lt;volume&gt;/&lt;path&gt;</code> file references. Independent of what <code>llm.agent</code> actually mounts: declaring a volume here only offers its paths for completion, and a reference that doesn\'t resolve is just text the agent says it can\'t find.',
 						],
+						[
+							'caption' => 'ratings:',
+							'snippet' => "ratings: \${1:intelligence, speed, privacy}",
+							'docHTML' => 'Which rating meters the model picker draws, in this order. Omit for all of them; give an EMPTY list to draw none, which collapses the picker back to one line.<br><br>Accepts a list, <code>@csv</code>, or a bare comma-separated value.<br><br><b>Display only.</b> A rating that must be HONORED belongs in the router\'s query (<code>privacy:&gt;=zdr</code>) &mdash; that keeps a non-compliant model out of the catalog entirely. Hiding a meter hides information; it permits nothing.',
+						],
 						'validation@raw:',
+					],
+					'(.*):await:form:elements:agentPrompt:ratings:' => [
+						'intelligence',
+						'speed',
+						'privacy',
+						'cost',
+						'intelligence, speed, privacy',
 					],
 					// The AI workers, by @mention -- same list `llm.agent:inputs:agent:` offers.
 					'(.*):await:form:elements:agentPrompt:agent:' =>

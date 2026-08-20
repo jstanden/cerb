@@ -432,6 +432,11 @@ CerbUI.AgentPrompt = class {
 			const li = document.createElement('li');
 			li.dataset.value = m.id;
 			if(m.icon) li.dataset.cerbUiIcon = m.icon;
+			// Shown only when true, matching the worklist and the model editor -- an absent mark reads faster
+			// than a struck-through one, and a bare row is exactly the signal that a model can't do this.
+			if(m.vision) li.dataset.cerbVision = '1';
+			if(m.thinking) li.dataset.cerbThinking = '1';
+			if(Array.isArray(m.ratings) && m.ratings.length) li.dataset.cerbRatings = JSON.stringify(m.ratings);
 			li.appendChild(document.createTextNode(m.label || m.model || m.id));
 
 			const choices = this._effortChoices(m);
@@ -448,9 +453,16 @@ CerbUI.AgentPrompt = class {
 			ul.appendChild(li);
 		});
 
+		// `ratings:` on the element can narrow the meters or switch them off entirely, and with none the rows
+		// collapse back to one line. itemHeight MUST track the CSS height either way -- the virtual-scroll
+		// math positions rows by that number rather than measuring them. Uniform per picker, since the
+		// setting is per-element rather than per-model.
+		const stacked = enabled.some(m => Array.isArray(m.ratings) && m.ratings.length);
+
 		this._modelMenu = new CerbUI.Menu(ul, {
 			selectableParents: true,   // clicking a model row selects it (default effort); hover opens its submenu
 			panelClass: 'cerb-ui-agentprompt--model-menu',
+			itemHeight: stacked ? 44 : 28,
 			onRenderItem: (renderedLi, sourceLi) => {
 				const icon = sourceLi.dataset.cerbUiIcon;
 				if(icon) {
@@ -459,6 +471,96 @@ CerbUI.AgentPrompt = class {
 					el.setAttribute('aria-hidden', 'true');
 					renderedLi.insertBefore(el, renderedLi.firstChild);
 				}
+
+				// Ratings: a second line of fixed-width meters. They are wrapped in a column block rather than
+				// appended to the row, because the whole point is scanning DOWN a column -- meters that flowed
+				// after a variable-length label would sit at a different x on every row and compare nothing.
+				// The submenu arrow is appended after this hook, so it stays a sibling and centers alongside.
+				let meters = [];
+				try { meters = JSON.parse(sourceLi.dataset.cerbRatings || '[]'); } catch(e) { meters = []; }
+
+				// The brand mark stays OUTSIDE the column block, in its own left gutter, so the name and any
+				// meters below it share one left edge. Both lines then start at the same x and the rows scan
+				// as a single column of models rather than two ragged ones.
+				const brand = renderedLi.querySelector('.cerb-ui-selectmenu--icon');
+				if(brand) brand.remove();
+
+				const entry = document.createElement('span');
+				entry.className = 'cerb-ui-agentprompt--model-entry';
+
+				const line1 = document.createElement('span');
+				line1.className = 'cerb-ui-agentprompt--model-line';
+				while(renderedLi.firstChild) line1.appendChild(renderedLi.firstChild);
+
+				// Trailing the NAME, not right-aligned: anchored to the label they can never collide with the
+				// submenu arrow, so the position no longer depends on whether a model has one. Ragged x is
+				// fine here -- these answer "can it?", and only the meters are meant to compare down the list.
+				// Rendered independently of the meters, so switching ratings off never hides a capability.
+				const caps = [
+					{ on: sourceLi.dataset.cerbVision, icon: 'eye-open', label: 'Accepts images' },
+					{ on: sourceLi.dataset.cerbThinking, icon: 'brain', label: 'Extended thinking' }
+				].filter(c => c.on);
+
+				if(caps.length) {
+					const capWrap = document.createElement('span');
+					capWrap.className = 'cerb-ui-agentprompt--model-caps';
+
+					caps.forEach(c => {
+						const g = document.createElement('span');
+						g.className = 'cerb-icons cerb-icon-' + c.icon;
+						g.title = c.label;
+						capWrap.appendChild(g);
+					});
+
+					line1.appendChild(capWrap);
+				}
+
+				entry.appendChild(line1);
+
+				// Ratings: a second line of fixed-width meters, in the element's configured order. Wrapped in
+				// the column block rather than appended to the row, because the point is scanning DOWN a
+				// column -- meters that flowed after a variable-length label would sit at a different x on
+				// every row and compare nothing.
+				if(meters.length) {
+					entry.classList.add('cerb-ui-agentprompt--model-entry-stacked');
+
+					const row = document.createElement('span');
+					row.className = 'cerb-ui-agentprompt--meters';
+
+					const glyphs = { intelligence: 'brain', speed: 'zap', privacy: 'lock', cost: 'coins' };
+
+					meters.forEach(r => {
+						const meter = document.createElement('span');
+						meter.className = 'cerb-ui-agentprompt--meter cerb-ui-agentprompt--meter-' + r.key;
+						meter.title = r.key.charAt(0).toUpperCase() + r.key.slice(1)
+							+ ': ' + (r.label || 'unrated') + ' (as configured)';
+
+						const g = document.createElement('span');
+						g.className = 'cerb-icons cerb-icon-' + (glyphs[r.key] || 'circle');
+						meter.appendChild(g);
+
+						// Discrete blocks, not a bar: the scale HAS four steps and nothing between them, and
+						// 3-of-4 vs 4-of-4 is a 6px length difference at this size but an obvious count. `of`
+						// comes from the server, so a fifth tier grows every meter with no client change.
+						const blocks = document.createElement('span');
+						blocks.className = 'cerb-ui-agentprompt--meter-blocks';
+
+						for(let i = 1; i <= (r.of || 0); i++) {
+							const b = document.createElement('span');
+							b.className = 'cerb-ui-agentprompt--meter-block'
+								+ (i <= r.level ? ' cerb-ui-agentprompt--meter-block-on' : '');
+							blocks.appendChild(b);
+						}
+
+						meter.appendChild(blocks);
+						row.appendChild(meter);
+					});
+
+					entry.appendChild(row);
+				}
+
+				if(brand) renderedLi.appendChild(brand);
+				renderedLi.appendChild(entry);
 			},
 			onSelect: (renderedLi, sourceLi) => {
 				const parts = String(sourceLi.dataset.value || '').split('\t');

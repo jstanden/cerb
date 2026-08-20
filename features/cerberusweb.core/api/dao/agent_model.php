@@ -831,8 +831,26 @@ class Model_AgentModel extends DevblocksRecordModel {
 		if($this->has_vision)
 			$params['vision'] = true;
 
+		// `has_thinking`, not `thinking` -- that key is the provider's grouped reasoning block AND one of the
+		// four fields _capabilitySignature() hashes, so reusing it would plant a summary boundary mid-session.
+		// Inert on the wire (providers read $_params by key, never enumerate it), same contract as `display:`.
+		if($this->has_thinking)
+			$params['has_thinking'] = true;
+
 		if($this->context_window > 0)
 			$params['context_window'] = intval($this->context_window);
+
+		// Stored tiers, not labels -- getRatingScale() stays the one place a value becomes a word, so a
+		// re-pointed anchor reads correctly even off a session snapshot taken before the change.
+		$ratings = array_filter([
+			'intelligence' => intval($this->rating_intelligence),
+			'speed' => intval($this->rating_speed),
+			'privacy' => intval($this->rating_privacy),
+			'cost' => intval($this->rating_cost),
+		]);
+
+		if($ratings)
+			$params['ratings'] = $ratings;
 
 		// Display metadata rides the params bag on purpose: a transcript stores the RESOLVED block, never
 		// `agent_model.id`, so this is the only way the vendor a session actually ran survives the record being

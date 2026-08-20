@@ -182,3 +182,108 @@
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 0.6em;
 }
+
+
+// Model rows carry a second line of rating meters. Scoped with :has() so the effort SUBMENU leaves keep the
+// 28px default -- only rows that actually have meters grow. ⚠ CerbUI.Menu's `itemHeight` must match this
+// height; its virtual-scroll math positions rows by that number, not by measurement.
+.cerb-ui-agentprompt--model-menu {
+	// Only rows that ACTUALLY carry meters grow. With `ratings:` switched off the entry block is still
+	// used (for the gutter and the capability marks) but stays one line at the default height.
+	.cerb-ui-menu--item:has(> .cerb-ui-agentprompt--model-entry-stacked) {
+		height: 44px;
+	}
+
+	// Wider gutter than the shared 0.5em: here the mark owns a column of its own beside a two-line block,
+	// so it needs room to read as a separate column rather than as a prefix on the name. Scoped, because
+	// `.cerb-ui-selectmenu--icon` is shared with every other select menu and trigger.
+	.cerb-ui-menu--item > .cerb-ui-selectmenu--icon {
+		margin-right: 0.75em;
+	}
+}
+
+// The column block: name line over meters line. Wrapping them is what fixes the meters to the same x on
+// every row -- flowing them after a variable-length label would defeat the whole point of a second line.
+.cerb-ui-agentprompt--model-entry {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	flex: 1;
+	min-width: 0;
+	gap: 0.15em;
+}
+
+.cerb-ui-agentprompt--model-line {
+	display: flex;
+	align-items: center;
+	min-width: 0;
+
+	// The label stops growing so the marks sit against the NAME instead of being pushed to the far edge.
+	// `.cerb-ui-agentprompt--model-entry` still carries flex:1, so the submenu arrow stays right-anchored.
+	.cerb-ui-menu--label {
+		flex: 0 1 auto;
+	}
+}
+
+// Muted on purpose: these answer "can it?" while scanning names, and shouldn't compete with the model
+// name they trail. Ragged x is fine here -- only the meters below are meant to compare down the list.
+.cerb-ui-agentprompt--model-caps {
+	display: flex;
+	align-items: center;
+	flex: 0 0 auto;
+	gap: 0.3em;
+	margin-left: 0.9em;
+	opacity: 0.45;
+
+	.cerb-icons {
+		width: 0.85em;
+		height: 0.85em;
+	}
+}
+
+.cerb-ui-menu--item-active .cerb-ui-agentprompt--model-caps {
+	opacity: 0.75;
+}
+
+.cerb-ui-agentprompt--meters {
+	display: flex;
+	align-items: center;
+	gap: 0.7em;
+}
+
+// Fixed widths, not content-sized: identical geometry per row is what makes the columns scannable.
+.cerb-ui-agentprompt--meter {
+	display: flex;
+	align-items: center;
+	gap: 0.25em;
+	flex: 0 0 auto;
+
+	.cerb-icons {
+		width: 0.8em;
+		height: 0.8em;
+		opacity: 0.5;
+	}
+}
+
+// An unrated axis keeps ALL its blocks, just unfilled. A missing meter would leave a hole and break the
+// comparison; a row of gray reads as "not rated", which is the common state on most installs.
+.cerb-ui-agentprompt--meter-blocks {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+}
+
+.cerb-ui-agentprompt--meter-block {
+	width: 5px;
+	height: 5px;
+	border-radius: 1px;
+	background: var(--cerb-color-background-contrast-225);
+}
+
+// One hue per axis, so an axis is identifiable without reading its glyph. Cost reads as money (green, to
+// match the coins glyph) rather than as a score -- it's the one axis where MORE is WORSE, so it must not
+// share the language of the three where more is better.
+.cerb-ui-agentprompt--meter-intelligence .cerb-ui-agentprompt--meter-block-on { background: var(--cerb-color-tag-purple); }
+.cerb-ui-agentprompt--meter-speed .cerb-ui-agentprompt--meter-block-on { background: var(--cerb-color-tag-orange); }
+.cerb-ui-agentprompt--meter-privacy .cerb-ui-agentprompt--meter-block-on { background: var(--cerb-color-tag-blue); }
+.cerb-ui-agentprompt--meter-cost .cerb-ui-agentprompt--meter-block-on { background: var(--cerb-color-tag-green); }
