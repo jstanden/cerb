@@ -71,7 +71,6 @@ class PageSection_ProfilesAgentModel extends Extension_PageSection {
 			} else {
 				$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
 				$label = DevblocksPlatform::importGPC($_POST['label'] ?? null, 'string', '');
-				$description = DevblocksPlatform::importGPC($_POST['description'] ?? null, 'string', '');
 				$icon = DevblocksPlatform::importGPC($_POST['icon'] ?? null, 'string', '');
 				$icon_color = DevblocksPlatform::importGPC($_POST['icon_color'] ?? null, 'string', '');
 				$provider = DevblocksPlatform::importGPC($_POST['provider'] ?? null, 'string', '');
@@ -96,7 +95,6 @@ class PageSection_ProfilesAgentModel extends Extension_PageSection {
 				$fields = [
 					DAO_AgentModel::NAME => $name,
 					DAO_AgentModel::LABEL => $label,
-					DAO_AgentModel::DESCRIPTION => $description,
 					DAO_AgentModel::ICON => $icon,
 					DAO_AgentModel::ICON_COLOR => $icon_color,
 					DAO_AgentModel::PROVIDER => $provider,
@@ -106,7 +104,12 @@ class PageSection_ProfilesAgentModel extends Extension_PageSection {
 					DAO_AgentModel::HAS_VISION => $has_vision,
 					DAO_AgentModel::CONTEXT_WINDOW => $context_window,
 					DAO_AgentModel::PARAMS_KATA => $params_kata,
-					DAO_AgentModel::IS_DISABLED => DevblocksPlatform::importGPC($_POST['is_disabled'] ?? null, 'bit', 0),
+					DAO_AgentModel::STATUS => DevblocksPlatform::importGPC($_POST['status'] ?? null, 'integer', 0),
+					DAO_AgentModel::HAS_THINKING => DevblocksPlatform::importGPC($_POST['has_thinking'] ?? null, 'bit', 0),
+					DAO_AgentModel::RATING_COST => DevblocksPlatform::importGPC($_POST['rating_cost'] ?? null, 'integer', 0),
+					DAO_AgentModel::RATING_INTELLIGENCE => DevblocksPlatform::importGPC($_POST['rating_intelligence'] ?? null, 'integer', 0),
+					DAO_AgentModel::RATING_PRIVACY => DevblocksPlatform::importGPC($_POST['rating_privacy'] ?? null, 'integer', 0),
+					DAO_AgentModel::RATING_SPEED => DevblocksPlatform::importGPC($_POST['rating_speed'] ?? null, 'integer', 0),
 					DAO_AgentModel::UPDATED_AT => time(),
 				];
 

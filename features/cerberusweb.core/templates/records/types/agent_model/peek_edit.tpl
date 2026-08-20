@@ -57,6 +57,7 @@
 					<button type="button" class="cerb-ui-button cerb-ui-button--subtle" id="modelRefresh_{$form_id}" title="Load models from the provider"><span class="cerb-icons cerb-icon-refresh" id="modelRefreshIcon_{$form_id}"></span></button>
 				</div>
 				<div id="modelResult_{$form_id}"></div>
+				<div class="cerb-ui-form--hint" id="modelHint_{$form_id}"></div>
 				<div class="cerb-ui-form--hint">Refresh loads the provider's live model list; picking one fills the Name and capabilities below. Free text, so a new id works the day it ships.</div>
 			</div>
 		</div>
@@ -84,7 +85,7 @@
 				<div class="cerb-ui-form--hint">Referenced as <code>cerb:agent_model:&lt;name&gt;</code>. Copied from the model you pick &mdash; edit freely.</div>
 			</div>
 
-			{$status = 0}{if $model->is_disabled}{$status = 2}{/if}
+			{$status = $model->status|intval}
 			<div class="cerb-ui-form--field">
 				<label class="cerb-ui-form--label">{'common.status'|devblocks_translate|capitalize}</label>
 				<div>
@@ -122,30 +123,68 @@
 			</div>
 		</div>
 
-		{* Description *}
-		<div class="cerb-ui-form--field">
-			<label class="cerb-ui-form--label">{'common.description'|devblocks_translate|capitalize}</label>
-			<input type="text" name="description" value="{$model->description}" id="descriptionInput_{$form_id}" placeholder="What this model is for">
-		</div>
 
-		{* Capabilities -- defaulted from the picked model, editable *}
-		<div class="cerb-ui-form--row">
-			<div class="cerb-ui-form--field">
-				<label class="cerb-ui-form--label">{'dao.agent_model.context_window'|devblocks_translate|capitalize}</label>
-				<input type="number" name="context_window" value="{if $model->context_window}{$model->context_window}{/if}" id="contextWindowInput_{$form_id}" placeholder="200000" min="0" step="1000">
-				<div class="cerb-ui-form--hint">Tokens. Compaction ratios are fractions of this.</div>
-			</div>
+		<div class="cerb-ui-form--section">
+			<div class="cerb-ui-form--section-head">Capabilities</div>
+			<div class="cerb-ui-form--section-body">
+				<div class="cerb-ui-form--row">
+					<div class="cerb-ui-form--field">
+						<label class="cerb-ui-form--label">{'dao.agent_model.context_window'|devblocks_translate|capitalize}</label>
+						<input type="number" name="context_window" value="{if $model->context_window}{$model->context_window}{/if}" id="contextWindowInput_{$form_id}" placeholder="200000" min="0" step="1000">
+						<div class="cerb-ui-form--hint">Tokens. Compaction ratios are fractions of this.</div>
+					</div>
 
-			<div class="cerb-ui-form--field">
-				<label class="cerb-ui-form--label">{'dao.agent_model.has_vision'|devblocks_translate|capitalize}</label>
-				<div>
-					<input type="hidden" name="has_vision" id="hasVision_{$form_id}" value="{$model->has_vision}">
-					<div class="cerb-ui-switcher" data-cerb-input="hasVision_{$form_id}">
-						<button type="button" data-value="1"{if $model->has_vision} class="cerb-ui-switcher--active"{/if}><span class="cerb-icons cerb-icon-eye-open"></span> {'common.yes'|devblocks_translate|capitalize}</button>
-						<button type="button" data-value="0"{if !$model->has_vision} class="cerb-ui-switcher--active"{/if}>{'common.no'|devblocks_translate|capitalize}</button>
+					<div class="cerb-ui-form--field">
+						<label class="cerb-ui-form--label">{'dao.agent_model.has_vision'|devblocks_translate|capitalize}</label>
+						<div>
+							<input type="hidden" name="has_vision" id="hasVision_{$form_id}" value="{$model->has_vision}">
+							<div class="cerb-ui-switcher" data-cerb-input="hasVision_{$form_id}">
+								<button type="button" data-value="1"{if $model->has_vision} class="cerb-ui-switcher--active"{/if}><span class="cerb-icons cerb-icon-eye-open"></span> {'common.yes'|devblocks_translate|capitalize}</button>
+								<button type="button" data-value="0"{if !$model->has_vision} class="cerb-ui-switcher--active"{/if}>{'common.no'|devblocks_translate|capitalize}</button>
+							</div>
+						</div>
+						<div class="cerb-ui-form--hint">Can accept images.</div>
+					</div>
+
+					<div class="cerb-ui-form--field">
+						<label class="cerb-ui-form--label">Thinking</label>
+						<div>
+							<input type="hidden" name="has_thinking" id="hasThinking_{$form_id}" value="{$model->has_thinking}">
+							<div class="cerb-ui-switcher" data-cerb-input="hasThinking_{$form_id}">
+								<button type="button" data-value="1"{if $model->has_thinking} class="cerb-ui-switcher--active"{/if}><span class="cerb-icons cerb-icon-brain"></span> {'common.yes'|devblocks_translate|capitalize}</button>
+								<button type="button" data-value="0"{if !$model->has_thinking} class="cerb-ui-switcher--active"{/if}>{'common.no'|devblocks_translate|capitalize}</button>
+							</div>
+						</div>
+						<div class="cerb-ui-form--hint">Supports extended reasoning.</div>
 					</div>
 				</div>
-				<div class="cerb-ui-form--hint">Can accept images.</div>
+			</div>
+		</div>
+
+		<div class="cerb-ui-form--section">
+			<div class="cerb-ui-form--section-head">Ratings</div>
+			<div class="cerb-ui-form--section-body">
+				<div class="cerb-ui-form--row">
+					{include file="devblocks:cerberusweb.core::records/types/agent_model/rating.tpl"
+						form_id=$form_id key='intelligence' name='rating_intelligence' label='Intelligence'
+						icon='brain' value=$model->rating_intelligence scale=$rating_scales.intelligence
+						hint='Higher is better. How capable, relative to the field today.'}
+
+					{include file="devblocks:cerberusweb.core::records/types/agent_model/rating.tpl"
+						form_id=$form_id key='speed' name='rating_speed' label='Speed'
+						icon='zap' value=$model->rating_speed scale=$rating_scales.speed
+						hint='Higher is better. More tokens per second.'}
+
+					{include file="devblocks:cerberusweb.core::records/types/agent_model/rating.tpl"
+						form_id=$form_id key='privacy' name='rating_privacy' label='Privacy'
+						icon='lock' value=$model->rating_privacy scale=$rating_scales.privacy
+						hint='Higher is better. Less retention and disclosure.'}
+
+					{include file="devblocks:cerberusweb.core::records/types/agent_model/rating.tpl"
+						form_id=$form_id key='cost' name='rating_cost' label='Cost'
+						icon='coins' value=$model->rating_cost scale=$rating_scales.cost
+						hint='Lower is better. Price per token and caching.'}
+				</div>
 			</div>
 		</div>
 
@@ -436,10 +475,9 @@ $(function() {
 					// carries, so a metadata-less model never clears what's already typed.
 					const meta = modelMeta[value];
 					if(meta) {
-						if('description' in meta) {
-							const descEl = document.getElementById('descriptionInput_{$form_id}');
-							if(descEl) descEl.value = meta.description || '';
-						}
+						const hintEl = document.getElementById('modelHint_{$form_id}');
+						if(hintEl) hintEl.textContent = ('description' in meta) ? String(meta.description || '') : '';
+
 						if('context_window' in meta) {
 							const cwEl = document.getElementById('contextWindowInput_{$form_id}');
 							if(cwEl) cwEl.value = meta.context_window || '';
@@ -453,6 +491,12 @@ $(function() {
 						}
 					}
 				}
+			});
+		}
+
+		if(window.CerbUI && CerbUI.Rating) {
+			$frm.find('.cerb-ui-rating').each(function() {
+				new CerbUI.Rating(this);
 			});
 		}
 

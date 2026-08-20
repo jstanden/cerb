@@ -567,9 +567,9 @@ class Model_AgentModelRouter extends DevblocksRecordModel {
 			if(!($record = DAO_AgentModel::getByName($model_name)))
 				continue;
 
-			// `is_disabled` on the RECORD is a hard kill -- never usable anywhere, regardless of this router.
-			// It stays in the doc (position preserved) so re-enabling restores it without an edit.
-			if($record->is_disabled)
+			// Routers offer Available models only. Unlisted is reachable by naming it, not by routing;
+			// disabled is refused everywhere. Entries stay in the doc either way, so position survives.
+			if(!$record->isAvailable())
 				continue;
 
 			$out[$key] = $overrides;
@@ -1276,7 +1276,7 @@ class Context_AgentModelRouter extends Extension_DevblocksContext implements IDe
 		$out = '';
 
 		foreach(DAO_AgentModel::getAll() as $model) {
-			if($model->is_disabled)
+			if(!$model->isAvailable())
 				continue;
 
 			$out .= sprintf("%s:\n", $model->name);

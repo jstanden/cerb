@@ -62,9 +62,10 @@
 	{else}
 		{$tableRowClass = "odd"}
 	{/if}
-	{* `is_disabled` is in the DAO's fixed SELECT, not just the visible columns, so the row treatment holds
-	   even when an operator drops the Disabled column from the worklist. *}
-	<tbody style="cursor:pointer;" {if $result.a_is_disabled}class="cerb-worklist-row--disabled"{/if}>
+	{* `status` is in the DAO's fixed SELECT, not just the visible columns, so the row treatment holds
+	   even when an operator drops the Status column from the worklist. Only Disabled dims -- an unlisted
+	   model still runs when an automation names it. *}
+	<tbody style="cursor:pointer;" {if $result.a_status == 2}class="cerb-worklist-row--disabled"{/if}>
 		<tr class="{$tableRowClass}">
 			<td data-column="*_watchers" align="center" nowrap="nowrap" style="padding:5px;">
 				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$view_context context_id=$result.a_id}
@@ -90,27 +91,38 @@
 				{* A bare `ban` glyph — the same mark the peek's status switcher uses for Disabled. No pill
 				   chrome: the row's dimming already carries the state, and a filled badge on every disabled
 				   row shouts louder than the model names it sits beside. The title carries the word. *}
-				{if $result.a_is_disabled}
+				{if $result.a_status == 2}
 					<span class="cerb-icons cerb-icon-ban" style="vertical-align:middle;margin-left:0.3em;" title="{'common.disabled'|devblocks_translate|capitalize}"></span>
+				{elseif $result.a_status == 1}
+					<span class="cerb-icons cerb-icon-lock" style="vertical-align:middle;margin-left:0.3em;" title="Unlisted"></span>
 				{/if}
 				<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.a_id}"><span class="cerb-icons cerb-icon-new-window"></span></button>
 			</td>
-			{elseif $column == "a_is_disabled"}
-				{* The raw checkbox value renders as a bare 0/1, and "Disabled: No" is a double negative to
-				   read. Show the STATE instead: a struck circle when off, nothing when on — an enabled model
-				   is the unremarkable case and shouldn't compete with the disabled ones for attention. *}
+			{elseif $column == "a_status"}
+				{* Available is the unremarkable case and stays blank so the exceptions stand out. *}
 				<td data-column="{$column}" style="text-align:center;">
-					{if $result.$column}
+					{if $result.$column == 2}
 						<span class="cerb-icons cerb-icon-ban" title="{'common.disabled'|devblocks_translate|capitalize}"></span>
+					{elseif $result.$column == 1}
+						<span class="cerb-icons cerb-icon-lock" title="Unlisted"></span>
 					{/if}
 				</td>
-			{elseif $column == "a_has_vision"}
-				{* Same treatment as Disabled next door: the state, not a bare 0/1. Blank for "no" --
-				   an absence reads faster in a column than the word, and `circle-ok` is what every
-				   other worklist uses for a true bit. *}
+			{elseif $column == "a_has_thinking"}
 				<td data-column="{$column}" style="text-align:center;">
 					{if $result.$column}
-						<span class="cerb-icons cerb-icon-circle-ok" title="{'dao.agent_model.has_vision'|devblocks_translate|capitalize}"></span>
+						<span class="cerb-icons cerb-icon-brain" title="{'dao.agent_model.has_thinking'|devblocks_translate|capitalize}"></span>
+					{/if}
+				</td>
+			{elseif in_array($column, ["a_rating_intelligence", "a_rating_speed", "a_rating_privacy", "a_rating_cost"])}
+				{* The tier NAME, not the stored 10/20/30/40 -- the number is storage, the label is the interface. *}
+				<td data-column="{$column}">
+					{$tier = $result.$column}
+					{if $tier && isset($rating_labels.$column.$tier)}{$rating_labels.$column.$tier|capitalize}{/if}
+				</td>
+			{elseif $column == "a_has_vision"}
+				<td data-column="{$column}" style="text-align:center;">
+					{if $result.$column}
+						<span class="cerb-icons cerb-icon-eye-open" title="{'dao.agent_model.has_vision'|devblocks_translate|capitalize}"></span>
 					{/if}
 				</td>
 			{elseif $column == "a_connected_account_id"}

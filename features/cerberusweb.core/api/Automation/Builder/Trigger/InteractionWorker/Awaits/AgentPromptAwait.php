@@ -561,7 +561,7 @@ class AgentPromptAwait extends AbstractAwait {
 		if(!($record = DAO_AgentModel::getByName($record_name)))
 			return null;
 
-		if($record->is_disabled)
+		if(!$record->isUsable())
 			return null;
 
 		$error = null;

@@ -4,18 +4,26 @@ class DAO_AgentModel extends Cerb_ORMHelper {
 	const CONNECTED_ACCOUNT_ID = 'connected_account_id';
 	const CONTEXT_WINDOW = 'context_window';
 	const CREATED_AT = 'created_at';
-	const DESCRIPTION = 'description';
+	const HAS_THINKING = 'has_thinking';
 	const HAS_VISION = 'has_vision';
 	const ICON = 'icon';
 	const ICON_COLOR = 'icon_color';
 	const ID = 'id';
-	const IS_DISABLED = 'is_disabled';
 	const LABEL = 'label';
 	const MODEL = 'model';
 	const NAME = 'name';
 	const PARAMS_KATA = 'params_kata';
 	const PROVIDER = 'provider';
+	const RATING_COST = 'rating_cost';
+	const RATING_INTELLIGENCE = 'rating_intelligence';
+	const RATING_PRIVACY = 'rating_privacy';
+	const RATING_SPEED = 'rating_speed';
+	const STATUS = 'status';
 	const UPDATED_AT = 'updated_at';
+
+	const STATUS_AVAILABLE = 0;
+	const STATUS_UNLISTED = 1;
+	const STATUS_DISABLED = 2;
 
 	private function __construct() {}
 
@@ -45,8 +53,8 @@ class DAO_AgentModel extends Cerb_ORMHelper {
 			->timestamp()
 			;
 		$validation
-			->addField(self::DESCRIPTION)
-			->string()
+			->addField(self::HAS_THINKING)
+			->bit()
 			;
 		$validation
 			->addField(self::HAS_VISION)
@@ -90,10 +98,6 @@ class DAO_AgentModel extends Cerb_ORMHelper {
 			->addField(self::ID)
 			->id()
 			->setEditable(false)
-			;
-		$validation
-			->addField(self::IS_DISABLED)
-			->bit()
 			;
 		// A friendly display name for pickers -- `name` is the URI handle (`glm-4.6`), this is what a reader
 		// should see ("GLM 4.6"). Blank falls back to `name`.
@@ -147,6 +151,35 @@ class DAO_AgentModel extends Cerb_ORMHelper {
 				
 				return true;
 			})
+			;
+		// Available (offered by routers) | Unlisted (skipped by routers, still runs when named) |
+		// Disabled (refused everywhere). Router resolution filters on this; see Model_AgentModel::getStatuses().
+		// Ordinal 10/20/30/40 tiers (0 = unrated), sparse so a tier can be inserted without a migration.
+		// Model_AgentModel::getRatingScale() owns the label<->value mapping.
+		$validation
+			->addField(self::RATING_COST)
+			->uint()
+			->setMax(255)
+			;
+		$validation
+			->addField(self::RATING_INTELLIGENCE)
+			->uint()
+			->setMax(255)
+			;
+		$validation
+			->addField(self::RATING_PRIVACY)
+			->uint()
+			->setMax(255)
+			;
+		$validation
+			->addField(self::RATING_SPEED)
+			->uint()
+			->setMax(255)
+			;
+		$validation
+			->addField(self::STATUS)
+			->uint()
+			->setMax(2)
 			;
 		$validation
 			->addField(self::UPDATED_AT)
@@ -232,7 +265,7 @@ class DAO_AgentModel extends Cerb_ORMHelper {
 
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 
-		$sql = "SELECT api_endpoint_url, connected_account_id, context_window, created_at, description, has_vision, icon, icon_color, id, is_disabled, label, model, name, params_kata, provider, updated_at " .
+		$sql = "SELECT api_endpoint_url, connected_account_id, context_window, created_at, has_thinking, has_vision, icon, icon_color, id, label, model, name, params_kata, provider, rating_cost, rating_intelligence, rating_privacy, rating_speed, status, updated_at " .
 			"FROM agent_model " .
 			$where_sql .
 			$sort_sql .
@@ -319,17 +352,21 @@ class DAO_AgentModel extends Cerb_ORMHelper {
 			$object->connected_account_id = intval($row['connected_account_id']);
 			$object->context_window = intval($row['context_window']);
 			$object->created_at = intval($row['created_at']);
-			$object->description = $row['description'];
+			$object->has_thinking = intval($row['has_thinking']);
 			$object->has_vision = intval($row['has_vision']);
 			$object->icon = $row['icon'];
 			$object->icon_color = $row['icon_color'];
 			$object->id = intval($row['id']);
-			$object->is_disabled = intval($row['is_disabled']);
 			$object->label = $row['label'];
 			$object->model = $row['model'];
 			$object->name = $row['name'];
 			$object->params_kata = $row['params_kata'];
 			$object->provider = $row['provider'];
+			$object->rating_cost = intval($row['rating_cost']);
+			$object->rating_intelligence = intval($row['rating_intelligence']);
+			$object->rating_privacy = intval($row['rating_privacy']);
+			$object->rating_speed = intval($row['rating_speed']);
+			$object->status = intval($row['status']);
 			$object->updated_at = intval($row['updated_at']);
 			$objects[$object->id] = $object;
 		}
@@ -373,31 +410,39 @@ class DAO_AgentModel extends Cerb_ORMHelper {
 			"agent_model.connected_account_id as %s, " .
 			"agent_model.context_window as %s, " .
 			"agent_model.created_at as %s, " .
-			"agent_model.description as %s, " .
+			"agent_model.has_thinking as %s, " .
 			"agent_model.has_vision as %s, " .
 			"agent_model.icon as %s, " .
 			"agent_model.icon_color as %s, " .
 			"agent_model.id as %s, " .
-			"agent_model.is_disabled as %s, " .
 			"agent_model.label as %s, " .
 			"agent_model.model as %s, " .
 			"agent_model.name as %s, " .
 			"agent_model.provider as %s, " .
+			"agent_model.rating_cost as %s, " .
+			"agent_model.rating_intelligence as %s, " .
+			"agent_model.rating_privacy as %s, " .
+			"agent_model.rating_speed as %s, " .
+			"agent_model.status as %s, " .
 			"agent_model.updated_at as %s",
 			SearchFields_AgentModel::API_ENDPOINT_URL,
 			SearchFields_AgentModel::CONNECTED_ACCOUNT_ID,
 			SearchFields_AgentModel::CONTEXT_WINDOW,
 			SearchFields_AgentModel::CREATED_AT,
-			SearchFields_AgentModel::DESCRIPTION,
+			SearchFields_AgentModel::HAS_THINKING,
 			SearchFields_AgentModel::HAS_VISION,
 			SearchFields_AgentModel::ICON,
 			SearchFields_AgentModel::ICON_COLOR,
 			SearchFields_AgentModel::ID,
-			SearchFields_AgentModel::IS_DISABLED,
 			SearchFields_AgentModel::LABEL,
 			SearchFields_AgentModel::MODEL,
 			SearchFields_AgentModel::NAME,
 			SearchFields_AgentModel::PROVIDER,
+			SearchFields_AgentModel::RATING_COST,
+			SearchFields_AgentModel::RATING_INTELLIGENCE,
+			SearchFields_AgentModel::RATING_PRIVACY,
+			SearchFields_AgentModel::RATING_SPEED,
+			SearchFields_AgentModel::STATUS,
 			SearchFields_AgentModel::UPDATED_AT
 		);
 
@@ -439,16 +484,20 @@ class SearchFields_AgentModel extends DevblocksSearchFields {
 	const CONNECTED_ACCOUNT_ID = 'a_connected_account_id';
 	const CONTEXT_WINDOW = 'a_context_window';
 	const CREATED_AT = 'a_created_at';
-	const DESCRIPTION = 'a_description';
+	const HAS_THINKING = 'a_has_thinking';
 	const HAS_VISION = 'a_has_vision';
 	const ICON = 'a_icon';
 	const ICON_COLOR = 'a_icon_color';
 	const ID = 'a_id';
-	const IS_DISABLED = 'a_is_disabled';
 	const LABEL = 'a_label';
 	const MODEL = 'a_model';
 	const NAME = 'a_name';
 	const PROVIDER = 'a_provider';
+	const RATING_COST = 'a_rating_cost';
+	const RATING_INTELLIGENCE = 'a_rating_intelligence';
+	const RATING_PRIVACY = 'a_rating_privacy';
+	const RATING_SPEED = 'a_rating_speed';
+	const STATUS = 'a_status';
 	const UPDATED_AT = 'a_updated_at';
 
 	const VIRTUAL_CONNECTED_ACCOUNT_SEARCH = '*_connected_account_search';
@@ -510,6 +559,9 @@ class SearchFields_AgentModel extends DevblocksSearchFields {
 				$models = DAO_AgentModel::getIds($values);
 				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
 
+			case self::STATUS:
+				return array_intersect_key(Model_AgentModel::getStatuses(), array_flip($values));
+
 			case self::PROVIDER:
 				// The vendor names a reader knows ("AWS Bedrock", not `aws_bedrock`). Embedding-only
 				// providers (voyage, pinecone) aren't in this map, so they fall back to their raw id.
@@ -524,6 +576,10 @@ class SearchFields_AgentModel extends DevblocksSearchFields {
 		switch($key) {
 			case 'authentication':
 				$key = 'authentication.id';
+				break;
+
+			case 'status':
+				$key = 'status.id';
 				break;
 		}
 
@@ -545,16 +601,20 @@ class SearchFields_AgentModel extends DevblocksSearchFields {
 			self::CONNECTED_ACCOUNT_ID => new DevblocksSearchField(self::CONNECTED_ACCOUNT_ID, 'agent_model', 'connected_account_id', $translate->_('dao.agent_model.connected_account_id'), Model_CustomField::TYPE_NUMBER, true),
 			self::CONTEXT_WINDOW => new DevblocksSearchField(self::CONTEXT_WINDOW, 'agent_model', 'context_window', $translate->_('dao.agent_model.context_window'), Model_CustomField::TYPE_NUMBER, true),
 			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'agent_model', 'created_at', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
-			self::DESCRIPTION => new DevblocksSearchField(self::DESCRIPTION, 'agent_model', 'description', $translate->_('common.description'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::HAS_THINKING => new DevblocksSearchField(self::HAS_THINKING, 'agent_model', 'has_thinking', $translate->_('dao.agent_model.has_thinking'), Model_CustomField::TYPE_CHECKBOX, true),
 			self::HAS_VISION => new DevblocksSearchField(self::HAS_VISION, 'agent_model', 'has_vision', $translate->_('dao.agent_model.has_vision'), Model_CustomField::TYPE_CHECKBOX, true),
 			self::ICON => new DevblocksSearchField(self::ICON, 'agent_model', 'icon', $translate->_('dao.agent_model.icon'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::ICON_COLOR => new DevblocksSearchField(self::ICON_COLOR, 'agent_model', 'icon_color', $translate->_('dao.agent_model.icon_color'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::ID => new DevblocksSearchField(self::ID, 'agent_model', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
-			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'agent_model', 'is_disabled', $translate->_('dao.agent_model.is_disabled'), Model_CustomField::TYPE_CHECKBOX, true),
 			self::LABEL => new DevblocksSearchField(self::LABEL, 'agent_model', 'label', $translate->_('dao.agent_model.label'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::MODEL => new DevblocksSearchField(self::MODEL, 'agent_model', 'model', $translate->_('dao.agent_model.model'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'agent_model', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::PROVIDER => new DevblocksSearchField(self::PROVIDER, 'agent_model', 'provider', $translate->_('dao.agent_model.provider'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::RATING_COST => new DevblocksSearchField(self::RATING_COST, 'agent_model', 'rating_cost', $translate->_('dao.agent_model.rating_cost'), Model_CustomField::TYPE_NUMBER, true),
+			self::RATING_INTELLIGENCE => new DevblocksSearchField(self::RATING_INTELLIGENCE, 'agent_model', 'rating_intelligence', $translate->_('dao.agent_model.rating_intelligence'), Model_CustomField::TYPE_NUMBER, true),
+			self::RATING_PRIVACY => new DevblocksSearchField(self::RATING_PRIVACY, 'agent_model', 'rating_privacy', $translate->_('dao.agent_model.rating_privacy'), Model_CustomField::TYPE_NUMBER, true),
+			self::RATING_SPEED => new DevblocksSearchField(self::RATING_SPEED, 'agent_model', 'rating_speed', $translate->_('dao.agent_model.rating_speed'), Model_CustomField::TYPE_NUMBER, true),
+			self::STATUS => new DevblocksSearchField(self::STATUS, 'agent_model', 'status', $translate->_('common.status'), Model_CustomField::TYPE_NUMBER, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'agent_model', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 
 			self::VIRTUAL_CONNECTED_ACCOUNT_SEARCH => new DevblocksSearchField(self::VIRTUAL_CONNECTED_ACCOUNT_SEARCH, '*', 'connected_account_search', null, null, false),
@@ -579,18 +639,69 @@ class Model_AgentModel extends DevblocksRecordModel {
 	public $connected_account_id;
 	public $context_window;
 	public $created_at;
-	public $description;
+	public $has_thinking;
 	public $has_vision;
 	public $icon;
 	public $icon_color;
 	public $id;
-	public $is_disabled;
 	public $label;
 	public $model;
 	public $name;
 	public $params_kata;
 	public $provider;
+	public $rating_cost;
+	public $rating_intelligence;
+	public $rating_privacy;
+	public $rating_speed;
+	public $status;
 	public $updated_at;
+
+	/**
+	 * The label<->value mapping for the ordinal ratings. THE single source: the editor, worklist cells,
+	 * quick-search parsing, autocomplete, and subtotals all read this and none may hard-code a label.
+	 *
+	 * Values are sparse decades so a tier can be inserted without a migration, and so a label can be
+	 * REPOINTED later (when today's `frontier` becomes ordinary, move it to 50 and rows storing 40 read as
+	 * `advanced` with nothing rewritten). Repointing is safe; RENAMING breaks saved searches that typed it.
+	 *
+	 * Labels must contain no spaces -- they double as quick-search values, which lex as `[^\s]+`.
+	 */
+	public static function getRatingScale(string $rating) : array {
+		return match($rating) {
+			'intelligence' => [10 => 'basic', 20 => 'efficient', 30 => 'advanced', 40 => 'frontier'],
+			'speed' => [10 => 'slow', 20 => 'moderate', 30 => 'fast', 40 => 'instant'],
+			'privacy' => [10 => 'standard', 20 => 'no-training', 30 => 'zdr', 40 => 'local'],
+			'cost' => [10 => 'free', 20 => 'cheap', 30 => 'moderate', 40 => 'premium'],
+			default => [],
+		};
+	}
+
+	/** The rating keys, in editor order. */
+	public static function getRatings() : array {
+		return ['intelligence', 'speed', 'privacy', 'cost'];
+	}
+
+	/**
+	 * Available = offered by routers. Unlisted = skipped by routers but still runs when an automation names
+	 * it. Disabled = refused everywhere, including by name.
+	 */
+	public static function getStatuses() : array {
+		return [
+			DAO_AgentModel::STATUS_AVAILABLE => 'available',
+			DAO_AgentModel::STATUS_UNLISTED => 'unlisted',
+			DAO_AgentModel::STATUS_DISABLED => 'disabled',
+		];
+	}
+
+	/** Routers may offer this model. */
+	public function isAvailable() : bool {
+		return DAO_AgentModel::STATUS_AVAILABLE == $this->status;
+	}
+
+	/** Usable at all -- an automation naming it directly still runs it unless it's disabled. */
+	public function isUsable() : bool {
+		return DAO_AgentModel::STATUS_DISABLED != $this->status;
+	}
 
 	/**
 	 * This model as the `llm:<provider>:` params block an automation would otherwise author inline.
@@ -707,7 +818,10 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 			SearchFields_AgentModel::CONNECTED_ACCOUNT_ID,
 			SearchFields_AgentModel::CONTEXT_WINDOW,
 			SearchFields_AgentModel::HAS_VISION,
-			SearchFields_AgentModel::IS_DISABLED,
+			SearchFields_AgentModel::HAS_THINKING,
+			SearchFields_AgentModel::RATING_INTELLIGENCE,
+			SearchFields_AgentModel::RATING_PRIVACY,
+			SearchFields_AgentModel::STATUS,
 			SearchFields_AgentModel::UPDATED_AT,
 		];
 
@@ -771,14 +885,19 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 			$pass = false;
 
 			switch($field_key) {
-				// Low-cardinality only. `model`, `label`, and `description` are near-unique per row,
-				// so grouping by them would just re-list the worklist.
+				// Low-cardinality only. `model` and `label` are near-unique per row, so grouping by them
+				// would just re-list the worklist.
 				case SearchFields_AgentModel::API_ENDPOINT_URL:
 				case SearchFields_AgentModel::CONNECTED_ACCOUNT_ID:
 				case SearchFields_AgentModel::CONTEXT_WINDOW:
+				case SearchFields_AgentModel::HAS_THINKING:
 				case SearchFields_AgentModel::HAS_VISION:
-				case SearchFields_AgentModel::IS_DISABLED:
 				case SearchFields_AgentModel::PROVIDER:
+				case SearchFields_AgentModel::RATING_COST:
+				case SearchFields_AgentModel::RATING_INTELLIGENCE:
+				case SearchFields_AgentModel::RATING_PRIVACY:
+				case SearchFields_AgentModel::RATING_SPEED:
+				case SearchFields_AgentModel::STATUS:
 					$pass = true;
 					break;
 
@@ -807,9 +926,33 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 			return [];
 
 		switch($column) {
+			case SearchFields_AgentModel::HAS_THINKING:
 			case SearchFields_AgentModel::HAS_VISION:
-			case SearchFields_AgentModel::IS_DISABLED:
 				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
+				break;
+
+			case SearchFields_AgentModel::STATUS:
+				$label_map = function(array $values) use ($column) {
+					return SearchFields_AgentModel::getLabelsForKeyValues($column, $values);
+				};
+				$counts = $this->_getSubtotalCountForNumberColumn($context, $column, $label_map, 'in');
+				break;
+
+			case SearchFields_AgentModel::RATING_COST:
+			case SearchFields_AgentModel::RATING_INTELLIGENCE:
+			case SearchFields_AgentModel::RATING_PRIVACY:
+			case SearchFields_AgentModel::RATING_SPEED:
+				$rating = substr(SearchFields_AgentModel::getFields()[$column]->db_column, 7);
+				$label_map = function(array $values) use ($rating) {
+					$scale = Model_AgentModel::getRatingScale($rating);
+					$map = [];
+
+					foreach($values as $value)
+						$map[$value] = $scale[$value] ?? DevblocksPlatform::translate('common.unknown');
+
+					return $map;
+				};
+				$counts = $this->_getSubtotalCountForNumberColumn($context, $column, $label_map, 'in');
 				break;
 
 			case SearchFields_AgentModel::API_ENDPOINT_URL:
@@ -859,6 +1002,92 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 		return 'name';
 	}
 
+	/**
+	 * Tier names as filter examples, plus the comparisons that are the point of an ordinal.
+	 *
+	 * ⚠ These only surface because the field is declared TYPE_TEXT. The `number` case in the suggestion
+	 * builder (`abstract_view.php`) hardcodes (equals)/(greater than)/… and never reads `examples`, so a
+	 * TYPE_NUMBER rating would autocomplete as an anonymous integer and the tier names would be invisible.
+	 * Parsing doesn't care -- getParamFromQuickSearchFieldTokens() handles these keys itself.
+	 */
+	private static function _getRatingExamples(string $rating) : array {
+		$labels = array_values(Model_AgentModel::getRatingScale($rating));
+
+		if(!$labels)
+			return [];
+
+		$examples = $labels;
+
+		if(count($labels) > 2) {
+			$examples[] = sprintf('>=%s', $labels[2]);
+			$examples[] = sprintf('<=%s', $labels[1]);
+			$examples[] = sprintf('[%s,%s]', $labels[2], $labels[3] ?? $labels[2]);
+		}
+
+		return $examples;
+	}
+
+	/**
+	 * `intelligence:>=advanced` and `intelligence:>=30` are the same query -- a label is translated to its
+	 * value before the numeric criteria is built, so operators keep working either way.
+	 */
+	private static function _getRatingParamFromTokens(string $field, $tokens) {
+		$scale = Model_AgentModel::getRatingScale($field);
+		$values = array_flip($scale);
+
+		// Keep any leading operator; swap only the label for its number. Arrays (`[advanced,frontier]`)
+		// carry a list rather than a string, so both shapes are translated.
+		$translate = function($value) use ($values) {
+			$matches = [];
+
+			if(!is_string($value) || !preg_match('/^([<>!=]*)(.*)$/', $value, $matches))
+				return $value;
+
+			$label = DevblocksPlatform::strLower(trim($matches[2]));
+
+			return array_key_exists($label, $values) ? $matches[1] . $values[$label] : $value;
+		};
+
+		foreach($tokens as $token) {
+			if(!($token instanceof CerbQuickSearchLexerToken))
+				continue;
+
+			if(is_array($token->value)) {
+				$token->value = array_map($translate, $token->value);
+			} else {
+				$token->value = $translate($token->value);
+			}
+		}
+
+		$param_keys = [
+			'cost' => SearchFields_AgentModel::RATING_COST,
+			'intelligence' => SearchFields_AgentModel::RATING_INTELLIGENCE,
+			'privacy' => SearchFields_AgentModel::RATING_PRIVACY,
+			'speed' => SearchFields_AgentModel::RATING_SPEED,
+		];
+
+		return DevblocksSearchCriteria::getNumberParamFromTokens($param_keys[$field], $tokens);
+	}
+
+	/** `status:available`, `status:[a,u]`, `status:!d` -- matched on the first letter, like ticket status. */
+	private static function _getStatusParamFromTokens($tokens) {
+		$oper = null;
+		$values = [];
+
+		CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $values);
+
+		$ids = [];
+
+		foreach($values as $value) {
+			foreach(Model_AgentModel::getStatuses() as $id => $label) {
+				if(0 === strncasecmp(strval($value), $label, 1))
+					$ids[] = $id;
+			}
+		}
+
+		return new DevblocksSearchCriteria(SearchFields_AgentModel::STATUS, $oper, $ids);
+	}
+
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_AgentModel::getFields();
 
@@ -893,13 +1122,29 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 				'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 				'options' => ['param_key' => SearchFields_AgentModel::CONTEXT_WINDOW],
 			],
+			'cost' => [
+				'type' => DevblocksSearchCriteria::TYPE_TEXT,
+				'options' => ['param_key' => SearchFields_AgentModel::RATING_COST],
+				'examples' => self::_getRatingExamples('cost'),
+			],
+			'intelligence' => [
+				'type' => DevblocksSearchCriteria::TYPE_TEXT,
+				'options' => ['param_key' => SearchFields_AgentModel::RATING_INTELLIGENCE],
+				'examples' => self::_getRatingExamples('intelligence'),
+			],
+			'privacy' => [
+				'type' => DevblocksSearchCriteria::TYPE_TEXT,
+				'options' => ['param_key' => SearchFields_AgentModel::RATING_PRIVACY],
+				'examples' => self::_getRatingExamples('privacy'),
+			],
+			'speed' => [
+				'type' => DevblocksSearchCriteria::TYPE_TEXT,
+				'options' => ['param_key' => SearchFields_AgentModel::RATING_SPEED],
+				'examples' => self::_getRatingExamples('speed'),
+			],
 			'created' => [
 				'type' => DevblocksSearchCriteria::TYPE_DATE,
 				'options' => ['param_key' => SearchFields_AgentModel::CREATED_AT],
-			],
-			'description' => [
-				'type' => DevblocksSearchCriteria::TYPE_TEXT,
-				'options' => ['param_key' => SearchFields_AgentModel::DESCRIPTION, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL],
 			],
 			'fieldset' => [
 				'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
@@ -907,6 +1152,10 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 				'examples' => [
 					['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . Context_AgentModel::ID],
 				]
+			],
+			'hasThinking' => [
+				'type' => DevblocksSearchCriteria::TYPE_BOOL,
+				'options' => ['param_key' => SearchFields_AgentModel::HAS_THINKING],
 			],
 			'hasVision' => [
 				'type' => DevblocksSearchCriteria::TYPE_BOOL,
@@ -922,10 +1171,6 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 				'examples' => [
 					['type' => 'chooser', 'context' => Context_AgentModel::ID, 'q' => ''],
 				]
-			],
-			'isDisabled' => [
-				'type' => DevblocksSearchCriteria::TYPE_BOOL,
-				'options' => ['param_key' => SearchFields_AgentModel::IS_DISABLED],
 			],
 			'label' => [
 				'type' => DevblocksSearchCriteria::TYPE_TEXT,
@@ -945,6 +1190,15 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 				'examples' => [
 					['type' => 'list', 'values' => $provider_labels],
 				]
+			],
+			'status' => [
+				'type' => DevblocksSearchCriteria::TYPE_TEXT,
+				'options' => ['param_key' => SearchFields_AgentModel::STATUS],
+				'examples' => array_merge(array_values(Model_AgentModel::getStatuses()), ['[a,u]', '![d]']),
+			],
+			'status.id' => [
+				'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+				'options' => ['param_key' => SearchFields_AgentModel::STATUS],
 			],
 			'updated' => [
 				'type' => DevblocksSearchCriteria::TYPE_DATE,
@@ -978,6 +1232,15 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 			case 'watchers':
 				return DevblocksSearchCriteria::getWatcherParamFromTokens(DevblocksSearchField::VIRTUAL_WATCHERS, $tokens);
 
+			case 'status':
+				return self::_getStatusParamFromTokens($tokens);
+
+			case 'cost':
+			case 'intelligence':
+			case 'privacy':
+			case 'speed':
+				return self::_getRatingParamFromTokens($field, $tokens);
+
 			default:
 				if($field == 'links' || str_starts_with($field, 'links.'))
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
@@ -1003,6 +1266,15 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 		if(in_array(SearchFields_AgentModel::CONNECTED_ACCOUNT_ID, $this->view_columns))
 			$tpl->assign('connected_accounts', DAO_ConnectedAccount::getAll());
 
+		// Keyed by SearchField so a cell can name its tier without Model_AgentModel being in Smarty's
+		// static allowlist.
+		$rating_labels = [];
+
+		foreach(Model_AgentModel::getRatings() as $rating)
+			$rating_labels['a_rating_' . $rating] = Model_AgentModel::getRatingScale($rating);
+
+		$tpl->assign('rating_labels', $rating_labels);
+
 		$tpl->assign('view_template', 'devblocks:cerberusweb.core::records/types/agent_model/view.tpl');
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
@@ -1018,9 +1290,28 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 
+			case SearchFields_AgentModel::HAS_THINKING:
 			case SearchFields_AgentModel::HAS_VISION:
-			case SearchFields_AgentModel::IS_DISABLED:
 				parent::_renderCriteriaParamBoolean($param);
+				break;
+
+			case SearchFields_AgentModel::STATUS:
+				$label_map = function($values) {
+					return SearchFields_AgentModel::getLabelsForKeyValues(SearchFields_AgentModel::STATUS, $values);
+				};
+				parent::_renderCriteriaParamString($param, $label_map);
+				break;
+
+			case SearchFields_AgentModel::RATING_COST:
+			case SearchFields_AgentModel::RATING_INTELLIGENCE:
+			case SearchFields_AgentModel::RATING_PRIVACY:
+			case SearchFields_AgentModel::RATING_SPEED:
+				$rating = substr(SearchFields_AgentModel::getFields()[$param->field]->db_column, 7);
+				$label_map = function($values) use ($rating) {
+					$scale = Model_AgentModel::getRatingScale($rating);
+					return array_intersect_key($scale, array_flip($values));
+				};
+				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 
 			default:
@@ -1060,19 +1351,23 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 			case SearchFields_AgentModel::CONNECTED_ACCOUNT_ID:
 			case SearchFields_AgentModel::CONTEXT_WINDOW:
 			case SearchFields_AgentModel::ID:
+			case SearchFields_AgentModel::RATING_COST:
+			case SearchFields_AgentModel::RATING_INTELLIGENCE:
+			case SearchFields_AgentModel::RATING_PRIVACY:
+			case SearchFields_AgentModel::RATING_SPEED:
+			case SearchFields_AgentModel::STATUS:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 
 			// A bit column posts its value as `bool`, not `value` -- that's the payload
 			// _getSubtotalCountForBooleanColumn() builds when a subtotal row is clicked.
+			case SearchFields_AgentModel::HAS_THINKING:
 			case SearchFields_AgentModel::HAS_VISION:
-			case SearchFields_AgentModel::IS_DISABLED:
 				$bool = DevblocksPlatform::importGPC($_POST['bool'] ?? null, 'integer', 1);
 				$criteria = new DevblocksSearchCriteria($field, $oper, $bool);
 				break;
 
 			case SearchFields_AgentModel::API_ENDPOINT_URL:
-			case SearchFields_AgentModel::DESCRIPTION:
 			case SearchFields_AgentModel::ICON:
 			case SearchFields_AgentModel::ICON_COLOR:
 			case SearchFields_AgentModel::LABEL:
@@ -1160,10 +1455,10 @@ class Context_AgentModel extends Extension_DevblocksContext implements IDevblock
 			'value' => $model->created_at,
 		];
 
-		$properties['description'] = [
-			'label' => DevblocksPlatform::translateCapitalized('common.description'),
-			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => $model->description,
+		$properties['has_thinking'] = [
+			'label' => mb_ucfirst($translate->_('dao.agent_model.has_thinking')),
+			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'value' => $model->has_thinking,
 		];
 
 		$properties['has_vision'] = [
@@ -1184,11 +1479,21 @@ class Context_AgentModel extends Extension_DevblocksContext implements IDevblock
 			'value' => $model->id,
 		];
 
-		$properties['is_disabled'] = [
-			'label' => mb_ucfirst($translate->_('dao.agent_model.is_disabled')),
-			'type' => Model_CustomField::TYPE_CHECKBOX,
-			'value' => $model->is_disabled,
+		$properties['status'] = [
+			'label' => DevblocksPlatform::translateCapitalized('common.status'),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => Model_AgentModel::getStatuses()[$model->status] ?? '',
 		];
+
+		foreach(Model_AgentModel::getRatings() as $rating) {
+			$value = intval($model->{'rating_' . $rating});
+
+			$properties['rating_' . $rating] = [
+				'label' => mb_ucfirst($translate->_('dao.agent_model.rating_' . $rating)),
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'value' => Model_AgentModel::getRatingScale($rating)[$value] ?? '',
+			];
+		}
 
 		$properties['label'] = [
 			'label' => mb_ucfirst($translate->_('dao.agent_model.label')),
@@ -1252,7 +1557,10 @@ class Context_AgentModel extends Extension_DevblocksContext implements IDevblock
 			'connected_account_id',
 			'context_window',
 			'has_vision',
-			'is_disabled',
+			'has_thinking',
+			'rating_intelligence',
+			'rating_privacy',
+			'status',
 			'updated_at',
 		];
 	}
@@ -1284,11 +1592,15 @@ class Context_AgentModel extends Extension_DevblocksContext implements IDevblock
 			'api_endpoint_url' => $prefix.$translate->_('dao.agent_model.api_endpoint_url'),
 			'connected_account_id' => $prefix.$translate->_('dao.agent_model.connected_account_id'),
 			'context_window' => $prefix.$translate->_('dao.agent_model.context_window'),
-			'description' => $prefix.$translate->_('common.description'),
 			'has_vision' => $prefix.$translate->_('dao.agent_model.has_vision'),
 			'icon' => $prefix.$translate->_('dao.agent_model.icon'),
 			'icon_color' => $prefix.$translate->_('dao.agent_model.icon_color'),
-			'is_disabled' => $prefix.$translate->_('dao.agent_model.is_disabled'),
+			'has_thinking' => $prefix.$translate->_('dao.agent_model.has_thinking'),
+			'rating_cost' => $prefix.$translate->_('dao.agent_model.rating_cost'),
+			'rating_intelligence' => $prefix.$translate->_('dao.agent_model.rating_intelligence'),
+			'rating_privacy' => $prefix.$translate->_('dao.agent_model.rating_privacy'),
+			'rating_speed' => $prefix.$translate->_('dao.agent_model.rating_speed'),
+			'status' => $prefix.$translate->_('common.status'),
 			'label' => $prefix.$translate->_('dao.agent_model.label'),
 			'model' => $prefix.$translate->_('dao.agent_model.model'),
 			'params_kata' => $prefix.$translate->_('dao.agent_model.params_kata'),
@@ -1305,11 +1617,15 @@ class Context_AgentModel extends Extension_DevblocksContext implements IDevblock
 			'api_endpoint_url' => Model_CustomField::TYPE_SINGLE_LINE,
 			'connected_account_id' => Model_CustomField::TYPE_SINGLE_LINE,
 			'context_window' => Model_CustomField::TYPE_SINGLE_LINE,
-			'description' => Model_CustomField::TYPE_SINGLE_LINE,
 			'has_vision' => Model_CustomField::TYPE_SINGLE_LINE,
 			'icon' => Model_CustomField::TYPE_SINGLE_LINE,
 			'icon_color' => Model_CustomField::TYPE_SINGLE_LINE,
-			'is_disabled' => Model_CustomField::TYPE_SINGLE_LINE,
+			'has_thinking' => Model_CustomField::TYPE_SINGLE_LINE,
+			'rating_cost' => Model_CustomField::TYPE_NUMBER,
+			'rating_intelligence' => Model_CustomField::TYPE_NUMBER,
+			'rating_privacy' => Model_CustomField::TYPE_NUMBER,
+			'rating_speed' => Model_CustomField::TYPE_NUMBER,
+			'status' => Model_CustomField::TYPE_SINGLE_LINE,
 			'label' => Model_CustomField::TYPE_SINGLE_LINE,
 			'model' => Model_CustomField::TYPE_SINGLE_LINE,
 			'params_kata' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -1342,11 +1658,15 @@ class Context_AgentModel extends Extension_DevblocksContext implements IDevblock
 			$token_values['api_endpoint_url'] = $agent_model->api_endpoint_url;
 			$token_values['connected_account_id'] = $agent_model->connected_account_id;
 			$token_values['context_window'] = $agent_model->context_window;
-			$token_values['description'] = $agent_model->description;
 			$token_values['has_vision'] = $agent_model->has_vision;
 			$token_values['icon'] = $agent_model->icon;
 			$token_values['icon_color'] = $agent_model->icon_color;
-			$token_values['is_disabled'] = $agent_model->is_disabled;
+			$token_values['has_thinking'] = $agent_model->has_thinking;
+			$token_values['rating_cost'] = $agent_model->rating_cost;
+			$token_values['rating_intelligence'] = $agent_model->rating_intelligence;
+			$token_values['rating_privacy'] = $agent_model->rating_privacy;
+			$token_values['rating_speed'] = $agent_model->rating_speed;
+			$token_values['status'] = Model_AgentModel::getStatuses()[$agent_model->status] ?? '';
 			$token_values['label'] = $agent_model->label;
 			$token_values['model'] = $agent_model->model;
 			$token_values['params_kata'] = $agent_model->params_kata;
@@ -1368,12 +1688,17 @@ class Context_AgentModel extends Extension_DevblocksContext implements IDevblock
 			'connected_account_id' => DAO_AgentModel::CONNECTED_ACCOUNT_ID,
 			'context_window' => DAO_AgentModel::CONTEXT_WINDOW,
 			'created_at' => DAO_AgentModel::CREATED_AT,
-			'description' => DAO_AgentModel::DESCRIPTION,
+
 			'has_vision' => DAO_AgentModel::HAS_VISION,
 			'icon' => DAO_AgentModel::ICON,
 			'icon_color' => DAO_AgentModel::ICON_COLOR,
 			'id' => DAO_AgentModel::ID,
-			'is_disabled' => DAO_AgentModel::IS_DISABLED,
+			'has_thinking' => DAO_AgentModel::HAS_THINKING,
+			'rating_cost' => DAO_AgentModel::RATING_COST,
+			'rating_intelligence' => DAO_AgentModel::RATING_INTELLIGENCE,
+			'rating_privacy' => DAO_AgentModel::RATING_PRIVACY,
+			'rating_speed' => DAO_AgentModel::RATING_SPEED,
+			'status' => DAO_AgentModel::STATUS,
 			'label' => DAO_AgentModel::LABEL,
 			'model' => DAO_AgentModel::MODEL,
 			'name' => DAO_AgentModel::NAME,
@@ -1390,7 +1715,38 @@ class Context_AgentModel extends Extension_DevblocksContext implements IDevblock
 	}
 
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
+		// Accept the same names the editor shows and a query matches, so `status: unlisted` and
+		// `rating_intelligence: frontier` work rather than only their stored integers.
 		switch(DevblocksPlatform::strLower($key)) {
+			case 'status':
+				if(is_numeric($value))
+					break;
+
+				if(false === ($id = array_search(DevblocksPlatform::strLower(trim(strval($value))), Model_AgentModel::getStatuses(), true))) {
+					$error = sprintf("`status` must be one of: %s", implode(', ', Model_AgentModel::getStatuses()));
+					return false;
+				}
+
+				$out_fields[DAO_AgentModel::STATUS] = $id;
+				break;
+
+			case 'rating_cost':
+			case 'rating_intelligence':
+			case 'rating_privacy':
+			case 'rating_speed':
+				if(is_numeric($value))
+					break;
+
+				$rating = substr(DevblocksPlatform::strLower($key), 7);
+				$scale = Model_AgentModel::getRatingScale($rating);
+
+				if(false === ($tier = array_search(DevblocksPlatform::strLower(trim(strval($value))), $scale, true))) {
+					$error = sprintf("`%s` must be one of: %s", $key, implode(', ', $scale));
+					return false;
+				}
+
+				$out_fields['rating_' . $rating] = $tier;
+				break;
 		}
 		return true;
 	}
@@ -1511,6 +1867,13 @@ class Context_AgentModel extends Extension_DevblocksContext implements IDevblock
 			if($model && $model->connected_account_id
 				&& ($connected_account = DAO_ConnectedAccount::get($model->connected_account_id)))
 				$tpl->assign('connected_account', $connected_account);
+
+			$rating_scales = [];
+
+			foreach(Model_AgentModel::getRatings() as $rating)
+				$rating_scales[$rating] = Model_AgentModel::getRatingScale($rating);
+
+			$tpl->assign('rating_scales', $rating_scales);
 
 			$tpl->assign('id', $context_id);
 			$tpl->assign('view_id', $view_id);

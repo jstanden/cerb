@@ -506,13 +506,13 @@ tables:
         key@text:
         default: 0
         extra@text:
-      description:
-        field: description
-        type: varchar(255)
-        collation: utf8mb4_unicode_ci
+      has_thinking:
+        field: has_thinking
+        type: tinyint unsigned
+        collation@text:
         nullable: NOT NULL
         key@text:
-        default@text:
+        default: 0
         extra@text:
       has_vision:
         field: has_vision
@@ -546,14 +546,6 @@ tables:
         key: PRI
         default@text:
         extra: auto_increment
-      is_disabled:
-        field: is_disabled
-        type: tinyint unsigned
-        collation@text:
-        nullable: NOT NULL
-        key@text:
-        default: 0
-        extra@text:
       label:
         field: label
         type: varchar(128)
@@ -593,6 +585,46 @@ tables:
         nullable: NOT NULL
         key: MUL
         default@text:
+        extra@text:
+      rating_cost:
+        field: rating_cost
+        type: tinyint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      rating_intelligence:
+        field: rating_intelligence
+        type: tinyint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      rating_privacy:
+        field: rating_privacy
+        type: tinyint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      rating_speed:
+        field: rating_speed
+        type: tinyint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      status:
+        field: status
+        type: tinyint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
         extra@text:
       updated_at:
         field: updated_at

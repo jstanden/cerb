@@ -3906,7 +3906,6 @@ class CerbPatch_Core_v12_0_0 {
 				`id` bigint unsigned NOT NULL AUTO_INCREMENT,
 				`name` varchar(128) NOT NULL DEFAULT '',
 				`label` varchar(128) NOT NULL DEFAULT '',
-				`description` varchar(255) NOT NULL DEFAULT '',
 				`icon` varchar(64) NOT NULL DEFAULT '',
 				`icon_color` varchar(32) NOT NULL DEFAULT '',
 				`provider` varchar(32) NOT NULL DEFAULT '',
@@ -3914,9 +3913,14 @@ class CerbPatch_Core_v12_0_0 {
 				`api_endpoint_url` varchar(255) NOT NULL DEFAULT '',
 				`connected_account_id` int unsigned NOT NULL DEFAULT 0,
 				`has_vision` tinyint(1) unsigned NOT NULL DEFAULT 0,
+				`has_thinking` tinyint(1) unsigned NOT NULL DEFAULT 0,
 				`context_window` int unsigned NOT NULL DEFAULT 0,
+				`rating_intelligence` tinyint unsigned NOT NULL DEFAULT 0,
+				`rating_speed` tinyint unsigned NOT NULL DEFAULT 0,
+				`rating_privacy` tinyint unsigned NOT NULL DEFAULT 0,
+				`rating_cost` tinyint unsigned NOT NULL DEFAULT 0,
 				`params_kata` text,
-				`is_disabled` tinyint(1) unsigned NOT NULL DEFAULT 0,
+				`status` tinyint unsigned NOT NULL DEFAULT 0,
 				`created_at` int unsigned NOT NULL DEFAULT 0,
 				`updated_at` int unsigned NOT NULL DEFAULT 0,
 				PRIMARY KEY (`id`),
@@ -3942,8 +3946,33 @@ class CerbPatch_Core_v12_0_0 {
 			if(!array_key_exists('icon_color', $columns))
 				$changes[] = "ADD COLUMN icon_color varchar(32) NOT NULL DEFAULT '' AFTER icon";
 
+			if(!array_key_exists('has_thinking', $columns))
+				$changes[] = "ADD COLUMN has_thinking tinyint(1) unsigned NOT NULL DEFAULT 0 AFTER has_vision";
+
+			// Ordinal 10/20/30/40 tiers, 0 = unrated. Sparse so a tier can be inserted without a migration.
+			foreach(['intelligence', 'speed', 'privacy', 'cost'] as $rating) {
+				if(!array_key_exists('rating_' . $rating, $columns))
+					$changes[] = sprintf("ADD COLUMN rating_%s tinyint unsigned NOT NULL DEFAULT 0", $rating);
+			}
+
+			// Three states replace the is_disabled bit: 0=available, 1=unlisted, 2=disabled.
+			if(!array_key_exists('status', $columns))
+				$changes[] = "ADD COLUMN status tinyint unsigned NOT NULL DEFAULT 0";
+
 			if($changes)
 				$this->_db->ExecuteMaster("ALTER TABLE agent_model " . implode(', ', $changes));
+
+			list($columns,) = $this->_db->metaTable('agent_model');
+
+			// Carry the old bit over before dropping it, so a disabled model stays disabled.
+			if(array_key_exists('is_disabled', $columns)) {
+				$this->_db->ExecuteMaster("UPDATE agent_model SET status = 2 WHERE is_disabled = 1");
+				$this->_db->ExecuteMaster("ALTER TABLE agent_model DROP COLUMN is_disabled");
+			}
+
+			// The capability and rating fields describe a model better than prose, and are queryable.
+			if(array_key_exists('description', $columns))
+				$this->_db->ExecuteMaster("ALTER TABLE agent_model DROP COLUMN description");
 		}
 	}
 

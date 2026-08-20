@@ -235,7 +235,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 		$out = [];
 
 		foreach(\DAO_AgentModel::getAll() as $model) {
-			if($model->is_disabled)
+			if(!$model->isUsable())
 				continue;
 
 			$out[] = [

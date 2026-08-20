@@ -1469,7 +1469,8 @@ class _DevblocksLlmService {
 		$blocks = []; // one provider block per id, reused across records of that provider
 
 		foreach(\DAO_AgentModel::getAll() as $model) {
-			if($model->is_disabled)
+			// Unlisted models stay offered here -- naming one explicitly is exactly how they're meant to run.
+			if(!$model->isUsable())
 				continue;
 
 			$provider_id = strval($model->provider);
@@ -1661,8 +1662,8 @@ class _DevblocksLlmService {
 				continue;
 			}
 
-			// `is_disabled` is governance (retired/unlicensed) — skip to the next fallback rather than run it.
-			if($record->is_disabled) {
+			// Only `disabled` is refused. An explicit `model:` IS the manual path an unlisted model exists for.
+			if(!$record->isUsable()) {
 				$tried[] = sprintf('%s (disabled)', $key);
 				continue;
 			}
