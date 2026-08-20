@@ -266,6 +266,131 @@ class DAO_AgentFile extends Cerb_ORMHelper {
 		parent::_updateWhere('agent_file', $fields, $where);
 	}
 
+	static function bulkUpdate(Model_ContextBulkUpdate $update) : bool {
+		$do = $update->actions;
+		$ids = $update->context_ids;
+
+		if(empty($ids) || empty($do))
+			return false;
+
+		$context = Context_AgentFile::ID;
+
+		$change_fields = [];
+		$custom_fields = [];
+		$deleted = false;
+
+		foreach($do as $k => $v) {
+			switch($k) {
+				case 'delete':
+					$deleted = true;
+					break;
+
+				case 'filesystem_id':
+					$change_fields[self::FILESYSTEM_ID] = intval($v);
+					break;
+
+				default:
+					// Custom fields
+					if(DevblocksPlatform::strStartsWith($k, 'cf_')) {
+						$custom_fields[substr($k,3)] = $v;
+					}
+					break;
+			}
+		}
+
+		if($deleted) {
+			CerberusContexts::logActivityRecordDelete($context, $ids);
+
+			self::delete($ids);
+
+			return true;
+		}
+
+		// A move can't take a file whose path is already occupied on the destination volume. The
+		// (filesystem_id, name) unique key would reject the whole batch over one collision, so the
+		// colliding files sit this one out and the rest still move.
+		if(array_key_exists(self::FILESYSTEM_ID, $change_fields))
+			$ids = self::_filterMovableIds($ids, $change_fields[self::FILESYSTEM_ID]);
+
+		if(empty($ids))
+			return false;
+
+		DevblocksPlatform::markContextChanged($context, $ids);
+
+		if(!empty($change_fields))
+			self::update($ids, $change_fields, false);
+
+		// Custom Fields
+		if(!empty($custom_fields))
+			C4_AbstractView::_doBulkSetCustomFields($context, $custom_fields, $ids);
+
+		// Watchers
+		if(isset($do['watchers']))
+			C4_AbstractView::_doBulkChangeWatchers($context, $do['watchers'], $ids);
+
+		CerberusContexts::checkpointChanges($context, $ids);
+
+		return true;
+	}
+
+	/**
+	 * The subset of $ids that can move to $filesystem_id without colliding with a file already
+	 * stored there under the same path. Files already on that volume are a no-op move, not a
+	 * collision, so they stay in the set.
+	 *
+	 * @return int[]
+	 */
+	private static function _filterMovableIds(array $ids, int $filesystem_id) : array {
+		$db = DevblocksPlatform::services()->database();
+
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int', ['nonzero','unique']);
+
+		if(empty($ids))
+			return [];
+
+		$ids_list = implode(',', $ids);
+
+		// Files already on the destination aren't moving anywhere, so they can't collide with anything
+		$moving = $db->GetArrayMaster(sprintf(
+			"SELECT id, name FROM agent_file WHERE id IN (%s) AND filesystem_id != %d ORDER BY id",
+			$ids_list,
+			$filesystem_id
+		));
+
+		if(empty($moving))
+			return $ids;
+
+		$names = array_unique(array_column($moving, 'name'));
+
+		// Paths already spoken for on the destination, ignoring the files we're moving there
+		$occupied = array_flip(array_column($db->GetArrayMaster(sprintf(
+			"SELECT name FROM agent_file WHERE filesystem_id = %d AND name IN (%s) AND id NOT IN (%s)",
+			$filesystem_id,
+			implode(',', self::qstrArray($names)),
+			$ids_list
+		)), 'name'));
+
+		$blocked_ids = [];
+
+		foreach($moving as $row) {
+			$name = strval($row['name']);
+
+			// Two files from different volumes can share a path; the first one to claim it on the
+			// destination blocks the rest of the batch, same as a pre-existing occupant would.
+			if(array_key_exists($name, $occupied)) {
+				$blocked_ids[] = intval($row['id']);
+				continue;
+			}
+
+			$occupied[$name] = true;
+		}
+
+		if(empty($blocked_ids))
+			return $ids;
+
+		return array_values(array_diff($ids, $blocked_ids));
+	}
+
 	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
 		if(!CerberusContexts::isActorAnAdmin($actor)) {
 			$error = DevblocksPlatform::translate('error.core.no_acl.admin');

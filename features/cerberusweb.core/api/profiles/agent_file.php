@@ -17,6 +17,10 @@ class PageSection_ProfilesAgentFile extends Extension_PageSection {
 			switch($action) {
 				case 'savePeekJson':
 					return $this->_profileAction_savePeekJson();
+				case 'showBulkPopup':
+					return $this->_profileAction_showBulkPopup();
+				case 'startBulkUpdateJson':
+					return $this->_profileAction_startBulkUpdateJson();
 				case 'viewExplore':
 					return $this->_profileAction_viewExplore();
 			}
@@ -136,6 +140,152 @@ class PageSection_ProfilesAgentFile extends Extension_PageSection {
 			]);
 			return;
 		}
+	}
+
+	private function _profileAction_showBulkPopup() {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if(!$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
+		$ids = DevblocksPlatform::importGPC($_REQUEST['ids'] ?? null, 'string', '');
+		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null, 'string', '');
+
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('view_id', $view_id);
+
+		if(!empty($ids)) {
+			$id_list = DevblocksPlatform::parseCsvString($ids);
+			$tpl->assign('ids', implode(',', $id_list));
+		}
+
+		// Custom Fields
+		$custom_fields = DAO_CustomField::getByContext(Context_AgentFile::ID, false);
+		$tpl->assign('custom_fields', $custom_fields);
+
+		$tpl->assign('bulk_automations', \Cerb\Records\BulkUpdate::getMenuItems(
+			Context_AgentFile::ID,
+			$view_id,
+			'',
+			$active_worker
+		));
+
+		$tpl->display('devblocks:cerberusweb.core::records/types/agent_file/bulk.tpl');
+	}
+
+	private function _profileAction_startBulkUpdateJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+
+		if(!$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
+		$context = Context_AgentFile::ID;
+
+		// Filter: whole list or checks
+		$filter = DevblocksPlatform::importGPC($_POST['filter'] ?? null, 'string', '');
+		$ids = [];
+
+		// View
+		$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
+
+		if(!($view = C4_AbstractViewLoader::getView($view_id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+
+		$view->setAutoPersist(false);
+
+		// Actions
+		$actions = DevblocksPlatform::importGPC($_POST['actions'] ?? null, 'array', []);
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
+
+		$do = [];
+
+		foreach($actions as $action) {
+			switch($action) {
+				case 'delete':
+					if($active_worker->hasPriv(sprintf('contexts.%s.delete', $context)))
+						$do['delete'] = true;
+					break;
+
+				case 'filesystem_id':
+					if(isset($params[$action]))
+						$do[$action] = intval($params[$action]);
+					break;
+
+				case 'watchers_add':
+				case 'watchers_remove':
+					if(!isset($params[$action]))
+						break;
+
+					if(!isset($do['watchers']))
+						$do['watchers'] = [];
+
+					$do['watchers'][substr($action, 9)] = $params[$action];
+					break;
+			}
+		}
+
+		// Comment
+		if($active_worker->hasPriv(sprintf('contexts.%s.comment', $context))) {
+			$comment_enabled = DevblocksPlatform::importGPC($_POST['comment_enabled'] ?? null, 'bit', 0);
+			$comment_text = DevblocksPlatform::importGPC($_POST['comment'] ?? null, 'string', '');
+
+			if($comment_enabled && '' !== $comment_text) {
+				$do['comment'] = [
+					'message' => $comment_text,
+					'is_markdown' => DevblocksPlatform::importGPC($_POST['comment_is_markdown'] ?? null, 'bit', 0),
+					'file_ids' => DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['comment_file_ids'] ?? null, 'array', []), 'integer', ['nonzero','unique']),
+				];
+			}
+		}
+
+		// Do: Custom fields
+		$do = DAO_CustomFieldValue::handleBulkPost($do);
+
+		// Do: Automations
+		$error = null;
+		if(false === ($do = \Cerb\Records\BulkUpdate::handleBulkPost($do, $context, $view, $active_worker, $error))) {
+			DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+			echo json_encode([
+				'status' => false,
+				'error' => $error ?: 'Aborted by automation',
+			]);
+			return;
+		}
+
+		switch($filter) {
+			// Checked rows
+			case 'checks':
+				$ids_str = DevblocksPlatform::importGPC($_POST['ids'] ?? null, 'string', '');
+				$ids = DevblocksPlatform::parseCsvString($ids_str);
+				break;
+
+			case 'sample':
+				$sample_size = min(DevblocksPlatform::importGPC($_POST['filter_sample_size'] ?? null, 'integer', 0), 9999);
+				$ids = $view->getDataSample($sample_size);
+				break;
+
+			default:
+				break;
+		}
+
+		// If we have specific IDs, add a filter for those too
+		if(!empty($ids)) {
+			$view->addParams([
+				new DevblocksSearchCriteria(SearchFields_AgentFile::ID, 'in', $ids)
+			], true);
+		}
+
+		// Enqueue a parallel bulk update job
+		$queue_job = \Cerb\Records\BulkUpdate::createJob($view, $do, $active_worker->id ?? 0);
+
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+
+		echo json_encode([
+			'job_id' => $queue_job->id ?? 0,
+		]);
 	}
 
 	private function _profileAction_viewExplore() {
