@@ -60,7 +60,7 @@ class DAO_Resource extends Cerb_ORMHelper {
 			->setNotEmpty(false)
 			->addValidator(function($string, &$error=null) {
 				if(0 != strcmp($string, DevblocksPlatform::strAlphaNum($string, '.-_'))) {
-					$error = "may only contain letters, numbers, dashes, and dots";
+					$error = "may only contain letters, numbers, dots, dashes, and underscores";
 					return false;
 				}
 				

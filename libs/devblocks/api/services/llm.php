@@ -2440,15 +2440,6 @@ class _DevblocksLlmService {
 	}
 
 	/**
-	 * Close out a streamed turn whose call didn't return: sanitize what arrived, then either keep it as a
-	 * truncated turn or drop it entirely.
-	 *
-	 * Salvage matters because the failure modes here are expensive — a ten-minute generation cut at the last
-	 * second was still billed in full — and because a row left open would be read as an in-flight turn forever.
-	 * Sanitizing is not optional politeness: an unsignatured thinking block or an argument-less tool call left
-	 * in the history gets the NEXT request rejected, turning one lost turn into a permanently stranded session.
-	 */
-	/**
 	 * Has a Stop been raised for this session? Read on every throttled flush, which is the only moment we
 	 * reliably hold control during a call that may run for minutes — before streaming, a Stop could only be
 	 * honored between turns.
