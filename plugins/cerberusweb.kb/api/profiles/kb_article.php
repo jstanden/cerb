@@ -33,6 +33,8 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 			switch ($action) {
 				case 'savePeekJson':
 					return $this->_profileAction_savePeekJson();
+				case 'showBulkPopup':
+					return $this->_profileAction_showBulkPopup();
 				case 'startBulkUpdateJson':
 					return $this->_profileAction_startBulkUpdateJson();
 				case 'preview':
@@ -194,6 +196,37 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 		DevblocksPlatform::redirect($http_response);
 	}
 	
+	private function _profileAction_showBulkPopup() {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker->hasPriv(sprintf('contexts.%s.update.bulk', Context_KbArticle::ID)))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		$id_csv = DevblocksPlatform::importGPC($_REQUEST['ids'] ?? null, 'string', '');
+		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null, 'string', '');
+		
+		$tpl->assign('view_id', $view_id);
+		
+		if(!empty($id_csv)) {
+			$ids = DevblocksPlatform::parseCsvString($id_csv);
+			$tpl->assign('ids', implode(',', $ids));
+		}
+		
+		// Custom Fields
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_KB_ARTICLE, false);
+		$tpl->assign('custom_fields', $custom_fields);
+		
+		$tpl->assign('bulk_automations', \Cerb\Records\BulkUpdate::getMenuItems(
+			Context_KbArticle::ID,
+			$view_id,
+			'',
+			$active_worker
+		));
+		
+		$tpl->display('devblocks:cerberusweb.kb::kb/article/bulk.tpl');
+	}
+	
 	private function _profileAction_startBulkUpdateJson() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -202,6 +235,8 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 		
 		if(!$active_worker->hasPriv(sprintf('contexts.%s.update.bulk', Context_KbArticle::ID)))
 			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		$context = Context_KbArticle::ID;
 		
 		// Filter: whole list or check
 		$filter = DevblocksPlatform::importGPC($_POST['filter'] ?? null, 'string','');
@@ -222,21 +257,52 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 		
 		$do = [];
 
-		// Categories
-		$category_ids = DevblocksPlatform::importGPC($_POST['category_ids'] ?? null, 'array', []);
+		// Watchers
+		$actions = DevblocksPlatform::importGPC($_POST['actions'] ?? null, 'array', []);
+		$params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
 		
-		if(is_array($category_ids)) {
-			$do['category_delta'] = [];
+		foreach($actions as $action) {
+			switch($action) {
+				case 'watchers_add':
+				case 'watchers_remove':
+					if(!isset($params[$action]))
+						break;
+					
+					if(!isset($do['watchers']))
+						$do['watchers'] = [];
+					
+					$do['watchers'][substr($action, 9)] = $params[$action];
+					break;
+			}
+		}
+		
+		// Comment
+		if($active_worker->hasPriv(sprintf('contexts.%s.comment', $context))) {
+			$comment_enabled = DevblocksPlatform::importGPC($_POST['comment_enabled'] ?? null, 'bit', 0);
+			$comment_text = DevblocksPlatform::importGPC($_POST['comment'] ?? null, 'string', '');
 			
-			foreach($category_ids as $cat_id) {
-				@$cat_mode = DevblocksPlatform::importGPC($_POST['category_ids_'.$cat_id],'string','');
-				if(!empty($cat_mode))
-					$do['category_delta'][] = $cat_mode . $cat_id;
+			if($comment_enabled && '' !== $comment_text) {
+				$do['comment'] = [
+					'message' => $comment_text,
+					'is_markdown' => DevblocksPlatform::importGPC($_POST['comment_is_markdown'] ?? null, 'bit', 0),
+					'file_ids' => DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['comment_file_ids'] ?? null, 'array', []), 'integer', ['nonzero','unique']),
+				];
 			}
 		}
 		
 		// Do: Custom fields
 		$do = DAO_CustomFieldValue::handleBulkPost($do);
+
+		// Do: Automations
+		$error = null;
+		if(false === ($do = \Cerb\Records\BulkUpdate::handleBulkPost($do, $context, $view, $active_worker, $error))) {
+			DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+			echo json_encode([
+				'status' => false,
+				'error' => $error ?: 'Aborted by automation',
+			]);
+			return;
+		}
 
 		// Do: Scheduled Behavior
 		if(0 != strlen($behavior_id)) {

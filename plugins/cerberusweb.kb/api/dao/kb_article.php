@@ -289,6 +289,10 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 		// Custom Fields
 		C4_AbstractView::_doBulkSetCustomFields(CerberusContexts::CONTEXT_KB_ARTICLE, $custom_fields, $ids);
 		
+		// Watchers
+		if(isset($do['watchers']))
+			C4_AbstractView::_doBulkChangeWatchers(CerberusContexts::CONTEXT_KB_ARTICLE, $do['watchers'], $ids);
+		
 		CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_KB_ARTICLE, $ids);
 		
 		return true;
