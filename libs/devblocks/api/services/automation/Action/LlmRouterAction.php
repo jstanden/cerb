@@ -1,35 +1,53 @@
 <?php
 namespace Cerb\AutomationBuilder\Action;
 
-use DAO_AgentModelRouter;
+use DAO_AgentModel;
 use DevblocksDictionaryDelegate;
 use DevblocksPlatform;
 use Exception_DevblocksAutomationError;
 use Model_Automation;
 
 /**
- * `llm.router:` — resolve an agent model router to the `models:` map that `llm.agent:`, `llm.chat:`, and
- * `agentPrompt` already consume.
+ * `llm.router:` — resolve one or more `agent_model` searches to the `models:` map that `llm.agent:`,
+ * `llm.chat:`, and `agentPrompt` already consume.
  *
- * This command exists for when the list is needed **as data** — to filter it, round-robin it, feed two
- * commands from one resolution, or inspect what came back. To simply USE the models, name an `agent:` on the
- * command (or say nothing and get the default router); you don't need this.
+ * Nothing here names a model, and nothing names a router record. The CALLER states what the work needs as a
+ * query; the ADMIN states what the org allows as another; the two intersect. Both are hard requirements, and
+ * because a query can only ever NARROW the pool (`status:available` is forced ahead of it), handing an
+ * automation this vocabulary grants it nothing.
  *
  *     llm.router:
  *       inputs:
- *         router: fast          # optional -- omit for the default router
+ *         models_query/work: hasVision:y                 # what THIS work needs -- Cerb's own vocabulary
+ *         models_query/pool: {{config.models_query}}     # what the ADMIN allows -- a workflow `text/` config
  *       output: routed
  *
  *     llm.agent:
  *       inputs:
  *         model@key: routed:models
  *
+ * **Each query is its own named key**, `models_query/<name>:`, following the house `<qualifier>/<name>:`
+ * convention (`record.search/ticket:`, `chooser/account_id:`). One scalar per key, so the editor can
+ * autocomplete the `agent_model` filter vocabulary as you type each one, and there is never a question of
+ * whether a line break means a second query or a wrapped one. A bare `models_query:` is accepted for the
+ * single-query case; omitting it entirely is the zero-config pool -- every available model, in the admin's
+ * `priority` order.
+ *
+ * A key that resolves to BLANK is kept as an empty query -- which means "every available model", so it adds
+ * no narrowing, but it is reported in `queries` and, if it is first, still decides the set and its order. It is
+ * deliberately NOT dropped: a restriction that disappears when a setting happens to be blank is the one
+ * failure this command must not have. Use `models_query/<name>@optional:` to drop a key when its value is
+ * empty -- an explicit choice, not a default.
+ *
+ * **The FIRST query decides the set and its order; each later one only reduces it.** One rule, no arbitration
+ * over whose `sort:` wins. Order is the order the keys are authored in, whatever they're named.
+ *
  * Bare `llm.router:` is the usual form; `llm.router/<name>:` disambiguates two calls in the same block (KATA
  * keys are unique among siblings), the same way `record.search/ticket:` does.
  *
- * ⚠ Don't hardcode a `router:` in code that ships to other environments -- the name is yours, not theirs.
- * That's the same portability problem as hardcoding `models:`, one level up. Portable automations name an
- * AGENT and let it carry the router.
+ * This command is for when the list is needed **as data** — to round-robin it, weight it by cost, skip a model
+ * over a rate or spend budget, balance across credentials, or feed two commands from one resolution. To simply
+ * USE models, let `llm.agent:` fall through to the default pool.
  */
 class LlmRouterAction extends AbstractAction {
 	const ID = 'llm.router';
@@ -62,17 +80,58 @@ class LlmRouterAction extends AbstractAction {
 
 			// Inputs validation
 
-			// Optional on purpose: omitting it is the common case and resolves the DEFAULT router, so a portable
-			// automation never has to name one.
-			$validation->addField('router', 'router:')
-				->string()
-				->setMaxLength(255)
-			;
+			// Collected in AUTHOR order, which is what makes "the first query owns the set and the order" a rule
+			// rather than an arbitration. `models_query:` and `models_query/<name>:` are the same thing here --
+			// the name is for the reader, and for KATA's requirement that sibling keys be unique.
+			$queries = [];
+			$query_labels = [];
 
-			if(false === ($validation->validateAll($inputs, $error)))
-				throw new Exception_DevblocksAutomationError($error);
+			foreach($inputs as $input_key => $input_value) {
+				if('models_query' !== $input_key && !str_starts_with(strval($input_key), 'models_query/'))
+					continue;
+
+				// An array or object is an authoring mistake -- almost certainly a list block, which is the shape
+				// this input deliberately does NOT take (one query per key is what lets the editor autocomplete it).
+				if(!is_null($input_value) && !is_string($input_value) && !is_numeric($input_value))
+					throw new Exception_DevblocksAutomationError(sprintf(
+						"`%s:` must be a single agent model search. Give each query its own `models_query/<name>:` key.",
+						$input_key
+					));
+
+				// ⚠ A key that resolves to BLANK is kept, as an empty query. It is NOT silently dropped.
+				//
+				// Dropping it would be the one direction this command must never move in: a
+				// `models_query/pool: {{config.models_query}}` that an admin hasn't filled in would quietly stop
+				// narrowing, and a policy that vanishes when a setting is blank looks exactly like one being
+				// honored. An empty query still participates -- it reports in `queries`, and if it is FIRST it
+				// still owns the set and its order.
+				//
+				// To genuinely drop a key when its value is empty, annotate it: `models_query/pool@optional:`.
+				// That is an explicit authoring choice rather than a default.
+				$queries[] = trim(strval($input_value ?? ''));
+				$query_labels[] = strval($input_key);
+			}
+
+			// Validated per key so an error names the one that's wrong rather than the whole block.
+			foreach($query_labels as $i => $label) {
+				$validation->reset();
+
+				$validation->addField($label, $label . ':')
+					->string()
+					->setMaxLength(65535)
+				;
+
+				// validateAll() takes its values BY REFERENCE, so this can't be an inline literal.
+				$check = [$label => $queries[$i]];
+
+				if(false === ($validation->validateAll($check, $error)))
+					throw new Exception_DevblocksAutomationError($error);
+			}
 
 			// Policy
+			//
+			// `models_query:` carries no scope dimension on purpose: it can only narrow a pool that
+			// `status:available` already bounds, so there is no privilege for a policy to withhold.
 
 			$action_dict = DevblocksDictionaryDelegate::instance([
 				'node' => [
@@ -88,22 +147,31 @@ class LlmRouterAction extends AbstractAction {
 				throw new Exception_DevblocksAutomationError($error);
 			}
 
-			$router = $this->_resolveRouter(strval($inputs['router'] ?? ''));
+			// Resolution. Each query is resolved and cached SEPARATELY, then intersected in code.
+			//
+			// Never concatenate the queries into one string. The root group's boolean mode is decided by its
+			// first `T_BOOL` token and applies to every sibling, so a fragment holding a top-level `OR` would
+			// turn the whole thing into a UNION -- a WIDER pool than either query asked for, which is the one
+			// direction this must never go.
 
-			// The dict is passed through so a per-model `disabled@bool: {{...}}` in the router's document is
-			// evaluated against the calling automation's state, not left as a literal.
-			$models = $router->getModels($dict, $models_error);
+			$query_error = null;
+			$names = DAO_AgentModel::intersectQueryModelNames($queries, $query_error);
+
+			if($query_error)
+				throw new Exception_DevblocksAutomationError($query_error);
+
+			$models = DAO_AgentModel::mapNamesToModels($names);
 
 			if(!$models) {
-				throw new Exception_DevblocksAutomationError(sprintf(
-					"The `%s` model router resolved no usable models.%s",
-					$router->name,
-					$models_error ? ' ' . $models_error : ' Every entry is missing or its model record is disabled.'
-				));
+				throw new Exception_DevblocksAutomationError(
+					$queries
+						? sprintf("`llm.router:` resolved no available models for: %s", implode('; ', $queries))
+						: "`llm.router:` resolved no available models. Every agent model is unlisted, disabled, or missing."
+				);
 			}
 
 			$dict->set($output, [
-				'router' => $router->name,
+				'queries' => array_combine($query_labels, $queries),
 				'models' => $models,
 			]);
 
@@ -128,41 +196,5 @@ class LlmRouterAction extends AbstractAction {
 		}
 
 		return $this->node->getParent()->getId();
-	}
-
-	/**
-	 * `cerb:agent_model_router:<name>` | `<name>` | '' (the default).
-	 *
-	 * Parsed as a string rather than through parseURI(), for the same reason `LlmAgentNode::_resolveAgentWorker()`
-	 * does: no context-registry dependency, so it stays pure and headless-testable.
-	 *
-	 * @throws Exception_DevblocksAutomationError when nothing resolves -- never silently falls back to the
-	 *         default, because running the wrong models is worse than not running.
-	 */
-	private function _resolveRouter(string $ref) : \Model_AgentModelRouter {
-		$ref = trim($ref);
-
-		if('' === $ref) {
-			if(!($router = DAO_AgentModelRouter::getDefault()))
-				throw new Exception_DevblocksAutomationError(
-					"No default agent model router is configured. Create one, or name a `router:`."
-				);
-
-			return $router;
-		}
-
-		if(str_starts_with($ref, 'cerb:')) {
-			$parts = explode(':', $ref);
-
-			if(3 !== count($parts) || 'agent_model_router' !== ($parts[1] ?? ''))
-				throw new Exception_DevblocksAutomationError(sprintf("`router: %s` isn't an agent model router URI.", $ref));
-
-			$ref = strval($parts[2]);
-		}
-
-		if(!($router = DAO_AgentModelRouter::getByName($ref)))
-			throw new Exception_DevblocksAutomationError(sprintf("`router: %s` doesn't match an agent model router.", $ref));
-
-		return $router;
 	}
 }

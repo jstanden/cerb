@@ -1538,12 +1538,7 @@ class Model_Automation extends DevblocksRecordModel {
 			'metric.increment' => [['param' => ['inputs','metric_name'], 'subject' => 'inputs.metric_name', 'style' => 'in_list', 'label' => 'metric_name']],
 			'file.read' => $fileUri, 'file.write' => $fileUri,
 			'function' => [['param' => ['uri'], 'subject' => 'uri', 'style' => 'in_list', 'label' => 'uri']],
-			// `llm.router` scopes on the router NAME — unlike its llm.* siblings, which take a model block that
-			// isn't a single nameable thing. Omitting `router:` (the default-router path) reads as DYNAMIC and so
-			// grants unscoped, which is right: an automation that doesn't name a router should keep working when
-			// an admin changes which one is default.
-			'llm.router' => [['param' => ['inputs','router'], 'subject' => 'inputs.router', 'style' => 'in_list', 'label' => 'router']],
-			// Enforced but not statically scopable → bare allow.
+			'llm.router' => [],
 			'llm.chat' => [], 'llm.embed' => [], 'llm.agent' => [], 'data.query' => [],
 			'email.parse' => [], 'encrypt.pgp' => [], 'decrypt.pgp' => [],
 		];

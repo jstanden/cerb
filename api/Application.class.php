@@ -5633,7 +5633,8 @@ class _CerbApplication_KataSchemas {
                         types:
                           object:
                             attributes:
-                              router:
+                              models_query:
+                                multiple@bool: yes
                                 types:
                                   string:
                       output:

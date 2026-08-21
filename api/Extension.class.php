@@ -1176,7 +1176,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'caption' => 'llm.router:',
 				'snippet' => "llm.router:\n\tinputs:\n\t\t\${1:}\n\toutput: routed\n\t#on_success:\n\t#on_error:\n",
 				'description' => "Resolve an agent model router to a `models:` list",
-				'docHTML' => 'Resolve an <b>agent model router</b> to the <code>models:</code> map that <code>llm.agent:</code>, <code>llm.chat:</code>, and <code>agentPrompt</code> consume &mdash; then feed it with <code>model@key: routed:models</code>.<br><br>Use this only when the list needs <b>handling before it\'s consumed</b> (filtering, round-robin, feeding two commands from one resolution). To simply USE the models, name an <code>agent:</code> or omit the config entirely and the default router supplies them.<br><br>Omitting <code>router:</code> resolves the default router &mdash; which is what portable automations should do, since a hardcoded router name is yours, not the customer\'s.',
+				'docHTML' => 'Resolve one or more <b>agent model searches</b> to the <code>models:</code> map that <code>llm.agent:</code>, <code>llm.chat:</code>, and <code>agentPrompt</code> consume &mdash; then feed it with <code>model@key: routed:models</code>.<br><br>Nothing here names a model. The caller states what the <b>work</b> needs as a query; an admin states what the <b>org</b> allows as another; the results are intersected. Because a query can only ever <b>narrow</b> the pool, this grants an automation nothing it didn\'t already have.<br><br>Use it when the list is needed <b>as data</b> &mdash; to round-robin it, weight it by cost, skip a model over a rate or spend budget, or balance across credentials. To simply USE models, omit <code>llm:</code> and <code>model:</code> and the command runs on every available model in the admin\'s <code>priority</code> order.',
 			],
 			[
 				'caption' => 'log:',
@@ -1952,15 +1952,22 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'(.*):llm.router:' => $action_base,
 				'(.*):llm.router:inputs:' => [
 					[
-						'caption' => 'router:',
-						'snippet' => "router: \${1}",
+						'caption' => 'models_query/',
+						'snippet' => "models_query/\${1:vision}@text: \${2:hasVision:y}",
 						'score' => 2000,
-						'docHTML' => 'The agent model router to resolve, by name. <b>Omit it</b> to use the system default &mdash; which is what portable automations should do, since a hardcoded router name is yours and not the customer\'s.',
+						'docHTML' => 'An <b>agent model search</b>, one per key. Each is resolved separately and the results are <b>intersected</b>, so the <b>FIRST</b> key decides the set and its order, and every later one can only narrow it further &mdash; never widen it.<br><br>That is how what the WORK needs composes with what the ORG allows, without either naming a model: <code>models_query/work: hasVision:y</code> from the automation, <code>models_query/pool: {{config.models_query}}</code> from a workflow\'s configuration. Both are hard requirements.<br><br>The name after the slash is for the reader (and to keep sibling keys unique) &mdash; it has no meaning beyond the order it appears in.<br><br>A key whose value resolves to <b>blank</b> is kept as an empty query &mdash; it narrows nothing, but it is still reported and, if it is first, still decides the order. It is deliberately not dropped: a restriction that disappears when a setting happens to be blank looks exactly like one being honored. Annotate it <code>models_query/&lt;name&gt;@optional:</code> to drop the key when its value is empty.<br><br><b>Omit it entirely</b> for every available model in the admin\'s <code>priority</code> order, which is what a portable automation should do when the work has no special requirement.<br><br>Queries can only ever <b>narrow</b> the pool: unlisted and disabled models are excluded before yours is applied, so this can\'t reach a model an admin has taken out of circulation.',
+					],
+					[
+						'caption' => 'models_query:',
+						'snippet' => "models_query: \${1:hasVision:y}",
+						'score' => 1999,
+						'docHTML' => 'The single-query form. Identical to one <code>models_query/&lt;name&gt;:</code> key &mdash; use the named form as soon as there are two, so the reader can see which is which.',
 					],
 				],
-				// Plain names, not `cerb:` URIs: `router:` only ever points at one record type, so a URI prefix
-				// disambiguates nothing. Looped over the records, so a new router shows up on reload.
-				'(.*):llm.router:inputs:router:' => DevblocksPlatform::services()->llm()->getKataAgentModelRouterAutocomplete(),
+				'(.*):llm.router:inputs:models_query:' => [
+					'type' => 'search-query',
+					'params' => ['record_type' => 'agent_model'],
+				],
 
 				'(.*):llm.chat:' => $action_base,
 				'(.*):llm.chat:inputs:' => [
