@@ -3919,6 +3919,7 @@ class CerbPatch_Core_v12_0_0 {
 				`rating_speed` tinyint unsigned NOT NULL DEFAULT 0,
 				`rating_privacy` tinyint unsigned NOT NULL DEFAULT 0,
 				`rating_cost` tinyint unsigned NOT NULL DEFAULT 0,
+				`priority` tinyint unsigned NOT NULL DEFAULT 50,
 				`params_kata` text,
 				`status` tinyint unsigned NOT NULL DEFAULT 0,
 				`created_at` int unsigned NOT NULL DEFAULT 0,
@@ -3958,6 +3959,9 @@ class CerbPatch_Core_v12_0_0 {
 			// Three states replace the is_disabled bit: 0=available, 1=unlisted, 2=disabled.
 			if(!array_key_exists('status', $columns))
 				$changes[] = "ADD COLUMN status tinyint unsigned NOT NULL DEFAULT 0";
+
+			if(!array_key_exists('priority', $columns))
+				$changes[] = "ADD COLUMN priority tinyint unsigned NOT NULL DEFAULT 50";
 
 			if($changes)
 				$this->_db->ExecuteMaster("ALTER TABLE agent_model " . implode(', ', $changes));

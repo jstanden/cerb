@@ -13,6 +13,7 @@ class DAO_AgentModel extends Cerb_ORMHelper {
 	const MODEL = 'model';
 	const NAME = 'name';
 	const PARAMS_KATA = 'params_kata';
+	const PRIORITY = 'priority';
 	const PROVIDER = 'provider';
 	const RATING_COST = 'rating_cost';
 	const RATING_INTELLIGENCE = 'rating_intelligence';
@@ -166,6 +167,15 @@ class DAO_AgentModel extends Cerb_ORMHelper {
 			->addField(self::PARAMS_KATA)
 			->string()
 			->setMaxLength(65535)
+			;
+		// The admin's fixed default ORDER for routed pools, ascending (0 first, 255 last) -- the same `priority`
+		// convention as `automation_event_listener`, `mail_routing_rule`, `search_index`, and `toolbar_section`.
+		// Leads QUERY_DEFAULT_SORT; any explicit `sort:` in a query overrides it entirely.
+		$validation
+			->addField(self::PRIORITY)
+			->number()
+			->setMin(0)
+			->setMax(255)
 			;
 		// An LLM provider extension id (`anthropic`, `openai`, ...) -- the `llm:<provider>:` block key.
 		$validation
@@ -380,7 +390,7 @@ class DAO_AgentModel extends Cerb_ORMHelper {
 
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 
-		$sql = "SELECT api_endpoint_url, connected_account_id, context_window, created_at, has_thinking, has_vision, icon, icon_color, id, label, model, name, params_kata, provider, rating_cost, rating_intelligence, rating_privacy, rating_speed, status, updated_at " .
+		$sql = "SELECT api_endpoint_url, connected_account_id, context_window, created_at, has_thinking, has_vision, icon, icon_color, id, label, model, name, params_kata, priority, provider, rating_cost, rating_intelligence, rating_privacy, rating_speed, status, updated_at " .
 			"FROM agent_model " .
 			$where_sql .
 			$sort_sql .
@@ -666,6 +676,7 @@ class DAO_AgentModel extends Cerb_ORMHelper {
 			$object->model = $row['model'];
 			$object->name = $row['name'];
 			$object->params_kata = $row['params_kata'];
+			$object->priority = intval($row['priority']);
 			$object->provider = $row['provider'];
 			$object->rating_cost = intval($row['rating_cost']);
 			$object->rating_intelligence = intval($row['rating_intelligence']);
@@ -725,6 +736,7 @@ class DAO_AgentModel extends Cerb_ORMHelper {
 			"agent_model.label as %s, " .
 			"agent_model.model as %s, " .
 			"agent_model.name as %s, " .
+			"agent_model.priority as %s, " .
 			"agent_model.provider as %s, " .
 			"agent_model.rating_cost as %s, " .
 			"agent_model.rating_intelligence as %s, " .
@@ -744,6 +756,7 @@ class DAO_AgentModel extends Cerb_ORMHelper {
 			SearchFields_AgentModel::LABEL,
 			SearchFields_AgentModel::MODEL,
 			SearchFields_AgentModel::NAME,
+			SearchFields_AgentModel::PRIORITY,
 			SearchFields_AgentModel::PROVIDER,
 			SearchFields_AgentModel::RATING_COST,
 			SearchFields_AgentModel::RATING_INTELLIGENCE,
@@ -799,6 +812,7 @@ class SearchFields_AgentModel extends DevblocksSearchFields {
 	const LABEL = 'a_label';
 	const MODEL = 'a_model';
 	const NAME = 'a_name';
+	const PRIORITY = 'a_priority';
 	const PROVIDER = 'a_provider';
 	const RATING_COST = 'a_rating_cost';
 	const RATING_INTELLIGENCE = 'a_rating_intelligence';
@@ -916,6 +930,7 @@ class SearchFields_AgentModel extends DevblocksSearchFields {
 			self::LABEL => new DevblocksSearchField(self::LABEL, 'agent_model', 'label', $translate->_('dao.agent_model.label'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::MODEL => new DevblocksSearchField(self::MODEL, 'agent_model', 'model', $translate->_('dao.agent_model.model'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'agent_model', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::PRIORITY => new DevblocksSearchField(self::PRIORITY, 'agent_model', 'priority', $translate->_('common.priority'), Model_CustomField::TYPE_NUMBER, true),
 			self::PROVIDER => new DevblocksSearchField(self::PROVIDER, 'agent_model', 'provider', $translate->_('dao.agent_model.provider'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::RATING_COST => new DevblocksSearchField(self::RATING_COST, 'agent_model', 'rating_cost', $translate->_('dao.agent_model.rating_cost'), Model_CustomField::TYPE_NUMBER, true),
 			self::RATING_INTELLIGENCE => new DevblocksSearchField(self::RATING_INTELLIGENCE, 'agent_model', 'rating_intelligence', $translate->_('dao.agent_model.rating_intelligence'), Model_CustomField::TYPE_NUMBER, true),
@@ -955,6 +970,7 @@ class Model_AgentModel extends DevblocksRecordModel {
 	public $model;
 	public $name;
 	public $params_kata;
+	public $priority;
 	public $provider;
 	public $rating_cost;
 	public $rating_intelligence;
@@ -1140,13 +1156,13 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 			SearchFields_AgentModel::NAME,
 			SearchFields_AgentModel::PROVIDER,
 			SearchFields_AgentModel::MODEL,
+			SearchFields_AgentModel::PRIORITY,
 			SearchFields_AgentModel::CONNECTED_ACCOUNT_ID,
 			SearchFields_AgentModel::CONTEXT_WINDOW,
 			SearchFields_AgentModel::HAS_VISION,
 			SearchFields_AgentModel::HAS_THINKING,
 			SearchFields_AgentModel::RATING_INTELLIGENCE,
 			SearchFields_AgentModel::RATING_PRIVACY,
-			SearchFields_AgentModel::STATUS,
 			SearchFields_AgentModel::UPDATED_AT,
 		];
 
@@ -1217,6 +1233,7 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 				case SearchFields_AgentModel::CONTEXT_WINDOW:
 				case SearchFields_AgentModel::HAS_THINKING:
 				case SearchFields_AgentModel::HAS_VISION:
+				case SearchFields_AgentModel::PRIORITY:
 				case SearchFields_AgentModel::PROVIDER:
 				case SearchFields_AgentModel::RATING_COST:
 				case SearchFields_AgentModel::RATING_INTELLIGENCE:
@@ -1294,6 +1311,22 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 			case SearchFields_AgentModel::CONNECTED_ACCOUNT_ID:
 				$label_map = function(array $values) use ($column) {
 					return SearchFields_AgentModel::getLabelsForKeyValues($column, $values);
+				};
+				$counts = $this->_getSubtotalCountForNumberColumn($context, $column, $label_map, 'in');
+				break;
+
+			case SearchFields_AgentModel::PRIORITY:
+				// Raw numbers read fine here (they ARE the interface), but 50 is the neutral default, so say so --
+				// otherwise a column of "50" looks like someone set it deliberately.
+				$label_map = function(array $values) {
+					$map = [];
+
+					foreach($values as $value)
+						$map[$value] = (50 == $value)
+							? sprintf('%d (%s)', $value, DevblocksPlatform::translate('common.default'))
+							: strval($value);
+
+					return $map;
 				};
 				$counts = $this->_getSubtotalCountForNumberColumn($context, $column, $label_map, 'in');
 				break;
@@ -1459,6 +1492,11 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 			'contextWindow' => [
 				'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 				'options' => ['param_key' => SearchFields_AgentModel::CONTEXT_WINDOW],
+			],
+			'priority' => [
+				'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+				'options' => ['param_key' => SearchFields_AgentModel::PRIORITY],
+				'examples' => ['50', '<50', '>50', '[0..10]'],
 			],
 			'cost' => [
 				'type' => DevblocksSearchCriteria::TYPE_TEXT,
@@ -1689,6 +1727,7 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 			case SearchFields_AgentModel::CONNECTED_ACCOUNT_ID:
 			case SearchFields_AgentModel::CONTEXT_WINDOW:
 			case SearchFields_AgentModel::ID:
+			case SearchFields_AgentModel::PRIORITY:
 			case SearchFields_AgentModel::RATING_COST:
 			case SearchFields_AgentModel::RATING_INTELLIGENCE:
 			case SearchFields_AgentModel::RATING_PRIVACY:
@@ -1785,6 +1824,12 @@ class Context_AgentModel extends Extension_DevblocksContext implements IDevblock
 			'label' => mb_ucfirst($translate->_('dao.agent_model.context_window')),
 			'type' => Model_CustomField::TYPE_NUMBER,
 			'value' => $model->context_window,
+		];
+
+		$properties['priority'] = [
+			'label' => DevblocksPlatform::translateCapitalized('common.priority'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->priority,
 		];
 
 		$properties['created'] = [
@@ -1930,6 +1975,7 @@ class Context_AgentModel extends Extension_DevblocksContext implements IDevblock
 			'api_endpoint_url' => $prefix.$translate->_('dao.agent_model.api_endpoint_url'),
 			'connected_account_id' => $prefix.$translate->_('dao.agent_model.connected_account_id'),
 			'context_window' => $prefix.$translate->_('dao.agent_model.context_window'),
+			'priority' => $prefix.$translate->_('common.priority'),
 			'has_vision' => $prefix.$translate->_('dao.agent_model.has_vision'),
 			'icon' => $prefix.$translate->_('dao.agent_model.icon'),
 			'icon_color' => $prefix.$translate->_('dao.agent_model.icon_color'),
@@ -1955,6 +2001,7 @@ class Context_AgentModel extends Extension_DevblocksContext implements IDevblock
 			'api_endpoint_url' => Model_CustomField::TYPE_SINGLE_LINE,
 			'connected_account_id' => Model_CustomField::TYPE_SINGLE_LINE,
 			'context_window' => Model_CustomField::TYPE_SINGLE_LINE,
+			'priority' => Model_CustomField::TYPE_NUMBER,
 			'has_vision' => Model_CustomField::TYPE_SINGLE_LINE,
 			'icon' => Model_CustomField::TYPE_SINGLE_LINE,
 			'icon_color' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -1996,6 +2043,7 @@ class Context_AgentModel extends Extension_DevblocksContext implements IDevblock
 			$token_values['api_endpoint_url'] = $agent_model->api_endpoint_url;
 			$token_values['connected_account_id'] = $agent_model->connected_account_id;
 			$token_values['context_window'] = $agent_model->context_window;
+			$token_values['priority'] = $agent_model->priority;
 			$token_values['has_vision'] = $agent_model->has_vision;
 			$token_values['icon'] = $agent_model->icon;
 			$token_values['icon_color'] = $agent_model->icon_color;
@@ -2026,6 +2074,7 @@ class Context_AgentModel extends Extension_DevblocksContext implements IDevblock
 			'connected_account_id' => DAO_AgentModel::CONNECTED_ACCOUNT_ID,
 			'context_window' => DAO_AgentModel::CONTEXT_WINDOW,
 			'created_at' => DAO_AgentModel::CREATED_AT,
+			'priority' => DAO_AgentModel::PRIORITY,
 
 			'has_vision' => DAO_AgentModel::HAS_VISION,
 			'icon' => DAO_AgentModel::ICON,

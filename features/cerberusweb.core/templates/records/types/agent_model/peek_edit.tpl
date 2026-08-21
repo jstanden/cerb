@@ -98,6 +98,12 @@
 				</div>
 				<div class="cerb-ui-form--hint"><b>Available</b> is offered by routers. <b>Unlisted</b> is skipped by routers but still runs when an automation names it. <b>Disabled</b> refuses every request.</div>
 			</div>
+
+			<div class="cerb-ui-form--field">
+				<label class="cerb-ui-form--label">{'common.priority'|devblocks_translate|capitalize} <span class="cerb-icons cerb-icon-sort-asc" title="0=first, 255=last; 50=default"></span></label>
+				<div><input type="number" name="priority" min="0" max="255" value="{$model->priority|default:50}" style="width:5em;"></div>
+				<div class="cerb-ui-form--hint">The order routed pools prefer this model in, when nothing asks for a different one. Leave it at <b>50</b> unless you want this model ahead of (or behind) the pack &mdash; equal priority falls back to the ratings, then name.</div>
+			</div>
 		</div>
 
 		{* Display. `provider` can't name the VENDOR: most models arrive over the OpenAI-compatible API

@@ -109,6 +109,7 @@ class PageSection_ProfilesAgentModel extends Extension_PageSection {
 					DAO_AgentModel::CONTEXT_WINDOW => $context_window,
 					DAO_AgentModel::PARAMS_KATA => $params_kata,
 					DAO_AgentModel::STATUS => DevblocksPlatform::importGPC($_POST['status'] ?? null, 'integer', 0),
+					DAO_AgentModel::PRIORITY => DevblocksPlatform::importGPC($_POST['priority'] ?? null, 'integer', 50),
 					DAO_AgentModel::HAS_THINKING => DevblocksPlatform::importGPC($_POST['has_thinking'] ?? null, 'bit', 0),
 					DAO_AgentModel::RATING_COST => DevblocksPlatform::importGPC($_POST['rating_cost'] ?? null, 'integer', 0),
 					DAO_AgentModel::RATING_INTELLIGENCE => DevblocksPlatform::importGPC($_POST['rating_intelligence'] ?? null, 'integer', 0),
