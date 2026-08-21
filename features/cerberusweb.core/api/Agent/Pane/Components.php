@@ -101,7 +101,7 @@ class Components {
 								'required' => true,
 							],
 							'value' => [
-								'description' => 'The complete new value for the field.',
+								'description' => "The complete new value for the field. `name` is an identifier rather than a title: dot-delimited, unique across all automations, and limited to letters, numbers, dots, dashes, and underscores -- no spaces (e.g. `acme.ticket.autoReply`). `trigger` is a trigger extension id (e.g. `cerb.trigger.interaction.worker`), not a label; read the current one with get_fields rather than inventing one. Neither is checked here -- an invalid value is accepted and only rejected when the author saves.",
 								'required' => true,
 							],
 						],
