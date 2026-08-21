@@ -718,7 +718,7 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 			'record_type' => $search_index->record_type
 		];
 
-		if (!($model = DAO_QueueJob::create($model))) {
+		if (!($model = DAO_QueueJob::createFromModel($model))) {
 			$error = 'Failed to create job';
 			return null;
 		}

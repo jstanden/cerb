@@ -271,7 +271,7 @@ class FilesystemImporter {
 			'num_skipped' => $skipped,
 		];
 
-		if(!($queue_job = DAO_QueueJob::create($queue_job))) {
+		if(!($queue_job = DAO_QueueJob::createFromModel($queue_job))) {
 			$error = 'Failed to create the import job.';
 			return null;
 		}

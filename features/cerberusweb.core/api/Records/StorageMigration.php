@@ -74,7 +74,7 @@ class StorageMigration {
 			'record_count' => $record_count,
 		];
 
-		if(!($job = DAO_QueueJob::create($model))) {
+		if(!($job = DAO_QueueJob::createFromModel($model))) {
 			$error = 'Failed to create the migration job';
 			return null;
 		}

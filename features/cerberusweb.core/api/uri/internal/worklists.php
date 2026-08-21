@@ -645,7 +645,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 				'file_name'         => $file_name,
 				'mime_type'         => $mime_type,
 			];
-			$queue_job = DAO_QueueJob::create($queue_job);
+			$queue_job = DAO_QueueJob::createFromModel($queue_job);
 
 			// Generate one queue_message per chunk in a single SQL statement.
 			// The inner subquery dedupes IDs (joins may not be 1:1) and assigns each
@@ -1241,7 +1241,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 					'sync_dupes' => $mapping->getSyncColumns(),
 				]
 			];
-			$queue_job = DAO_QueueJob::create($queue_job);
+			$queue_job = DAO_QueueJob::createFromModel($queue_job);
 			
 			// Create 500 queue messages at once
 			foreach(array_chunk($line_offsets, 500) as $chunk) {

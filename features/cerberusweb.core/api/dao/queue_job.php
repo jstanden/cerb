@@ -24,6 +24,10 @@ class DAO_QueueJob extends Cerb_ORMHelper {
 		$validation = DevblocksPlatform::services()->validation();
 
 		$validation
+			->addField(self::COUNT_TOTAL)
+			->uint(4)
+			;
+		$validation
 			->addField(self::CREATED_AT)
 			->timestamp()
 			;
@@ -31,6 +35,11 @@ class DAO_QueueJob extends Cerb_ORMHelper {
 			->addField(self::ID)
 			->id()
 			->setEditable(false)
+			;
+		$validation
+			->addField(self::METADATA)
+			->string()
+			->setMaxLength(16_777_215)
 			;
 		$validation
 			->addField(self::NAME)
@@ -42,6 +51,11 @@ class DAO_QueueJob extends Cerb_ORMHelper {
 			->addField(self::QUEUE_ID)
 			->id()
 			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_QUEUE))
+			;
+		$validation
+			->addField(self::SINGLETON_KEY)
+			->string()
+			->setMaxLength(255)
 			;
 		$validation
 			->addField(self::STATUS_ID)
@@ -65,32 +79,68 @@ class DAO_QueueJob extends Cerb_ORMHelper {
 		return $validation->getFields();
 	}
 
-	static function create(Model_QueueJob $job) : ?Model_QueueJob {
+	/**
+	 * The standard Records API create: an array of DAO field constants in, a new ID out.
+	 * `metadata` is the raw column value (a JSON string); Context_QueueJob encodes an
+	 * object/array into one before it gets here, and createFromModel() does the same.
+	 */
+	static function create(array $fields) : ?int {
 		$db = DevblocksPlatform::services()->database();
 
-		if(!$job->created_at) $job->created_at = time();
-		if(!$job->updated_at) $job->updated_at = time();
+		$queue_id = intval($fields[self::QUEUE_ID] ?? 0);
+		$singleton_key = strval($fields[self::SINGLETON_KEY] ?? '');
 
 		// If there's a unique key, check for dupes first
-		if($job->singleton_key && ($dupe_job = DAO_QueueJob::getOpenByQueueAndSingleton($job->queue_id, $job->singleton_key))) {
-			return $dupe_job;
-		}
+		if($singleton_key && ($dupe_job = self::getOpenByQueueAndSingleton($queue_id, $singleton_key)))
+			return $dupe_job->id;
 
 		$result = $db->ExecuteMaster(sprintf(
 			"INSERT IGNORE INTO queue_job (queue_id, `name`, singleton_key, status_id, worker_id, metadata, count_total, created_at, updated_at) ".
 			"VALUES (%d, %s, %s, %d, %d, %s, %d, %d, %d)",
-			$job->queue_id,
-			$db->qstr($job->name),
-			$db->qstr($job->singleton_key),
-			$job->status_id,
-			$job->worker_id,
-			$db->qstr(json_encode($job->metadata)),
-			$job->count_total,
-			$job->created_at,
-			$job->updated_at
+			$queue_id,
+			$db->qstr(strval($fields[self::NAME] ?? '')),
+			$db->qstr($singleton_key),
+			intval($fields[self::STATUS_ID] ?? QueueJobStatus::RUNNING->value),
+			intval($fields[self::WORKER_ID] ?? 0),
+			$db->qstr(strval($fields[self::METADATA] ?? json_encode(null))),
+			intval($fields[self::COUNT_TOTAL] ?? 0),
+			intval($fields[self::CREATED_AT] ?? 0) ?: time(),
+			intval($fields[self::UPDATED_AT] ?? 0) ?: time()
 		));
 
 		if(!$result || !($id = $db->LastInsertId()))
+			return null;
+
+		return $id;
+	}
+
+	/**
+	 * Model-shaped adapter over create() for the internal producers (bulk update, export,
+	 * import, storage migration, search reindex), which build a Model_QueueJob rather than
+	 * a field array. Returns the model with its `id` populated, or the pre-existing job when
+	 * a `singleton_key` collides.
+	 */
+	static function createFromModel(Model_QueueJob $job) : ?Model_QueueJob {
+		if(!$job->created_at) $job->created_at = time();
+		if(!$job->updated_at) $job->updated_at = time();
+
+		// A singleton hit returns the job that's already open, not the caller's model
+		if($job->singleton_key && ($dupe_job = self::getOpenByQueueAndSingleton($job->queue_id, $job->singleton_key)))
+			return $dupe_job;
+
+		$id = self::create([
+			self::COUNT_TOTAL => $job->count_total,
+			self::CREATED_AT => $job->created_at,
+			self::METADATA => json_encode($job->metadata),
+			self::NAME => $job->name,
+			self::QUEUE_ID => $job->queue_id,
+			self::SINGLETON_KEY => $job->singleton_key,
+			self::STATUS_ID => $job->status_id,
+			self::UPDATED_AT => $job->updated_at,
+			self::WORKER_ID => $job->worker_id,
+		]);
+
+		if(!$id)
 			return null;
 
 		$job->id = $id;
@@ -1369,9 +1419,11 @@ class Context_QueueJob extends Extension_DevblocksContext implements IDevblocksC
 
 	function getKeyToDaoFieldMap() {
 		return [
+			'count_total' => DAO_QueueJob::COUNT_TOTAL,
 			'created_at' => DAO_QueueJob::CREATED_AT,
 			'id' => DAO_QueueJob::ID,
 			'links' => '_links',
+			'metadata' => DAO_QueueJob::METADATA,
 			'name' => DAO_QueueJob::NAME,
 			'queue_id' => DAO_QueueJob::QUEUE_ID,
 			'singleton_key' => DAO_QueueJob::SINGLETON_KEY,
@@ -1424,6 +1476,27 @@ class Context_QueueJob extends Extension_DevblocksContext implements IDevblocksC
 
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
+			// The column holds JSON, but an automation author writes `metadata:` as a nested
+			// object. Encode it here so both shapes reach the DAO as the raw column value.
+			case 'metadata':
+				if(is_array($value) || is_null($value)) {
+					$out_fields[DAO_QueueJob::METADATA] = json_encode($value);
+
+				} else if(is_string($value)) {
+					json_decode($value, true);
+
+					if(JSON_ERROR_NONE !== json_last_error()) {
+						$error = "'metadata' must be an object or a JSON-encoded string.";
+						return false;
+					}
+
+					$out_fields[DAO_QueueJob::METADATA] = $value;
+
+				} else {
+					$error = "'metadata' must be an object or a JSON-encoded string.";
+					return false;
+				}
+				break;
 		}
 		return true;
 	}
