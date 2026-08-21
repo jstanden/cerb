@@ -25,6 +25,36 @@ class DAO_AgentModel extends Cerb_ORMHelper {
 	const STATUS_UNLISTED = 1;
 	const STATUS_DISABLED = 2;
 
+	// The order a routed pool falls back to when a query names no `sort:` of its own.
+	//
+	// `priority` LEADS, because it is the admin's deliberate fixed order and has to be able to override the
+	// ratings -- "our blessed model first" is exactly the case where the smartest model is not the wanted one.
+	// At a uniform default it contributes nothing and the ratings decide, so an install that ranks nothing sees
+	// no difference. A tier is not a total order either, so `name` is the load-bearing final tie-break: without
+	// it, which of two `frontier` models a caller gets is whatever the database returned, and it can change
+	// between resolves. Unrated (0) sorts last under DESC, which is right for an install that rates nothing.
+	const QUERY_DEFAULT_SORT = 'priority,-intelligence,name';
+
+	// Resolved query results are cached per EXACT query string and invalidated wholesale whenever any model
+	// changes. Tag versioning rather than one big map: the key space is open (any automation may author any
+	// query), so a map would grow without bound and every miss would rewrite it.
+	const CACHE_QUERY_TAG = 'agent_model_query';
+
+	// Insurance only -- the tag bust is the real invalidation. This covers what a write to `agent_model` can't
+	// see: a query with a time-dependent term (`updated:`, later `usage:`), and CUSTOM FIELD or LINK values,
+	// which are written through their own DAOs and never touch this one.
+	const CACHE_QUERY_TTL = 300;
+
+	// ⚠ The platform cache's in-REQUEST registry is NOT tag-aware: once a key has been loaded in this process it
+	// is served from the registry without re-checking tag versions (see `_DevblocksCacheManager::load()`), so a
+	// tag bust alone can't be seen by the request that caused it. An automation that writes an `agent_model` and
+	// then resolves a pool in the same run would read its own stale answer.
+	//
+	// So the key carries a per-PROCESS epoch that `clearQueryCache()` bumps. It is 0 in every request that
+	// doesn't write, so ordinary traffic still shares one set of keys; a writing request moves to its own and
+	// keeps caching normally for the rest of its work.
+	private static int $_query_cache_epoch = 0;
+
 	private function __construct() {}
 
 	static function getFields() {
@@ -237,7 +267,7 @@ class DAO_AgentModel extends Cerb_ORMHelper {
 
 			parent::_update($batch_ids, 'agent_model', $fields);
 
-			DAO_AgentModelRouter::clearQueryModelsCache();
+			self::clearQueryCache();
 
 			if($check_deltas) {
 				DevblocksPlatform::markContextChanged($context, $batch_ids);
@@ -414,6 +444,196 @@ class DAO_AgentModel extends Cerb_ORMHelper {
 	}
 
 	/**
+	 * Run an `agent_model` search and return the matching NAMES in the query's own sort order.
+	 *
+	 * **The query is OPTIONAL.** Blank means every available model -- the zero-config pool, and what makes an
+	 * `llm.agent:` with nothing configured resolve at all. Narrowing is the opt-in, not the baseline.
+	 *
+	 * `status:available` is forced as a REQUIRED param before the caller's string is applied, and required
+	 * params are pure AND-narrowing -- an editable param can never widen past one. That is what makes it safe
+	 * to hand this an automation-authored query: a caller can only ever narrow the pool, never reach an
+	 * unlisted or disabled model.
+	 *
+	 * Cached per EXACT query string, so an ad-hoc string from an automation is as cheap on the second call as a
+	 * stored one, and two callers asking the same thing issue one search. Editing any model invalidates every
+	 * entry (see CACHE_QUERY_TAG).
+	 *
+	 * ⚠ Pass `$nocache` where the answer must reflect an edit made moments ago -- tag versions have ONE-SECOND
+	 * granularity, so a resolve in the same second as a model write can still read the stale entry. Editor
+	 * previews want this; routing does not.
+	 *
+	 * @return string[]
+	 */
+	static function resolveQueryModelNames(string $query, ?string &$error=null, bool $nocache=false) : array {
+		$cache = DevblocksPlatform::services()->cache();
+		$cache_key = sprintf('cerb:agent_model:query:%d:%s', self::$_query_cache_epoch, sha1(trim($query)));
+
+		// A VALID query matching nothing legitimately caches as `[]`, so test the TYPE -- a miss is null.
+		if(!$nocache && is_array($cached = $cache->load($cache_key)))
+			return $cached;
+
+		if(!($context_ext = Extension_DevblocksContext::get(Context_AgentModel::ID, true)))
+			return [];
+
+		$view = $context_ext->getTempView();
+
+		// The constructor seeds a sort, so null it first: that is the only way to tell afterwards whether the
+		// QUERY set one. `sort:` is written to view state rather than to the params array.
+		$view->renderSortBy = null;
+
+		// Membership is enforced HERE, not in each caller's query, so no query author can forget it.
+		$view->addParamsRequiredWithQuickSearch(sprintf('status.id:%d', self::STATUS_AVAILABLE), true);
+
+		// Returns BEFORE the save below on purpose: a query that didn't parse has no result to cache.
+		if('' !== trim($query) && !$view->addParamsWithQuickSearch($query, true, [], $error))
+			return [];
+
+		if(!$view->renderSortBy) {
+			if(($sort = $view->_getSortFromQuickSearchQuery(self::QUERY_DEFAULT_SORT))) {
+				$view->renderSortBy = $sort['sort_by'];
+				$view->renderSortAsc = $sort['sort_asc'];
+			} else {
+				// Only reachable if a key in QUERY_DEFAULT_SORT stops being a quick-search field. Never leave
+				// the sort null: an unordered pool means the model a caller gets can change between resolves.
+				$view->renderSortBy = SearchFields_AgentModel::NAME;
+				$view->renderSortAsc = true;
+			}
+		}
+
+		// Every match, unpaged.
+		$view->renderLimit = 0;
+		$view->renderTotal = false;
+		$view->renderSubtotals = null;
+
+		list($models,) = $view->getData();
+
+		$names = [];
+
+		foreach($models as $row)
+			$names[] = strval($row[SearchFields_AgentModel::NAME] ?? '');
+
+		$names = array_values(array_filter($names));
+
+		// Past epoch 0 the entry is meaningful only to THIS request, so keep it out of the shared cache rather
+		// than leaving keys nobody will read again to age out.
+		$cache->save($names, $cache_key, [self::CACHE_QUERY_TAG], self::CACHE_QUERY_TTL, self::$_query_cache_epoch > 0);
+
+		return $names;
+	}
+
+	/**
+	 * Invalidate every cached query result. Called from `update()` (which `create()` routes through) and
+	 * `delete()`, so any change to any model re-resolves every pool on the next request.
+	 */
+	static function clearQueryCache() : void {
+		DevblocksPlatform::services()->cache()->removeByTags([self::CACHE_QUERY_TAG]);
+
+		// Bumped for this process too -- the tag bust alone is invisible to the request that made it. See the
+		// note on $_query_cache_epoch.
+		self::$_query_cache_epoch++;
+	}
+
+	/**
+	 * Resolve several `agent_model` queries and return the names matching ALL of them.
+	 *
+	 * This is how a caller's hard requirement ("there is an image, so vision") composes with an admin's policy
+	 * ("this org allows ZDR only") without either naming a model or naming the other's records. Both are hard
+	 * sets; they intersect.
+	 *
+	 * **Order comes from the FIRST query.** One rule, no arbitration -- `array_intersect` preserves the first
+	 * array's order, so the first query's `sort:` (or the default) decides ranking and later queries only
+	 * remove.
+	 *
+	 * ⚠ **Each query is parsed SEPARATELY and must stay that way. Do NOT concatenate them.** The root group's
+	 * boolean mode is decided by the first `T_BOOL` token and applies to every sibling, so a fragment holding a
+	 * top-level `OR` turns the whole string into a UNION -- strictly wider than either input, which is the one
+	 * direction this must never go. Concatenation also defeats `sort:`/`limit:` stripping and lets quote and
+	 * paren pairing span the seam.
+	 *
+	 * @param string[] $queries
+	 * @return string[]
+	 */
+	static function intersectQueryModelNames(array $queries, ?string &$error=null) : array {
+		// ⚠ Blank entries are NOT filtered out. A blank query means "every available model", so it narrows
+		// nothing -- but it still counts as a query, which matters because the FIRST one owns the order. Dropping
+		// blanks here would silently hand ordering to the next query and make a caller's declared-but-empty pool
+		// invisible. Callers that want a blank key gone should not pass it (KATA's `@optional` does that).
+		$queries = array_values(array_map(fn($query) => trim(strval($query)), $queries));
+
+		// No queries AT ALL is the zero-config pool.
+		if(!$queries)
+			return self::resolveQueryModelNames('', $error);
+
+		$names = null;
+		$counts = [];
+
+		foreach($queries as $query) {
+			$query_error = null;
+			$matched = self::resolveQueryModelNames($query, $query_error);
+
+			if($query_error) {
+				$error = $query_error;
+				return [];
+			}
+
+			$counts[$query] = count($matched);
+
+			$names = is_null($names) ? $matched : array_intersect($names, $matched);
+		}
+
+		$names = array_values($names ?: []);
+
+		// An empty intersection is otherwise undebuggable, so say what each side contributed.
+		if(!$names) {
+			$error = sprintf("No agent model matches every query (%s).",
+				implode('; ', array_map(
+					fn($query, $count) => sprintf('`%s` matched %d', $query, $count),
+					array_keys($counts),
+					$counts
+				))
+			);
+		}
+
+		return $names;
+	}
+
+	/**
+	 * Names -> the `{<name> => <overrides>}` map that `llm.agent: model:` and `agentPrompt: models:` already
+	 * consume, in the order given.
+	 *
+	 * The status of each record is re-checked HERE rather than trusted from the name, so a stale or cached
+	 * name can never resurrect a model that has since been unlisted or disabled.
+	 *
+	 * @param string[] $names
+	 * @return array `{<name> => []}`
+	 */
+	static function mapNamesToModels(array $names) : array {
+		if(!$names)
+			return [];
+
+		// One pass over the table instead of a getByName() per name -- the recheck has to touch every record
+		// anyway, and N names would otherwise be N queries.
+		$by_name = [];
+
+		foreach(self::getAll() as $record)
+			$by_name[$record->name] = $record;
+
+		$out = [];
+
+		foreach($names as $name) {
+			$name = strval($name);
+			$record = $by_name[$name] ?? null;
+
+			if(!$record || !$record->isAvailable())
+				continue;
+
+			$out[$name] = [];
+		}
+
+		return $out;
+	}
+
+	/**
 	 * @param array $ids
 	 * @return Model_AgentModel[]
 	 */
@@ -480,7 +700,7 @@ class DAO_AgentModel extends Cerb_ORMHelper {
 
 		$db->ExecuteMaster(sprintf("DELETE FROM agent_model WHERE id IN (%s)", $ids_list));
 
-		DAO_AgentModelRouter::clearQueryModelsCache();
+		self::clearQueryCache();
 
 		parent::_deleteAbstractAfter($context, $ids);
 
