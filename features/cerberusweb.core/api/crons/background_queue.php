@@ -27,16 +27,13 @@ class Cron_BackgroundQueue extends CerberusCronPageExtension {
 
 	private function _pollQueues(int $stop_time) : bool {
 		$logger = DevblocksPlatform::services()->log('Background Queue');
-		$db = DevblocksPlatform::services()->database();
-		
-		// Exclude manual
-		$available_counts = $db->GetArrayMaster("SELECT queue_id, COUNT(*) as hits FROM queue_message WHERE status_id = 0 AND claim_id IS NULL AND available_at < UNIX_TIMESTAMP() GROUP BY queue_id, status_id");
-		$available_counts = array_combine(array_column($available_counts, 'queue_id'), array_map('intval', array_column($available_counts, 'hits')));
-		
+
+		$available_counts = DAO_QueueMessage::getAvailableCountsByQueue();
+
 		// Bail out if no work to do
 		if(!$available_counts)
 			return false;
-		
+
 		// Filter available queues
 		$queues = array_filter(DAO_Queue::getAll(), function(Model_Queue $queue) use ($available_counts) {
 			// No available messages

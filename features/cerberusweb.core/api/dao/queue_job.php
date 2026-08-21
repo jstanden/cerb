@@ -475,6 +475,22 @@ class DAO_QueueJob extends Cerb_ORMHelper {
 		);
 	}
 
+	/**
+	 * SQL predicate: this queue_message is eligible to run right now, as far as its JOB is
+	 * concerned. True when the message belongs to no job at all (`job_id = 0`), or to a job
+	 * that is RUNNING.
+	 *
+	 * @param string $table The queue_message table name or alias to qualify against
+	 */
+	public static function getRunnableMessageSql(string $table = 'queue_message') : string {
+		return sprintf(
+			"(%s.job_id = 0 OR EXISTS (SELECT 1 FROM queue_job qj WHERE qj.id = %s.job_id AND qj.status_id = %d))",
+			Cerb_ORMHelper::escape($table),
+			Cerb_ORMHelper::escape($table),
+			QueueJobStatus::RUNNING->value
+		);
+	}
+
 	public static function setStatus(array $job_ids, QueueJobStatus $status) : void {
 		$db = DevblocksPlatform::services()->database();
 
@@ -494,8 +510,11 @@ class DAO_QueueJob extends Cerb_ORMHelper {
 	public static function getAvailableMessages(Model_Queue $queue) : array {
 		$db = DevblocksPlatform::services()->database();
 
+		$sql_runnable = self::getRunnableMessageSql();
+		
 		$sql = sprintf("SELECT job_id, count(*) AS hits FROM queue_message " .
 			"WHERE queue_id = %d AND status_id = 0 AND claim_id IS NULL " .
+			($sql_runnable ? sprintf("AND %s ", $sql_runnable) : "") .
 			"GROUP BY job_id",
 			$queue->id,
 		);

@@ -56,7 +56,37 @@ class DAO_QueueMessage {
 
 		return $results;
 	}
-	
+
+	/**
+	 * Claimable-now message counts per queue: status AVAILABLE, unclaimed, past its
+	 * `available_at`, and belonging to no job or to a RUNNING one. Drives the background
+	 * cron's queue dispatch, so it must agree with dequeue() about what "available" means --
+	 * a queue reported here whose dequeue() then claims nothing makes the cron re-poll for
+	 * its whole budget.
+	 *
+	 * @return array<int,int> queue_id => count
+	 */
+	static function getAvailableCountsByQueue() : array {
+		$db = DevblocksPlatform::services()->database();
+
+		$rows = $db->GetArrayMaster(sprintf(
+			"SELECT queue_id, COUNT(*) AS hits FROM queue_message ".
+			"WHERE status_id = %d AND claim_id IS NULL AND available_at < UNIX_TIMESTAMP() ".
+			"AND %s ".
+			"GROUP BY queue_id, status_id",
+			QueueMessageStatus::AVAILABLE->value,
+			DAO_QueueJob::getRunnableMessageSql()
+		));
+
+		if(!$rows)
+			return [];
+
+		return array_combine(
+			array_column($rows, 'queue_id'),
+			array_map('intval', array_column($rows, 'hits'))
+		);
+	}
+
 	/**
 	 * @param Model_Queue $queue
 	 * @param int|null $limit
@@ -74,10 +104,15 @@ class DAO_QueueMessage {
 		$uuid = Uuid::uuid6($nodeProvider->getNode());
 		$claim_id = '0x' . $uuid->getHex();
 
+		// The job-status gate rides on the CLAIM, not on the callers. Every consumer reaches
+		// work through here -- the cron, the monitor widget's browser workers, and an
+		// automation's `queue.pop` -- so this is the one place that can make a PAUSED job
+		// actually stop. See DAO_QueueJob::getRunnableMessageSql().
 		$db->ExecuteWriter(
 			sprintf(
 				"UPDATE queue_message SET status_id=%d, claim_id=%s, claimed_at=%d ".
-				"WHERE queue_id=%d %sAND status_id=%d AND claim_id IS NULL AND available_at <= %d LIMIT %d",
+				"WHERE queue_id=%d %sAND status_id=%d AND claim_id IS NULL AND available_at <= %d ".
+				"AND %s LIMIT %d",
 				QueueMessageStatus::IN_FLIGHT->value,
 				$db->escape($claim_id),
 				time(),
@@ -85,6 +120,7 @@ class DAO_QueueMessage {
 				!is_null($job_id) ? sprintf("AND job_id=%d ", $job_id) : '',
 				QueueMessageStatus::AVAILABLE->value,
 				time(),
+				DAO_QueueJob::getRunnableMessageSql(),
 				$limit
 			)
 		);
