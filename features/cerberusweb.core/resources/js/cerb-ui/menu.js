@@ -41,7 +41,10 @@ CerbUI.Menu = class {
 		onRenderItem: null,   // (renderedLi, sourceLi) after the label, before the arrow — the icon hook
 		panelClass: null,     // extra class added to every panel <ul> (root + floating submenus) so panel-scoped
 		                      // styling (e.g. command-bar tiles) reaches submenus appended to <body>
-		clearActiveOnLeave: false, // drop the hover highlight when the pointer leaves a panel (no submenu open)
+		clearActiveOnLeave: false, // when the pointer leaves the whole cascade, drop the hover highlight and
+		                           // collapse any open submenus back to the root panel
+		leaveDelay: 150,      // ms grace before clearActiveOnLeave acts, so crossing the gutter into a submenu
+		                      // (a mouseleave to <body>) doesn't yank it away mid-transit
 		itemHeight: 28,       // px; MUST match the .cerb-ui-menu--item CSS height (virt math depends on it)
 		maxHeight: 380,       // px before a panel scrolls; or 'viewport' to grow into the available viewport height
 		virtThreshold: 60,    // virtualize panels larger than this
@@ -86,6 +89,7 @@ CerbUI.Menu = class {
 		this.pnls = [];
 		this.hoverTimer = null;
 		this.hoverCloseTimer = null;
+		this.leaveTimer = null;
 		this.hoverMouseInside = false;
 		this.filterPinned = false; // a live filter query keeps a hover menu open even when the mouse leaves
 		this.triggerEnter = null;
@@ -240,6 +244,7 @@ CerbUI.Menu = class {
 	close() {
 		if(this.hoverTimer !== null) { clearTimeout(this.hoverTimer); this.hoverTimer = null; }
 		if(this.hoverCloseTimer !== null) { clearTimeout(this.hoverCloseTimer); this.hoverCloseTimer = null; }
+		this._cancelLeave();
 		const wasOpen = this.pnls.length > 0;
 		for(const p of this.pnls) (p.outer || p.el).remove();
 		this.pnls = [];
@@ -317,8 +322,10 @@ CerbUI.Menu = class {
 
 		el.addEventListener('mouseover', (e) => this._onOver(e, pnl));
 		el.addEventListener('click', (e) => this._onClickItem(e, pnl));
-		if(this.opts.clearActiveOnLeave)
-			el.addEventListener('mouseleave', () => this._onLeave(pnl));
+		if(this.opts.clearActiveOnLeave) {
+			el.addEventListener('mouseenter', () => this._cancelLeave());
+			el.addEventListener('mouseleave', (e) => this._onLeave(pnl, e));
+		}
 		if(this.opts.hoverTrigger) {
 			el.addEventListener('mouseenter', () => this._hoverIn());
 			el.addEventListener('mouseleave', () => this._hoverOut());
@@ -712,13 +719,35 @@ CerbUI.Menu = class {
 		}
 	}
 
-	// Pointer left the panel: drop the hover highlight so nothing stays stuck-active (opt-in via
-	// clearActiveOnLeave). Skipped while a submenu is open below this panel — that row stays lit as the path.
-	_onLeave(pnl) {
-		if(this.pnls.length > pnl.depth + 1) return;
-		const actives = pnl.el.querySelectorAll('.cerb-ui-menu--item-active');
-		for(let i = 0; i < actives.length; i++) actives[i].classList.remove('cerb-ui-menu--item-active');
-		pnl.activeIdx = -1;
+	// Pointer left the cascade: drop the hover highlight and collapse the open submenus back to the root, so
+	// nothing stays stuck-active and expanded until the next click (opt-in via clearActiveOnLeave). Moving
+	// between panels isn't leaving — but a panel and its submenu are separated by a 2px gutter, so a straight
+	// horizontal move reports a mouseleave to <body> on the way in. Hence the deferral: any panel re-entry
+	// within leaveDelay cancels it.
+	_onLeave(pnl, e) {
+		const to = e ? e.relatedTarget : null;
+		if(to && (this._hitTest(to) || (this.anchor && this.anchor.contains(to)))) return;
+
+		this._cancelLeave();
+		this.leaveTimer = window.setTimeout(() => {
+			this.leaveTimer = null;
+			if(this.hoverTimer !== null) { clearTimeout(this.hoverTimer); this.hoverTimer = null; }
+
+			while(this.pnls.length > 1) {
+				const popped = this.pnls.pop();
+				if(popped) (popped.outer || popped.el).remove();
+			}
+
+			const root = this.pnls[0];
+			if(!root) return;
+			const actives = root.el.querySelectorAll('.cerb-ui-menu--item-active');
+			for(let i = 0; i < actives.length; i++) actives[i].classList.remove('cerb-ui-menu--item-active');
+			root.activeIdx = -1;
+		}, this.opts.leaveDelay);
+	}
+
+	_cancelLeave() {
+		if(this.leaveTimer !== null) { clearTimeout(this.leaveTimer); this.leaveTimer = null; }
 	}
 
 	_select(renderedLi, sourceLi, e) {

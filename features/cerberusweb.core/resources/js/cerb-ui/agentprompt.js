@@ -461,6 +461,8 @@ CerbUI.AgentPrompt = class {
 
 		this._modelMenu = new CerbUI.Menu(ul, {
 			selectableParents: true,   // clicking a model row selects it (default effort); hover opens its submenu
+			clearActiveOnLeave: true,  // move off the menu and the row un-highlights and its effort submenu folds
+			                           // back up, rather than sitting lit until the next click
 			panelClass: 'cerb-ui-agentprompt--model-menu',
 			itemHeight: stacked ? 44 : 28,
 			onRenderItem: (renderedLi, sourceLi) => {
