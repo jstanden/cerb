@@ -454,17 +454,15 @@ class DAO_QueueJob extends Cerb_ORMHelper {
 
 		if(!$job_ids) return [];
 
-		// A job is finished when it has no non-terminal messages left. Test this
-		// live against queue_message rather than the cached count_* columns: status
-		// 0 covers both ready and retry-deferred (scheduled) messages, so a job with
-		// pending retries correctly stays unfinished until those resolve.
+		// An running job is done when it has no non-terminal messages left
 		$sql = sprintf(
 			"SELECT id, name, queue_id, worker_id, singleton_key, status_id, metadata, count_total, created_at, updated_at ".
 			"FROM queue_job ".
 			"WHERE id IN (%s) ".
-			"AND status_id NOT IN (2, 3) ".
+			"AND status_id = %d ".
 			"AND NOT EXISTS (SELECT 1 FROM queue_message qm WHERE qm.job_id = queue_job.id AND qm.status_id IN (0,1))",
-			implode(',', $job_ids)
+			implode(',', $job_ids),
+			QueueJobStatus::RUNNING->value
 		);
 		$results = $db->GetArrayMaster($sql);
 
