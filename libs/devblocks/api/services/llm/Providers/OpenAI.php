@@ -174,6 +174,35 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, ChatStreami
 	}
 
 	/**
+	 * Author-supplied request-body keys, merged verbatim into the top level.
+	 *
+	 * Named and shaped after the OpenAI SDK's `extra_body`, deliberately: an OpenAI-compatible server
+	 * documents its extensions as `extra_body={...}` snippets, and an author who can transcribe one
+	 * straight into KATA gets it right. Like the SDK, the CONTENTS merge into the request body -- so
+	 * `extra_body: chat_template_kwargs: reasoning_effort: medium` puts a top-level `chat_template_kwargs`
+	 * on the wire, not a key called `extra_body`. (Gemini's getChatCompletionsParams() sends a literal
+	 * `extra_body` key because Google's compat layer really does accept one; that's their wire, not ours.)
+	 *
+	 * This exists because the OpenAI-compatible ecosystem puts its knobs somewhere other than where the
+	 * OpenAI spec does, and a fixed set of typed params can't keep up. The case that forced it: Apple-silicon
+	 * oMLX serving Qwen3 forwards `chat_template_kwargs` to the Jinja template but does NOT map the standard
+	 * top-level `reasoning_effort` into it -- so `effort:` reaches the server, is dropped on the floor, and
+	 * NOTHING says so. Measured on a live endpoint: an invalid level returned 200 and no level was
+	 * distinguishable from sending none. llama.cpp, vLLM, SGLang and unsloth all have their own such keys.
+	 */
+	protected function _getExtraBodyParams() : array {
+		$extra = $this->getParam('extra_body');
+
+		if(!is_array($extra) || !$extra)
+			return [];
+
+		// Cerb owns the request's STRUCTURE -- the conversation, the model, the tool schemas, and whether the
+		// turn streams are all resolved from the session, and a passthrough that could overwrite them would
+		// break a turn in ways no error message would explain. Everything else is the author's business.
+		return array_diff_key($extra, array_flip(['model', 'messages', 'stream', 'stream_options', 'tools']));
+	}
+
+	/**
 	 * Canonical `effort:` -> OpenAI's `reasoning_effort` wire param. Verbatim -- levels are version-dependent
 	 * (GPT-5: minimal|low|medium|high; GPT-5.4 adds none|xhigh; GPT-5.6 adds max) and validated by the API,
 	 * not here. The legacy `reasoning_effort:` authoring key was removed in 11.2 (standardized on `effort:`).
@@ -333,7 +362,16 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, ChatStreami
 		if($provider_params) {
 			$body_payload = array_merge($body_payload, $provider_params);
 		}
-		
+
+		// The author's escape hatch gets the LAST word, including over the tool guardrail above. An escape
+		// hatch a guardrail can overrule isn't one -- and overruling this particular guardrail is loud (the
+		// API refuses the turn and names the reason), which is the right shape for "I know what I'm doing".
+		//
+		// RECURSIVE, not shallow: an author routinely sets several keys inside one container over more than
+		// one line, and a container this replaces wholesale would silently drop whatever else was in it.
+		if(($extra_body = $this->_getExtraBodyParams()))
+			$body_payload = array_replace_recursive($body_payload, $extra_body);
+
 		$body = json_encode($body_payload);
 		
 		$request = new Request($verb, $url, $headers, $body);
@@ -761,12 +799,15 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, ChatStreami
 				'authentication:',
 				['caption' => 'effort:', 'snippet' => "effort: medium", 'docHTML' => '<b>effort:</b>Reasoning effort (empty = provider default). Version-dependent values, e.g. <code>none|minimal|low|medium|high|xhigh|max</code>.'],
 				['caption' => 'stream@bool:', 'snippet' => 'stream@bool: no', 'docHTML' => '<b>stream@bool:</b>Stream the response (default <code>yes</code>). Streaming replaces the request timeout with an inactivity cutoff, so a long turn is not killed partway through, and it lets a running turn be stopped. Set <code>no</code> for an OpenAI-compatible endpoint that does not stream correctly.'],
+				['caption' => 'extra_body:', 'snippet' => "extra_body:\n\tchat_template_kwargs:\n\t\treasoning_effort: \${1:medium}", 'docHTML' => '<b>extra_body:</b>Extra request-body keys, merged verbatim into the top level &mdash; the same meaning the OpenAI SDK\'s <code>extra_body</code> has, so a vendor\'s snippet transcribes directly. For an OpenAI-<i>compatible</i> server whose knobs aren\'t where the OpenAI spec puts them: oMLX and vLLM read reasoning out of <code>chat_template_kwargs</code> and ignore the standard top-level <code>reasoning_effort</code> entirely, so <code>effort:</code> alone does nothing there. <b>A level sent this way is validated by the chat template</b> &mdash; Qwen3 accepts only <code>low|medium|xhigh</code> and fails the request on anything else, where before it was silently dropped. Cerb keeps <code>model</code>, <code>messages</code>, <code>tools</code>, <code>stream</code> and <code>stream_options</code>; anything else you set here wins, including over <code>effort:</code>.'],
 			],
 			'values' => [
 				'model:' => $this->getChatModels(),
 				'authentication:' => ['type' => 'cerb-uri', 'params' => ['connected_account' => null]],
 				'api_endpoint_url:' => ['https://api.openai.com', 'http://host.docker.internal:8080'],
 				'effort:' => $this->getEffortLevels(),
+				'extra_body:' => ['chat_template_kwargs:'],
+				'extra_body:chat_template_kwargs:' => ['reasoning_effort: medium', 'enable_thinking@bool: no', 'preserve_thinking@bool: yes'],
 			],
 		];
 	}
