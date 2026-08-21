@@ -91,8 +91,29 @@ class ActionNode extends AbstractNode {
 		
 		if(array_key_exists($action_type, $action_classes)) {
 			$action_class = new $action_classes[$action_type]($this->node); /* @var $action_class AbstractAction */
-			
-			if(false !== ($return_state = $action_class->activate($automation, $dict, $node_memory, $error))) {
+
+			// Backstop. Each action catches Exception_DevblocksAutomationError for its own expected
+			// failures, but a \Error (a TypeError from a DAO with a non-standard signature, say) isn't
+			// an Exception and escapes every one of them — ending the whole request as a raw 500 with
+			// nothing in the automation log, because only the automation-error path writes there.
+			// Converting it here gives every action the same floor: the automation fails, the reason is
+			// logged, and the request survives. Deliberately NOT routed to `on_error:` — that's for
+			// failures an author anticipates, and swallowing a platform bug there would hide it.
+			try {
+				$return_state = $action_class->activate($automation, $dict, $node_memory, $error);
+
+			} catch(\Throwable $e) {
+				\DevblocksPlatform::logException($e);
+
+				$error = sprintf("[%s] An unexpected error occurred: %s",
+					$this->node->getId(),
+					$e->getMessage()
+				);
+
+				return false;
+			}
+
+			if(false !== $return_state) {
 				// Otherwise parent
 				if($return_state) {
 					return $return_state;
@@ -102,7 +123,7 @@ class ActionNode extends AbstractNode {
 			} else {
 				return false;
 			}
-			
+
 		} else {
 			$error = sprintf("Unknown action `%s`", $action_type);
 			return false;
