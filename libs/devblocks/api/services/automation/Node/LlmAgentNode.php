@@ -25,10 +25,6 @@ class LlmAgentNode extends AbstractNode {
 	// the message that didn't send) has nowhere else to put it.
 	private array $_output_error_extra = [];
 
-	// The router that supplied this turn's model, when one did. Empty on a pure resume (nothing was chosen)
-	// and on an inline `llm:` / explicit `model:` turn. Surfaced in the node output so an implicit default is
-	// traceable -- "why did this run Haiku" has no answer otherwise.
-	private string $_router_name = '';
 	private DevblocksDictionaryDelegate $_dict;
 	private array $_node_memory = [];
 
@@ -105,10 +101,10 @@ class LlmAgentNode extends AbstractNode {
 				// `llm:` (manual) always WINS: `model:` is consulted only when `llm:` is omitted (see
 				// _reconcileSession), so the two never merge and a provider mismatch can't arise.
 				//
-				// It is no longer REQUIRED. With no `session_id:`, no `llm:` and no `model:`, the DEFAULT agent
-				// model router supplies the models -- the zero-config path. That moves "no models anywhere" from
-				// a parse-time error to a runtime one, deliberately: whether any model exists isn't knowable when
-				// the script is validated.
+				// It is no longer REQUIRED. With no `session_id:`, no `llm:` and no `model:`, every AVAILABLE
+				// agent model is offered in `priority` order -- the zero-config path. That moves "no models
+				// anywhere" from a parse-time error to a runtime one, deliberately: whether any model exists
+				// isn't knowable when the script is validated.
 				$validation->addField('llm', 'llm:')
 					->array();
 
@@ -620,20 +616,11 @@ class LlmAgentNode extends AbstractNode {
 			return;
 		}
 
-		// Nothing named ANYWHERE and no session to resume → the AGENT's router if `agent:` named one, else the
-		// default. This is the zero-config path: an `llm.agent:` that says nothing about models runs on whatever
-		// the environment prefers, so a shipped automation never has to name one.
-		//
-		// ⚠ ORDER IS LOAD-BEARING: this sits AFTER the pure-resume branch. If it ran first, every turn of an
-		// agentPrompt-driven conversation would re-prime to the router's first model and silently override the
-		// model a human actually picked.
-		if(($default_models = $llm->getAgentRouterModels($this->_agent_worker_id, $this->_dict))) {
+		if(($default_models = \DAO_AgentModel::mapNamesToModels(\DAO_AgentModel::resolveQueryModelNames('')))) {
 			$router_error = null;
 
 			if(null !== ($resolved = $llm->resolveModelInput($default_models, $router_error))) {
 				list($incoming_provider, $incoming_params) = $resolved;
-
-				$this->_router_name = $llm->getResolvedRouterName($this->_agent_worker_id);
 
 				if(!($reconciled = $llm->reconcileSession($session_id, $incoming_provider, $incoming_params, $this->_sessionCreateFields($automation))))
 					throw new Exception_DevblocksAutomationError("Failed to prime the LLM session.");
@@ -645,7 +632,7 @@ class LlmAgentNode extends AbstractNode {
 			}
 		}
 
-		throw new Exception_DevblocksAutomationError("`llm.agent` has no models. Give it a `session_id:` (primed by an agentPrompt or a prior turn), an `llm:` block, or a `model:` reference — or configure a default agent model router.");
+		throw new Exception_DevblocksAutomationError("`llm.agent` has no models. Give it a `session_id:` (primed by an agentPrompt or a prior turn), an `llm:` block, or a `model:` reference -- or make at least one agent model available.");
 	}
 
 	// Ownership/lineage columns stamped on a session the node creates.
@@ -1392,22 +1379,10 @@ class LlmAgentNode extends AbstractNode {
 		return true;
 	}
 
-	/**
-	 * What actually ran, for the node output: `provider`, `model`, and (when this turn chose it) `router`.
-	 *
-	 * Read off the SESSION rather than the inputs, so it's correct however the model was selected -- an inline
-	 * `llm:` block, a `model:` reference, an implicit default router, or a pure resume of a session someone else
-	 * primed. That last case is the reason this exists: with the default router, nothing in the script names a
-	 * model, so without this an author has no way to see which one answered.
-	 *
-	 * `router` is empty unless THIS turn resolved one -- a resumed turn didn't choose anything, and claiming
-	 * otherwise would misreport history.
-	 */
 	private function _resolvedModelInfo(?string $session_id) : array {
 		$out = [
 			'provider' => '',
 			'model' => '',
-			'router' => $this->_router_name,
 		];
 
 		if($session_id && ($session = \DAO_LlmAgentSession::get($session_id))) {

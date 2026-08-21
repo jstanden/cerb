@@ -529,16 +529,17 @@ CerbUI.AgentPrompt = class {
 					const row = document.createElement('span');
 					row.className = 'cerb-ui-agentprompt--meters';
 
-					const glyphs = { intelligence: 'brain', speed: 'zap', privacy: 'lock', cost: 'coins' };
-
+					// The glyph and hue come from the server with the tier, so an axis's identity is one fact
+					// on Model_AgentModel rather than a map here that has to agree with one in CSS.
 					meters.forEach(r => {
 						const meter = document.createElement('span');
-						meter.className = 'cerb-ui-agentprompt--meter cerb-ui-agentprompt--meter-' + r.key;
+						meter.className = 'cerb-ui-agentprompt--meter'
+							+ (r.color ? ' cerb-ui-agentprompt--meter-' + r.color : '');
 						meter.title = r.key.charAt(0).toUpperCase() + r.key.slice(1)
 							+ ': ' + (r.label || 'unrated') + ' (as configured)';
 
 						const g = document.createElement('span');
-						g.className = 'cerb-icons cerb-icon-' + (glyphs[r.key] || 'circle');
+						g.className = 'cerb-icons cerb-icon-' + (r.icon || 'circle');
 						meter.appendChild(g);
 
 						// Discrete blocks, not a bar: the scale HAS four steps and nothing between them, and

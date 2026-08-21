@@ -60,7 +60,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			->setNotEmpty(false)
 			->addValidator(function($string, &$error=null) {
 				if(0 != strcasecmp($string, DevblocksPlatform::strAlphaNum($string, '-._'))) {
-					$error = "may only contain letters, numbers, dashes, and dots";
+					$error = "may only contain letters, numbers, dots, dashes, and underscores";
 					return false;
 				}
 				
@@ -3779,11 +3779,6 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			
 			// Time Format
 			$tpl->assign('time_format', DevblocksPlatform::getDateTimeFormat());
-
-			// The AI tab's model router chooser seeds its chip from the assigned router. The chooser's own
-			// autocomplete supplies the rest (and omits disabled routers -- they can't be resolved).
-			if($worker && ($router_id = DAO_Agent::getModelRouterId($worker->id)))
-				$tpl->assign('agent_model_router', DAO_AgentModelRouter::get($router_id));
 
 			$tpl->display('devblocks:cerberusweb.core::workers/peek_edit.tpl');
 

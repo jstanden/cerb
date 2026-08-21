@@ -317,15 +317,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 						CerberusApplication::sendEmailTemplate($updated_worker->getEmailString(), 'worker_invite', $values);
 					}
 					
-					// The AI tab's model router. Upserted into the `agent` satellite rather than a worker column:
-					// an agent row exists only for workers that have AI config, and `worker` is cached whole.
-					// Written for AI workers only -- flipping a worker back to human shouldn't silently keep a
-					// routing override that would apply again if it were ever flipped back.
-					if($is_ai) {
-						DAO_Agent::upsert($updated_worker->id, [
-							DAO_Agent::MODEL_ROUTER_ID => DevblocksPlatform::importGPC($_POST['model_router_id'] ?? null, 'integer', 0),
-						]);
-					} else {
+					if(!$is_ai) {
 						DAO_Agent::deleteByWorkerIds([$updated_worker->id]);
 					}
 

@@ -837,14 +837,6 @@
 			<class name="View_AgentModel" />
 		</file>
 
-		<file path="api/dao/agent_model_router.php">
-			<class name="Context_AgentModelRouter" />
-			<class name="DAO_AgentModelRouter" />
-			<class name="Model_AgentModelRouter" />
-			<class name="SearchFields_AgentModelRouter" />
-			<class name="View_AgentModelRouter" />
-		</file>
-
 		<file path="api/dao/agent_file.php">
 			<class name="Context_AgentFile" />
 			<class name="DAO_AgentFile" />
@@ -1232,49 +1224,6 @@
 			</params>
 		</extension>
 
-		<extension point="devblocks.context">
-			<id>cerb.contexts.agent.model.router</id>
-			<name>Agent Model Router</name>
-			<class>
-				<file>api/dao/agent_model_router.php</file>
-				<name>Context_AgentModelRouter</name>
-			</class>
-			<params>
-				<param key="names">
-					<value>
-						<data key="agent model router" value="singular" />
-						<data key="agent model routers" value="plural" />
-					</value>
-				</param>
-				<param key="alias" value="agent_model_router" />
-				<param key="icon" value="bot-route" />
-				<param key="dao_class" value="DAO_AgentModelRouter" />
-				<param key="view_class" value="View_AgentModelRouter" />
-				<param key="options">
-					<value>
-						<data key="cards" />
-						<data key="comments" />
-						<data key="custom_fields" />
-						<data key="links" />
-						<data key="records" />
-						<data key="search" />
-						<data key="snippets" />
-						<data key="va_variable" />
-						<data key="watchers" />
-						<data key="workspace" />
-					</value>
-				</param>
-				<param key="acl">
-					<value>
-						<data key="comment" />
-						<data key="create" />
-						<data key="delete" />
-						<data key="export" />
-						<data key="update" />
-					</value>
-				</param>
-			</params>
-		</extension>
 
 		<extension point="devblocks.context">
 			<id>cerb.contexts.agent.filesystem</id>
@@ -6551,18 +6500,6 @@
 				</params>
 			</extension>
 
-			<extension point="cerberusweb.ui.page.section">
-				<id>cerberusweb.page.profiles.agent_model_router</id>
-				<name>Agent Model Router Section</name>
-				<class>
-					<file>api/profiles/agent_model_router.php</file>
-					<name>PageSection_ProfilesAgentModelRouter</name>
-				</class>
-				<params>
-					<param key="page_id" value="core.page.profiles" />
-					<param key="uri" value="agent_model_router" />
-				</params>
-			</extension>
 
 			<extension point="cerberusweb.ui.page.section">
 				<id>cerberusweb.page.profiles.agent_file</id>

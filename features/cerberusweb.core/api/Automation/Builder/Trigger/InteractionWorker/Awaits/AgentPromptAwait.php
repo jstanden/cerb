@@ -488,12 +488,11 @@ class AgentPromptAwait extends AbstractAwait {
 				return $out;
 		}
 
-		// Nothing configured -> the AGENT's router if `agent:` named one, else the DEFAULT. This is the
-		// zero-config path: an agentPrompt that says nothing about models offers whatever the environment
-		// prefers, so a shipped interaction never has to name one. No dict here (the await has none -- see
-		// AbstractAwait), so a router entry's `disabled@bool: {{...}}` stays literal; entries whose record is
-		// missing or disabled are still dropped.
-		foreach(DevblocksPlatform::services()->llm()->getAgentRouterModels($this->_getAgentWorkerId()) as $name => $overrides) {
+		// Nothing configured -> every AVAILABLE model, in the admin's `priority` order. This is the zero-config
+		// path: an agentPrompt that says nothing about models offers whatever the environment prefers, so a
+		// shipped interaction never has to name one. Entries whose record is missing or disabled are still
+		// dropped by _resolveModelEntry().
+		foreach(\DAO_AgentModel::mapNamesToModels(\DAO_AgentModel::resolveQueryModelNames('')) as $name => $overrides) {
 			if(($entry = $this->_resolveModelEntry(strval($name), is_array($overrides) ? $overrides : [])))
 				$out[strval($name)] = $entry;
 		}
@@ -512,15 +511,6 @@ class AgentPromptAwait extends AbstractAwait {
 		return $out;
 	}
 
-	/**
-	 * `agent:` → the AI worker this prompt is for, or 0. Identity AND (via its satellite) which router supplies
-	 * the model catalog — naming an agent is what lets a SHIPPED interaction avoid naming models at all.
-	 *
-	 * Accepts the same shapes `llm.agent:`'s `agent:` does (`@mention` | handle | id | `cerb:worker:<id|mention>`),
-	 * because an author shouldn't have to remember two grammars for the same reference. A non-AI or disabled
-	 * worker resolves to 0 and falls through to the default router rather than erroring: a picker that quietly
-	 * offers the environment default is better than a composer that won't render.
-	 */
 	private function _getAgentWorkerId() : int {
 		if('' === ($ref = trim(strval($this->_data['agent'] ?? ''))))
 			return 0;
@@ -624,18 +614,20 @@ class AgentPromptAwait extends AbstractAwait {
 
 	/**
 	 * Stored rating tiers -> what the picker draws: one meter per axis, `level` of `of`, with the tier's own
-	 * word for the tooltip. Resolved HERE rather than on the client so `Model_AgentModel::getRatingScale()`
-	 * stays the single place a stored value becomes a label.
+	 * word for the tooltip plus the axis's glyph and hue. Resolved HERE rather than on the client so
+	 * `Model_AgentModel` stays the single place a stored value becomes a label, a glyph, or a color.
 	 *
 	 * Every axis is emitted, rated or not -- an unrated axis draws an EMPTY track, which is what keeps the
 	 * columns comparable down the list instead of leaving a hole.
 	 */
 	private function _buildRatingMeters(mixed $ratings) : array {
 		$ratings = is_array($ratings) ? $ratings : [];
+		$colors = \Model_AgentModel::getRatingColors();
+		$icons = \Model_AgentModel::getRatingIcons();
 		$out = [];
 
 		foreach(\Model_AgentModel::getRatings() as $key) {
-			$scale = \Model_AgentModel::getRatingScale($key);
+			$scale = \Model_AgentModel::getRatingScaleLabels($key);
 			$tiers = array_keys($scale);
 			$value = intval($ratings[$key] ?? 0);
 			$level = $value ? (array_search($value, $tiers, true) + 1) : 0;
@@ -645,6 +637,8 @@ class AgentPromptAwait extends AbstractAwait {
 				'level' => $level ?: 0,
 				'of' => count($tiers),
 				'label' => $scale[$value] ?? '',
+				'color' => $colors[$key] ?? '',
+				'icon' => $icons[$key] ?? '',
 			];
 		}
 

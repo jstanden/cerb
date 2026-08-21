@@ -47,10 +47,6 @@ class LlmChatAction extends AbstractAction {
 			
 			// Inputs validation
 			
-			// `llm:` (manual) always WINS. It is no longer REQUIRED: with neither `llm:` nor `model:`, the
-			// default agent model router supplies the models (see _resolveLlmBlock), which is the zero-config
-			// path. That moves "no models anywhere" from a parse-time error to a runtime one -- deliberately,
-			// since whether models exist isn't knowable when the script is validated.
 			$validation->addField('llm', 'llm:')
 				->array();
 
@@ -145,13 +141,15 @@ class LlmChatAction extends AbstractAction {
 		if($error)
 			throw new Exception_DevblocksAutomationError($error);
 
-		// Nothing named at all -> the default router. This is the zero-config path: an automation that says
-		// nothing about models runs on whatever the environment prefers.
-		if(($resolved = $llm->resolveModelInput($llm->getDefaultRouterModels($this->_dict), $error)))
+		// `llm.chat` has no session, so this resolves per CALL rather than being stamped once. To narrow the pool,
+		// resolve it with `llm.router:` and pass the result in as `model:`.
+		$pool = \DAO_AgentModel::mapNamesToModels(\DAO_AgentModel::resolveQueryModelNames(''));
+
+		if(($resolved = $llm->resolveModelInput($pool, $error)))
 			return $resolved;
 
 		throw new Exception_DevblocksAutomationError(
-			"`llm.chat` has no models. Name an `llm:` block or a `model:` reference, or configure a default agent model router."
+			"`llm.chat` has no models. Name an `llm:` block or a `model:` reference, or make at least one agent model available."
 		);
 	}
 

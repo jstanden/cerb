@@ -5843,11 +5843,6 @@ For example: *receipt*</seg>
 				<seg>Provider</seg>
 			</tuv>
 		</tu>
-		<tu tuid="dao.agent.model_router_id">
-			<tuv xml:lang="en_US">
-				<seg>Model Router</seg>
-			</tuv>
-		</tu>
 		<!-- Agent File -->
 		<tu tuid="dao.agent_file.content">
 			<tuv xml:lang="en_US">

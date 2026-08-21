@@ -1657,7 +1657,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 						'caption' => 'agent:',
 						'snippet' => "agent: @\${1:mention}",
 						'score' => 2001,
-						'docHTML' => 'Run as an <b>AI worker</b> &mdash; whom the turn is attributed to, AND (via that agent\'s <b>model router</b>) where its models come from. Takes an <code>@mention</code>, a bare handle, a worker id, or a <code>cerb:worker:&lt;id|mention&gt;</code> URI.<br><br>An explicit <code>model:</code> or <code>llm:</code> still wins; naming an agent is what lets a <b>portable</b> automation avoid naming models at all. Omit everything and the system default router is used.',
+						'docHTML' => 'Run as an <b>AI worker</b> whom the turn is attributed to, whose memory it uses, and whose credentials it holds. Takes an <code>@mention</code>, a bare handle, a worker id, or a <code>cerb:worker:&lt;id|mention&gt;</code> URI.<br><br><b>Identity only</b> &mdash; an agent does not decide which models are available. Omit <code>llm:</code> and <code>model:</code> and this turn runs on every <b>available</b> agent model in the admin\'s <code>priority</code> order, which is what a portable automation should do. To constrain that, resolve a pool with <code>llm.router:</code> and pass it in as <code>model@key:</code>.',
 					],
 					[
 						'caption' => 'model:',

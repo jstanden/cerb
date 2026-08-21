@@ -3801,11 +3801,6 @@ class CerbPatch_Core_v12_0_0 {
 		// `worker` gains `is_ai` — an AI worker is a first-class worker (assignable, @mentionable, ownable, holds
 		// OAuth/API credentials) that can never log in interactively.
 		//
-		// NOTE: model config was originally kept OFF the persona entirely. That was REVERSED later in this same
-		// release: an agent now points at an `agent_model_router` (the `agent` satellite below), and naming an
-		// `agent:` is what lets a portable automation avoid naming models. The models themselves are still their
-		// own records -- what changed is that the persona may now select among them.
-		
 		if ($this->_revision < 1541) {
 			list($columns,) = $this->_db->metaTable('worker');
 			
@@ -3980,70 +3975,25 @@ class CerbPatch_Core_v12_0_0 {
 		}
 	}
 
-	private function patchTableAgentModelRouter() : void {
+	private function patchDropTableAgentModelRouter() : void {
 		// ===========================================================================
-		// `agent_model_router` — a NAMED, ORDERED, opt-in set of `agent_model` records, addressable as
-		// `cerb:agent_model_router:<name>`. `name` IS the uri, same rule as `agent_model.name`.
+		// `agent_model_router` is REMOVED. Once a router sourced its members from a QUERY, the record was only a
+		// NAME wrapped around one -- and the name was the fragile half: `hasVision:y` is Cerb's own vocabulary,
+		// valid on every install, while `router: vision` demanded a record that had to exist everywhere, forever.
 		//
-		// Why a record and not a setting: automations that ship (ours) can't name a customer's models, and only
-		// records are installable -- the package importer resolves `configure: prompts:` of type `chooser` against
-		// a record context and has no concept of a setting. A workflow `chooser/` can only point at record types
-		// too. So a shipped harness can prompt "which router?" at install and bind the local one.
+		// Where each job the record did went instead:
+		//   - a shared, named pool          -> a custom field on `agent_model` (`tier:gold`), just as opt-in
+		//   - taking a model out of service -> `agent_model.status = unlisted`; one switch, every pool
+		//   - a caller asking for a pool    -> `llm.router:` with `models_query/<name>:` capability queries
+		//   - the install-wide default      -> every AVAILABLE model, in `agent_model.priority` order
 		//
-		// `models_kata` is the SAME grammar as `agentPrompt: models:` -- a ranked list of model names, each with
-		// optional overrides -- except the `models:` wrapper is IMPLIED, since the whole document is the list.
-		// A `<name>/<alias>:` key mounts the same record twice (different account, endpoint, or knobs); the
-		// record name is always the first segment, so an alias can never drift to another provider.
-		// A KATA doc rather than an ordered id list on purpose: it's a code include shared across every agent, so
-		// it wants to be diffable, packageable, and expressive enough to be a real router.
-		//
-		// `is_default` is on the ROUTER, not the model: there is always one router to fall back to, so nothing
-		// fails. Single-winner, like `worker_group.is_default`.
+		// The table never shipped -- it was created in this same 12.0 patch, never in an 11.x one -- so it is
+		// dropped outright rather than deprecated. Only development installs can have one.
 
-		if(!isset($this->_tables['agent_model_router'])) {
-			$this->_db->ExecuteMaster("
-				CREATE TABLE `agent_model_router` (
-				`id` bigint unsigned NOT NULL AUTO_INCREMENT,
-				`name` varchar(128) NOT NULL DEFAULT '',
-				`label` varchar(128) NOT NULL DEFAULT '',
-				`description` varchar(255) NOT NULL DEFAULT '',
-				`models_query` text,
-				`models_kata` text,
-				`created_at` int unsigned NOT NULL DEFAULT 0,
-				`updated_at` int unsigned NOT NULL DEFAULT 0,
-				PRIMARY KEY (`id`),
-				UNIQUE KEY `name` (`name`),
-				INDEX `updated_at` (`updated_at`)
-				) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-			") or die("[MySQL Error] " . $this->_db->ErrorMsgMaster());
-
-			$this->_tables['agent_model_router'] = 'agent_model_router';
-
-		} else {
-			list($columns,) = $this->_db->metaTable('agent_model_router');
-
-			// Membership as an `agent_model` search rather than a hand-maintained list.
-			if(!array_key_exists('models_query', $columns))
-				$this->_db->ExecuteMaster("ALTER TABLE agent_model_router ADD COLUMN models_query text AFTER description");
-
-			// The default is the record NAMED `default` -- a unique name can't drift into "none" or "two" the
-			// way a single-winner flag can, and it needs no auto-promote on delete.
-			if(array_key_exists('is_default', $columns)) {
-				if(!$this->_db->GetOneMaster("SELECT id FROM agent_model_router WHERE name = 'default'")) {
-					if(($default_id = $this->_db->GetOneMaster("SELECT id FROM agent_model_router WHERE is_default = 1 LIMIT 1")))
-						$this->_db->ExecuteMaster(sprintf("UPDATE agent_model_router SET name = 'default' WHERE id = %d", $default_id));
-				}
-
-				$this->_db->ExecuteMaster("ALTER TABLE agent_model_router DROP COLUMN is_default");
-			}
-
-			// A router's availability is entirely its query: one that matches nothing already errors. A second
-			// off-switch could only contradict the first.
-			if(array_key_exists('is_disabled', $columns))
-				$this->_db->ExecuteMaster("ALTER TABLE agent_model_router DROP COLUMN is_disabled");
+		if(isset($this->_tables['agent_model_router'])) {
+			$this->_db->ExecuteMaster("DROP TABLE IF EXISTS `agent_model_router`");
+			unset($this->_tables['agent_model_router']);
 		}
-
-		// No seed row yet -- see the plan's 4h. The default is whichever record is named `default`.
 	}
 
 	private function patchTableAgent() : void {
@@ -4064,15 +4014,22 @@ class CerbPatch_Core_v12_0_0 {
 			$this->_db->ExecuteMaster("
 				CREATE TABLE `agent` (
 				`worker_id` int unsigned NOT NULL,
-				`model_router_id` int unsigned NOT NULL DEFAULT 0,
 				`created_at` int unsigned NOT NULL DEFAULT 0,
 				`updated_at` int unsigned NOT NULL DEFAULT 0,
-				PRIMARY KEY (`worker_id`),
-				INDEX `model_router_id` (`model_router_id`)
+				PRIMARY KEY (`worker_id`)
 				) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 			") or die("[MySQL Error] " . $this->_db->ErrorMsgMaster());
 
 			$this->_tables['agent'] = 'agent';
+
+		} else {
+			list($columns,) = $this->_db->metaTable('agent');
+
+			// `model_router_id` went away with the router record. The TABLE stays: an agent is an identity, and
+			// the columns already queued for it (system prompt, mounts, token budget) still want this row --
+			// dropping and re-adding an unreleased table would be churn for nothing.
+			if(array_key_exists('model_router_id', $columns))
+				$this->_db->ExecuteMaster("ALTER TABLE agent DROP COLUMN model_router_id");
 		}
 	}
 

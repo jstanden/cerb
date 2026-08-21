@@ -209,30 +209,10 @@
 		{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_WORKER context_id=$worker->id}
 	</div>
 
-	{* ─────────────── AI ───────────────
-
-	   Shown only when Type = AI. Deliberately EMPTY for now: models are their own records (`agent_model`),
-	   decoupled from the persona, so nothing model-shaped belongs here. This tab is where the event-listener
-	   bindings (@mentions, notifications, assignments) will land. *}
+	{* ─────────────── AI ─────────────── *}
 	<div id="{$form_id}Ai">
 		<div class="cerb-ui-panel cerb-ui-panel--spaced">
-			<div class="cerb-ui-form">
-				<div class="cerb-ui-form--field">
-					<label class="cerb-ui-form--label">{'dao.agent.model_router_id'|devblocks_translate|capitalize}</label>
-					<div class="cerb-ui-record-chooser" id="routerChooser_{$form_id}">
-						{if $agent_model_router}
-							<li data-context-id="{$agent_model_router->id}" data-label="{$agent_model_router->getDisplayName()}"></li>
-						{/if}
-					</div>
-					<div class="cerb-ui-form--hint">
-						Which models this agent may use, in preferred order. An automation that names this agent
-						with <code>agent:</code> gets them without naming any model &mdash; which is what lets a
-						shared automation run anywhere. Leave it empty to follow the system default router.
-					</div>
-				</div>
-			</div>
-			<div class="cerb-u-text-muted cerb-u-mt-2">
-				Event-listener bindings (<b>@mentions</b>, notifications, assignments) will live here too.
+			<div class="cerb-u-text-muted">
 			</div>
 		</div>
 	</div>
@@ -488,16 +468,8 @@ $(function() {
 		if(window.CerbUI && CerbUI.ImageEditor)
 			$popup.find('[data-cerb-image-editor]').each(function() { new CerbUI.ImageEditor(this); });
 
-		// Record choosers (email / alternate emails / availability calendar / AI model router)
+		// Record choosers (email / alternate emails / availability calendar)
 		if(window.CerbUI && CerbUI.RecordChooser) {
-			// The AI tab's model router. `alias` rather than the full context id, matching the siblings.
-			new CerbUI.RecordChooser($popup.find('#routerChooser_{$form_id}')[0], {
-				context: 'agent_model_router',
-				name: 'model_router_id',
-				emptyIcon: 'bot-route',
-				searchPlaceholder: "{'common.default'|devblocks_translate|capitalize|escape:'javascript' nofilter}",
-			});
-
 			new CerbUI.RecordChooser($popup.find('#emailChooser_{$form_id}')[0], {
 				context: 'address',
 				name: 'email_id',

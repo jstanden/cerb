@@ -793,7 +793,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 							'caption' => 'agent:',
 							'snippet' => "agent: \${1:@cerb}",
 							'score' => 1990,
-							'docHTML' => 'The AI worker this prompt is for &mdash; an <code>@mention</code>, a bare handle, an id, or <code>cerb:worker:&lt;id|mention&gt;</code> (the same shapes <code>llm.agent:</code> accepts).<br><br>Supplies the model catalog via the agent\'s <b>model router</b>, so a portable interaction can name an agent instead of naming models. <b>Omit both this and <code>models:</code></b> and the system default router is used.',
+							'docHTML' => 'The AI worker this prompt is for: an <code>@mention</code>, a bare handle, an id, or <code>cerb:worker:&lt;id|mention&gt;</code> (the same shapes <code>llm.agent:</code> accepts).<br><br><b>Identity only</b>: whom the conversation is attributed to and whose memory it uses. It does <b>not</b> supply the model catalog. Omit <code>models:</code> and the worker is offered every <b>available</b> model in the admin\'s <code>priority</code> order; to narrow that, resolve a pool with <code>llm.router:</code> and pass it in as <code>models@key:</code>.',
 						],
 						[
 							'caption' => 'models:',

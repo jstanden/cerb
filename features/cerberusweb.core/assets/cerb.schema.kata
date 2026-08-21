@@ -196,14 +196,6 @@ tables:
         key@text:
         default: 0
         extra@text:
-      model_router_id:
-        field: model_router_id
-        type: int unsigned
-        collation@text:
-        nullable: NOT NULL
-        key: MUL
-        default: 0
-        extra@text:
       updated_at:
         field: updated_at
         type: int unsigned
@@ -228,13 +220,6 @@ tables:
             index_type: BTREE
             subpart@text:
             unique: 1
-      model_router_id:
-        columns:
-          model_router_id:
-            column_name: model_router_id
-            index_type: BTREE
-            subpart@text:
-            unique@text:
   agent_file:
     columns:
       content:
@@ -656,94 +641,6 @@ tables:
             index_type: BTREE
             subpart@text:
             unique@text:
-      updated_at:
-        columns:
-          updated_at:
-            column_name: updated_at
-            index_type: BTREE
-            subpart@text:
-            unique@text:
-  agent_model_router:
-    columns:
-      created_at:
-        field: created_at
-        type: int unsigned
-        collation@text:
-        nullable: NOT NULL
-        key@text:
-        default: 0
-        extra@text:
-      description:
-        field: description
-        type: varchar(255)
-        collation: utf8mb4_unicode_ci
-        nullable: NOT NULL
-        key@text:
-        default@text:
-        extra@text:
-      id:
-        field: id
-        type: bigint unsigned
-        collation@text:
-        nullable: NOT NULL
-        key: PRI
-        default@text:
-        extra: auto_increment
-      label:
-        field: label
-        type: varchar(128)
-        collation: utf8mb4_unicode_ci
-        nullable: NOT NULL
-        key@text:
-        default@text:
-        extra@text:
-      models_kata:
-        field: models_kata
-        type: text
-        collation: utf8mb4_unicode_ci
-        nullable: NULL
-        key@text:
-        default@text:
-        extra@text:
-      models_query:
-        field: models_query
-        type: text
-        collation: utf8mb4_unicode_ci
-        nullable: NULL
-        key@text:
-        default@text:
-        extra@text:
-      name:
-        field: name
-        type: varchar(128)
-        collation: utf8mb4_unicode_ci
-        nullable: NOT NULL
-        key: UNI
-        default@text:
-        extra@text:
-      updated_at:
-        field: updated_at
-        type: int unsigned
-        collation@text:
-        nullable: NOT NULL
-        key: MUL
-        default: 0
-        extra@text:
-    indexes:
-      PRIMARY:
-        columns:
-          id:
-            column_name: id
-            index_type: BTREE
-            subpart@text:
-            unique: 1
-      name:
-        columns:
-          name:
-            column_name: name
-            index_type: BTREE
-            subpart@text:
-            unique: 1
       updated_at:
         columns:
           updated_at:

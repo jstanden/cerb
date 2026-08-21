@@ -13,7 +13,6 @@
  */
 class DAO_Agent extends Cerb_ORMHelper {
 	const WORKER_ID = 'worker_id';
-	const MODEL_ROUTER_ID = 'model_router_id';
 	const CREATED_AT = 'created_at';
 	const UPDATED_AT = 'updated_at';
 
@@ -23,7 +22,7 @@ class DAO_Agent extends Cerb_ORMHelper {
 	 * Every agent row, keyed by worker id. Cached whole (there are few of them, and the model-routing path
 	 * reads one on every agent turn).
 	 *
-	 * @return array `{worker_id => {model_router_id, created_at, updated_at}}`
+	 * @return array `{worker_id => {created_at, updated_at}}`
 	 */
 	static function getAll($nocache=false) : array {
 		$cache = DevblocksPlatform::services()->cache();
@@ -33,11 +32,10 @@ class DAO_Agent extends Cerb_ORMHelper {
 
 			$rows = [];
 
-			$results = $db->GetArrayMaster("SELECT worker_id, model_router_id, created_at, updated_at FROM agent") ?: [];
+			$results = $db->GetArrayMaster("SELECT worker_id, created_at, updated_at FROM agent") ?: [];
 
 			foreach($results as $row)
 				$rows[intval($row['worker_id'])] = [
-					'model_router_id' => intval($row['model_router_id']),
 					'created_at' => intval($row['created_at']),
 					'updated_at' => intval($row['updated_at']),
 				];
@@ -55,37 +53,30 @@ class DAO_Agent extends Cerb_ORMHelper {
 	}
 
 	/**
-	 * @return array `{model_router_id, created_at, updated_at}` -- zeroed defaults when the worker has no row,
-	 *               so callers never branch on existence.
+	 * @return array `{created_at, updated_at}` -- zeroed defaults when the worker has no row, so callers never
+	 *               branch on existence.
 	 */
 	static function get(int $worker_id) : array {
 		return self::getAll()[$worker_id] ?? [
-			'model_router_id' => 0,
 			'created_at' => 0,
 			'updated_at' => 0,
 		];
 	}
 
-	/** The router this agent selects models through. 0 = none configured → the caller falls back. */
-	static function getModelRouterId(int $worker_id) : int {
-		return intval(self::get($worker_id)['model_router_id']);
-	}
-
 	/**
-	 * Create-or-update. There is no `create()` -- a satellite row has no independent existence, so callers
+	 * Create-or-touch. There is no `create()` -- a satellite row has no independent existence, so callers
 	 * shouldn't have to know whether one exists yet.
 	 */
-	static function upsert(int $worker_id, array $fields) : void {
+	static function upsert(int $worker_id) : void {
 		if(!$worker_id)
 			return;
 
 		$db = DevblocksPlatform::services()->database();
 
 		$db->ExecuteMaster(sprintf(
-			"INSERT INTO agent (worker_id, model_router_id, created_at, updated_at) VALUES (%d, %d, %d, %d) ".
-			"ON DUPLICATE KEY UPDATE model_router_id = VALUES(model_router_id), updated_at = VALUES(updated_at)",
+			"INSERT INTO agent (worker_id, created_at, updated_at) VALUES (%d, %d, %d) ".
+			"ON DUPLICATE KEY UPDATE updated_at = VALUES(updated_at)",
 			$worker_id,
-			intval($fields[self::MODEL_ROUTER_ID] ?? 0),
 			time(),
 			time()
 		));
