@@ -1413,6 +1413,39 @@ class _DevblocksLlmService {
 			],
 		];
 	}
+
+	/**
+	 * The `effort_choices:` knob -- the reasoning levels this model offers as a submenu in the chat picker.
+	 *
+	 * Advertised HERE for every reasoning-capable chat provider, for the same reason as `display:`: it's a
+	 * CERB-side concern that no provider ever sees on the wire (only AgentPromptAwait reads it), so repeating
+	 * it in each getChatKataAutocomplete() would be nine copies of one key.
+	 *
+	 * It was already READ from the params bag and already offered inside an automation's `agentPrompt: models:`
+	 * block -- but nowhere else, so the agent model editor's params box never suggested it and the knob was
+	 * effectively unreachable from a record. That's the gap this closes: a reasoning model whose id its
+	 * provider doesn't recognize (a local Qwen or DeepSeek behind an OpenAI-compatible endpoint) has no other
+	 * way to say which levels it takes, because getModelDefaults() deliberately declines to guess for an
+	 * unrecognized id rather than offer a scale the model would 400 on.
+	 *
+	 * The suggested values are generic example COMBINATIONS, not a provider vocabulary -- deliberately. Seeding
+	 * them from getEffortLevels() would hand a local model the GPT scale, which is the exact wrong answer this
+	 * key exists to correct.
+	 */
+	private function _getEffortChoicesKataAutocomplete() : array {
+		return [
+			'keys' => [
+				[
+					'caption' => 'effort_choices:',
+					'snippet' => 'effort_choices: ${1:low,medium,high}',
+					'docHTML' => '<b>effort_choices:</b> The reasoning levels to offer for this model, comma-separated (or a <code>@list</code>). Shown as the effort submenu on the chat model picker; the fixed <code>effort:</code> stays the pre-selected default. Declaring this WINS over whatever the provider infers from the model id, and is the only way to offer levels for a model the provider doesn\'t recognize -- a self-hosted Qwen or DeepSeek on an OpenAI-compatible endpoint. Never sent to the provider.',
+				],
+			],
+			'values' => [
+				'effort_choices:' => ['low,medium,high', 'medium,high,xhigh,max', 'minimal,low,medium,high'],
+			],
+		];
+	}
 	
 	/**
 	 * Build the KATA autocomplete for an `llm:<provider>:` params block, looped over the chat providers
@@ -1438,6 +1471,12 @@ class _DevblocksLlmService {
 			$extra_values = array_merge($extra_values, $display['values']);
 		}
 
+		// Not merged into $extra_keys like `display:` above, because this one is PER PROVIDER: it's gated on
+		// supportsReasoning(), so a chat provider that has nowhere to put a reasoning level doesn't advertise
+		// a list of them. Every chat provider answers true today; the gate is what makes declaring otherwise
+		// actually mean something.
+		$effort_choices = $is_embedding ? ['keys' => [], 'values' => []] : $this->_getEffortChoicesKataAutocomplete();
+
 		// Embeddings ask the provider rather than its class hierarchy — see supportsEmbeddings().
 		$supports = $is_embedding
 			? fn($provider) => $provider->supportsEmbeddings()
@@ -1460,14 +1499,24 @@ class _DevblocksLlmService {
 			$base = $prefix . $provider_id . ':';
 			$block = $is_embedding ? $provider->getEmbeddingKataAutocomplete() : $provider->getChatKataAutocomplete();
 
+			$reasons = !$is_embedding && $provider->supportsReasoning();
+
 			// Value/knob sub-paths first (most specific), then the caller's extra value sub-paths.
 			foreach(($block['values'] ?? []) as $subpath => $suggestions)
 				$out[$base . $subpath] = $suggestions;
+			if($reasons) {
+				foreach($effort_choices['values'] as $subpath => $suggestions)
+					$out[$base . $subpath] = $suggestions;
+			}
 			foreach($extra_values as $subpath => $suggestions)
 				$out[$base . $subpath] = $suggestions;
 
 			// The block keys (+ any caller extras like vision/context_window/compaction/disabled).
-			$out[$base] = array_merge($block['keys'] ?? [], $extra_keys);
+			$out[$base] = array_merge(
+				$block['keys'] ?? [],
+				$reasons ? $effort_choices['keys'] : [],
+				$extra_keys
+			);
 		}
 
 		// The provider list (least specific) last.
