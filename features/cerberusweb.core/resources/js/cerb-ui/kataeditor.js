@@ -220,8 +220,11 @@ CerbUI.KataEditor = class {
 					const dp = this._commentDecoratorPrefix(v, c);
 					if(dp !== null) return CerbUI.editorCore.filterItems(this.opts.commentDecorators, dp, 'prefix', it => it.caption || '');
 				}
-				// Otherwise: no suggestions inside a @annotation text block or on a comment line.
-				if(this._autocompleteSuppressed(v, c)) return [];
+				// Otherwise: no suggestions inside a @annotation text block or on a comment line -- EXCEPT when
+				// that value is a search query. `models_query@text:` with an indented multi-line query is
+				// ordinary literal block content to the KATA grammar, but it is exactly where completion is
+				// wanted, so the query walker gets the final say.
+				if(!(ctx.scope && ctx.scope.queryContext) && this._autocompleteSuppressed(v, c)) return [];
 				return (typeof this.opts.onAutocomplete === 'function') ? this.opts.onAutocomplete(ctx) : [];
 			},
 			onAfterApply: () => this._refresh(),
@@ -2146,7 +2149,108 @@ CerbUI.KataEditor = class {
 			}
 		}
 
+		// A value that is a SEARCH QUERY is a different grammar living inside this one. Re-walk it with the
+		// search-query scope walker so `prefix`/`prefixRaw` describe the token under the caret in THAT grammar --
+		// the KATA rule above ("the last run of non-space") would make `privacy:>=z` the replacement range, so
+		// accepting `zdr` would eat the field name, and `sender:(` would eat the open paren.
+		// ⚠ Inside a BLOCK the caret line's "key" is query content, not a KATA key -- `hasVision:` is shaped
+		// exactly like one, so the walk above appended it and the path became `…:models_query:hasVision:`, which
+		// matches no query path. That is why a block would complete the first field and then go dead: every
+		// keystroke after `hasVision:` moved the path out of the query. So when the full path misses AND the
+		// caret line contributed a key, retry against the PARENT path.
+		const hasLineKey = !!(km && km[0].length <= col);
+		let queryContext = this._queryValueContext(path);
+		let inlineValue = (queryContext !== null && hasLineKey);
+
+		if(queryContext === null && hasLineKey) {
+			queryContext = this._queryValueContext(path.slice(0, -1));
+			inlineValue = false;
+		}
+
+		if(queryContext !== null) {
+			const queryText = this._queryValueTextAt(text, caret, inlineValue);
+
+			if(queryText !== null) {
+				const qs = CerbUI.editorCore.searchQuery.scopePathAt(queryText, queryText.length);
+				return {
+					path, caret,
+					prefix: qs.prefix,
+					prefixRaw: qs.prefixRaw,
+					queryText: queryText,
+					queryPath: qs.path,
+					queryContext: queryContext,
+				};
+			}
+		}
+
 		return { path, prefix, prefixRaw, caret };
+	}
+
+	// The record context for a path whose VALUE is a search query, else null. The paths are published by
+	// KataEditor.kataFieldSource off the suggestion map, so no call site has to declare them twice.
+	_queryValueContext(path) {
+		const src = this.opts.onAutocomplete;
+		const defs = (src && src.queryValuePaths) || null;
+
+		if(!defs || !defs.length) return null;
+
+		const key = CerbUI.KataEditor._normalizePath(path).join('');
+
+		for(const d of defs)
+			if(d.re.test(key)) return d.context;
+
+		return null;
+	}
+
+	// The query text up to the caret, for a value written either inline (`key: hasVision:y`) or as an indented
+	// block under an annotated key (`key@text:` + CRLF + indented lines).
+	//
+	// `inlineValue` is decided by the CALLER from the key path, not re-sniffed from the line: a block's content
+	// line is indistinguishable from a key by shape alone. Returns null when there's no value to read.
+	_queryValueTextAt(text, caret, inlineValue) {
+		const before = text.slice(0, caret);
+		const lineStart = before.lastIndexOf('\n') + 1;
+		const lineToCaret = before.slice(lineStart);
+
+		if(inlineValue) {
+			const km = lineToCaret.match(CerbUI.KataEditor._KEY_RE);
+			return km ? lineToCaret.slice(km[0].length).replace(/^\s/, '') : null;
+		}
+
+		// Block: join every content line under the owning key, so a query split over several lines completes as
+		// ONE query. Newlines are plain whitespace to the search-query tokenizer, so each line (and each space)
+		// simply starts a new term.
+		const lines = before.split('\n');
+		const caretIdx = lines.length - 1;
+		const caretIndent = lines[caretIdx].length - lines[caretIdx].trimStart().length;
+		let keyIdx = -1;
+
+		for(let i = caretIdx - 1; i >= 0; i--) {
+			const l = lines[i];
+			if(l.trim().length === 0) continue;
+			const ind = l.length - l.trimStart().length;
+			if(ind >= caretIndent) continue;                                    // a sibling content line
+			if(!CerbUI.KataEditor._KEY_RE.test(l)) return null;                 // shallower non-key: not a block
+			keyIdx = i;
+			break;
+		}
+
+		if(keyIdx === -1) return null;
+
+		// Strip by the FIRST content line's indent rather than the caret's: on a blank caret line the caret column
+		// is wherever the author left it, and slicing by that would cut into real characters.
+		const content = lines.slice(keyIdx + 1);
+		let base = null;
+
+		for(const l of content) {
+			if(l.trim().length === 0) continue;
+			base = l.length - l.trimStart().length;
+			break;
+		}
+
+		if(base === null) base = caretIndent;
+
+		return content.map(l => l.slice(base)).join('\n');
 	}
 
 	// True when the caret sits where autocomplete must stay quiet: immediately after a completed inline key
@@ -2248,6 +2352,7 @@ CerbUI.KataEditor.kataFieldSource = function(suggestionMap, opts) {
 	const typeDefaults = opts.autocomplete_type_defaults || opts.typeDefaults || {};
 
 	const normalizePath = CerbUI.KataEditor._normalizePath;
+	const qsByContext = {};   // memoized CerbUI.SearchQuery.queryFieldSource per record context
 
 	function toItem(s) {
 		if(typeof s === 'string') s = { caption: s, snippet: s };
@@ -2386,6 +2491,34 @@ CerbUI.KataEditor.kataFieldSource = function(suggestionMap, opts) {
 				}
 				return Promise.resolve([]);
 			}
+			// A KATA value that is a Cerb SEARCH QUERY, not a nested block. Delegates to the same
+			// CerbUI.SearchQuery source a worklist uses, so the whole grammar comes for free: field names,
+			// value suggestions, `field:()` descent into a linked record, and any CUSTOM FIELD an admin adds.
+			//
+			// ⚠ Without this, a query value autocompletes as CHILD KEYS -- toItem() re-opens the menu for any
+			// inserted text containing ':', which every field name ends with, so `hasVision:` reads as a block
+			// opener and the author gets a key/value menu instead of the next filter.
+			case 'search-query': {
+				const context = params.record_type || params.context || '';
+				const sp = ctx.scope || {};
+
+				// The host already parsed the value out (inline `key: <query>` OR an indented `@text` block) and
+				// walked it with the search-query grammar -- see KataEditor._scopePathAt. Re-deriving it here
+				// would duplicate that and get the block form wrong.
+				if(!context || sp.queryText == null || !CerbUI.SearchQuery || !CerbUI.SearchQuery.queryFieldSource)
+					return Promise.resolve([]);
+
+				const src = qsByContext[context] || (qsByContext[context] = CerbUI.SearchQuery.queryFieldSource(context));
+
+				return Promise.resolve(src({
+					path: sp.queryPath || [],
+					prefix: sp.prefix,
+					prefixRaw: sp.prefixRaw,
+					context: context,
+					query: sp.queryText,
+					caret: sp.queryText.length,
+				}));
+			}
 			case 'metric-dimensions': {
 				const kp = editor.getTokenPath(); kp.pop(); kp.push('metric_name:');
 				const metric = siblingValue(editor, kp);
@@ -2408,7 +2541,25 @@ CerbUI.KataEditor.kataFieldSource = function(suggestionMap, opts) {
 		return Promise.resolve([]);
 	}
 
-	return function(ctx) {
+	// Scope keys whose VALUE is a search query rather than a nested block, published on the returned function so
+	// KataEditor can find them without the map being threaded through every call site. It needs them to (a)
+	// compute the replacement range with the SEARCH-QUERY grammar instead of "the last run of non-space", and
+	// (b) keep suggesting inside an indented `@text` block, which is otherwise literal content.
+	const queryValuePaths = [];
+
+	function collectQueryPaths(bucket) {
+		for(const k in bucket) {
+			const d = bucket[k];
+			if(!d || typeof d !== 'object' || Array.isArray(d) || d.type !== 'search-query') continue;
+			const context = (d.params && (d.params.record_type || d.params.context)) || '';
+			try { queryValuePaths.push({ re: new RegExp('^' + k + '$'), context: context }); } catch(_) {}
+		}
+	}
+
+	collectQueryPaths(suggestionMap);
+	if(suggestionMap['*'] && typeof suggestionMap['*'] === 'object') collectQueryPaths(suggestionMap['*']);
+
+	const source = function(ctx) {
 		const scopeKey = normalizePath(ctx.path).join('');
 		const prefix = ctx.prefix || '';
 		let completions = suggestionMap[scopeKey];
@@ -2428,4 +2579,8 @@ CerbUI.KataEditor.kataFieldSource = function(suggestionMap, opts) {
 			return resolveDynamic(completions, ctx);
 		return [];
 	};
+
+	source.queryValuePaths = queryValuePaths;
+
+	return source;
 };

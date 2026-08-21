@@ -537,10 +537,15 @@ CerbUI.editorCore.Autocomplete = class {
 		const ctx = {
 			path: sp.path,
 			prefix: sp.prefix,
+			prefixRaw: sp.prefixRaw,
 			context: this.opts.context || '',
 			query: ta.value,
 			caret: caret,
 			editor: this.opts.editor || null,
+			// The host's FULL scope object. `prefix`/`path` cover almost every source, but a host whose grammar
+			// nests another grammar (a KATA value that is a search query) needs to hand the inner text through,
+			// and re-deriving it in the source would duplicate the host's parsing.
+			scope: sp,
 		};
 
 		// Line index of the caret when the request went out — used to drop a stale async response.
