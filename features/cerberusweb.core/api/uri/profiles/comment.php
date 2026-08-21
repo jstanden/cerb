@@ -284,9 +284,6 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 		if(!$active_worker->hasPriv(sprintf("contexts.%s.update.bulk", CerberusContexts::CONTEXT_COMMENT)))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 
-		if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_COMMENT)))
-			DevblocksPlatform::dieWithHttpError(null, 403);
-
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 
@@ -310,9 +307,6 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 		if(!$active_worker->hasPriv(sprintf("contexts.%s.update.bulk", CerberusContexts::CONTEXT_COMMENT)))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 
-		if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_COMMENT)))
-			DevblocksPlatform::dieWithHttpError(null, 403);
-
 		$filter = DevblocksPlatform::importGPC($_POST['filter'] ?? null, 'string','');
 		$ids = [];
 
@@ -328,8 +322,12 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 		$do = [];
 
 		// Do: Delete
-		if(0 != strlen($status) && $status == 'deleted')
+		if(0 != strlen($status) && $status == 'deleted') {
+			if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_COMMENT)))
+				DevblocksPlatform::dieWithHttpError(null, 403);
+
 			$do['delete'] = true;
+		}
 
 		// Do: Automations
 		$context = CerberusContexts::CONTEXT_COMMENT;

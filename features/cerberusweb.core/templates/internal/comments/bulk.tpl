@@ -18,6 +18,7 @@
 	{/if}
 </fieldset>
 
+{if $active_worker->hasPriv('contexts.cerberusweb.contexts.comment.delete')}
 <fieldset class="peek">
 	<legend>Set Fields</legend>
 
@@ -31,8 +32,11 @@
 		</tr>
 	</table>
 </fieldset>
+{/if}
 
-{if $active_worker->hasPriv('contexts.cerberusweb.contexts.comment.update.bulk') && $active_worker->hasPriv('contexts.cerberusweb.contexts.comment.delete')}
+{include file="devblocks:cerberusweb.core::internal/views/bulk_automations.tpl"}
+
+{if $active_worker->hasPriv('contexts.cerberusweb.contexts.comment.update.bulk')}
 	<button type="button" class="submit"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 {/if}
 <br>
@@ -49,20 +53,9 @@ $(function() {
 
 		$popup.find('button.submit').click(function() {
 			genericAjaxPost('formBatchUpdate', '', null, function(json) {
-				if(json.cursor) {
-					// Pull the cursor
-					var $tips = $('#{$view_id}_tips').html('');
-					Devblocks.getSpinner().appendTo($tips);
-
-					var formData = new FormData();
-					formData.set('c', 'internal');
-					formData.set('a', 'invoke');
-					formData.set('module', 'worklists');
-					formData.set('action', 'viewBulkUpdateWithCursor');
-					formData.set('view_id', '{$view_id}');
-					formData.set('cursor', json.cursor);
-
-					genericAjaxPost(formData, $tips, null);
+				if(json.job_id) {
+					cerbOpenQueueJobPeek(json.job_id, '{$view_id}');
+					$('#{$view_id}_tips').html('').hide();
 				}
 
 				genericAjaxPopupClose($popup);
