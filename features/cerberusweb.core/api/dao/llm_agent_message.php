@@ -2,7 +2,12 @@
 class DAO_LlmAgentMessage {
 	// The neutral usage vector as stored per message (`usage_json`). Assistant turns carry real
 	// provider-reported numbers; user/tool turns carry none, so they sum as zero.
-	const USAGE_ZERO = ['input' => 0, 'output' => 0, 'cache_read' => 0, 'cache_write' => 0];
+	//
+	// `reasoning` is a SUBSET of `output`, never an addition to it — the provider bills reasoning as output
+	// tokens and reports the split separately. Anything that totals tokens must use `output` alone; anything
+	// that wants the visible reply uses `output - reasoning` (see deriveUsage's `output_text`). Only the
+	// OpenAI family reports the split at all, so 0 means "not reported", not "no reasoning happened".
+	const USAGE_ZERO = ['input' => 0, 'output' => 0, 'reasoning' => 0, 'cache_read' => 0, 'cache_write' => 0];
 
 	/**
 	 * Sum two neutral usage vectors. Missing components read as 0, so a turn's assistant round-trips can be
@@ -30,6 +35,8 @@ class DAO_LlmAgentMessage {
 	static function foldTurnUsage(array $acc, array $b) : array {
 		$acc = array_merge(self::USAGE_ZERO, $acc);
 		$acc['output'] = intval($acc['output']) + intval($b['output'] ?? 0);
+		// Reasoning rides the output side of that rule: each round-trip reasons afresh, so it accretes.
+		$acc['reasoning'] = intval($acc['reasoning']) + intval($b['reasoning'] ?? 0);
 
 		$prompt = intval($b['input'] ?? 0) + intval($b['cache_read'] ?? 0) + intval($b['cache_write'] ?? 0);
 
@@ -54,6 +61,9 @@ class DAO_LlmAgentMessage {
 		$usage = array_merge(self::USAGE_ZERO, $usage);
 		$usage['prompt'] = $usage['input'] + $usage['cache_read'] + $usage['cache_write'];
 		$usage['coverage'] = $usage['prompt'] > 0 ? intval(round(100 * $usage['cache_read'] / $usage['prompt'])) : 0;
+		// The visible half of the output. Clamped at 0 because `reasoning` is only ever as trustworthy as the
+		// provider reporting it, and a negative here would read as a bug in the transcript rather than in them.
+		$usage['output_text'] = max(0, $usage['output'] - $usage['reasoning']);
 
 		return $usage;
 	}

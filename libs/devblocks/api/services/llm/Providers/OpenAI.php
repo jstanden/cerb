@@ -416,11 +416,19 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, ChatStreami
 
 		// Neutral token usage. OpenAI's prompt_tokens INCLUDES cached, so fresh input = prompt − cached;
 		// cache_read = cached_tokens; OpenAI doesn't report cache writes (0).
+		//
+		// `reasoning_tokens` is a BREAKDOWN of completion_tokens, not a sibling cost — it stays inside `output`
+		// and is reported alongside so a reader can split the invisible half from the visible reply. It is the
+		// only artifact of reasoning this endpoint returns: /v1/chat/completions sends back no reasoning
+		// content, so without this number a 1,132-token turn that printed nine words looks like a billing
+		// mystery. Absent (a non-reasoning model, an OpenAI-compatible endpoint that omits the detail block)
+		// reads as 0, which is indistinguishable from "reasoned nothing" — deliberate, since neither is a cost.
 		$native_usage = $response_json['usage'] ?? [];
 		$cached = intval($native_usage['prompt_tokens_details']['cached_tokens'] ?? 0);
 		$usage = [
 			'input' => max(0, intval($native_usage['prompt_tokens'] ?? 0) - $cached),
 			'output' => intval($native_usage['completion_tokens'] ?? 0),
+			'reasoning' => intval($native_usage['completion_tokens_details']['reasoning_tokens'] ?? 0),
 			'cache_read' => $cached,
 			'cache_write' => 0,
 		];

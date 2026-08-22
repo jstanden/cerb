@@ -240,9 +240,12 @@ class DevblocksLlmChatResponse {
 		return $this->_usage;
 	}
 	
-	// Provider-neutral token usage for the turn: {input, output, cache_read, cache_write} (input = fresh/uncached
-	// prompt tokens; cache_write is 0 on providers that don't report it). Set by each provider's chatCompletion
-	// from its native `usage` block; persisted on the assistant message (usage_json).
+	// Provider-neutral token usage for the turn: {input, output, reasoning, cache_read, cache_write} (input =
+	// fresh/uncached prompt tokens; cache_write is 0 on providers that don't report it). `reasoning` is a
+	// BREAKDOWN of `output`, not an addition to it, so a total is `input + cache_read + cache_write + output`
+	// with reasoning left out; only the OpenAI family reports the split, so 0 means "unreported" rather than
+	// "none". Set by each provider's chatCompletion from its native `usage` block; persisted on the assistant
+	// message (usage_json).
 	function setUsage(array $usage) : void {
 		$this->_usage = $usage;
 	}
