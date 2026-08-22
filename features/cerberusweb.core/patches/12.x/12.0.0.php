@@ -3756,7 +3756,7 @@ class CerbPatch_Core_v12_0_0 {
 			$this->_db->ExecuteMaster(sprintf("INSERT INTO search_index (name, uri, record_type, record_filter, extension_id, extension_params_json, priority, created_at, updated_at) " .
 				"VALUES (%s, %s, %s, %s, %s, %s, %d, %d, %d)",
 				$this->_db->qstr('Agent Files'),
-				$this->_db->qstr('agent_files'),
+				$this->_db->qstr('agent.files'),
 				$this->_db->qstr('agent_file'),
 				$this->_db->qstr('text'),
 				$this->_db->qstr('cerb.search.index.fulltext'),
