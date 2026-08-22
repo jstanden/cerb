@@ -684,11 +684,10 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		DevblocksPlatform::setRegistryKey($param_key_last_indexed_at, $result['updated_at'] ?? 0, \DevblocksRegistryEntry::TYPE_NUMBER, persist: true);
 		DevblocksPlatform::setRegistryKey($param_key_last_indexed_id, $result['record_id'] ?? 0, \DevblocksRegistryEntry::TYPE_NUMBER, persist: true);
 		
-		// Delete search index on reindex
-		$sql = sprintf("DROP TABLE IF EXISTS search_index_%d", $model->id);
-		$db->ExecuteMaster($sql);
-		
-		DevblocksPlatform::clearCache(DevblocksEngine::CACHE_TABLES);
+		// Empty the index for the rebuild. TRUNCATE, not DROP
+		// Everything the reindex job enqueues below therefore lands on an EMPTY table, which is what lets
+		// `processQueue()` skip its pre-delete for job messages. See `indexDocumentsByIds($purge_first)`.
+		$db->ExecuteMaster(sprintf("TRUNCATE TABLE search_index_%d", $model->id));
 	}
 	
 	private function _reindexCreateJob(Model_SearchIndex $search_index, array $query_parts, &$error=null) : ?\Model_QueueJob {
