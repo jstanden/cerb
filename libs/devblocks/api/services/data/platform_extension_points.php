@@ -17,7 +17,7 @@ class _DevblocksDataProviderPlatformExtensionPoints extends _DevblocksDataProvid
 	}
 	
 	function getData($query, $chart_fields, &$error=null, array $options=[]) {
-		$extension_points = DevblocksPlatform::getExtensionPoints();
+		$extension_points = DevblocksPlatform::getExtensionPointRegistry();
 		
 		$chart_model = [
 			'type' => 'platform.extension.points',
@@ -63,9 +63,11 @@ class _DevblocksDataProviderPlatformExtensionPoints extends _DevblocksDataProvid
 		$data = [];
 		$paging = [];
 		
+		// These rows are arrays, not objects. Reading ->name/->id off one matched nothing and silently
+		// emptied every filtered result.
 		if ($chart_model['filter']) {
 			$extension_points = array_filter($extension_points, function($extension_point) use ($chart_model) {
-				$match = sprintf('%s %s', $extension_point->name, $extension_point->id);
+				$match = sprintf('%s %s', $extension_point['id'] ?? '', $extension_point['label'] ?? '');
 				return stristr($match, $chart_model['filter']);
 			});
 		}
@@ -75,6 +77,7 @@ class _DevblocksDataProviderPlatformExtensionPoints extends _DevblocksDataProvid
 				'id' => $extension_point_key,
 				'name' => $extension_point['label'] ?? null,
 				'class' => $extension_point['class'] ?? null,
+				'extensions' => $extension_point['extensions'] ?? 0,
 			];
 		}
 		

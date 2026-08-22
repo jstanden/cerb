@@ -3078,6 +3078,55 @@ class DevblocksPlatform extends DevblocksEngine {
 		return $extension_point_meta;
 	}	
 
+	/**
+	 * Every extension point this installation actually has, merged with whatever getExtensionPoints()
+	 * documents about it.
+	 *
+	 * getExtensionPoints() is a hand-maintained array and real points go missing from it -- as of 12.0 it
+	 * doesn't know cerb.automation.api_command, cerb.automation.template, cerb.queue.consumer,
+	 * cerb.search.index, or cerb.toolbar. Anything that VALIDATES a caller's point against that array
+	 * therefore rejects points that plainly exist. Deriving the set from the extension registry can't fall
+	 * behind the app; the curated array still supplies the human label and the base class, and its own
+	 * points are kept even with nothing registered on them, because an empty point is exactly what a plugin
+	 * author is looking for.
+	 *
+	 * Counts and membership follow getExtensionRegistry(), which joins on enabled plugins -- so a disabled
+	 * plugin's extensions are absent here for the same reason they're unreachable everywhere else.
+	 *
+	 * Sorted by id, which is what a caller types. Use getExtensionPoints() when you specifically want the
+	 * documented set (the plugin-docs generator does).
+	 *
+	 * @return array [point => ['id'=>string, 'label'=>string, 'class'=>string, 'extensions'=>int]]
+	 */
+	static function getExtensionPointRegistry() {
+		$meta = DevblocksPlatform::getExtensionPoints() ?: [];
+		$counts = [];
+		
+		foreach(DevblocksPlatform::getExtensionRegistry() ?: [] as $extension) { /* @var $extension DevblocksExtensionManifest */
+			$point = strval($extension->point);
+			
+			if('' === $point)
+				continue;
+			
+			$counts[$point] = ($counts[$point] ?? 0) + 1;
+		}
+		
+		$points = [];
+		
+		foreach(array_unique(array_merge(array_keys($counts), array_keys($meta))) as $point) {
+			$points[$point] = [
+				'id' => $point,
+				'label' => strval($meta[$point]['label'] ?? ''),
+				'class' => strval($meta[$point]['class'] ?? ''),
+				'extensions' => intval($counts[$point] ?? 0),
+			];
+		}
+		
+		ksort($points);
+		
+		return $points;
+	}
+
 	static function getActivityPointRegistry() {
 		$cache = DevblocksPlatform::services()->cache();
 		$plugins = DevblocksPlatform::getPluginRegistry();

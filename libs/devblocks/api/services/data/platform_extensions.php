@@ -12,14 +12,14 @@ class _DevblocksDataProviderPlatformExtensions extends _DevblocksDataProvider {
 			'format:' => [
 				'dictionaries',
 			],
-			'point:' => array_keys(DevblocksPlatform::getExtensionPoints()),
+			'point:' => array_keys(DevblocksPlatform::getExtensionPointRegistry()),
 		];
 		
 		return $suggestions;
 	}
 	
 	function getData($query, $chart_fields, &$error=null, array $options=[]) {
-		$extension_points = DevblocksPlatform::getExtensionPoints();
+		$extension_points = DevblocksPlatform::getExtensionPointRegistry();
 		
 		$chart_model = [
 			'type' => 'platform.extensions',
