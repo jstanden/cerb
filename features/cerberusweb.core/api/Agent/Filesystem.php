@@ -1172,14 +1172,17 @@ class Filesystem {
 		];
 
 		if($row) {
-			\DAO_AgentFile::update(intval($row['id']), $fields);
+			$file_id = intval($row['id']);
+			\DAO_AgentFile::update($file_id, $fields);
 		} else {
 			$fields[\DAO_AgentFile::FILESYSTEM_ID] = $loc['mount']['fs']->id;
 			$fields[\DAO_AgentFile::NAME] = $loc['rel'];
-			\DAO_AgentFile::create($fields);
+			$file_id = \DAO_AgentFile::create($fields);
 		}
 
 		self::_flushCache($loc['mount']['fs']->id);
+
+		\DAO_AgentFile::indexRecords([$file_id]);
 
 		return $this->_result(sprintf("Wrote %s to %s", \DevblocksPlatform::strPrettyBytes(strlen($content)), $path), $cwd);
 	}
@@ -1246,6 +1249,8 @@ class Filesystem {
 			]);
 
 			self::_flushCache($loc['mount']['fs']->id);
+
+			\DAO_AgentFile::indexRecords([intval($row['id'])]);
 		}
 
 		return $this->_result(sprintf("Edited %s (1 replacement at line %d; %s -> %s)",
@@ -1352,16 +1357,19 @@ class Filesystem {
 			];
 
 			// Naive get-then-write rather than an `INSERT ... SELECT`: it's one inline row, and going through
-			// the DAO is what fires markContextChanged() and gets the copy into the fulltext index.
+			// the DAO is what fires markContextChanged().
 			if($dest_row) {
-				\DAO_AgentFile::update(intval($dest_row['id']), $fields);
+				$dest_id = intval($dest_row['id']);
+				\DAO_AgentFile::update($dest_id, $fields);
 			} else {
 				$fields[\DAO_AgentFile::FILESYSTEM_ID] = $dest['mount']['fs']->id;
 				$fields[\DAO_AgentFile::NAME] = $dest['rel'];
-				\DAO_AgentFile::create($fields);
+				$dest_id = \DAO_AgentFile::create($fields);
 			}
 
 			self::_flushCache($dest['mount']['fs']->id);
+
+			\DAO_AgentFile::indexRecords([$dest_id]);
 		}
 
 		return $this->_result(sprintf("Copied %d bytes to %s%s",

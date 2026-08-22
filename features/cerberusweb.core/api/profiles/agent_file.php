@@ -109,6 +109,8 @@ class PageSection_ProfilesAgentFile extends Extension_PageSection {
 				}
 
 				if($id) {
+					DAO_AgentFile::indexRecords([$id]);
+
 					// Custom field saves
 					$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 					if(!DAO_CustomFieldValue::handleFormPost($context, $id, $field_ids, $error))

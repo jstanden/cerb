@@ -136,8 +136,7 @@ class DAO_AgentFilesystem extends Cerb_ORMHelper {
 	 * Collect `recount()` calls instead of running them, until `flushRecount()`.
 	 *
 	 * For a bulk writer whose files go in one at a time (the ZIP importer writes a row per archive entry):
-	 * without this, a thousand-file archive would re-count the volume a thousand times. Mirrors
-	 * `search()->deferIndexQueue()`, which the same writers already wrap their batches in. ALWAYS flush in a
+	 * without this, a thousand-file archive would re-count the volume a thousand times. ALWAYS flush in a
 	 * `finally` -- an abandoned window leaves the counters stale until the next write.
 	 */
 	static function deferRecount() : void {

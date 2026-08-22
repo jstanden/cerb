@@ -248,13 +248,6 @@ class DAO_AgentFile extends Cerb_ORMHelper {
 			if($check_deltas) {
 				DevblocksPlatform::markContextChanged($context, $batch_ids);
 			}
-
-			// Re-index NOW rather than on the next `search` cron tick. These files exist to be searched by an
-			// agent that may have just written one and will grep for it in the same conversation, so indexing
-			// latency reads as data loss. Only a body/path change matters — the index content is
-			// `{{name}}` + content — so bookkeeping-only writes don't queue anything.
-			if(array_key_exists(self::CONTENT, $fields) || array_key_exists(self::NAME, $fields))
-				DevblocksPlatform::services()->search()->queueIndexRecords($context, $batch_ids);
 		}
 
 		DAO_AgentFilesystem::recount($recount_filesystem_ids);
@@ -264,6 +257,78 @@ class DAO_AgentFile extends Cerb_ORMHelper {
 	// this — it's for bookkeeping like the importer's `import_uuid` stamp on unchanged rows.
 	static function updateWhere($fields, $where) {
 		parent::_updateWhere('agent_file', $fields, $where);
+	}
+
+	/**
+	 * Every search index built on this record type, or an empty array.
+	 */
+	private static function _getSearchIndexes() : array {
+		return array_filter(
+			DAO_SearchIndex::getByRecordType(Context_AgentFile::ID),
+			fn($search_index) => $search_index->getExtension()?->hasOption('index')
+		);
+	}
+
+	/**
+	 * Index specific files NOW, for a writer with someone waiting on the result.
+	 *
+	 * Agent files exist to be searched by an agent that may have just written one and will grep for it
+	 * moments later, so cron latency reads as data loss. This is the ONE record type in Cerb that indexes
+	 * eagerly, and it's the WRITERS that ask -- never `update()`, which can't tell a peek save from a
+	 * 1000-file import and would make every bulk writer opt back out.
+	 *
+	 * The cron re-indexes these when its cursor reaches them. That duplicate is the price of the guarantee,
+	 * and for a handful of records it's cheaper than any machinery that would avoid it.
+	 */
+	static function indexRecords(array $ids) : void {
+		if(!($ids = DevblocksPlatform::sanitizeArray($ids, 'int', ['nonzero','unique'])))
+			return;
+
+		try {
+			foreach(self::_getSearchIndexes() as $search_index) {
+				$error = null;
+				$search_index->getExtension()->indexDocumentsByIds($search_index, $ids, $error);
+			}
+		} catch(Throwable $e) {
+			// Never fail the write over its index
+			DevblocksPlatform::services()->log()->error(sprintf(
+				'[Agent Filesystem] Indexing failed: %s', $e->getMessage()
+			));
+		}
+	}
+
+	/**
+	 * Advance this record type's search indexes from their cursor, for a bulk writer with nobody waiting.
+	 *
+	 * Uses the same incremental walk the `search` cron uses, so an import's rows are indexed exactly once
+	 * instead of once by id on the way in and again when the cursor reaches them. Bounded: whatever doesn't
+	 * fit in the budget is left for cron, which is unconditional.
+	 */
+	static function drainIndex(int $budget_secs=5) : int {
+		$limit = 250;
+		$indexed = 0;
+		$stop_time = time() + max(1, $budget_secs);
+
+		try {
+			foreach(self::_getSearchIndexes() as $search_index) {
+				$search_extension = $search_index->getExtension();
+
+				while(time() < $stop_time) {
+					$count = count($search_extension->indexDocumentsByModel($search_index, $limit));
+					$indexed += $count;
+
+					// A short batch means we caught up (or another walker holds the lock)
+					if($count < $limit)
+						break;
+				}
+			}
+		} catch(Throwable $e) {
+			DevblocksPlatform::services()->log()->error(sprintf(
+				'[Agent Filesystem] Index drain failed: %s', $e->getMessage()
+			));
+		}
+
+		return $indexed;
 	}
 
 	static function bulkUpdate(Model_ContextBulkUpdate $update) : bool {
