@@ -66,6 +66,201 @@ class DevblocksKataTest extends TestCase {
 		$this->assertNotFalse($kata->validate("text/foo-bar:\n  label: Hi\n", str_replace("  nameFormat: variable\n", '', $schema), $error));
 	}
 
+	// --- validate() collects every problem -------------------------------------------------------------
+	//
+	// It used to return on the first one, which made fixing a document a loop: save, learn about line 5,
+	// save, learn about line 9. `$error` still holds that first message so every save path is unchanged;
+	// `$issues` is the whole list.
+
+	private function _schema() : string {
+		return implode("\n", [
+			'schema:',
+			'  attributes:',
+			'    start:',
+			'      types:',
+			'        object:',
+			'          attributes:',
+			'            name:',
+			'              required@bool: yes',
+			'              types:',
+			'                string:',
+			'            count:',
+			'              types:',
+			'                number:',
+			'            nested:',
+			'              types:',
+			'                object:',
+			'                  attributes:',
+			'                    ok:',
+			'                      types:',
+			'                        bool:',
+			'            nested2:',
+			'              types:',
+			'                object:',
+			'                  attributes:',
+			'                    ok:',
+			'                      types:',
+			'                        bool:',
+			'',
+		]);
+	}
+
+	function testKataValidateCollectsEveryUnknownKey() {
+		$kata = DevblocksPlatform::services()->kata();
+
+		$doc = "start:\n  name: x\n  bogus1: 1\n  bogus2: 2\n  bogus3: 3\n";
+
+		$error = null;
+		$issues = null;
+
+		$this->assertFalse($kata->validate($doc, $this->_schema(), $error, null, $issues));
+		$this->assertCount(3, $issues);
+
+		foreach(['bogus1', 'bogus2', 'bogus3'] as $i => $key)
+			$this->assertStringContainsString($key, $issues[$i]['message']);
+	}
+
+	/**
+	 * BACK-COMPAT, and the reason every save path can be left alone: `$error` is still the FIRST problem,
+	 * with the same wording it had when that was the only problem reported.
+	 */
+	function testKataValidateErrorIsStillTheFirstIssue() {
+		$kata = DevblocksPlatform::services()->kata();
+
+		$error = null;
+		$issues = null;
+
+		$kata->validate("start:\n  name: x\n  bogus1: 1\n  bogus2: 2\n", $this->_schema(), $error, null, $issues);
+
+		$this->assertSame($issues[0]['message'], $error);
+		$this->assertStringContainsString('bogus1', strval($error));
+	}
+
+	function testKataValidateIssuesAreEmptyExactlyWhenItPasses() {
+		$kata = DevblocksPlatform::services()->kata();
+
+		$error = null;
+		$issues = null;
+
+		$this->assertTrue($kata->validate("start:\n  name: x\n  count: 4\n", $this->_schema(), $error, null, $issues));
+		$this->assertSame([], $issues);
+		$this->assertNull($error);
+	}
+
+	/**
+	 * An unknown key has no schema to check its children against, so it is not recursed into. Otherwise every
+	 * child reports "has no schema type" and buries the one problem that is real.
+	 */
+	function testKataValidateDoesNotRecurseIntoAnUnknownKey() {
+		$kata = DevblocksPlatform::services()->kata();
+
+		$error = null;
+		$issues = null;
+
+		$kata->validate("start:\n  name: x\n  bogus:\n    a: 1\n    b: 2\n", $this->_schema(), $error, null, $issues);
+
+		$this->assertCount(1, $issues);
+		$this->assertStringContainsString('`start:bogus:` is unknown', $issues[0]['message']);
+	}
+
+	/**
+	 * The key path is mutated as the walk descends and popped as it returns. Early returns used to leave it
+	 * dirty, which was harmless only because they aborted -- now that the walk continues, a stale path would
+	 * mislabel every later problem.
+	 */
+	function testKataValidateKeyPathUnwindsAfterAProblem() {
+		$kata = DevblocksPlatform::services()->kata();
+
+		$error = null;
+		$issues = null;
+
+		// Two problems found on separate descents, so the second is reported only after the first has returned.
+		$kata->validate("start:\n  name: x\n  nested:\n    bogus: 1\n  nested2:\n    bogus2: 1\n", $this->_schema(), $error, null, $issues);
+
+		$this->assertCount(2, $issues);
+		$this->assertSame('start:nested:bogus', $issues[0]['path']);
+
+		// The tell: a path left dirty by the descent into `nested` would label this
+		// `start:nested:nested2:bogus2`.
+		$this->assertSame('start:nested2:bogus2', $issues[1]['path']);
+	}
+
+	function testKataValidateIssuesCarryPathAndLine() {
+		$kata = DevblocksPlatform::services()->kata();
+
+		$error = null;
+		$issues = null;
+
+		$kata->validate("start:\n  name: x\n  bogus: 1\n", $this->_schema(), $error, null, $issues);
+
+		$this->assertSame('start:bogus', $issues[0]['path']);
+		$this->assertSame(3, $issues[0]['line']);
+	}
+
+	/**
+	 * A missing key has no line of its own. The object that should have contained it does, and that is where
+	 * a reader has to look -- so the line walks UP the path to the nearest ancestor the parser saw.
+	 */
+	function testKataValidateAMissingRequiredKeyGetsItsParentsLine() {
+		$kata = DevblocksPlatform::services()->kata();
+
+		$error = null;
+		$issues = null;
+
+		$kata->validate("start:\n  count: 4\n", $this->_schema(), $error, null, $issues);
+
+		$this->assertCount(1, $issues);
+		$this->assertStringContainsString('is required', $issues[0]['message']);
+		$this->assertSame(1, $issues[0]['line']);
+	}
+
+	/** One bad placeholder says nothing about the next one. */
+	function testKataValidateCollectsEveryScriptingError() {
+		$kata = DevblocksPlatform::services()->kata();
+
+		$schema = implode("\n", [
+			'schema:',
+			'  attributes:',
+			'    start:',
+			'      types:',
+			'        object:',
+			'          attributes:',
+			'            a:',
+			'              types:',
+			'                string:',
+			'            b:',
+			'              types:',
+			'                string:',
+			'',
+		]);
+
+		$error = null;
+		$issues = null;
+
+		$kata->validate("start:\n  a: {{ 1 + }}\n  b: {{ 2 * }}\n", $schema, $error, null, $issues);
+
+		$this->assertCount(2, $issues);
+
+		// Not order-asserted: the walk uses SplQueue::pop(), which takes from the end, so siblings come out
+		// last-first. Left alone deliberately -- changing it would change `$error` for every existing caller.
+		$this->assertEqualsCanonicalizing([2, 3], array_column($issues, 'line'));
+	}
+
+	/**
+	 * A document that doesn't PARSE has no tree to check anything against, and one syntax error cascades into
+	 * nonsense ones -- so that phase stays fail-fast, on purpose.
+	 */
+	function testKataValidateStopsAtASyntaxError() {
+		$kata = DevblocksPlatform::services()->kata();
+
+		$error = null;
+		$issues = null;
+
+		$this->assertFalse($kata->validate("start:\n  text/bad name:\n  other/bad name:\n", $this->_schema(), $error, null, $issues));
+		$this->assertCount(1, $issues);
+		$this->assertSame(2, $issues[0]['line']);
+	}
+
 	function testKataTabIndents() {
 		$error = null;
 		

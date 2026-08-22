@@ -757,13 +757,63 @@ class _DevblocksKataService {
 		}
 	}
 	
-	public function validate(string $doc_kata, string $schema_kata, ?string &$error=null, ?DevblocksDictionaryDelegate $dict=null) : bool {
+	/**
+	 * Check a document against a schema.
+	 *
+	 * $issues collects EVERY problem the schema pass finds, in the order the traversal meets them, each as
+	 * ['message'=>string, 'path'=>?string (colon path), 'line'=>?int (1-based)]. $error stays exactly what it
+	 * has always been -- the FIRST problem's message -- so every save path that reads it is unchanged.
+	 *
+	 * Two phases still stop at the first problem, deliberately. A document that doesn't PARSE has no tree to
+	 * check anything else against, and one syntax error usually cascades into nonsense ones. formatTree()
+	 * likewise transforms as it goes, so a failure there leaves nothing trustworthy to keep walking.
+	 *
+	 * @param array|null $issues
+	 */
+	public function validate(string $doc_kata, string $schema_kata, ?string &$error=null, ?DevblocksDictionaryDelegate $dict=null, ?array &$issues=null) : bool {
 		$kata = DevblocksPlatform::services()->kata();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$symbol_meta = [];
+		$issues = [];
+		$error = null;
 		
-		if(false === ($doc_tree = $kata->parse($doc_kata, $error, true, $symbol_meta)))
+		if(false === ($doc_tree = $kata->parse($doc_kata, $error, true, $symbol_meta))) {
+			$issues[] = ['message' => strval($error), 'path' => null, 'line' => self::_lineInMessage(strval($error))];
 			return false;
+		}
+		
+		/**
+		 * Record a problem and keep going.
+		 *
+		 * The line comes from the parse's symbol map, walking UP the path to the nearest ancestor the parser
+		 * actually saw -- a missing required key has no line of its own, but the object that should have
+		 * contained it does, and that's where a reader needs to look.
+		 */
+		$funcIssue = function(string $message, ?array $path = null) use (&$issues, $symbol_meta) : void {
+			$string = DevblocksPlatform::services()->string();
+			$line = null;
+			
+			// $key_path segments keep their `@type` suffix; the symbol map strips it.
+			$segments = array_values(array_filter(array_map(
+				fn($segment) => $string->strBefore(strval($segment), '@'),
+				is_array($path) ? $path : []
+			), fn($segment) => '' !== $segment));
+			
+			for($i = count($segments); $i > 0; $i--) {
+				$candidate = implode(':', array_slice($segments, 0, $i));
+				
+				if(array_key_exists($candidate, $symbol_meta)) {
+					$line = intval($symbol_meta[$candidate]) + 1;
+					break;
+				}
+			}
+			
+			$issues[] = [
+				'message' => $message,
+				'path' => $segments ? implode(':', $segments) : null,
+				'line' => $line ?? self::_lineInMessage($message),
+			];
+		};
 		
 		// Scripting syntax validation
 		if(!$dict) {
@@ -782,48 +832,68 @@ class _DevblocksKataService {
 					}
 					
 				} elseif(is_string($current[1]) && (str_contains($current[1], '{{') || str_contains($current[1], '{%'))) {
+					// One bad placeholder says nothing about the next one, so every value is checked.
+					$path = explode(':', rtrim($current[0], ':'));
+					
 					try {
 						$template = $twig->createTemplate($current[1]);
 						$twig->tokenize($template->getSourceContext());
 						
 					} catch (SyntaxError $e) {
 						$line =  1 + ($symbol_meta[rtrim($current[0],':')] ?? -1);
-						$error = sprintf("Scripting error [%s]: %s (line %d)",
+						$funcIssue(sprintf("Scripting error [%s]: %s (line %d)",
 							$current[0],
 							$e->getRawMessage(),
 							$line
-						);
-						return false;
+						), $path);
 						
 					} catch (Throwable $e) {
 						$line =  1 + ($symbol_meta[rtrim($current[0],':')] ?? -1);
-						$error = sprintf('An unexpected error occurred [%s] (line %d).', $current[0], $line);
+						$funcIssue(sprintf('An unexpected error occurred [%s] (line %d).', $current[0], $line), $path);
 						DevblocksPlatform::logException($e);
-						return false;
 					}
 				}
 			}
+			
+			// A document whose placeholders don't lex can't be formatted, so this is as far as it goes.
+			if($issues) {
+				$error = strval($issues[0]['message']);
+				return false;
+			}
 		}
 		
-		if(false === ($doc_tree = $kata->formatTree($doc_tree, $dict, $error)))
+		if(false === ($doc_tree = $kata->formatTree($doc_tree, $dict, $error))) {
+			$issues[] = ['message' => strval($error), 'path' => null, 'line' => self::_lineInMessage(strval($error))];
 			return false;
+		}
 
 		if(false === ($schema = $this->parse($schema_kata, $error))) {
 			$error = sprintf("Syntax error: %s", $error);
+			$issues[] = ['message' => $error, 'path' => null, 'line' => null];
 			return false;
 		}
 		
 		$schema_dict = DevblocksDictionaryDelegate::instance([]);
 		
-		if(false === ($schema = $this->formatTree($schema, $schema_dict, $error)))
+		if(false === ($schema = $this->formatTree($schema, $schema_dict, $error))) {
+			$issues[] = ['message' => strval($error), 'path' => null, 'line' => null];
 			return false;
+		}
 		
 		// Definitions (for recursion)
 		$schema_definitions = $schema['definitions'] ?? [];
 		$schema = $schema['schema'] ?? [];
 		
-		$funcValidateKey = function($key, $value, $schema, &$key_path, &$error) use (&$funcValidateKey, &$dict, $schema_definitions) {
+		/**
+		 * Returns false when it recorded a problem, but NEVER stops early: a sibling key is independent of the
+		 * one before it, and reporting them one save at a time is what makes fixing a document a guessing loop.
+		 *
+		 * Because it now falls through instead of aborting, $key_path has to unwind on every exit -- so this
+		 * has ONE return, and the pop lives with it.
+		 */
+		$funcValidateKey = function($key, $value, $schema, &$key_path) use (&$funcValidateKey, &$dict, $schema_definitions, $funcIssue) {
 			$string = DevblocksPlatform::services()->string();
+			$ok = true;
 			
 			if($key) { // If not the root
 				$key_path[] = $key;
@@ -868,13 +938,14 @@ class _DevblocksKataService {
 							if('' === $node_name || _DevblocksKataService::isVariableName($node_name))
 								continue;
 
-							$error = sprintf(
+							$funcIssue(sprintf(
 								'Key `%s%s:` name `%s` must only contain letters, numbers, and underscores',
 								$key_path ? (implode(':', $key_path) . ':') : '',
 								$node_key,
 								$node_name
-							);
-							return false;
+							), array_merge($key_path, [$node_key]));
+							
+							$ok = false;
 						}
 					}
 
@@ -884,6 +955,11 @@ class _DevblocksKataService {
 						array_unique(array_values($node_attributes)),
 						array_keys($type_attributes)
 					);
+					
+					// A key with no schema entry has nothing to check its children against, so it is skipped
+					// below rather than recursed into -- otherwise every child reports "has no schema type"
+					// and buries the one problem that's real.
+					$unresolved_attributes = [];
 					
 					if($unknown_attributes) {
 						$attribute_patterns = $node_type_params['attributePatterns'] ?? [];
@@ -912,13 +988,14 @@ class _DevblocksKataService {
 							}
 							
 							if(!$found_attribute) {
-								$error = sprintf(
+								$funcIssue(sprintf(
 									'Key `%s%s:` is unknown',
 									$key_path ? (implode(':', $key_path) . ':') : '',
 									$unknown_attribute
-								);
+								), array_merge($key_path, [$unknown_attribute]));
 								
-								return false;
+								$unresolved_attributes[$unknown_attribute] = true;
+								$ok = false;
 							}
 						}
 					}
@@ -940,8 +1017,8 @@ class _DevblocksKataService {
 						
 						if (array_key_exists('required', $attr_params)) {
 							if (!array_key_exists($attr_key, $attr_key_count)) {
-								$error = sprintf('Key `%s%s:` is required', $attr_key_prefix, $attr_key);
-								return false;
+								$funcIssue(sprintf('Key `%s%s:` is required', $attr_key_prefix, $attr_key), array_merge($key_path, [$attr_key]));
+								$ok = false;
 							}
 						}
 						
@@ -949,22 +1026,25 @@ class _DevblocksKataService {
 							// If not nameable but named
 							foreach ($node_attributes as $na_key => $na_type) {
 								if ($attr_key == $na_type && false !== strpos($na_key, '/')) {
-									$error = sprintf('Key `%s%s:` must not have a name', $attr_key_prefix, $attr_key);
-									return false;
+									$funcIssue(sprintf('Key `%s%s:` must not have a name', $attr_key_prefix, $attr_key), array_merge($key_path, [$na_key]));
+									$ok = false;
 								}
 							}
 							
 							// If duplicated
 							if (array_key_exists($attr_key, $attr_key_count) && $attr_key_count[$attr_key] > 1) {
-								$error = sprintf('Key `%s%s:` can not be duplicated', $attr_key_prefix, $attr_key);
-								return false;
+								$funcIssue(sprintf('Key `%s%s:` can not be duplicated', $attr_key_prefix, $attr_key), array_merge($key_path, [$attr_key]));
+								$ok = false;
 							}
 						}
 					}
 					
 					foreach ($value as $k => $v) {
-						if (false === ($funcValidateKey($k, $v, $type_attributes, $key_path, $error)))
-							return false;
+						if(array_key_exists($string->strBefore($string->strBefore($k, '/'), '@'), $unresolved_attributes))
+							continue;
+						
+						if (false === ($funcValidateKey($k, $v, $type_attributes, $key_path)))
+							$ok = false;
 					}
 				
 				} else { // Not an object
@@ -1000,32 +1080,40 @@ class _DevblocksKataService {
 			// If we didn't find a suitable type
 			if(!$found_type) {
 				if($node_types) {
-					$error = sprintf("Key `%s:` must be of type: %s",
+					$funcIssue(sprintf("Key `%s:` must be of type: %s",
 						implode(':', $key_path),
 						implode(', ', array_keys($node_types))
-					);
+					), $key_path);
 				} else {
-					$error = sprintf("Key `%s:` has no schema type",
+					$funcIssue(sprintf("Key `%s:` has no schema type",
 						implode(':', $key_path),
-					);
+					), $key_path);
 				}
 				
-				return false;
+				$ok = false;
 			}
 			
 			if($key)
 				array_pop($key_path);
 			
-			return true;
+			return $ok;
 		};
 		
 		$key_path = [];
-		$error = null;
 		
-		if(false === $funcValidateKey(null, $doc_tree, $schema, $key_path, $error))
-			return false;
+		$funcValidateKey(null, $doc_tree, $schema, $key_path);
 		
-		return true;
+		// $error is the FIRST problem, byte-for-byte what this returned before it collected them all.
+		$error = $issues ? strval($issues[0]['message']) : null;
+		
+		return !$issues;
+	}
+	
+	/** A `(line N)` some messages embed themselves, for the phases that have no key path to map. */
+	private static function _lineInMessage(string $message) : ?int {
+		$matches = [];
+		
+		return preg_match('/\(line (\d+)\)/', $message, $matches) ? intval($matches[1]) : null;
 	}
 	
 	public function treeDiff(mixed $tree1, mixed $tree2, string $parent_key='', ?callable $comparator=null) : mixed {
