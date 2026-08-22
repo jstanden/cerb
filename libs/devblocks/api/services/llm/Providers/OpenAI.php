@@ -258,8 +258,13 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, ChatStreami
 	 *
 	 * So force `none` whenever we're sending tools to a model that knows the level. This overrides an
 	 * author's `effort:` ON PURPOSE: on this endpoint the choice is a tool-using agent with no reasoning or
-	 * no agent at all. Models predating the `none` level keep the omit behavior — there's nothing better to
-	 * send them, and their turn may well work.
+	 * no agent at all. Models predating the `none` level (gpt-5.0 to 5.3) keep the omit behavior -- there is
+	 * nothing better to send them, and their turn may well work. Anything that is not a gpt id at all is
+	 * left strictly alone; see the early return.
+	 *
+	 * This whole rule is a chat-completions workaround with an expiry date: `/v1/responses` is the endpoint
+	 * where tools and reasoning coexist, so once a gpt-5.4+ turn routes there the guardrail stops firing for
+	 * the models it was written for, and survives only for someone who has explicitly asked for `api: chat`.
 	 *
 	 * Split out of chatCompletion so the rule is testable without a live call; it has been wrong once.
 	 */
@@ -268,6 +273,19 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, ChatStreami
 			return $params;
 
 		if(!$this->_appliesToolReasoningGuardrail($model))
+			return $params;
+
+		// An id that won't sit on OpenAI's version scale isn't OpenAI's model, so that endpoint's refusal
+		// can't be this turn's rule -- and _parseGptVersion() already states that null means "assert NOTHING
+		// about it rather than guess". The else branch below was guessing: it UNSET the level for every id
+		// that failed the probe, which is every self-hosted and third-party model reached through
+		// `provider: openai` (a local `Qwen3.8-27B-8bit`, an `unsloth/gpt-oss-20b-GGUF`, a `DeepSeek-V4-Pro`).
+		// Those turns lost the author's reasoning level entirely, on every tool call, with no error anywhere
+		// -- indistinguishable from a model that simply doesn't think very hard.
+		//
+		// Returning early is not merely safer, it is the status quo ante: a server that never had the
+		// limitation gets exactly the request it would have got before this guardrail existed.
+		if(null === $this->_parseGptVersion($model))
 			return $params;
 
 		if($this->_supportsReasoningEffortNone($model)) {
