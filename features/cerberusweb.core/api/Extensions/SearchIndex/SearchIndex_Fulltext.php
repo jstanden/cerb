@@ -516,9 +516,7 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 	}
 	
 	private function _searchTableExists(Model_SearchIndex $model) : bool {
-		$db = DevblocksPlatform::services()->database();
-		
-		$tables = $db->metaTables();
+		$tables = DevblocksPlatform::getDatabaseTables();
 		$table_name = sprintf('search_index_%d', $model->id);
 		
 		return array_key_exists($table_name, $tables);
@@ -689,6 +687,8 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		// Delete search index on reindex
 		$sql = sprintf("DROP TABLE IF EXISTS search_index_%d", $model->id);
 		$db->ExecuteMaster($sql);
+		
+		DevblocksPlatform::clearCache(DevblocksEngine::CACHE_TABLES);
 	}
 	
 	private function _reindexCreateJob(Model_SearchIndex $search_index, array $query_parts, &$error=null) : ?\Model_QueueJob {
@@ -971,6 +971,8 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		
 		$sql = sprintf("DROP TABLE IF EXISTS search_index_%d", $model->id);
 		$db->ExecuteMaster($sql);
+		
+		DevblocksPlatform::clearCache(DevblocksEngine::CACHE_TABLES);
 		
 		$param_key_last_indexed_at = sprintf('search_index_%d.last_indexed_at', $model->id);
 		$registry->delete($param_key_last_indexed_at);
