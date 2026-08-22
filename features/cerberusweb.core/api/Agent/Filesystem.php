@@ -1304,8 +1304,12 @@ class Filesystem {
 
 		// The index matches per FILE (tokenized/stemmed), so a file can legitimately match with no literal line
 		// hit. Per file: try the whole phrase, then any single term.
-		$needle = \DevblocksPlatform::strLower($query);
-		$terms = preg_split('/\s+/', $needle, -1, PREG_SPLIT_NO_EMPTY);
+		$terms = array_values(array_filter(array_map(
+			self::_literalNeedle(...),
+			preg_split('/\s+/', \DevblocksPlatform::strLower($query), -1, PREG_SPLIT_NO_EMPTY)
+		), fn($t) => '' !== $t));
+
+		$needle = implode(' ', $terms);
 
 		$results = [];
 
@@ -1317,9 +1321,11 @@ class Filesystem {
 			$body = preg_split("/\r?\n/", $content);
 			$hits = [];
 
-			foreach($body as $i => $line) {
-				if(false !== strpos(\DevblocksPlatform::strLower($line), $needle))
-					$hits[] = ['line' => $i + 1, 'text' => trim($line)];
+			if('' !== $needle) {
+				foreach($body as $i => $line) {
+					if(str_contains(\DevblocksPlatform::strLower($line), $needle))
+						$hits[] = ['line' => $i + 1, 'text' => trim($line)];
+				}
 			}
 
 			if(!$hits && $terms) {
