@@ -426,6 +426,7 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 				'workflow:config:' => [
 					'chooser/key:',
 					'picklist/key:',
+					'query/key:',
 					'text/key:',
 				],
 				'workflow:config:chooser:' => [
@@ -440,6 +441,11 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 					'label:',
 					'multiple@bool: yes',
 					'options@csv: option1, option2, option3',
+				],
+				'workflow:config:query:' => [
+					'default:',
+					'label:',
+					'record_type:',
 				],
 				'workflow:config:text:' => [
 					'default:',
@@ -460,10 +466,13 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 			
 			$record_types = Extension_DevblocksContext::getAll(true, ['records']);
 			
-			$autocomplete_suggestions['workflow:config:chooser:record_type:'] = array_values(array_map(
+			$record_type_aliases = array_values(array_map(
 				fn($record_type) => $record_type->manifest->params['alias'],
 				$record_types
 			));
+			
+			$autocomplete_suggestions['workflow:config:chooser:record_type:'] = $record_type_aliases;
+			$autocomplete_suggestions['workflow:config:query:record_type:'] = $record_type_aliases;
 			
 			foreach($record_types as $record_type) {
 				$record_suggestions = [
@@ -842,6 +851,15 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 
 			$new_workflow = clone $was_workflow;
 			$new_workflow->workflow_kata = $workflow_kata;
+
+			// Validate BEFORE storing: a bad `query/` value must fail on the config form, not later as an opaque
+			// script error when an owned record's field is finally used. Both the preview step and the commit
+			// step check, because the commit step can be reached with values the preview never saw.
+			$config_error = null;
+
+			if(false === $new_workflow->validateConfigValues($config_values, $config_error))
+				throw new Exception_DevblocksAjaxValidationError($config_error);
+
 			$new_workflow->setConfigValues($config_values);
 
 			$resource_keys = [];
@@ -985,6 +1003,15 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 			
 			$new_workflow = clone $was_workflow;
 			$new_workflow->workflow_kata = $workflow_kata;
+
+			// Validate BEFORE storing: a bad `query/` value must fail on the config form, not later as an opaque
+			// script error when an owned record's field is finally used. Both the preview step and the commit
+			// step check, because the commit step can be reached with values the preview never saw.
+			$config_error = null;
+
+			if(false === $new_workflow->validateConfigValues($config_values, $config_error))
+				throw new Exception_DevblocksAjaxValidationError($config_error);
+
 			$new_workflow->setConfigValues($config_values);
 
 			if($import_kata) {

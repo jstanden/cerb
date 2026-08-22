@@ -575,6 +575,7 @@ class Model_Workflow extends DevblocksRecordModel {
 		$possible_types = [
 			'chooser',
 			'picklist',
+			'query',
 			'text',
 		];
 		
@@ -642,6 +643,36 @@ class Model_Workflow extends DevblocksRecordModel {
 					$error = sprintf("Unknown params (%s). Must be one or more of: %s",
 						implode(', ', $invalid_params),
 						implode(',', $possible_params)
+					);
+					return false;
+				}
+				
+			} elseif('query' == $option_type) {
+				// A Cerb SEARCH QUERY over one record type
+				$possible_params = [
+					'label',
+					'default',
+					'record_type',
+				];
+				
+				// Schema validation
+				if($invalid_params = array_diff(array_keys($option_params), $possible_params)) {
+					$error = sprintf("Unknown params (%s). Must be one or more of: %s",
+						implode(', ', $invalid_params),
+						implode(',', $possible_params)
+					);
+					return false;
+				}
+				
+				if(!($option_params['record_type'] ?? null)) {
+					$error = sprintf('`workflow:config:%s` requires a `record_type:`', $option_key);
+					return false;
+				}
+				
+				if(!Extension_DevblocksContext::getByAlias($option_params['record_type'], true)) {
+					$error = sprintf('`workflow:config:%s` has an unknown `record_type:` (%s)',
+						$option_key,
+						$option_params['record_type']
 					);
 					return false;
 				}
@@ -772,6 +803,56 @@ class Model_Workflow extends DevblocksRecordModel {
 		return array_merge(...array_values($record_types));
 	}
 	
+	/**
+	 * Validate posted config VALUES against their declared option types.
+	 *
+	 * **This is the only per-option value validation the workflow config has.** `_getValidationFields()`
+	 * checks the column length of `config_kata` and nothing else, and `setConfigValues()` stores whatever it is
+	 * handed -- a `picklist/` value isn't re-checked against its `options:`, and a `chooser/` value isn't
+	 * re-checked against its `record_query:`. Only `query/` is checked, because only `query/` has a cheap,
+	 * exact test: run it through the same parser the worklist uses.
+	 */
+	public function validateConfigValues(array $config_values, ?string &$error=null) : bool {
+		if(false === ($config_options = $this->getConfigOptions($config_values, $error)))
+			return false;
+
+		foreach($config_options as $option_key => $option) {
+			if('query' != ($option['type'] ?? ''))
+				continue;
+
+			$value = trim(strval($option['value'] ?? ''));
+
+			// Blank means "no filter", which is a legitimate answer for an optional pool.
+			if('' === $value)
+				continue;
+
+			// A workflow author may template a config default; that can't be parsed until it's resolved.
+			if(str_contains($value, '{{'))
+				continue;
+
+			$record_type = $option['params']['record_type'] ?? '';
+
+			if(!($context_ext = Extension_DevblocksContext::getByAlias($record_type, true)))
+				continue;
+
+			if(!($view = $context_ext->getTempView()))
+				continue;
+
+			$query_error = null;
+
+			if(false === $view->getParamsFromQuickSearch($value, [], $query_error)) {
+				$error = sprintf('%s: must be a valid %s search -- %s',
+					$option['params']['label'] ?? $option_key,
+					$record_type,
+					$query_error
+				);
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 	public function setConfigValues(array $config_values=[]) : void {
 		$kata = DevblocksPlatform::services()->kata();
 		$current_values = $kata->parse($this->config_kata);

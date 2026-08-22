@@ -39,6 +39,18 @@
                     {/foreach}
                     </select>
                 {/if}
+            {elseif 'query' == $config_option.type}
+                <div class="cerb-ui-searchquery cerb-config-query" data-context="{$config_option.params.record_type}">
+                    <span class="cerb-ui-searchquery--icon cerb-icons cerb-icon-search"></span>
+                    <div class="cerb-ui-searchquery--field">
+                        <div class="cerb-ui-searchquery--highlight" aria-hidden="true"></div>
+                        <textarea name="config_values[{$config_option.key}]" class="cerb-ui-searchquery--input" rows="1">{$config_option.value}</textarea>
+                        <span class="cerb-ui-searchquery--caret-anchor"></span>
+                    </div>
+                    <div class="cerb-ui-searchquery--right">
+                        <a data-action="autocomplete" style="cursor:pointer;color:var(--cerb-color-background-contrast-150);" title="Suggestions (Ctrl/&#8984;+Space)"><span class="cerb-icons cerb-icon-autocomplete"></span></a>
+                    </div>
+                </div>
             {elseif 'text' == $config_option.type}
                 {if $config_option.params.multiple}
                     <textarea name="config_values[{$config_option.key}]" style="width:100%;height:5em;">{$config_option.value}</textarea>
@@ -70,6 +82,18 @@ $(function() {
                 multiple: this.hasAttribute('data-multiple'),
                 query: this.getAttribute('data-query') || ''
             });
+        });
+
+    if(window.CerbUI && CerbUI.SearchQuery)
+        $fieldset.find('.cerb-config-query').each(function() {
+            const ctx = this.getAttribute('data-context') || '';
+            if(!ctx) return;
+            const sq = new CerbUI.SearchQuery(this, {
+                onAutocomplete: CerbUI.SearchQuery.queryFieldSource(ctx),
+                context: ctx
+            });
+            const acBtn = this.querySelector('[data-action=autocomplete]');
+            if(acBtn) acBtn.addEventListener('click', () => sq.openAutocomplete());
         });
 });
 </script>
