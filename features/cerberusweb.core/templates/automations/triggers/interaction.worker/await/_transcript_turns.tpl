@@ -59,10 +59,11 @@
         <div data-cerb-transcript-aside>
             {if $turn.is_truncated}<span class="cerb-ui-pill cerb-ui-pill--orange" title="{if 'filter' == $turn.finish_reason}The provider withheld this response{else}The model hit its output limit — this response is cut off{/if}">{if 'filter' == $turn.finish_reason}Filtered{else}Truncated{/if}</span>{/if}
             {if $show_tokens_chip}
-            <div class="cerb-ui-chip" title="Prompt {$turn.usage.prompt|number_format} tokens ({$turn.usage.cache_read|number_format} from cache) &middot; Output {$turn.usage.output|number_format}">
+            <div class="cerb-ui-chip" title="Prompt {$turn.usage.prompt|number_format} tokens ({$turn.usage.cache_read|number_format} from cache) &middot; Output {$turn.usage.output|number_format}{if $turn.usage.reasoning > 0} ({$turn.usage.reasoning|number_format} reasoning + {$turn.usage.output_text|number_format} reply){/if}">
                 <div class="cerb-ui-chip--head">Tokens</div>
                 <div><div class="cerb-ui-chip--label">In</div><div class="cerb-ui-chip--value">{$turn.usage.prompt|number_format}</div></div>
                 <div><div class="cerb-ui-chip--label">Out</div><div class="cerb-ui-chip--value">{$turn.usage.output|number_format}</div></div>
+                {if $turn.usage.reasoning > 0}<div title="Of the {$turn.usage.output|number_format} output tokens, {$turn.usage.reasoning|number_format} were reasoning the model never showed and {$turn.usage.output_text|number_format} were the visible reply."><div class="cerb-ui-chip--label">Think</div><div class="cerb-ui-chip--value">{$turn.usage.reasoning|number_format}</div></div>{/if}
                 {if $turn.usage.prompt > 0}<div><div class="cerb-ui-chip--label">Cached</div><div class="cerb-ui-chip--value">{$turn.usage.coverage}%</div></div>{/if}
             </div>
             {/if}

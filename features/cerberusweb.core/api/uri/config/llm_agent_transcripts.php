@@ -320,6 +320,18 @@ class PageSection_SetupDevelopersLlmAgentTranscripts extends Extension_PageSecti
 			$tpl->assign('tool_map', $tool_map);
 			$tpl->assign('tool_automations', $tool_automations);
 
+			// The reasoning level that actually shipped on this session's turns. Asked of the provider rather
+			// than read off provider_params because the level a provider sends isn't always the level that was
+			// configured: OpenAI's /v1/chat/completions forces `none` whenever tools are present, so a
+			// tool-using session runs with reasoning OFF while every stored artifact still says `medium`.
+			// Null = we sent no level and the model used its own default, which is NOT the same as `none`.
+			$effective_effort = null;
+
+			if($llm_session->isPrimed() && ($effort_provider = DevblocksPlatform::services()->llm()->getProvider($llm_session->provider, $llm_session->provider_params, false)))
+				$effective_effort = $effort_provider->getEffectiveEffort(boolval($tool_map));
+
+			$tpl->assign('effective_effort', $effective_effort);
+
 			// The volumes the `agent_terminal` tool actually reached. Resolved through `describeSpecs()` rather than
 			// `fromSpecs()` so a mount whose volume was since deleted or disabled is REPORTED instead of
 			// vanishing — that's a silent loss of capability the agent never announced, and the transcript is

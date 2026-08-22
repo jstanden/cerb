@@ -478,6 +478,20 @@ class Model_LlmAgentSession {
 		return strval($this->provider_params['model'] ?? '');
 	}
 
+	// The reasoning level this session ran at, as stamped into provider_params when it was primed. Canonical
+	// and top-level for every provider (Anthropic routes it to output_config.effort, the OpenAI family to
+	// reasoning_effort), which is why one accessor serves them all. Empty = none was sent, so the model used
+	// its own default -- NOT the same as `none`, which is an explicit level that turns reasoning off.
+	public function getEffort() : string {
+		return DevblocksPlatform::strLower(trim(strval($this->provider_params['effort'] ?? '')));
+	}
+
+	// Did the model this session was primed with advertise extended thinking? Display-only: the catalog's
+	// claim about the model, stamped at prime time, not proof that any turn reasoned.
+	public function hasThinking() : bool {
+		return boolval($this->provider_params['has_thinking'] ?? false);
+	}
+
 	/**
 	 * Display identity, read from the `display:` block STAMPED into provider_params when the session was
 	 * primed — never from the `agent_model` record, which may since have been renamed, re-pointed, or deleted.

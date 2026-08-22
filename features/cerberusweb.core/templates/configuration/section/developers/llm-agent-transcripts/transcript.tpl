@@ -20,6 +20,21 @@
         <div class="cerb-ui-chip--head">LLM</div>
         <div><div class="cerb-ui-chip--label">Provider</div><div class="cerb-ui-chip--value"><span class="cerb-icons cerb-icon-{DevblocksPlatform::services()->llm()->getProviderIcon($llm_session->provider)}"></span> {$llm_session->provider}</div></div>
         {if $llm_session->isPrimed() && $llm_session->getModel()}<div><div class="cerb-ui-chip--label">Model</div><div class="cerb-ui-chip--value">{$llm_session->getModel()}</div></div>{/if}
+        {if $llm_session->isPrimed()}{$configured_effort = $llm_session->getEffort()}
+        <div>
+            <div class="cerb-ui-chip--label">Thinking</div>
+            <div class="cerb-ui-chip--value">
+                {if 'none' == $effective_effort}Off
+                {elseif $effective_effort}{$effective_effort|capitalize}
+                {elseif $llm_session->hasThinking()}<span class="cerb-u-text-muted" title="No level was sent, so the model reasoned at its own default. That is not the same as Off.">Model default</span>
+                {else}<span class="cerb-u-text-muted">--</span>
+                {/if}
+                {if $configured_effort && $configured_effort != $effective_effort}
+                <span class="cerb-ui-pill cerb-ui-pill--orange" title="This session was configured for `{$configured_effort}`, but it sends tools -- and OpenAI's /v1/chat/completions refuses function tools on a reasoning turn, so the level is overridden per call. Drop the tools to reason at the configured level.">Overridden by tools</span>
+                {/if}
+            </div>
+        </div>
+        {/if}
         {if $llm_session_auth}<div><div class="cerb-ui-chip--label">Authentication</div><div class="cerb-ui-chip--value"><a data-context="{CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}" data-context-id="{$llm_session_auth->id}" data-cerb-peek>{$llm_session_auth->name}</a></div></div>{/if}
     </div>
     {if $llm_session->user_type || $llm_session->user_ip}
@@ -37,6 +52,7 @@
         <div><div class="cerb-ui-chip--label">Cached Reads</div><div class="cerb-ui-chip--value">{$session_usage.cache_read|number_format}</div></div>
         <div><div class="cerb-ui-chip--label">Cached Writes</div><div class="cerb-ui-chip--value">{$session_usage.cache_write|number_format}</div></div>
         <div><div class="cerb-ui-chip--label">Output</div><div class="cerb-ui-chip--value">{$session_usage.output|number_format}</div></div>
+        {if $session_usage.reasoning > 0}<div title="Reasoning tokens, already counted inside Output — the model was billed for them but they were never shown. {$session_usage.output_text|number_format} of the Output was visible reply."><div class="cerb-ui-chip--label">Thinking</div><div class="cerb-ui-chip--value">{$session_usage.reasoning|number_format}</div></div>{/if}
     </div>
     {/if}
     {if $message_counts.user > 0 || $message_counts.agent > 0 || $message_counts.tools > 0}
@@ -181,10 +197,11 @@
             <div data-cerb-transcript-aside>
                 {if $turn.is_truncated}<span class="cerb-ui-pill cerb-ui-pill--orange" title="{if 'filter' == $turn.finish_reason}The provider withheld this response (finish_reason: filter){else}The model hit its output limit — this response is cut off (finish_reason: length){/if}">{if 'filter' == $turn.finish_reason}Filtered{else}Truncated{/if}</span>{/if}
                 {if $show_tokens_chip}
-                <div class="cerb-ui-chip" style="flex:0 0 auto;" title="Prompt {$turn.usage.prompt|number_format} tokens ({$turn.usage.cache_read|number_format} from cache) &middot; Output {$turn.usage.output|number_format}">
+                <div class="cerb-ui-chip" style="flex:0 0 auto;" title="Prompt {$turn.usage.prompt|number_format} tokens ({$turn.usage.cache_read|number_format} from cache) &middot; Output {$turn.usage.output|number_format}{if $turn.usage.reasoning > 0} ({$turn.usage.reasoning|number_format} reasoning + {$turn.usage.output_text|number_format} reply){/if}">
                     <div class="cerb-ui-chip--head">Tokens</div>
                     <div><div class="cerb-ui-chip--label">In</div><div class="cerb-ui-chip--value">{$turn.usage.prompt|number_format}</div></div>
                     <div><div class="cerb-ui-chip--label">Out</div><div class="cerb-ui-chip--value">{$turn.usage.output|number_format}</div></div>
+                    {if $turn.usage.reasoning > 0}<div title="Of the {$turn.usage.output|number_format} output tokens, {$turn.usage.reasoning|number_format} were reasoning the model never showed and {$turn.usage.output_text|number_format} were the visible reply."><div class="cerb-ui-chip--label">Think</div><div class="cerb-ui-chip--value">{$turn.usage.reasoning|number_format}</div></div>{/if}
                     {if $turn.usage.prompt > 0}<div><div class="cerb-ui-chip--label">Cached</div><div class="cerb-ui-chip--value">{$turn.usage.coverage}%</div></div>{/if}
                 </div>
                 {/if}

@@ -353,6 +353,21 @@ abstract class Extension_DevblocksLlmProvider {
 	}
 
 	/**
+	 * The level this provider will ACTUALLY put on the wire for a turn of the given shape, or null for none.
+	 *
+	 * Normally the same as getEffort(), and that stays the default. It's a separate question because a
+	 * provider may reconcile the author's level against the turn before sending it -- OpenAI's
+	 * /v1/chat/completions forces `none` whenever tools are present (see _applyToolReasoningGuardrail), so a
+	 * tool-using session reasons at a level nobody configured and no stored artifact records.
+	 *
+	 * Read-only and side-effect free, for a reader (the transcript header) that needs to report what ran
+	 * rather than what was asked for.
+	 */
+	function getEffectiveEffort(bool $has_tools) : ?string {
+		return $this->getEffort();
+	}
+
+	/**
 	 * Does this provider actually offer an embeddings endpoint?
 	 *
 	 * Normally the same question as `instanceof Embedding`, and that stays the default. It needs its own
