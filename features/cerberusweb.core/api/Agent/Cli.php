@@ -2,6 +2,7 @@
 namespace Cerb\Agent;
 
 use Cerb\Agent\Cli\Command;
+use Cerb\Agent\Cli\Platform;
 use Cerb\Agent\Cli\Records;
 
 /**
@@ -29,7 +30,7 @@ class Cli {
 		if(is_null($commands)) {
 			$commands = [];
 
-			foreach([new Records()] as $command)
+			foreach([new Records(), new Platform(), new Code()] as $command)
 				$commands[$command->getName()] = $command;
 		}
 
