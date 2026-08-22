@@ -317,6 +317,8 @@ class PageSection_ProfilesAgentModel extends Extension_PageSection {
 			echo json_encode([
 				'status' => true,
 				'provider' => $provider_id,
+				// Responses (new) or ChatCompletions (widest compatibility)
+				'api_surface' => $provider->getApiSurface(),
 				'model' => $model->model,
 				'reply' => $result['reply'],
 				'usage' => $result['usage'],

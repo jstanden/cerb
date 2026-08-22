@@ -578,6 +578,10 @@ $(function() {
 					const usage = json.usage || {};
 					const cells = [chipCell('Model', json.model || '(default)')];
 
+					// Only providers that front more than one wire format report a surface; the rest send ''.
+					if(json.api_surface)
+						cells.push(chipCell('API', json.api_surface));
+
 					if(json.reply)
 						cells.push(chipCell('Reply', json.reply));
 
