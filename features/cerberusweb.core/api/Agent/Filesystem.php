@@ -1004,6 +1004,33 @@ class Filesystem {
 		return implode("\n", $lines);
 	}
 
+	/**
+	 * The miss reply: the AND query that failed, then the counts `--terms` would have given. Pure, so the
+	 * wording is covered without a database. Returns '' when there is nothing to show.
+	 */
+	private static function _formatTermMiss(string $query, array $stats) : string {
+		$terms = $stats['terms'] ?? [];
+		$required_docs = $stats['required_docs'] ?? null;
+
+		if(!($rows = self::_termRows($terms, $required_docs > 0)))
+			return '';
+
+		$lines = [
+			sprintf("No AND matches for '%s'.", $query),
+			"Switching to OR `--terms` to find keywords:",
+			'',
+			...self::_requiredHeading($terms, $required_docs),
+			...$rows,
+			'',
+			"Require a term with `+term`",
+		];
+
+		if(array_filter($terms, fn($t) => 'common' == ($t['status'] ?? '')))
+			$lines[] = "(-) Terms are on the ignore list";
+
+		return implode("\n", $lines);
+	}
+
 	/** `+discount:` above the rows -- the requirement stated once, instead of repeated in prose. */
 	private static function _requiredHeading(array $terms, $required_docs) : array {
 		if(!($reqs = array_values(array_unique(array_column(array_filter($terms, fn($t) => $t['required'] ?? false), 'term')))))
@@ -1079,6 +1106,42 @@ class Filesystem {
 		}
 
 		return $rows;
+	}
+
+	/**
+	 * A search that matched nothing falls back to the OR view instead of guessing why.
+	 *
+	 * `search` is AND -- every word must be in the SAME file -- so a pile of near-synonyms reliably matches
+	 * nothing. The useful answer is not a diagnosis of that; it is the per-word counts, which is exactly
+	 * what `--terms` reports. Throw synonyms at it, keep the winner, require it, and throw the next set.
+	 *
+	 * Deliberately no prose about WHICH word to drop or what the caller probably meant: the counts say it,
+	 * and predicting intent costs tokens on every miss to restate what the numbers already show.
+	 *
+	 * Costs one index query, on the MISS path only -- both call sites are terminal returns, so a successful
+	 * search never reaches here. Degrades to the bare message when no index answers.
+	 */
+	private function _searchMiss(array $cmd, string $query, string $cwd, array $params) : array {
+		$bare = sprintf("No AND matches for '%s'.", $query);
+
+		if(!($search_index = self::_searchIndex()))
+			return $this->_result($bare, $cwd);
+
+		$parsed = self::_splitRequiredTerms($cmd['args'] ?? []);
+
+		// Keep the requirements. A miss on `+discount academic school` is the SECOND step of the loop: the
+		// caller already established `discount`, so counting the new words across the whole corpus would
+		// throw that away and answer a question they stopped asking.
+		$stats = $search_index->getExtension()->queryTermStats($search_index, $parsed['words'], $parsed['required'], $params);
+
+		if(!($text = self::_formatTermMiss($query, $stats)))
+			return $this->_result($bare, $cwd);
+
+		$out = $this->_result($text, $cwd);
+		$out['data'] = $stats['terms'];
+		$out['data_alias'] = 'terms';
+
+		return $out;
 	}
 
 	/**
@@ -1237,7 +1300,7 @@ class Filesystem {
 		list($rows,) = \DAO_AgentFile::search($columns, $params, $limit, 0, \SearchFields_AgentFile::NAME, true, false);
 
 		if(!$rows)
-			return $this->_result(sprintf("No matches for '%s'.", $query), $cwd);
+			return $this->_searchMiss($cmd, $query, $cwd, $params);
 
 		// The index matches per FILE (tokenized/stemmed), so a file can legitimately match with no literal line
 		// hit. Per file: try the whole phrase, then any single term.
