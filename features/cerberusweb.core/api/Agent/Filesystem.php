@@ -847,28 +847,51 @@ class Filesystem {
 		return $this->_result('', $target);
 	}
 
+	/**
+	 * Resolve a path and return its whole body, or null with a reason.
+	 *
+	 * Split out of _cmdRead() so a `cerb` sub-command that takes a file (`cerb code kata lint /tmp/x.kata`)
+	 * reads it by exactly the same rules -- same cwd resolution, same mounts, same /tmp, same not-found
+	 * wording. A second resolver would drift into accepting paths `read` rejects, or the reverse.
+	 *
+	 * @param string|null $resolved_path set to the absolute path the argument resolved to, for error text
+	 */
+	private function _readPath(string $arg, string $cwd, ?string &$error = null, ?string &$resolved_path = null) : ?string {
+		$error = null;
+		$resolved_path = $path = $this->_resolvePath($arg, $cwd);
+		$loc = $this->_locate($path);
+
+		if(!$loc['mount'] || '' === $loc['rel']) {
+			$error = 'No such file';
+			return null;
+		}
+
+		if($this->_isTmp($loc['mount'])) {
+			if(is_null($content = $this->_tmpGet($loc['rel']))) {
+				$error = 'No such file (a spilled buffer may have expired)';
+				return null;
+			}
+
+			return $content;
+		}
+
+		if(!($row = $this->_getFile($loc['mount'], $loc['rel']))) {
+			$error = 'No such file';
+			return null;
+		}
+
+		return strval($row['content'] ?? '');
+	}
+
 	private function _cmdRead(array $cmd, string $cwd) : array {
 		if(!($cmd['args'][0] ?? null))
 			return $this->_error("read: missing operand. Usage: read <path> [--offset N] [--limit N]", $cwd);
 
-		$path = $this->_resolvePath($cmd['args'][0], $cwd);
-		$loc = $this->_locate($path);
+		$read_error = null;
+		$path = null;
 
-		if(!$loc['mount'] || '' === $loc['rel'])
-			return $this->_error(sprintf("read: %s: No such file", $path), $cwd);
-
-		if($this->_isTmp($loc['mount'])) {
-			if(is_null($content = $this->_tmpGet($loc['rel'])))
-				return $this->_error(sprintf("read: %s: No such file (a spilled buffer may have expired)", $path), $cwd);
-
-		} else {
-			$row = $this->_getFile($loc['mount'], $loc['rel']);
-
-			if(!$row)
-				return $this->_error(sprintf("read: %s: No such file", $path), $cwd);
-
-			$content = strval($row['content'] ?? '');
-		}
+		if(is_null($content = $this->_readPath($cmd['args'][0], $cwd, $read_error, $path)))
+			return $this->_error(sprintf("read: %s: %s", $path, $read_error), $cwd);
 
 		$total_lines = substr_count($content, "\n") + (('' === $content || str_ends_with($content, "\n")) ? 0 : 1);
 
