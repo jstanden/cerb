@@ -55,7 +55,7 @@ class Records implements Command {
 		]);
 	}
 
-	public function exec(array $args, array $flags) : array {
+	public function exec(array $args, array $flags, array $context = []) : array {
 		$subcommand = DevblocksPlatform::strLower(strval(array_shift($args) ?? ''));
 
 		return match($subcommand) {

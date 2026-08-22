@@ -30,11 +30,23 @@ interface Command {
 	/**
 	 * Run it. $args excludes the namespace itself, so `cerb records types` arrives as ['types'].
 	 *
+	 * $context is what the HOST can offer beyond the command line, and every key is optional -- a command
+	 * that needs one must degrade with a clear message rather than assume it:
+	 *   'cwd'     => string, the working directory the command was typed in
+	 *   'payload' => ?string, out-of-band content (the agent's `content` parameter; the Setup terminal's
+	 *                Payload box)
+	 *   'read'    => callable(string $path, ?string &$error, ?string &$resolved) : ?string, reading a file
+	 *                by exactly the rules `read` uses -- same cwd resolution, same mounts, same /tmp
+	 *
 	 * Returns the Filesystem result shape minus `cwd`:
 	 *   ['output' => string, 'error' => bool, 'data' => ?array, 'data_alias' => ?string]
 	 *
 	 * `data`/`data_alias` are what make output pipeable as ROWS rather than as text -- always populate them
 	 * for a listing, or the only thing a `|` chain can do is grep the rendered table.
+	 *
+	 * `error` means the command could not RUN. It is not a verdict: a linter that ran and found the document
+	 * invalid succeeded, and says so in its output -- flagging it as an error would stop the pipeline and
+	 * make the issue rows unreachable.
 	 */
-	public function exec(array $args, array $flags) : array;
+	public function exec(array $args, array $flags, array $context = []) : array;
 }

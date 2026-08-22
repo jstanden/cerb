@@ -76,9 +76,13 @@ class Cli {
 	/**
 	 * Run `cerb <namespace> <args...>`.
 	 *
+	 * $context is the host's offer of what a command can reach beyond its arguments (cwd, an out-of-band
+	 * payload, a file reader). See Command::exec(). It is passed through untouched -- this class governs
+	 * WHETHER a command runs, not what it is handed.
+	 *
 	 * @return array ['output'=>string, 'error'=>bool, 'data'=>?array, 'data_alias'=>?string]
 	 */
-	public static function exec(array $args, array $flags, ?array $config) : array {
+	public static function exec(array $args, array $flags, ?array $config, array $context = []) : array {
 		$config = is_array($config) ? $config : [];
 		$enabled = self::_enabled($config);
 
@@ -108,7 +112,7 @@ class Cli {
 		if(!array_key_exists($scope, $granted))
 			return self::_fail(sprintf("cerb %s: permission denied (requires `%s`).", $name, $scope));
 
-		$result = $command->exec($args, $flags);
+		$result = $command->exec($args, $flags, $context);
 
 		return [
 			'output' => strval($result['output'] ?? ''),
