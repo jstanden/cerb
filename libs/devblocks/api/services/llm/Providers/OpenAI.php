@@ -4,6 +4,8 @@ namespace Cerb\LLM\Providers;
 use Cerb\LLM\Providers\Interfaces\Chat;
 use Cerb\LLM\Providers\Interfaces\ChatStreaming;
 use Cerb\LLM\Providers\Interfaces\Embedding;
+use Cerb\LLM\Providers\Surfaces\ChatSurface;
+use Cerb\LLM\Providers\Surfaces\Responses;
 use DevblocksLlmChatResponse;
 use DevblocksLlmChatResponse_Tool;
 use DevblocksPlatform;
@@ -13,7 +15,7 @@ use Extension_DevblocksLlmMemoryStore;
 use Extension_DevblocksLlmProvider;
 use GuzzleHttp\Psr7\Request;
 
-class OpenAI extends Extension_DevblocksLlmProvider implements Chat, ChatStreaming, Embedding {
+class OpenAI extends Extension_DevblocksLlmProvider implements Chat, ChatStreaming, ChatSurface, Embedding {
 	const ID = 'openai';
 
 	function getIcon() : string {
@@ -35,9 +37,104 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, ChatStreami
 		
 		if($validate && !$this->getParam('model'))
 			throw new Exception_DevblocksAutomationError('llm:inputs:llm:openai:model: is required.');
+
+		// Asking for Responses on an endpoint that cannot serve it is a configuration error, not something to
+		// quietly downgrade. Silently answering `chat` here would present as "my reasoning keeps getting
+		// stripped on tool turns" with nothing anywhere saying why.
+		if($validate && 'responses' === $this->_getApiParam() && !$this->_isOfficialEndpoint())
+			throw new Exception_DevblocksAutomationError('llm:inputs:llm:openai:api: `responses` requires OpenAI\'s own api_endpoint_url. This endpoint only serves `chat`.');
+	}
+
+	// ---------------------------------------------------------------------------------------------
+	// API surface. This provider is the entry point for TWO OpenAI wire formats. The chat-completions
+	// implementation is this class itself (which is also why the eight OpenAI-COMPATIBLE subclasses can
+	// keep customizing it through ~24 overrides); `/v1/responses` is a delegate.
+	//
+	// THE DISPATCH RULE: write paths pick by the RESOLVED SURFACE, read and salvage paths pick by the
+	// MESSAGE SHAPE. Read paths run over already-stored history and are reachable from a provider built
+	// with NO params at all (DatabaseHistory::resolveDanglingStream), so configuration cannot be trusted
+	// there -- but the stored message can. Getting this backwards deletes salvageable interrupted turns.
+	// ---------------------------------------------------------------------------------------------
+
+	private ?ChatSurface $_surface_responses = null;
+	private bool $_surface_resolved = false;
+	private ?ChatSurface $_surface_reader = null;
+
+	/**
+	 * Which OpenAI wire format this configuration talks: `chat` or `responses`.
+	 *
+	 * Resolved from the ENDPOINT, which is what lets the eight compatible subclasses inherit this method
+	 * unchanged and still never reach Responses -- none of them points at api.openai.com. The alternative
+	 * (a `_supportsResponses()` predicate defaulting true here and overridden false eight times) is the exact
+	 * inverted-polarity shape that made getSystemPromptRole() ship `developer` to eight endpoints that reject
+	 * it.
+	 */
+	function getApiSurface() : string {
+		// The author's escape hatch, and the only way back onto chat for an official endpoint.
+		if('chat' === ($api = $this->_getApiParam()))
+			return 'chat';
+
+		// Azure, llama.cpp, MLX, vLLM, and every compatible subclass. Azure does expose a Responses API, but
+		// at `/openai/responses?api-version=...`, which is not the URL this provider builds.
+		if(!$this->_isOfficialEndpoint())
+			return 'chat';
+
+		return 'responses';
+	}
+
+	private function _getApiParam() : string {
+		return DevblocksPlatform::strLower(trim(strval($this->getParam('api', ''))));
+	}
+
+	// Is this pointed at OpenAI's own API?
+	protected function _isOfficialEndpoint() : bool {
+		$host = parse_url(strval($this->getParam('api_endpoint_url', '')), PHP_URL_HOST);
+		return 'api.openai.com' === DevblocksPlatform::strLower(strval($host));
+	}
+
+	// The delegate for WRITE paths, or null when this configuration speaks chat (where the implementation is
+	// `$this`). Memoized because a streamed turn arms the flag on one call and reads the partial back on
+	// another -- both have to reach the same instance.
+	private function _responses() : ?ChatSurface {
+		if(!$this->_surface_resolved) {
+			$this->_surface_resolved = true;
+			$this->_surface_responses = ('responses' === $this->getApiSurface()) ? new Responses($this->_params) : null;
+		}
+
+		return $this->_surface_responses;
+	}
+
+	// The delegate for READ paths, built regardless of the configured surface -- see the dispatch rule above.
+	private function _responsesReader() : ChatSurface {
+		return $this->_surface_reader ??= new Responses($this->_params);
+	}
+
+	/**
+	 * Does this stored message carry a Responses output-item list?
+	 *
+	 * Structural, and deliberately narrow: only ITEM types count, never the content PARTS (`input_text`,
+	 * `image_url`) that a chat message's `content` array holds. A message whose `content` is a string, or a
+	 * list of chat parts, is chat-shaped.
+	 */
+	private static function _isResponsesShape(array $message) : bool {
+		if(!is_array($content = $message['content'] ?? null))
+			return false;
+
+		foreach($content as $entry) {
+			if(is_array($entry) && array_key_exists('type', $entry))
+				return in_array($entry['type'], Responses::INPUT_ITEM_TYPES, true);
+		}
+
+		return false;
 	}
 	
 	public function convertToGenericMessage(array $message, ?string $message_uuid=null): DevblocksLlmChatResponse {
+		// SHAPE, not surface. The transcript renders every row a session holds, including ones written before
+		// its surface changed, so a record flipped back to `api: chat` would otherwise render its earlier
+		// Responses turns as blank.
+		if(self::_isResponsesShape($message))
+			return $this->_responsesReader()->convertToGenericMessage($message, $message_uuid);
+
 		$chat_response = new DevblocksLlmChatResponse('', $message_uuid);
 		
 		if('tool' == $message['role'] ?? '') {
@@ -353,6 +450,9 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, ChatStreami
 	 * @throws Exception_DevblocksAutomationError
 	 */
 	function chatCompletion(array $messages, string $system_prompt, array $tools, Extension_DevblocksLlmMemoryStore $memory) : DevblocksLlmChatResponse {
+		if(($surface = $this->_responses()))
+			return $surface->chatCompletion($messages, $system_prompt, $tools, $memory);
+
 		$http = DevblocksPlatform::services()->http();
 		
 		$base_url = rtrim($this->getParam('api_endpoint_url'), '/');
@@ -490,6 +590,34 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, ChatStreami
 		$response->setFinishReason($finish_reason);
 
 		return $response;
+	}
+
+	// Arm the object that will actually run the turn. Arming BOTH would leave this one silently primed to
+	// stream a later turn whose caller never opened a row to receive it -- the hazard the one-shot flag exists
+	// for.
+	function enableStreaming(?callable $on_progress = null) : void {
+		if(($surface = $this->_responses())) {
+			$surface->enableStreaming($on_progress);
+			return;
+		}
+
+		parent::enableStreaming($on_progress);
+	}
+
+	function getStreamedPartial() : ?array {
+		if(($surface = $this->_responses()))
+			return $surface->getStreamedPartial();
+
+		return parent::getStreamedPartial();
+	}
+
+	// Reverse of convertToGenericMessage(), for cross-provider replay INTO this provider. A WRITE path: what
+	// it emits gets persisted, so it must be written in the dialect this configuration will replay.
+	function toNativeMessage(DevblocksLlmChatResponse $message) : array {
+		if(($surface = $this->_responses()))
+			return $surface->toNativeMessage($message);
+
+		return parent::toNativeMessage($message);
 	}
 
 	/**
@@ -678,6 +806,14 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, ChatStreami
 	 * stream, and (via resolveDanglingStream) by a provider built with no params at all.
 	 */
 	public function sanitizePartialContent(array $message) : array {
+		// SHAPE, not surface -- and this one is load-bearing. resolveDanglingStream() builds the provider with
+		// NO params, so `api_endpoint_url` defaults to api.openai.com and the surface resolves to `responses`
+		// for EVERY dangling stream. Judging a chat-shaped partial by the Responses rules would iterate a
+		// string `content`, blank it, and hasReplayableContent() would then say there is nothing worth keeping
+		// -- deleting a salvageable turn, with nothing logged.
+		if(self::_isResponsesShape($message))
+			return $this->_responsesReader()->sanitizePartialContent($message);
+
 		// Blank content becomes null rather than being dropped: that IS the native shape for a turn
 		// that is nothing but tool calls, and it is what gets replayed to the API.
 		$content = $message['content'] ?? null;
@@ -731,6 +867,9 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, ChatStreami
 	}
 
 	function sanitizeMessages(array $messages) : array {
+		if(($surface = $this->_responses()))
+			return $surface->sanitizeMessages($messages);
+
 		// The first message must be role:user
 		while(!empty($messages)) {
 			$key = array_key_first($messages);
@@ -748,6 +887,11 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, ChatStreami
 	}
 	
 	function returnTool(DevblocksLlmChatResponse_Tool $tool, string $content, Extension_DevblocksLlmMemoryStore $memory): void {
+		if(($surface = $this->_responses())) {
+			$surface->returnTool($tool, $content, $memory);
+			return;
+		}
+
 		$tool_message = [
 			'role' => 'tool',
 			'tool_call_id' => $tool->getId(),
@@ -847,7 +991,9 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, ChatStreami
 				['caption' => 'model:', 'snippet' => 'model:', 'score' => 2000],
 				'api_endpoint_url:',
 				'authentication:',
-				['caption' => 'effort:', 'snippet' => "effort: medium", 'docHTML' => '<b>effort:</b>Reasoning effort (empty = provider default). Version-dependent values, e.g. <code>none|minimal|low|medium|high|xhigh|max</code>.'],
+				['caption' => 'effort:', 'snippet' => "effort: medium", 'docHTML' => '<b>effort:</b>Reasoning effort (empty = provider default). Version-dependent values, e.g. <code>none|minimal|low|medium|high|xhigh|max</code>. On the <code>responses</code> surface a level survives a turn that sends tools; on <code>chat</code> it is forced to <code>none</code>, because that endpoint refuses function tools on a reasoning turn.'],
+				['caption' => 'api:', 'snippet' => 'api: chat', 'docHTML' => '<b>api:</b>Which OpenAI wire format to use: <code>responses</code> (<code>/v1/responses</code>) or <code>chat</code> (<code>/v1/chat/completions</code>). Leave unset to choose by endpoint &mdash; OpenAI\'s own API uses <code>responses</code>, and any other endpoint (Azure, llama.cpp, vLLM, MLX) uses <code>chat</code>. Set <code>chat</code> to pin an OpenAI record to the older endpoint; <code>responses</code> is only accepted when <code>api_endpoint_url</code> is OpenAI\'s own.'],
+				['caption' => 'thinking:', 'snippet' => "thinking:\n\tdisplay: \${1:summarized}", 'docHTML' => '<b>thinking:</b>How much of the model\'s reasoning to show in transcripts. <code>display</code>: <code>summarized</code> (default for a thinking model) or <code>omitted</code>; OpenAI\'s own <code>concise</code>/<code>detailed</code> also pass through. Same block and key as Anthropic\'s, so it reads the same across providers. <b>Responses surface only</b> &mdash; <code>/v1/chat/completions</code> returns a reasoning token count and no text at all, so there is nothing to show there.'],
 				['caption' => 'stream@bool:', 'snippet' => 'stream@bool: no', 'docHTML' => '<b>stream@bool:</b>Stream the response (default <code>yes</code>). Streaming replaces the request timeout with an inactivity cutoff, so a long turn is not killed partway through, and it lets a running turn be stopped. Set <code>no</code> for an OpenAI-compatible endpoint that does not stream correctly.'],
 				['caption' => 'extra_body:', 'snippet' => "extra_body:\n\tchat_template_kwargs:\n\t\treasoning_effort: \${1:medium}", 'docHTML' => '<b>extra_body:</b>Extra request-body keys, merged verbatim into the top level &mdash; the same meaning the OpenAI SDK\'s <code>extra_body</code> has, so a vendor\'s snippet transcribes directly. For an OpenAI-<i>compatible</i> server whose knobs aren\'t where the OpenAI spec puts them: oMLX and vLLM read reasoning out of <code>chat_template_kwargs</code> and ignore the standard top-level <code>reasoning_effort</code> entirely, so <code>effort:</code> alone does nothing there. <b>A level sent this way is validated by the chat template</b> &mdash; Qwen3 accepts only <code>low|medium|xhigh</code> and fails the request on anything else, where before it was silently dropped. Cerb keeps <code>model</code>, <code>messages</code>, <code>tools</code>, <code>stream</code> and <code>stream_options</code>; anything else you set here wins, including over <code>effort:</code>.'],
 			],
@@ -856,6 +1002,9 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, ChatStreami
 				'authentication:' => ['type' => 'cerb-uri', 'params' => ['connected_account' => null]],
 				'api_endpoint_url:' => ['https://api.openai.com', 'http://host.docker.internal:8080'],
 				'effort:' => $this->getEffortLevels(),
+				'api:' => ['chat', 'responses'],
+				'thinking:' => ['display:'],
+				'thinking:display:' => ['summarized', 'omitted', 'concise', 'detailed'],
 				'extra_body:' => ['chat_template_kwargs:'],
 				'extra_body:chat_template_kwargs:' => ['reasoning_effort: medium', 'enable_thinking@bool: no', 'preserve_thinking@bool: yes'],
 			],

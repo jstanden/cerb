@@ -368,6 +368,18 @@ abstract class Extension_DevblocksLlmProvider {
 	}
 
 	/**
+	 * Which wire format this provider's configuration talks, or '' when the provider has only one.
+	 *
+	 * Exists because ONE provider id can front more than one API. `openai` serves both `/v1/chat/completions`
+	 * and `/v1/responses`, and which one a record uses is resolved from its endpoint rather than chosen from a
+	 * menu -- the two are different dialects on the wire and in storage, so anything that has to notice a
+	 * capability change (see _capabilitySignature) needs to be able to ask.
+	 */
+	function getApiSurface() : string {
+		return '';
+	}
+
+	/**
 	 * Does this provider actually offer an embeddings endpoint?
 	 *
 	 * Normally the same question as `instanceof Embedding`, and that stays the default. It needs its own
@@ -2230,8 +2242,24 @@ class _DevblocksLlmService {
 		if(is_array($thinking))
 			$thinking = $this->_ksortRecursive($thinking);
 
+		// The RESOLVED wire format, not the raw `api:` param -- which is empty in the common case, since the
+		// surface is normally inferred from the endpoint. An edit to `model:` or `api_endpoint_url:` that flips
+		// the surface changes the dialect of every future turn, so it has to read as a capability change.
+		//
+		// NOTE this does NOT catch a change in how the surface is RESOLVED (a new default): both sides of every
+		// comparison are computed by the same running code, and the signature is never persisted, so they still
+		// match. A session that spans such a change replays its old-dialect history into the new surface, which
+		// is why Responses' _toResponsesInput() reads the chat dialect. That tolerance is load-bearing.
+		$api = '';
+
+		try {
+			$api = strval($this->getProvider($provider, $params, false)?->getApiSurface());
+		} catch(\Throwable) {
+		}
+
 		return json_encode([
 			'provider' => $provider,
+			'api' => $api,
 			'model' => strval($params['model'] ?? ''),
 			'effort' => DevblocksPlatform::strLower(trim(strval($params['effort'] ?? ''))),
 			'thinking' => $thinking,
