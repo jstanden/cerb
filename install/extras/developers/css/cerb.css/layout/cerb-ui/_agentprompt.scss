@@ -265,25 +265,10 @@
 	}
 }
 
-// An unrated axis keeps ALL its blocks, just unfilled. A missing meter would leave a hole and break the
-// comparison; a row of gray reads as "not rated", which is the common state on most installs.
-.cerb-ui-agentprompt--meter-blocks {
-	display: flex;
-	align-items: center;
-	gap: 2px;
-}
+// Geometry comes from cerb-ui/_meter, which the agent_model worklist paints from too; the hue modifiers
+// come from cerb-ui/_palette, so a row is tinted by naming a palette hue rather than a rating axis.
+.cerb-ui-agentprompt--meter-blocks { @include cerb-ui-meter-blocks; }
+.cerb-ui-agentprompt--meter-block { @include cerb-ui-meter-block; }
+.cerb-ui-agentprompt--meter-block-on { @include cerb-ui-meter-block-on; }
 
-.cerb-ui-agentprompt--meter-block {
-	width: 5px;
-	height: 5px;
-	border-radius: 1px;
-	background: var(--cerb-color-background-contrast-225);
-}
-
-// One hue per axis, so an axis is identifiable without reading its glyph. Cost reads as money (green, to
-// match the coins glyph) rather than as a score -- it's the one axis where MORE is WORSE, so it must not
-// share the language of the three where more is better.
-.cerb-ui-agentprompt--meter-intelligence .cerb-ui-agentprompt--meter-block-on { background: var(--cerb-color-tag-purple); }
-.cerb-ui-agentprompt--meter-speed .cerb-ui-agentprompt--meter-block-on { background: var(--cerb-color-tag-orange); }
-.cerb-ui-agentprompt--meter-privacy .cerb-ui-agentprompt--meter-block-on { background: var(--cerb-color-tag-blue); }
-.cerb-ui-agentprompt--meter-cost .cerb-ui-agentprompt--meter-block-on { background: var(--cerb-color-tag-green); }
+@include cerb-tag-color-modifiers(".cerb-ui-agentprompt--meter-", "--cerb-ui-meter-color");

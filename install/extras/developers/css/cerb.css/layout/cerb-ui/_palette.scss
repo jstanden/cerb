@@ -1,0 +1,28 @@
+// The tag palette, SCSS-side. The tokens themselves are defined once in theme/cerb-theme.scss and are
+// theme-invariant (the .dark block doesn't override them); this is the LIST, so a component can emit one
+// modifier per hue instead of hand-writing six rules. Mixin-only -- emits no CSS until @included, so
+// importing it first doesn't affect cascade/output order.
+// Quoted: Sass would otherwise read these as COLOR VALUES, and interpolating one emits the CSS keyword
+// rather than the name (invalid inside a custom-property name).
+$cerb-tag-hues: "red", "blue", "green", "gray", "orange", "purple";
+
+// Emits one modifier per hue, each setting a component's own retint variable. $prefix is a string because
+// hosts name their own classes (a component's `--` block modifier, a host's `-` suffix); $prop is what makes
+// this reusable -- every component in the system exposes exactly one hue hook of its own.
+//
+//   @include cerb-tag-color-modifiers(".cerb-ui-meter--", "--cerb-ui-meter-color");
+//
+// A content block, if given, is emitted into EVERY hue rule -- for the declarations a tinted variant needs
+// that aren't themselves the hue (a filled component's white text, say). Passing none is a no-op.
+//
+//   @include cerb-tag-color-modifiers(".cerb-ui-pill--", "--cerb-ui-pill-color") {
+//       color: rgb(255,255,255);
+//   }
+@mixin cerb-tag-color-modifiers($prefix, $prop) {
+	@each $hue in $cerb-tag-hues {
+		#{$prefix}#{$hue} {
+			#{$prop}: var(--cerb-color-tag-#{$hue});
+			@content;
+		}
+	}
+}

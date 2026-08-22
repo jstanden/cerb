@@ -6,7 +6,8 @@
 //   --on       the stored value's fill; persists
 //   --preview  a transient hover fill, replacing --on while the pointer is inside
 //
-// Retint per instance with --cerb-ui-rating-color (e.g. an axis where "more" isn't "better").
+// Retint with a .cerb-ui-rating--<hue> modifier, or per instance with --cerb-ui-rating-color (e.g. an axis
+// where "more" isn't "better", or a one-off color outside the tag palette).
 .cerb-ui-rating {
 	display: inline-flex;
 	align-items: center;
@@ -55,6 +56,10 @@
 		height: 1.15em;
 	}
 }
+
+// The palette hues, on the ROOT (the --on/--preview states above are on the buttons, and read the var from
+// here). Declared after the block so a hue beats the default orange set inside it.
+@include cerb-tag-color-modifiers(".cerb-ui-rating--", "--cerb-ui-rating-color");
 
 // The current tier's name, beside the glyphs. contrast-150 matches .cerb-ui-form--hint; no font-size,
 // so it inherits from whatever hosts it.

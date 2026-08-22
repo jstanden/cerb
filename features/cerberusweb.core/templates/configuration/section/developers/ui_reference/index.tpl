@@ -87,6 +87,7 @@
 					<div class="cerb-ui-sidebar--label">Foundations</div>
 					<ul>
 						<li data-target="icon" data-icon="picture">Icon</li>
+						<li data-target="palette" data-icon="color-palette">Palette</li>
 						<li data-target="utilities" data-icon="wrench">Utilities</li>
 						<li data-target="effects" data-icon="sparkles">Effects</li>
 						<li data-target="async" data-icon="spinner">Async</li>
@@ -198,6 +199,7 @@
 
 			<h2 class="cerb-uiref-grouplabel" id="group-foundations">Foundations</h2>
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/icon.tpl"}
+			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/palette.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/utilities.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/effects.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/async.tpl"}

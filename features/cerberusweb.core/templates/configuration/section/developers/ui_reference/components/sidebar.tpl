@@ -37,7 +37,7 @@
 						</div>
 						<div class="cerb-ui-sidebar--foot">
 							<div class="cerb-ui-sidebar--item" style="cursor:default;margin:0;">
-								<span class="cerb-ui-sidebar--icon"><span class="cerb-ui-pip" style="color:var(--cerb-color-tag-green);"></span></span>
+								<span class="cerb-ui-sidebar--icon"><span class="cerb-ui-pip cerb-ui-pip--green"></span></span>
 								<span class="cerb-ui-sidebar--label">Jeff Standen</span>
 								<span class="cerb-icons cerb-icon-gear" style="opacity:0.6;"></span>
 							</div>

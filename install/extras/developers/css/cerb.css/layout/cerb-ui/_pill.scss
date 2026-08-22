@@ -6,9 +6,9 @@
 	align-items: center;
 	gap: 0.3em;
 	padding: 0.1em 0.6em;
-	border: 1px solid var(--cerb-color-background-contrast-220);
+	border: 1px solid var(--cerb-ui-pill-color, var(--cerb-color-background-contrast-220));
 	border-radius: 999px;
-	background: var(--cerb-color-background-contrast-240);
+	background: var(--cerb-ui-pill-color, var(--cerb-color-background-contrast-240));
 	line-height: 1.5;
 	white-space: nowrap;
 
@@ -32,17 +32,6 @@
 		}
 	}
 
-	// Solid color variants — a filled status pill in a tag color (matches SPAN.tag.tag-* semantics).
-	// Text/icon is always white: the tag backgrounds are saturated in both themes, so white reads
-	// cleanly (text-inverse would go near-black in dark mode and disappear). Use for statuses like
-	// sent/received/draft/comment.
-	&--red    { background: var(--cerb-color-tag-red);    border-color: var(--cerb-color-tag-red);    color: rgb(255,255,255); }
-	&--green  { background: var(--cerb-color-tag-green);  border-color: var(--cerb-color-tag-green);  color: rgb(255,255,255); }
-	&--blue   { background: var(--cerb-color-tag-blue);   border-color: var(--cerb-color-tag-blue);   color: rgb(255,255,255); }
-	&--gray   { background: var(--cerb-color-tag-gray);   border-color: var(--cerb-color-tag-gray);   color: rgb(255,255,255); }
-	&--orange { background: var(--cerb-color-tag-orange); border-color: var(--cerb-color-tag-orange); color: rgb(255,255,255); }
-	&--purple { background: var(--cerb-color-tag-purple); border-color: var(--cerb-color-tag-purple); color: rgb(255,255,255); }
-
 	// Circle: an icon-only pill rendered as a perfect circle. Pair with .cerb-avatar-badged to pin a
 	// message's type indicator (sent/received/draft/comment) to the corner of an avatar.
 	&--circle {
@@ -52,4 +41,15 @@
 		padding: 0;
 		border-radius: 50%;
 	}
+}
+
+// Solid color variants — a filled status pill in a tag color (matches SPAN.tag.tag-* semantics). Fill and
+// border are one hue, so both read --cerb-ui-pill-color above and a modifier only has to set it; that's also
+// what lets a one-off pill be retinted inline with a color outside the palette.
+//
+// Text/icon is always white: the tag backgrounds are saturated in both themes, so white reads cleanly
+// (text-inverse would go near-black in dark mode and disappear). Use for statuses like
+// sent/received/draft/comment.
+@include cerb-tag-color-modifiers(".cerb-ui-pill--", "--cerb-ui-pill-color") {
+	color: rgb(255,255,255);
 }

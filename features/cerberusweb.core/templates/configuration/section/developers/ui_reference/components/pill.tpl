@@ -13,6 +13,31 @@
 			</div>
 		</div>
 
+		{* Example: the six palette hues, emitted by cerb-tag-color-modifiers() *}
+		<div class="cerb-ui-header">
+			<div class="cerb-ui-header--label">Solid variants &mdash; one per <code>--cerb-color-tag-*</code> palette color. Fill, border and white text in one class; use for statuses (sent / received / draft / comment)</div>
+		</div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo cerb-u-flex cerb-u-items-center cerb-u-gap-2 cerb-u-flex-wrap">
+				<span class="cerb-ui-pill cerb-ui-pill--red">red</span>
+				<span class="cerb-ui-pill cerb-ui-pill--green">green</span>
+				<span class="cerb-ui-pill cerb-ui-pill--blue">blue</span>
+				<span class="cerb-ui-pill cerb-ui-pill--gray">gray</span>
+				<span class="cerb-ui-pill cerb-ui-pill--orange">orange</span>
+				<span class="cerb-ui-pill cerb-ui-pill--purple">purple</span>
+				<span class="cerb-ui-pill" style="--cerb-ui-pill-color:var(--cerb-color-action-primary);color:rgb(255,255,255);">inline</span>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>&lt;span class="cerb-ui-pill cerb-ui-pill--green"&gt;Sent&lt;/span&gt;
+
+&lt;!-- Fill and border are ONE hue, so both read --cerb-ui-pill-color and a modifier only sets it.
+     A one-off outside the palette sets the same var inline (white text isn't implied there): --&gt;
+&lt;span class="cerb-ui-pill" style="--cerb-ui-pill-color:var(--cerb-color-action-primary);color:rgb(255,255,255);"&gt;inline&lt;/span&gt;</pre>
+			</div>
+		</div>
+
 		{* Example: bare inline marker — strip the fill with utilities, set an accent color inline *}
 		<div class="cerb-ui-header">
 			<div class="cerb-ui-header--label">Bare marker: strip the fill with utilities, accent color inline</div>

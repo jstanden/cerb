@@ -62,7 +62,7 @@ r.destroy();                        // unbind
 				<button type="button" data-value="30" title="Advanced" class="cerb-ui-rating--on"><span class="cerb-icons cerb-icon-brain"></span></button>
 				<button type="button" data-value="40" title="Frontier"><span class="cerb-icons cerb-icon-brain"></span></button>
 			</div>
-			<div class="cerb-ui-rating" id="uiref-rating-tint-demo" style="--cerb-ui-rating-color: var(--cerb-color-tag-blue);">
+			<div class="cerb-ui-rating cerb-ui-rating--blue" id="uiref-rating-tint-demo">
 				<button type="button" data-value="1"><span class="cerb-icons cerb-icon-coins"></span></button>
 				<button type="button" data-value="2" class="cerb-ui-rating--on"><span class="cerb-icons cerb-icon-coins"></span></button>
 				<button type="button" data-value="3"><span class="cerb-icons cerb-icon-coins"></span></button>
@@ -79,8 +79,12 @@ r.destroy();                        // unbind
 	&lt;button type="button" data-value="30" class="cerb-ui-rating--on"&gt;…&lt;/button&gt;
 &lt;/div&gt;
 
-&lt;!-- Retint one instance -- e.g. an axis where MORE isn't BETTER, so it reads as a gauge not a score --&gt;
-&lt;div class="cerb-ui-rating" style="--cerb-ui-rating-color: var(--cerb-color-tag-blue);"&gt;…&lt;/div&gt;{/literal}</pre>
+&lt;!-- Retint -- e.g. an axis where MORE isn't BETTER, so it reads as a gauge not a score. One
+     modifier per --cerb-color-tag-* hue: red, blue, green, gray, orange, purple. --&gt;
+&lt;div class="cerb-ui-rating cerb-ui-rating--blue"&gt;…&lt;/div&gt;
+
+&lt;!-- A one-off outside the palette sets the variable the modifiers set: --&gt;
+&lt;div class="cerb-ui-rating" style="--cerb-ui-rating-color:var(--cerb-color-action-primary);"&gt;…&lt;/div&gt;{/literal}</pre>
 		</div>
 	</div>
 

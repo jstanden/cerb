@@ -27,6 +27,55 @@ new CerbUI.Toggle(el, {
 });</pre>
 			</div>
 		</div>
+
+		{* Example: the six palette hues, emitted by cerb-tag-color-modifiers() *}
+		<div class="cerb-ui-header">
+			<div class="cerb-ui-header--label">Hue modifiers &mdash; ON is green by default; one modifier per <code>--cerb-color-tag-*</code> palette color changes it. OFF stays neutral either way</div>
+		</div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo cerb-u-flex cerb-u-items-center cerb-u-gap-2 cerb-u-flex-wrap">
+				<label class="cerb-ui-toggle cerb-ui-toggle--red" title="red">
+					<input type="checkbox" checked>
+					<span class="cerb-ui-toggle--slider"></span>
+				</label>
+				<label class="cerb-ui-toggle cerb-ui-toggle--blue" title="blue">
+					<input type="checkbox" checked>
+					<span class="cerb-ui-toggle--slider"></span>
+				</label>
+				<label class="cerb-ui-toggle cerb-ui-toggle--green" title="green">
+					<input type="checkbox" checked>
+					<span class="cerb-ui-toggle--slider"></span>
+				</label>
+				<label class="cerb-ui-toggle cerb-ui-toggle--gray" title="gray">
+					<input type="checkbox" checked>
+					<span class="cerb-ui-toggle--slider"></span>
+				</label>
+				<label class="cerb-ui-toggle cerb-ui-toggle--orange" title="orange">
+					<input type="checkbox" checked>
+					<span class="cerb-ui-toggle--slider"></span>
+				</label>
+				<label class="cerb-ui-toggle cerb-ui-toggle--purple" title="purple">
+					<input type="checkbox" checked>
+					<span class="cerb-ui-toggle--slider"></span>
+				</label>
+				<label class="cerb-ui-toggle" title="off">
+					<input type="checkbox">
+					<span class="cerb-ui-toggle--slider"></span>
+				</label>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>&lt;!-- For a switch where green would MISLEAD -- arming something destructive, say. --&gt;
+&lt;label class="cerb-ui-toggle cerb-ui-toggle--red"&gt;
+	&lt;input type="checkbox"&gt;
+	&lt;span class="cerb-ui-toggle--slider"&gt;&lt;/span&gt;
+&lt;/label&gt;
+
+&lt;!-- A one-off outside the palette sets the variable the modifiers set: --&gt;
+&lt;label class="cerb-ui-toggle" style="--cerb-ui-toggle-color:var(--cerb-color-action-primary);"&gt;…&lt;/label&gt;</pre>
+			</div>
+		</div>
 	</div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}">

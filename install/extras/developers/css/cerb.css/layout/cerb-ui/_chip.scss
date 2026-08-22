@@ -1,7 +1,11 @@
-// Segmented chip: a row of label/value cells, with an optional leading --head cell
+// Segmented chip: a row of label/value cells, with an optional leading --head cell.
+//
+// Neutral by default -- the cells hold DATA, so the chrome stays out of the way. A .cerb-ui-chip--<hue>
+// modifier accents the frame and the head cell, for telling several chips apart in a row (Database /
+// Storage / Cache); the internal dividers and the value cells stay neutral either way.
 .cerb-ui-chip {
 	display: inline-flex;
-	border: 1px solid var(--cerb-color-background-contrast-220);
+	border: 1px solid var(--cerb-ui-chip-color, var(--cerb-color-background-contrast-220));
 	border-radius: 8px;
 	overflow: hidden;
 	background: var(--cerb-color-background-contrast-250);
@@ -30,6 +34,13 @@
 		align-items: center;
 		font-weight: 600;
 		color: var(--cerb-color-background-contrast-150);
-		background: var(--cerb-color-background-contrast-240);
+		background: var(--cerb-ui-chip-color, var(--cerb-color-background-contrast-240));
 	}
+}
+
+// The palette hues. Frame and head fill are one hue, so both read --cerb-ui-chip-color above and a modifier
+// only has to set it. The head's text goes white the way a filled pill's does -- the tag backgrounds are
+// saturated in both themes, so white reads cleanly where text-inverse would go near-black in dark mode.
+@include cerb-tag-color-modifiers(".cerb-ui-chip--", "--cerb-ui-chip-color") {
+	.cerb-ui-chip--head { color: rgb(255,255,255); }
 }

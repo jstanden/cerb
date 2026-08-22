@@ -1,5 +1,6 @@
-// Pip: a small status dot. Color comes from `color` (the dot is currentColor), so set a palette color
-// inline or via a modifier. --live adds a pulsing "ping" ring (e.g. a running/active job).
+// Pip: a small status dot. Color comes from `color` (the dot is currentColor), so a .cerb-ui-pip--<hue>
+// modifier sets it -- or set `color` inline when the hue is DATA rather than a palette choice (calendar and
+// datepicker pips arrive as arbitrary hex). --live adds a pulsing "ping" ring (e.g. a running/active job).
 .cerb-ui-pip {
 	position: relative;
 	display: inline-block;
@@ -25,6 +26,11 @@
 		}
 	}
 }
+
+// The palette hues. `color`, not a custom property -- the dot is already currentColor, so this IS the hook.
+// Declared after --live so `cerb-ui-pip--live cerb-ui-pip--red` keeps the pulse and takes the hue; the ring
+// is currentColor, so it follows.
+@include cerb-tag-color-modifiers(".cerb-ui-pip--", "color");
 
 @keyframes cerb-ui-pip-ping {
 	0% { transform: scale(0.5); opacity: 0.7; }

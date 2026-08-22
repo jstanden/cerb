@@ -1,5 +1,8 @@
 // Toggle: an on/off switch (a styled checkbox). Markup: <label class="cerb-ui-toggle"><input type="checkbox">
 // <span class="cerb-ui-toggle--slider"></span></label>. Works bare; CerbUI.Toggle wires onChange/getValue/setValue.
+//
+// ON is green -- the near-universal read for "enabled". A .cerb-ui-toggle--<hue> modifier changes it, for a
+// switch where green would MISLEAD (arming something destructive, say). OFF stays neutral either way.
 .cerb-ui-toggle {
 	position: relative;
 	display: inline-block;
@@ -45,7 +48,7 @@
 	}
 
 	input:checked + .cerb-ui-toggle--slider {
-		background-color: var(--cerb-color-tag-green);
+		background-color: var(--cerb-ui-toggle-color, var(--cerb-color-tag-green));
 		box-shadow: none;
 	}
 
@@ -58,3 +61,7 @@
 		cursor: not-allowed;
 	}
 }
+
+// The palette hues, on the LABEL (the slider is a descendant, so it inherits the var). Only the checked
+// fill reads it -- an off switch stays neutral gray, which is what makes the state legible at a glance.
+@include cerb-tag-color-modifiers(".cerb-ui-toggle--", "--cerb-ui-toggle-color");
