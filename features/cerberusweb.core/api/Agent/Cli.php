@@ -1,6 +1,7 @@
 <?php
 namespace Cerb\Agent;
 
+use Cerb\Agent\Cli\Code;
 use Cerb\Agent\Cli\Command;
 use Cerb\Agent\Cli\Platform;
 use Cerb\Agent\Cli\Records;

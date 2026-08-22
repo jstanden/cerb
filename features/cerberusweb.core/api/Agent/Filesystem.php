@@ -2005,7 +2005,7 @@ class Filesystem {
 	 * the option, never a guess about what follows it. Guessing is how `find --long /tmp` ends up listing the
 	 * working directory, having read the path as the flag's value. `--flag=value` always works regardless.
 	 */
-	private const VALUE_FLAGS = ['path', 'ext', 'top', 'limit', 'offset', 'fields', 'name', 'type', 'depth', 'format', 'filter'];
+	private const VALUE_FLAGS = ['path', 'ext', 'top', 'limit', 'offset', 'fields', 'name', 'type', 'depth', 'format', 'filter', 'schema'];
 
 	/**
 	 * Tokenize + split a command line into verb/args/flags. Quoting is honored; nothing is expanded.
