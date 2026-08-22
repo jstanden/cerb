@@ -99,6 +99,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		DAO_EmailSignature::deleteByOwner($context, $context_ids);
 		DAO_MailHtmlTemplate::deleteByOwner($context, $context_ids);
 		DAO_Notification::deleteByContext($context, $context_ids);
+		DAO_SearchIndex::deleteRecordsByContext($context, $context_ids);
 		DAO_Snippet::deleteByOwner($context, $context_ids);
 		DAO_WorkspacePage::deleteByOwner($context, $context_ids);
 	}

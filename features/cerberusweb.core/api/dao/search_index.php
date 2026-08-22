@@ -301,6 +301,26 @@ class DAO_SearchIndex extends Cerb_ORMHelper {
 	}
 	
 	/**
+	 * Drop deleted records from every index built on their record type.
+	 *
+	 * Nothing else removes an index entry when its record goes away, so without this a search keeps
+	 * matching records the reader can no longer see. Driven by the `context.delete` event, which every
+	 * DAO fires from `_deleteAbstractAfter()` -- so this covers all record types uniformly and receives
+	 * its ids already batched.
+	 */
+	static function deleteRecordsByContext(string $context, array $context_ids) : void {
+		if(!$context || !$context_ids)
+			return;
+
+		foreach(self::getByRecordType($context) as $search_index) {
+			if(!($search_extension = $search_index->getExtension()))
+				continue;
+
+			$search_extension->deleteDocumentsByIds($search_index, $context_ids);
+		}
+	}
+
+	/**
 	 * @param string $record_type
 	 * @return Model_SearchIndex[]
 	 */
