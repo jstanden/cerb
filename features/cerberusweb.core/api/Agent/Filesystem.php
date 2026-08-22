@@ -931,6 +931,155 @@ class Filesystem {
 		return null;
 	}
 
+	/**
+	 * The literal text to scan lines for. `*` and `~` are INDEX markers, not characters in the document, so
+	 * scanning for them verbatim finds nothing -- which is why `search pricing~` reported 0 hits on a file
+	 * it had just matched. A wildcard's prefix and a stem's root are the substrings the index actually
+	 * matched on, so they are what the line scan should look for.
+	 *
+	 * Returns '' for a marker with nothing attached; the caller drops those, because an empty needle makes
+	 * strpos() report a hit on every line.
+	 */
+	private static function _literalNeedle(string $term) : string {
+		if(str_contains($term, '*'))
+			return strval(strtok($term, '*'));
+
+		if(str_ends_with($term, '~'))
+			return ($base = rtrim($term, '~')) ? \Cerb\Services\Search\PorterStemmer::Stem($base) : '';
+
+		return $term;
+	}
+
+	/**
+	 * `+term` PINS a term: it must appear, and every other term is reported alongside it. Stripped HERE
+	 * because the tokenizer treats `+` as whitespace -- by the time the index sees the word the marker is
+	 * already gone. A bare `+` stays a literal, mirroring _splitQueryTerms()'s `strlen > 1` guard for `-`.
+	 */
+	private static function _splitRequiredTerms(array $args) : array {
+		$words = [];
+		$required = [];
+
+		// Split BEFORE reading `+`, then apply it per word. One arg can hold several words -- an agent may
+		// quote the whole query, and _parse() strips the quotes but keeps it as ONE token. Splitting first
+		// is what makes `"+pricing academic student"` require only `pricing`, which is where the `+` was
+		// actually written, rather than all three.
+		foreach($args as $arg) {
+			foreach(preg_split('/\s+/', strval($arg), -1, PREG_SPLIT_NO_EMPTY) as $word) {
+				if(str_starts_with($word, '+') && strlen($word) > 1) {
+					$word = substr($word, 1);
+					$required[] = $word;
+				}
+
+				$words[] = $word;
+			}
+		}
+
+		return ['words' => $words, 'required' => array_values(array_unique($required))];
+	}
+
+	/**
+	 * The `--terms` table. Sorted by count DESCENDING, because the job is throwing synonyms at the index and
+	 * taking the winner -- typed order would make the reader sort by eye.
+	 *
+	 * This is read by an AGENT, which pays for every character on every call. So: no prose about what a
+	 * number means, no standalone-count column, and counts left-padded to the widest one actually present --
+	 * a table of single digits costs one column, not six.
+	 */
+	private static function _formatTermStats(array $stats, string $scope_label) : string {
+		$terms = $stats['terms'] ?? [];
+		$required_docs = $stats['required_docs'] ?? null;
+
+		$rows = self::_termRows($terms, $required_docs > 0);
+
+		$lines = [
+			sprintf("Term counts in %s (%s files):", $scope_label, number_format(intval($stats['scope_docs'] ?? 0))),
+			'',
+			...self::_requiredHeading($terms, $required_docs),
+			...($rows ?: ['(no other terms to count)']),
+		];
+
+		if(array_filter($terms, fn($t) => 'common' == ($t['status'] ?? '')))
+			$lines[] = "\n(-) Terms are on the ignore list";
+
+		return implode("\n", $lines);
+	}
+
+	/** `+discount:` above the rows -- the requirement stated once, instead of repeated in prose. */
+	private static function _requiredHeading(array $terms, $required_docs) : array {
+		if(!($reqs = array_values(array_unique(array_column(array_filter($terms, fn($t) => $t['required'] ?? false), 'term')))))
+			return [];
+
+		$label = '+' . implode(' +', $reqs);
+
+		// Without this the counts below read as counts WITHIN the requirement, which they aren't
+		return [0 === $required_docs
+			? sprintf('%s matches nothing; counts are standalone:', $label)
+			: sprintf('%s:', $label)
+		];
+	}
+
+	/**
+	 * The count rows, shared by `--terms` and by a miss. Top-level terms rank by count; a compound's parts
+	 * follow it indented, so `llm.agent` keeps its `llm`/`agent` beside it instead of scattering into the
+	 * ranking.
+	 */
+	private static function _termRows(array $terms, bool $use_docs=false) : array {
+		$key = $use_docs ? 'docs' : 'alone';
+		$parts = [];
+
+		foreach($terms as $term) {
+			if($term['parent'] ?? null)
+				$parts[$term['parent']][] = $term;
+		}
+
+		// A required term's own row is the denominator its heading already implies, and with several
+		// requirements every one of them repeats it
+		$top = array_values(array_filter($terms, fn($t) => is_null($t['parent'] ?? null) && !($t['required'] ?? false)));
+
+		// The winner floats up. A skipped word has no count at all, so it sorts last rather than as a zero.
+		usort($top, fn($a, $b) => (is_null($b[$key]) ? -1 : intval($b[$key])) <=> (is_null($a[$key]) ? -1 : intval($a[$key])));
+
+		$render = fn($term) => is_null($term[$key] ?? null) ? '-' : strval(intval($term[$key]));
+
+		// Parents and children get SEPARATE count widths. Sharing one column let a child's number set the
+		// padding for every parent -- `19  anthropic` indented to `  19` because some child was 1046 -- which
+		// reads as broken indentation and buries the hierarchy the child rows exist to show.
+		$width = 0;
+
+		foreach($top as $term)
+			$width = max($width, strlen($render($term)));
+
+		$rows = [];
+
+		foreach($top as $term) {
+			$rows[] = sprintf("%{$width}s  %s", $render($term), $term['token'] ?? $term['term']);
+
+			if(!($children = $parts[$term['token']] ?? []))
+				continue;
+
+			// ONE line, inline, indented under the parent's token. A row each was ten lines of padding for
+			// `auto*` alone -- this is read by an agent that pays per character, and the expansion is
+			// supporting detail for the row above, not a list to scan on its own.
+			$expanded = [];
+			$truncated = false;
+
+			foreach($children as $child) {
+				$expanded[] = sprintf('%s (%s)', $child['token'], $render($child));
+				$truncated = $truncated || ($child['truncated'] ?? false);
+			}
+
+			// A capped expansion says so. No number: the engine probes one row past the cap, which proves
+			// there IS more but not how much, and a made-up count is worse than none.
+			if($truncated)
+				$expanded[] = '...';
+
+			// Two past the parent's token column, not level with it -- at the same offset it reads as a
+			// sibling term rather than as detail belonging to the row above
+			$rows[] = sprintf('%s%s', str_repeat(' ', $width + 4), implode(' ', $expanded));
+		}
+
+		return $rows;
+	}
 
 	/**
 	 * Search file CONTENT via the fulltext search index, scoped by `filesystem.id:` and an optional path
@@ -979,10 +1128,15 @@ class Filesystem {
 		if(!$fs_ids)
 			return $this->_error(sprintf("search: %s: nothing mounted in scope.", $loc['vfs']), $cwd);
 
-		// Query the worklist. `text:` is the fulltext search index for agent files; the group form `(...)`
-		// matches the terms (more forgiving than a strict quoted phrase). Inside the group, bare words are the
-		// query and `key:value` pairs are filters -- `top:k` asks the index to SCORE and return only the k most
-		// relevant files (`--top 0` = every match, unranked).
+		// Name the scope the way the caller sees it -- mountpoints, not filesystem ids
+		$scope_label = $loc['mount']
+			? rtrim($loc['vfs'], '/')
+			: implode(', ', array_map(
+				fn($m) => $m['at'],
+				array_filter($this->_mounts, fn($m) => in_array($m['fs']?->id ?? 0, $fs_ids))
+			));
+		$scope_label = $scope_label ?: '/';
+
 		// `top:k` asks the index to SCORE and return only the k most relevant files (`--top 0` = every match,
 		// unranked). The scoring is limited to the filters below -- they reach the index as co-params, so the
 		// k is spent inside the mounted volumes instead of across every volume in the install.
@@ -1006,6 +1160,31 @@ class Filesystem {
 
 		if(false === $params || !is_array($params))
 			return $this->_error(sprintf("search: %s", $error ?: 'could not parse the query.'), $cwd);
+
+		// --terms: report what each word matches instead of searching. Placed here so it inherits the same
+		// mount scope, --path and --ext the search itself would have used.
+		if($cmd['flags']['terms'] ?? false) {
+			if(!($search_index = self::_searchIndex()))
+				return $this->_error("search --terms: no search index covers agent files.", $cwd);
+
+			$parsed = self::_splitRequiredTerms($cmd['args']);
+
+			$stats = $search_index->getExtension()->queryTermStats(
+				$search_index,
+				$parsed['words'],
+				$parsed['required'],
+				$params
+			);
+
+			if(!$stats)
+				return $this->_error("search --terms: this search index can't report term counts.", $cwd);
+
+			$out = $this->_result(self::_formatTermStats($stats, $scope_label), $cwd);
+			$out['data'] = $stats['terms'];
+			$out['data_alias'] = 'terms';
+
+			return $out;
+		}
 
 		// id => position, so relevance survives the worklist fetch (which can only sort by a column)
 		$rank = [];
@@ -2235,7 +2414,7 @@ class Filesystem {
 			'ls' => "ls [path] [-l] [--fields title,description]\n  List ONE directory, names only. At the root this lists the mounted filesystems, each tagged with its access\n  mode -- `[ro]` is read-only, `[rw]` accepts write/append/edit/rm. A glob in the last segment filters the\n  listing (`ls *.md`, `ls c*.md`, `ls /docs/*.md`); matching ACROSS directories is `find`'s job.\n  A path naming a FILE lists just that file -- `ls -l <file>` checks its size and modified time without\n  spending a `read` on the body.\n  -l (--long) adds that same mode tag to every row, plus the exact size in BYTES and the modified time\n  (`Mar 03 09:41` within the past year, `Mar 03  2024` beyond it). Directories show `-` for both: they're\n  virtual here, implied by the paths of the files under them.\n  --fields prints values from each file's own metadata (markdown frontmatter).",
 			'find' => "find [path] [pattern] [--name <glob>] [--type f|d] [--ext md] [--depth N] [-l] [--fields ...] [--limit N]\n  Find entries by NAME, recursively -- the counterpart to `search`, which matches CONTENT. A bare pattern\n  matches the basename at any depth (`find *.md`); a pattern with a `/` matches the relative path\n  (`find \"guides/*.md\"`). `*` stops at a `/`, `**` crosses them. --name is the same thing spelled as a flag.\n  --type d lists only directories (a recursive tree of them), --type f only files; the default is both.\n  --depth N counts levels BELOW the scope: 0 is this directory (so `find --depth 0` is `ls`), 1 adds one\n  level down; omit it for no limit. --ext md is shorthand for --name *.md.\n  Paths print relative to the scope, which is named once in the header. Listing never opens a file, so\n  metadata is free: --fields prints it, -l adds the `[ro]`/`[rw]` mode + byte sizes + modified times, and\n  piping gives you `files` records carrying the ABSOLUTE path plus name, filesystem, size, updated_at (epoch\n  seconds), ext, is_dir, mode, can_write, and meta.",
 			'cd' => "cd [path]\n  Change the working directory. Supports `..`, absolute `/paths`, and `@filesystem/path`.",
-			'search' => "search <query...> [--lines] [--path <path>] [--ext md] [--top K] [--limit N]\n  Search file contents. Prints one line per matching file -- hit count + path -- most hits first, so you can\n  pick what to read. --lines adds the numbered matching lines per file (pages of text; ask for it when you\n  need the context, not to choose a file).\n  Every word is part of the query (`search filled disc`); scope with --path (default: the working directory).\n  --top K keeps only the K most relevant files (default 25; --top 0 = all matches). --limit N caps printed lines.\n  Piping gives you `results` -- one record per file: path, name, filesystem, size, lines, hits, meta (the\n  file's own metadata, e.g. markdown frontmatter -- always a map, empty when it has none), matches, content.",
+			'search' => "search <query...> [--terms] [--lines] [--path <path>] [--ext md] [--top K] [--limit N]\n  Search file contents. Prints one line per matching file -- hit count + path -- most hits first, so you can\n  pick what to read. --lines adds the numbered matching lines per file (pages of text; ask for it when you\n  need the context, not to choose a file).\n  Every word is part of the query (`search filled disc`), and ALL of them must appear in the SAME file -- so\n  one word that matches nothing empties the result. Scope with --path (default: the working directory).\n  --top K keeps only the K most relevant files (default 25; --top 0 = all matches). --limit N caps printed lines.\n  --terms switches from AND to OR: it counts how many files contain EACH word, ranked, instead of searching.\n  Throw a pile of synonyms at it in one call, keep the winner, then require it with + and try the next set:\n  `search --terms school college academic university` then `search --terms +college tuition fees pricing`.\n  A `-` count means the word is on the ignore list; it was never searched for. A wildcard or stem term\n  (`auto*`, `automate~`) also lists the concrete words it covers, inline underneath -- that is how you learn\n  the vocabulary this corpus actually uses.\n  Piping gives you `results` -- one record per file: path, name, filesystem, size, lines, hits, meta (the\n  file's own metadata, e.g. markdown frontmatter -- always a map, empty when it has none), matches, content.\n  With --terms you get `terms` instead: term, token, docs, alone, status.",
 			'read' => "read <path> [--offset N] [--limit N]\n  Print a file's contents. --offset/--limit page by line. This is the only command that returns a whole body.",
 			'write' => "write <path>\n  Replace a file's contents (read-write mounts only). Content is supplied out-of-band.",
 			'append' => "append <path>\n  Append to a file (read-write mounts only). Content is supplied out-of-band.",

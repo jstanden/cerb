@@ -215,97 +215,219 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		return intval($count);
 	}
 
-	public function getTokenStats(Model_SearchIndex $model, string $query, bool $allow_wildcards = false, bool $allow_stemming = false, int $max_terms=10): array {
+	/**
+	 * One required term as a WHERE predicate, in whichever mode the token is written -- the same three modes
+	 * the counting branches use, so `+automat*` and `+running~` can require what they counted instead of
+	 * being refused for looking different.
+	 */
+	private function _requiredPredicate(string $alias, string $token, int $hash) : string {
 		$db = DevblocksPlatform::services()->database();
+
+		return match(true) {
+			str_contains($token, '*') => sprintf('%s.token_hash IN (SELECT token_hash FROM search_index_tokens WHERE token LIKE %s)',
+				$alias, $db->qstr(str_replace('*', '%', $token))),
+			str_ends_with($token, '~') => sprintf('%s.token_hash IN (SELECT token_hash FROM search_index_tokens WHERE stem = %s)',
+				$alias, $db->qstr(PorterStemmer::Stem(rtrim($token, '~')))),
+			default => sprintf('%s.token_hash = %d', $alias, $hash),
+		};
+	}
+
+	/**
+	 * The concrete tokens a wildcard or stem actually covers, with their own doc counts, most common first.
+	 *
+	 * `auto*` counting 682 says nothing about WHICH words are in the corpus, and that vocabulary is usually
+	 * the thing the caller is fishing for. One query per wildcard term, capped -- an open prefix can match
+	 * hundreds of tokens and the caller is not reading hundreds.
+	 *
+	 * @return array token => ['docs'=>int, 'more'=>int] beyond the cap
+	 */
+	private function _expandToken(Model_SearchIndex $model, string $token, string $scope_sql='') : array {
+		$db = DevblocksPlatform::services()->database();
+
+		$match = match(true) {
+			str_contains($token, '*') => sprintf('d.token LIKE %s', $db->qstr(str_replace('*', '%', $token))),
+			str_ends_with($token, '~') => sprintf('d.stem = %s', $db->qstr(PorterStemmer::Stem(rtrim($token, '~')))),
+			default => '',
+		};
+
+		if(!$match)
+			return [];
+
+		$sql = sprintf(
+			"SELECT d.token, COUNT(DISTINCT s.record_id) AS docs " .
+			"FROM search_index_tokens d " .
+			"INNER JOIN search_index_%d s ON (s.token_hash = d.token_hash) " .
+			"WHERE %s%s " .
+			"GROUP BY d.token ORDER BY docs DESC, d.token ASC LIMIT %d",
+			$model->id,
+			$match,
+			$scope_sql ? sprintf(' AND s.record_id IN (%s)', $scope_sql) : '',
+			self::MAX_EXPANDED_TOKENS + 1
+		);
+
+		$rows = $db->GetArrayReader($sql) ?: [];
+
+		// Probing one row past the cap tells us there IS more, never how much -- so the marker must not
+		// name a number it doesn't know. Counting the rest honestly would mean a second join over the whole
+		// prefix, which is the expensive half of the query the cap exists to avoid.
+		$truncated = count($rows) > self::MAX_EXPANDED_TOKENS;
+		$rows = array_slice($rows, 0, self::MAX_EXPANDED_TOKENS);
+
+		$out = [];
+
+		foreach($rows as $row)
+			$out[strval($row['token'])] = ['docs' => intval($row['docs']), 'truncated' => false];
+
+		if($truncated && $out)
+			$out[array_key_last($out)]['truncated'] = true;
+
+		return $out;
+	}
+
+	/**
+	 * The required terms as a record subquery, so a requirement composes with the caller's scope through the
+	 * SAME `record_id IN (...)` seam every counting query already has -- rather than growing a second SQL
+	 * shape inside each branch.
+	 *
+	 * @param array $required ['token'=>string,'hash'=>int], RAREST FIRST so the anchor scans least
+	 */
+	private function _getRequiredSubquery(Model_SearchIndex $model, array $required, string $scope_sql='') : string {
+		if(!$required)
+			return $scope_sql;
+
+		$anchor = array_shift($required);
+		$joins = [];
+
+		foreach(array_values($required) as $n => $term)
+			$joins[] = sprintf('JOIN search_index_%d p%d ON (p%d.record_id = p0.record_id AND %s)',
+				$model->id, $n+1, $n+1,
+				$this->_requiredPredicate(sprintf('p%d', $n+1), strval($term['token']), intval($term['hash']))
+			);
+
+		return sprintf('SELECT p0.record_id FROM search_index_%d p0 %s WHERE %s%s',
+			$model->id,
+			implode(' ', $joins),
+			$this->_requiredPredicate('p0', strval($anchor['token']), intval($anchor['hash'])),
+			$scope_sql ? sprintf(' AND p0.record_id IN (%s)', $scope_sql) : ''
+		);
+	}
+
+	/**
+	 * Per-token document counts, zero-filled. NO bails, no sort, no IDF, no cap -- the CALLER decides what a
+	 * zero means. getTokenStats() bails on one, because a zero AND-empties a search; a diagnostic needs the
+	 * zero itself. Both go through here so a diagnostic can never disagree with the search it explains.
+	 *
+	 * @param array $index_tokens hash => [token, tf], from indexTokens()
+	 * @return array hash => ['token'=>string, 'hash'=>int, 'docs'=>int]
+	 */
+	private function _getDocFrequencies(Model_SearchIndex $model, array $index_tokens, bool $allow_wildcards, bool $allow_stemming, string $scope_sql='') : array {
+		$db = DevblocksPlatform::services()->database();
+		
+		$scope_where = $scope_sql ? sprintf(' AND record_id IN (%s)', $scope_sql) : '';
+		
+		$doc_frequencies = array_combine(
+			array_keys($index_tokens),
+			array_map(
+				fn($token_hash) => [
+					'token' => $index_tokens[$token_hash][0],
+					'hash' => $token_hash,
+					'docs' => 0
+				],
+				array_keys($index_tokens),
+			)
+		);
+		
+		$remaining_tokens = $doc_frequencies;
+		
+		// Check wildcards first to abort early
+		if($allow_wildcards) {
+			$tokens_wildcard = array_filter($remaining_tokens, fn($term) => str_contains($term['token'], '*'));
+			
+			foreach($tokens_wildcard as $token_hash => $token_term) {
+				// Calculate the doc frequency of each token
+				$sql = sprintf(
+					"SELECT COUNT(DISTINCT record_id) AS hits " .
+					"FROM search_index_%d " .
+					"WHERE token_hash IN (".
+					"SELECT token_hash FROM search_index_tokens WHERE token LIKE %s".
+					") %s",
+					$model->id,
+					$db->qstr(str_replace('*', '%', $token_term['token'])),
+					$scope_where
+				);
+				$result = $db->GetRowReader($sql);
+				
+				// hash => hits (including zeroes on non-matches)
+				$doc_frequencies[$token_hash]['docs'] = intval($result['hits']);
+				unset($remaining_tokens[$token_hash]);
+			}
+		}
+		
+		// Check stems next
+		if($allow_stemming) {
+			$tokens_stems = array_filter($remaining_tokens, fn($term) => str_ends_with($term['token'], '~'));
+			
+			foreach($tokens_stems as $token_hash => $token_term) {
+				// Calculate the doc frequency of each token
+				$sql = sprintf(
+					"SELECT COUNT(DISTINCT record_id) AS hits " .
+					"FROM search_index_%d " .
+					"WHERE token_hash IN (".
+					"SELECT token_hash FROM search_index_tokens WHERE stem = %s".
+					") %s",
+					$model->id,
+					$db->qstr(PorterStemmer::Stem(rtrim($token_term['token'], '~'))),
+					$scope_where
+				);
+				$result = $db->GetRowReader($sql);
+				
+				// hash => hits (including zeroes on non-matches)
+				$doc_frequencies[$token_hash]['docs'] = intval($result['hits']);
+				unset($remaining_tokens[$token_hash]);
+			}
+		}
+		
+		// Whatever is left are terms
+		if($remaining_tokens) {
+			$token_term_hashes = implode(',', DevblocksPlatform::sanitizeArray(array_keys($remaining_tokens), 'int'));
+			
+			// Calculate the doc frequency of each token
+			$sql = sprintf(
+				"SELECT token_hash, COUNT(record_id) AS hits " .
+				"FROM search_index_%d " .
+				"WHERE token_hash IN (%s) %s" .
+				"GROUP BY token_hash",
+				$model->id,
+				$token_term_hashes,
+				$scope_where
+			);
+			$results = $db->GetArrayReader($sql);
+			
+			// hash => hits (including zeroes on non-matches)
+			foreach ($results as $result) {
+				$doc_frequencies[$result['token_hash']]['docs'] = intval($result['hits']);
+			}
+		}
+		
+		return $doc_frequencies;
+	}
+	
+	/**
+	 * @param string $scope_sql A record subquery from _getScopeSubquery(). Both halves of IDF are counted
+	 *   within it -- a term that is rare in a small mounted volume but common across the whole index has to
+	 *   score as rare, or ranking inside the scope is decided by documents the caller can't see.
+	 */
+	public function getTokenStats(Model_SearchIndex $model, string $query, bool $allow_wildcards = false, bool $allow_stemming = false, int $max_terms=self::MAX_RANKED_TERMS, string $scope_sql=''): array {
 		$search = DevblocksPlatform::services()->search();
 		
 		if(!$query) return [];
 		
 		try {
-			$total_docs = $this->getRecordCount($model);
+			$total_docs = $this->getRecordCount($model, scope_sql: $scope_sql);
 			$query_tokens = $search->getTokensFromText($query, allow_wildcards: $allow_wildcards, allow_stemming: $allow_stemming);
 			$index_tokens = $search->indexTokens($query_tokens);
 			
-			$doc_frequencies = array_combine(
-				array_keys($index_tokens),
-				array_map(
-					fn($token_hash) => [
-						'token' => $index_tokens[$token_hash][0],
-						'hash' => $token_hash,
-						'docs' => 0
-					],
-					array_keys($index_tokens),
-				)
-			);
-			
-			$remaining_tokens = $doc_frequencies;
-			
-			// Check wildcards first to abort early
-			if($allow_wildcards) {
-				$tokens_wildcard = array_filter($remaining_tokens, fn($term) => str_contains($term['token'], '*'));
-				
-				foreach($tokens_wildcard as $token_hash => $token_term) {
-					// Calculate the doc frequency of each token
-					$sql = sprintf(
-						"SELECT COUNT(DISTINCT record_id) AS hits " .
-						"FROM search_index_%d " .
-						"WHERE token_hash IN (".
-						"SELECT token_hash FROM search_index_tokens WHERE token LIKE %s".
-						") ",
-						$model->id,
-						$db->qstr(str_replace('*', '%', $token_term['token']))
-					);
-					$result = $db->GetRowReader($sql);
-					
-					// hash => hits (including zeroes on non-matches)
-					$doc_frequencies[$token_hash]['docs'] = intval($result['hits']);
-					unset($remaining_tokens[$token_hash]);
-				}
-			}
-			
-			// Check stems next
-			if($allow_stemming) {
-				$tokens_stems = array_filter($remaining_tokens, fn($term) => str_ends_with($term['token'], '~'));
-				
-				foreach($tokens_stems as $token_hash => $token_term) {
-					// Calculate the doc frequency of each token
-					$sql = sprintf(
-						"SELECT COUNT(DISTINCT record_id) AS hits " .
-						"FROM search_index_%d " .
-						"WHERE token_hash IN (".
-						"SELECT token_hash FROM search_index_tokens WHERE stem = %s".
-						") ",
-						$model->id,
-						$db->qstr(PorterStemmer::Stem(rtrim($token_term['token'], '~')))
-					);
-					$result = $db->GetRowReader($sql);
-					
-					// hash => hits (including zeroes on non-matches)
-					$doc_frequencies[$token_hash]['docs'] = intval($result['hits']);
-					unset($remaining_tokens[$token_hash]);
-				}
-			}
-			
-			// Whatever is left are terms
-			if($remaining_tokens) {
-				$token_term_hashes = implode(',', DevblocksPlatform::sanitizeArray(array_keys($remaining_tokens), 'int'));
-				
-				// Calculate the doc frequency of each token
-				$sql = sprintf(
-					"SELECT token_hash, COUNT(record_id) AS hits " .
-					"FROM search_index_%d " .
-					"WHERE token_hash IN (%s) " .
-					"GROUP BY token_hash",
-					$model->id,
-					$token_term_hashes
-				);
-				$results = $db->GetArrayReader($sql);
-				
-				// hash => hits (including zeroes on non-matches)
-				foreach ($results as $result) {
-					$doc_frequencies[$result['token_hash']]['docs'] = intval($result['hits']);
-				}
-			}
+			$doc_frequencies = $this->_getDocFrequencies($model, $index_tokens, $allow_wildcards, $allow_stemming, $scope_sql);
 			
 			// A query that tokenizes to nothing (all stopwords or punctuation) has no terms to score
 			if(!$doc_frequencies) return [];
@@ -313,7 +435,10 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 			// Sort by rarest terms first
 			DevblocksPlatform::sortObjects($doc_frequencies, '[docs]');
 
-			// If the rarest term is zero, match nothing w/ AND operator
+			// If the rarest term is zero, match nothing w/ AND operator.
+			// Keep this AHEAD of the $max_terms slice below: the slice drops the lowest-IDF terms, so
+			// reordering them would let a capped-away term be the real zero and make `search --terms`
+			// blame the wrong word.
 			if($doc_frequencies[array_key_first($doc_frequencies)]['docs'] == 0) return [];
 			
 			// Pre-calculate TF-IDF
@@ -334,12 +459,206 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 			
 			return array_values($doc_frequencies);
 			
-		} catch (\Throwable) {
+		} catch (\Throwable $e) {
+			// Without this a broken index reports "no matches" forever, which is exactly the failure
+			// `search --terms` exists to explain. The sibling catch in queryJoinFromRecordQuickSearch logs.
+			DevblocksPlatform::logException($e);
 			return [];
 		}
 	}
 	
-	private function _getSqlQueryPartsForTokenFrequencies(Model_SearchIndex $model, array $doc_frequencies) : array {
+	/**
+	 * Per-term document counts for the words a caller actually typed. Answers "why did my search find
+	 * nothing" and "which of these words is worth searching" -- NOT a ranking.
+	 *
+	 * Two passes, and the pair of numbers is the point. Pass 1 requires nothing, which yields what every
+	 * word matches on its own AND each pin's own baseline; pass 2 re-counts inside the pins. A term at 0
+	 * with a non-zero `alone` matches in scope but never in the same file as the pin -- reporting that as
+	 * "no matches" would send the reader off to find a different word when the word was fine.
+	 *
+	 * @param array $words Typed order, `+` markers already stripped
+	 * @param array $required Which of $words must appear
+	 * @param array $co_params The caller's other filters (see queryDocumentsWithScore)
+	 */
+	public function queryTermStats(Model_SearchIndex $model, array $words, array $required=[], array $co_params=[]) : array {
+		$search = DevblocksPlatform::services()->search();
+		
+		$allow_wildcards = !($model->extension_params['wildcards_disable'] ?? false);
+		$allow_stemming = !($model->extension_params['stemming_disable'] ?? false);
+		
+		$scope_sql = $this->_getScopeSubquery($model, $co_params);
+		
+		// Tokenize each typed word ALONE. getTokensFromText() splits on a character class and then filters
+		// per token, so the per-word union is the same multiset as tokenizing the joined string -- and this
+		// way a count is attributable to the word that produced it instead of re-derived afterwards.
+		$rows = [];
+		$index_tokens = [];
+		$required_map = array_flip(array_map('strval', $required));
+		
+		foreach($words as $word) {
+			$word = strval($word);
+			$is_required = array_key_exists($word, $required_map);
+			$tokens = $search->getTokensFromText($word, allow_wildcards: $allow_wildcards, allow_stemming: $allow_stemming);
+			
+			if(!$tokens) {
+				// The index never looked for it -- a stop word, or punctuation only
+				$rows[] = ['term' => $word, 'token' => null, 'hash' => null, 'docs' => null, 'alone' => null, 'status' => 'common', 'required' => $is_required, 'parent' => null];
+				continue;
+			}
+			
+			foreach($tokens as $token) {
+				$hashes = $search->indexTokens([$token]);
+				$hash = array_key_first($hashes);
+				
+				$rows[] = ['term' => $word, 'token' => $token, 'hash' => $hash, 'docs' => null, 'alone' => null, 'status' => 'ok', 'required' => $is_required, 'parent' => null];
+				$index_tokens[$hash] = $hashes[$hash];
+				
+				// Indexing expands `llm.agent` into `llm` and `agent` as well; querying never does, so the
+				// compound looks rarer than its parts. Reporting the parts costs nothing (same IN list) and
+				// the fix -- type the words separately -- is actionable.
+				if(str_contains($token, '*') || str_contains($token, '~'))
+					continue;
+				
+				foreach(array_slice($search->expandTokens([$token]), 1) as $part) {
+					if(!($part_tokens = $search->getTokensFromText($part)))
+						continue;
+					
+					$part = reset($part_tokens);
+					$part_hashes = $search->indexTokens([$part]);
+					$part_hash = array_key_first($part_hashes);
+					
+					if($part_hash === $hash)
+						continue;
+					
+					$rows[] = ['term' => $word, 'token' => $part, 'hash' => $part_hash, 'docs' => null, 'alone' => null, 'status' => 'ok', 'required' => false, 'parent' => $token];
+					$index_tokens[$part_hash] = $part_hashes[$part_hash];
+				}
+			}
+		}
+		
+		$out = [
+			'scope_docs' => $this->getRecordCount($model, scope_sql: $scope_sql),
+			'required_docs' => null,
+			'max_terms' => self::MAX_RANKED_TERMS,
+			'terms' => $rows,
+		];
+		
+		if(!$index_tokens)
+			return $out;
+		
+		try {
+			// Pass 1 -- what each word matches on its own, in scope
+			$alone = array_column($this->_getDocFrequencies($model, $index_tokens, $allow_wildcards, $allow_stemming, $scope_sql), 'docs', 'hash');
+			
+			foreach($out['terms'] as &$row) {
+				if(!is_null($row['hash']))
+					$row['alone'] = intval($alone[$row['hash']] ?? 0);
+			}
+			unset($row);
+			
+			$required_terms = [];
+			
+			foreach($out['terms'] as $row) {
+				if($row['required'] && !is_null($row['hash']) && is_null($row['parent']))
+					$required_terms[$row['hash']] = ['token' => $row['token'], 'hash' => $row['hash']];
+			}
+			
+			// Rarest first, so the subquery's anchor scans the smallest posting list -- the same ordering
+			// _getSqlQueryPartsForTokenFrequencies() uses, and pass 1 already paid for the counts.
+			uasort($required_terms, fn($a, $b) => intval($alone[$a['hash']] ?? 0) <=> intval($alone[$b['hash']] ?? 0));
+			$required_terms = array_values($required_terms);
+			
+			// A requirement nothing matches makes every combination zero, so pass 2 would be a wall of zeros
+			// with no information in it. Report the standalone counts and let the caller say why.
+			if($required_terms && min(array_map(fn($t) => intval($alone[$t['hash']] ?? 0), $required_terms)) < 1) {
+				$out['required_docs'] = 0;
+				return $this->_classifyTermStats($out);
+			}
+			
+			// Pass 2 -- the same counts, restricted to files carrying every required term
+			$counting_scope = $scope_sql;
+			
+			if($required_terms) {
+				$counting_scope = $this->_getRequiredSubquery($model, $required_terms, $scope_sql);
+				
+				$required_counts = array_column(
+					$this->_getDocFrequencies($model, $index_tokens, $allow_wildcards, $allow_stemming, $counting_scope),
+					'docs', 'hash'
+				);
+				
+				foreach($out['terms'] as &$row) {
+					if(!is_null($row['hash']))
+						$row['docs'] = intval($required_counts[$row['hash']] ?? 0);
+				}
+				unset($row);
+				
+				// A required term counted inside its own set IS the intersection size, so the baseline is free
+				$out['required_docs'] = intval($required_counts[$required_terms[0]['hash']] ?? 0);
+				
+			} else {
+				foreach($out['terms'] as &$row)
+					$row['docs'] = $row['alone'];
+				unset($row);
+			}
+			
+			$out['terms'] = $this->_withExpandedTokens($model, $out['terms'], $counting_scope);
+			
+		} catch (\Throwable $e) {
+			DevblocksPlatform::logException($e);
+			return $out;
+		}
+		
+		return $this->_classifyTermStats($out);
+	}
+	
+	/** Splice each wildcard/stem term's concrete tokens in as child rows, right after their parent. */
+	private function _withExpandedTokens(Model_SearchIndex $model, array $terms, string $scope_sql) : array {
+		$out = [];
+		
+		foreach($terms as $term) {
+			$out[] = $term;
+			
+			$token = strval($term['token'] ?? '');
+			
+			if($term['parent'] ?? null)
+				continue;
+			
+			if(!str_contains($token, '*') && !str_ends_with($token, '~'))
+				continue;
+			
+			foreach($this->_expandToken($model, $token, $scope_sql) as $concrete => $meta) {
+				$out[] = [
+					'term' => $term['term'], 'token' => $concrete, 'hash' => null,
+					'docs' => $meta['docs'], 'alone' => $meta['docs'],
+					'status' => 'ok', 'required' => false, 'parent' => $token,
+					'truncated' => $meta['truncated'],
+				];
+			}
+		}
+		
+		return $out;
+	}
+	
+	/** ok / none / apart, once both counts are known. `apart` needs a pin and is the one worth spelling out. */
+	private function _classifyTermStats(array $out) : array {
+		foreach($out['terms'] as &$row) {
+			if('common' == $row['status'])
+				continue;
+			
+			$row['status'] = match(true) {
+				// A pin that matches nothing never ran pass 2, so `alone` is the only real number here --
+				// calling these 'apart' would blame the words for a pin that was never satisfiable.
+				is_null($row['docs']) => (intval($row['alone']) > 0 ? 'ok' : 'none'),
+				intval($row['docs']) > 0 => 'ok',
+				intval($row['alone']) > 0 => 'apart',
+				default => 'none',
+			};
+		}
+		
+		return $out;
+	}
+	
+	private function _getSqlQueryPartsForTokenFrequencies(Model_SearchIndex $model, array $doc_frequencies, string $scope_sql='') : array {
 		$db = DevblocksPlatform::services()->database();
 		
 		$select_sql = $join_sql = $where_sql = $tables = [];
