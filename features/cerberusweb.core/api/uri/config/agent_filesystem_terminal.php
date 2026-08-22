@@ -119,10 +119,15 @@ class PageSection_SetupDevelopersAgentFilesystemTerminal extends Extension_PageS
 			// for `write`/`append`, the REPLACEMENT text for `edit` (its search needle rides the Find box), and a
 			// multi-line Twig template for anything else (so a script never has to be escaped onto the command
 			// line).
+			//
+			// `cerb` sits on both sides of that: `cerb records types` wants the box as a script, while
+			// `cerb code kata lint --payload` wants it as the document being checked. The flag is the only
+			// unambiguous signal, so it's what decides -- which is also what it says on the box.
 			$verb = DevblocksPlatform::strLower(strtok(trim($command), " \t"));
 			$is_write = in_array($verb, ['write', 'append']);
 			$is_edit = 'edit' == $verb;
-			$is_payload = $is_write || $is_edit;
+			$is_cerb_payload = 'cerb' == $verb && preg_match('/(^|\s)--payload(\s|$)/', $command);
+			$is_payload = $is_write || $is_edit || $is_cerb_payload;
 
 			$result = $vfs->exec(
 				$command,

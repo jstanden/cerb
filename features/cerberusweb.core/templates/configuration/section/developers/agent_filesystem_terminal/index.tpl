@@ -94,7 +94,7 @@
 
 <div class="cerb-ui-panel cerb-ui-panel--spaced">
 	<div class="cerb-ui-header cerb-ui-header--tight">
-		<div class="cerb-ui-header--title-sm">Payload <small class="cerb-u-text-muted cerb-u-fw-400">(out-of-band, so it never has to be escaped onto the command line: the body for <code>write</code> / <code>append</code>, the <em>replacement</em> for <code>edit</code>, or a multi-line scripting template applied to any other command's output &mdash; the inline <code>|</code> form does the same for one-liners)</small></div>
+		<div class="cerb-ui-header--title-sm">Payload <small class="cerb-u-text-muted cerb-u-fw-400">(out-of-band multi-line payload)</small></div>
 	</div>
 	<textarea id="afsPayload_{$form_id}" rows="4" spellcheck="false" style="width:100%;font-family:monospace;"></textarea>
 </div>

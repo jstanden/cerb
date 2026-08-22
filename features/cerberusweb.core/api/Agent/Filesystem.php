@@ -254,7 +254,7 @@ class Filesystem {
 			'edit' => $this->_cmdEdit($parsed, $cwd, $find, $payload),
 			'copy', 'cp' => $this->_cmdCopy($parsed, $cwd),
 			'rm' => $this->_cmdRm($parsed, $cwd),
-			'cerb' => $this->_cmdCerb($parsed, $cwd),
+			'cerb' => $this->_cmdCerb($parsed, $cwd, $payload),
 			'pwd' => $this->_result($cwd, $cwd),
 			'help' => $this->_result($this->_help($parsed['args'][0] ?? null), $cwd),
 			default => $this->_error(sprintf("%s: command not found. Try `help`.", $parsed['verb']), $cwd),
@@ -1384,14 +1384,22 @@ class Filesystem {
 	 * The CLI has no cwd and no paths, so `$cwd` only rides through unchanged. `data`/`data_alias` are
 	 * forwarded so a `| chain` gets the command's ROWS, not just its rendered text.
 	 */
-	private function _cmdCerb(array $cmd, string $cwd) : array {
+	private function _cmdCerb(array $cmd, string $cwd, ?string $payload = null) : array {
 		// With nothing enabled the verb doesn't exist at all -- same reply as any unknown command, matching
 		// the fact that `help` doesn't document it either. A "no commands are enabled" message here would
 		// advertise a capability this host wasn't given.
 		if(!$this->hasCli())
 			return $this->_error(sprintf("%s: command not found. Try `help`.", self::KIND_CLI), $cwd);
 
-		$result = Cli::exec($cmd['args'], $cmd['flags'], $this->_options['cerb']);
+		// What the host can offer a sub-command beyond its own arguments. Deliberately a narrow bundle rather
+		// than the Filesystem itself: a command that could reach the evaluator could write, and the CLI's
+		// scope chokepoint only governs what it knows it handed out.
+		$result = Cli::exec($cmd['args'], $cmd['flags'], $this->_options['cerb'], [
+			'cwd' => $cwd,
+			'payload' => $payload,
+			'read' => fn(string $arg, ?string &$error = null, ?string &$path = null) : ?string
+				=> $this->_readPath($arg, $cwd, $error, $path),
+		]);
 
 		$out = ($result['error'] ?? false)
 			? $this->_error(strval($result['output'] ?? ''), $cwd)
