@@ -1,0 +1,36 @@
+// Meter: an ordinal level reported as a row of small discrete blocks, filled from the left. Sibling of
+// cerb-ui/_rating -- that one is the INTERACTIVE editor (buttons, any .cerb-icons glyph, hover preview);
+// this one only reports, at a size that fits a worklist cell or a menu row.
+//
+// An unrated axis keeps ALL its blocks, just unfilled. A missing meter would leave a hole and break the
+// comparison down a column; a row of gray reads as "not rated".
+//
+// Retint with a .cerb-ui-meter--<hue> modifier, or per instance with --cerb-ui-meter-color.
+//
+// The mixins exist so a host with its own class names (.cerb-ui-agentprompt--meter-*) paints from the same
+// geometry -- two copies of "a 5px block" drift the moment one is nudged. Hues come from cerb-ui/_palette,
+// which any component with a single retint hook can emit modifiers from.
+
+@mixin cerb-ui-meter-blocks {
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+	vertical-align: middle;
+}
+
+@mixin cerb-ui-meter-block {
+	width: 5px;
+	height: 5px;
+	border-radius: 1px;
+	background: var(--cerb-color-background-contrast-225);
+}
+
+@mixin cerb-ui-meter-block-on {
+	background: var(--cerb-ui-meter-color, var(--cerb-color-background-contrast-150));
+}
+
+.cerb-ui-meter { @include cerb-ui-meter-blocks; }
+.cerb-ui-meter--block { @include cerb-ui-meter-block; }
+.cerb-ui-meter--block-on { @include cerb-ui-meter-block-on; }
+
+@include cerb-tag-color-modifiers(".cerb-ui-meter--", "--cerb-ui-meter-color");

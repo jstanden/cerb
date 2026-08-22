@@ -137,6 +137,8 @@
 	{else}
 		{$v.value}
 	{/if}
+{elseif $v.type == 'meter'}
+	{include file="devblocks:cerberusweb.core::internal/cerb_ui/meter_readonly.tpl" level=$v.params.level of=$v.params.of color=$v.params.color|default:'' label=$v.params.label|default:''}
 {elseif $v.type == 'percent'}
 	{$v.value*100}%
 {elseif $v.type == 'phone'}

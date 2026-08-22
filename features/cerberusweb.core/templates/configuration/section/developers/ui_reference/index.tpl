@@ -173,6 +173,7 @@
 						<li data-target="color-scale" data-icon="paintbrush">Color scale</li>
 						<li data-target="legend" data-icon="key">Legend</li>
 						<li data-target="distribution-bar" data-icon="chart-bar">Distribution bar</li>
+						<li data-target="meter" data-icon="signal">Meter</li>
 						<li data-target="sparkchart" data-icon="chart-line">Sparkchart</li>
 						<li data-target="piechart" data-icon="chart-pie">Pie / donut</li>
 						<li data-target="cartesian-chart" data-icon="chart-bar">Bar / line</li>
@@ -267,6 +268,7 @@
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/color-scale.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/legend.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/distribution-bar.tpl"}
+			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/meter.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/sparkchart.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/piechart.tpl"}
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/cartesian-chart.tpl"}
