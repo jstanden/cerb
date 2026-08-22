@@ -596,6 +596,8 @@ class SearchFields_AgentFile extends DevblocksSearchFields {
 	const SIZE = 'a_size';
 	const UPDATED_AT = 'a_updated_at';
 
+	const VIRTUAL_FILESYSTEM_SEARCH = '*_filesystem_search';
+
 	static private $_fields = null;
 
 	static function getTableName() : string {
@@ -622,6 +624,9 @@ class SearchFields_AgentFile extends DevblocksSearchFields {
 
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
+			case self::VIRTUAL_FILESYSTEM_SEARCH:
+				return self::_getWhereSQLFromVirtualSearchField($param, Context_AgentFilesystem::ID, 'agent_file.filesystem_id');
+
 			default:
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
@@ -636,6 +641,17 @@ class SearchFields_AgentFile extends DevblocksSearchFields {
 
 	static function getLabelsForKeyValues($key, $values) {
 		switch($key) {
+			case self::FILESYSTEM_ID:
+				$models = DAO_AgentFilesystem::getIds($values);
+				$label_map = array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+
+				// Every file belongs to a volume, so a 0 here is an orphan -- name it rather than
+				// rendering a blank row that reads as a bug
+				if(in_array(0, $values))
+					$label_map[0] = DevblocksPlatform::translate('common.none');
+
+				return $label_map;
+
 			case self::ID:
 				$models = DAO_AgentFile::getIds($values);
 				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
@@ -665,6 +681,8 @@ class SearchFields_AgentFile extends DevblocksSearchFields {
 			self::SHA1 => new DevblocksSearchField(self::SHA1, 'agent_file', 'sha1', $translate->_('dao.agent_file.sha1'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::SIZE => new DevblocksSearchField(self::SIZE, 'agent_file', 'size', $translate->_('dao.agent_file.size'), Model_CustomField::TYPE_NUMBER, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'agent_file', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
+
+			self::VIRTUAL_FILESYSTEM_SEARCH => new DevblocksSearchField(self::VIRTUAL_FILESYSTEM_SEARCH, '*', 'filesystem_search', null, null, false),
 		];
 
 		if(($virtual_columns = DevblocksSearchField::getVirtualFields()))
@@ -756,6 +774,12 @@ class View_AgentFile extends C4_AbstractView implements IAbstractView_Subtotals,
 			$pass = false;
 
 			switch($field_key) {
+				// Both are low cardinality by nature: a handful of volumes, a handful of file types
+				case SearchFields_AgentFile::FILESYSTEM_ID:
+				case SearchFields_AgentFile::FILE_EXTENSION:
+					$pass = true;
+					break;
+
 				default:
 					if(DevblocksPlatform::strStartsWith($field_key, 'cf_')) {
 						$pass = $this->_canSubtotalCustomField($field_key);
@@ -781,6 +805,28 @@ class View_AgentFile extends C4_AbstractView implements IAbstractView_Subtotals,
 			return [];
 
 		switch($column) {
+			case SearchFields_AgentFile::FILESYSTEM_ID:
+				$label_map = function(array $values) use ($column) {
+					return SearchFields_AgentFile::getLabelsForKeyValues($column, $values);
+				};
+				$counts = $this->_getSubtotalCountForNumberColumn($context, $column, $label_map, 'in');
+				break;
+
+			case SearchFields_AgentFile::FILE_EXTENSION:
+				// Extensionless files (LICENSE, Makefile) store '', which would render as an unlabeled row
+				$label_map = function(array $values) {
+					$map = [];
+
+					foreach($values as $value)
+						$map[$value] = ('' === strval($value))
+							? DevblocksPlatform::translate('common.none')
+							: strval($value);
+
+					return $map;
+				};
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
+				break;
+
 			default:
 				if(DevblocksPlatform::strStartsWith($column, 'cf_')) {
 					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
@@ -810,6 +856,13 @@ class View_AgentFile extends C4_AbstractView implements IAbstractView_Subtotals,
 				'options' => ['param_key' => DevblocksSearchField::VIRTUAL_HAS_FIELDSET],
 				'examples' => [
 					['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . Context_AgentFile::ID],
+				]
+			],
+			'filesystem' => [
+				'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+				'options' => ['param_key' => SearchFields_AgentFile::VIRTUAL_FILESYSTEM_SEARCH],
+				'examples' => [
+					['type' => 'search', 'context' => Context_AgentFilesystem::ID, 'q' => ''],
 				]
 			],
 			'filesystem.id' => [
@@ -864,6 +917,9 @@ class View_AgentFile extends C4_AbstractView implements IAbstractView_Subtotals,
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
 
+			case 'filesystem':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_AgentFile::VIRTUAL_FILESYSTEM_SEARCH);
+
 			case 'watchers':
 				return DevblocksSearchCriteria::getWatcherParamFromTokens(DevblocksSearchField::VIRTUAL_WATCHERS, $tokens);
 
@@ -895,6 +951,14 @@ class View_AgentFile extends C4_AbstractView implements IAbstractView_Subtotals,
 
 	function renderCriteriaParam($param) {
 		switch($param->field) {
+			case SearchFields_AgentFile::FILESYSTEM_ID:
+				$field = $param->field;
+				$label_map = function($values) use ($field) {
+					return SearchFields_AgentFile::getLabelsForKeyValues($field, $values);
+				};
+				parent::_renderCriteriaParamString($param, $label_map);
+				break;
+
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -903,6 +967,13 @@ class View_AgentFile extends C4_AbstractView implements IAbstractView_Subtotals,
 
 	function renderVirtualCriteria($param) : void {
 		switch($param->field) {
+			case SearchFields_AgentFile::VIRTUAL_FILESYSTEM_SEARCH:
+				echo sprintf('%s matches <b>%s</b>',
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('dao.agent_file.filesystem_id')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
+				break;
+
 			default:
 				$this->_renderVirtualCriteria($param);
 				break;
