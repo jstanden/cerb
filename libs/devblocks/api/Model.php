@@ -814,12 +814,16 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 		$query = strval($param->value['query'] ?? '');
 		$fields = strval($param->value['fields'] ?? '');
 		
+		// The rest of the caller's query, attached by _attachSearchIndexCoParams(). The index scores within
+		// these rather than picking its top-k globally and letting the outer WHERE intersect what's left.
+		$co_params = $param->value['co_params'] ?? [];
+		
 		if(!($search_index = DAO_SearchIndex::get($index_id)))
 			return '-1';
 		
 		$search_ext = $search_index->getExtension();
 		
-		if(!($sql = $search_ext->queryJoinFromRecordQuickSearch($search_index, $query, $fields)))
+		if(!($sql = $search_ext->queryJoinFromRecordQuickSearch($search_index, $query, $fields, $co_params)))
 			return '-1';
 		
 		return sprintf("%s IN (%s) ", $join_key, $sql);

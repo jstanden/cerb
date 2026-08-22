@@ -918,8 +918,23 @@ class Filesystem {
 	}
 
 	/**
-	 * Search file CONTENT via the worklist quick-search (the `text:` fulltext index), scoped by
-	 * `filesystem.id:` and an optional path prefix.
+	 * The fulltext index covering agent files. Resolved by record type rather than by id or name so an
+	 * install that renamed or rebuilt it still works; `query` is the manifest option that says an engine
+	 * can be read from at all.
+	 */
+	private static function _searchIndex() : ?\Model_SearchIndex {
+		foreach(\DAO_SearchIndex::getByRecordType(\Context_AgentFile::ID) as $search_index) {
+			if($search_index->getExtension()?->hasOption('query'))
+				return $search_index;
+		}
+
+		return null;
+	}
+
+
+	/**
+	 * Search file CONTENT via the fulltext search index, scoped by `filesystem.id:` and an optional path
+	 * prefix.
 	 *
 	 * EVERY positional arg is part of the query -- `search filled disc` searches "filled disc" (quoting also
 	 * works). Scope with `--path`, not extra positional args.
@@ -968,15 +983,13 @@ class Filesystem {
 		// matches the terms (more forgiving than a strict quoted phrase). Inside the group, bare words are the
 		// query and `key:value` pairs are filters -- `top:k` asks the index to SCORE and return only the k most
 		// relevant files (`--top 0` = every match, unranked).
+		// `top:k` asks the index to SCORE and return only the k most relevant files (`--top 0` = every match,
+		// unranked). The scoring is limited to the filters below -- they reach the index as co-params, so the
+		// k is spent inside the mounted volumes instead of across every volume in the install.
 		$top = \DevblocksPlatform::intClamp($cmd['flags']['top'] ?? 25, 0, 1000);
 
-		$text_filter = self::_sanitizeQueryValue($query);
-
-		if($top)
-			$text_filter .= sprintf(' top:%d', $top);
-
+		// The scope filters, which are also what the index scores within
 		$q = [
-			sprintf('text:(%s)', $text_filter),
 			sprintf('filesystem.id:[%s]', implode(',', $fs_ids)),
 		];
 
@@ -993,6 +1006,45 @@ class Filesystem {
 
 		if(false === $params || !is_array($params))
 			return $this->_error(sprintf("search: %s", $error ?: 'could not parse the query.'), $cwd);
+
+		// id => position, so relevance survives the worklist fetch (which can only sort by a column)
+		$rank = [];
+
+		if($top && ($search_index = self::_searchIndex())) {
+			// Ask the index for the ranked ids directly rather than going through `text:(... top:k)`. Same
+			// scoping either way, but the worklist has no way to sort by score, so the group form returns the
+			// right SET in the wrong ORDER. This also keeps it to ONE index query.
+			$docs = $search_index->getExtension()->queryDocumentsWithScore(
+				$search_index,
+				$query,
+				limit: $top,
+				co_params: $params
+			);
+
+			if(!$docs)
+				return $this->_searchMiss($cmd, $query, $cwd, $params);
+
+			$doc_ids = array_column($docs, 'id');
+			$rank = array_flip($doc_ids);
+
+			$params[] = new \DevblocksSearchCriteria(
+				\SearchFields_AgentFile::ID,
+				\DevblocksSearchCriteria::OPER_IN,
+				$doc_ids
+			);
+
+		} else {
+			// Unranked: every match in scope, capped by --limit. The group form `(...)` matches the terms
+			// (more forgiving than a strict quoted phrase); the index still scores within the co-filters.
+			$params = $view->getParamsFromQuickSearch(
+				sprintf('text:(%s) %s', self::_sanitizeQueryValue($query), implode(' ', $q)),
+				[],
+				$error
+			);
+
+			if(false === $params || !is_array($params))
+				return $this->_error(sprintf("search: %s", $error ?: 'could not parse the query.'), $cwd);
+		}
 
 		$columns = [
 			\SearchFields_AgentFile::ID,
@@ -1047,6 +1099,7 @@ class Filesystem {
 			$meta = json_decode(strval($row[\SearchFields_AgentFile::FRONTMATTER_JSON] ?? ''), true);
 
 			$results[] = [
+				'id' => intval($row[\SearchFields_AgentFile::ID] ?? 0),
 				'path' => $this->_vfsPathFor($filesystem_id, $name),
 				'name' => $name,
 				'filesystem' => $this->_filesystemName($filesystem_id),
@@ -1059,9 +1112,16 @@ class Filesystem {
 			];
 		}
 
-		// Most hits first: that's the ranking a reader actually acts on. (The index's own relevance score picks
-		// WHICH files come back via `top:k`; it isn't exposed as a sort field -- see the plan's backlog.)
-		usort($results, fn($a, $b) => $b['hits'] <=> $a['hits']);
+		// Most hits first: that's the ranking a reader actually acts on. The index PICKS the candidates (by
+		// TF-IDF, within scope) but does NOT order them, because for the single-term queries this command
+		// mostly sees, `token_tf` is just term-count over document length -- which ranks a short release note
+		// mentioning a word 8 times above the reference page mentioning it 37 times. Measured on cerb-docs.
+		// Index rank breaks ties, so a file that matched only through stemming (zero literal hits) still has
+		// a deterministic place instead of floating.
+		usort($results, fn($a, $b) =>
+			($b['hits'] <=> $a['hits'])
+				?: (($rank[$a['id']] ?? PHP_INT_MAX) <=> ($rank[$b['id']] ?? PHP_INT_MAX))
+		);
 
 		$header = sprintf("%d file%s matched%s:",
 			count($results),

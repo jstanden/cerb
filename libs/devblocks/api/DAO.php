@@ -1048,6 +1048,13 @@ abstract class DevblocksORMHelper {
 		}
 		
 		// Params
+		
+		// A search index param is evaluated in isolation by getWhereSQL(), so it can't see that the caller
+		// also asked for `filesystem.id:` -- and `top:k` spends its k globally before that filter exists.
+		// This is the only place holding the whole param set, so the siblings are attached here.
+		if(is_array($params))
+			$params = self::_attachSearchIndexCoParams($params);
+		
 		if(is_array($params))
 		foreach($params as $param_key => $param) {
 			$where = '';
@@ -1076,6 +1083,49 @@ abstract class DevblocksORMHelper {
 		}
 		
 		return array($tables, $wheres, $selects);
+	}
+	
+	/**
+	 * Attach each top-level search index param's sibling params to it, so the index can score WITHIN the
+	 * caller's scope rather than picking its top-k across the whole index and intersecting afterward.
+	 *
+	 * Only top-level AND params ride along. A co-filter inside an OR group would narrow candidates the group
+	 * was meant to widen, and another search index param would recurse -- scoping one index by another
+	 * re-enters this method through getSearchQueryComponents().
+	 */
+	static private function _attachSearchIndexCoParams(array $params) : array {
+		$index_keys = [];
+		$co_params = [];
+		
+		foreach($params as $param_key => $param) {
+			// Groups are arrays, not criteria; skip them and everything inside them
+			if(!($param instanceof DevblocksSearchCriteria))
+				continue;
+			
+			if(DevblocksSearchField::VIRTUAL_SEARCH_INDEX == $param->field) {
+				$index_keys[] = $param_key;
+			} else {
+				$co_params[$param_key] = $param;
+			}
+		}
+		
+		if(!$index_keys || !$co_params)
+			return $params;
+		
+		foreach($index_keys as $param_key) {
+			if(!is_array($params[$param_key]->value))
+				continue;
+			
+			// The params array belongs to the caller's view, so never mutate the criteria in place
+			$param = clone $params[$param_key];
+			$value = $param->value;
+			$value['co_params'] = $co_params;
+			$param->value = $value;
+			
+			$params[$param_key] = $param;
+		}
+		
+		return $params;
 	}
 	
 	static private function _parseNestedSearchParams($param, &$tables, $search_class, $pkey=null) {

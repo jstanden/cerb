@@ -53,9 +53,40 @@ abstract class Extension_SearchIndex extends DevblocksExtension {
 		return true;
 	}
 
-	abstract public function queryJoinFromRecordQuickSearch(Model_SearchIndex $model, string $query, string $fields=''): string;
+	/**
+	 * Drop these records from the index because they no longer exist.
+	 *
+	 * Called from the `context.delete` listener, so it arrives batched and covers every record type at
+	 * once. Default is a no-op for engines with nothing to clean up.
+	 */
+	public function deleteDocumentsByIds(Model_SearchIndex $model, array $record_ids) : bool {
+		return true;
+	}
+
+	/**
+	 * @param array $co_params The rest of the caller's search params, so the engine can score WITHIN the
+	 *   caller's scope. Without them `top:k` picks its k across the whole index and the outer WHERE
+	 *   intersects afterward, which returns nothing when the scope is a small subset of a big index.
+	 *   Threading this on the base (rather than in one engine) is what lets a composite or embedding
+	 *   engine pass the same scope down to its children unchanged.
+	 */
+	abstract public function queryJoinFromRecordQuickSearch(Model_SearchIndex $model, string $query, string $fields='', array $co_params=[]): string;
 	
-	abstract public function queryDocumentsWithScore(Model_SearchIndex $model, string $query, int $limit = 100): array;
+	abstract public function queryDocumentsWithScore(Model_SearchIndex $model, string $query, int $limit = 100, array $co_params=[]): array;
+	
+	/**
+	 * Per-term document counts for the words a caller typed: what each matches alone, and (with $required)
+	 * in combination with the required words. For explaining an empty result and for planning a query.
+	 *
+	 * NOT abstract, and empty by default: "how many documents contain this term" is a question a keyword
+	 * engine can answer and an embedding engine cannot, so forcing it would only produce stubs returning
+	 * this same []. Callers read [] as "this engine can't say" and degrade. It lives here rather than on
+	 * the fulltext engine so the terminal keeps resolving an index by record type + the `query` option,
+	 * never by extension id -- and so a composite can forward it to its fulltext child unchanged.
+	 */
+	public function queryTermStats(Model_SearchIndex $model, array $words, array $required=[], array $co_params=[]) : array {
+		return [];
+	}
 	
 	abstract public function deleteIndex(Model_SearchIndex $model): bool;
 	

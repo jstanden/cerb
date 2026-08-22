@@ -22,6 +22,14 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 	// Cap the seen set to conserve memory
 	const int MAX_INDEXED_TOKEN_HASHES = 250_000;
 
+	// How many terms a ranked search actually scores, rarest-first. A longer query is silently BROADENED --
+	// the lowest-IDF terms are dropped. `search --terms` reports this, so it can't be a bare literal.
+	const int MAX_RANKED_TERMS = 10;
+
+	// How many concrete tokens a `auto*` / `automate~` row expands to. A wildcard IS a vocabulary probe --
+	// the words it covers are the answer -- but an open prefix can match hundreds, so it is capped.
+	const int MAX_EXPANDED_TOKENS = 10;
+
 	function renderConfig(Model_SearchIndex $model) : void {
 		$tpl = DevblocksPlatform::services()->template();
 		
@@ -32,7 +40,14 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 	function invokeConfig($config_action, Model_SearchIndex $model) : void {
 	}
 	
-	private function _getRecordQueryParts(Model_SearchIndex $model) : array {
+	/**
+	 * The index's CONFIGURED record_query as record-type SQL, optionally ANDed with the caller's own
+	 * filters for this one call. One code path so the configured scope and the per-call scope can't
+	 * disagree about how a query becomes SQL.
+	 *
+	 * @param array $co_params Per-call filters (see Extension_SearchIndex::queryDocumentsWithScore)
+	 */
+	private function _getRecordQueryParts(Model_SearchIndex $model, array $co_params=[]) : array {
 		if(!($record_ext = $model->getRecordTypeExtension()))
 			return [];
 		
@@ -50,9 +65,26 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		if(!method_exists($dao_class, 'getSearchQueryComponents'))
 			return [];
 		
+		$params = $view->getParams();
+		
+		foreach($co_params as $co_key => $co_param) {
+			if($co_param instanceof DevblocksSearchCriteria)
+				$params['co:' . $co_key] = $co_param;
+		}
+		
+		// getSearchQueryComponents() re-enters _parseSearchParams(), which is where a search index param
+		// gets its co-params attached -- so leaving one here scopes an index by an index, forever.
+		$params = array_filter(
+			$params,
+			fn($param) => !(
+				$param instanceof DevblocksSearchCriteria
+				&& \DevblocksSearchField::VIRTUAL_SEARCH_INDEX == $param->field
+			)
+		);
+		
 		$query_parts = $dao_class::getSearchQueryComponents(
 			[],
-			$view->getParams()
+			$params
 		);
 		
 		$query_parts['key_primary'] = null;
@@ -67,16 +99,52 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		return $query_parts;
 	}
 	
+	/**
+	 * The caller's filters as a record subquery (`SELECT <pk> FROM <table> WHERE ...`), for narrowing the
+	 * scoring query BEFORE its LIMIT. Returns '' when there is nothing to narrow by -- callers must treat
+	 * an empty string as "no scope" rather than emitting `IN ()`.
+	 *
+	 * Returned without an alias so each call site can spell the left side itself: the scoring query uses
+	 * `s0.record_id`, getTokenStats() uses a bare `record_id`.
+	 */
+	private function _getScopeSubquery(Model_SearchIndex $model, array $co_params) : string {
+		if(!$co_params)
+			return '';
+		
+		if(!($query_parts = $this->_getRecordQueryParts($model, $co_params)))
+			return '';
+		
+		if(!($key_primary = $query_parts['key_primary'] ?? null))
+			return '';
+		
+		return sprintf('SELECT %s %s %s',
+			$key_primary,
+			$query_parts['join'] ?? '',
+			$query_parts['where'] ?? ''
+		);
+	}
+	
 	private function _clearCache(Model_SearchIndex $model) : void {
 		$cache = DevblocksPlatform::services()->cache();
 		$cache_key = sprintf("search_index:%d:count", $model->id);
 		$cache->remove($cache_key);
 	}
 	
-	public function getRecordCount(Model_SearchIndex $model, bool $no_cache=false): int {
+	/**
+	 * @param string $scope_sql A record subquery from _getScopeSubquery(); when set this is the IDF
+	 *   denominator for that scope rather than for the whole index.
+	 */
+	public function getRecordCount(Model_SearchIndex $model, bool $no_cache=false, string $scope_sql=''): int {
 		$cache = DevblocksPlatform::services()->cache();
 		
-		$cache_key = sprintf("search_index:%d:count", $model->id);
+		// A scoped count is a different denominator, so it gets its own key. Deliberately NOT invalidated by
+		// _clearCache(): that runs after every index batch, which on a busy index would leave scoped counts
+		// permanently cold and pay for the scan on every search. Staleness is harmless here -- moving the
+		// denominator shifts every term's IDF by the same constant, and only their ORDER matters.
+		$cache_key = $scope_sql
+			? sprintf("search_index:%d:count:%s", $model->id, sha1($scope_sql))
+			: sprintf("search_index:%d:count", $model->id)
+			;
 		
 		if($no_cache || null === ($count = $cache->load($cache_key))) {
 			$db = DevblocksPlatform::services()->database();
@@ -92,19 +160,22 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 			if(!method_exists($search_class, 'getPrimaryKey'))
 				return 0;
 			
-			$primary_key = $search_class::getPrimaryKey();
-			$query_parts = $this->_getRecordQueryParts($model);
-			
-			$select_sql = sprintf('SELECT COUNT(%s) AS total_docs ', $db->escape($primary_key));
-			$join_sql = $query_parts['join'];
-			$where_sql = $query_parts['where'];
-			
-			// SQL (no sorting for count)
-			$search_sql =
-				$select_sql.
-				$join_sql.
-				$where_sql
-			;
+			if($scope_sql) {
+				// Already `SELECT <pk> FROM ... WHERE ...` over this record type, with this index's own
+				// record_query folded in, so count it directly rather than rebuilding the same parts.
+				$search_sql = sprintf('SELECT COUNT(*) AS total_docs FROM (%s) AS scoped', $scope_sql);
+				
+			} else {
+				$primary_key = $search_class::getPrimaryKey();
+				$query_parts = $this->_getRecordQueryParts($model);
+				
+				// SQL (no sorting for count)
+				$search_sql =
+					sprintf('SELECT COUNT(%s) AS total_docs ', $db->escape($primary_key)).
+					$query_parts['join'].
+					$query_parts['where']
+				;
+			}
 			
 			try {
 				$count = $db->GetOneReader($search_sql);
@@ -310,6 +381,12 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 			$counter++;
 		}
 		
+		// Narrow BEFORE the LIMIT, which is the whole point -- afterwards the k is already spent. Only s0
+		// needs it: s1..sN join on `s0.record_id = sK.record_id`, so they're transitively narrowed already,
+		// and repeating the predicate on them just pulls the optimizer off the exact PK point lookup.
+		if($scope_sql)
+			$where_sql[] = sprintf('s0.record_id IN (%s)', $scope_sql);
+		
 		return [
 			'select' => $select_sql,
 			'join' => $join_sql,
@@ -340,7 +417,7 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		];
 	}
 
-	public function queryJoinFromRecordQuickSearch(Model_SearchIndex $model, string $query, string $fields=''): string {
+	public function queryJoinFromRecordQuickSearch(Model_SearchIndex $model, string $query, string $fields='', array $co_params=[]): string {
 		if(!$query) return '-1';
 		
 		// Receive filters like `top:`
@@ -353,7 +430,7 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 			$top_k = DevblocksPlatform::intClamp($param_top->value ?? 1, 1, 1_000);
 			
 			if($top_k) {
-				$docs = $this->queryDocumentsWithScore($model, $query, limit: $top_k);
+				$docs = $this->queryDocumentsWithScore($model, $query, limit: $top_k, co_params: $co_params);
 				
 				$doc_ids = DevblocksPlatform::sanitizeArray(
 					array_column($docs, 'id'),
@@ -377,12 +454,17 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 			
 			// We refuse to only exclude, so bail if no included terms
 			if(!$query_terms['include']) return '-1';
+			
+			// Redundant with the outer WHERE on this branch (there's no LIMIT to spend), but it keeps one
+			// code path and lets the optimizer narrow before the token joins instead of after.
+			$scope_sql = $this->_getScopeSubquery($model, $co_params);
 
 			$doc_frequencies = $this->getTokenStats(
 				$model,
 				$query_terms['include'],
 				allow_wildcards: $allow_wildcards,
-				allow_stemming: $allow_stemming
+				allow_stemming: $allow_stemming,
+				scope_sql: $scope_sql
 			);
 			
 			if(!$doc_frequencies) return '-1';
@@ -391,10 +473,10 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 			if($doc_frequencies[array_key_first($doc_frequencies)]['docs'] == 0) return '-1';
 			
 			// Get ordered nested subqueries for tokens
-			$sql_query_parts = $this->_getSqlQueryPartsForTokenFrequencies($model, $doc_frequencies);
+			$sql_query_parts = $this->_getSqlQueryPartsForTokenFrequencies($model, $doc_frequencies, $scope_sql);
 			
 			// Handle excluded terms
-			if(($negation_where = $this->_getNegationWhereClause($query_terms['exclude'], $model, $allow_wildcards, $allow_stemming, 5)))
+			if(($negation_where = $this->_getNegationWhereClause($query_terms['exclude'], $model, $allow_wildcards, $allow_stemming, 5, $scope_sql)))
 				$sql_query_parts['where'][] = $negation_where;
 			
 			// Assemble the query from the rarest term
@@ -412,7 +494,7 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		}
 	}
 	
-	public function queryDocumentsWithScore(Model_SearchIndex $model, string $query, int $limit = 100): array {
+	public function queryDocumentsWithScore(Model_SearchIndex $model, string $query, int $limit = 100, array $co_params=[]): array {
 		$db = DevblocksPlatform::services()->database();
 		
 		if(!$query) return [];
@@ -425,18 +507,22 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		
 		// We refuse to only exclude, so bail if no included terms
 		if(!$query_terms['include']) return [];
+		
+		// Both the candidate set and the IDF behind the ranking are limited to this
+		$scope_sql = $this->_getScopeSubquery($model, $co_params);
 
 		$doc_frequencies = $this->getTokenStats(
 			$model,
 			$query_terms['include'],
 			allow_wildcards: $allow_wildcards,
-			allow_stemming: $allow_stemming
+			allow_stemming: $allow_stemming,
+			scope_sql: $scope_sql
 		);
 		
 		if(!$doc_frequencies) return [];
 		
 		// Get ordered nested subqueries for tokens
-		$sql_query_parts = $this->_getSqlQueryPartsForTokenFrequencies($model, $doc_frequencies);
+		$sql_query_parts = $this->_getSqlQueryPartsForTokenFrequencies($model, $doc_frequencies, $scope_sql);
 		
 		// Index IDFs by hash for scoring
 		$idfs = array_column($doc_frequencies, 'idf', 'hash');
@@ -456,7 +542,7 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		);
 
 		// Handle excluded terms
-		if(($negation_where = $this->_getNegationWhereClause($query_terms['exclude'], $model, $allow_wildcards, $allow_stemming, 5)))
+		if(($negation_where = $this->_getNegationWhereClause($query_terms['exclude'], $model, $allow_wildcards, $allow_stemming, 5, $scope_sql)))
 			$sql_query_parts['where'][] = $negation_where;
 		
 		// Assemble query
@@ -1048,11 +1134,13 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 	 * @param int $max_terms
 	 * @return string
 	 */
-	private function _getNegationWhereClause($exclude, Model_SearchIndex $model, bool $allow_wildcards, bool $allow_stemming, int $max_terms=5) : string {
+	private function _getNegationWhereClause($exclude, Model_SearchIndex $model, bool $allow_wildcards, bool $allow_stemming, int $max_terms=5, string $scope_sql='') : string {
 		if(!$exclude)
 			return '';
 		
-		if(!($exclude_tokens = $this->getTokenStats($model, $exclude, $allow_wildcards, $allow_stemming, $max_terms)))
+		// Scoped stats, or the "least common term" this picks to exclude by is chosen from documents the
+		// caller can't see. The NOT EXISTS itself needs no scope -- it already keys off s0.record_id.
+		if(!($exclude_tokens = $this->getTokenStats($model, $exclude, $allow_wildcards, $allow_stemming, $max_terms, $scope_sql)))
 			return '';
 		
 		// Exclude token hashes from the least common term for efficiency
