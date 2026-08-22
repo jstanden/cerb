@@ -209,13 +209,17 @@ class DAO_LlmAgentMessage {
 		if(!empty($message['tool_calls']))
 			return 'tool_use';
 
-		// Anthropic content blocks
+		// Anthropic content blocks, and the OpenAI Responses item list -- both hold a turn's parts in
+		// `content`, they just spell the two tool types differently (`function_call` /
+		// `function_call_output`). Unrecognized here the row silently classifies as `text`, the transcript
+		// mislabels the turn, and Compaction::_userLed() goes blind to an orphaned tool result -- which
+		// surfaces as a wire-level 400 on a LATER turn rather than as anything cosmetic.
 		if(is_array($message['content'] ?? null)) {
 			foreach($message['content'] as $block) {
 				$type = is_array($block) ? ($block['type'] ?? '') : '';
-				if('tool_result' === $type)
+				if('tool_result' === $type || 'function_call_output' === $type)
 					return 'tool_result';
-				if('tool_use' === $type)
+				if('tool_use' === $type || 'function_call' === $type)
 					return 'tool_use';
 			}
 		}
