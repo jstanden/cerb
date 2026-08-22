@@ -17,6 +17,8 @@ use Extension_DevblocksContext;
  * per-record permission model. Reading record DATA is a separate, default-deny concern.
  */
 class Records implements Command {
+	use Output;
+
 	public function getName() : string {
 		return 'records';
 	}
@@ -336,10 +338,6 @@ class Records implements Command {
 	}
 
 	/**
-	 * A markdown table. Chosen over JSON as the default because this data is tabular and JSON repeats every
-	 * key name on every row -- roughly 40% more tokens on a long filter list, for output nothing parses.
-	 */
-	/**
 	 * Custom fields, with the `notes` column carried only when something in this set has any.
 	 *
 	 * `type` alone is a dead end for two of them: a Record Link doesn't say WHICH type it points at, and a
@@ -363,45 +361,5 @@ class Records implements Command {
 				return $row;
 			}, $rows)
 		);
-	}
-
-	private function _table(array $headers, array $rows) : string {
-		$lines = [
-			'| ' . implode(' | ', $headers) . ' |',
-			'|' . str_repeat(' --- |', count($headers)),
-		];
-
-		foreach($rows as $row)
-			$lines[] = '| ' . implode(' | ', array_map([$this, '_cell'], $row)) . ' |';
-
-		return implode("\n", $lines);
-	}
-
-	/** A pipe inside a cell would silently break the row into extra columns. */
-	private function _cell($value) : string {
-		$value = str_replace(["\r\n", "\r", "\n"], ' ', strval($value));
-
-		return str_replace('|', '\\|', $value);
-	}
-
-	private function _wantsJson(array $flags) : bool {
-		return 'json' === DevblocksPlatform::strLower(trim(strval($flags['format'] ?? '')));
-	}
-
-	private function _json(array $rows, string $alias) : array {
-		return $this->_ok(
-			strval(json_encode($rows, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)),
-			$rows,
-			$alias
-		);
-	}
-
-	/** `data` carries the rows for a `|` pipeline; `data_alias` gives them a readable name beside `data`. */
-	private function _ok(string $output, ?array $data = null, ?string $data_alias = null) : array {
-		return ['output' => $output, 'error' => false, 'data' => $data, 'data_alias' => $data_alias];
-	}
-
-	private function _fail(string $output) : array {
-		return ['output' => $output, 'error' => true, 'data' => null, 'data_alias' => null];
 	}
 }
