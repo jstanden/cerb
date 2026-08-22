@@ -218,6 +218,30 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, ChatStreami
 		return ['reasoning_effort' => $effort];
 	}
 
+	// Run the author's level back through the same guardrail chatCompletion() applies, so a reader sees the
+	// level that shipped rather than the one that was configured. Tools present + a model that knows `none`
+	// = reasoning is OFF for this session no matter what the picker says.
+	function getEffectiveEffort(bool $has_tools) : ?string {
+		// On the responses surface there is no guardrail to run: tools and reasoning coexist, so the author's
+		// level is what ships. Reporting `none` here would put "overridden by tools" on the transcript's
+		// Thinking chip for the very turns that reasoned.
+		if(($surface = $this->_responses()))
+			return $surface->getEffectiveEffort($has_tools);
+
+		$params = $this->_applyToolReasoningGuardrail(
+			$this->_getReasoningParams(),
+			$has_tools ? ['*'] : [],
+			$this->getParam('model', '')
+		);
+
+		// Same last-word merge the request does, so a level overridden through `extra_body:` is reported as
+		// what shipped. Without it the transcript's Thinking chip quotes `effort:` while the wire carried
+		// something else -- the exact mismatch the chip exists to expose.
+		$params = array_replace_recursive($params, $this->_getExtraBodyParams());
+
+		return $params['reasoning_effort'] ?? null;
+	}
+
 	// The union across GPT-5.x. `none` and `xhigh` arrived in 5.4, `max` in 5.6, so an older model rejects the
 	// top of this list -- it's the vocabulary to offer, not a per-model whitelist.
 	function getEffortLevels() : array {
@@ -372,7 +396,7 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, ChatStreami
 		// Add provider-specific body params + the canonical reasoning level (separate seams so a subclass's
 		// knobs override can't drop effort), then reconcile that level with tools (see the guardrail).
 		$provider_params = $this->_applyToolReasoningGuardrail(
-			array_merge($this->getChatCompletionsParams(), $this->_getReasoningParams()),
+			array_replace_recursive($this->getChatCompletionsParams(), $this->_getReasoningParams()),
 			$tools,
 			$this->getParam('model', '')
 		);
