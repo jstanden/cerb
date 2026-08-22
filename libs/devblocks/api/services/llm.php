@@ -3120,17 +3120,24 @@ class _DevblocksLlmService {
 			$overview = ["Mounted filesystems:"];
 
 			foreach($resolved as $mount) {
-				// The mode belongs here as much as the name: it's what says whether you can write to this volume,
-				// and a failed write is a wasted turn.
-				$overview[] = sprintf("\n%s  (%s, %s)%s",
+				// Name, mountpoint, mode, description -- and deliberately NOT a listing.
+				//
+				// This used to `ls` each mountpoint into the description. Two problems. It made the description a
+				// function of the volume's CONTENTS, so a file appearing anywhere in a mounted volume rewrote the
+				// cached prompt prefix on the next turn -- an agent with an `rw` mount could invalidate its own
+				// 50K-token prefix just by writing a note. And one level is the least useful depth there is:
+				// `references/` tells a reader almost nothing, while going deeper is a judgment call that depends
+				// on the volume and belongs to whoever curates it, not to this function.
+				//
+				// A volume orients a reader through its `description` (which can name its own index file) and
+				// through `search`/`find`/`ls`, which are one call away and always current. If a baked tree is
+				// ever wanted, it should be an option ON the filesystem, chosen per volume with a depth.
+				$overview[] = sprintf("%s  (%s, %s)%s",
 					$mount['at'],
 					$mount['fs']->name,
 					$mount['mode'],
 					$mount['fs']->description ? ' -- ' . $mount['fs']->description : ''
 				);
-
-				$listing = $fs->exec(sprintf('ls "%s"', $mount['at']));
-				$overview[] = rtrim($listing['output'] ?? '');
 			}
 
 			$lead = [
@@ -3141,8 +3148,9 @@ class _DevblocksLlmService {
 				"`search` tool. Call THIS tool and put the whole line (verb, arguments and flags) in `command`:",
 				"command: \"search refunds --path /docs --lines\".",
 				"There is no working directory: use absolute paths (`/skills/cerb-dev/SKILL.md`) or `@<filesystem>/path`.",
-				"Prefer `search`/`find` to locate a file, then `read` only what you need. `/tmp` is a scratch area you",
-				"can write to; a command whose output is too large to return is saved there and referenced by path.",
+				"Their contents are NOT listed below -- `ls` a mountpoint to look, or go straight to `search`/`find`",
+				"to locate a file, then `read` only what you need. `/tmp` is a scratch area you can write to; a",
+				"command whose output is too large to return is saved there and referenced by path.",
 			];
 
 		} else {
