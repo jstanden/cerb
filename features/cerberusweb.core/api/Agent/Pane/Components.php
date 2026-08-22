@@ -25,8 +25,8 @@ namespace Cerb\Agent\Pane;
  * !! THIS DUPLICATES THE HOSTS. The authoritative `capabilities:` strings live in:
  *
  *   automation     features/cerberusweb.core/templates/internal/automation/peek_edit.tpl
+ *   automation_scripting  features/cerberusweb.core/templates/configuration/section/developers/bot-scripting-tester/index.tpl
  *   data_query     features/cerberusweb.core/templates/configuration/section/developers/data-query-tester/index.tpl
- *   bot_scripting  features/cerberusweb.core/templates/configuration/section/developers/bot-scripting-tester/index.tpl
  *   icon           features/cerberusweb.core/resources/js/cerb-ui/icon-builder.js
  *   worklist       features/cerberusweb.core/templates/search/quick_search.tpl
  *   mail_reply     features/cerberusweb.core/templates/display/rpc/reply.tpl
@@ -280,8 +280,8 @@ class Components {
 				],
 			],
 
-			'bot_scripting' => [
-				'label' => 'Scripting Tester',
+			'automation_scripting' => [
+				'label' => 'Automation Scripting Tester',
 				'icon' => 'console',
 				'description' => "The Setup automation scripting tester -- reads and writes the script editor.",
 				'instructions' => "You are an assistant embedded in Cerb's scripting tester. You help write and debug Twig expressions and templates against a test dictionary.\n\nThis editor is for trying an expression in isolation, so keep changes small and explain what a filter chain does rather than only handing back a longer one.",

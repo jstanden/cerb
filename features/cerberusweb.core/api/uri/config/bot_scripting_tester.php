@@ -32,13 +32,13 @@ class PageSection_SetupDevelopersBotScriptingTester extends Extension_PageSectio
 		
 		$visit->set(ChConfigurationPage::ID, 'bot_scripting_tester');
 
-		// The agent.pane toolbar, scoped to this editor via {{component}} = 'bot_scripting'. Its items launch
+		// The agent.pane toolbar, scoped to this editor via {{component}} = 'automation_scripting'. Its items launch
 		// interactions inline into the agent pane; the caller name must match a caller the launched automation's
 		// policy allows. Empty until a toolbar section is authored (the pane hides its toggle).
 		$agent_toolbar_html = '';
 
 		$toolbar_dict = DevblocksDictionaryDelegate::instance([
-			'component' => 'bot_scripting',
+			'component' => 'automation_scripting',
 			'caller_name' => 'agent.pane',
 			'worker_id' => $active_worker->id,
 			'worker__context' => CerberusContexts::CONTEXT_WORKER,

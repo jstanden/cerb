@@ -24,7 +24,7 @@ class Toolbar_AgentPane extends Extension_Toolbar {
 		return [
 			[
 				'key' => 'component',
-				'notes' => "Where the pane is mounted: `automation`, `bot_scripting`, `data_query`, `icon`, `mail_reply`, "
+				'notes' => "Where the pane is mounted: `automation`, `automation_scripting`, `data_query`, `icon`, `mail_reply`, "
 					. "`worklist`, or `commandbar`. Gate items per host with `hidden@bool: {{ component != 'icon' }}`. "
 					. "`commandbar` is the global command bar rather than an editor -- its menu merges this toolbar's "
 					. "`commandbar` items with the `global.menu` toolbar's own. An item with NO gate appears on every "

@@ -22,7 +22,7 @@ class AutomationTrigger_InteractionWorkerAgent extends AutomationTrigger_Interac
 		return array_map(
 			fn($input) => ('caller_params' === ($input['key'] ?? '')) ? array_merge($input, [
 				'notes' => "Built-in parameters based on the caller type. An agent pane supplies `component`, the "
-					. "surface it's mounted on (`automation`, `bot_scripting`, `data_query`, `icon`, `mail_reply`, "
+					. "surface it's mounted on (`automation`, `automation_scripting`, `data_query`, `icon`, `mail_reply`, "
 					. "`worklist`, or `commandbar`), and `ui_capabilities`, the commands that surface answers. An "
 					. "`llm.agent:` in this automation is given those commands as tools automatically, so a chat "
 					. "can drive the surface it opens beside without declaring any `tools:` of its own.\n\n"

@@ -76,7 +76,7 @@ $(function() {
 	// No toolbar authored → the pane hides its toggle.
 	const agentToolbarHtml = {$agent_toolbar_html_json|default:'""' nofilter};
 	new CerbUI.AgentPane(document.getElementById('{$uniqid}'), {
-		component: 'bot_scripting',
+		component: 'automation_scripting',
 		capabilities: 'getEditorValue,setEditorValue,editField,grepField,highlightLine,getDiff',
 		mutatingCommands: 'setEditorValue,editField',   // write the editor → guard against accidental navigation loss
 		toolbarHtml: agentToolbarHtml,
