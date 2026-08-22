@@ -117,7 +117,11 @@ class _DevblocksSearchService {
 				$search_extension = $search_index->getExtension();
 				$ids = $queue_message->message['ids'] ?? [];
 
-				if(!$search_extension->indexDocumentsByIds($search_index, $ids, $error)) {
+				// A job means a full reindex, which TRUNCATEs the index before enqueueing anything, so these
+				// records have no tokens to purge. Anything jobless may already be indexed and must purge.
+				$purge_first = !$queue_message->job_id;
+
+				if(!$search_extension->indexDocumentsByIds($search_index, $ids, $error, $purge_first)) {
 					$queue_message->reportStatus(\QueueMessageStatus::FAILED, $error);
 					continue;
 				}

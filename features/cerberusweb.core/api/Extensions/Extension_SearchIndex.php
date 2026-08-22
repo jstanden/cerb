@@ -22,7 +22,7 @@ abstract class Extension_SearchIndex extends DevblocksExtension {
 		return true;
 	}
 	
-	abstract public function indexDocumentsByIds(Model_SearchIndex $model, array $record_ids, &$error=null) : bool;
+	abstract public function indexDocumentsByIds(Model_SearchIndex $model, array $record_ids, &$error=null, bool $purge_first=true) : bool;
 	abstract public function indexDocumentsByModel(Model_SearchIndex $model, int $limit=25) : array;
 	abstract public function reindexDocumentsByModel(Model_SearchIndex $model) : ?\Model_QueueJob;
 

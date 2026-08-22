@@ -770,7 +770,13 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		return $this->_reindexCreateJob($model, $query_parts, $error);
 	}
 	
-	public function indexDocumentsByIds(Model_SearchIndex $model, array $record_ids, &$error=null) : bool {
+	/**
+	 * @param bool $purge_first Drop these records' existing tokens before writing the new ones. Required
+	 *   whenever a record may already be indexed: the insert is `INSERT IGNORE` on
+	 *   `(token_hash, record_id)`, so without it a re-index only ADDS -- tokens for text the record no
+	 *   longer contains keep matching it forever. Pass false only when the index was just emptied.
+	 */
+	public function indexDocumentsByIds(Model_SearchIndex $model, array $record_ids, &$error=null, bool $purge_first=true) : bool {
 		$db = DevblocksPlatform::services()->database();
 		$search = DevblocksPlatform::services()->search();
 		$logger = DevblocksPlatform::services()->log();
@@ -794,6 +800,14 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		
 		$db->ExecuteMaster('SET unique_checks = 0');
 		$db->ExecuteMaster('SET autocommit = 0');
+		
+		// Inside the transaction with the inserts that replace them, so readers never see the gap. A
+		// token-heavy batch can still trip the mid-batch COMMIT below and expose one.
+		if($purge_first && ($purge_ids = DevblocksPlatform::sanitizeArray($record_ids, 'int', ['nonzero','unique'])))
+			$db->ExecuteMaster(sprintf("DELETE FROM search_index_%d WHERE record_id IN (%s)",
+				$model->id,
+				implode(',', $purge_ids)
+			));
 		
 		foreach($record_dicts as $dict) {
 			$doc_id = $dict->get('id');
@@ -886,6 +900,24 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 	public function indexDocumentsByModel(Model_SearchIndex $model, int $limit = 250): array {
 		$db = DevblocksPlatform::services()->database();
 		
+		// `last_indexed_at`/`_id` is one shared position, so two concurrent walkers each advance it past
+		// records the other indexed -- those records are then never indexed by either. Skipping is safe:
+		// whatever this pass misses, the next one starts from the same place and picks up.
+		$lock_name = sprintf('cerb_search_index_%d', $model->id);
+		
+		if(!$db->GetOneMaster(sprintf("SELECT GET_LOCK(%s, 0)", $db->qstr($lock_name))))
+			return [];
+		
+		try {
+			return $this->_indexDocumentsByModel($model, $limit);
+		} finally {
+			$db->ExecuteMaster(sprintf("DO RELEASE_LOCK(%s)", $db->qstr($lock_name)));
+		}
+	}
+	
+	private function _indexDocumentsByModel(Model_SearchIndex $model, int $limit = 250): array {
+		$db = DevblocksPlatform::services()->database();
+		
 		// We need to check if this search table exists and create it if not
 		if(!$this->_searchTableExists($model))
 			$this->_createSearchIndexTable($model);
@@ -965,6 +997,28 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		return $record_ids;
 	}
 	
+	public function deleteDocumentsByIds(Model_SearchIndex $model, array $record_ids) : bool {
+		if(!($record_ids = DevblocksPlatform::sanitizeArray($record_ids, 'int', ['nonzero','unique'])))
+			return true;
+
+		if(!$this->_searchTableExists($model))
+			return true;
+
+		$db = DevblocksPlatform::services()->database();
+
+		// Rows per record scale with its token count, not with 1, so a bulk delete of large documents
+		// removes a lot here. It's still cheaper than the alternative: nothing else ever removes these,
+		// and a background sweep would cost O(index) forever to collect O(deletes) of garbage.
+		$db->ExecuteMaster(sprintf("DELETE FROM search_index_%d WHERE record_id IN (%s)",
+			$model->id,
+			implode(',', $record_ids)
+		));
+
+		$this->_clearCache($model);
+
+		return true;
+	}
+
 	public function deleteIndex(Model_SearchIndex $model): bool {
 		$db = DevblocksPlatform::services()->database();
 		$registry = DevblocksPlatform::services()->registry();
