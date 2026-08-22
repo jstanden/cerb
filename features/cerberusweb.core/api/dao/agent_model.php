@@ -1005,6 +1005,55 @@ class Model_AgentModel extends DevblocksRecordModel {
 	}
 
 	/**
+	 * One hue per axis, from the `--cerb-color-tag-*` palette, so an axis is identifiable without reading
+	 * its column header. Cost reads as MONEY rather than as a score -- it's the one axis where MORE is
+	 * WORSE, so it must not share the language of the three where more is better.
+	 *
+	 * The hue is a palette name, not CSS: every drawing surface turns it into a `.cerb-ui-meter--<hue>`
+	 * modifier or a `--cerb-color-tag-<hue>` var. Only the six palette hues render; anything else falls
+	 * back to the component default.
+	 */
+	public static function getRatingColors() : array {
+		return [
+			'intelligence' => 'purple',
+			'speed' => 'orange',
+			'privacy' => 'blue',
+			'cost' => 'green',
+		];
+	}
+
+	/** One glyph per axis. Paired with getRatingColors() -- the two together are the axis's identity. */
+	public static function getRatingIcons() : array {
+		return [
+			'intelligence' => 'brain',
+			'speed' => 'zap',
+			'privacy' => 'lock',
+			'cost' => 'coins',
+		];
+	}
+
+	/**
+	 * The same scale, cased for DISPLAY. `getRatingScale()` stays lowercase because those words double as
+	 * quick-search values (`privacy:zdr`) and as the labels a bulk update posts back, so casing can't be
+	 * applied there -- it happens here, at the last moment, and only on the way to a screen.
+	 *
+	 * An acronym keeps its own case. Anything not listed gets a leading capital, so a new tier needs an
+	 * entry here only when `zdr` is the shape of it.
+	 */
+	public static function getRatingScaleLabels(string $rating) : array {
+		$acronyms = [
+			'zdr' => 'ZDR',
+		];
+
+		$out = [];
+
+		foreach(self::getRatingScale($rating) as $tier => $word)
+			$out[$tier] = $acronyms[$word] ?? mb_ucfirst($word);
+
+		return $out;
+	}
+
+	/**
 	 * Available = offered by routers. Unlisted = skipped by routers but still runs when an automation names
 	 * it. Disabled = refused everywhere, including by name.
 	 */
@@ -1155,7 +1204,6 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 		$this->view_columns = [
 			SearchFields_AgentModel::NAME,
 			SearchFields_AgentModel::PROVIDER,
-			SearchFields_AgentModel::MODEL,
 			SearchFields_AgentModel::PRIORITY,
 			SearchFields_AgentModel::CONNECTED_ACCOUNT_ID,
 			SearchFields_AgentModel::CONTEXT_WINDOW,
@@ -1163,6 +1211,8 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 			SearchFields_AgentModel::HAS_THINKING,
 			SearchFields_AgentModel::RATING_INTELLIGENCE,
 			SearchFields_AgentModel::RATING_PRIVACY,
+			SearchFields_AgentModel::RATING_SPEED,
+			SearchFields_AgentModel::RATING_COST,
 			SearchFields_AgentModel::UPDATED_AT,
 		];
 
@@ -1286,7 +1336,7 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 			case SearchFields_AgentModel::RATING_SPEED:
 				$rating = substr(SearchFields_AgentModel::getFields()[$column]->db_column, 7);
 				$label_map = function(array $values) use ($rating) {
-					$scale = Model_AgentModel::getRatingScale($rating);
+					$scale = Model_AgentModel::getRatingScaleLabels($rating);
 					$map = [];
 
 					foreach($values as $value)
@@ -1642,14 +1692,29 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 		if(in_array(SearchFields_AgentModel::CONNECTED_ACCOUNT_ID, $this->view_columns))
 			$tpl->assign('connected_accounts', DAO_ConnectedAccount::getAll());
 
-		// Keyed by SearchField so a cell can name its tier without Model_AgentModel being in Smarty's
-		// static allowlist.
-		$rating_labels = [];
+		// Everything a rating cell's meter needs, keyed by SearchField so the template never reaches into
+		// Model_AgentModel (which isn't in Smarty's static allowlist). `levels` maps a stored tier to its
+		// ordinal position so the cell doesn't have to count the scale itself.
+		$rating_meters = [];
+		$rating_colors = Model_AgentModel::getRatingColors();
 
-		foreach(Model_AgentModel::getRatings() as $rating)
-			$rating_labels['a_rating_' . $rating] = Model_AgentModel::getRatingScale($rating);
+		foreach(Model_AgentModel::getRatings() as $rating) {
+			$labels = Model_AgentModel::getRatingScaleLabels($rating);
+			$levels = [];
+			$ordinal = 0;
 
-		$tpl->assign('rating_labels', $rating_labels);
+			foreach(array_keys($labels) as $tier)
+				$levels[$tier] = ++$ordinal;
+
+			$rating_meters['a_rating_' . $rating] = [
+				'of' => count($labels),
+				'color' => $rating_colors[$rating] ?? '',
+				'labels' => $labels,
+				'levels' => $levels,
+			];
+		}
+
+		$tpl->assign('rating_meters', $rating_meters);
 
 		$tpl->assign('view_template', 'devblocks:cerberusweb.core::records/types/agent_model/view.tpl');
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
@@ -1868,13 +1933,26 @@ class Context_AgentModel extends Extension_DevblocksContext implements IDevblock
 			'value' => Model_AgentModel::getStatuses()[$model->status] ?? '',
 		];
 
+		// The same meter the worklist and the model picker draw, so an axis reads identically wherever it
+		// appears. `value` stays the stored tier so an unrated axis is falsy and the widget's hide-empty
+		// option still governs it; the meter itself is built from `params`.
+		$rating_colors = Model_AgentModel::getRatingColors();
+
 		foreach(Model_AgentModel::getRatings() as $rating) {
+			$scale = Model_AgentModel::getRatingScaleLabels($rating);
 			$value = intval($model->{'rating_' . $rating});
+			$tiers = array_keys($scale);
 
 			$properties['rating_' . $rating] = [
 				'label' => mb_ucfirst($translate->_('dao.agent_model.rating_' . $rating)),
-				'type' => Model_CustomField::TYPE_SINGLE_LINE,
-				'value' => Model_AgentModel::getRatingScale($rating)[$value] ?? '',
+				'type' => 'meter',
+				'value' => $value,
+				'params' => [
+					'level' => $value ? (array_search($value, $tiers, true) + 1) : 0,
+					'of' => count($tiers),
+					'color' => $rating_colors[$rating] ?? '',
+					'label' => $scale[$value] ?? 'Unrated',
+				],
 			];
 		}
 
@@ -2255,12 +2333,16 @@ class Context_AgentModel extends Extension_DevblocksContext implements IDevblock
 				&& ($connected_account = DAO_ConnectedAccount::get($model->connected_account_id)))
 				$tpl->assign('connected_account', $connected_account);
 
+			// The glyph and hue for each axis, so the editor draws an axis the same way the worklist and the
+			// model picker do. Both maps live on the model -- an axis's identity is one fact, in one place.
 			$rating_scales = [];
 
 			foreach(Model_AgentModel::getRatings() as $rating)
-				$rating_scales[$rating] = Model_AgentModel::getRatingScale($rating);
+				$rating_scales[$rating] = Model_AgentModel::getRatingScaleLabels($rating);
 
 			$tpl->assign('rating_scales', $rating_scales);
+			$tpl->assign('rating_colors', Model_AgentModel::getRatingColors());
+			$tpl->assign('rating_glyphs', Model_AgentModel::getRatingIcons());
 
 			$tpl->assign('id', $context_id);
 			$tpl->assign('view_id', $view_id);

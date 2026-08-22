@@ -173,22 +173,26 @@
 				<div class="cerb-ui-form--row">
 					{include file="devblocks:cerberusweb.core::records/types/agent_model/rating.tpl"
 						form_id=$form_id key='intelligence' name='rating_intelligence' label='Intelligence'
-						icon='brain' value=$model->rating_intelligence scale=$rating_scales.intelligence
+						icon=$rating_glyphs.intelligence color=$rating_colors.intelligence|default:''
+						value=$model->rating_intelligence scale=$rating_scales.intelligence
 						hint='Higher is better. How capable, relative to the field today.'}
 
 					{include file="devblocks:cerberusweb.core::records/types/agent_model/rating.tpl"
 						form_id=$form_id key='speed' name='rating_speed' label='Speed'
-						icon='zap' value=$model->rating_speed scale=$rating_scales.speed
+						icon=$rating_glyphs.speed color=$rating_colors.speed|default:''
+						value=$model->rating_speed scale=$rating_scales.speed
 						hint='Higher is better. More tokens per second.'}
 
 					{include file="devblocks:cerberusweb.core::records/types/agent_model/rating.tpl"
 						form_id=$form_id key='privacy' name='rating_privacy' label='Privacy'
-						icon='lock' value=$model->rating_privacy scale=$rating_scales.privacy
+						icon=$rating_glyphs.privacy color=$rating_colors.privacy|default:''
+						value=$model->rating_privacy scale=$rating_scales.privacy
 						hint='Higher is better. Less retention and disclosure.'}
 
 					{include file="devblocks:cerberusweb.core::records/types/agent_model/rating.tpl"
 						form_id=$form_id key='cost' name='rating_cost' label='Cost'
-						icon='coins' value=$model->rating_cost scale=$rating_scales.cost
+						icon=$rating_glyphs.cost color=$rating_colors.cost|default:''
+						value=$model->rating_cost scale=$rating_scales.cost
 						hint='Lower is better. Price per token and caching.'}
 				</div>
 			</div>

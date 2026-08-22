@@ -89,7 +89,7 @@
 					<select name="params[rating_{$rating}]">
 						<option value="0">({'common.none'|devblocks_translate|lower})</option>
 						{foreach from=$scale key=tier item=tier_label}
-							<option value="{$tier}">{$tier_label|capitalize}</option>
+							<option value="{$tier}">{$tier_label}</option>
 						{/foreach}
 					</select>
 				</div>

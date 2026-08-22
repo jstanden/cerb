@@ -364,7 +364,7 @@ class PageSection_ProfilesAgentModel extends Extension_PageSection {
 		$rating_scales = [];
 
 		foreach(Model_AgentModel::getRatings() as $rating)
-			$rating_scales[$rating] = Model_AgentModel::getRatingScale($rating);
+			$rating_scales[$rating] = Model_AgentModel::getRatingScaleLabels($rating);
 
 		$tpl->assign('rating_scales', $rating_scales);
 

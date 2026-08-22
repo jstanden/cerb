@@ -114,10 +114,12 @@
 					{/if}
 				</td>
 			{elseif in_array($column, ["a_rating_intelligence", "a_rating_speed", "a_rating_privacy", "a_rating_cost"])}
-				{* The tier NAME, not the stored 10/20/30/40 -- the number is storage, the label is the interface. *}
+				{$meter = $rating_meters.$column}
+				{$tier = $result.$column|intval}
 				<td data-column="{$column}">
-					{$tier = $result.$column}
-					{if $tier && isset($rating_labels.$column.$tier)}{$rating_labels.$column.$tier|capitalize}{/if}
+					{include file="devblocks:cerberusweb.core::internal/cerb_ui/meter_readonly.tpl"
+						level=$meter.levels.$tier|default:0 of=$meter.of color=$meter.color
+						label=$meter.labels.$tier|default:'Unrated'}
 				</td>
 			{elseif $column == "a_has_vision"}
 				<td data-column="{$column}" style="text-align:center;">
