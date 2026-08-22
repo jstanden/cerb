@@ -246,8 +246,12 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 			if($doc_frequencies[array_key_first($doc_frequencies)]['docs'] == 0) return [];
 			
 			// Pre-calculate TF-IDF
+			// A scoped denominator can legitimately be small; zero would make log() -INF and poison every
+			// score, and docs > total_docs (a stale index) would make IDF negative.
+			$total_docs = max($total_docs, 1);
+			
 			$doc_frequencies = array_map(
-				fn($term) => array_merge($term, ['idf' => log($total_docs / $term['docs'])]),
+				fn($term) => array_merge($term, ['idf' => max(0, log($total_docs / $term['docs']))]),
 				$doc_frequencies
 			);
 			
