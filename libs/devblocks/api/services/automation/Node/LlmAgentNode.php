@@ -28,6 +28,11 @@ class LlmAgentNode extends AbstractNode {
 	private DevblocksDictionaryDelegate $_dict;
 	private array $_node_memory = [];
 
+	// Whether this activation is the start of a USER turn rather than a tool-loop re-entry. Captured in
+	// activate() because it's derived from the absence of `stack` in node memory, and activate() SETS that
+	// key before dispatching -- so anything downstream that re-derived it would always read false.
+	private bool $_is_new_turn = false;
+
 	// This activation's automation. Held because `_getTools()` needs the TRIGGER — a trigger can contribute
 	// tools of its own (an agent pane's host editor supplies one per UI command), and _getTools() is reached
 	// from three places that don't all have the automation to hand.
@@ -73,6 +78,7 @@ class LlmAgentNode extends AbstractNode {
 			
 			// A fresh turn (not a tool-loop re-entry) validates, reconciles the session, and inits the stack.
 			$is_new_turn = !array_key_exists('stack', $this->_node_memory);
+			$this->_is_new_turn = $is_new_turn;
 
 			if($is_new_turn) {
 				// Whatever the last failure handed back to the composer, this turn supersedes it — the worker is
@@ -743,6 +749,96 @@ class LlmAgentNode extends AbstractNode {
 	}
 
 	/**
+	 * A hash of the AUTHORED `llm.agent:` inputs that produce the request prefix -- the cheap way to ask
+	 * "did anyone actually change this?" without rebuilding the prefix to find out.
+	 *
+	 * The KATA is where intent lives, so only the KATA is hashed. Everything downstream of it is excluded on
+	 * purpose:
+	 *
+	 *   - `_withTriggerTools()`'s additions -- a host shipping a new command is not somebody deciding that
+	 *     THIS conversation should change.
+	 *   - `_getMountSpecs()`'s resolution -- the same authored block, normalized.
+	 *   - the contents of any mounted volume -- an agent writing a note into its own `rw` mount must not
+	 *     invalidate its own prefix.
+	 *   - the role assets behind `_triggerSystemPrompt()` -- a release improving a role reaches NEW
+	 *     conversations, not open ones.
+	 *
+	 * The `cerb` CLI needs no term of its own: it is authored under `terminal:`, which is hashed whole.
+	 *
+	 * Returns NULL when this turn authored nothing at all -- a pure resume, which replays the session's
+	 * stored config (see `_getMountSpecs()`). Hashing absent inputs would read as "the author deleted
+	 * everything" and recompose on every single resume, the exact opposite of the point.
+	 *
+	 * Caveat worth knowing: an input built from a placeholder that changes per turn moves this hash every
+	 * turn, and the prefix with it. `getInputsMeta()` on the agent-pane trigger already warns against
+	 * interpolating a changing value into `system_prompt:`; this is the mechanism that makes it expensive.
+	 */
+	private function _prefixInputsGate() : ?string {
+		// Fixed key order -- json_encode preserves insertion order, and a hash whose stability depends on
+		// array ordering is a hash that silently misses on every turn.
+		$authored = [
+			'system_prompt' => $this->_inputs['system_prompt'] ?? null,
+			'tools' => $this->_inputs['tools'] ?? null,
+			'mounts' => $this->_inputs['mounts'] ?? null,
+			'terminal' => $this->_inputs['terminal'] ?? null,
+		];
+
+		foreach($authored as $value) {
+			if(!is_null($value))
+				return hash('sha256', strval(json_encode($authored)));
+		}
+
+		return null;
+	}
+
+	/**
+	 * The system prompt contributed by this automation's TRIGGER, composed ahead of the author's own
+	 * `system_prompt:` -- the sibling of `_withTriggerTools()`, and for the same reason.
+	 *
+	 * Today that's an agent pane handing the chat the role for whichever editor it sits beside, plus the
+	 * inventory of that host's tools in prose. Generating it into each chat's script instead meant it was
+	 * frozen at authoring time: improving a role never reached a deployed automation, and the only remedy
+	 * would have been upgrade patches rewriting people's scripts.
+	 *
+	 * The trigger is handed the names of the volumes actually mounted, because whether it can honestly point
+	 * at a reference volume depends on that, and this file has no business knowing any volume by name.
+	 *
+	 * Duck-typed rather than an interface, like `getLlmAgentTools()`: this file is platform code and the only
+	 * trigger that answers lives in cerberusweb.core.
+	 */
+	private function _triggerSystemPrompt(?string $session_id) : string {
+		if(!$this->_automation)
+			return '';
+
+		$trigger = $this->_automation->getTriggerExtension();
+
+		if(!$trigger || !method_exists($trigger, 'getLlmAgentSystemPrompt'))
+			return '';
+
+		return trim(strval($trigger->getLlmAgentSystemPrompt($this->_dict, $this->_getMountedFilesystemNames($session_id))));
+	}
+
+	/**
+	 * The names of the volumes this turn actually mounts -- resolved, so an id or a differently-cased ref
+	 * still answers by name, and a spec naming a missing or disabled volume doesn't.
+	 *
+	 * describeSpecs() rather than reading the specs directly: it already skips the reserved CLI entry and
+	 * reports per-spec state, so a mount that reached nothing can't be reported as present.
+	 *
+	 * @return string[]
+	 */
+	private function _getMountedFilesystemNames(?string $session_id) : array {
+		$names = [];
+
+		foreach(\Cerb\Agent\Filesystem::describeSpecs($this->_getMountSpecs($session_id)) as $described) {
+			if(\Cerb\Agent\Filesystem::MOUNT_OK === $described['state'] && $described['filesystem'])
+				$names[] = $described['filesystem']->name;
+		}
+
+		return $names;
+	}
+
+	/**
 	 * Resolve `agent:` to the AI worker this turn runs AS — IDENTITY ONLY.
 	 *
 	 * Models are deliberately NOT sourced here: they're their own `agent_model` records, decoupled from the
@@ -1066,16 +1162,52 @@ class LlmAgentNode extends AbstractNode {
 		if(!$session_id)
 			return;
 
-		// System prompt: use the inbound one; on a pure-resume (no `inputs.system_prompt`) fall back to the
-		// session's stored prompt. Persist on-change so a later resume can re-source it and the dev transcript
-		// can show it.
-		$system_prompt = strval($this->_inputs['system_prompt'] ?? '');
+		// System prompt: composed ONCE, then frozen for the life of the session -- the same rule as the
+		// provider block (see _getLlmProvider: the session is the source of truth once set, and the input is
+		// only consulted to establish it). It used to be rewritten from `inputs.system_prompt` every turn,
+		// which meant a trigger's contribution could never be stable, the most cacheable part of the prompt
+		// prefix churned, and the stored value was only the author's fragment rather than what was sent.
+		//
+		// Safe to key on emptiness: nothing else writes `system_prompt`. A session minted by an agentPrompt
+		// submit or a bare caller starts without one (_reconcileSession), so the first llm.agent turn is
+		// always the one that sets it. A fork with no prompt legitimately composes fresh.
+		$session = \DAO_LlmAgentSession::get($session_id);
 
-		if('' === $system_prompt && ($session = \DAO_LlmAgentSession::get($session_id)))
-			$system_prompt = $session->system_prompt;
+		// Compose when there's nothing to reuse...
+		$compose = !$session || '' === strval($session->system_prompt);
 
-		if('' !== $system_prompt)
-			\DAO_LlmAgentSession::setSystemPrompt($session_id, $system_prompt);
+		// ...or when the author changed the KATA that produces it. Only intent may spend a prompt cache: a
+		// prefix can run to tens of thousands of tokens, and re-composing it because a host shipped a command
+		// or an agent wrote a file into an `rw` mount would throw that away for something nobody decided.
+		//
+		// Evaluated at the start of a USER turn only. A tool-loop re-entry re-reads the same KATA, so
+		// comparing there would be work with no possible answer but "unchanged".
+		if($this->_is_new_turn) {
+			$gate = $this->_prefixInputsGate();
+			$stored_gate = $this->_node_memory['prefix_gate'] ?? null;
+
+			// A first sighting is not a change. Sessions that predate the gate (and any whose first turn
+			// authored nothing) have no stored value, and recomposing on that would rewrite a live
+			// conversation's prompt once, out of nowhere, the first time it took a turn after an upgrade.
+			if(!is_null($gate)) {
+				if(!is_null($stored_gate) && $gate !== $stored_gate)
+					$compose = true;
+
+				$this->_node_memory['prefix_gate'] = $gate;
+			}
+		}
+
+		if($compose) {
+			// Ours first, the author's appended: someone adding one line about their own tool appends one line
+			// instead of reimplementing the whole prompt.
+			$composed = trim(implode("\n\n", array_filter([
+				$this->_triggerSystemPrompt($session_id),
+				trim(strval($this->_inputs['system_prompt'] ?? '')),
+			])));
+
+			if('' !== $composed)
+				\DAO_LlmAgentSession::setSystemPrompt($session_id, $composed);
+		}
 
 		// Tools: persist the EVALUATED `tools:` config — the same map `_getTools()` runs, so it holds the real
 		// resolved keys + static `cerb:automation:` URIs regardless of how the block was authored. This matters
@@ -1095,7 +1227,9 @@ class LlmAgentNode extends AbstractNode {
 		// The trigger's tools ride the STORED map, not just the dispatch one, because the provider schema is
 		// built from the session alone (_DevblocksLlmService::getSessionToolSchemas) and an async turn runs in a
 		// queue worker with no dict and no continuation to resolve a host from. Re-derived every turn, so a host
-		// that gains a command reaches an existing conversation on its next turn.
+		// that gains a command reaches an existing conversation on its next turn -- note this is the tool MAP
+		// only. It deliberately does NOT feed the prefix gate (_prefixInputsGate), so a host gaining a command
+		// never rewrites an open conversation's system prompt.
 		$tools_config = $this->_withTriggerTools(is_array($tools_config) ? $tools_config : []);
 
 		if($tools_config)
