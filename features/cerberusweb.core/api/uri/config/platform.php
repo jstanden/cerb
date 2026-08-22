@@ -39,6 +39,8 @@ class PageSection_SetupDevelopersPlatform extends Extension_PageSection {
 			switch ($action) {
 				case 'clearCache':
 					return $this->_configAction_clearCache();
+				case 'reloadAgentFilesystems':
+					return $this->_configAction_reloadAgentFilesystems();
 				case 'reloadAutomations':
 					return $this->_configAction_reloadAutomations();
 				case 'reloadPackages':
@@ -58,6 +60,11 @@ class PageSection_SetupDevelopersPlatform extends Extension_PageSection {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->clearCompiledTemplate();
 		$tpl->clearAllCache();
+	}
+	
+	private function _configAction_reloadAgentFilesystems() {
+		// Forced, so a volume whose manifest hash already matches is still reconciled against its rows
+		Cerb\Agent\FilesystemAssets::syncAll(force: true);
 	}
 	
 	private function _configAction_reloadAutomations() {

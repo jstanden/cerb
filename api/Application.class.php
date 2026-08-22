@@ -626,6 +626,9 @@ class CerberusApplication extends DevblocksApplication {
 			}
 		}
 		
+		// Load bundled agent filesystems (self-gating on each volume's manifest hash, not a row count)
+		\Cerb\Agent\FilesystemAssets::syncAll($force);
+
 		// Workflows
 		
 		DevblocksPlatform::registerClasses(APP_PATH . '/api/app/Mail.php', [

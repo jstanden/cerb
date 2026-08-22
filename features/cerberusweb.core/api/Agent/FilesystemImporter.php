@@ -39,6 +39,14 @@ class FilesystemImporter {
 	const BATCH_SIZE = 25;
 
 	/**
+	 * An import source MAY carry one of these at its root: one line per file, a 40-character SHA-1, a space,
+	 * then the path. When present it lets a batch be reconciled without reading the bodies it isn't going to
+	 * write. Leading dot so `normalizePath()` rejects it -- the manifest never imports as one of the files it
+	 * describes.
+	 */
+	const MANIFEST_FILENAME = '.manifest';
+
+	/**
 	 * Extensions taken as text without reading the body. Anything else (including extensionless files
 	 * like LICENSE or Makefile) falls through to a UTF-8 check, which is what actually rejects binaries.
 	 */
@@ -217,11 +225,11 @@ class FilesystemImporter {
 	 * Producer. Enumerates the archive, creates the queue job, and fans the entry indexes out as
 	 * queue messages. Runs inside the upload request, so the enumerate pass is the only synchronous cost.
 	 *
-	 * @param array $opts strip_prefix (string), prune_missing (bool)
+	 * @param array $opts strip_prefix (string), prune_missing (bool), manifest_registry_key + manifest_sha1
+	 *                    (string, for a bundled volume that records its version on completion)
 	 */
 	public static function createJob(int $filesystem_id, string $import_token, array $opts=[], &$error=null) : ?Model_QueueJob {
 		$queue_service = DevblocksPlatform::services()->queue();
-		$active_worker = CerberusApplication::getActiveWorker();
 
 		if(!($filesystem = DAO_AgentFilesystem::get($filesystem_id))) {
 			$error = 'Invalid agent filesystem.';
@@ -260,7 +268,9 @@ class FilesystemImporter {
 		$queue_job->singleton_key = self::getSingletonKey($filesystem_id); // One import per filesystem at a time
 		$queue_job->status_id = QueueJobStatus::RUNNING->value;
 		$queue_job->count_total = count($indexes);
-		$queue_job->worker_id = $active_worker->id ?? 0;
+		$queue_job->worker_id = array_key_exists('worker_id', $opts)
+			? intval($opts['worker_id'])
+			: (CerberusApplication::getActiveWorker()->id ?? 0);
 		$queue_job->metadata = [
 			'format' => 'zip',
 			'filesystem_id' => $filesystem_id,
@@ -270,6 +280,13 @@ class FilesystemImporter {
 			'prune_missing' => !empty($opts['prune_missing']),
 			'num_skipped' => $skipped,
 		];
+
+		// A bundled volume records its manifest hash when the job COMPLETES, so it rides in the metadata
+		// rather than being written up front where a failed import would still mark itself done.
+		if(!empty($opts['manifest_registry_key'])) {
+			$queue_job->metadata['manifest_registry_key'] = strval($opts['manifest_registry_key']);
+			$queue_job->metadata['manifest_sha1'] = strval($opts['manifest_sha1'] ?? '');
+		}
 
 		if(!($queue_job = DAO_QueueJob::createFromModel($queue_job))) {
 			$error = 'Failed to create the import job.';
@@ -354,11 +371,12 @@ class FilesystemImporter {
 	}
 
 	/**
-	 * Upsert one batch of archive entries. Returns how many files were written or confirmed.
+	 * Decode one batch of archive entries into [path => content] and upsert them.
+	 *
+	 * Only THIS batch's indexes are fetched and hashed -- nothing scans the whole archive, so a 100K-entry
+	 * ZIP costs the same per batch as a 100-entry one.
 	 */
 	private static function _importEntries(ZipArchive $zip, array $indexes, int $filesystem_id, string $strip_prefix, string $import_uuid) : int {
-		$db = DevblocksPlatform::services()->database();
-
 		$entries = [];
 
 		foreach($indexes as $index) {
@@ -378,8 +396,30 @@ class FilesystemImporter {
 			$entries[$name] = $content;
 		}
 
+		$counts = self::importEntries($filesystem_id, $entries, $import_uuid);
+
+		return $counts['created'] + $counts['updated'] + $counts['unchanged'];
+	}
+
+	/**
+	 * Upsert a batch of [path => content] into a volume.
+	 *
+	 * THE write path for every bulk importer -- the ZIP archive importer and the bundled-asset importer
+	 * (`FilesystemAssets`) both funnel through here, so a change to how a file becomes a row cannot apply to
+	 * only one of them. Callers differ only in where the bytes came from.
+	 *
+	 * Paths are assumed to be normalized already; the caller knows whether its source needs a strip prefix.
+	 *
+	 * @param array $entries [path => content]
+	 * @return array ['created'=>int, 'updated'=>int, 'unchanged'=>int]
+	 */
+	public static function importEntries(int $filesystem_id, array $entries, string $import_uuid) : array {
+		$db = DevblocksPlatform::services()->database();
+
+		$counts = ['created' => 0, 'updated' => 0, 'unchanged' => 0];
+
 		if(!$entries)
-			return 0;
+			return $counts;
 
 		// One lookup for the whole batch; the unique key on (filesystem_id, name(700)) makes this exact.
 		$existing = $db->GetArrayReader(sprintf(
@@ -391,15 +431,8 @@ class FilesystemImporter {
 		$existing_by_name = array_column($existing, null, 'name');
 
 		$unchanged_ids = [];
-		$count = 0;
 
-		// The DAO queues a re-index per write; batch them so an archive of N files sends a few 100-id messages
-		// instead of N single-id ones. `finally` because an abandoned window would silently index nothing (the
-		// cron sweep would still catch up, but much later).
-		$search = DevblocksPlatform::services()->search();
-		$search->deferIndexQueue();
-
-		// Same reason, for the volume's counters: one refresh per batch instead of one per file.
+		// One refresh per batch instead of one per file, for the volume's counters.
 		DAO_AgentFilesystem::deferRecount();
 
 		try {
@@ -408,9 +441,9 @@ class FilesystemImporter {
 				$row = $existing_by_name[$name] ?? null;
 
 				// Unchanged bodies only get the import stamp — no DAO write, so nothing re-indexes.
-				if($row && ($row['sha1'] ?? '') === $sha1) {
+				if($row && 0 === strcasecmp(strval($row['sha1'] ?? ''), $sha1)) {
 					$unchanged_ids[] = intval($row['id']);
-					$count++;
+					$counts['unchanged']++;
 					continue;
 				}
 
@@ -428,26 +461,83 @@ class FilesystemImporter {
 				// Through the DAO so markContextChanged() fires and the fulltext index picks these up
 				if($row) {
 					DAO_AgentFile::update(intval($row['id']), $fields);
+					$counts['updated']++;
 				} else {
 					DAO_AgentFile::create($fields);
+					$counts['created']++;
 				}
-
-				$count++;
 			}
 
-			if($unchanged_ids) {
-				DAO_AgentFile::updateWhere(
-					[DAO_AgentFile::IMPORT_UUID => $import_uuid],
-					sprintf('id IN (%s)', implode(',', $unchanged_ids))
-				);
-			}
+			self::stampIds($unchanged_ids, $import_uuid);
 
 		} finally {
-			$search->flushIndexQueue();
 			DAO_AgentFilesystem::flushRecount();
 		}
 
-		return $count;
+		return $counts;
+	}
+
+	/**
+	 * Mark rows as still wanted by this run. Bookkeeping only -- no events, so nothing re-indexes.
+	 */
+	public static function stampIds(array $ids, string $import_uuid) : void {
+		if(!$ids)
+			return;
+
+		DAO_AgentFile::updateWhere(
+			[DAO_AgentFile::IMPORT_UUID => $import_uuid],
+			sprintf('id IN (%s)', implode(',', array_map('intval', $ids)))
+		);
+	}
+
+	/**
+	 * Stamp rows this run still wants, then delete whatever is left unstamped.
+	 *
+	 * Read in bounded pages so a full-volume prune can't materialize a million ids.
+	 */
+	public static function pruneUnstamped(int $filesystem_id, string $import_uuid) : int {
+		$db = DevblocksPlatform::services()->database();
+
+		$sql = sprintf(
+			"SELECT id FROM agent_file WHERE filesystem_id = %d AND import_uuid != %s LIMIT 100",
+			$filesystem_id,
+			Cerb_ORMHelper::qstr($import_uuid)
+		);
+
+		$deleted = 0;
+		$last_first_id = null;
+
+		// Each pass deletes the rows it just read, so the same LIMIT walks the whole set
+		while($rows = $db->GetArrayMaster($sql)) {
+			$ids = array_map('intval', array_column($rows, 'id'));
+
+			// A pass that returns the same page it just deleted would spin forever
+			if($ids[0] === $last_first_id) {
+				DevblocksPlatform::services()->log()->error(sprintf(
+					'[Agent Filesystem] Prune stalled on agent_file %d; aborting.',
+					$ids[0]
+				));
+				break;
+			}
+
+			$last_first_id = $ids[0];
+
+			// Through the DAO so links, comments, and custom field values are cleaned up too
+			DAO_AgentFile::delete($ids);
+			$deleted += count($ids);
+		}
+
+		return $deleted;
+	}
+
+	/**
+	 * Bookkeeping only — cleared without events so it never triggers a reindex.
+	 */
+	public static function clearImportStamps(int $filesystem_id) : void {
+		DAO_AgentFile::updateWhere(
+			[DAO_AgentFile::IMPORT_UUID => ''],
+			sprintf('filesystem_id = %d', $filesystem_id)
+		);
 	}
 
 	/**
@@ -463,35 +553,37 @@ class FilesystemImporter {
 	 * filesystem's cached counters and clears the import stamps.
 	 */
 	public static function onJobComplete(Model_QueueJob $queue_job) : void {
-		$db = DevblocksPlatform::services()->database();
-
 		$filesystem_id = intval($queue_job->metadata['filesystem_id'] ?? 0);
 		$import_uuid = strval($queue_job->metadata['import_uuid'] ?? '');
 
 		if(!$filesystem_id || !$import_uuid)
 			return;
 
-		if($queue_job->metadata['prune_missing'] ?? false) {
-			$prune_ids = $db->GetArrayReader(sprintf(
-				"SELECT id FROM agent_file WHERE filesystem_id = %d AND import_uuid != %s",
-				$filesystem_id,
-				Cerb_ORMHelper::qstr($import_uuid)
-			));
-
-			// Through the DAO in chunks so links, comments, and custom field values are cleaned up too
-			foreach(array_chunk(array_column($prune_ids, 'id'), 100) as $chunk)
-				DAO_AgentFile::delete(array_map('intval', $chunk));
-		}
+		if($queue_job->metadata['prune_missing'] ?? false)
+			self::pruneUnstamped($filesystem_id, $import_uuid);
 
 		// Every write path keeps these current now, so this is belt-and-braces for the prune above rather than
 		// the only thing that maintains them. Same implementation either way -- two counts that can disagree
 		// is worse than none.
 		DAO_AgentFilesystem::recount($filesystem_id);
 
-		// Bookkeeping only — cleared without events so it never triggers a reindex
-		DAO_AgentFile::updateWhere(
-			[DAO_AgentFile::IMPORT_UUID => ''],
-			sprintf('filesystem_id = %d', $filesystem_id)
-		);
+		self::clearImportStamps($filesystem_id);
+
+		// Nobody is waiting on a queue consumer, so index the way the cron does -- walk the cursor, which
+		// covers exactly what this import wrote and nothing twice.
+		DAO_AgentFile::drainIndex(10);
+
+		// A bundled volume records its manifest hash HERE, not when the job was created -- committing it up
+		// front would let a failed import mark itself done and never retry.
+		if(($registry_key = strval($queue_job->metadata['manifest_registry_key'] ?? ''))) {
+			DevblocksPlatform::setRegistryKey(
+				$registry_key,
+				strval($queue_job->metadata['manifest_sha1'] ?? ''),
+				\DevblocksRegistryEntry::TYPE_STRING,
+				persist: true
+			);
+
+			DevblocksPlatform::services()->registry()->save();
+		}
 	}
 }

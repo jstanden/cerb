@@ -7,6 +7,11 @@
 
 <div id="cerbConfigPlatform">
     <fieldset>
+        <legend>Agent filesystems</legend>
+        <button type="button" data-cerb-button="agent_filesystems"><span class="cerb-icons cerb-icon-refresh"></span> {'common.reload'|devblocks_translate|capitalize}</button>
+    </fieldset>
+    
+    <fieldset>
         <legend>{'common.automations'|devblocks_translate|capitalize}</legend>
         <button type="button" data-cerb-button="automations"><span class="cerb-icons cerb-icon-refresh"></span> {'common.reload'|devblocks_translate|capitalize}</button>
     </fieldset>
@@ -39,7 +44,12 @@ $(function() {
        formData.set('a', 'invoke');
        formData.set('module', 'platform');
        
-       if('automations' === action) {
+       if('agent_filesystems' === action) {
+           formData.set('action', 'reloadAgentFilesystems');
+           genericAjaxPost(formData, '', '', function() {
+               Devblocks.createAlert('Bundled agent filesystems have been reloaded.', 'note', 5000);
+           });
+       } else if('automations' === action) {
            formData.set('action', 'reloadAutomations');
            genericAjaxPost(formData, '', '', function() {
                Devblocks.createAlert('Bundled automations have been reloaded.', 'note', 5000);
