@@ -41,7 +41,7 @@ class SearchCron extends CerberusCronPageExtension {
 			
 			// If we're indexing fast and have more, let it keep going
 			for($i=0 ;$i<10; $i++) {
-				$count = $search_ext->indexDocumentsByModel($search_index, $limit);
+				$count = count($search_ext->indexDocumentsByModel($search_index, $limit));
 				if($count < $limit || $stop_time < time()) break;
 			}
 			
