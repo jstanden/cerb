@@ -587,6 +587,175 @@ class Components {
 		return $tools;
 	}
 
+	/**
+	 * One component's system prompt: the role, the tool inventory, and -- only when the skills volume is
+	 * actually mounted -- a pointer at it.
+	 *
+	 * This is what `interaction.worker.agent` contributes at RUNTIME, so improving a role reaches every
+	 * existing chat on the next release. It used to be copied into each generated automation's
+	 * `system_prompt:` once, at authoring time, and was frozen there forever -- the same drift that made us
+	 * stop generating the built-in tools into every chat.
+	 *
+	 * $volumes maps a ROLE ('skills', 'docs') to the name that volume is mounted under, or omits it when the
+	 * turn doesn't have it. The caller resolves that because this file can't see a session's mounts and
+	 * shouldn't -- and pointing an agent at files it cannot read is worse than saying nothing. Taking names
+	 * rather than flags is also what keeps a volume name out of this file entirely.
+	 *
+	 * An unknown component returns '' -- a chat with no editor beside it writes its own prompt.
+	 */
+	static function getSystemPromptFor(string $component, array $volumes=[]) : string {
+		if(!($meta = self::get($component)))
+			return '';
+
+		$skills_volume = trim(strval($volumes['skills'] ?? ''));
+		$docs_volume = trim(strval($volumes['docs'] ?? ''));
+
+		$blocks = [self::getRoleFor($component)];
+
+		if('' !== ($inventory = self::getInventoryFor($component)))
+			$blocks[] = $inventory;
+
+		// The documentation, and where in it this component's work lives. The role already says to verify
+		// rather than guess; this is the part that can only be said once we know the volume is really here.
+		if('' !== $docs_volume) {
+			$line = sprintf(
+				"The Cerb documentation is mounted at `@%s` and is the authority -- look a name up rather than "
+					. "recalling it, because an invented key usually returns nothing instead of failing.",
+				$docs_volume
+			);
+
+			if(($paths = $meta['docs'] ?? []))
+				$line .= ' ' . sprintf('For this work, start at %s.', self::_andList(array_map(
+					fn($path) => sprintf('`@%s/%s`', $docs_volume, ltrim($path, '/')),
+					$paths
+				)));
+
+			$blocks[] = $line;
+		}
+
+		// Named skills rather than "read the index and work it out": the index costs another read, and the
+		// component already knows which skills its work needs. `@<volume>` resolves by NAME, so this holds
+		// even when the volume is mounted somewhere other than `/<volume>`.
+		if('' !== $skills_volume && ($skills = $meta['skills'] ?? [])) {
+			$blocks[] = sprintf(
+				"Reference skills are mounted at `@%s`. Start with %s, or read `@%s/INDEX.md` for the full set. "
+					. "Read one when you need it -- they are not loaded for you.",
+				$skills_volume,
+				self::_andList(array_map(
+					fn($skill) => sprintf('`@%s/skills/%s/SKILL.md`', $skills_volume, $skill),
+					$skills
+				)),
+				$skills_volume
+			);
+		}
+
+		return implode("\n\n", array_filter($blocks));
+	}
+
+	/**
+	 * The ROLE half: `assets/agents/<component>.md`, falling back to the catalog's `instructions`.
+	 *
+	 * Prose lives in a file because it is prose -- readable diffs, no escaping, and no practical ceiling on
+	 * how much guidance a role can carry. `__DIR__` rather than `APP_PATH` keeps this class loadable with no
+	 * bootstrap, which is the property its header promises.
+	 *
+	 * One flat file per component, named for its key. A directory each would be ceremony while a role is the
+	 * only per-component asset there is; if one ever grows companions, that's the point to nest it.
+	 *
+	 * NOT an agent filesystem: `assets/agents/` is a sibling of `assets/agent_filesystems/`, so
+	 * `FilesystemAssets::syncAll()` never imports it. The roles are ours; the skills volume is the agent's.
+	 */
+	static function getRoleFor(string $component) : string {
+		static $cache = [];
+
+		if(array_key_exists($component, $cache))
+			return $cache[$component];
+
+		$role = '';
+
+		// The catalog is the allow-list, and it is load-bearing: `$component` arrives from caller metadata that
+		// is never validated, and it is being concatenated into a path. Only a key the catalog already knows
+		// gets that far.
+		if(($meta = self::get($component))) {
+			$path = __DIR__ . '/../../../assets/agents/' . $component . '.md';
+
+			if(is_readable($path) && false !== ($contents = file_get_contents($path)))
+				$role = trim($contents);
+
+			// A missing asset is a broken deploy, not a configuration. Degrade to the catalog's copy rather
+			// than shipping an empty system prompt, but say so -- silently working forever is how a typo'd
+			// path survives.
+			if('' === $role) {
+				$role = trim(strval($meta['instructions'] ?? ''));
+
+				if(class_exists('DevblocksPlatform'))
+					\DevblocksPlatform::services()->log()->info(
+						sprintf("Agent role asset missing or empty (%s); using the built-in fallback.", $path)
+					);
+			}
+		}
+
+		return $cache[$component] = $role;
+	}
+
+	/**
+	 * The INVENTORY half: the tools this component answers, in prose.
+	 *
+	 * Built from the live catalog on purpose. The provider already sends tool schemas, but a model that
+	 * isn't told in PROSE that it can read the editor tends to ask the user to paste instead. Hand-writing
+	 * this into the role file would be the drift this whole arrangement removes -- a tool listed here that
+	 * the host doesn't implement returns '', which reads as a model failure rather than a wiring bug.
+	 *
+	 * Both families, since the model can't tell them apart and shouldn't have to: `commands` are answered by
+	 * the browser, `server_tools` here. A component may have neither -- the command bar is a real place
+	 * whose host has no command bridge yet -- and then there is no inventory to write, and nothing is
+	 * emitted. Saying "you act on it through these tools:" above an empty list would contradict the role
+	 * that just said it can't see the screen.
+	 *
+	 * NOTHING about the filesystem is written here. The `agent_terminal` tool's own schema description
+	 * already carries all of it, and carries it better: a "Mounted filesystems:" overview with each volume's
+	 * path, mode, description AND an `ls` of its contents, the whole-line-in-`command` shape, "no working
+	 * directory", `Filesystem::help()` verbatim, and `/tmp` plus the `|` pipeline. Restating it cost a copy
+	 * of all that in every turn's system prompt, and it was WRONG in a way it couldn't detect: it listed
+	 * `search` unconditionally, while the schema drops `search` when no volumes are mounted.
+	 */
+	static function getInventoryFor(string $component) : string {
+		if(!($meta = self::get($component)))
+			return '';
+
+		$tools = [];
+
+		// Bridge commands carry their model-facing name in `tool`; a server tool IS its key.
+		foreach($meta['commands'] as $command)
+			$tools[$command['tool']] = $command['description'];
+
+		foreach($meta['server_tools'] ?? [] as $tool_name => $server_tool)
+			$tools[$tool_name] = $server_tool['description'];
+
+		if(!$tools)
+			return '';
+
+		$lines = ['You act on it through these tools:'];
+
+		foreach($tools as $tool_name => $description)
+			$lines[] = sprintf('- %s -- %s', $tool_name, $description);
+
+		$lines[] = '';
+		$lines[] = 'Read before you write. Prefer acting over describing: make the change, then say briefly what changed and why.';
+
+		return implode("\n", $lines);
+	}
+
+	// "a", "a and b", "a, b, and c" -- so a one-skill component doesn't read like a list of one.
+	private static function _andList(array $items) : string {
+		if(count($items) < 3)
+			return implode(' and ', $items);
+
+		$last = array_pop($items);
+
+		return implode(', ', $items) . ', and ' . $last;
+	}
+
 	// The half of a `tools:` entry both families share.
 	private static function _toolEntry(array $command) : array {
 		$tool = [

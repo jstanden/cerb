@@ -25,11 +25,16 @@ class AutomationTrigger_InteractionWorkerAgent extends AutomationTrigger_Interac
 					. "surface it's mounted on (`automation`, `automation_scripting`, `data_query`, `icon`, `mail_reply`, "
 					. "`worklist`, or `commandbar`), and `ui_capabilities`, the commands that surface answers. An "
 					. "`llm.agent:` in this automation is given those commands as tools automatically, so a chat "
-					. "can drive the surface it opens beside without declaring any `tools:` of its own.\n\n"
+					. "can drive the surface it opens beside without declaring any `tools:` of its own. It's also "
+					. "given a system prompt describing that surface, so `system_prompt:` is for what YOU want to "
+					. "add -- it's appended to ours, not a replacement for it.\n\n"
 					. "Deliberately NOT here: which page the worker is on. It would be a snapshot from launch, and "
 					. "would go stale the moment they navigate -- the command bar's `get_page` tool reads it live "
-					. "instead. Don't interpolate a changing value into `system_prompt:` either; that's the most "
-					. "stable part of the cached prompt prefix and it's rewritten from the input every turn.",
+					. "instead. Don't interpolate a changing value into `system_prompt:` either. The composed "
+					. "prompt is built on the first turn and reused unchanged after that; it is rebuilt only when "
+					. "you EDIT this automation, which takes effect on the worker's next message. A value that "
+					. "changes on its own rebuilds it every turn, and the prompt prefix is the most cacheable part "
+					. "of the request.",
 			]) : $input,
 			parent::getInputsMeta()
 		);
@@ -54,6 +59,55 @@ class AutomationTrigger_InteractionWorkerAgent extends AutomationTrigger_Interac
 			return [];
 
 		return \Cerb\Agent\Pane\Components::getToolsFor(strval($caller_params['component'] ?? ''));
+	}
+
+	/**
+	 * The agent's ROLE as the opening of its system prompt, resolved from the live caller.
+	 *
+	 * `llm.agent:` calls this through duck-typing (`method_exists`) off the automation's trigger extension,
+	 * the same way it collects `getLlmAgentTools()` -- so a chat beside an editor is told what it is, and
+	 * what that editor can do, with nothing in its script. The composed text is frozen onto the session on
+	 * the first turn, so it's stable for the life of a conversation even though it's assembled here.
+	 *
+	 * This is deliberately NOT generated into each chat's `system_prompt:` any more. That copy was frozen at
+	 * authoring time: a role improved in a release never reached an automation someone had already deployed,
+	 * and fixing that would have meant upgrade patches editing people's scripts. Contributing at runtime is
+	 * the same move we made for the built-in tools, for the same reason.
+	 *
+	 * `$mount_names` says which volumes the turn actually has, so the catalog only points at reference skills
+	 * when they're really reachable -- a chat can be authored with no filesystem at all, and sending an agent
+	 * after files it can't read is worse than saying nothing.
+	 *
+	 * A caller that isn't an agent pane, or one on a host we have no catalog entry for, gets `''`: a
+	 * standalone chat writes its own prompt, which is a legitimate answer rather than an error.
+	 */
+	function getLlmAgentSystemPrompt(DevblocksDictionaryDelegate $dict, array $mount_names=[]) : string {
+		$caller_params = $dict->get('caller_params', []);
+
+		if(!is_array($caller_params))
+			return '';
+
+		// Tell the catalog which of the volumes it knows about are really here. A pointer at a volume the turn
+		// didn't mount sends the agent after files it cannot read, which is worse than saying nothing.
+		$volumes = [];
+
+		// Case-insensitively, because that's how the mount itself resolves (`Filesystem::describeSpecs()`
+		// looks volumes up on a lowercased name). A strict compare here would let a volume mount fine and
+		// then silently fail to be pointed at, which is the hardest kind of mismatch to notice.
+		$mounted = array_change_key_case(array_flip($mount_names));
+
+		foreach([
+			'skills' => \Cerb\Agent\FilesystemAssets::VOLUME_SKILLS,
+			'docs' => \Cerb\Agent\FilesystemAssets::VOLUME_DOCS,
+		] as $role => $name) {
+			if(array_key_exists(DevblocksPlatform::strLower($name), $mounted))
+				$volumes[$role] = $name;
+		}
+
+		return \Cerb\Agent\Pane\Components::getSystemPromptFor(
+			strval($caller_params['component'] ?? ''),
+			$volumes
+		);
 	}
 
 	/**

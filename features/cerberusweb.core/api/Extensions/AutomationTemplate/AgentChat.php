@@ -97,8 +97,6 @@ class AgentChat extends Extension_AutomationTemplate {
 
 		$mounts = $this->_mounts($filesystems_answer);
 
-		$system_prompt = $this->_systemPrompt($component);
-
 		$tools_block = $this->_toolsBlock($tools_answer);
 
 		// `on_tool:` only earns its place when the author picked `llm.tool` automations. A host component's
@@ -194,8 +192,13 @@ __REFERENCES__
   thinking: summary
   tools: summary
 
+# Anything under `&system_prompt@text:` is ADDED to the system prompt Cerb composes for this agent pane --
+# its role, and the tools the editor beside it offers. You don't need to restate any of that, and leaving it
+# empty is the normal case. Use it for what's specific to THIS chat: a custom tool you declared above, a
+# volume of your own, house style.
+#
+# (Write your text INDENTED under the key. A `#` line inside a text block is content, not a comment.)
 &system_prompt@text:
-__SYSTEM_PROMPT__
 
 KATA;
 
@@ -221,7 +224,6 @@ KATA;
 			"__TOOLS__\n" => $tools_block,
 			"__ON_TOOL__\n" => $on_tool_block,
 			"__REFERENCES__\n" => $this->_indent($mounts['references'], 16),
-			"__SYSTEM_PROMPT__\n" => $this->_indent($system_prompt, 2),
 		];
 
 		return str_replace(array_keys($replacements), array_values($replacements), $skeleton);
@@ -255,71 +257,6 @@ KATA;
 			$answer = json_decode($answer, true);
 
 		return is_array($answer) ? $answer : [];
-	}
-
-	/**
-	 * The whole system prompt, generated: the location's own instructions, then the tool inventory that
-	 * location gives it.
-	 *
-	 * Generated rather than asked for because both parts depend on an answer given LATER in the same wizard --
-	 * the location supplies the opening AND the inventory. It is also the one section the author can revise
-	 * afterwards by typing into the automation editor, which is why it's the right thing to hand them finished
-	 * rather than blank.
-	 *
-	 * The tool inventory is spelled out even though the provider already sends tool schemas: a model that
-	 * isn't told in prose that it can read the editor tends to ask the user to paste instead. That reasoning
-	 * is specific to the EDITOR tools, whose schemas are one line each -- it does not extend to the terminal,
-	 * whose schema is exhaustive (see the note at the end of this method).
-	 */
-	private function _systemPrompt(?array $component) : string {
-		$system_prompt = $component
-			? trim(strval($component['instructions'] ?? ''))
-			: '';
-
-		if('' === $system_prompt)
-			$system_prompt = 'You are a helpful AI agent.';
-
-		$lines = [];
-
-		// Both families, since the model can't tell them apart and shouldn't have to: `commands` are answered by
-		// the browser, `server_tools` here. A component may have neither -- the command bar is a real place
-		// whose host has no command bridge yet -- and then there is no inventory to write. Saying "you act
-		// through these tools:" above an empty list, and then telling it to make changes, would contradict
-		// instructions that just said it can't see the screen.
-		$tools = [];
-
-		if($component) {
-			// Bridge commands carry their model-facing name in `tool`; a server tool IS its key.
-			foreach($component['commands'] as $command)
-				$tools[$command['tool']] = $command['description'];
-
-			foreach($component['server_tools'] ?? [] as $tool_name => $server_tool)
-				$tools[$tool_name] = $server_tool['description'];
-		}
-
-		if($tools) {
-			// The instructions above already say where the agent is; this just names the tools.
-			$lines[] = '';
-			$lines[] = 'You act on it through these tools:';
-
-			foreach($tools as $tool_name => $description)
-				$lines[] = sprintf('- %s -- %s', $tool_name, $description);
-
-			$lines[] = '';
-			$lines[] = 'Read before you write. Prefer acting over describing: make the change, then say briefly what changed and why.';
-		}
-
-		// NOTHING about the filesystem is written here. The `agent_terminal` tool's own schema description
-		// already carries all of it, and carries it better: a "Mounted filesystems:" overview with each
-		// volume's path, mode, description AND an `ls` of its contents, the whole-line-in-`command` shape, "no
-		// working directory -- use absolute paths or @<filesystem>/path", `Filesystem::help()` verbatim, and
-		// `/tmp` plus the `|` pipeline. Restating it cost a copy of all that in every turn's system prompt.
-		//
-		// It was also WRONG in a way it couldn't detect: it listed `search` unconditionally, while the schema
-		// drops `search` when no volumes are mounted (it needs a fulltext index only a volume has). So a
-		// /tmp-only agent was told about a command it doesn't have.
-
-		return $system_prompt . "\n" . implode("\n", $lines);
 	}
 
 	/**
