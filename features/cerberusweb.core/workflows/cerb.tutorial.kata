@@ -1,6 +1,6 @@
 workflow:
   name: cerb.tutorial
-  version: 2026-08-11T00:00:00Z
+  version: 2026-08-23T04:43:59Z
   description: A workspace with detailed descriptions and examples of Cerb functionality
   requirements:
     cerb_version: >=12.0 <12.1
@@ -12,12 +12,22 @@ records:
       extension_id: core.workspace.page.workspace
       owner__context: workflow
       owner_id: {{workflow_id}}
+  workspace_tab/tab_ai_agents:
+    fields:
+      name: AI & Agents
+      page_id: {{records.page_tutorial.id}}
+      extension_id: core.workspace.tab.dashboard
+      pos@int: 2
+      params:
+        layout@text:
+        prompts_kata@text:
+      options_kata@raw: locked@bool: yes
   workspace_tab/tab_api:
     fields:
       name: API
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 31
+      pos@int: 32
       params:
         layout@text:
         prompts_kata@text:
@@ -27,7 +37,7 @@ records:
       name: Automations
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 18
+      pos@int: 19
       params:
         layout@text:
         prompts_kata@text:
@@ -37,7 +47,7 @@ records:
       name: Calendars
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 12
+      pos@int: 13
       params:
         layout@text:
         prompts_kata@text:
@@ -47,7 +57,7 @@ records:
       name: Charts
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 16
+      pos@int: 17
       params:
         layout@text:
         prompts_kata@text:
@@ -57,7 +67,7 @@ records:
       name: Clients
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 7
+      pos@int: 8
       params:
         layout@text:
         prompts_kata@text:
@@ -67,7 +77,7 @@ records:
       name: Connected Services
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 23
+      pos@int: 24
       params:
         layout@text:
         prompts_kata@text:
@@ -77,7 +87,7 @@ records:
       name: Data Queries
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 13
+      pos@int: 14
       params:
         layout: sidebar_right
         prompts_kata@text:
@@ -87,7 +97,7 @@ records:
       name: Email
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 9
+      pos@int: 10
       params:
         layout@text:
         prompts_kata@text:
@@ -97,7 +107,7 @@ records:
       name: Interactions
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 20
+      pos@int: 21
       params:
         layout: halves
         prompts_kata@text:
@@ -107,7 +117,7 @@ records:
       name: Maps
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 17
+      pos@int: 18
       params:
         layout@text:
         prompts_kata@text:
@@ -117,7 +127,7 @@ records:
       name: Metrics
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 24
+      pos@int: 25
       params:
         layout@text:
         prompts_kata@text:
@@ -127,7 +137,7 @@ records:
       name: Packages
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 29
+      pos@int: 30
       params:
         layout@text:
         prompts_kata@text:
@@ -137,7 +147,7 @@ records:
       name: PGP Encryption
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 22
+      pos@int: 23
       params:
         layout: sidebar_left
         prompts_kata@text:
@@ -147,7 +157,7 @@ records:
       name: Portals
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 25
+      pos@int: 26
       params:
         layout: sidebar_left
         prompts_kata@text:
@@ -157,7 +167,7 @@ records:
       name: Project Boards
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 26
+      pos@int: 27
       params:
         layout@text:
         prompts_kata@text:
@@ -169,7 +179,7 @@ records:
       name: Queues
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 19
+      pos@int: 20
       params:
         layout@text:
         prompts_kata@text:
@@ -179,7 +189,7 @@ records:
       name: Records
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 2
+      pos@int: 3
       params:
         layout@text:
         prompts_kata@text:
@@ -189,7 +199,7 @@ records:
       name: Reminders
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 11
+      pos@int: 12
       params:
         layout@text:
         prompts_kata@text:
@@ -199,7 +209,7 @@ records:
       name: Search
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 4
+      pos@int: 5
       params:
         layout@text:
         prompts_kata@text:
@@ -209,7 +219,7 @@ records:
       name: Search Indexes
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 5
+      pos@int: 6
       params:
         layout@text:
         prompts_kata@text:
@@ -219,7 +229,7 @@ records:
       name: Sheets
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 15
+      pos@int: 16
       params:
         layout@text:
         prompts_kata@text:
@@ -229,7 +239,7 @@ records:
       name: Snippets
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 27
+      pos@int: 28
       params:
         layout@text:
         prompts_kata@text:
@@ -239,7 +249,7 @@ records:
       name: Tasks
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 10
+      pos@int: 11
       params:
         layout@text:
         prompts_kata@text:
@@ -249,7 +259,7 @@ records:
       name: Tickets
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 8
+      pos@int: 9
       params:
         layout@text:
         prompts_kata@text:
@@ -259,7 +269,7 @@ records:
       name: Toolbars
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 21
+      pos@int: 22
       params:
         layout: halves
         prompts_kata@text:
@@ -269,7 +279,7 @@ records:
       name: Webhooks
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 30
+      pos@int: 31
       params:
         layout@text:
         prompts_kata@text:
@@ -289,7 +299,7 @@ records:
       name: Workers, Groups & Roles
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 6
+      pos@int: 7
       params:
         layout@text:
         prompts_kata@text:
@@ -299,7 +309,7 @@ records:
       name: Workflows
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 28
+      pos@int: 29
       params:
         layout@text:
         prompts_kata@text:
@@ -309,7 +319,7 @@ records:
       name: Worklists
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 3
+      pos@int: 4
       params:
         layout@text:
         prompts_kata@text:
@@ -319,7 +329,7 @@ records:
       name: Workspaces & Dashboards
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 14
+      pos@int: 15
       params:
         layout@text:
         prompts_kata@text:
@@ -331,7 +341,7 @@ records:
       tab_id: {{records.tab_welcome.id}}
       extension_id: core.workspace.widget.sheet
       pos@int: 1
-      width_units@int: 2
+      width_units@int: 4
       zone: left
       params:
         data_query@text:
@@ -371,11 +381,11 @@ records:
 
                   The most common use case is converting standard POP3/IMAP mailboxes like Gmail or O365 (e.g. support@, team@) into high-volume team-based webmail with automated triage, internal discussions with @mentions, built-in productivity tools, custom actions, reporting, and a shared history.
 
-                  An emerging use case is integrating with large language models (LLMs) to automatically suggest answers to customer requests based on existing team knowledge (documentation, FAQs, articles).
+                  Cerb also runs **AI agents**. An agent is an ordinary worker record, so it can own tickets, be @mentioned, and join groups like anyone else. Agents answer from your own team knowledge, work alongside you in every editor, and are driven by automations you control. See the **AI & Agents** tab.
 
                   You can run Cerb on your own hardware, in Docker, or in Cerb Cloud as a fully managed service.
 
-                  We share 100% of our source code on GitHub. Cerb is free to use for a single seat (no license required). This allows you to maintain an archive of your historical data on the latest version in perpetuity at no ongoing cost. Your data is always yours.
+                  We share 100% of our source code on GitHub. Your first three seats are free forever with no license required. This allows you to maintain an archive of your historical data on the latest version in perpetuity at no ongoing cost. Your data is always yours.
         toolbar_kata@text:
   workspace_widget/widget_welcome_ui:
     fields:
@@ -383,7 +393,7 @@ records:
       icon: signpost
       tab_id: {{records.tab_welcome.id}}
       extension_id: core.workspace.widget.sheet
-      pos@int: 2
+      pos@int: 1
       width_units@int: 4
       zone: right
       params:
@@ -494,6 +504,52 @@ records:
                           selector: ul[id^=pageTabs]
                           message: Workspace pages are organized into tabs.
         toolbar_kata@text:
+  workspace_widget/widget_developer_tools:
+    fields:
+      label: Developer Tools
+      icon: toolbox
+      tab_id: {{records.tab_welcome.id}}
+      extension_id: core.workspace.widget.sheet
+      pos@int: 2
+      width_units@int: 4
+      zone: left
+      params:
+        data_query@text:
+          type:sample.records
+          records:(help:())
+          format:dictionaries
+        cache_secs@text:
+        placeholder_simulator_kata@text:
+        sheet_kata@raw:
+          layout:
+            style: fieldsets
+            headings@bool: no
+            paging@bool: no
+            filtering@bool: no
+
+          columns:
+            markdown/text:
+              params:
+                text_size@raw: 120%
+                value@raw:
+                  Administrators have a set of build-and-inspect tools under **Setup > Configure > Developers**:
+
+                  |||
+                  |-|-
+                  |**UI Reference**| Every Cerb UI component with a live example
+                  |**[Icon Builder](https://cerb.ai/docs/setup/developers/icon-builder/)**| Author a `cerb-icons` glyph and see it rendered everywhere it appears
+                  |**Sheet Builder**| Build a sheet layout and columns against a sample dataset, with a live preview
+                  |**[Agent Filesystem Terminal](https://cerb.ai/docs/setup/developers/agent-filesystem-terminal/)**| Browse and edit agent volumes with the same commands an agent uses
+                  |**[LLM Agent Transcripts](https://cerb.ai/docs/setup/developers/llm-agent-transcripts/)**| Read, fork, or re-run any agent conversation
+                  |**Automation Scripting Tester**| Evaluate [scripting](https://cerb.ai/docs/scripting/) against a placeholder dictionary
+                  |**Data Query Tester**| Run and inspect a [data query](https://cerb.ai/docs/data-queries/)
+                  |**Automation Events**| A node graph of everything that runs on a given event
+                  |**Toolbars**| Every customizable [toolbar](https://cerb.ai/docs/toolbars/), by toolbar and by [workflow](https://cerb.ai/docs/workflows/)
+                  |**Platform**| Plugins, extension points, and bundled agent filesystems
+                  |**Database Schema**| The live schema, exportable as Schema KATA
+
+                  Several of these host an AI [agent pane](https://cerb.ai/docs/toolbars/interactions/agent.pane/) -- a chat that can read and rewrite what you're working on.
+        toolbar_kata@text:
   workspace_widget/widget_contribute:
     fields:
       label: Promote
@@ -534,6 +590,685 @@ records:
                   * [Follow us on Bluesky](https://bsky.app/profile/cerb.ai)
                   * [Rate us on G2](https://www.g2.com/products/cerb/reviews)
         toolbar_kata@text:
+  workspace_widget/widget_ai_agents_intro:
+    fields:
+      label: AI Agents
+      icon: bot
+      tab_id: {{records.tab_ai_agents.id}}
+      extension_id: core.workspace.widget.sheet
+      pos@int: 1
+      width_units@int: 2
+      zone: content
+      params:
+        data_query@text:
+          type:sample.records
+          records:(help:())
+          format:dictionaries
+        cache_secs@text:
+        placeholder_simulator_kata@text:
+        sheet_kata@raw:
+          layout:
+            style: fieldsets
+            headings@bool: no
+            paging@bool: no
+            filtering@bool: no
+
+          columns:
+            markdown/text:
+              params:
+                text_size@raw: 120%
+                value@raw:
+                  An [**AI agent**](https://cerb.ai/docs/agents/) is an ordinary [worker](https://cerb.ai/docs/workers/) record with an `is_ai` flag rather than a separate record type.
+
+                  That one decision is what makes agents ordinary. An agent can own [tickets](https://cerb.ai/docs/tickets/), be `@mentioned`, join [groups](https://cerb.ai/docs/groups/), appear in [worklists](https://cerb.ai/docs/worklists/), and hold [API](https://cerb.ai/docs/api/) credentials like anyone else.
+
+                  An AI worker never has an interactive session -- logins and single sign-on are refused -- and it doesn't require an email address.
+
+                  Search for agents with `isAi:y`, or use the **Agents** entry in the search menu.
+
+                  AI is strictly additive. Until you configure an **agent model**, nothing in the interface changes.
+        toolbar_kata@text:
+  workspace_widget/widget_agent_models:
+    fields:
+      label: Agent Models
+      icon: bot-message
+      tab_id: {{records.tab_ai_agents.id}}
+      extension_id: core.workspace.widget.sheet
+      pos@int: 2
+      width_units@int: 2
+      zone: content
+      params:
+        data_query@text:
+          type:sample.records
+          records:(help:())
+          format:dictionaries
+        cache_secs@text:
+        placeholder_simulator_kata@text:
+        sheet_kata@raw:
+          layout:
+            style: fieldsets
+            headings@bool: no
+            paging@bool: no
+            filtering@bool: no
+
+          columns:
+            markdown/text:
+              params:
+                text_size@raw: 120%
+                value@raw:
+                  An [**agent model**](https://cerb.ai/docs/records/types/agent_model/) record configures one large language model (LLM) for use by [automations](https://cerb.ai/docs/automations/) and agents.
+
+                  Each record holds its provider, model ID, an optional API endpoint URL, an encrypted [connected account](https://cerb.ai/docs/connected-accounts/) for credentials, its context window, a display icon and color, and a block of provider-specific parameters.
+
+                  Automations refer to a model by **name** instead of repeating a provider block inline, so credentials and tuning live in one place.
+
+                  The model ID field autocompletes. It starts from the IDs shipped with each provider, and **Refresh** replaces those with your own account's catalog -- fetched live using the credentials in the form, so it works before the record has ever been saved. The field stays free text either way, so a model ID works the day it ships whether or not it's in a list. **Test** sends one short message to verify the credentials and model string before the record is used.
+
+                  Each model carries an availability **status** and a **priority**:
+
+                  |||
+                  |-|-
+                  |**Available**| Offered wherever something asks for a model
+                  |**Unlisted**| Reachable by name, but never offered automatically
+                  |**Disabled**| Not reachable at all
+                  |**Priority**| The order models are offered in when nothing names one (ascending; the default is 50)
+        toolbar_kata@text:
+  workspace_widget/widget_agent_model_ratings:
+    fields:
+      label: Capabilities & Ratings
+      icon: gauge
+      tab_id: {{records.tab_ai_agents.id}}
+      extension_id: core.workspace.widget.sheet
+      pos@int: 3
+      width_units@int: 2
+      zone: content
+      params:
+        data_query@text:
+          type:sample.records
+          records:(help:())
+          format:dictionaries
+        cache_secs@text:
+        placeholder_simulator_kata@text:
+        sheet_kata@raw:
+          layout:
+            style: fieldsets
+            headings@bool: no
+            paging@bool: no
+            filtering@bool: no
+
+          columns:
+            markdown/intro:
+              params:
+                text_size@raw: 120%
+                value@raw:
+                  [Agent models](https://cerb.ai/docs/records/types/agent_model/) record what they can do and how they compare, so an automation can describe the model it needs instead of naming one.
+
+                  The idea is one line: hard requirements belong to the pool, and best-effort preferences belong to the caller. A model that can't accept images isn't eligible at all, because sending it one is an error. Asking a model to think harder costs nothing on a model that thinks less.
+
+                  **Capabilities** are facts about the model, and they filter yes or no:
+
+                  |||
+                  |-|-
+                  |`hasVision:`| The model accepts images
+                  |`hasThinking:`| The model supports extended thinking
+
+                  **Ratings** are comparisons, set as a row of four glyphs you fill in like a star rating. Each works as both a floor and a sort order:
+
+                  |||
+                  |-|-
+                  |**Intelligence**| `basic`, `efficient`, `advanced`, `frontier`
+                  |**Speed**| `slow`, `moderate`, `fast`, `instant`
+                  |**Privacy**| `standard`, `no-training`, `zdr`, `local`
+                  |**Cost**| `free`, `cheap`, `moderate`, `premium`
+
+                  Privacy is a ladder where each step includes the ones below it, so asking for `privacy:>=zdr` picks up self-hosted models too without naming them. Cost is the one rating where less is better.
+
+                  One query can express three different kinds of requirement:
+            code/query:
+              params:
+                syntax: kata
+                value@raw:
+                  intelligence:>=advanced privacy:>=zdr cost:<=cheap
+            markdown/outro:
+              params:
+                text_size@raw: 120%
+                value@raw:
+                  Ratings draw as meters wherever they appear, with one color per rating: intelligence in purple, speed in orange, privacy in blue, and cost in green.
+
+                  Ratings start blank and unrated models sort last, so an installation that never fills them in behaves exactly as it did before.
+        toolbar_kata@text:
+  workspace_widget/widget_model_pools:
+    fields:
+      label: Model Pools
+      icon: funnel
+      tab_id: {{records.tab_ai_agents.id}}
+      extension_id: core.workspace.widget.sheet
+      pos@int: 4
+      width_units@int: 2
+      zone: content
+      params:
+        data_query@text:
+          type:sample.records
+          records:(help:())
+          format:dictionaries
+        cache_secs@text:
+        placeholder_simulator_kata@text:
+        sheet_kata@raw:
+          layout:
+            style: fieldsets
+            headings@bool: no
+            paging@bool: no
+            filtering@bool: no
+
+          columns:
+            markdown/intro:
+              params:
+                text_size@raw: 120%
+                value@raw:
+                  The pool of [agent models](https://cerb.ai/docs/records/types/agent_model/) an automation may use is resolved by [**searching**](https://cerb.ai/docs/agents/#model-pools) them rather than from a hand-maintained list.
+
+                  Adding a model puts it in every pool it qualifies for with no edit anywhere, and a pool can ask about anything a model records -- its capabilities, its ratings, its context window, or your own [custom fields](https://cerb.ai/docs/custom-fields/).
+
+                  A search can only ever **narrow** a pool. Unlisted and disabled models are excluded before the caller's search is applied, and each model's status is re-checked on every resolve, so unlisting a model takes it out of every pool immediately. That's what makes it safe to let an automation write one.
+
+                  Omit a search entirely and you get every available model, in the `priority` order an admin set. That's the portable form, since the automation then names nothing installation-specific at all.
+
+                  The [`llm.router:`](https://cerb.ai/docs/automations/commands/llm.router/) command resolves one or more searches to a list of models a script can work with **as data** -- to round-robin them, weight them by cost, skip one that's over budget, or feed two commands from a single resolution:
+            code/router:
+              params:
+                syntax: kata
+                value@raw:
+                  llm.router:
+                    output: routed
+                    inputs:
+                      models_query/work: hasVision:y intelligence:>=advanced
+                      models_query/pool: privacy:>=no-training
+            markdown/outro:
+              params:
+                text_size@raw: 120%
+                value@raw:
+                  Each search is its own `models_query/<name>:` key. The **first** query decides the set and its order, and every later one only narrows it, so there's never a question of whose `sort:` wins.
+
+                  A blank query is deliberately kept rather than dropped -- a restriction that quietly disappears when a setting happens to be empty looks exactly like one being honored. Annotate a key `@optional:` when you mean to drop it.
+        toolbar_kata@text:
+  workspace_widget/widget_list_of_agent_models:
+    fields:
+      label: List of Agent Models
+      tab_id: {{records.tab_ai_agents.id}}
+      extension_id: core.workspace.widget.worklist
+      pos@int: 5
+      width_units@int: 4
+      zone: content
+      params:
+        context: cerb.contexts.agent.model
+        query_required@text:
+        query: sort:priority
+        render_limit: 10
+        header_color: #5e5e5e
+        columns@list:
+          a_name
+          a_provider
+          a_model
+          a_status
+          a_rating_intelligence
+          a_rating_speed
+          a_rating_cost
+          a_context_window
+  workspace_widget/widget_llm_providers:
+    fields:
+      label: LLM Providers
+      icon: plug
+      tab_id: {{records.tab_ai_agents.id}}
+      extension_id: core.workspace.widget.sheet
+      pos@int: 6
+      width_units@int: 2
+      zone: content
+      params:
+        data_query@text:
+          type:sample.records
+          records:(help:())
+          format:dictionaries
+        cache_secs@text:
+        placeholder_simulator_kata@text:
+        sheet_kata@raw:
+          layout:
+            style: fieldsets
+            headings@bool: no
+            paging@bool: no
+            filtering@bool: no
+
+          columns:
+            markdown/text:
+              params:
+                text_size@raw: 120%
+                value@raw:
+                  Cerb ships fourteen [**LLM providers**](https://cerb.ai/docs/agents/#providers).
+
+                  Twelve of them serve chat: Anthropic, AWS Bedrock, Docker Model Runner, Gemini, Groq, Hugging Face, Ollama, OpenAI, OpenRouter, Qwen, Together AI, and z.ai. Pinecone and Voyage AI provide embeddings.
+
+                  Credentials come from a [connected account](https://cerb.ai/docs/connected-accounts/). Add the provider under **Search > Connected Services**, create the account holding your API key under **Search > Connected Accounts**, then point an agent model at it. Local providers like Ollama and Docker Model Runner need no credentials at all.
+
+                  Because the endpoint is overridable, any server speaking the OpenAI or Anthropic protocol works by selecting the matching provider and replacing its API endpoint URL. That's how a self-hosted or proxied model is configured -- llama.cpp, LM Studio, vLLM, Azure, or a gateway.
+
+                  Every chat provider **streams**, and streaming is on by default. A long generation is no longer killed partway through by a request timeout, and a running turn can be stopped while keeping what it already wrote. Add `stream@bool: no` to a provider's block to turn it off.
+
+                  Every turn's token usage is recorded and shown in transcripts, separating full-price input from cached reads and writes.
+        toolbar_kata@text:
+  workspace_widget/widget_llm_commands:
+    fields:
+      label: LLM Automation Commands
+      icon: zap
+      tab_id: {{records.tab_ai_agents.id}}
+      extension_id: core.workspace.widget.sheet
+      pos@int: 7
+      width_units@int: 2
+      zone: content
+      params:
+        data_query@text:
+          type:sample.records
+          records:(help:())
+          format:dictionaries
+        cache_secs@text:
+        placeholder_simulator_kata@text:
+        sheet_kata@raw:
+          layout:
+            style: fieldsets
+            headings@bool: no
+            paging@bool: no
+            filtering@bool: no
+
+          columns:
+            markdown/intro:
+              params:
+                text_size@raw: 120%
+                value@raw:
+                  [Automations](https://cerb.ai/docs/automations/) reach models through four commands:
+
+                  |||
+                  |-|-
+                  |[`llm.chat:`](https://cerb.ai/docs/automations/commands/llm.chat/)| A single prompt and completion. No transcript, memory, or tools -- ideal for classifying a message or summarizing a thread
+                  |[`llm.agent:`](https://cerb.ai/docs/automations/commands/llm.agent/)| A multi-turn **agent** with tools, mounted filesystems, memory, and a saved transcript
+                  |[`llm.router:`](https://cerb.ai/docs/automations/commands/llm.router/)| Resolve a model pool to a list a script can work with as data
+                  |[`llm.embed:`](https://cerb.ai/docs/automations/commands/llm.embed/)| Generate embeddings for semantic search
+
+                  Automations published with the [`llm.tool`](https://cerb.ai/docs/automations/triggers/llm.tool/) trigger become tools an agent can call. A tool can define display `labels:` and an `icon:` so a call reads as "Searching the knowledge base" rather than as a raw function name.
+            code/agent:
+              params:
+                syntax: kata
+                value@raw:
+                  llm.agent:
+                    output: result
+                    inputs:
+                      agent: @researcher
+                      system_prompt@text:
+                        You answer questions about our product documentation.
+                      messages:
+                        0:
+                          role: user
+                          content: {{prompt}}
+            markdown/outro:
+              params:
+                text_size@raw: 120%
+                value@raw:
+                  The optional `agent:` input names the AI worker a turn runs as. The transcript picks up that worker's name and image, and the conversation uses that agent's memory and credentials.
+
+                  An agent is **identity, not model policy**. Naming one says who the work is attributed to, never what it may run, so the same agent can do cheap work and expensive work. A human or disabled worker is rejected.
+
+                  Omit `model:` entirely and the turn falls through to the default pool.
+        toolbar_kata@text:
+  workspace_widget/widget_agent_filesystems:
+    fields:
+      label: Agent Filesystems
+      icon: folder
+      tab_id: {{records.tab_ai_agents.id}}
+      extension_id: core.workspace.widget.sheet
+      pos@int: 8
+      width_units@int: 2
+      zone: content
+      params:
+        data_query@text:
+          type:sample.records
+          records:(help:())
+          format:dictionaries
+        cache_secs@text:
+        placeholder_simulator_kata@text:
+        sheet_kata@raw:
+          layout:
+            style: fieldsets
+            headings@bool: no
+            paging@bool: no
+            filtering@bool: no
+
+          columns:
+            markdown/intro:
+              params:
+                text_size@raw: 120%
+                value@raw:
+                  An [**agent filesystem**](https://cerb.ai/docs/records/types/agent_filesystem/) is a named volume of [files](https://cerb.ai/docs/records/types/agent_file/) that agents and workers can both read and write. Each volume tracks its file count and total size.
+
+                  An [automation](https://cerb.ai/docs/automations/) makes volumes available to an agent by listing them under `mounts:`:
+            code/mounts:
+              params:
+                syntax: kata
+                value@raw:
+                  llm.agent:
+                    inputs:
+                      agent: @researcher
+                      mounts:
+                        handbook:
+                          mode: read-only
+                        scratch:
+                          mode: read-write
+                          create@bool: yes
+            markdown/outro:
+              params:
+                text_size@raw: 120%
+                value@raw:
+                  |||
+                  |-|-
+                  |`filesystem:`| The source volume, when it differs from the mountpoint key
+                  |`mode:`| `read-only` (the default) or `read-write`
+                  |`at:`| An explicit mountpoint path, overriding the key
+                  |`create@bool:`| Provision the volume by name on first mount
+
+                  Writing `mounts:` at all is what enables the `agent_terminal` tool. Because **one tool covers every mounted volume**, adding or removing a mount doesn't change the tool's schema -- which means it doesn't invalidate the provider's cached prompt prefix.
+
+                  An empty `mounts:` block is still valid: no volumes, but the agent keeps a `/tmp` scratch area.
+
+                  A ZIP archive can be uploaded to a volume and imported in the background as a [queue job](https://cerb.ai/docs/records/types/queue_job/). Progress appears on the filesystem record, and the 'Agent Filesystem' card widget shows the volume's file count, total size, and a history of past imports.
+        toolbar_kata@text:
+  workspace_widget/widget_agent_terminal:
+    fields:
+      label: The Agent Terminal
+      icon: console
+      tab_id: {{records.tab_ai_agents.id}}
+      extension_id: core.workspace.widget.sheet
+      pos@int: 9
+      width_units@int: 2
+      zone: content
+      params:
+        data_query@text:
+          type:sample.records
+          records:(help:())
+          format:dictionaries
+        cache_secs@text:
+        placeholder_simulator_kata@text:
+        sheet_kata@raw:
+          layout:
+            style: fieldsets
+            headings@bool: no
+            paging@bool: no
+            filtering@bool: no
+
+          columns:
+            markdown/intro:
+              params:
+                text_size@raw: 120%
+                value@raw:
+                  Volumes are worked with using [familiar file commands](https://cerb.ai/docs/agents/#filesystem-commands): `ls`, `find`, `cd`, `read`, `search`, `write`, `append`, `edit`, `copy`, `rm`, `pwd`, and `help`.
+
+                  There is no `move` command -- copy the file, then `rm` the source. Writing requires a read-write mount.
+
+                  The same command set is available to an agent through its tool and to a worker through the Setup terminal, so the two can't drift. Command output can be piped through a [scripting](https://cerb.ai/docs/scripting/) filter chain in place of Unix pipes, and output too large to return inline spools to `/tmp` and is referenced by path.
+
+                  An agent can also ask Cerb **about itself**, through a `cerb` command line. None of this is in a model's training data and none of it is a file anyone would think to import, so without it an agent guesses -- and a wrong guess looks exactly like a working one until the query returns nothing.
+
+                  |||
+                  |-|-
+                  |`cerb records`| Every record type in this installation, and the keys each can be searched or written by
+                  |`cerb platform`| Every plugin and whether it's enabled, every extension point, and the extensions on one
+                  |`cerb code`| Validate [KATA](https://cerb.ai/docs/kata/) and JSON against the same schemas Cerb enforces on save
+
+                  An automation opts in by naming the namespaces it allows. A namespace that isn't named isn't reachable:
+            code/terminal:
+              params:
+                syntax: kata
+                value@raw:
+                  llm.agent:
+                    inputs:
+                      terminal:
+                        cerb:
+                          records:
+                          platform:
+            markdown/outro:
+              params:
+                text_size@raw: 120%
+                value@raw:
+                  Writing `terminal:` at all enables the tool on its own -- the command line plus `/tmp` and the pipeline, with no volumes mounted.
+
+                  Output is a compact table by default, or `--format json` when something needs to parse it.
+
+                  Superusers can try any of these commands at **Setup > Configure > Developers > [Agent Filesystem Terminal](https://cerb.ai/docs/setup/developers/agent-filesystem-terminal/)**, where a Commands panel turns each namespace on or off.
+        toolbar_kata@text:
+  workspace_widget/widget_bundled_volumes:
+    fields:
+      label: Bundled Volumes
+      icon: book
+      tab_id: {{records.tab_ai_agents.id}}
+      extension_id: core.workspace.widget.sheet
+      pos@int: 10
+      width_units@int: 2
+      zone: content
+      params:
+        data_query@text:
+          type:sample.records
+          records:(help:())
+          format:dictionaries
+        cache_secs@text:
+        placeholder_simulator_kata@text:
+        sheet_kata@raw:
+          layout:
+            style: fieldsets
+            headings@bool: no
+            paging@bool: no
+            filtering@bool: no
+
+          columns:
+            markdown/text:
+              params:
+                text_size@raw: 120%
+                value@raw:
+                  Some volumes ship **with Cerb** and import themselves on `/update`, so an agent has reference material without anyone uploading an archive. They stay current for whatever version you're running, with no maintenance.
+
+                  |||
+                  |-|-
+                  |`cerb-docs`| Cerb's own documentation, so an agent can look up a feature instead of recalling it
+                  |`cerb-agents`| Nine composable **skills** -- the agent terminal, KATA, automations, scripting, search queries, records, data queries, icons, and mail replies
+
+                  Nothing is loaded up front. An `INDEX.md` says what each skill covers and when to reach for it, and the agent reads one when it needs it. Skills compose, so one agent can be an expert in several domains at once for a single request rather than carrying one prompt large enough to hold all of them on every turn.
+
+                  **A bundled volume mirrors what shipped.** A file created in one by a worker or an agent is removed on the next update. Content imported by hand through the ordinary ZIP upload is never touched.
+
+                  **Setup > Configure > Developers > Platform** has a **Reload** button that reconciles every bundled volume against its rows without waiting for a version change.
+        toolbar_kata@text:
+  workspace_widget/widget_list_of_agent_filesystems:
+    fields:
+      label: List of Agent Filesystems
+      tab_id: {{records.tab_ai_agents.id}}
+      extension_id: core.workspace.widget.worklist
+      pos@int: 11
+      width_units@int: 4
+      zone: content
+      params:
+        context: cerb.contexts.agent.filesystem
+        query_required@text:
+        query: sort:name
+        render_limit: 10
+        header_color: #5e5e5e
+        columns@list:
+          a_name
+          a_description
+          a_type
+          a_file_count
+          a_total_bytes
+          a_updated_at
+  workspace_widget/widget_agent_chats:
+    fields:
+      label: Agent Chats
+      icon: conversation
+      tab_id: {{records.tab_ai_agents.id}}
+      extension_id: core.workspace.widget.sheet
+      pos@int: 12
+      width_units@int: 2
+      zone: content
+      params:
+        data_query@text:
+          type:sample.records
+          records:(help:())
+          format:dictionaries
+        cache_secs@text:
+        placeholder_simulator_kata@text:
+        sheet_kata@raw:
+          layout:
+            style: fieldsets
+            headings@bool: no
+            paging@bool: no
+            filtering@bool: no
+
+          columns:
+            markdown/text:
+              params:
+                text_size@raw: 120%
+                value@raw:
+                  An **agent pane** is a collapsible chat that opens beside what you're already looking at. It mounts on seven hosts:
+
+                  |||
+                  |-|-
+                  |`automation`| The automation editor
+                  |`bot_scripting`| The Automation Scripting tester
+                  |`data_query`| The Data Query tester
+                  |`icon`| The [Icon Builder](https://cerb.ai/docs/setup/developers/icon-builder/)
+                  |`mail_reply`| The mail Reply composer
+                  |`worklist`| A [worklist](https://cerb.ai/docs/worklists/) search bar
+                  |`commandbar`| The command bar, from anywhere in Cerb
+
+                  Which chats each host offers is configured in Setup on the [`agent.pane`](https://cerb.ai/docs/toolbars/interactions/agent.pane/) [toolbar](https://cerb.ai/docs/toolbars/). Gate an item to one host with `hidden@bool: {{component != 'icon'}}`.
+
+                  The bundled `cerb.ai.agent` [workflow](https://cerb.ai/docs/workflows/) ships a **Cerb** item on that toolbar, so a chat is available in every pane and the command bar as soon as one agent model is configured.
+
+                  Chats are written on the [`interaction.worker.agent`](https://cerb.ai/docs/automations/triggers/interaction.worker.agent/) trigger. It contributes the **host editor's own commands as tools** and the agent's orientation as a system prompt at runtime, so a chat can read and rewrite the document in front of it with nothing in its script -- and an editor that gains a command reaches every existing chat on its next turn.
+
+                  A search bar chat can read what's in the field, propose a replacement, write it back, and run it. The command bar's chat can tell you what page you're on and put a prefilled search in front of you, but never reads anything back.
+        toolbar_kata@text:
+  workspace_widget/widget_agent_prompt_transcript:
+    fields:
+      label: agentPrompt & llmTranscript
+      icon: form
+      tab_id: {{records.tab_ai_agents.id}}
+      extension_id: core.workspace.widget.sheet
+      pos@int: 13
+      width_units@int: 2
+      zone: content
+      params:
+        data_query@text:
+          type:sample.records
+          records:(help:())
+          format:dictionaries
+        cache_secs@text:
+        placeholder_simulator_kata@text:
+        sheet_kata@raw:
+          layout:
+            style: fieldsets
+            headings@bool: no
+            paging@bool: no
+            filtering@bool: no
+
+          columns:
+            markdown/intro:
+              params:
+                text_size@raw: 120%
+                value@raw:
+                  Two [interaction](https://cerb.ai/docs/interactions/) form elements make an agent conversation visible to a worker:
+
+                  |||
+                  |-|-
+                  |[`agentPrompt`](https://cerb.ai/docs/automations/triggers/interaction.worker/elements/agentPrompt/)| The composer a worker types into
+                  |[`llmTranscript`](https://cerb.ai/docs/automations/triggers/interaction.worker/elements/llmTranscript/)| The conversation so far
+
+                  Mint one session ID with [`uuid()`](https://cerb.ai/docs/scripting/functions/#uuid) and hand the same value to the transcript, the composer, and `llm.agent:`, so all three work on one conversation instead of the agent starting its own:
+            code/example:
+              params:
+                syntax: kata
+                value@raw:
+                  start:
+                    set:
+                      session_id: {{uuid()}}
+                    await:
+                      form:
+                        elements:
+                          llmTranscript/transcript:
+                            session_id: {{session_id}}
+                          agentPrompt/prompt_agent:
+                            label: Ask the agent:
+                            session_id: {{session_id}}
+                            agent: @researcher
+            markdown/outro:
+              params:
+                text_size@raw: 120%
+                value@raw:
+                  The composer supports `@mention` completion for both workers and filesystem files, image paste and attachment, and custom slash commands -- including rewrite commands that expand in the browser before the turn is submitted.
+
+                  Its **model picker** shows what each model can do before you choose: vision and thinking marks beside the name, with intelligence, speed, privacy, and cost as four small blocks underneath. A capability mark appears only when a model has it, so a text-only model is visibly bare beside one that isn't. An effort submenu offers the levels that particular model actually accepts.
+
+                  The transcript renders thinking, tool calls, per-turn token usage, effort level, and the finish reason that tells a truncated turn apart from a completed one. Its keys control **display**, not access.
+        toolbar_kata@text:
+  workspace_widget/widget_long_conversations:
+    fields:
+      label: Long Conversations
+      icon: hourglass
+      tab_id: {{records.tab_ai_agents.id}}
+      extension_id: core.workspace.widget.sheet
+      pos@int: 14
+      width_units@int: 2
+      zone: content
+      params:
+        data_query@text:
+          type:sample.records
+          records:(help:())
+          format:dictionaries
+        cache_secs@text:
+        placeholder_simulator_kata@text:
+        sheet_kata@raw:
+          layout:
+            style: fieldsets
+            headings@bool: no
+            paging@bool: no
+            filtering@bool: no
+
+          columns:
+            markdown/text:
+              params:
+                text_size@raw: 120%
+                value@raw:
+                  A conversation that outgrows the model's context window folds older turns behind a summary instead of failing. By default [**compaction**](https://cerb.ai/docs/agents/#long-conversations) triggers at 90% of the context window and keeps roughly the last 5% verbatim, both configurable per model under `compaction:`. A worker can also fold a session on demand with `/compact`.
+
+                  **Prompt caching** is on by default. A long conversation re-sends the same prefix every turn, and caching it cuts what that costs. An agent's system prompt is composed once and frozen for the life of the conversation, so the most cacheable part of every request stops moving.
+
+                  Long turns run **off-request** through a [queue](https://cerb.ai/docs/queues/), so a turn survives navigating away and finishes in the background.
+
+                  A rate-limited turn retries itself rather than interrupting the chat, saying why it's waiting and for how long. A turn that fails for another reason returns to the chat with your message restored to the composer and the reason above it, instead of ending the conversation.
+
+                  Transcripts are browsed at **Setup > Configure > Developers > LLM Agent Transcripts**, where a conversation can be forked onto another provider or switched mid-conversation for comparison.
+        toolbar_kata@text:
+  workspace_widget/widget_list_of_ai_workers:
+    fields:
+      label: List of AI Workers
+      tab_id: {{records.tab_ai_agents.id}}
+      extension_id: core.workspace.widget.worklist
+      pos@int: 15
+      width_units@int: 4
+      zone: content
+      params:
+        context: cerberusweb.contexts.worker
+        query_required: isAi:y
+        query@text:
+        render_limit: 10
+        header_color: #5e5e5e
+        columns@list:
+          w_title
+          w_is_disabled
+          w_created_at
+          w_updated
   workspace_widget/widget_records:
     fields:
       label: Records
@@ -713,6 +1448,10 @@ records:
                   The **type** of a custom field determines what kind of data it stores.
 
                   Custom fields that are added directly to an existing record type will be visible on every record of that type.
+
+                  A field can render as a **meter** on profile and card property grids -- a row of small filled blocks reporting an ordinal level, which is how [agent model](https://cerb.ai/docs/records/types/agent_model/) ratings are drawn.
+
+                  **Setup > Records** is the full reference for every record type in your installation: its fields, its API keys, and its search filters. A 'Record Link' field names the record type it points at, and a 'Picklist' lists its valid values.
         toolbar_kata@text:
   workspace_widget/widget_custom_field_types:
     fields:
@@ -1133,6 +1872,12 @@ records:
                   By saving a worklist, you'll always have an up-to-date view of matching records without wasting any time searching.
 
                   For instance, a worklist can display new customer messages that need a response, client organizations in a specific industry, tasks that are overdue, etc.
+
+                  The column picker is a searchable menu, segmented by [custom fieldset](https://cerb.ai/docs/custom-fieldsets/) and annotated with type-hint icons, so a record type with hundreds of fields stays navigable.
+
+                  When importing a file, the mapping between its columns and record fields is remembered per worker, per record type, and per column layout -- so a recurring import is confirmed rather than rebuilt.
+
+                  The `comments:` filter is now available on every record type that supports [comments](https://cerb.ai/docs/comments/), backed by a [search index](https://cerb.ai/docs/records/types/search_index/).
         toolbar_kata@text:
   workspace_widget/widget_worklist_actions:
     fields:
@@ -1305,7 +2050,9 @@ records:
 
                   You can pin your most frequently used record types to the search menu from your profile.
 
-                  Full-text search is backed by configurable [**search index**](https://cerb.ai/docs/records/types/search_index/) records. Each search index adds a named filter on its record type's worklists. The default `text:` filter is what plain text terms fall through to, and any index can override it by setting its priority to `0`. See the **Search Indexes** tab for examples of wildcards (`*`), stemming (`~`), and ranked `top:` results.
+                  Full-text search is backed by configurable [**search index**](https://cerb.ai/docs/records/types/search_index/) records. Each search index adds a named filter on its record type's worklists. The default `text:` filter is what plain text terms fall through to, and any index can override it by setting its priority to `0` -- which is how [ticket](https://cerb.ai/docs/tickets/) worklists now fall through to the `messages` index. See the **Search Indexes** tab for examples of wildcards (`*`), stemming (`~`), and ranked `top:` results.
+
+                  A [**search facet**](https://cerb.ai/docs/search/) is a named subset of a record type with its own entry in the search menu, its own icon, and a locked query it can never escape. The **Agents** facet is an example: it is the `worker` record type restricted to `isAi:y`.
         toolbar_kata@text:
   workspace_widget/widget_search_filter_types:
     fields:
@@ -2744,6 +3491,8 @@ records:
                   Just like tickets, a task's **status** can be open, waiting, or closed.
 
                   If a ticket requires simultaneous action items from multiple workers, a task can be created for each action and linked to the same ticket.
+
+                  Task project worklists have a **Tasks** distribution-bar column showing the status mix at a glance, and a `tasks:` filter for searching a project by the tasks inside it.
         toolbar_kata@text:
   workspace_widget/widget_task_projects:
     fields:
@@ -2777,7 +3526,7 @@ records:
 
                   Each task can belong to one project, and can be flagged as **active** to bring it into focus for the current day.
 
-                  A **Daily Task Board** workspace tab gives a project a kanban view whose columns are derived automatically from each task's **status** (open, waiting, closed) -- there are no separate board columns to maintain. Drag a card to change its status, and choose per-column colors right on the board tab.
+                  A **Daily Task Board** workspace tab is a personal, day-oriented planning board built on real tasks and projects. Unlike [project boards](https://cerb.ai/docs/project-boards/), nothing board-specific is stored: every column and day placement is derived from a task's status, active flag, importance, and completion or wake dates, so the board and the underlying tasks can never disagree.
         toolbar_kata@text:
   workspace_widget/widget_list_of_tasks:
     fields:
@@ -2881,7 +3630,9 @@ records:
               params:
                 text_size@raw: 120%
                 value@text:
-                  **Calendars** can plot any date-based record data on a familiar grid of months and days.
+                  **Calendars** can plot any date-based record data in **day**, **week**, **month**, or **year** views. Switching views and moving between periods is instant, and a multi-day event draws as a single strip spanning the days it covers.
+
+                  Calendars are available as workspace, profile, and card widgets.
         toolbar_kata@text:
   workspace_widget/widget_list_of_calendars:
     fields:
@@ -2960,6 +3711,10 @@ records:
                   ```
 
                   Additional keys are available depending on the type of data being requested.
+
+                  The `metrics.subtotals` type reads flat metric aggregates over a range, and `metrics.timeseries` accepts negated dimension filters.
+
+                  The Data Query Tester at **Setup > Configure > Developers** hosts an AI [agent pane](https://cerb.ai/docs/toolbars/interactions/agent.pane/) that can read and rewrite the query in front of it.
         toolbar_kata@text:
   workspace_widget/widget_data_query_tickets_created_per_group_by_month_12mo:
     fields:
@@ -3074,6 +3829,10 @@ records:
                   Workspaces use **tabs** to organize their content into sections; much like dividers are used to partition pages in a large binder.
 
                   The default workspace type is a **dashboard** -- a customizable and responsive collection of visualization widgets.
+
+                  A dashboard or worklist tab can **auto-refresh** itself on a 1, 5, or 15 minute interval, shown as a countdown ring. A tab left open stays current on a wall display, and refreshing pauses whenever you are actually interacting with it. The interval is per-tab rather than a saved preference.
+
+                  Every record type and widget type has a default **icon**, which can be overridden per widget.
         toolbar_kata@text:
   workspace_widget/widget_list_of_workspaces:
     fields:
@@ -3567,6 +4326,10 @@ records:
                   Sheets use placeholder dictionaries to to render cells, and they receive their input from any data query that can generate dictionaries -- including [worklist.subtotals](https://cerb.ai/docs/data-queries/worklist/subtotals/) and a new [worklist.records](https://cerb.ai/docs/data-queries/worklist/records/) data query type that significantly simplifies fetching record data. This means that sheets can also easily format and display data from third-party APIs. The data query itself, being text, supports placeholders and automation scripting -- so you can determine which columns are available, or what a cell displays, based not only on aspects of the record, but also based on on who is looking at it, their permissions, etc.
 
                   State on sheets is maintained client-side, and paging/sorting/filtering is customized for the use case (e.g. bot interaction vs portal vs dashboard widget) -- essentially just passing simple information to the input data query.
+
+                  Sheet layouts and columns can be built visually at **Setup > Configure > Developers > Sheet Builder**, against a sample dataset with a live preview. It is also reachable from the [Form Builder](https://cerb.ai/docs/automations/)'s sheet element.
+
+                  `code` columns syntax-highlight [KATA](https://cerb.ai/docs/kata/), and an `icon` column falls back to `zap` when given a name the icon set doesn't have.
         toolbar_kata@text:
   workspace_widget/widget_column_types:
     fields:
@@ -3992,6 +4755,8 @@ records:
                   * `scatter`
                   * `spline`
                   * `step`
+
+                  Charts render through Cerb's own components. `step` draws as a line and `area-step` as an area.
         toolbar_kata@text:
   workspace_widget/widget_datasets:
     fields:
@@ -4831,6 +5596,18 @@ records:
                 text_size@raw: 120%
                 value@raw:
                   Some events run asynchronously through the [Background Queue](https://cerb.ai/docs/queues/#background-queue-scheduler) for better performance on bulk updates and imports — `record.changed` is a notable example. The [`queue.consumer`](https://cerb.ai/docs/automations/events/queue.consumer/) event makes it possible to process automation-backed queues with no per-queue timer.
+
+                  New automations open on a list of **starter templates** rather than an empty editor. Picking one seeds a working trigger, script, and policy, and several ask a few questions first and generate the script from your answers.
+
+                  The editor can prime a test run with **Simulate initial state**, which builds a form from the trigger's inputs and the automation's own `inputs:` instead of asking you to handwrite state YAML. Priming the form runs nothing, so it costs nothing even on an automation that calls a model.
+
+                  The editor can also generate a **least-privilege policy** -- it reads the script in front of it and writes the tightest policy that still allows it to run, scoping each command to the values the script actually uses.
+
+                  An [`await:form:`](https://cerb.ai/docs/automations/triggers/interaction.worker/) block can be assembled visually in the **Form Builder** by dragging components onto a canvas that renders as the finished form, with the KATA generated beneath it as you build.
+
+                  The [`records.update:`](https://cerb.ai/docs/automations/commands/records.update/) command updates a batch of records in one action, and the [`record.bulkUpdate`](https://cerb.ai/docs/automations/triggers/record.bulkUpdate/) trigger adds your own actions to the bulk update popup.
+
+                  **Setup > Configure > Developers > Automation Events** maps the whole event flow for an event as a node graph, and double-clicking a node opens that automation.
         toolbar_kata@text:
   workspace_widget/widget_automation_graph_demo:
     fields:
@@ -5052,13 +5829,17 @@ records:
               params:
                 text_size@raw: 120%
                 value@text:
-                  Cerb can call [**large language models (LLMs)**](https://cerb.ai/docs/automations/) directly from [automations](https://cerb.ai/docs/automations/).
+                  Automations can call [**large language models (LLMs)**](https://cerb.ai/docs/agents/) directly.
 
-                  The `llm.chat` command sends a single prompt and returns a completion -- ideal for one-shot tasks like classifying a message or drafting a suggested reply.
+                  The [`llm.chat:`](https://cerb.ai/docs/automations/commands/llm.chat/) command sends a single prompt and returns a completion -- ideal for one-shot tasks like classifying a message or drafting a suggested reply.
 
-                  The `llm.agent` command runs a multi-turn **agent** that can use **tools**, keep **memory**, and work toward a goal across several steps. Automations published with the `llm.tool` trigger become tools the agent can call. Full transcripts are saved and can be reviewed under **Setup > Developers**.
+                  The [`llm.agent:`](https://cerb.ai/docs/automations/commands/llm.agent/) command runs a multi-turn **agent** that can use **tools**, mount [filesystems](https://cerb.ai/docs/records/types/agent_filesystem/), keep **memory**, and work toward a goal across several steps. Automations published with the [`llm.tool`](https://cerb.ai/docs/automations/triggers/llm.tool/) trigger become tools the agent can call.
 
-                  Providers (OpenAI, Anthropic, Gemini, Groq, Ollama, and more) are configured as [connected services](https://cerb.ai/docs/connected-services/), installable from the [package library](https://cerb.ai/docs/packages/).
+                  Models are configured as [**agent model**](https://cerb.ai/docs/records/types/agent_model/) records and referenced by name -- or resolved by search with [`llm.router:`](https://cerb.ai/docs/automations/commands/llm.router/), so a shared automation never has to name one at all.
+
+                  Transcripts are saved and can be reviewed under **Setup > Configure > Developers > LLM Agent Transcripts**.
+
+                  See the **AI & Agents** tab for agents, models, filesystems, and agent chats.
         toolbar_kata@text:
   workspace_widget/widget_annotations:
     fields:
@@ -5321,6 +6102,13 @@ records:
                     key1: value1
                     key2: value2
                     ...
+            markdown/_commandbar:
+              params:
+                text_size@raw: 120%
+                value@raw:
+                  Every interaction you can run, plus the conversations still waiting on you, opens from the searchable **command bar** instead of whichever toolbar happened to own it. Resumable interactions are listed first, and an entry shows its automation's description as a subtitle wherever one is set.
+
+                  An interaction abandoned by navigating away or closing a popup is no longer lost -- it can be listed, resumed where it left off, or disposed of. A parked conversation takes its name and icon from the toolbar item that launched it, so ten chats with one automation no longer read as ten identical rows.
         toolbar_kata@text:
   workspace_widget/widget_await_form_elements:
     fields:
@@ -5335,6 +6123,9 @@ records:
         data_query@text:
           type:sample.records
           records:(
+            agentPrompt:(
+              name:"agentPrompt" description:"Compose a turn in an AI agent conversation"
+            )
             audio:(
               name:"audio" description:"Play an audio file"
             )
@@ -5376,6 +6167,9 @@ records:
             )
             textarea:(
               name:"textarea" description:"Multiple lines of text"
+            )
+            uiCommand:(
+              name:"uiCommand" description:"Run a command in the host editor"
             )
           )
           format:dictionaries
@@ -5556,6 +6350,13 @@ records:
                         alert: You clicked the interaction.
                     after:
                       refresh_widgets@bool: no
+            markdown/_agentpane:
+              params:
+                text_size@raw: 120%
+                value@raw:
+                  The [`agent.pane`](https://cerb.ai/docs/toolbars/interactions/agent.pane/) toolbar is what decides which AI agent chats each editor, worklist search bar, and the command bar offers. See the **AI & Agents** tab.
+
+                  **Setup > Configure > Developers > Toolbars** lists every customizable toolbar in your installation, both by toolbar and by the [workflow](https://cerb.ai/docs/workflows/) managing it.
         toolbar_kata@text:
   workspace_widget/widget_list_of_toolbars:
     fields:
@@ -5760,9 +6561,13 @@ records:
 
                   Services may also support the creation of multiple [connected accounts](https://cerb.ai/docs/connected-accounts/) for use in [automations](https://cerb.ai/docs/automations/).
 
-                  Many AI providers -- including OpenAI, Anthropic, Gemini, Groq, and Ollama -- connect this way, supplying the credentials used by AI agents and `llm.*` automation commands.
+                  Cerb's fourteen [AI providers](https://cerb.ai/docs/agents/#providers) connect this way. A connected account holds the API key, and an [agent model](https://cerb.ai/docs/records/types/agent_model/) record points at it -- which is what AI agents and `llm.*` automation commands then refer to by name.
 
                   Plugins can [implement new service provider types](https://cerb.ai/docs/plugins/extensions/points/cerb.connected_service.provider/).
+
+                  The [package library](https://cerb.ai/docs/packages/) sets several of these up in one step, including **Microsoft Entra ID** for the OAuth2 that Microsoft 365 mailboxes need for SMTP, POP3, and IMAP, and **Microsoft Foundry** for an API key account on Foundry or Azure OpenAI.
+
+                  A connected service's profile image is shown on its single sign-on button on the login form.
         toolbar_kata@text:
   workspace_widget/widget_connected_account_auth_methods:
     fields:
@@ -5903,6 +6708,10 @@ records:
                   By convention, the prefix is most often a domain name you own in reverse order (e.g. `com.example.metric.name`) to ensure global uniqueness. This makes it easier to combine and share metrics across multiple Cerb environments.
 
                   Each metric can configure a per-metric **retention policy** for its 1-day sample aggregations (which are otherwise retained forever). This is particularly useful for high-dimensionality, low-long-term-value metrics like rate limiters.
+
+                  Cerb ships built-in metrics for its own subsystems, including `cerb.queue.messages.open`, `cerb.queue.messages.processed`, `cerb.scheduler.invocations`, `cerb.scheduler.duration`, `cerb.mail.mailbox.received`, `cerb.mail.mailbox.errors`, `cerb.search.index.records`, and `cerb.service.token.uses`.
+
+                  The `metrics.subtotals` [data query](https://cerb.ai/docs/data-queries/) reads flat aggregates over a range, alongside `metrics.timeseries` for charts. A **Chart: Metrics Explorer** card widget builds a metric chart interactively and exports it as either a data query or an importable Chart: KATA widget.
 
         toolbar_kata@text:
   workspace_widget/widget_list_of_metrics:
@@ -6096,6 +6905,8 @@ records:
                 text_size@raw: 120%
                 value@text:
                   **Portals** provide a way to publicly and securely share Cerb data with your customers and partners.  Each portal is a standalone website built on top of Cerb.
+
+                  Community portals like the Support Center are customized through the portal **stylesheet**, **theme**, and **widget configuration**. Custom HTML templates are no longer supported.
 
                   * [Create a new Support Center community portal](https://cerb.ai/guides/portals/support-center/)
                   * [Build and authenticate a custom API using webhook portals](https://cerb.ai/guides/webhooks/custom-api/)
@@ -6389,6 +7200,10 @@ records:
 
                   See:
                   * [Workflow Library](https://cerb.ai/resources/workflows/)
+
+                  A [workflow](https://cerb.ai/docs/workflows/) config prompt can be a `query/<name>:` key, which takes a record type and autocompletes that type's filter syntax. This lets an admin supply a real search query as a boundary -- scoping the [agent models](https://cerb.ai/docs/records/types/agent_model/) an AI workflow may use, for instance.
+
+                  Editing a record that a workflow manages -- an automation, event listener, custom field, custom record, mail rule, or toolbar section -- now warns first, since the next workflow update will overwrite it.
         toolbar_kata@text:
   workspace_widget/widget_placeholders:
     fields:
@@ -6512,6 +7327,11 @@ records:
                       }
                     ]
                   }
+            markdown/_icons:
+              params:
+                text_size@raw: 120%
+                value@raw:
+                  Records in the package library carry their own icons, so a package is recognizable in the library and in choosers rather than showing a generic placeholder.
             markdown/seeAlso:
               params:
                 text_size@raw: 120%
@@ -6966,6 +7786,12 @@ records:
                 text_size@raw: 120%
                 value@raw:
                   Queues underpin parallel background processing — worklist imports and exports, bulk updates, search re-indexing, and asynchronous event processing all flow through them.
+
+                  A queue can define a **retry policy** -- a maximum number of retries and a retry window, with exponential backoff between attempts. Setting the maximum to `0` disables retries entirely.
+
+                  A **claim window** bounds how long a message may stay `in_flight`. A consumer that stalls or dies releases its message back to the queue rather than holding it forever.
+
+                  Each [queue job](https://cerb.ai/docs/records/types/queue_job/) keeps a permanent log with per-message metadata, so a bulk update can be audited after the fact, and a running job can be cancelled from its monitor.
         toolbar_kata@text:
   workspace_widget/widget_queue_consumers:
     fields:
@@ -7399,6 +8225,8 @@ records:
 
                   The `search` scheduler job continuously catches up unindexed records every 30 seconds, batching them through `indexDocumentsByModel()`. This means new and updated records become searchable automatically without manual intervention.
 
+                  A record can also be indexed on demand rather than waiting for the next scheduler pass, so something just created is findable immediately. Bulk writers still batch their work.
+
                   Open any search index profile to see its current document count, schedule a re-index, or monitor an in-flight indexing job.
         toolbar_kata@text:
   workspace_widget/widget_list_of_search_indexes:
@@ -7434,6 +8262,36 @@ records:
 
         start:
           decision/element:
+            outcome/agentPrompt:
+              if: {{'agentPrompt' == inputs.element}}
+              then:
+                await:
+                  form:
+                    title: Agent Prompt
+                    elements:
+                      say/about:
+                        content@text:
+                          The `agentPrompt` element is the composer a worker types into when an automation runs an agent conversation.
+
+                          Mint one session ID and hand the same value to the transcript, the composer, and `llm.agent:`, so all three work on one conversation.
+                      editor/code:
+                        label: Syntax:
+                        syntax: kata
+                        readonly@bool: yes
+                        default@raw:
+                          start:
+                            set:
+                              session_id: {{uuid()}}
+                            await:
+                              form:
+                                title: AI Agent
+                                elements:
+                                  llmTranscript/transcript:
+                                    session_id: {{session_id}}
+                                  agentPrompt/prompt_agent:
+                                    label: Ask the agent:
+                                    session_id: {{session_id}}
+                                    agent: @researcher
             outcome/audio:
               if: {{'audio' == inputs.element}}
               then:
@@ -8167,6 +9025,30 @@ records:
                                       {% if prompt_comment|length < 100 %}
                                       A comment must be at least 100 characters.
                                       {% endif %}
+            outcome/uiCommand:
+              if: {{'uiCommand' == inputs.element}}
+              then:
+                await:
+                  form:
+                    title: UI Command
+                    elements:
+                      say/about:
+                        content@text:
+                          The `uiCommand` element runs a command in the host editor an agent chat was launched beside, and fills its return variable as the form renders.
+
+                          It is offered by the `interaction.worker.agent` trigger, which also contributes the host editor's own commands to the agent as tools.
+                      editor/code:
+                        label: Syntax:
+                        syntax: kata
+                        readonly@bool: yes
+                        default@raw:
+                          await:
+                            form:
+                              elements:
+                                uiCommand/editor_state:
+                                  command: getFields
+                              submit:
+                                is_automatic@bool: yes
       policy_kata@raw:
         commands:
           file.write:
