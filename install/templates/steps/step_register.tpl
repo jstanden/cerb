@@ -16,7 +16,7 @@
 
 	<p>
 		You are now running in <strong>testing mode</strong> with full functionality
-		and no time limit for a single seat.
+		and no time limit for three seats.
 	</p>
 
 	<p class="text-muted">

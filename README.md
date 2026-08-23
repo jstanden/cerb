@@ -10,7 +10,7 @@ Teams and individuals can build a personalized "mission control" using a wide ar
 
 Try Cerb in Docker or Cerb Cloud for free with no time limit. 100% of the source code is available on GitHub.
 
-* Your first self-hosted seat is free forever with no license or registration required.
+* Your first three self-hosted seats are free forever with no license or registration required.
 * Add seats as your team grows.
 * Every member of your team can run a free local copy of Cerb for testing, development, and staging.
 * Downgrade to a community license from self-hosted or Cerb Cloud at any time and retain permanent free access to your data.

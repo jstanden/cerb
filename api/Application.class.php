@@ -3026,6 +3026,9 @@ class Context_Application extends Extension_DevblocksContext implements IDevbloc
 class CerberusLicense {
 	private static ?CerberusLicense $instance = null;
 	private $data = [];
+	
+	const int SEATS_COMMUNITY = 3;
+	const int SEATS_UNLIMITED = 100;
 
 	/**
 	 * Commercial open source is the most constructive business model for our project.
@@ -3035,7 +3038,7 @@ class CerberusLicense {
 		/*
 		 * We've spent many years working on this software. Please be honest!
 		 * https://cerb.ai/pricing
-	   */	  																																																																																															$this->data = (null != ($data = json_decode(DevblocksPlatform::getPluginSetting('devblocks.core','license_info',[]),true)))?$data:[];}public function __get($property){switch($property){case 'w':return(max(1,intval($this->seats ?? null)));default:return(isset($this->data[$property]))?$this->data[$property]:null;}}
+	   */	  																																																																																															$this->data = (null != ($data = json_decode(DevblocksPlatform::getPluginSetting('devblocks.core','license_info',[]),true)))?$data:[];}public function __get($property){switch($property){case 'w':return(max(self::SEATS_COMMUNITY,intval($this->seats ?? null)));default:return(isset($this->data[$property]))?$this->data[$property]:null;}}
 	/**
 	 * @return CerberusLicense
 	 */

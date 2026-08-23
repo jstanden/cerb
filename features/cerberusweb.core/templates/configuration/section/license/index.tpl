@@ -19,7 +19,7 @@
 		<div>
 			<span class="cerb-ui-pill"><span class="cerb-icons cerb-icon-users"></span> Community Edition</span>
 			<ul style="margin-top:5px;">
-				<li>A free single seat with full functionality.</li>
+				<li>Three free seats with full functionality.</li>
 				<li><a href="https://cerb.ai/pricing" target="_blank" rel="noopener">Add more seats with a Cerb license</a></li>
 			</ul>
 		</div>
@@ -34,8 +34,8 @@
 				<div>{$license->company}</div>
 			</div>
 			<div>
-				<div class="cerb-ui-form--label">Simultaneous Workers</div>
-				<div>{if 100==$license->seats}100+{else}{$license->seats}{/if}</div>
+				<div class="cerb-ui-form--label">Seats</div>
+				<div>{if CerberusLicense::SEATS_UNLIMITED==$license->seats}100+{else}{$license->seats}{/if}</div>
 			</div>
 			<div>
 				<div class="cerb-ui-form--label">Software Updates Expire</div>

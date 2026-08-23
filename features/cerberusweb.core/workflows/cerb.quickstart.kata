@@ -1,6 +1,6 @@
 workflow:
   name: cerb.quickstart
-  version: 2026-07-02T00:00:00Z
+  version: 2026-08-22T00:00:00Z
   description: A guided setup tour that walks administrators through initial Cerb configuration
   website: https://cerb.ai/workflows/cerb.quickstart/
   requirements:
@@ -322,9 +322,11 @@ records:
                             say:
                               content@text:
                                 ## License
-                                A license unlocks seats and premium features. Add your license key here,
+                                Your first three seats are free forever with no license required.
 
-                                or request a free 3-seat license from [cerb.ai/pricing](https://cerb.ai/pricing).
+                                A license unlocks additional seats and premium features. Add your key here,
+
+                                or see [cerb.ai/pricing](https://cerb.ai/pricing).
                             submit:
                               buttons:
                                 continue/close:
