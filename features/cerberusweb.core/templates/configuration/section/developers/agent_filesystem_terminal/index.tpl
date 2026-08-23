@@ -5,7 +5,7 @@
 	font-family: monospace;
 	white-space: pre-wrap;
 	word-break: break-word;
-	height: 26em;
+	height: 30em;
 	overflow: auto;
 	margin: 0;
 	padding: 0.75em;
@@ -46,64 +46,87 @@
 	<div class="cerb-ui-header--subtitle">Mount agent filesystems and drive the same command set an agent gets. Type <code>help</code> to start. <kbd>Tab</kbd> completes commands and paths; <kbd>&uarr;</kbd>/<kbd>&darr;</kbd> recall a command with its payload.</div>
 </div>
 
-<div class="cerb-ui-panel cerb-ui-panel--spaced">
-	<div class="cerb-ui-header cerb-ui-header--tight cerb-ui-header--center">
-		<div class="cerb-ui-header--title-sm">Mounts</div>
-		<div class="cerb-ui-header--right" style="min-width:280px;">
-			<div class="cerb-ui-record-chooser" id="afsAddMount_{$form_id}"></div>
+{* The terminal owns the page; what configures the session (mounts, `cerb` namespaces) rides a collapsible
+   right-hand rail, so it stays one click away without pushing the console down the page. *}
+<div class="cerb-u-flex cerb-u-items-start cerb-u-gap-4">
+	<div class="cerb-u-flex-1">
+		<div class="cerb-ui-panel cerb-ui-panel--spaced">
+			<div class="cerb-ui-toolbar-strip cerb-u-mb-2">
+				<button type="button" class="cerb-ui-toolbar-button" id="afsClear_{$form_id}"><span class="cerb-icons cerb-icon-erase"></span> Clear</button>
+			</div>
+
+			<pre id="afsOutput_{$form_id}" class="cerb-u-bgg-2"></pre>
+
+			<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-2 cerb-u-mt-2">
+				<span class="afs-prompt cerb-u-text-muted" id="afsPrompt_{$form_id}">/ $</span>
+				<input type="text" id="afsCommand_{$form_id}" placeholder="help" autocomplete="off" spellcheck="false" autofocus="autofocus">
+				<button type="button" class="cerb-ui-button" id="afsRun_{$form_id}"><span class="cerb-icons cerb-icon-play-button"></span> Run</button>
+			</div>
+		</div>
+
+		<div class="cerb-ui-panel cerb-ui-panel--spaced">
+			<div class="cerb-ui-header cerb-ui-header--tight">
+				<div class="cerb-ui-header--title-sm">Payload <small class="cerb-u-text-muted cerb-u-fw-400">(out-of-band multi-line payload)</small></div>
+			</div>
+			<textarea id="afsPayload_{$form_id}" rows="4" spellcheck="false" style="width:100%;font-family:monospace;"></textarea>
+		</div>
+
+		<div class="cerb-ui-panel cerb-ui-panel--spaced">
+			<div class="cerb-ui-header cerb-ui-header--tight">
+				<div class="cerb-ui-header--title-sm">Find <small class="cerb-u-text-muted cerb-u-fw-400">(out-of-band search needle for <code>edit</code> only &mdash; the exact snippet to replace, which must match exactly ONE place in the file; the Payload box above holds what it's replaced with)</small></div>
+			</div>
+			<textarea id="afsFind_{$form_id}" rows="4" spellcheck="false" style="width:100%;font-family:monospace;"></textarea>
 		</div>
 	</div>
 
-	<div id="afsMounts_{$form_id}" class="cerb-u-flex cerb-u-flex-wrap cerb-u-gap-2"></div>
-	<div id="afsMountsEmpty_{$form_id}" class="cerb-u-text-muted">Nothing mounted yet &mdash; add a filesystem to begin.</div>
-</div>
+	<aside class="cerb-ui-sidebar" id="afsConfig_{$form_id}" style="--cerb-ui-sidebar-width:300px;">
+		{* No authored --head: CerbUI.Sidebar injects one for the collapse toggle. Sections use the page's own
+		   cerb-ui-header vocabulary rather than the rail's --label eyebrow, which is unreadable next to prose. *}
+		<div class="cerb-ui-sidebar--body">
+			<div class="cerb-ui-sidebar--section">
+				<div class="cerb-ui-sidebar--content">
+					<div class="cerb-ui-header cerb-ui-header--tight">
+						<div class="cerb-ui-header--title-sm">Mounts</div>
+					</div>
 
-{if !empty($cerb_namespaces)}
-<div class="cerb-ui-panel cerb-ui-panel--spaced">
-	<div class="cerb-ui-header cerb-ui-header--tight">
-		<div class="cerb-ui-header--title-sm">Commands <small class="cerb-u-text-muted cerb-u-fw-400">(the <code>cerb</code> command line &mdash; a capability rather than a mount, so it needs nothing mounted. With none enabled the <code>cerb</code> verb disappears, exactly as it does for an agent whose <code>cerb:</code> block doesn't name it.)</small></div>
-	</div>
+					{* Mounts sit ABOVE the chooser: the chooser is an adder that reopens its list after every pick,
+					   so anything below it spends the whole session hidden behind the dropdown. *}
+					<div id="afsMounts_{$form_id}" class="cerb-u-flex cerb-u-flex-column cerb-u-gap-2 cerb-u-mb-2"></div>
+					<div id="afsMountsEmpty_{$form_id}" class="cerb-u-mb-2">Nothing mounted yet &mdash; add a filesystem to begin.</div>
 
-	<div id="afsCerbNamespaces_{$form_id}" class="cerb-u-flex cerb-u-flex-wrap cerb-u-gap-3">
-		{foreach from=$cerb_namespaces key=cerb_name item=cerb_summary}
-		<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-2">
-			<label class="cerb-ui-toggle">
-				<input type="checkbox" class="afs-cerb-ns" id="afsCerb_{$form_id}_{$cerb_name}" data-namespace="{$cerb_name}" checked="checked">
-				<span class="cerb-ui-toggle--slider"></span>
-			</label>
-			<label for="afsCerb_{$form_id}_{$cerb_name}"><code>cerb {$cerb_name}</code> <span class="cerb-u-text-muted">{$cerb_summary}</span></label>
+					<div class="cerb-ui-record-chooser" id="afsAddMount_{$form_id}"></div>
+				</div>
+			</div>
+
+			{if !empty($cerb_namespaces)}
+			<div class="cerb-ui-sidebar--section">
+				<div class="cerb-ui-sidebar--content">
+					<div class="cerb-ui-header cerb-ui-header--tight">
+						<div class="cerb-ui-header--title-sm">Commands</div>
+					</div>
+
+					{* The toggle rides the tile's leading slot where the icon square would go, so the switch and the
+					   command it governs are one object. The tile is a plain <div>, not the caption <label>:
+					   the toggle is itself a <label>, and labels can't nest. *}
+					<div id="afsCerbNamespaces_{$form_id}" class="cerb-u-flex cerb-u-flex-column cerb-u-gap-2">
+						{foreach from=$cerb_namespaces key=cerb_name item=cerb_summary}
+						<div class="cerb-ui-tile cerb-ui-tile--block">
+							<label class="cerb-ui-toggle cerb-u-flex-shrink-0">
+								<input type="checkbox" class="afs-cerb-ns" id="afsCerb_{$form_id}_{$cerb_name}" data-namespace="{$cerb_name}" checked="checked">
+								<span class="cerb-ui-toggle--slider"></span>
+							</label>
+							<label for="afsCerb_{$form_id}_{$cerb_name}" class="cerb-ui-tile--text cerb-u-flex-1 cerb-u-cursor-pointer">
+								<div class="cerb-ui-tile--name">cerb {$cerb_name}</div>
+								<div>{$cerb_summary}</div>
+							</label>
+						</div>
+						{/foreach}
+					</div>
+				</div>
+			</div>
+			{/if}
 		</div>
-		{/foreach}
-	</div>
-</div>
-{/if}
-
-<div class="cerb-ui-panel cerb-ui-panel--spaced">
-	<div class="cerb-ui-toolbar-strip cerb-u-mb-2">
-		<button type="button" class="cerb-ui-toolbar-button" id="afsClear_{$form_id}"><span class="cerb-icons cerb-icon-erase"></span> Clear</button>
-	</div>
-
-	<pre id="afsOutput_{$form_id}" class="cerb-u-bgg-2"></pre>
-
-	<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-2 cerb-u-mt-2">
-		<span class="afs-prompt cerb-u-text-muted" id="afsPrompt_{$form_id}">/ $</span>
-		<input type="text" id="afsCommand_{$form_id}" placeholder="help" autocomplete="off" spellcheck="false" autofocus="autofocus">
-		<button type="button" class="cerb-ui-button" id="afsRun_{$form_id}"><span class="cerb-icons cerb-icon-play-button"></span> Run</button>
-	</div>
-</div>
-
-<div class="cerb-ui-panel cerb-ui-panel--spaced">
-	<div class="cerb-ui-header cerb-ui-header--tight">
-		<div class="cerb-ui-header--title-sm">Payload <small class="cerb-u-text-muted cerb-u-fw-400">(out-of-band multi-line payload)</small></div>
-	</div>
-	<textarea id="afsPayload_{$form_id}" rows="4" spellcheck="false" style="width:100%;font-family:monospace;"></textarea>
-</div>
-
-<div class="cerb-ui-panel cerb-ui-panel--spaced">
-	<div class="cerb-ui-header cerb-ui-header--tight">
-		<div class="cerb-ui-header--title-sm">Find <small class="cerb-u-text-muted cerb-u-fw-400">(out-of-band search needle for <code>edit</code> only &mdash; the exact snippet to replace, which must match exactly ONE place in the file; the Payload box above holds what it's replaced with)</small></div>
-	</div>
-	<textarea id="afsFind_{$form_id}" rows="4" spellcheck="false" style="width:100%;font-family:monospace;"></textarea>
+	</aside>
 </div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
@@ -157,22 +180,25 @@ $(function() {
 
 		state.mounts.forEach(function(mount, idx) {
 			const row = document.createElement('div');
-			row.className = 'cerb-ui-panel cerb-u-flex cerb-u-items-center cerb-u-gap-2 cerb-u-p-2';
+			row.className = 'cerb-u-flex cerb-u-items-center cerb-u-gap-2 cerb-u-p-2 cerb-u-rounded-2 cerb-u-bgg-2';
 
+			// The name takes the slack and ellipsizes; the mode switcher and the remove button keep their size.
 			const label = document.createElement('span');
+			label.className = 'cerb-u-flex-1 cerb-u-truncate';
 			label.innerHTML = '<span class="cerb-icons cerb-icon-folder"></span> ';
 			label.appendChild(document.createTextNode('/' + mount.name));
+			label.title = '/' + mount.name;
 			row.appendChild(label);
 
 			// Mode: ro (default) | rw
 			const sw = document.createElement('div');
-			sw.className = 'cerb-ui-switcher';
+			sw.className = 'cerb-ui-switcher cerb-u-flex-shrink-0';
 			sw.innerHTML = '<button type="button" data-value="ro">ro</button><button type="button" data-value="rw">rw</button>';
 			row.appendChild(sw);
 
 			const remove = document.createElement('button');
 			remove.type = 'button';
-			remove.className = 'cerb-ui-button cerb-ui-button--transparent';
+			remove.className = 'cerb-ui-button cerb-ui-button--transparent cerb-u-flex-shrink-0';
 			remove.innerHTML = '<span class="cerb-icons cerb-icon-circle-remove"></span>';
 			remove.addEventListener('click', function() {
 				state.mounts.splice(idx, 1);
@@ -462,6 +488,28 @@ $(function() {
 		commandEl.focus();
 	});
 
+	// The config rail. `collapseTo:'closed'` rather than the icon strip: these are forms, not menu items, so
+	// there's no icon vocabulary to collapse them down to — the rail folds away to just its handle instead.
+	// fullHeight pins it to the viewport (minus the page footer, like the UI Reference nav) so the mounts stay
+	// put while you scroll the console, and its divider runs the whole height instead of stopping mid-page.
+	const configEl = document.getElementById('afsConfig_' + uid);
+
+	if(configEl && window.CerbUI && CerbUI.Sidebar) {
+		new CerbUI.Sidebar(configEl, {
+			side: 'right',
+			collapseTo: 'closed',
+			fullHeight: true,
+			storageKey: 'afsTerminalConfig'
+		});
+
+		const footer = document.getElementById('footer');
+		const fitConfig = function() {
+			configEl.style.height = 'calc(100vh - ' + ((footer && footer.offsetHeight) || 0) + 'px)';
+		};
+		fitConfig();
+		window.addEventListener('resize', fitConfig);
+	}
+
 	if(window.CerbUI && CerbUI.Toggle)
 		document.querySelectorAll('#afsCerbNamespaces_' + uid + ' .cerb-ui-toggle').forEach(function(el) { new CerbUI.Toggle(el); });
 
@@ -475,12 +523,11 @@ $(function() {
 					state.mounts.push({ id: item.id, name: item.label, mode: 'ro' });
 					renderMounts();
 				}
-				// This chooser is an ADDER — each pick becomes its own mount row, so it has to keep suggesting.
-				// clear(false) skips its own refocus (the input already has focus, so re-focusing fires no
-				// `focus` event and the list would stay shut until you blurred and came back); openAutocomplete()
-				// then reopens it explicitly.
+				// This chooser is an ADDER — each pick becomes its own mount row, so the field has to empty out
+				// again. It does NOT reopen: single-select already closes on choose, and a list that springs
+				// back open covers the row you just added. clear(false) skips the refocus so the reopen can't
+				// come back in through a `focus` event.
 				chooser.clear(false);
-				chooser.openAutocomplete();
 			}
 		});
 	}
