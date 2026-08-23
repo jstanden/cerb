@@ -647,11 +647,28 @@ CerbUI.AgentTranscript = class {
 			box.className = 'cerb-ui-agent-transcript--avatar';
 			avatarEl.parentNode.insertBefore(box, avatarEl);
 			box.appendChild(avatarEl);
+
+			// An optional corner badge (the model's mark, when the turn carries its own agent identity). It's
+			// authored as a SIBLING of the avatar rather than a wrapper because this box is built here — a
+			// wrapper in the markup would be left behind holding nothing when the avatar is moved in.
+			// `cerb-avatar-badged` on the box is the positioning context; the float already blockifies it.
+			const badgeEl = q('[data-cerb-transcript-avatar-badge]');
+
+			if(badgeEl) {
+				box.classList.add('cerb-avatar-badged');
+				box.appendChild(badgeEl);
+			}
+
 			// `size` (not a wrapper class) so Avatar sets width/height AND font-size — a class sizes only the
 			// circle, leaving the monogram at the 22px default's font-size.
 			if(window.CerbUI && CerbUI.Avatar) new CerbUI.Avatar(avatarEl, { size: this.opts.avatarSize });
 		} else if(avatarEl && !this.opts.avatars) {
 			avatarEl.remove();
+
+			// Drop the badge with it — a host that turned avatars off (the compact `--banded` variant) has
+			// nothing left to pin it to, and it would otherwise float loose in the turn.
+			const orphanBadge = q('[data-cerb-transcript-avatar-badge]');
+			if(orphanBadge) orphanBadge.remove();
 		}
 
 		// ── Main column ──

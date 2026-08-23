@@ -180,6 +180,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					['key' => 'tools', 'label' => 'Tool calls', 'input' => 'select', 'default' => 'summary', 'options' => ['summary','raw','hide']],
 					['key' => 'expand', 'label' => 'Expand raw', 'input' => 'select', 'default' => 'latest', 'options' => ['latest','all','none']],
 					['key' => 'tokens', 'label' => 'Token counts', 'input' => 'bool'],
+					['key' => 'agent', 'label' => 'Agent', 'input' => 'text'],
 				],
 				'new' => [],   // no default label (transcripts rarely show one); session_id seeded with a sample UUID client-side
 			],
@@ -1118,6 +1119,24 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 						'snippet' => "tokens@bool: \${1:yes}",
 						'docHTML' => '<b>tokens@bool:</b> Show a per-turn In/Out/Cached token chip on agent turns. Off by default.',
 					],
+					[
+						'caption' => 'agent:',
+						'snippet' => "agent: \${1:@handle}",
+						'docHTML' => '<b>agent:</b> Who the agent turns are attributed to. A REFERENCE to an AI worker (<code>@handle</code>, a bare handle, a worker id, or <code>cerb:worker:&lt;id|handle&gt;</code>) takes its name and avatar from that record &mdash; the same forms <code>llm.agent:inputs:agent:</code> accepts. Its model\'s mark moves to a corner badge, so a reader sees who they are talking to and still that it is an AI. Omitted, the model\'s mark IS the avatar and the byline reads <code>Agent</code>. Display only: nothing is stored on the session, so a change relabels an existing transcript on its next paint.',
+					],
+					[
+						'caption' => 'agent: (literal)',
+						'snippet' => "agent:\n\tname: \${1:Cerb}\n\ticon: \${2:cerb}\n\tcolor: \${3:}",
+						'docHTML' => '<b>agent:</b> as an object &mdash; a literal identity for a chat with no worker record behind it. <code>name:</code> is the byline, <code>icon:</code> a <a href="/docs/ui/icons/">cerb-icons</a> name, <code>color:</code> the avatar fill &mdash; a CerbUI hue (<code>red</code>, <code>blue</code>, <code>green</code>, <code>gray</code>, <code>orange</code>, <code>purple</code>) or any CSS color. Default: hashed from the name, so one identity looks the same in every chat &mdash; name a hue when you want to choose it.',
+					],
+				],
+				'(.*):await:form:elements:llmTranscript:agent:color:' => [
+					'red',
+					'blue',
+					'green',
+					'gray',
+					'orange',
+					'purple',
 				],
 				'(.*):await:form:elements:llmTranscript:view:' => [
 					'toggle',

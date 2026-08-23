@@ -7,7 +7,8 @@
    it visibly reflows the moment the real render lands.
 
    Expects the caller's assigns: $turns, $llm_session_user, $agent_provider_icon/$agent_provider_color,
-   $transcript, $show_tokens, $filter_links, $tool_map, $tool_results, $tool_durations. *}
+   $agent_name/$agent_icon/$agent_color/$agent_image/$agent_seed, $transcript, $show_tokens, $filter_links,
+   $tool_map, $tool_results, $tool_durations. *}
 {foreach from=$turns item=turn}
     {if $turn.is_checkpoint}
     <div class="cerb-ui-agent-transcript--checkpoint"><span class="cerb-icons cerb-icon-archive"></span> Conversation summarized — earlier turns folded</div>
@@ -30,7 +31,15 @@
                 <span data-cerb-transcript-avatar data-avatar-icon="user" data-avatar-seed="user"></span>
             {/if}
         {else}
-            <span data-cerb-transcript-avatar data-avatar-icon="{$agent_provider_icon}" data-avatar-seed="agent:{$transcript->uuid}"{if $agent_provider_color} data-avatar-color="{$agent_provider_color}"{/if}></span>
+            {* An `agent:` identity takes the avatar and DEMOTES the model's mark to a corner badge -- the
+               reader sees who they're talking to, and still that it's an AI. With no identity the model's
+               mark IS the avatar, as before. agent-transcript.js moves the badge into the avatar box. *}
+            {if $agent_name || $agent_icon}
+                <span data-cerb-transcript-avatar{if $agent_image} data-avatar-image="{$agent_image}"{/if}{if $agent_icon} data-avatar-icon="{$agent_icon}"{/if}{if $agent_name} data-avatar="{$agent_name}"{/if} data-avatar-seed="{$agent_seed}"{if $agent_color} data-avatar-color="{$agent_color}"{/if}></span>
+                {if $agent_provider_icon}<span data-cerb-transcript-avatar-badge class="cerb-ui-pill cerb-ui-pill--circle"{if $agent_provider_color} style="--cerb-ui-pill-color:{$agent_provider_color};color:rgb(255,255,255);"{/if} title="{$transcript->provider}"><span class="cerb-icons cerb-icon-{$agent_provider_icon}"></span></span>{/if}
+            {else}
+                <span data-cerb-transcript-avatar data-avatar-icon="{$agent_provider_icon}" data-avatar-seed="agent:{$transcript->uuid}"{if $agent_provider_color} data-avatar-color="{$agent_provider_color}"{/if}></span>
+            {/if}
         {/if}
 
         <div data-cerb-transcript-sender>
@@ -42,7 +51,7 @@
                     <span class="cerb-ui-agent-transcript--sender-name">User</span>
                 {/if}
             {else}
-                <span class="cerb-ui-agent-transcript--sender-name">Agent</span>
+                <span class="cerb-ui-agent-transcript--sender-name">{$agent_name|default:'Agent'}</span>
             {/if}
         </div>
 

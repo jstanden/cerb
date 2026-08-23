@@ -293,6 +293,41 @@ CerbUI.AgentTranscript.enhance(el, undefined, { avatars: false, controls: false 
 &lt;/script&gt;{/literal}</pre>
 			</div>
 		</div>
+
+		<p class="cerb-u-text-muted" style="margin:1.5em 0 1em;"><b>Agent identity</b> &mdash; by default an agent turn's avatar IS the model's mark (the provider glyph in its brand color) and the byline reads &ldquo;Agent&rdquo;, which is honest when there is nothing else to say. When the chat has an identity, give the avatar to the identity and <b>demote the model's mark to a corner badge</b>: the reader sees who they are talking to, and still sees that it is an AI. Author the badge as a <b>sibling</b> of <code>[data-cerb-transcript-avatar]</code>, not a wrapper around it &mdash; the component builds the avatar box itself and moves both inside, adding <a href="#avatar"><code>cerb-avatar-badged</code></a> for the positioning context. A wrapper written by hand would be left behind holding nothing. Retint the badge to the provider's color inline via <code>--cerb-ui-pill-color</code> (see <a href="#pill">pill</a>); with <code>{literal}{avatars:false}{/literal}</code> the badge is dropped along with the avatar.<br><br>In an <a href="/docs/automations/triggers/interaction.worker/elements/llmTranscript/"><code>llmTranscript:</code></a> await this is the <code>agent:</code> key &mdash; a reference to an AI worker (<code>@handle</code>, a worker id, <code>cerb:worker:&lt;id|handle&gt;</code>), or an object with <code>name:</code> / <code>icon:</code> / <code>color:</code> for an identity with no worker record behind it. <code>color:</code> takes a <a href="#palette">CerbUI hue</a> (<code>red</code>, <code>blue</code>, <code>green</code>, <code>gray</code>, <code>orange</code>, <code>purple</code>) &mdash; which resolves to the theme token, not the CSS keyword of the same name &mdash; or any CSS color; omitted, it is hashed from the name, which is stable but not chosen. It is display only: nothing is written to the session, so an edit relabels an existing transcript on its next paint.</p>
+
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<div class="cerb-ui-agent-transcript" data-cerb-agent-transcript data-cerb-uiref-transcript-identity>
+					<div data-cerb-transcript-turn data-role="assistant">
+						<span data-cerb-transcript-avatar data-avatar-icon="bot" data-avatar-seed="agent:cerb" data-avatar-color="var(--cerb-color-tag-blue)"></span>
+						<span data-cerb-transcript-avatar-badge class="cerb-ui-pill cerb-ui-pill--circle" style="--cerb-ui-pill-color:#d97757;color:rgb(255,255,255);" title="anthropic"><span class="cerb-icons cerb-icon-logo-claude"></span></span>
+						<div data-cerb-transcript-sender>
+							<span class="cerb-ui-agent-transcript--sender-name">Cerb</span> <span class="cerb-u-text-muted">AI assistant</span>
+						</div>
+						<div data-cerb-transcript-body><div class="commentBodyHtml">Agent models live under Search &raquo; Agent Models &mdash; you need one before any chat can run.</div></div>
+						<pre data-cerb-transcript-source>Agent models live under Search &raquo; Agent Models.</pre>
+					</div>
+				</div>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>{literal}&lt;div data-cerb-transcript-turn data-role="assistant"&gt;
+    &lt;!-- The identity owns the avatar... --&gt;
+    &lt;span data-cerb-transcript-avatar data-avatar-icon="bot" data-avatar-seed="agent:cerb" data-avatar-color="var(--cerb-color-tag-blue)"&gt;&lt;/span&gt;
+    &lt;!-- ...and the model's mark rides in the corner. A SIBLING: the component moves it into the avatar box. --&gt;
+    &lt;span data-cerb-transcript-avatar-badge class="cerb-ui-pill cerb-ui-pill--circle"
+          style="--cerb-ui-pill-color:#d97757;color:rgb(255,255,255);" title="anthropic"&gt;
+        &lt;span class="cerb-icons cerb-icon-logo-claude"&gt;&lt;/span&gt;
+    &lt;/span&gt;
+    &lt;div data-cerb-transcript-sender&gt;
+        &lt;span class="cerb-ui-agent-transcript--sender-name"&gt;Cerb&lt;/span&gt; &lt;span class="cerb-u-text-muted"&gt;AI assistant&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div data-cerb-transcript-body&gt;&lt;div class="commentBodyHtml"&gt;…&lt;/div&gt;&lt;/div&gt;
+&lt;/div&gt;{/literal}</pre>
+			</div>
+		</div>
 	</div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
@@ -320,6 +355,10 @@ $(function() {
 
     CerbUI.AgentTranscript.enhance(document, '[data-cerb-uiref-transcript-banded]', {
         avatars: false,
+        controls: false
+    });
+
+    CerbUI.AgentTranscript.enhance(document, '[data-cerb-uiref-transcript-identity]', {
         controls: false
     });
 });

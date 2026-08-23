@@ -87,8 +87,156 @@ class LlmTranscriptAwait extends AbstractAwait {
 		$validation->addField('tokens', 'tokens:')
 			->boolean()
 		;
+
+		// `agent:` -- who the agent turns are ATTRIBUTED to on screen. `stringOrArray()` because the two
+		// authored forms arrive as different PHP types, and `string()` would reject the object outright:
+		//
+		//   agent: '@cerb'          a reference, resolved to an AI worker (name + avatar come from the record)
+		//   agent: {name:, icon:, color:}   a literal identity, for a chat with no worker behind it
+		//
+		// RENDERING ONLY, either way. Nothing is written to the session or its messages, so this can't drift
+		// from a persisted identity and an edit takes effect on the next paint. `llm.agent:inputs:agent:` is
+		// still what gives a chat a real identity -- attribution, memory, credentials.
+		$validation->addField('agent', 'agent:')
+			->stringOrArray()
+		;
 	}
 	
+	/**
+	 * `agent:` -> the identity to paint on agent turns: `{name, icon, color, image, seed}`, or `[]` for none.
+	 *
+	 * Two authored forms, told apart by TYPE rather than by a discriminator key, because that is what an
+	 * author would write without being taught a schema:
+	 *
+	 *   agent: '@cerb'                  a reference -- name and avatar come from the AI worker record
+	 *   agent: {name:, icon:, color:}   a literal -- for a chat with no worker behind it
+	 *
+	 * The reference form goes through `LlmAgentNode::resolveAgentWorker()`, the SAME resolver
+	 * `llm.agent:inputs:agent:` uses, so the two accept identical forms (`@mention`, a bare handle, a worker
+	 * id, `cerb:worker:<id|mention>`) and a human worker is refused in both. There is deliberately no
+	 * `cerb:agent:` scheme: an agent IS a worker (`worker.is_ai`), and a second URI naming the same thing
+	 * would resolve nowhere else in the system.
+	 *
+	 * An unresolvable reference degrades to the model-icon default rather than throwing -- a display override
+	 * must never be able to break a transcript render -- but it LOGS, because a silent fallback here is
+	 * indistinguishable from a typo in a handle.
+	 *
+	 * @return array{name?:string, icon?:string, color?:string, image?:string, seed?:string}
+	 */
+	/**
+	 * The CerbUI tag palette (`cerb-ui/_palette.scss` `$cerb-tag-hues`). Kept in sync by hand -- six names that
+	 * have not moved in the palette's life, against a build step to extract them.
+	 */
+	private const TAG_HUES = ['red', 'blue', 'green', 'gray', 'orange', 'purple'];
+
+	/**
+	 * A hue NAME resolves to its theme token; anything else passes through as a raw CSS color.
+	 *
+	 * The six names are also CSS keywords, and we deliberately shadow them: an author who writes `blue` in a
+	 * Cerb UI means Cerb's blue -- the designed, theme-invariant one that every pill, meter, and tag already
+	 * uses -- not the browser's `#0000ff`. Anyone who genuinely wants the keyword can write `#00f`.
+	 */
+	private static function _resolveColor(string $color) : string {
+		if('' === ($color = trim($color)))
+			return '';
+
+		$hue = DevblocksPlatform::strLower($color);
+
+		return in_array($hue, self::TAG_HUES, true)
+			? sprintf('var(--cerb-color-tag-%s)', $hue)
+			: $color;
+	}
+
+	/**
+	 * Where a resolved `agent:` identity is remembered for the renders that have no config to read it from.
+	 *
+	 * Lives in the continuation's DICT, keyed by session id, because the dict is the one thing that survives
+	 * every yield: it is reloaded into the automation's dictionary on resume and re-emitted verbatim on the
+	 * next `getDictionary()`. Keyed by session (not by element) because identity belongs to the CHAT -- every
+	 * transcript element showing the same session should show the same agent, including ones this component
+	 * never sees authored.
+	 */
+	private const STATE_KEY = '__llm_transcript_agent';
+
+	private function _storedIdentity(Model_AutomationContinuation $continuation, string $session_id) : array {
+		$stored = $continuation->state_data['dict'][self::STATE_KEY][$session_id] ?? null;
+
+		return is_array($stored) ? $stored : [];
+	}
+
+	/**
+	 * Stamp the resolved identity onto the continuation, once, the first time a transcript renders WITH its
+	 * authored `agent:`.
+	 *
+	 * This is what makes every other render inherit it. `LlmAgentNode::_startUiCommand()` synthesizes its own
+	 * `llmTranscript/` element for the between-tool-calls repaint carrying only `session_id`/`thinking`/`tools`,
+	 * and the async-turn poll builds its `$data` by hand -- neither has the author's block, and both used to
+	 * silently fall back to the model's mark mid-turn. They read this instead.
+	 *
+	 * Write-once and diff-guarded: an unchanged identity costs no query, and an author who edits `agent:`
+	 * re-stamps on the next render rather than being frozen.
+	 */
+	private function _persistIdentity(Model_AutomationContinuation $continuation, string $session_id, array $identity) : void {
+		if(!$identity || '' === $session_id)
+			return;
+
+		if($this->_storedIdentity($continuation, $session_id) === $identity)
+			return;
+
+		$continuation->state_data['dict'][self::STATE_KEY][$session_id] = $identity;
+
+		\DAO_AutomationContinuation::update($continuation->token, [
+			\DAO_AutomationContinuation::STATE_DATA => json_encode($continuation->state_data),
+		]);
+	}
+
+	private function _agentIdentity() : array {
+		$agent = $this->_data['agent'] ?? null;
+
+		// The literal form. `name` alone is enough; icon and color are optional accents.
+		//
+		// This branch is IDEMPOTENT -- feed it this method's own output and you get that output back. That is
+		// what makes a STAMPED identity (see _persistIdentity) interchangeable with an authored one: the two
+		// shapes are the same, so nothing downstream has to know which it got. `image` and `seed` are outputs
+		// of the reference form; an author writes name/icon/color and lets the seed derive.
+		if(is_array($agent)) {
+			$name = trim(strval($agent['name'] ?? ''));
+			$icon = trim(strval($agent['icon'] ?? ''));
+			$color = self::_resolveColor(strval($agent['color'] ?? ''));
+			$image = trim(strval($agent['image'] ?? ''));
+
+			if('' === $name && '' === $icon)
+				return [];
+
+			return array_filter([
+				'name' => $name,
+				'icon' => $icon,
+				'color' => $color,
+				'image' => $image,
+				// Seeded off the NAME so the hashed fallback color is stable for one identity across
+				// sessions -- an agent that looks different in every chat reads as a different agent.
+				'seed' => trim(strval($agent['seed'] ?? '')) ?: ('agent:' . DevblocksPlatform::strLower($name ?: $icon)),
+			], fn($v) => '' !== $v);
+		}
+
+		if('' === ($ref = trim(strval($agent ?? ''))))
+			return [];
+
+		if(!($worker = \Cerb\AutomationBuilder\Node\LlmAgentNode::resolveAgentWorker($ref))) {
+			DevblocksPlatform::services()->log()->info(
+				sprintf("llmTranscript `agent: %s` didn't resolve to an AI worker; falling back to the model's mark.", $ref)
+			);
+
+			return [];
+		}
+
+		return array_filter([
+			'name' => $worker->getName(),
+			'image' => $worker->getImageUrl(),
+			'seed' => 'worker:' . $worker->id,
+		], fn($v) => '' !== $v);
+	}
+
 	function formatValue() {
 		return $this->_value;
 	}
@@ -120,7 +268,7 @@ class LlmTranscriptAwait extends AbstractAwait {
 	 *
 	 * Returns false when there's nothing to draw at all.
 	 */
-	private function _prepare(Model_AutomationContinuation $continuation, ?array $pending = null) : bool {
+	private function _prepare(Model_AutomationContinuation $continuation, ?array $pending = null, bool $may_persist = true) : bool {
 		$tpl = DevblocksPlatform::services()->template();
 		$llm = DevblocksPlatform::services()->llm();
 		$session = \ChPortalHelper::getSession();
@@ -398,6 +546,26 @@ class LlmTranscriptAwait extends AbstractAwait {
 		$tpl->assign('agent_provider_icon', $transcript ? $transcript->getDisplayIcon() : '');
 		$tpl->assign('agent_provider_color', $transcript ? $transcript->getDisplayIconColor() : '');
 
+		// `agent:` overrides the generic "Agent" byline and its avatar. Render-only and unstored, so an
+		// existing transcript relabels on its next paint rather than carrying a stale name forward.
+		// Every key, always -- the template service is a singleton reused across renders, so assigning only
+		// the keys this transcript has would leak the previous one's identity into a transcript with none.
+		if(($agent_identity = $this->_agentIdentity())) {
+			// Authored here: remember it for the renders that have none (the uiCommand repaint, the async poll).
+			// Never from the poll -- `_promptAction_pollTurn` is read-only by design, and writing there would
+			// race the interaction's own gate POST.
+			if($may_persist)
+				$this->_persistIdentity($continuation, strval($transcript_id), $agent_identity);
+
+		} else {
+			$agent_identity = $this->_storedIdentity($continuation, strval($transcript_id));
+		}
+
+		$agent_identity += ['name' => '', 'icon' => '', 'color' => '', 'image' => '', 'seed' => ''];
+
+		foreach($agent_identity as $key => $value)
+			$tpl->assign('agent_' . $key, $value);
+
 		$tpl->assign('continuation_token', $continuation->token);
 		$tpl->assign('session', $session);
 		$tpl->assign('var', $this->_key);
@@ -455,7 +623,7 @@ class LlmTranscriptAwait extends AbstractAwait {
 			))),
 		];
 
-		if(!$this->_prepare($continuation, $pending))
+		if(!$this->_prepare($continuation, $pending, may_persist: false))
 			return false;
 
 		DevblocksPlatform::services()->template()
@@ -494,7 +662,7 @@ class LlmTranscriptAwait extends AbstractAwait {
 			}
 		}
 
-		if(!$this->_prepare($continuation)) {
+		if(!$this->_prepare($continuation, null, may_persist: false)) {
 			echo json_encode(['in_progress' => false, 'working' => false, 'streaming' => false, 'seq' => 0, 'html' => '']);
 			return true;
 		}
@@ -622,7 +790,7 @@ class LlmTranscriptAwait extends AbstractAwait {
 
 		$tpl->assign('label', $label);
 		$tpl->assign('llm_session_user', \CerberusApplication::getActiveWorker());
-		$tpl->assign('agent_model_label', $preset['label'] ?? 'Agent');
+		$tpl->assign('agent_model_label', ($this->_agentIdentity()['name'] ?? '') ?: ($preset['label'] ?? 'Agent'));
 		$tpl->assign('agent_provider_icon', $llm->getProviderIcon($provider));
 		$tpl->assign('agent_provider_color', $llm->getProviderIconColor($provider));
 

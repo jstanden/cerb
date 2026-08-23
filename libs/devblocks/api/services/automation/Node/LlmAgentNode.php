@@ -854,7 +854,7 @@ class LlmAgentNode extends AbstractNode {
 		if('' === ($agent_ref = trim(strval($this->_inputs['agent'] ?? ''))))
 			return;
 
-		if(!($agent = self::_resolveAgentWorker($agent_ref)))
+		if(!($agent = self::resolveAgentWorker($agent_ref)))
 			throw new Exception_DevblocksAutomationError(sprintf("`llm.agent` couldn't resolve `agent: %s` to an AI worker.", $agent_ref));
 
 		$this->_agent_worker_id = $agent->id;
@@ -863,8 +863,12 @@ class LlmAgentNode extends AbstractNode {
 	/**
 	 * `@mention` | worker id | `cerb:worker:<id>` | `cerb:worker:<mention>` → the AI worker, or null. A HUMAN
 	 * worker is rejected: a person isn't a model config, and silently running as one would attribute memory to them.
+	 *
+	 * PUBLIC because the `llmTranscript` await's `agent:` block resolves the same reference for DISPLAY (byline
+	 * + avatar). One resolver so the two can't drift: an author who writes `agent: '@cerb'` in both places must
+	 * get the same worker, and a form accepted by one must be accepted by the other.
 	 */
-	private static function _resolveAgentWorker(string $value) : ?\Model_Worker {
+	public static function resolveAgentWorker(string $value) : ?\Model_Worker {
 		$value = trim($value);
 		$worker = null;
 
