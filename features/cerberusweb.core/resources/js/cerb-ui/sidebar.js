@@ -7,6 +7,8 @@
  *   --body : the ONLY scroll region. Holds --section blocks (a muted --label + a <ul> of item <li>s).
  *   --foot : fixed (does not scroll). Optional (e.g. a future "current user" card).
  * A bare <aside> with just sections/uls is auto-wrapped into a --body, so simple callers can skip the slots.
+ * A --section holds a muted --label plus either a <ul> of items or a --content block (free-form markup:
+ * a chooser, a toggle list, a small form) sharing the label's gutter. Only <ul> > <li> is enhanced.
  *
  * Each item <li> becomes a flex row: a leading icon (data-icon → cerb-icons) or pip (data-pip → a colored dot),
  * the label, and optional right content (data-badge / data-right). Labels are set via textContent and only the
@@ -14,7 +16,8 @@
  *
  * The chevron toggle collapses the rail to an icon-only strip (labels / section headers / right / filter hidden).
  * With collapseTo:'closed' the collapsed rail instead hides its whole body, leaving only the toggle handle —
- * use this when every item shares one icon (an icon strip would be ambiguous).
+ * use this when every item shares one icon (an icon strip would be ambiguous), or when the rail holds
+ * --content forms rather than item rows (there is nothing to shrink to an icon).
  * Full height is opt-in (fullHeight:true → sticky 100vh so the body scrolls within the viewport); otherwise it is
  * a normal in-flow block usable anywhere (e.g. a node-editor's node library).
  *
@@ -36,7 +39,7 @@ CerbUI.Sidebar = class {
 	static _DEFAULTS = {
 		side: 'left',            // 'left' | 'right' — border side + which way the chevron points
 		collapsed: false,        // start collapsed (icon-only strip)
-		collapseTo: 'icons',     // 'icons' (icon-only strip) | 'closed' (hide the body, leave only the toggle handle — for rails whose items share one icon)
+		collapseTo: 'icons',     // 'icons' (icon-only strip) | 'closed' (hide the body, leave only the toggle handle — for one-icon or --content rails)
 		fullHeight: false,       // sticky full-viewport height (body scrolls within); else a normal in-flow block
 		storageKey: null,        // localStorage key to persist the collapsed state across reloads
 		filter: false,           // inject a search box in the head that winnows items by label text
@@ -335,7 +338,7 @@ CerbUI.Sidebar = class {
 			li.appendChild(b);
 		} else if(right != null && right !== '') {
 			const r = document.createElement('span');
-			r.className = 'cerb-ui-sidebar--right';
+			r.className = 'cerb-ui-sidebar--item-right';
 			r.textContent = right;
 			li.appendChild(r);
 		}

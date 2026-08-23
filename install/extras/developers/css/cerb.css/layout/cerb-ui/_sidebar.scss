@@ -123,6 +123,12 @@
 		text-overflow: ellipsis;
 	}
 
+	// Free-form content in a section (a chooser, a toggle list, a small form) instead of item rows. Shares
+	// the label's horizontal gutter so authored controls line up with the header above them.
+	&--content {
+		padding: 2px 12px 6px;
+	}
+
 	ul {
 		margin: 0;
 		padding: 0;
@@ -158,7 +164,7 @@
 
 		.cerb-ui-sidebar--item-label,
 		.cerb-ui-sidebar--badge,
-		.cerb-ui-sidebar--right { color: inherit; }
+		.cerb-ui-sidebar--item-right { color: inherit; }
 		.cerb-ui-sidebar--badge { background: rgba(255, 255, 255, 0.25); }
 	}
 
@@ -205,7 +211,9 @@
 		font-variant-numeric: tabular-nums;
 	}
 
-	&--right {
+	// Its OWN class (not --right, which is the right-ANCHORED rail modifier) so a side:'right' rail doesn't
+	// inherit this slot's 0.85em + muted color. Sharing --right shrank and grayed every right-hand rail.
+	&--item-right {
 		flex: 0 0 auto;
 		margin-left: auto;
 		color: var(--cerb-color-background-contrast-150);
@@ -241,7 +249,7 @@
 		.cerb-ui-sidebar--label,
 		.cerb-ui-sidebar--item-label,
 		.cerb-ui-sidebar--badge,
-		.cerb-ui-sidebar--right,
+		.cerb-ui-sidebar--item-right,
 		.cerb-ui-sidebar--filter,
 		.cerb-ui-sidebar--foot { display: none; }
 

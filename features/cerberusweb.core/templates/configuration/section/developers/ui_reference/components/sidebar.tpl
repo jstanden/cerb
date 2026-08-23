@@ -182,6 +182,54 @@ CerbUI.Sidebar.from(el);   // -> the instance for a rail element{/literal}</pre>
 			</div>
 		</div>
 
+		{* Example: a --content section (free-form controls) + collapseTo:'closed' *}
+		<div class="cerb-ui-header"><div class="cerb-ui-header--label">Free-form sections (<code>--content</code>) &mdash; a section can hold arbitrary markup (a chooser, toggles, a small form) instead of item rows; it shares the label's gutter so the controls line up under the header. Only <code>&lt;ul&gt; &gt; &lt;li&gt;</code> is enhanced, so nothing else is touched. Pair it with <code>collapseTo:'closed'</code>: forms have no icon to shrink to, so the rail folds away to just its handle</div></div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<div style="display:flex;align-items:flex-start;gap:1.5rem;">
+					<div style="flex:1 1 0;min-width:0;color:var(--cerb-color-background-contrast-150);">The page content keeps the width the rail gives back when it folds.</div>
+					<aside class="cerb-ui-sidebar" id="uiref-sidebar-content" style="--cerb-ui-sidebar-width:280px;">
+						<div class="cerb-ui-sidebar--head"><strong>Session</strong></div>
+						<div class="cerb-ui-sidebar--body">
+							<div class="cerb-ui-sidebar--section">
+								<div class="cerb-ui-sidebar--label">Mounts</div>
+								<div class="cerb-ui-sidebar--content">
+									<div class="cerb-ui-record-chooser" id="uiref-sidebar-content-chooser"></div>
+								</div>
+							</div>
+							<div class="cerb-ui-sidebar--section">
+								<div class="cerb-ui-sidebar--label">Commands</div>
+								<div class="cerb-ui-sidebar--content cerb-u-flex cerb-u-flex-column cerb-u-gap-2">
+									<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-2">
+										<label class="cerb-ui-toggle"><input type="checkbox" id="uiref-sidebar-content-records" checked="checked"><span class="cerb-ui-toggle--slider"></span></label>
+										<label for="uiref-sidebar-content-records"><code>cerb records</code></label>
+									</div>
+									<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-2">
+										<label class="cerb-ui-toggle"><input type="checkbox" id="uiref-sidebar-content-search"><span class="cerb-ui-toggle--slider"></span></label>
+										<label for="uiref-sidebar-content-search"><code>cerb search</code></label>
+									</div>
+								</div>
+							</div>
+						</div>
+					</aside>
+				</div>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>&lt;div class="cerb-ui-sidebar--section"&gt;
+	&lt;div class="cerb-ui-sidebar--label"&gt;Mounts&lt;/div&gt;
+	&lt;div class="cerb-ui-sidebar--content"&gt;&lt;!-- any markup: a chooser, toggles, a form --&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+{literal}new CerbUI.Sidebar(el, {
+	side:       'right',
+	collapseTo: 'closed',              // no icon vocabulary to collapse to — hide the body, keep the handle
+	storageKey: 'cerbConfigRail',
+});{/literal}</pre>
+			</div>
+		</div>
+
 		{* Example: monogram avatars (data-avatar) + the filter row's inline chevron + keyboard nav *}
 		<div class="cerb-ui-header"><div class="cerb-ui-header--label">Monogram avatars (<code>data-avatar</code>) &mdash; each item paints a hash-locked <code>CerbUI.Avatar</code> in the icon slot instead of a shared glyph, so the <strong>collapsed strip stays legible</strong> (T&middot;M&middot;W&middot;O&hellip; not one repeated icon). The collapse chevron sits inline at the right of the filter; press <kbd>&darr;</kbd> in the filter to focus the list, then <kbd>&uarr;</kbd>/<kbd>&darr;</kbd> to move, <kbd>Enter</kbd> to pick, <kbd>Esc</kbd> to return. Add <code>data-avatar-image</code> for a photo that swaps in, or <code>data-avatar-icon</code> (a <a href="#icon">cerb-icons</a> name) to paint a glyph inside the color-locked circle instead of initials</div></div>
 		<div class="cerb-uiref-example">
@@ -357,6 +405,23 @@ new CerbUI.Droppable(document.getElementById('canvas'), {
 		const el = document.getElementById('uiref-sidebar-filter');
 		if(el && window.CerbUI && CerbUI.Sidebar) {
 			new CerbUI.Sidebar(el, { side: 'right', filter: true, storageKey: 'uirefSidebarFilter' });
+		}
+	})();
+
+	// Sidebar: free-form --content sections + collapseTo:'closed'
+	(function() {
+		const el = document.getElementById('uiref-sidebar-content');
+		if(el && window.CerbUI && CerbUI.Sidebar) {
+			new CerbUI.Sidebar(el, { side: 'right', collapseTo: 'closed', storageKey: 'uirefSidebarContent' });
+		}
+
+		const chooser = document.getElementById('uiref-sidebar-content-chooser');
+		if(chooser && window.CerbUI && CerbUI.RecordChooser) {
+			new CerbUI.RecordChooser(chooser, { context: 'worker', emptyIcon: 'user', searchPlaceholder: 'Add a mount\u2026' });
+		}
+
+		if(el && window.CerbUI && CerbUI.Toggle) {
+			el.querySelectorAll('.cerb-ui-toggle').forEach(function(t) { new CerbUI.Toggle(t); });
 		}
 	})();
 
