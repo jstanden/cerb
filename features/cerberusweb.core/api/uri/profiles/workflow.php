@@ -858,7 +858,7 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 			$config_error = null;
 
 			if(false === $new_workflow->validateConfigValues($config_values, $config_error))
-				throw new Exception_DevblocksAjaxValidationError($config_error);
+				throw new Exception_DevblocksAjaxValidationError($config_error ?: 'The workflow configuration is invalid.');
 
 			$new_workflow->setConfigValues($config_values);
 
@@ -1006,11 +1006,14 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 
 			// Validate BEFORE storing: a bad `query/` value must fail on the config form, not later as an opaque
 			// script error when an owned record's field is finally used. Both the preview step and the commit
-			// step check, because the commit step can be reached with values the preview never saw.
-			$config_error = null;
+			// step check, because the commit step can be reached with values the preview never saw. A delete
+			// blanks the template and the config values, so it has nothing left to validate.
+			if(!$delete) {
+				$config_error = null;
 
-			if(false === $new_workflow->validateConfigValues($config_values, $config_error))
-				throw new Exception_DevblocksAjaxValidationError($config_error);
+				if(false === $new_workflow->validateConfigValues($config_values, $config_error))
+					throw new Exception_DevblocksAjaxValidationError($config_error ?: 'The workflow configuration is invalid.');
+			}
 
 			$new_workflow->setConfigValues($config_values);
 

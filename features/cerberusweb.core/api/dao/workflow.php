@@ -561,13 +561,13 @@ class Model_Workflow extends DevblocksRecordModel {
 		$kata = DevblocksPlatform::services()->kata();
 		$error = null;
 		
-		if(!($workflow_template = $this->getKata($error)))
+		if(false === ($workflow_template = $this->getKata($error)))
 			return false;
 		
 		$workflow_config = $workflow_template['workflow']['config'] ?? [];
 		$config_dict = new DevblocksDictionaryDelegate([]);
 		
-		if(!($workflow_config = $kata->formatTree($workflow_config, $config_dict, $error)))
+		if(false === ($workflow_config = $kata->formatTree($workflow_config, $config_dict, $error)))
 			return false;
 		
 		$results = [];
