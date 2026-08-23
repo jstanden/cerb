@@ -18,6 +18,7 @@ There is no working directory. Use an absolute path (`/cerb-agents/skills/script
 | `skills/automations/SKILL.md` | Writing or editing an automation: KATA command shape, naming, the correctness rules that bite, least-privilege policies. |
 | `skills/scripting/SKILL.md` | Writing the contents of a scripting value -- Twig plus Cerb's own filters, functions, tests, and commands. |
 | `skills/search-queries/SKILL.md` | Writing a worklist query, a saved search, or a `record_query:`. The `filter:expression` grammar, one syntax per filter type. |
+| `skills/docs/SKILL.md` | Looking anything up in `cerb-docs`. What lives in which directory, the frontmatter every page carries, and when the docs are the authority versus this install. |
 | `skills/records/SKILL.md` | Before naming any field or filter. `cerb records` reports THIS install's types, searchable filters, and writable fields -- and those last two are separate namespaces. |
 | `skills/data-queries/SKILL.md` | Choosing a data query's `type:`, `format:`, or aggregation. |
 | `skills/icons/SKILL.md` | Drawing or editing an icon. The four pattern families and the mask-image constraints that make ordinary SVG instincts wrong. |

@@ -1,0 +1,408 @@
+---
+id: "workflows-cerb-integrations-gitlab-issues"
+title: "Issue Tracking (GitLab Issues)"
+url: "https://cerb.ai/workflows/cerb.integrations.gitlab.issues/"
+summary: "This page provides a comprehensive guide on integrating Cerb with GitLab for issue tracking. It covers the installation process, including creating a GitLab connected account, importing and configuring the workflow, and setting up necessary fields and automations. The guide also details how to use the integration, such as navigating ticket profiles, linking GitLab issues to tickets, and managing linked issues through the Cerb interface. The integration allows users to search, link, and unlink GitLab issues directly from Cerb, enhancing issue management and collaboration."
+tags: ["workflows"]
+---
+- [Introduction](#introduction)
+- [Installation](#installation)
+  - [Create a GitLab connected account](#create-a-gitlab-connected-account)
+  - [Import the workflow](#import-the-workflow)
+  - [Configure the workflow](#configure-the-workflow)
+
+- [Usage](#usage)
+
+# Introduction
+
+This workflow integrates Cerb with GitLab for searching and linking issues to tickets.
+
+# Installation
+
+### Create a GitLab connected account
+
+[Create a GitLab connected account](/solutions/integrations/gitlab/) if you haven't already.
+
+### Import the workflow
+
+Navigate to **Search&nbsp;» Workflows&nbsp;» (+)&nbsp;» Empty**.
+
+Paste the following KATA into the large text box:
+
+```
+workflow:
+  name: cerb.integrations.gitlab.issues
+  version: 2025-02-21T00:00:00Z
+  description: Search and link GitLab issues to tickets
+  website: https://cerb.ai/workflows/cerb.integrations.gitlab.issues/
+  requirements:
+    cerb_version: >=11.0 <12.1
+    cerb_plugins: cerberusweb.core
+  config:
+    chooser/gitlab_account_id:
+      label: GitLab Account:
+      multiple@bool: no
+      record_type: connected_account
+      record_query: service:(name:gitlab)
+    text/gitlab_base_url:
+      label: GitLab Base URL:
+      multiple@bool: no
+      default: https://gitlab.com/
+    text/gitlab_project_names:
+      label: GitLab Project Names: (one per line)
+      multiple@bool: yes
+      default: example/project-name
+    chooser/ticket_profile_tab_id:
+      label: Ticket Profile Tab
+      record_type: profile_tab
+      multiple@bool: no
+      record_query: record:cerberusweb.contexts.ticket name:Overview
+records:
+  custom_record/gitlab_issue:
+    fields:
+      name: GitLab Issue
+      name_plural: GitLab Issues
+      uri: gitlab_issue
+      params:
+        owners:
+          contexts@list:
+            cerberusweb.contexts.app
+  custom_field/gitlab_issue_project_id:
+    fields:
+      name: Project Name
+      context: gitlab_issue
+      uri: project_name
+      type: S
+      pos@int: 3
+      params:
+        context@text:
+  custom_field/gitlab_issue_remote_id:
+    fields:
+      name: Remote ID
+      context: gitlab_issue
+      uri: remote_id
+      type: N
+      pos@int: 1
+  custom_field/gitlab_issue_remote_iid:
+    fields:
+      name: Remote IID
+      context: gitlab_issue
+      uri: remote_iid
+      type: N
+      pos@int: 2
+  custom_field/gitlab_issue_status:
+    fields:
+      name: State
+      context: gitlab_issue
+      uri: state
+      type: S
+      pos@int: 4
+  custom_field/gitlab_issue_web_url:
+    fields:
+      name: Web URL
+      context: gitlab_issue
+      uri: web_url
+      type: U
+      pos@int: 5
+  automation/automation_getProjectIssues:
+    fields:
+      name: cerb.integrations.gitlab.issues.getProjectIssues
+      extension_id: cerb.trigger.automation.function
+      description: Get issues from a project
+      script@raw:
+        inputs:
+          text/project_name:
+            required@bool: yes
+          text/query:
+        
+        start:
+          set:
+            config@json: {{cerb_workflow_config('cerb.integrations.gitlab.issues')|json_encode}}
+            params:
+              search@optional: {{inputs.query}}
+          http.request/getProjectIssues:
+            output: http_response
+            inputs:
+              method: GET
+              url: https://gitlab.com/api/v4/projects/{{inputs.project_name|url_encode}}/issues?{{params|url_encode}}
+              authentication: cerb:connected_account:{{config.gitlab_account_id}}
+            on_success:
+              decision/status:
+                outcome/200:
+                  if@bool: {{200 == http_response.status_code}}
+                  then:
+                    set:
+                      http_response@json: {{http_response.body}}
+                      issues@json: {{array_combine(http_response|column('id'), http_response)|json_encode}}
+                    return:
+                      issues@key: issues
+                outcome:
+                  then:
+                    return:
+                      issues@list:
+      policy_kata@raw:
+        commands:
+          http.request:
+            allow@bool: yes
+  automation/automation_linkIssuesInteraction:
+    fields:
+      name: cerb.integrations.gitlab.issues.linkInteraction
+      extension_id: cerb.trigger.interaction.worker
+      description: Search GitLab issues from a ticket profile
+      script@raw:
+        inputs:
+          record/ticket:
+            required@bool: no
+            record_type: ticket
+        
+        start:
+          set/init:
+            config@json: {{cerb_workflow_config('cerb.integrations.gitlab.issues')|json_encode}}
+            project_names@json: {{config.gitlab_project_names|split_crlf|map((v) => {name:v})|json_encode}}
+          
+          # Choose project and enter search query
+          await/search:
+            form:
+              title: Search GitLab Issues
+              elements:
+                sheet/prompt_project_name:
+                  label: Project:
+                  required@bool: yes
+                  data@key: project_names 
+                  default: {{project_names|first.name}}
+                  limit: 25
+                  schema:
+                    layout:
+                      style: grid
+                      headings@bool: no
+                      paging@bool: yes
+                      filtering@bool: no
+                      title_column: _label
+                    columns:
+                      selection/name:
+                        params:
+                          mode: single
+                          label_key: name
+                text/prompt_query_text:
+                  label: Search text:
+                  type: freeform
+          
+          # Search issues via API
+          function/results:
+            uri: cerb:automation:cerb.integrations.gitlab.issues.getProjectIssues
+            output: search_results
+            inputs:
+              project_name: {{prompt_project_name}}
+              query@optional: {{prompt_query_text}}
+          
+          # Render search results in a sheet
+          await/results:
+            form:
+              elements:
+                sheet/prompt_issues:
+                  data@key: search_results:issues
+                  limit: 15
+                  schema:
+                    layout:
+                      style: table
+                      headings@bool: yes
+                      paging@bool: no
+                      title_column: title
+                    columns:
+                      selection/id:
+                        params:
+                          mode: multiple
+                      text/title:
+                        params:
+                          bold@bool: yes
+                      text/state:
+                      text/author:
+                        params:
+                          value_template@raw: {{author.username}}
+                      date/updated_at:
+                        params:
+                          value_template@raw: {{updated_at|date('U')}}
+                      link/_link:
+                        params:
+                          href_key: web_url
+                          href_new_tab@bool: yes
+                          text: view at GitLab
+                submit:
+                  buttons:
+                    continue/link:
+                      label: Link to ticket
+                      icon: link
+                      icon_at: start
+                      value: link
+                    reset:
+                      label: Start over
+                      icon: refresh
+                      icon_at: start
+                      style: secondary
+          
+          # If we have selections, create records and link them to this ticket
+          repeat/issues:
+            each@csv: {{prompt_issues|join(',')}}
+            as: issue_id
+            do:
+              set:
+                issue@json: {{search_results.issues[issue_id]|json_encode}}
+              record.upsert/issue:
+                output: updated_issue
+                inputs:
+                  record_type: gitlab_issue
+                  record_query@text: projectName:${project_name} remoteId:${remote_id} limit:1
+                  record_query_params:
+                    project_name: {{prompt_project_name}}
+                    remote_id@int: {{issue_id}}
+                  fields:
+                    name: {{issue.title}}
+                    project_name: {{prompt_project_name}}
+                    remote_id: {{issue.id}}
+                    remote_iid: {{issue.iid}}
+                    state: {{issue.state}}
+                    owner__context: app
+                    owner_id: 0
+                    links@list:
+                      ticket:{{inputs.ticket.id}}
+                on_error:
+          
+          return:
+            issue_ids@key: prompt_issues
+      policy_kata@raw:
+        commands:
+          function:
+            deny/uri@bool: {{uri != 'cerb:automation:cerb.integrations.gitlab.issues.getProjectIssues'}}
+            allow@bool: yes
+          record.upsert:
+            deny/type@bool: {{inputs.record_type is not record type ('gitlab_issue')}}
+            allow@bool: yes
+  automation/automation_unlinkIssuesInteraction:
+    fields:
+      name: cerb.integrations.gitlab.issues.unlink
+      extension_id: cerb.trigger.interaction.worker
+      description@text:
+      script@raw:
+        inputs:
+          record/ticket:
+            required@bool: yes
+            record_type: ticket
+          array/issues:
+            required@bool: yes
+        
+        start:
+          record.update:
+            inputs:
+              record_type: ticket
+              record_id: {{inputs.ticket.id}}
+              fields:
+                links@list:
+                  {% for id in inputs.issues %}
+                  -gitlab_issue:{{id}}
+                  {% endfor %}
+      policy_kata@raw:
+        commands:
+          record.update:
+            deny/type@bool: {{inputs.record_type is not record type ('ticket')}}
+            allow@bool: yes
+  profile_widget/ticket_profile_issues:
+    fields:
+      name: Linked GitLab Issues
+      profile_tab_id: {{config.ticket_profile_tab_id}}
+      extension_id: cerb.profile.tab.widget.sheet
+      pos@int: 4
+      width_units@int: 4
+      zone: sidebar
+      extension_params:
+        data_query@raw:
+          type:worklist.records
+          of:gitlab_issue
+          expand: [customfields]
+          query:(
+            links.ticket:(id:{{record_id}})
+            limit:10
+            sort:[-updated]
+          )
+          format:dictionaries
+        cache_secs@text:
+        placeholder_simulator_kata: record_id: 3
+        sheet_kata@text:
+          layout:
+            style: table
+            headings@bool: no
+            paging@bool: yes
+            title_column: _label
+          
+          columns:
+            selection/id:
+              params:
+                mode: multiple
+            card/_label:
+              label: Issue
+              params:
+                bold@bool: yes
+            text/project_name:
+            text/state:
+        toolbar_kata@raw:
+          interaction/link:
+            label: Link
+            uri: cerb:automation:cerb.integrations.gitlab.issues.linkInteraction
+            icon: search
+            hidden@bool:
+              {{record__context is not record type ('ticket')}}
+            inputs:
+              ticket: {{record_id}}
+            after:
+              refresh_toolbar@bool: no
+              refresh_widgets@list:
+                Linked GitLab Issues
+                Ticket
+          interaction/unlink:
+            label: Unlink
+            uri: cerb:automation:cerb.integrations.gitlab.issues.unlink
+            icon: circle-remove
+            hidden@bool:
+              {{
+                record__context is not record type ('ticket')
+                or not row_selections
+              }}
+            inputs:
+              ticket: {{record_id}}
+              issues@key: row_selections
+            after:
+              refresh_toolbar@bool: no
+              refresh_widgets@list:
+                Linked GitLab Issues
+                Ticket
+```
+
+Click the **Continue** button.
+
+### Configure the workflow
+
+| Field | &nbsp; |
+| --- | --- |
+| **GitLab Account:** | A GitLab [connected account](/solutions/integrations/gitlab/). |
+| **GitLab Base URL:** | Defaults to `https://gitlab.com/` for the managed service. Use your own URL if self-hosted. |
+| **GitLab Project Names:** | One full repository name per line (e.g. `example/example-project`). |
+| **Ticket Profile Tab:** | The 'Linked GitLab Issues' profile widget will be added to this ticket profile tab. |
+
+Click the **Continue** button twice.
+
+ 
+
+# Usage
+
+Navigate to any ticket profile page.
+
+Drag the **Linked GitLab Issues** profile widget to your desired location.
+
+Click on the **Link** button in the profile widget to search issues and link them to the current ticket.
+
+ 
+
+ 
+
+Once linked, select on one or more issues and click the **Unlink** button to unlink them from the current ticket.
+
+ 

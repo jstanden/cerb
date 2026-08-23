@@ -1,0 +1,130 @@
+---
+id: "workflows-cerb-login-termsofuse"
+title: "Worker Login Terms of Use"
+url: "https://cerb.ai/workflows/cerb.login.terms_of_use/"
+summary: "This page outlines the 'Worker Login Terms of Use' workflow for Cerb, which mandates that workers accept terms of use before logging in. It details the installation process, which is integrated into Cerb 11.0 and can be enabled through the Cerb interface. The page provides instructions on editing the terms of use snippet and describes the login process where workers must accept the terms to proceed. Additionally, it offers a reference template for creating a custom workflow, emphasizing confidentiality, data access, sharing, security practices, incident reporting, compliance, and potential disciplinary actions for non-compliance. The page also includes technical details for configuring and automating the workflow within Cerb."
+tags: ["workflows"]
+---
+- [Introduction](#introduction)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Editing the Terms of Use snippet](#editing-the-terms-of-use-snippet)
+  - [During a login](#during-a-login)
+
+- [Reference](#reference)
+
+# Introduction
+
+This workflow requires acceptance of Terms of Use before a worker can log in.
+
+# Installation
+
+This workflow is built into Cerb [11.0+](/releases/11.0/). It will automatically update.
+
+You can enable it from **Search&nbsp;» Workflows&nbsp;» (+)&nbsp;» Login Terms of Use**.
+
+# Usage
+
+### Editing the Terms of Use snippet
+
+To change the terms of use shown to workers at login, navigate to **Search&nbsp;» Snippets** and edit the **Worker Login Terms of Use** snippet.
+
+ 
+
+### During a login
+
+Workers will see the following page during a login. They must accept the terms before continuing.
+
+ 
+
+# Reference
+
+You can build your own **Worker Login Terms of Use** workflow using this template as a reference.
+
+Change occurrences of **cerb.login.terms\_of\_use** to your own workflow identifier. Use a prefix based on a domain you own (e.g. `com.example.workflow`).
+
+```
+workflow:
+  name: cerb.login.terms_of_use
+  version: 2025-02-21T00:00:00Z
+  description: Require acceptance of 'Terms of Use' before a worker can login in.
+  website: https://cerb.ai/workflows/cerb.login.terms_of_use/
+  requirements:
+    cerb_version: >=11.0 <12.1
+    cerb_plugins: cerberusweb.core
+  config:
+    text/continueButtonLabel:
+      label: Continue Button Label:
+      default: I accept the terms of use
+
+records:
+  snippet/snippet_tou:
+    updatePolicy@csv:
+    fields:
+      title: Worker Login Terms of Use
+      context: cerberus.contexts.worker
+      owner__context: app
+      owner_id: 0
+      content@raw:
+        # Terms of Use
+
+        You are required to adhere to the following guidelines regarding customer privacy:
+
+        ## Confidentiality
+        You must maintain strict confidentiality of all customer information. Do not share, disclose, or discuss customer data with unauthorized individuals, both inside and outside the company.
+
+        ## Data Access
+        Access to customer data is limited to authorized personnel and only for legitimate business purposes. Do not access or use customer information unless it is necessary for your role.
+
+        ## Data Sharing
+        You are prohibited from sharing customer data with any third parties without prior authorization. This includes not transferring or sharing data via personal devices, unapproved platforms, or outside of official company channels.
+
+        ## Security Practices
+        Follow all company security protocols to protect customer data from unauthorized access, breaches, or loss. This includes using strong passwords, enabling two-factor authentication, and securing devices used for work.
+
+        ## Incident Reporting
+        Immediately report any data breaches, unauthorized access, or suspicious activity related to customer information to your supervisor or the relevant department.
+
+        ## Compliance
+        You must comply with all company policies and applicable privacy laws (e.g., GDPR, CCPA) to ensure the protection of customer data.
+
+        ## Disciplinary Action
+        Failure to adhere to these terms may result in disciplinary action, including termination of employment.
+
+  automation/tou:
+    fields:
+      name: cerb.login.termsOfUse
+      extension_id: cerb.trigger.worker.authenticated
+      description@text:
+      script@raw:
+        start:
+          set:
+            config@json: {{cerb_workflow_config('cerb.login.terms_of_use')|json_encode}}
+            snippet__context: snippet
+            snippet_id: {{cerb_workflow_resources('cerb.login.terms_of_use')['records']['snippet/snippet_tou']}}
+
+          kata.parse:
+            output: content
+            inputs:
+              kata:
+                template: {{snippet_content}}
+              dict@json:
+                {{cerb_placeholders_list('worker_', '')|json_encode}}
+
+          return:
+            motd:
+              button: {{config.continueButtonLabel}}
+              message: {{snippet_content}}
+      policy_kata@raw:
+        commands:
+
+  automation_event_listener/listener_tou:
+    fields:
+      name: Worker Login Terms of Use
+      event_name: worker.authenticated
+      priority: 200
+      is_disabled: 0
+      event_kata@raw:
+        automation/tou:
+          uri: cerb:automation:cerb.login.termsOfUse
+```
