@@ -59,9 +59,24 @@ class Components {
 	 * `instructions` is the FALLBACK role -- what the model reads when the role asset is missing. The real
 	 * one lives in `assets/agents/<component>.md` (see getRoleFor()), because it is prose and a PHP
 	 * string literal is a bad place to maintain prose. Keep this copy short and correct: it is what a broken
-	 * deploy ships. `skills` names the `cerb-agents` skills this component's work needs, emitted by
-	 * getSystemPromptFor() only when that volume is mounted. `docs` does the same for the documentation
-	 * volume: the handful of paths where THIS component's work is documented.
+	 * deploy ships.
+	 *
+	 * `skills` names the `cerb-agents` skills this component's work needs, emitted by getSystemPromptFor()
+	 * only when that volume is mounted. It has TWO entry shapes, and the difference is what the model is
+	 * told:
+	 *
+	 *   'records'                            reference -- read it when you need it
+	 *   'mail-replies' => 'draft a reply'    REQUIRED -- read it before you do that work
+	 *
+	 * A keyed entry's value is the work it gates, phrased to finish "Before you ___". Reserve it for a skill
+	 * that carries CONVENTIONS the output is measured against -- house quoting style, a language whose
+	 * indentation isn't YAML's, an icon set's geometry rules. Those are the ones a capable model gets wrong
+	 * confidently, because its default is a reasonable answer that is not ours. A skill that is only a lookup
+	 * table (field names, filter keys) stays a bare string: making it a precondition spends a read on every
+	 * conversation to prevent nothing, since not knowing a name is a failure the model can already feel.
+	 *
+	 * `docs` does the same for the documentation volume: the handful of paths where THIS component's work is
+	 * documented.
 	 *
 	 * Commands are keyed by the BRIDGE name (camelCase -- what `runCommand` dispatches on and what a
 	 * `uiCommand` element's `command:` must say). Each carries:
@@ -75,7 +90,7 @@ class Components {
 	 *                   generic bridge command has one sensible use here. They also win over anything the
 	 *                   model sends under the same name, so a pinned argument stays pinned.
 	 *
-	 * @return array<string,array{label:string,icon:string,description:string,instructions:string,skills:array,docs:array,commands:array}>
+	 * @return array<string,array{label:string,icon:string,description:string,instructions:string,skills:array<int|string,string>,docs:array,commands:array}>
 	 */
 	static function getAll() : array {
 		return [
@@ -84,7 +99,12 @@ class Components {
 				'icon' => 'zap',
 				'description' => "The automation editor popup -- reads and writes name, description, trigger, script, and policy.",
 				'instructions' => "You are an assistant embedded in Cerb's automation editor. You help write and debug automations: KATA scripts bound to a trigger, plus the command policy that grants the script its privileges.\n\nThe script and the policy move together. A script that gains a privileged command stops working until the policy allows it, so when you add one, check the policy in the same turn.\n\nWhen the request doesn't imply a trigger, use `cerb.trigger.automation.function` and say you assumed it.\n\nPrefer edit_field over set_field for the script and the policy. They are long, the author may have unsaved work elsewhere in them, and a whole-field overwrite silently discards it.",
-				'skills' => ['kata', 'automations', 'scripting', 'records'],
+				'skills' => [
+					'kata' => 'write or edit any KATA',
+					'automations' => 'write or edit an automation',
+					'scripting',
+					'records',
+				],
 				'docs' => ['references/docs/automations.md', 'references/docs/kata.md'],
 				'commands' => [
 					'getFields' => [
@@ -218,7 +238,11 @@ class Components {
 				'icon' => 'database',
 				'description' => "The Setup data-query tester -- reads and writes the query editor.",
 				'instructions' => "You are an assistant embedded in Cerb's data query tester. You help write data queries: the `type:` of source, its required parameters, and the fields, formats, and subtotals it returns.\n\nRead the editor before you change it. A data query is dense and mostly parameters, so a targeted edit is nearly always right and a whole-field rewrite nearly always loses something the author meant to keep.",
-				'skills' => ['data-queries', 'records', 'search-queries'],
+				'skills' => [
+					'data-queries' => 'write or edit a data query',
+					'records',
+					'search-queries',
+				],
 				'docs' => ['references/docs/data-queries/'],
 				'commands' => [
 					'getEditorValue' => [
@@ -292,7 +316,10 @@ class Components {
 				'icon' => 'console',
 				'description' => "The Setup automation scripting tester -- reads and writes the script editor.",
 				'instructions' => "You are an assistant embedded in Cerb's automation scripting tester. You help write and debug Twig expressions and templates against a test dictionary.\n\nThis is real Twig, sandboxed: standard Twig works, Cerb adds its own filters/functions/tests on top, and the template-composition tags (macro, include, import, extends, block) are unavailable.\n\nThis editor is for trying an expression in isolation, so keep changes small and explain what a filter chain does rather than only handing back a longer one.",
-				'skills' => ['scripting', 'records'],
+				'skills' => [
+					'scripting' => 'write or edit any scripting expression or template',
+					'records',
+				],
 				'docs' => ['references/docs/scripting.md'],
 				'commands' => [
 					'getEditorValue' => [
@@ -373,7 +400,9 @@ class Components {
 				'icon' => 'sparkles',
 				'description' => "The Setup icon builder -- reads and writes the SVG geometry of the icon being drawn.",
 				'instructions' => "You are an assistant embedded in Cerb's icon builder. You help draw icons for Cerb's icon set: SVG geometry on a 24x24 viewBox, rendered as a CSS mask and tinted by currentColor.\n\nBecause it is a mask, only the shape matters -- fill and stroke colors in the geometry are discarded. Read the current geometry before editing, and use get_icon_geometry to look at a shipped icon when you need the set's existing conventions for weight, corner radius, or optical sizing.",
-				'skills' => ['icons'],
+				'skills' => [
+					'icons' => 'draw or edit any icon geometry',
+				],
 				'docs' => ['references/docs/developers/icons.md'],
 				// Naming an existing icon is most of this job, and `get_icon_geometry` can only look one up once
 				// you know it exists -- so the set has to be enumerable.
@@ -431,7 +460,10 @@ class Components {
 				'icon' => 'search',
 				'description' => "A worklist quick-search bar -- reads and rewrites the query, and can run the search.",
 				'instructions' => "You are an assistant embedded in a Cerb worklist's search bar. You turn what someone is looking for into a Cerb search query.\n\nCall get_fields first, every time. The worklist's record type decides which fields are even valid, and a query written for the wrong type looks reasonable and matches nothing. Write the query, then run it -- the search runs asynchronously, so you will not see the results; say what you searched for and let the worklist answer.",
-				'skills' => ['search-queries', 'records'],
+				'skills' => [
+					'search-queries' => 'write or edit a search query',
+					'records',
+				],
 				'docs' => ['references/docs/search.md'],
 				'commands' => [
 					'getFields' => [
@@ -471,7 +503,9 @@ class Components {
 				'icon' => 'mail',
 				'description' => "The ticket reply/forward composer -- reads and writes recipients, subject, format, and body.",
 				'instructions' => "You are an assistant embedded in Cerb's reply composer. You help a support worker write a reply to a customer.\n\nRead the draft before you touch it -- the worker may have already started, and replacing the body would discard it. Match the tone of the conversation, keep the worker's voice rather than imposing your own, and never invent facts about an account, an order, or a policy: if you need something you were not given, leave a gap and say so instead of filling it. You are drafting, not sending; the worker reviews and sends.",
-				'skills' => ['mail-replies'],
+				'skills' => [
+					'mail-replies' => 'draft or revise a reply',
+				],
 				'commands' => [
 					'getFields' => [
 						'tool' => 'get_fields',
@@ -519,7 +553,10 @@ class Components {
 				'icon' => 'console',
 				'description' => "The global command bar -- app-wide rather than tied to an editor. Opens things for the worker.",
 				'instructions' => "You are an assistant in Cerb's command bar. You are not attached to any editor: you help with whatever the worker is doing anywhere in Cerb -- answering questions, looking things up, and explaining how Cerb works.\n\nWhen the question is about where they are -- \"what is this page?\", \"what am I looking at\" -- call get_page rather than asking them to describe it, and use what it returns as search terms against any documentation you have. It tells you the page, never its contents, so anything ON the screen you still have to ask about.\n\nYou can also put things in front of them: open a search popup for any record type, with a query you have written. Prefer that over describing a query and asking them to paste it.\n\nWhen you don't know something about this particular installation -- whether a record type exists, what fields it has -- look it up rather than guessing at a name.",
-				'skills' => ['records', 'search-queries'],
+				'skills' => [
+					'search-queries' => 'write a search query',
+					'records',
+				],
 				'commands' => [
 					'getPage' => [
 						'tool' => 'get_page',
@@ -604,7 +641,7 @@ class Components {
 
 	/**
 	 * One component's system prompt: the role, the tool inventory, and -- only when the skills volume is
-	 * actually mounted -- a pointer at it.
+	 * actually mounted -- a pointer at it, including the reads this component requires before certain work.
 	 *
 	 * This is what `interaction.worker.agent` contributes at RUNTIME, so improving a role reaches every
 	 * existing chat on the next release. It used to be copied into each generated automation's
@@ -652,16 +689,54 @@ class Components {
 		// component already knows which skills its work needs. `@<volume>` resolves by NAME, so this holds
 		// even when the volume is mounted somewhere other than `/<volume>`.
 		if('' !== $skills_volume && ($skills = $meta['skills'] ?? [])) {
-			$blocks[] = sprintf(
-				"Reference skills are mounted at `@%s`. Start with %s, or read `@%s/INDEX.md` for the full set. "
-					. "Read one when you need it -- they are not loaded for you.",
+			$required = [];
+			$reference = [];
+
+			// A bare entry is lookup material; a keyed one names the work it gates. See getAll().
+			foreach($skills as $key => $value) {
+				if(is_int($key)) {
+					$reference[] = $value;
+				} else {
+					$required[$key] = $value;
+				}
+			}
+
+			$path = fn($skill) => sprintf('`@%s/skills/%s/SKILL.md`', $skills_volume, $skill);
+
+			$parts = [sprintf(
+				"Reference skills are mounted at `@%s`. Nothing there is loaded for you -- read a skill with "
+					. "the terminal, and `@%s/INDEX.md` lists the full set.",
 				$skills_volume,
-				self::_andList(array_map(
-					fn($skill) => sprintf('`@%s/skills/%s/SKILL.md`', $skills_volume, $skill),
-					$skills
-				)),
 				$skills_volume
-			);
+			)];
+
+			// Stated as a PRECONDITION ON THE WORK, not as a reading list. A model told only that a file is
+			// relevant does the work first and consults it after, which is how a reply gets top-posted and
+			// then apologized for -- the apology is not the fix, the ordering is. Naming what the read
+			// buys ("conventions that are not your default") is what makes it worth a tool call to a model
+			// that already believes it knows how to write a reply.
+			if($required) {
+				$parts[] = "The ones listed below are preconditions, not suggestions. Each carries house "
+					. "conventions your output is measured against, and those conventions are NOT what you would do by "
+					. "default, so read the one that applies BEFORE you produce anything. Reading it "
+					. "afterwards is too late: a correction the worker has to ask for is a failure. Once per "
+					. "conversation is enough -- don't re-read a skill you've already read.";
+
+				$lines = [];
+
+				foreach($required as $skill => $gate)
+					$lines[] = sprintf('- Before you %s, read %s.', trim($gate), $path($skill));
+
+				$parts[] = implode("\n", $lines);
+			}
+
+			if($reference)
+				$parts[] = sprintf(
+					'Also available, to read when you need one: %s.',
+					self::_andList(array_map($path, $reference))
+				);
+
+			$blocks[] = implode("\n\n", $parts);
 		}
 
 		return implode("\n\n", array_filter($blocks));

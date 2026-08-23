@@ -9,6 +9,8 @@ Each skill under `skills/` is one `SKILL.md` holding knowledge that is portable 
 
 There is no working directory. Use an absolute path (`/cerb-agents/skills/scripting/SKILL.md`) or the `@cerb-agents/...` shorthand.
 
+Your system prompt may name one of these as a **precondition** -- "before you X, read Y". That is an order of operations, not a recommendation: read it before you produce anything, not after you are corrected. A skill exists because the house convention differs from the sensible default, so being confident you already know how to do the work is exactly the case it is there for.
+
 ## The skills
 
 | Skill | Load it when |

@@ -14,13 +14,13 @@ description: Drafting a customer-facing email reply on a Cerb ticket -- interlea
 
 ## Structure: interleave
 
-We prefer interleaved (inline) replies over top-posting. When the customer's message raises more than one point, answer it point by point:
+We prefer interleaved (inline) replies over top-posting. Your text goes BELOW the quote it answers -- never a block of new prose stacked above the thread. When the customer's message raises more than one point, answer it point by point:
 
 - Keep the `>` quoted block for the point you're answering, trimmed to just enough text to make the context obvious -- usually a sentence or two, never the whole message.
 - Put your answer immediately below that quote, unquoted, then move on to the next quoted point and repeat.
 - Drop quoted material you aren't responding to: signatures, mail headers, pleasantries, and prior thread history. Never quote a block and leave it unanswered.
 - Preserve the customer's original wording and the `>` prefix inside quotes; if you shorten within a quoted line, mark the elision ("...") rather than silently rewriting them.
-- For a single-topic message with nothing to interleave, just write the reply directly -- don't manufacture quotes.
+- For a single-topic message with nothing to interleave, just write the reply directly -- don't manufacture a quote to answer. "Directly" means the body is your answer; quoted thread history the draft already carries stays below it, trimmed or left alone, never moved above your text.
 
 ## Formatting and typography
 

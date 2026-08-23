@@ -20,7 +20,10 @@ Three rules for editing:
 - **Do not reference `@cerb-agents/...` or any mounted path.** A chat can be authored without a
   filesystem, and a role that points at files the agent cannot read is worse than one that says
   nothing. The skills pointer is emitted by `getSystemPromptFor()` only when that volume is
-  actually mounted, from the `skills` key in the catalog.
+  actually mounted, from the `skills` key in the catalog. That includes a MUST-read: to make a
+  skill a precondition, give its catalog entry a gate clause (`'mail-replies' => 'draft or revise
+  a reply'`) rather than writing the instruction here, where it would fire on installs that have
+  no skills volume to read.
 - **Safety-critical rules belong here, not in a skill.** A skill is read on demand; a role is
   always present.
 
