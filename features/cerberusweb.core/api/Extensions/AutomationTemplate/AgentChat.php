@@ -294,21 +294,24 @@ KATA;
 			$references .= $name . ":\n";
 		}
 
-		// Nothing selected: keep the key, lose the children. The comment goes in the generated script because
-		// an apparently-empty block is exactly the kind of thing an author tidies away, and deleting it takes
-		// the agent's whole filesystem with it -- silently, since the tool simply stops being offered.
-		if('' === $mounts)
-			return [
-				'mounts' => "# An empty `mounts:` still enables the filesystem, mounting only a read-write\n"
-					. "# `/tmp`. Delete this key and the agent loses `agent_terminal` entirely; add volumes\n"
-					. "# under it (`<volume>:`, plus `mode: read-write` to allow writes) to mount more.\n"
-					. "mounts:\n",
-				'references' => '',
-			];
+		// Nothing picked: mount the bundled skills volume anyway, rather than emitting a bare `mounts:`. The
+		// runtime system prompt points at that volume BY NAME, and a role naming files the agent can't read is
+		// worse than one that says nothing -- so the default answer is the one that keeps the pointer honest.
+		//
+		// The generated comment matters as much as the default. An apparently-empty block is exactly what an
+		// author tidies away, and deleting `mounts:` takes the agent's whole filesystem with it, silently,
+		// since the tool simply stops being offered.
+		if('' === $mounts) {
+			$mounts = \Cerb\Agent\FilesystemAssets::VOLUME_SKILLS . ":\n";
+			$references = \Cerb\Agent\FilesystemAssets::VOLUME_SKILLS . ":\n";
+		}
 
 		// `/tmp` rides along read-write alongside whatever else is declared; it doesn't need declaring here.
 		return [
-			'mounts' => "mounts:\n" . $this->_indent($mounts, 2),
+			'mounts' => "# `" . \Cerb\Agent\FilesystemAssets::VOLUME_SKILLS . "` is Cerb's reference skills, read on demand -- this agent's\n"
+				. "# system prompt points at it. Delete this key and the agent loses `agent_terminal`\n"
+				. "# entirely; add volumes under it (`<volume>:`, plus `mode: read-write` to allow writes).\n"
+				. "mounts:\n" . $this->_indent($mounts, 2),
 			'references' => "filesystems:\n" . $this->_indent($references, 2),
 		];
 	}
