@@ -10,7 +10,9 @@
  *   - optional type-to-filter (filter:true): start typing to reveal a search box (hidden until used,
  *     tucks away when emptied). A flat menu filters its labels in place; a nested menu searches a
  *     flattened list of ALL leaves and shows matches with breadcrumb context (filterShowPath:false hides
- *     the breadcrumb; filterDedupe collapses the same action appearing at multiple depths).
+ *     the breadcrumb; filterDedupe collapses the same action appearing at multiple depths;
+ *     filterFlatten:false filters the TOP-LEVEL rows in place instead, for a tree whose branches are
+ *     themselves the choices and whose leaves only refine one).
  *
  * Markup (progressive enhancement): an authored UL > LI for the menu, UL > LI > UL > LI for a submenu.
  * An empty/whitespace <li> is a separator. Only data-* attributes are mirrored onto the rendered item
@@ -73,6 +75,14 @@ CerbUI.Menu = class {
 		                      // First match wins — and since root leaves flatten before nested ones, a top-level
 		                      // copy beats the same item buried in a submenu.
 		filterShowPath: true, // show the ancestor breadcrumb (eyebrow) on flattened deep matches
+		filterFlatten: true,  // nested menus only: search a flattened list of every LEAF, so a deep item is
+		                      // findable by name. false = filter the ROOT rows in place and keep their
+		                      // submenus, for a tree whose branches ARE the choices and whose leaves only
+		                      // refine one (a model and its effort levels) -- flattening that filters to
+		                      // "high" / "medium" and drops the row you were looking for.
+		filterText: null,     // (sourceLi, label) => extra searchable text, merged into the haystack for that
+		                      // row. For an item whose visible label is a short name but which someone would
+		                      // also reasonably type something unshown to find (a provider, an alias).
 	};
 
 	static from(el) {
@@ -443,12 +453,14 @@ CerbUI.Menu = class {
 	// Narrow the list to the query. A flat menu filters its root labels in place (cheap, no allocation).
 	// A nested menu searches a flattened list of ALL leaves across the tree and shows matches as a flat
 	// list with breadcrumb context — so a deep item is findable by name. Empty query restores the cascade.
+	// filterFlatten:false opts a nested menu back onto the in-place path: the branches stay whole rows and
+	// keep their submenus, which is what you want when a leaf only refines the branch above it.
 	_applyFilter(pnl, query) {
 		query = (query || '').trim().toLowerCase();
 
 		if(!query) {
 			pnl.items = this.root;
-		} else if(this._hasNesting()) {
+		} else if(this._hasNesting() && this.opts.filterFlatten !== false) {
 			let leaves = this._flatten().filter(leaf => leaf.search.includes(query));
 			if(this.opts.filterDedupe) {
 				const keyFn = typeof this.opts.filterDedupe === 'function'
@@ -465,7 +477,7 @@ CerbUI.Menu = class {
 			const showPath = this.opts.filterShowPath !== false;
 			pnl.items = leaves.map(leaf => ({ el: leaf.el, label: leaf.label, children: null, pathLabel: showPath ? leaf.pathLabel : '' }));
 		} else {
-			pnl.items = this.root.filter(it => !it.separator && (it.label || '').toLowerCase().includes(query));
+			pnl.items = this.root.filter(it => !it.separator && this._searchText(it).includes(query));
 		}
 
 		// A changed list invalidates any open submenus
@@ -475,6 +487,18 @@ CerbUI.Menu = class {
 		}
 
 		this._fillPanel(pnl);
+	}
+
+	// The lowercased haystack for one item: its label, plus whatever the host adds via filterText.
+	_searchText(it) {
+		let text = it.label || '';
+
+		if(typeof this.opts.filterText === 'function') {
+			const extra = this.opts.filterText(it.el, it.label);
+			if(extra) text += ' ' + extra;
+		}
+
+		return text.toLowerCase();
 	}
 
 	_hasNesting() {
@@ -499,7 +523,7 @@ CerbUI.Menu = class {
 						el: it.el,
 						label: it.label,
 						pathLabel: trail.length ? trail.join(' › ') : '', // › = "›" breadcrumb separator
-						search: trail.concat(it.label).join(' ').toLowerCase(),
+						search: (trail.join(' ').toLowerCase() + ' ' + this._searchText(it)).trim(),
 						key: CerbUI.Menu._itemKey(it.el, it.label), // identity for filterDedupe
 					});
 				}

@@ -84,7 +84,12 @@ const menu = new CerbUI.Menu(ul, {
 	                        // interaction uri+params / behavior id / href / else lowercased label; or pass a
 	                        // fn(sourceLi)->string. First match wins, and root leaves flatten before nested
 	                        // ones, so a top-level copy beats the same item buried in a submenu
-	filterShowPath:  true   // show the ancestor breadcrumb (eyebrow) above each flattened deep match; false hides it
+	filterShowPath:  true,  // show the ancestor breadcrumb (eyebrow) above each flattened deep match; false hides it
+	filterFlatten:   true,  // nested menus only: search every LEAF, so a deep item is findable by name. false =
+	                        // filter the top-level rows in place and keep their submenus -- for a tree whose
+	                        // branches ARE the choices and whose leaves only refine one (a model, its effort levels)
+	filterText:      null   // fn(sourceLi, label) -> extra searchable text for that row, merged into the haystack.
+	                        // For an item someone would reasonably find by typing something the label doesn't show
 });
 
 // clickTrigger (above) wires the toggle for you; to drive it yourself: menu.open(anchor) / menu.close() / menu.isOpen()
