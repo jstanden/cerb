@@ -13,6 +13,10 @@
 // locally — badges layer above sibling buttons WITHIN the strip while the strip still layers normally
 // wherever it sits (incl. popups), so no hardcoded z-index is needed.
 @mixin cerb-ui-toolbar-strip {
+	// `display` here outranks the UA's `[hidden]` rule, so markup that toggles a strip with the attribute
+	// stays visible without this.
+	&[hidden] { display: none; }
+
 	display: inline-flex;
 	align-items: center;
 	gap: 2px;
