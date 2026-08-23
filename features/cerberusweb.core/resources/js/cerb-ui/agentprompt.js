@@ -436,6 +436,9 @@ CerbUI.AgentPrompt = class {
 			// than a struck-through one, and a bare row is exactly the signal that a model can't do this.
 			if(m.vision) li.dataset.cerbVision = '1';
 			if(m.thinking) li.dataset.cerbThinking = '1';
+			// Searchable but not rendered: the label is the agent_model record's name (`sonnet`), so someone
+			// hunting for "the anthropic one" has nothing to type without this.
+			if(m.provider) li.dataset.cerbProvider = m.provider;
 			if(Array.isArray(m.ratings) && m.ratings.length) li.dataset.cerbRatings = JSON.stringify(m.ratings);
 			li.appendChild(document.createTextNode(m.label || m.model || m.id));
 
@@ -465,6 +468,14 @@ CerbUI.AgentPrompt = class {
 			                           // back up, rather than sitting lit until the next click
 			panelClass: 'cerb-ui-agentprompt--model-menu',
 			itemHeight: stacked ? 44 : 28,
+			filter: true,              // an install with a dozen agent models is a search, not a scan
+			// The MODEL rows are what you filter, not the effort leaves under them. Flattening (the default for
+			// a nested menu) would answer "sonnet" with `sonnet > high`, `sonnet > medium` -- rows that carry
+			// none of the dataset onRenderItem reads, so they'd lose the brand mark, the capability marks, and
+			// the meters, and there'd be no way left to pick the model at its own default effort.
+			filterFlatten: false,
+			filterPlaceholder: 'Filter models…',
+			filterText: (sourceLi) => sourceLi.dataset.cerbProvider || '',
 			onRenderItem: (renderedLi, sourceLi) => {
 				const icon = sourceLi.dataset.cerbUiIcon;
 				if(icon) {
@@ -589,6 +600,15 @@ CerbUI.AgentPrompt = class {
 			if(e.key === ' ' || e.key === 'Enter' || e.key === 'ArrowDown' || e.key === 'ArrowUp') {
 				e.preventDefault();
 				open();
+				return;
+			}
+			// A printable character opens the menu AND seeds the filter with it, so typing on the focused
+			// (still-closed) picker searches immediately instead of leaking the keystroke to page shortcuts.
+			if(e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+				e.preventDefault();
+				e.stopPropagation();
+				open();
+				this._modelMenu.startFilter(e.key);
 			}
 		});
 
