@@ -1,0 +1,131 @@
+workflow:
+  name: cerb.ai.agent
+  version: 2026-08-22T05:00:00Z
+  description: An AI agent chat in every editor, worklist, and the command bar
+  website: https://cerb.ai/workflows/cerb.ai.agent/
+  requirements:
+    cerb_version: >=12.0 <12.1
+    cerb_plugins: cerberusweb.core
+
+records:
+  automation/agentChat:
+    fields:
+      name: cerb.ai.agent.chat
+      extension_id: cerb.trigger.interaction.worker.agent
+      description: Ask questions about Cerb and its functionality
+      script@raw:
+        # The built-in Cerb agent, managed by the `cerb.ai.agent` workflow. Edits here are REPLACED on the
+        # next update. To make your own, use Automations > Build > AI Agent Chat, which generates a copy you
+        # own, then add it to the `agent.pane` toolbar.
+        #
+        # Nothing below names a location, and that is deliberate. The `interaction.worker.agent` trigger
+        # contributes the host editor's commands as tools and its orientation as a system prompt at RUNTIME,
+        # so this one script drives whichever editor it opens beside.
+        #
+        # Models come from whatever this environment has available, so this runs as soon as one agent model
+        # is set up under Search > Agent Models. With none, the chat opens and every turn fails.
+
+        start:
+          set/init:
+            prompt_agent@text:
+            session_id: {{uuid()}}
+
+          while:
+            if@bool: yes
+            do:
+              # If the user sent a message, run an agent turn (this also runs any tools the agent calls).
+              outcome/hasPrompt:
+                if@bool: {{prompt_agent}}
+                then:
+                  llm.agent:
+                    output: results
+                    inputs:
+                      session_id@key: session_id
+                      messages:
+                        message:
+                          role: user
+                          content@key: prompt_agent
+                          images@key,optional: prompt_agent__images
+                      # The built-in `/commands` this agent honors. Opt-in and per-node: nothing is exposed
+                      # that you didn't ask for.
+                      commands:
+                        command/compact:
+                      # The `cerb` CLI. Reflects THIS install's record types, fields, and filter keys, so the
+                      # agent looks a name up instead of recalling one that may not exist here.
+                      terminal:
+                        cerb:
+                          platform:
+                          records:
+                      # Cerb's own documentation and reference skills, read on demand. The runtime system
+                      # prompt points at both BY NAME, so deleting either leaves that pointer aimed at files
+                      # the agent cannot read.
+                      mounts:
+                        cerb-agents:
+                        cerb-docs:
+                    on_success:
+                      set:
+                        session_id: {{results.session_id}}
+                    # A failed turn (no model configured, provider error, rate limit, timeout) returns to the
+                    # chat instead of ending the interaction: the composer restores the message that didn't
+                    # send and shows the reason above it.
+                    on_error:
+
+              # Show the transcript and prompt for the next message.
+              await/chat:
+                form:
+                  title: Cerb
+                  elements:
+                    llmTranscript/prompt_transcript:
+                      session_id: {{session_id}}
+                      # A literal identity rather than a worker reference: Cerb does not ship an AI worker,
+                      # and one that named a record would break on every install that lacks it.
+                      agent:
+                        name: Cerb
+                        icon: bot
+                        color: blue
+                      thinking: raw
+                      tools: raw
+                      expand: none
+                      layout: interleaved
+                      tokens@bool: yes
+                    agentPrompt/prompt_agent:
+                      placeholder: Message the agent...
+                      session_id: {{session_id}}
+                      required@bool: yes
+                      # What the composer OFFERS -- deliberately separate from the `commands:`/`mounts:`
+                      # above, which are what the agent ACTS on.
+                      commands:
+                        compact:
+                        rewrite/flatten:
+                          description: Aggressively compact the thread
+                          text@text: /compact hard
+                      # What `@` autocompletes. Opt-in: without this block `@` completes nothing.
+                      references:
+                        workers:
+                        filesystems:
+                          cerb-docs:
+                          cerb-agents:
+                    submit:
+                      continue@bool: no
+                      reset@bool: no
+      policy_kata@raw:
+        # The agent turn is all this needs. The editor commands it calls are contributed by the trigger and
+        # answered by the browser, and the `cerb` CLI is read-only reflection -- neither is a command this
+        # policy gates. No `callers:` block: an absent one allows every caller, and naming `agent.pane` would
+        # break resuming the chat from History.
+        commands:
+          llm.agent:
+            allow@bool: yes
+  toolbar_section/agentPane:
+    fields:
+      name: Cerb
+      toolbar_name: agent.pane
+      priority@int: 50
+      is_disabled: 0
+      toolbar_kata@raw:
+        # No `hidden@bool:` gate, so this appears on every agent pane and in the command bar. To keep it to
+        # one editor, add one -- e.g. `hidden@bool: {{ component != 'mail_reply' }}`.
+        interaction/cerbAgent:
+          label: Cerb
+          uri: cerb:automation:cerb.ai.agent.chat
+          icon: bot

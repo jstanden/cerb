@@ -555,6 +555,7 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 			// Default the template content when empty and we recognize the name
 			if($workflow->id && empty($workflow->workflow_kata)) {
 				$workflow->workflow_kata = match($workflow->name) {
+					'cerb.ai.agent' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.ai.agent.kata'),
 					'cerb.auto_dispatcher' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.auto_dispatcher.kata'),
 					'cerb.auto_responder' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.auto_responder.kata'),
 					'cerb.capture_feedback' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.capture_feedback.kata'),

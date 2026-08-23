@@ -821,6 +821,13 @@ switch($step) {
 				}
 			}
 			
+			// Init the built-in Cerb agent (one chat on every agent pane and the command bar). It's a teaser
+			// until an agent model is set up; enabling it here means that's the only step.
+			$error = null;
+			$new_workflow = new Model_Workflow();
+			$new_workflow->workflow_kata = file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.ai.agent.kata');
+			DevblocksPlatform::services()->workflow()->import($new_workflow, null, $error);
+			
 			// Import quickstart checklist
 			$error = null;
 			$new_workflow = new Model_Workflow();

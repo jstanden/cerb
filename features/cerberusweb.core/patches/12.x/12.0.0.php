@@ -4100,6 +4100,23 @@ class CerbPatch_Core_v12_0_0 {
 		if(!array_key_exists('is_read', $indexes))
 			$this->_db->ExecuteMaster("ALTER TABLE llm_agent_session ADD INDEX is_read (is_read)");
 	}
+	
+	private function patchWorkflowCerbAiAgent() : void {
+		// Enable the built-in Cerb agent on upgrade (a fresh install gets it from install)
+		if($this->_revision >= 1561)
+			return;
+		
+		if($this->_db->GetOneMaster("SELECT id FROM workflow WHERE name = 'cerb.ai.agent'"))
+			return;
+		
+		$this->_db->ExecuteMaster(sprintf(
+			"INSERT INTO workflow (name, description, created_at, updated_at, version, workflow_kata, config_kata, has_extensions) ".
+			"VALUES (%s, '', UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, '', '', 0)",
+			$this->_db->qstr('cerb.ai.agent')
+		));
+		
+		$this->_logger->info("[Patch] Enabled the built-in Cerb agent workflow (cerb.ai.agent).");
+	}
 }
 
 $patch = new CerbPatch_Core_v12_0_0();

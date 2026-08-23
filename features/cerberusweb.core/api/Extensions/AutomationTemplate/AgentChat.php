@@ -206,8 +206,8 @@ KATA;
 		// `commandbar` items with `global.menu`'s own. What differs is the GATE: an item with no `hidden@bool:`
 		// appears on every pane and in the command bar, which is rarely what a chat written for one editor
 		// wants, so the generated comment spells out the gate for the location that was picked.
-		$where_to_add = "# To offer this chat, add it to the `agent.pane` toolbar in Setup. That toolbar ships with no items,\n"
-			. "# so a freshly saved chat isn't reachable until you do.";
+		$where_to_add = "# To offer this chat, add it to the `agent.pane` toolbar in Setup. That toolbar already carries\n"
+			. "# Cerb's own built-in agent, so yours joins it as an additional item.";
 
 		if($component_key)
 			$where_to_add .= sprintf(

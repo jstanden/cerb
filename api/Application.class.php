@@ -636,6 +636,7 @@ class CerberusApplication extends DevblocksApplication {
 		]);
 		
 		$bundled_workflows = [
+			'cerb.ai.agent',
 			'cerb.auto_dispatcher',
 			'cerb.auto_responder',
 			'cerb.capture_feedback',
