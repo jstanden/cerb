@@ -563,6 +563,14 @@ tables:
         key@text:
         default@text:
         extra@text:
+      priority:
+        field: priority
+        type: tinyint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 50
+        extra@text:
       provider:
         field: provider
         type: varchar(32)
