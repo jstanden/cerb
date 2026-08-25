@@ -1184,6 +1184,11 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'description' => "Log a message with debug severity",
 			],
 			[
+				'caption' => 'log.alert:',
+				'snippet' => "log.alert: \${1:This is an alert message}",
+				'description' => "Log a message with alert severity",
+			],
+			[
 				'caption' => 'log.error:',
 				'snippet' => "log.error: \${1:This is an error message}",
 				'description' => "Log a message with error severity",
@@ -2075,11 +2080,6 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 						'score' => 1998,
 					],
 				],
-				
-				'(.*):log:' => $action_base,
-				'(.*):log.alert:' => $action_base,
-				'(.*):log.error:' => $action_base,
-				'(.*):log.warn:' => $action_base,
 				
 				'(.*):metric.increment:' => $action_base,
 				'(.*):metric.increment:inputs:' => [
