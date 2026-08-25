@@ -1,11 +1,15 @@
 workflow:
   name: cerb.ai.agent
-  version: 2026-08-22T05:00:00Z
+  version: 2026-08-24T00:00:00Z
   description: An AI agent chat in every editor, worklist, and the command bar
   website: https://cerb.ai/workflows/cerb.ai.agent/
   requirements:
     cerb_version: >=12.0 <12.1
     cerb_plugins: cerberusweb.core
+  config:
+    query/models_query:
+      label: Restrict to agent models matching:
+      record_type: agent_model
 
 records:
   automation/agentChat:
@@ -18,17 +22,40 @@ records:
         # next update. To make your own, use Automations > Build > AI Agent Chat, which generates a copy you
         # own, then add it to the `agent.pane` toolbar.
         #
-        # Nothing below names a location, and that is deliberate. The `interaction.worker.agent` trigger
-        # contributes the host editor's commands as tools and its orientation as a system prompt at RUNTIME,
-        # so this one script drives whichever editor it opens beside.
-        #
-        # Models come from whatever this environment has available, so this runs as soon as one agent model
-        # is set up under Search > Agent Models. With none, the chat opens and every turn fails.
+        # Models come from whatever this environment has available, narrowed by the workflow's own
+        # `models_query` config, so this runs as soon as one agent model is set up under Search > Agent
+        # Models. With none matching, the chat says so once and stops.
 
         start:
           set/init:
             prompt_agent@text:
             session_id: {{uuid()}}
+
+          # Load the permitted from the workflow config, otherwise all available models
+          llm.router:
+            output: routed
+            inputs:
+              models_query/admin: {{cerb_workflow_config('cerb.ai.agent','models_query')}}
+            on_error:
+
+          outcome/noModels:
+            if@bool: {{routed.models is empty}}
+            then:
+              await:
+                form:
+                  title: Cerb
+                  elements:
+                    say/no_models:
+                      content@text:
+                        ## No agent models are available
+                        Cerb needs at least one **agent model** configured before this agent can answer anything.
+
+                        {% if worker_is_superuser %}
+                        Configure an agent model from **Search > Agent Models**.
+                        {% endif %}
+                    submit:
+                      reset@bool: no
+              return:
 
           while:
             if@bool: yes
@@ -92,6 +119,7 @@ records:
                       placeholder: Message the agent...
                       session_id: {{session_id}}
                       required@bool: yes
+                      models@key: routed:models
                       # What the composer OFFERS -- deliberately separate from the `commands:`/`mounts:`
                       # above, which are what the agent ACTS on.
                       commands:
@@ -115,6 +143,8 @@ records:
         # break resuming the chat from History.
         commands:
           llm.agent:
+            allow@bool: yes
+          llm.router:
             allow@bool: yes
   toolbar_section/agentPane:
     fields:
