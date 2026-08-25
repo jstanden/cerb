@@ -6,6 +6,28 @@
 
 {include file="devblocks:cerberusweb.core::internal/views/view_marquee.tpl" view=$view}
 
+{if !$total && !$view->getEditableParams()}
+<div class="cerb-ui-panel cerb-ui-panel--note cerb-u-mt-2 cerb-u-mb-2">
+	<div class="cerb-ui-header">
+		<div class="cerb-ui-callout">
+			<span class="cerb-icons cerb-icon-bot-message cerb-ui-callout--icon"></span>
+			<div>
+				<div class="cerb-ui-header--title-sm">No agent models yet</div>
+				<div class="cerb-ui-header--subtitle">
+					An agent model points Cerb at one model from an AI provider (Anthropic, OpenAI, Gemini, AWS Bedrock, Ollama, and more). Add one and it's available everywhere Cerb uses AI: the built-in agent, agent prompts, and <b>llm.agent</b> automations.
+					<a href="https://cerb.ai/docs/records/types/agent_model/" target="_blank" rel="noopener">Learn more</a>
+				</div>
+			</div>
+		</div>
+    {if $active_worker->is_superuser}
+    <div class="cerb-ui-header--right">
+      <button type="button" class="cerb-ui-button cerb-peek-trigger" data-context="{$view_context}" data-context-id="0" data-width="80%"><span class="cerb-icons cerb-icon-circle-plus"></span> Add a model</button>
+    </div>
+    {/if}
+	</div>
+</div>
+{/if}
+
 <table cellpadding="0" cellspacing="0" border="0" class="worklist" width="100%" {if array_key_exists('header_color', $view->options) && $view->options.header_color}style="background-color:{$view->options.header_color};"{/if}>
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
