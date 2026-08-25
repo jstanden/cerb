@@ -1,6 +1,6 @@
 # description: Skills for Cerb AI agents -- automations, scripting, search, records, data queries, icons, replies. Start at INDEX.md.
 a668ea516e585aceed8139c9db8339bc89bbf552 INDEX.md
-bf596eb84283c2fc3f53acd8359d40a832d2893d skills/automations/SKILL.md
+7ac64fe1ecc2c7d593b5403606e4e3ed6fe61c7f skills/automations/SKILL.md
 2abba25ab9a5f22646785f876be8fc58ef874849 skills/data-queries/SKILL.md
 4f749800d0a9f24f43f8d0669edf6b25828ca949 skills/docs/SKILL.md
 37b4a330b1e027e2d693e886de90301a2b86e726 skills/icons/SKILL.md
