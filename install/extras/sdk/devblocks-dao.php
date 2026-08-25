@@ -1213,39 +1213,30 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<table cellspacing="0" cellpadding="2" border="0" width="98%">
-	<tr>
-		<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate|capitalize}:</b></td>
-		<td width="99%">
-			<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
-		</td>
-	</tr>
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-form">
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">{'common.name'|devblocks_translate|capitalize} <span class="cerb-ui-form--required">*</span></label>
+			<input type="text" name="name" value="{$model->name}" autofocus="autofocus">
+		</div>
 
-	{if !empty($custom_fields)}
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
-	{/if}
-</table>
+		{if !empty($custom_fields)}
+			{include file="devblocks:cerberusweb.core::internal/custom_fields/form.tpl" custom_fields=$custom_fields}
+		{/if}
+	</div>
+</div>
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
 {if !empty($model->id)}
-<fieldset style="display:none;" class="delete">
-	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
-	
-	<div>
-		Are you sure you want to permanently delete this <?php echo mb_strtolower($object_name); ?>?
-	</div>
-	
-	<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
-	<button type="button" class="delete-cancel">{'common.no'|devblocks_translate|capitalize}</button>
-</fieldset>
+	{include file="devblocks:cerberusweb.core::internal/peek/delete_confirm.tpl" noun="<?php echo mb_strtolower($object_name); ?>"}
 {/if}
 
 <div class="buttons" style="margin-top:10px;">
 	{if $model->id}
 		<button type="button" class="save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 		<button type="button" class="save-continue"><span class="cerb-icons cerb-icon-circle-arrow-right"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>
-		{if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+		{if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="cerb-icons cerb-icon-trash cerb-u-anim-shake-hover"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 	{else}
 		<button type="button" class="save"><span class="cerb-icons cerb-icon-circle-plus"></span> {'common.create'|devblocks_translate|capitalize}</button>
 		{*<button type="button" class="create-continue"><span class="cerb-icons cerb-icon-circle-arrow-right"></span> {'common.create_and_continue'|devblocks_translate|capitalize}</button>*}
@@ -1272,8 +1263,11 @@ $(function() {
 		$popup.find('button.save-continue').click({ mode: 'continue' }, Devblocks.callbackPeekEditSave);
 		//$popup.find('button.create-continue').click({ mode: 'create_continue' }, Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-		$popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
-		$popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
+
+		// Inline delete confirm (reveals the cerb-ui-panel--alert, hides the button row); the actual
+		// delete stays on button.delete above.
+		if(window.CerbUI && CerbUI.Form)
+			CerbUI.Form.ConfirmDelete($popup[0]);
 	});
 });
 </script>
