@@ -1,0 +1,64 @@
+{
+  "package": {
+    "name": "Connected Service: OpenRouter",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "12.0.0",
+      "plugins": []
+    },
+    "library": {
+      "name": "OpenRouter",
+      "uri": "cerb_connected_service_openrouter",
+      "description": "Integration with OpenRouter",
+      "instructions": "# Instructions\r\n\r\n* Enter your API key from <https://openrouter.ai/settings/keys>\r\n* When you add an agent model, choose the **OpenRouter** provider and this account for authentication\r\n* Model ids are namespaced by vendor (e.g. `anthropic/claude-sonnet-5`)",
+      "point": "connected_service",
+      "image": "data:image/png;base64,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a+xDd0o0LF15OprbNskZYbnAGl+IVm8JFvcNN8pkrgjLBdb7qsJJc/+TWu+ozFZ+AjhjJ635jl8a5+mg31bGc0NYMvBMb/Xf+ByzR6m/s8DrirBkYO09NMrXPy83CFaDo7KUC8KigfVO0r/P1O/98D/7gTaa/dNYWcwBYdnAfqJza2dzfl2WmsPZbBh+tLbP3aOynXxh2cDeR1UJj112rA93PDbp+yhJB7b3OfYfcgyLB842/wJh8cCevxcvvAU403jHG8KFBvaGbYQLDYxw0YG94RzhQgN7swnChQY2Npvqxwm7AuwFC4QLDex59SPChQY2OCnSUtUPgDNVuwkXvlQAztZK+BPxGuCsd9OLsmTgAcCZK10EA48DgDNXac05RxcZ+P5M/CT2UrwD2AxxX+gj0zPAhmosNxJvtxYAm2v4Je5M3RkCbPQwXi9eJPm+yBvKchv473vqUq8rZfL0p8BPvTsP/M/ox7r3Pno4b7te8QC212zdP58uo0cdzZO+zA+yFAf431P2dBiGpdybSf09CgdMAANMABPABDABTAATwAATwAQwAUwAE8AEMAEMMAFMABPABDABTAADTAATwAQwAUwAE8AAE8AEMAFMABPABDABDDABTAATwAQwAUwAA0wAE8AEMAFMABPABDDABDABTAATwAQwAQwwAUwAE8AEMAFMf+4vzucEikfb+3QAAAAASUVORK5CYII="
+    },
+    "configure": {
+      "placeholders": [],
+      "prompts": [
+        {
+          "type": "text",
+          "label": "API Key",
+          "key": "prompt_api_key",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your API Key)"
+          }
+        },
+        {
+          "type": "text",
+          "label": "Alias",
+          "key": "prompt_name",
+          "params": {
+            "default": "openrouter",
+            "placeholder": "(enter a URI, a-z,0-9,_)"
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "service_openrouter",
+      "_context": "connected_service",
+      "name": "OpenRouter",
+      "extension_id": "cerb.service.provider.token.bearer",
+      "params": {
+        "token_name": "Bearer"
+      }
+    },
+    {
+      "uid": "account_openrouter",
+      "_context": "connected_account",
+      "name": "OpenRouter",
+      "service_id": "{{{uid.service_openrouter}}}",
+      "owner__context": "cerberusweb.contexts.app",
+      "owner_id": "0",
+      "uri": "{{{prompt_name}}}",
+      "params": {
+        "token": "{{{prompt_api_key}}}"
+      }
+    }
+  ]
+}
