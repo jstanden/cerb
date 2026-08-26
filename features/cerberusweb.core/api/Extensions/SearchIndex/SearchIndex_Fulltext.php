@@ -1139,6 +1139,11 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 			return null;
 		}
 
+		// The default 1024 bytes silently TRUNCATES the id list rather than erroring, and `cardinality`
+		// is COUNT(id), so the job would report every record indexed over a partial index. 100 ids fit
+		// until they reach 7 digits.
+		$db->ExecuteMaster('SET SESSION group_concat_max_len = 1048576');
+
 		$sql = sprintf("INSERT INTO queue_message (uuid, queue_id, job_id, status_id, created_at, message, cardinality) ".
 			"SELECT UUID_TO_BIN(UUID()) AS uuid, ".
 			"%d AS queue_id, ".
