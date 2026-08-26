@@ -109,6 +109,23 @@ CerbUI.Avatar.hash('worker:5');             // the 32-bit seed hash
 			</div>
 		</div>
 
+		{* Example: text color — a literal glyph color, or 'auto' for whichever of black/white reads better *}
+		<div class="cerb-ui-header">
+			<div class="cerb-ui-header--label">Text color &mdash; <code>textColor</code> sets the glyph/monogram color. Pass <code>auto</code> and it picks whichever of near-black or white has more contrast on the background actually painted &mdash; so a pale or vivid <code>color</code> stays legible without hand-picking a foreground. A background it can't measure (a CSS variable on a detached element) defers to the stylesheet's white</div>
+		</div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<div id="uiref-avatar-textcolors" class="cerb-u-flex cerb-u-flex-wrap cerb-u-items-center cerb-u-gap-2"></div>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>{literal}CerbUI.Avatar.create({ icon: 'todo', color: '#ffd400', textColor: 'auto', size: 32 });
+
+// &lt;span class="cerb-ui-avatar" data-avatar-icon="todo" data-avatar-color="#ffd400" data-avatar-text-color="auto"&gt;&lt;/span&gt;{/literal}</pre>
+			</div>
+		</div>
+
 		{* Example: graybox → photo — instant monogram placeholder, real image swaps in on load *}
 		<div class="cerb-ui-header">
 			<div class="cerb-ui-header--label">Graybox &rarr; photo &mdash; pass <code>imageUrl</code> and the monogram shows <strong>instantly</strong> as a placeholder, then the real picture swaps in once it loads. This is how a long list of profile images paints without flashing empty</div>
@@ -324,6 +341,29 @@ new CerbUI.AvatarStack(el2, {
 		];
 		swatches.forEach(function(s) {
 			const el = CerbUI.Avatar.create({ icon: s.icon, label: s.label, color: s.color, size: 32 });
+			el.setAttribute('title', s.title);
+			host.appendChild(el);
+		});
+	})();
+
+	// Text color: a pale/vivid background with `textColor: 'auto'` next to the same one left default
+	(function() {
+		const host = document.getElementById('uiref-avatar-textcolors');
+		if(!host) return;
+		const swatches = [
+			{ icon: 'todo', color: '#ffd400', title: "auto -- near-black on yellow" },
+			{ icon: 'todo', color: '#ffd400', textColor: '', title: 'default -- white on yellow' },
+			{ icon: 'kanban', color: '#e8eaed', title: 'auto -- near-black on pale gray' },
+			{ icon: 'kanban', color: '#1f2937', title: 'auto -- white on charcoal' },
+			{ icon: 'clock', color: '#0088e6', textColor: '#ffd400', title: 'a literal textColor' }
+		];
+		swatches.forEach(function(s) {
+			const el = CerbUI.Avatar.create({
+				icon: s.icon,
+				color: s.color,
+				textColor: ('textColor' in s) ? s.textColor : 'auto',
+				size: 32
+			});
 			el.setAttribute('title', s.title);
 			host.appendChild(el);
 		});

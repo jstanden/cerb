@@ -16,14 +16,17 @@
  * circle instead of initials — e.g. a record-type / category avatar that's an icon, not a person's monogram.
  *
  * Pass a `color` (option) or data-avatar-color (any CSS color) to force the background instead of the
- * seed-derived one — e.g. a category avatar tinted to its configured color.
+ * seed-derived one — e.g. a category avatar tinted to its configured color. `textColor` (or
+ * data-avatar-text-color) does the same for the glyph/monogram; pass 'auto' to pick whichever of
+ * near-black/white reads better on the background actually painted (a CSS-var background it can't
+ * measure defers to the stylesheet).
  *
  * Non-square (16:9 "art") avatars: pass `ratio` ("16:9") with `size` (read as the height), or explicit
  * `width`+`height`. A non-square avatar becomes a rounded rectangle (--art) with the glyph/monogram
  * centered and extra horizontal space — used for package/workflow thumbnails.
  *
  * Enhancer data-* attributes (all optional except the label):
- *   data-avatar="Jane Doe"  data-avatar-seed="worker:5"  data-avatar-image="/avatar/worker/5"  data-avatar-size="32"  data-avatar-icon="bot"  data-avatar-color="#c0392b"  data-avatar-ratio="16:9"  data-avatar-width="240"  data-avatar-height="135"
+ *   data-avatar="Jane Doe"  data-avatar-seed="worker:5"  data-avatar-image="/avatar/worker/5"  data-avatar-size="32"  data-avatar-icon="bot"  data-avatar-color="#c0392b"  data-avatar-text-color="auto"  data-avatar-ratio="16:9"  data-avatar-width="240"  data-avatar-height="135"
  *
  * CerbUI.AvatarStack — a row of overlapping avatars with a trailing "+N" for the overflow. Enhance a
  * container of [data-avatar] children (new CerbUI.AvatarStack(el)) or pass { items:[…], max, size }.
@@ -77,7 +80,7 @@ CerbUI.Avatar = class {
 		return { w: 0, h: 0 };
 	}
 
-	// Apply avatar styling + content to `el` in place. spec: { label, seed, imageUrl, size, ratio, width, height, icon, enqueue }.
+	// Apply avatar styling + content to `el` in place. spec: { label, seed, imageUrl, size, ratio, width, height, icon, color, textColor, enqueue }.
 	static _apply(el, spec) {
 		el.classList.add('cerb-ui-avatar');
 		el.setAttribute('aria-hidden', 'true');
@@ -92,6 +95,7 @@ CerbUI.Avatar = class {
 		const seed = (spec.seed != null && spec.seed !== '') ? spec.seed : label;
 		el.style.backgroundColor = (spec.color != null && spec.color !== '') ? spec.color : CerbUI.Avatar.color(seed);
 		el.style.backgroundImage = '';
+		el.style.color = CerbUI.Avatar._textColor(el, spec.textColor);
 		if(spec.icon) {
 			// A cerb-icons glyph in place of initials (inherits the avatar's foreground color).
 			const g = document.createElement('span');
@@ -103,6 +107,25 @@ CerbUI.Avatar = class {
 		el.classList.remove('cerb-ui-avatar--image');
 		if(spec.imageUrl) CerbUI.Avatar._loadImage(el, spec.imageUrl, spec.enqueue);
 		return el;
+	}
+
+	// Resolve the glyph/monogram color: a literal color as given, 'auto' as the better of near-black or
+	// white on the background just painted, and '' (the CSS default) when there's nothing to go on.
+	// getComputedStyle resolves a var() background, but only once the element is in the document — a
+	// detached one (Avatar.create) falls back to the stylesheet rather than guessing.
+	static _textColor(el, textColor) {
+		if(textColor == null || textColor === '')
+			return '';
+
+		if(textColor !== 'auto')
+			return textColor;
+
+		let bg = el.style.backgroundColor;
+
+		if(!CerbUI.color.parseHex(bg) && el.isConnected)
+			bg = window.getComputedStyle(el).backgroundColor;
+
+		return CerbUI.color.idealTextColor(bg) || '';
 	}
 
 	// Swap the monogram for a real image once it loads. `enqueue` (optional) routes the load through a
@@ -122,7 +145,7 @@ CerbUI.Avatar = class {
 	}
 
 	// ── Build a fresh element ───────────────────────────────────────────
-	// opts: { label, seed, imageUrl, icon, size(px), className, tag, enqueue }.
+	// opts: { label, seed, imageUrl, icon, color, textColor, size(px), className, tag, enqueue }.
 	static create(opts) {
 		opts = opts || {};
 		const el = document.createElement(opts.tag || 'span');
@@ -152,6 +175,7 @@ CerbUI.Avatar = class {
 			imageUrl: opts.imageUrl != null ? opts.imageUrl : (d.avatarImage || ''),
 			icon:     opts.icon     != null ? opts.icon     : (d.avatarIcon || ''),
 			color:    opts.color    != null ? opts.color    : (d.avatarColor || ''),
+			textColor: opts.textColor != null ? opts.textColor : (d.avatarTextColor || ''),
 			size:     sizeAttr || 0,
 			ratio:    opts.ratio    != null ? opts.ratio    : (d.avatarRatio || ''),
 			width:    opts.width    != null ? opts.width    : (d.avatarWidth ? parseInt(d.avatarWidth, 10) : 0),
