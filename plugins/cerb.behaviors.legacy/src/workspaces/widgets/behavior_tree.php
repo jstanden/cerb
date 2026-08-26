@@ -56,7 +56,7 @@ class WorkspaceWidget_BehaviorTree extends Extension_WorkspaceWidget {
 		$tpl->assign('behavior', $behavior);
 		$tpl->assign('event', $event->manifest);
 		
-		$tpl->display('devblocks:cerberusweb.core::internal/bot/behavior/tab.tpl');
+		$tpl->display('devblocks:cerb.behaviors.legacy::internal/bot/behavior/tab.tpl');
 	}
 	
 	function renderConfig(Model_WorkspaceWidget $widget) {
@@ -66,7 +66,7 @@ class WorkspaceWidget_BehaviorTree extends Extension_WorkspaceWidget {
 		$tpl = DevblocksPlatform::services()->template();
 		
 		$tpl->assign('widget', $widget);
-		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/behavior_tree/config.tpl');
+		$tpl->display('devblocks:cerb.behaviors.legacy::internal/workspaces/widgets/behavior_tree/config.tpl');
 	}
 	
 	function invokeConfig($action, Model_WorkspaceWidget $model) {

@@ -346,7 +346,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 								$tpl = DevblocksPlatform::services()->template();
 								$tpl->assign('import_json', $import_json);
 								$tpl->assign('import_fields', $configure_fields);
-								$config_html = $tpl->fetch('devblocks:cerberusweb.core::internal/import/prompted/configure_json_import.tpl');
+								$config_html = $tpl->fetch('devblocks:cerb.behaviors.legacy::internal/import/prompted/configure_json_import.tpl');
 								
 								echo json_encode(array(
 									'config_html' => $config_html,
@@ -752,7 +752,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 				$tpl = DevblocksPlatform::services()->template();
 				$tpl->assign('import_json', $behavior_json);
 				$tpl->assign('import_fields', $configure_fields);
-				$config_html = $tpl->fetch('devblocks:cerberusweb.core::internal/import/prompted/configure_json_import.tpl');
+				$config_html = $tpl->fetch('devblocks:cerb.behaviors.legacy::internal/import/prompted/configure_json_import.tpl');
 				
 				echo json_encode(array(
 					'config_html' => $config_html,

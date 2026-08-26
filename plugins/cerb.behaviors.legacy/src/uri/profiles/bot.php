@@ -1557,7 +1557,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		
 		$tpl->assign('package_json', DevblocksPlatform::strFormatJson(json_encode($package_json)));
 		
-		$tpl->display('devblocks:cerberusweb.core::internal/bot/export.tpl');
+		$tpl->display('devblocks:cerb.behaviors.legacy::internal/bot/export.tpl');
 	}
 	
 	private function _profileAction_viewExplore() {
