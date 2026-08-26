@@ -312,6 +312,7 @@ html.dark #{$dtb_id} .dtb-card--date-edit { background: #1f2937; border-color: r
 		<div class="cerb-ui-header--right cerb-u-mr-auto">
 			<div id="{$dtb_id}-projects"></div>
 		</div>
+		{if $has_projects}
 		<div class="cerb-ui-header--right">
 			<div class="cerb-ui-toolbar-strip">
 				<button type="button" class="cerb-ui-toolbar-button dtb-focus-toggle" data-cerb-dtb="focus-mine" aria-pressed="false" title="Show only my tasks (hide everyone else's across all columns + stash)">
@@ -325,6 +326,7 @@ html.dark #{$dtb_id} .dtb-card--date-edit { background: #1f2937; border-color: r
 				</button>
 			</div>
 		</div>
+		{/if}
 	</div>
 
 	{* Server-built data blobs (HEX-escaped in PHP so names can't break out of the script) *}
@@ -339,6 +341,38 @@ html.dark #{$dtb_id} .dtb-card--date-edit { background: #1f2937; border-color: r
 		{$accent = $project_colors[$card.project_id]|default:'var(--cerb-color-tag-gray)'}
 		<div class="cerb-ui-panel cerb-ui-panel--accent dtb-card" style="--cerb-ui-accent:{$accent};" data-task-id="{$card.id}" data-project-id="{$card.project_id}" data-owner-id="{$card.owner_id|default:0}" data-importance="{$card.importance|default:0}"{if $mode == 'until'} data-reopen="{$card.reopen_str}"{/if}><div class="dtb-card--body">{include file="devblocks:cerberusweb.core::internal/workspaces/tabs/daily_task_board/_card_meta.tpl" owner_id=$card.owner_id|default:0 project_id=$card.project_id}<div class="dtb-card--content"><span class="dtb-card--text">{$card.text}</span></div></div><div class="dtb-card--meta cerb-u-flex cerb-u-items-center cerb-u-justify-end cerb-u-gap-2 cerb-u-mt-2 cerb-u-fs-n1">{if $mode == 'until'}<button type="button" class="dtb-card--when" data-cerb-dtb="stash-schedule" title="Change reopen date"><span class="cerb-icons cerb-icon-clock"></span> {$when}</button>{/if}{if $card.comment_count > 0}<span class="cerb-ui-pill dtb-count cerb-u-fw-500 cerb-u-border-0" title="Comments"><span class="cerb-icons cerb-icon-conversation"></span> {$card.comment_count}</span>{/if}</div><button type="button" class="dtb-card--menu" title="More" data-cerb-dtb="card-menu"><span class="cerb-icons cerb-icon-more-vertical"></span></button></div>
 	{/function}
+
+	{if !$has_projects}
+		{* No live projects: the columns would all be empty and every action a no-op, so point at the
+		   Projects picker (its gear opens the same config dialog as the button below) instead. *}
+		<div class="cerb-ui-panel cerb-ui-panel--spaced cerb-ui-panel--note">
+			<div class="cerb-ui-header cerb-ui-header--center">
+				<div class="cerb-ui-callout">
+					<span class="cerb-icons cerb-icon-circle-info cerb-ui-callout--icon"></span>
+					<div>
+						<div class="cerb-ui-header--title-sm">{if $has_config}No task projects available{else}No task projects on this board{/if}</div>
+						<div class="cerb-ui-header--subtitle">
+							{if $has_config}
+								Every project on this board is archived, or you don't have access to it.
+							{else}
+								This board shows tasks from the task projects you add to it.
+							{/if}
+							{if $is_writeable}
+								Use <b>Projects</b> at the top of this tab to choose which projects appear here.
+							{else}
+								Ask someone who can edit this page to add task projects.
+							{/if}
+						</div>
+					</div>
+				</div>
+				{if $is_writeable}
+					<div class="cerb-ui-header--right">
+						<button type="button" class="cerb-ui-button" data-cerb-dtb="configure"><span class="cerb-icons cerb-icon-gear"></span> Configure projects</button>
+					</div>
+				{/if}
+			</div>
+		</div>
+	{else}
 
 	{* The single stash column — hidden; JS relocates it into a day's board (left of TODO) on toggle *}
 	<div class="dtb-stash dtb-column cerb-ui-panel cerb-u-flex cerb-u-flex-1 cerb-u-flex-column" data-cerb-dtb-stash hidden>
@@ -373,6 +407,8 @@ html.dark #{$dtb_id} .dtb-card--date-edit { background: #1f2937; border-color: r
 	{foreach from=$boards item=board}
 		{include file="devblocks:cerberusweb.core::internal/workspaces/tabs/daily_task_board/_day.tpl" board=$board}
 	{/foreach}
+
+	{/if}
 
 </div>
 
@@ -1711,11 +1747,16 @@ html.dark #{$dtb_id} .dtb-card--date-edit { background: #1f2937; border-color: r
 			items: ppItems,
 			icon: 'collection',
 			headerLabel: 'Projects',
+			emptyText: ppItems.length ? 'None selected' : 'No projects yet',
 			headerActions: headerActions,
 			onChange: function(state) { applyProjectView(state.selected); saveView(state); },
 		});
 		applyProjectView(pp.getSelected());
 	}
+
+	// The empty-state note's button -- same dialog as the picker's gear.
+	const dtbConfigBtn = root.querySelector('[data-cerb-dtb="configure"]');
+	if(dtbConfigBtn) dtbConfigBtn.addEventListener('click', openConfigDialog);
 
 	// ── Focus "my tasks": float my owned cards to the top of TODO / In Progress (others stay below). ──
 	const focusBtn = root.querySelector('[data-cerb-dtb="focus-mine"]');

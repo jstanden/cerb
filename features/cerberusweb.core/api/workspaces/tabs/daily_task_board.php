@@ -62,13 +62,20 @@ class WorkspaceTab_DailyTaskBoard extends Extension_WorkspaceTab {
 		$tpl->assign('project_colors', $project_colors);
 		$tpl->assign('is_writeable', Context_WorkspacePage::isWriteableByActor($page, $active_worker));
 
+		// Nothing to derive a board from -- the template swaps the day columns for a setup note pointing at
+		// the Projects picker, so an unconfigured board doesn't render as empty columns. `has_config`
+		// separates "no projects chosen yet" from "the chosen ones are archived/unreadable".
+		$has_projects = !empty($live);
+		$tpl->assign('has_projects', $has_projects);
+		$tpl->assign('has_config', !empty($config_order));
+
 		// Board rows: today (todo/in_progress/done, all derived) + a 6-day Done log behind it, newest first.
 		$today = strtotime('today');
 		$from = strtotime('-6 days', $today);
-		$boards = $this->_getBoards(array_keys($live), $from, $today);
+		$boards = $has_projects ? $this->_getBoards(array_keys($live), $from, $today) : [];
 
 		// Board-spanning stash (waiting tasks). Grouped until/indefinite (revived tasks leave as open→today).
-		$stash = $this->_getStash(array_keys($live));
+		$stash = $has_projects ? $this->_getStash(array_keys($live)) : ['until' => [], 'indefinite' => []];
 
 		// Overlay each card's comment count so the card can show a count pill. The pill is wired end-to-end
 		// (template + _attachCommentCounts) but the COUNT query is disabled for now — skip the per-render
