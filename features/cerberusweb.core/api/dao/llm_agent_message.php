@@ -68,6 +68,40 @@ class DAO_LlmAgentMessage {
 		return $usage;
 	}
 
+	/**
+	 * Pair a tool RESULT to the CALL it answers, and return the key it should be filed under.
+	 *
+	 * A transcript looks a result up by its call's id (`DevblocksLlmChatResponse_Tool::getId()`), but not every
+	 * stored result carries one: Ollama's native `tool` message has only a `name`, so rows written before the
+	 * provider stored `tool_call_id` key by the tool's name and never match. Re-keying them here means an
+	 * existing transcript renders its results without a data migration.
+	 *
+	 * `$pending` is the running list of unanswered calls in emission order, `['id' => …, 'name' => …]`; the
+	 * matched entry is CONSUMED. That ordering is what makes N parallel calls to the same tool pair to their N
+	 * results one-for-one instead of collapsing onto a single name key -- the node runs tool calls in the order
+	 * the model emitted them (LlmAgentNode::_applyTurnResponse), so the results follow in that same order.
+	 *
+	 * Falls back to the key it was given when nothing matches -- a truncated fetch window can show a result
+	 * whose call was never loaded, and that degrades to today's behavior rather than mispairing.
+	 */
+	static function matchToolResultKey(string $key, array &$pending) : string {
+		foreach($pending as $idx => $call) {
+			if('' !== $call['id'] && $call['id'] === $key) {
+				unset($pending[$idx]);
+				return $key;
+			}
+		}
+
+		foreach($pending as $idx => $call) {
+			if($call['name'] === $key) {
+				unset($pending[$idx]);
+				return '' !== $call['id'] ? $call['id'] : $key;
+			}
+		}
+
+		return $key;
+	}
+
 	public static function create(string $session_uuid, array $message, ?string $parent_uuid = null, ?string $kind = null, ?array $usage = null, ?string $finish_reason = null, bool $is_streaming = false) : ?Model_LlmAgentMessage {
 		$db = DevblocksPlatform::services()->database();
 

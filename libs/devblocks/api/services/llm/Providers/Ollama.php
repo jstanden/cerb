@@ -42,7 +42,12 @@ class Ollama extends Extension_DevblocksLlmProvider implements Chat, ChatStreami
 		
 		if('tool' == $message['role'] ?? '') {
 			$chat_response->setRole('tool');
-			$chat_response->pushToolResult($message['name'] ?? '', $message['content'] ?? '');
+			// Pair by `tool_call_id` where the row has one, falling back to the tool NAME for rows written before
+			// returnTool() stored the id. The id is what a transcript looks a result up by, and it's what
+			// toNativeMessage() replays as `tool_call_id` when this session is continued on another provider --
+			// where a tool name in that slot matches no call at all.
+			$tool_result_id = strval($message['tool_call_id'] ?? '') ?: strval($message['name'] ?? '');
+			$chat_response->pushToolResult($tool_result_id, $message['content'] ?? '');
 		
 		} else {
 			if(array_key_exists('role', $message))
@@ -56,7 +61,10 @@ class Ollama extends Extension_DevblocksLlmProvider implements Chat, ChatStreami
 					if('text' == $content['type']) {
 						$chat_response->pushMessage($content['content']);
 					} elseif('tool_result' == $content['type']) {
-						$chat_response->pushToolResult($content['name'] ?? '', $content['content'] ?? '');
+						// Cross-provider replay: an Anthropic-stored block identifies its call by `tool_use_id` and
+						// carries no `name` at all, so name-first would key every one of them to ''.
+						$tool_result_id = strval($content['tool_use_id'] ?? $content['tool_call_id'] ?? '') ?: strval($content['name'] ?? '');
+						$chat_response->pushToolResult($tool_result_id, $content['content'] ?? '');
 					}
 				}
 			}
@@ -66,6 +74,7 @@ class Ollama extends Extension_DevblocksLlmProvider implements Chat, ChatStreami
 					$chat_response->pushTool(new DevblocksLlmChatResponse_Tool(
 						$tool_call['function']['name'] ?? '',
 						$this->_normalizeToolParameters($tool_call['function']['arguments'] ?? []),
+						strval($tool_call['id'] ?? ''),
 					));
 				}
 			}
@@ -269,8 +278,15 @@ class Ollama extends Extension_DevblocksLlmProvider implements Chat, ChatStreami
 		$tool_message = [
 			'role' => 'tool',
 			'name' => $tool->getName(),
-			'content' => $content,
 		];
+		
+		// What pairs this result back to its call -- in the transcript, and as `tool_call_id` when the session is
+		// replayed onto another provider. Written only when the server gave us one: Ollama's own API has
+		// historically returned tool calls with no id, and an empty id in the history is worse than an absent one.
+		if('' !== $tool->getId())
+			$tool_message['tool_call_id'] = $tool->getId();
+		
+		$tool_message['content'] = $content;
 		
 		$memory->appendMessage($tool_message);
 	}

@@ -349,18 +349,25 @@ class LlmTranscriptAwait extends AbstractAwait {
 		$tool_call_at = [];
 		$tool_result_at = [];
 
+		// Calls still waiting on a result, in emission order. Only important for a result that arrived
+		// without an id (see \DAO_LlmAgentMessage::matchToolResultKey) -- an id pairs itself.
+		$pending_tool_calls = [];
+
 		foreach($raw_messages as $model) {
 			$neutral = $llm_provider->convertToGenericMessage($model->data, $model->uuid);
 
 			$model_at = ($model->created_at * 1000000) + $model->created_at_usec;
 
+			foreach($neutral->getToolCalls() as $tool_call) {
+				$tool_call_at[$tool_call->getId()] = $model_at;
+				$pending_tool_calls[] = ['id' => $tool_call->getId(), 'name' => $tool_call->getName()];
+			}
+
 			foreach($neutral->getToolResults() as $tool_id => $tool_result) {
+				$tool_id = \DAO_LlmAgentMessage::matchToolResultKey(strval($tool_id), $pending_tool_calls);
 				$tool_results[$tool_id] = $tool_result;
 				$tool_result_at[$tool_id] = $model_at;
 			}
-
-			foreach($neutral->getToolCalls() as $tool_call)
-				$tool_call_at[$tool_call->getId()] = $model_at;
 
 			if('tool' === $neutral->getRole())
 				continue;
