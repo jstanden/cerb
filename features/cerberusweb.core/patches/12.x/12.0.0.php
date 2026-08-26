@@ -3319,9 +3319,10 @@ class CerbPatch_Core_v12_0_0 {
 		// ===========================================================================
 		// Add `icon` to `package_library`
 		//
-		// A cerb-icons name used for the client-rendered 16:9 placeholder art when a package
-		// has no embedded image. Populated from a package's `library.image` when that value is
-		// an icon name (not a `data:` image); otherwise the client falls back to a per-type icon.
+		// A space-delimited art spec -- "<cerb-icon> [<background> [<foreground>]]" -- used for the
+		// client-rendered 16:9 placeholder art when a package has no embedded image. Populated from a
+		// package's `library.image` when that value isn't a `data:` image; otherwise the client falls
+		// back to a per-type icon on a neutral background.
 		
 		list($columns,) = $this->_db->metaTable('package_library');
 		

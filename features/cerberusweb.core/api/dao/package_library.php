@@ -615,17 +615,98 @@ class Model_PackageLibrary extends DevblocksRecordModel {
 
 	const DEFAULT_ICON = 'cube';
 
+	// The placeholder art's default background. A per-package hash-derived palette color made a library
+	// grid read as confetti, and it carried no meaning the icon didn't already carry -- so the default
+	// is one neutral gray that already adapts to the light/dark theme.
+	const DEFAULT_COLOR = 'var(--cerb-color-background-contrast-180)';
+
+	private ?array $_art_spec = null;
+
 	/**
-	 * The cerb-icon name for this package's placeholder art: an explicit `icon` (when it's a real
+	 * `icon` is a space-delimited art spec: "<icon> [<background> [<foreground>]]".
+	 *
+	 *   todo                        -- icon only, default colors
+	 *   todo #7f7f7f                -- icon on a gray background
+	 *   todo #7f7f7f #ffffff        -- ... with a white glyph
+	 *   todo #eeeeee:#333333        -- a color pair, "<light theme>:<dark theme>"
+	 *   todo auto #d62728           -- `auto` keeps a slot's default, so a later slot can be set
+	 *
+	 * A color is a `#rgb`/`#rrggbb` hex; one without a `:` half is used in both themes. Returns
+	 * [icon, background, foreground] with each part '' when it's absent, `auto`, or unusable (an
+	 * unknown icon name, a non-hex color), so every getter falls back on its own default.
+	 */
+	private function _getArtSpec() : array {
+		if(!is_null($this->_art_spec))
+			return $this->_art_spec;
+
+		$parts = preg_split('/\s+/', trim(strval($this->icon)), 3, PREG_SPLIT_NO_EMPTY) ?: [];
+
+		$icon = $parts[0] ?? '';
+
+		if($icon && !in_array($icon, DevblocksPlatform::services()->ui()->getCerbIcons(), true))
+			$icon = '';
+
+		// Split a "<light>:<dark>" pair and keep the half this worker's theme is showing. A lone color
+		// serves both themes; `auto` (or anything that isn't a hex color) yields '' = "use the default".
+		$resolve = function($token) {
+			$halves = explode(':', strval($token), 2);
+			$color = trim($halves[self::_isDarkMode() ? 1 : 0] ?? '') ?: trim($halves[0]);
+
+			if(!preg_match('/^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i', $color))
+				return '';
+
+			return DevblocksPlatform::strLower($color);
+		};
+
+		return $this->_art_spec = [
+			$icon,
+			$resolve($parts[1] ?? ''),
+			$resolve($parts[2] ?? ''),
+		];
+	}
+
+	/**
+	 * Whether the active worker is viewing in dark mode, so a spec's "<light>:<dark>" pair can be
+	 * resolved server-side (the theme is a worker preference, not an OS query). Memoized per request.
+	 */
+	private static function _isDarkMode() : bool {
+		static $is_dark = null;
+
+		if(is_null($is_dark)) {
+			$active_worker = CerberusApplication::getActiveWorker();
+			$is_dark = $active_worker ? boolval(DAO_WorkerPref::get($active_worker->id, 'dark_mode', 0)) : false;
+		}
+
+		return $is_dark;
+	}
+
+	/**
+	 * The cerb-icon name for this package's placeholder art: the spec's icon (when it's a real
 	 * cerb-icon), else the default for its `point` base type, else a generic fallback.
 	 */
 	function getIcon() : string {
-		if($this->icon && in_array($this->icon, DevblocksPlatform::services()->ui()->getCerbIcons(), true))
-			return $this->icon;
+		if(($icon = $this->_getArtSpec()[0]))
+			return $icon;
 
 		$point_base = current(explode(':', $this->point, 2));
 
 		return self::DEFAULT_ICONS_BY_POINT[$point_base] ?? self::DEFAULT_ICON;
+	}
+
+	/**
+	 * The background color of this package's placeholder art, else the neutral theme default.
+	 */
+	function getColor() : string {
+		return $this->_getArtSpec()[1] ?: self::DEFAULT_COLOR;
+	}
+
+	/**
+	 * The glyph color of this package's placeholder art, else 'auto' -- the client picks whichever of
+	 * near-black/white reads better on the background it actually painted (and defers to the
+	 * stylesheet when that background is a CSS variable it can't measure).
+	 */
+	function getTextColor() : string {
+		return $this->_getArtSpec()[2] ?: 'auto';
 	}
 
 	function getInstructions() {
@@ -1290,7 +1371,7 @@ class Context_PackageLibrary extends Extension_DevblocksContext implements IDevb
 				],
 			];
 
-			// Export the art: an explicit icon name, else the stored image (PNG or SVG) as a data URI
+			// Export the art: an explicit icon spec, else the stored image (PNG or SVG) as a data URI
 			if($model->icon) {
 				$workflow_kata['records'][$record_key]['fields']['image'] = $model->icon;
 			} else if(($avatar = DAO_ContextAvatar::getByContext(CerberusContexts::CONTEXT_PACKAGE, $model->id))) {

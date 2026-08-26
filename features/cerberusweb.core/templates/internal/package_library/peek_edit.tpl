@@ -45,7 +45,7 @@
       "uri": "",
       "description": "",
       "point": "",
-      "image": "data:image/png;base64,"
+      "image": "cube"
     },
     "configure": {
       "placeholders": [

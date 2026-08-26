@@ -96,7 +96,7 @@ class PageSection_ProfilesPackageLibrary extends Extension_PageSection {
 				$instructions = '';
 				$point = '';
 				$uri = '';
-				$avatar_image = '';
+				$art = null;
 				
 				if(!$name && array_key_exists('name', $package_library_meta))
 					$name = $package_library_meta['name'] ?? null;
@@ -113,8 +113,8 @@ class PageSection_ProfilesPackageLibrary extends Extension_PageSection {
 				if(!$uri && array_key_exists('uri', $package_library_meta))
 					$uri = $package_library_meta['uri'] ?? null;
 				
-				if(!$avatar_image && array_key_exists('image', $package_library_meta))
-					$avatar_image = $package_library_meta['image'] ?? null;
+				if(array_key_exists('image', $package_library_meta))
+					$art = strval($package_library_meta['image'] ?? '');
 				
 				if(empty($id)) { // New
 					$fields = array(
@@ -166,8 +166,11 @@ class PageSection_ProfilesPackageLibrary extends Extension_PageSection {
 				if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_PACKAGE, $id, $field_ids, $error))
 					throw new Exception_DevblocksAjaxValidationError($error);
 				
-				// Avatar image
-				DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_PACKAGE, $id, $avatar_image);
+				// Package art -- `image` is polymorphic (an embedded `data:` image vs an icon spec), so it
+				// goes through the same reconciler the disk library importer uses rather than straight to
+				// upsertWithImage(), which would store a bare icon name as a raw avatar blob.
+				if(!is_null($art))
+					CerberusApplication::packages()->setLibraryArt($id, $art);
 				
 				echo json_encode(array(
 					'status' => true,
