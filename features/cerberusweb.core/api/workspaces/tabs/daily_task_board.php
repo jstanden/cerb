@@ -24,7 +24,7 @@ class WorkspaceTab_DailyTaskBoard extends Extension_WorkspaceTab {
 		$active_worker = CerberusApplication::getActiveWorker();
 
 		// Shared board config (which projects + their accent colors + default order)
-		$config = $tab->params['projects'] ?? [];
+		$config = $this->_getProjectConfig($tab);
 		$config_order = array_column($config, 'id');
 		$config_by_id = array_column($config, null, 'id');
 
@@ -178,7 +178,7 @@ class WorkspaceTab_DailyTaskBoard extends Extension_WorkspaceTab {
 
 		$tpl = DevblocksPlatform::services()->template();
 
-		$config = $tab->params['projects'] ?? [];
+		$config = $this->_getProjectConfig($tab);
 		$config_order = array_column($config, 'id');
 		$config_by_id = array_column($config, null, 'id');
 
@@ -411,7 +411,7 @@ class WorkspaceTab_DailyTaskBoard extends Extension_WorkspaceTab {
 
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 
-		$config_order = array_column($tab->params['projects'] ?? [], 'id');
+		$config_order = array_column($this->_getProjectConfig($tab), 'id');
 		$live_ids = array_keys($this->_getLiveProjects($config_order, $active_worker));
 
 		if($year < 1970 || $month < 1 || $month > 12 || !$live_ids) {
@@ -470,7 +470,7 @@ class WorkspaceTab_DailyTaskBoard extends Extension_WorkspaceTab {
 		if($day_ts == $today)
 			DevblocksPlatform::dieWithHttpError(null, 400);
 
-		$config = $tab->params['projects'] ?? [];
+		$config = $this->_getProjectConfig($tab);
 		$config_order = array_column($config, 'id');
 		$config_by_id = array_column($config, null, 'id');
 
@@ -562,7 +562,7 @@ class WorkspaceTab_DailyTaskBoard extends Extension_WorkspaceTab {
 			DevblocksPlatform::dieWithHttpError(null, 400);
 
 		// The project must be configured on this board + readable by the worker.
-		$config_ids = array_column($tab->params['projects'] ?? [], 'id');
+		$config_ids = array_column($this->_getProjectConfig($tab), 'id');
 		$live = $this->_getLiveProjects($config_ids, $active_worker);
 		if(!isset($live[$project_id]))
 			DevblocksPlatform::dieWithHttpError(null, 403);
@@ -940,6 +940,42 @@ class WorkspaceTab_DailyTaskBoard extends Extension_WorkspaceTab {
 
 	// Build an id→hex accent map for the given project ids (seeded by config position when unset), so
 	// the main render and the per-day "Jump to Date" render share identical colors.
+	/**
+	 * The shared board config: an ordered list of ['id' => int, 'color' => string] entries.
+	 *
+	 * Canonical form (what the config dialog writes) is that list of objects. A library package can't
+	 * build one -- its record fields are templated as flat strings -- so a bare list of ids is accepted
+	 * too, in either the string form a package emits ("4,7,9") or an array of scalars. Those entries
+	 * carry no color, which is already a normal state: _projectColors() palette-seeds by position, and
+	 * the first save from the config dialog rewrites the whole block in canonical form.
+	 */
+	private function _getProjectConfig(Model_WorkspaceTab $tab) : array {
+		$config = $tab->params['projects'] ?? [];
+
+		if(is_string($config))
+			$config = preg_split('/[\s,]+/', $config, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+
+		if(!is_array($config))
+			return [];
+
+		$out = [];
+
+		foreach($config as $entry) {
+			// An object entry is canonical; a scalar is a bare id.
+			$id = intval(is_array($entry) ? ($entry['id'] ?? 0) : $entry);
+
+			if($id <= 0 || isset($out[$id]))
+				continue;
+
+			$out[$id] = [
+				'id' => $id,
+				'color' => is_array($entry) ? strval($entry['color'] ?? '') : '',
+			];
+		}
+
+		return array_values($out);
+	}
+
 	private function _projectColors(array $config_order, array $config_by_id, array $ids) {
 		$colors = [];
 		foreach($ids as $id) {

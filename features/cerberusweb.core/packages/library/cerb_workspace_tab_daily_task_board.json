@@ -1,0 +1,60 @@
+{
+  "package": {
+    "library": {
+      "name": "Daily Task Board",
+      "uri": "cerb_workspace_tab_daily_task_board",
+      "description": "A daily Kanban board of tasks from your projects",
+      "point": "workspace_tab",
+      "image": "todo"
+    },
+    "configure": {
+      "prompts": [
+        {
+          "type": "chooser",
+          "label": "Workspace Page",
+          "key": "workspace_page_id",
+          "hidden": true,
+          "params": {
+            "context": "cerberusweb.contexts.workspace.page",
+            "single": true,
+            "query": ""
+          }
+        },
+        {
+          "type": "text",
+          "label": "Name:",
+          "key": "prompt_tab_name",
+          "params": {
+            "placeholder": "(e.g. Daily Task Board)",
+            "default": "Daily Task Board"
+          }
+        },
+        {
+          "type": "chooser",
+          "label": "Task Projects:",
+          "key": "prompt_project_ids",
+          "optional": true,
+          "params": {
+            "context": "cerb.contexts.task.project",
+            "single": false,
+            "query": "closed:n"
+          }
+        }
+      ],
+      "placeholders": []
+    }
+  },
+  "records": [
+    {
+      "uid": "workspace_tab_daily_task_board",
+      "_context": "workspace_tab",
+      "name": "{{{prompt_tab_name}}}",
+      "page_id": "{{{workspace_page_id}}}",
+      "pos": 0,
+      "extension_id": "cerb.workspace.tab.daily_task_board",
+      "params": {
+        "projects": "{{{prompt_project_ids|join(',')}}}"
+      }
+    }
+  ]
+}
