@@ -133,18 +133,5 @@
                 {/foreach}
             {/if}
         {/foreach}
-
-        {* Typing indicator, at the tail of the answer as it's being written — where a reader is actually
-           looking, rather than only in a chip below the whole conversation. Emitted with
-           `data-cerb-transcript-body` so the component treats it as an ordinary content node and places it
-           last in the turn's flow; nothing in the JS knows it exists, and it simply stops being rendered
-           once the turn finalizes. *}
-        {if $turn.is_streaming}
-            <div data-cerb-transcript-body data-cerb-transcript-cursor>
-                <svg class="cerb-ui-spinner cerb-ui-spinner--dots" viewBox="0 0 120 40" style="width:28px;" aria-hidden="true">
-                    <circle cx="20" cy="20" r="12"/><circle cx="60" cy="20" r="12"/><circle cx="100" cy="20" r="12"/>
-                </svg>
-            </div>
-        {/if}
     </div>
 {/foreach}
