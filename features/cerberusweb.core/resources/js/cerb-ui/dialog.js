@@ -98,6 +98,7 @@ CerbUI.Dialog = class {
 	static _MOBILE_MAX = 768;          // mobile breakpoint (cerb-responsive.scss) — dialogs go 95% wide below it
 	static _minimized = new Set();     // dialogs docked in the top-right tray
 	static _CASCADE_STEP = 28;         // px offset per dialog when "Restore all" fans them out
+	static _DRAG_KEEP_VISIBLE = 80;    // px of the dialog a drag must leave on-screen (so the handle stays grabbable)
 	static _tray = null;               // the shared tray button (lazily built)
 	static _trayMenu = null;           // the open tray menu, if any (so a re-click toggles it shut)
 	static _unloadHandler = null;      // beforeunload guard, attached only while a dirty tray popup exists
@@ -894,7 +895,7 @@ CerbUI.Dialog = class {
 		return Math.min(w, vw - 20);
 	}
 
-	// Keep a dragged dialog horizontally within the viewport after a resize (we don't re-center moved dialogs).
+	// Keep a dragged dialog within the viewport after a resize (we don't re-center moved dialogs).
 	_clampIntoView() {
 		const vw   = window.innerWidth;
 		const w    = this.el.offsetWidth;
@@ -902,7 +903,27 @@ CerbUI.Dialog = class {
 		const minX = ox + 10;
 		const maxX = Math.max(minX, ox + vw - w - 10);
 		this.x = Math.min(Math.max(this.x, minX), maxX);
+		// y is viewport-relative when fixed and document-relative otherwise, so 0 is the ceiling either way:
+		// above it there's nothing left to scroll to and the titlebar is out of reach for good.
+		this.y = Math.max(0, this.y);
 		this.el.style.left = this.x + 'px';
+		this.el.style.top  = this.y + 'px';
+	}
+
+	// Clamp a drag so part of the dialog -- and with it the titlebar / drag handle -- always stays on-screen.
+	// The pointer keeps reporting after it leaves the window (browser chrome, a second display), so an
+	// unclamped drag parks the dialog where nothing can grab it again.
+	_clampDrag(x, y) {
+		const vw   = window.innerWidth;
+		const vh   = window.innerHeight;
+		const w    = this.el.offsetWidth;
+		const ox   = this.opts.fixed ? 0 : window.scrollX;
+		const oy   = this.opts.fixed ? 0 : window.scrollY;
+		const keep = CerbUI.Dialog._DRAG_KEEP_VISIBLE;
+		return {
+			x: Math.min(Math.max(x, ox - w + keep), ox + vw - keep),
+			y: Math.min(Math.max(y, oy), oy + vh - keep),
+		};
 	}
 
 	// The default open / restore position: centered horizontally, near the top (one-titlebar gap), at the
@@ -999,8 +1020,9 @@ CerbUI.Dialog = class {
 			this._userMoved = true; // a moved dialog is clamped (not re-centered) on viewport resize
 			const mx = this.opts.fixed ? 0 : window.scrollX;
 			const my = this.opts.fixed ? 0 : window.scrollY;
-			this.x = (e.clientX + mx) - offsetX;
-			this.y = (e.clientY + my) - offsetY;
+			const pos = this._clampDrag((e.clientX + mx) - offsetX, (e.clientY + my) - offsetY);
+			this.x = pos.x;
+			this.y = pos.y;
 			this.el.style.left = this.x + 'px';
 			this.el.style.top  = this.y + 'px';
 		};
