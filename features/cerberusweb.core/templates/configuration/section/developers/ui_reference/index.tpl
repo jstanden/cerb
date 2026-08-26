@@ -10,10 +10,12 @@
 .cerb-uiref-demo { border-radius:8px; padding:1.25em; background:var(--cerb-color-background); }
 .cerb-uiref-result { margin-top:0.75em; color:var(--cerb-color-background-contrast-150); }
 
-/* Code reference: lives below the demo for full width (may go side-by-side for small components later) */
+/* Code reference: lives below the demo for full width (may go side-by-side for small components later).
+   Hidden by default; the left rail's 'Show code' toggle reveals every block at once. */
 .cerb-uiref-code { position:relative; margin-top:0.85em; }
 .cerb-uiref-code pre { margin:0; overflow:auto; padding:1.5em; border:1px dashed var(--cerb-color-background-contrast-220); border-radius:8px; color: var(--cerb-color-background-contrast-150); line-height:1.5; tab-size:2; }
 .cerb-uiref-copy { position:absolute; top:0.5em; right:0.5em; display:inline-flex; align-items:center; gap:0.35em; }
+.cerb-uiref-content--code-hidden .cerb-uiref-code { display:none; }
 
 /* Keyboard-shortcut reference: one binding per row, keys as cerb-ui-kbd caps */
 .cerb-uiref-keys { list-style:none; margin:0; padding:0; display:grid; gap:0.6em; line-height:1.9; color:var(--cerb-color-text); }
@@ -50,7 +52,6 @@
 
 /* Persistent left nav (CerbUI.Sidebar) — replaces the old wrapped-chip jump TOC. Sized to clear the footer in JS. */
 .cerb-uiref-layout { align-items: flex-start; margin-top: 1em; }
-#uiref-nav .cerb-ui-sidebar--head strong { font-size: 0.78em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--cerb-color-background-contrast-150); }
 
 /* Content group divider — mirrors the sidebar's functional sections */
 .cerb-uiref-grouplabel { font-size:1.4em; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--cerb-color-background-contrast-150); margin:2.5em 0 0; padding-bottom:0.3em; border-bottom:2px solid var(--cerb-color-background-contrast-230); }
@@ -81,7 +82,13 @@
 
 	<div class="cerb-ui-sidebar-layout cerb-uiref-layout">
 		<aside class="cerb-ui-sidebar" id="uiref-nav" style="--cerb-ui-sidebar-width:230px;">
-			<div class="cerb-ui-sidebar--head"><strong>Components</strong></div>
+			<div class="cerb-ui-sidebar--head">
+				<label class="cerb-ui-toggle" title="Show the source under every example">
+					<input type="checkbox" id="uiref-show-code">
+					<span class="cerb-ui-toggle--slider"></span>
+				</label>
+				<label for="uiref-show-code" class="cerb-u-cursor-pointer">Show code</label>
+			</div>
 			<div class="cerb-ui-sidebar--body">
 				<div class="cerb-ui-sidebar--section">
 					<div class="cerb-ui-sidebar--label">Foundations</div>
@@ -196,7 +203,7 @@
 			</div>
 		</aside>
 
-		<div class="cerb-ui-sidebar-layout--content cerb-uiref-content">
+		<div class="cerb-ui-sidebar-layout--content cerb-uiref-content cerb-uiref-content--code-hidden">
 
 			<h2 class="cerb-uiref-grouplabel" id="group-foundations">Foundations</h2>
 			{include file="devblocks:cerberusweb.core::configuration/section/developers/ui_reference/components/icon.tpl"}
@@ -299,6 +306,20 @@
 		Devblocks.createAlert('Copied to clipboard!');
 	});
 
+	// The gallery is browsed by demo, so every code block starts hidden; the rail's toggle reveals them all.
+	// Restored synchronously (before the deep-link pinning below) so the pin measures the final layout.
+	const CODE_KEY = 'uirefShowCode';
+	const $showCode = $('#uiref-show-code');
+	const setShowCode = function(on) {
+		$('.cerb-uiref-content').toggleClass('cerb-uiref-content--code-hidden', !on);
+		$showCode.prop('checked', on);
+	};
+	try { setShowCode(localStorage.getItem(CODE_KEY) === '1'); } catch(e) { /* private browsing / quota */ }
+	$showCode.on('change', function() {
+		setShowCode(this.checked);
+		try { localStorage.setItem(CODE_KEY, this.checked ? '1' : '0'); } catch(e) { /* private browsing / quota */ }
+	});
+
 	// Component nav: a persistent CerbUI.Sidebar (grouped) — smooth-scroll + scrollspy + filter + collapse.
 	// Each component's own demo wiring lives in its components/<slug>.tpl partial.
 	(function() {
@@ -319,6 +340,7 @@
 		const sb = new CerbUI.Sidebar(nav, {
 			fullHeight: true,
 			filter: true,
+			filterIn: 'body', // atop the list, not the head row — the head carries the 'Show code' toggle
 			storageKey: 'uirefNavCollapsed',
 			filterPlaceholder: 'Filter components…',
 			onSelect: function(li) { goTo(li.dataset.target, true); return true; }
@@ -339,27 +361,67 @@
 			else if(lr.bottom > br.bottom) railBody.scrollTop += (lr.bottom - br.bottom) + 8;
 		};
 
-		// Scrollspy: the section nearest the top of the viewport is the active one.
+		// Scrollspy: track the HEADINGS, not the sections. A component can be taller than the viewport, so
+		// "topmost section still on screen" keeps the highlight on one whose heading left long ago. The active
+		// one is the topmost --label in the viewport; when a tall component fills the screen and no label is
+		// visible at all, it's the last label above it (the one you're reading inside of).
 		const byId = new Map();
 		nav.querySelectorAll('.cerb-ui-sidebar--item').forEach(function(li) { byId.set(li.dataset.target, li); });
+		let activeId = null;
 		const markActive = function(id) {
 			const li = byId.get(id);
-			if(!li) return;
+			if(!li || id === activeId) return;
+			activeId = id;
 			sb.setActive(li);
 			keepVisible(li);
 		};
-		const visible = new Set();
-		const io = new IntersectionObserver(function(entries) {
-			entries.forEach(function(e) {
-				if(e.isIntersecting) visible.add(e.target); else visible.delete(e.target);
-			});
-			let top = null;
-			visible.forEach(function(el) {
-				if(!top || el.getBoundingClientRect().top < top.getBoundingClientRect().top) top = el;
-			});
-			if(top && top.id) markActive(top.id);
-		}, { rootMargin: '0px 0px -75% 0px' });
-		byId.forEach(function(li, id) { const el = sectionFor(id); if(el) io.observe(el); });
+
+		// Document-ordered [{ id, label }] — the label falls back to the section for a target without one.
+		const spied = [];
+		byId.forEach(function(li, id) {
+			const el = sectionFor(id);
+			if(el) spied.push({ id: id, label: el.querySelector('.cerb-uiref-component--label') || el });
+		});
+		spied.sort(function(a, b) {
+			return (a.label.compareDocumentPosition(b.label) & Node.DOCUMENT_POSITION_FOLLOWING) ? -1 : 1;
+		});
+
+		const sync = function() {
+			const h = window.innerHeight || document.documentElement.clientHeight;
+			let above = null, found = null;
+			for(const it of spied) {
+				const r = it.label.getBoundingClientRect();
+				if(r.bottom <= 0) { above = it; continue; } // scrolled off the top
+				if(r.top < h) found = it;                   // topmost one still on screen
+				break;                                      // anything later is lower still
+			}
+			const hit = found || above || spied[0];
+			if(hit) markActive(hit.id);
+		};
+
+		// rAF-coalesced: scroll fires far more often than the layout actually moves.
+		let ticking = false;
+		const onScroll = function() {
+			if(ticking) return;
+			ticking = true;
+			requestAnimationFrame(function() { ticking = false; sync(); });
+		};
+		window.addEventListener('scroll', onScroll, { passive: true });
+		window.addEventListener('resize', onScroll);
+		// Revealing the code blocks moves every heading without a scroll event.
+		if(window.ResizeObserver) new ResizeObserver(onScroll).observe(content);
+		sync();
+
+		// Flipping 'Show code' reflows every example above you, so the page slides out from under the reader —
+		// and they flipped it to read THIS component's source. Hold the active component at the same offset:
+		// capture-phase on the document, which always beats the target's own handler doing the class flip.
+		document.addEventListener('change', function(e) {
+			if(!e.target || e.target.id !== 'uiref-show-code') return;
+			const el = activeId ? sectionFor(activeId) : null;
+			if(!el) return;
+			const before = el.getBoundingClientRect().top;
+			requestAnimationFrame(function() { window.scrollBy(0, el.getBoundingClientRect().top - before); });
+		}, true);
 
 		// Deep link: scroll to + select the hash target. The editor components (Kata/Markdown/Json/
 		// Scripting) init from collapsed textareas and grow tall AFTER this script runs, so a single
