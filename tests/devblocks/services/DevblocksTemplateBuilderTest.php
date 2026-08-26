@@ -95,4 +95,19 @@ class DevblocksTemplateBuilderTest extends TestCase {
 		$out = $this->build('{% set p = cerb_placeholders_list() %}{{ p|length > 0 ? "has" : "empty" }}', ['prompt_email' => 'support@cerb.example', 'foo' => 'bar']);
 		$this->assertEquals('has', $out);
 	}
+
+	function testTokenizeReturnsBareNames() {
+		// tokenize() takes raw template strings; Twig's Environment::tokenize() takes a
+		// \Twig\Source. Passing the string through raised a TypeError, which the catch()
+		// missed because it isn't an Exception.
+		$keys = DevblocksPlatform::services()->templateBuilder()->tokenize([
+			'{{sender__label}} {{ticket_subject|upper}}',
+			'{{ticket_org__label}}',
+		]);
+		$this->assertEquals(['sender__label', 'ticket_subject', 'ticket_org__label'], array_values($keys));
+	}
+
+	function testTokenizeUnparseableTemplateIsEmpty() {
+		$this->assertEquals([], DevblocksPlatform::services()->templateBuilder()->tokenize('{{ broken '));
+	}
 }

@@ -19,6 +19,10 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 	// Only write token hashes once per batch (keep track of 'seen')
 	private static array $_indexed_token_hashes = [];
 
+	// Bulk-load keys per index, derived from its content templates. Memoized because
+	// tokenize() is a full Twig parse and this runs once per queue message.
+	private static array $_record_expand_by_index = [];
+
 	// Cap the seen set to conserve memory
 	const int MAX_INDEXED_TOKEN_HASHES = 250_000;
 
@@ -1184,6 +1188,33 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 	}
 	
 	/**
+	 * Which keys getDictionariesFromModels() should bulk-load for this index.
+	 *
+	 * Every placeholder the content templates reference, so bulkLazyLoad() batches each embedded
+	 * context once per page. Left to lazy loading these are one round trip per record: the Message
+	 * Content template alone costs ~300 single-row queries per 100-record batch for
+	 * `sender__label` + `ticket_subject` + `ticket_org__label`.
+	 */
+	private function _getRecordExpandKeys(Model_SearchIndex $model, string $record_template, string $record_template_boost) : array {
+		if(array_key_exists($model->id, self::$_record_expand_by_index))
+			return self::$_record_expand_by_index[$model->id];
+
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+
+		// Twig NameExpression nodes, so modifiers are already excluded. A template it can't parse
+		// yields [] rather than throwing, which degrades to lazy loading.
+		$keys = $tpl_builder->tokenize([$record_template, $record_template_boost]);
+
+		// bulkLazyLoad() reads `<prefix>_id` off each dict to build its batch, so an outer context
+		// has to land before an inner one's id exists: `ticket_` before `ticket_org_`.
+		usort($keys, fn($a, $b) => substr_count($a, '_') <=> substr_count($b, '_'));
+
+		$keys = array_values(array_unique(array_merge(['customfields'], $keys)));
+
+		return self::$_record_expand_by_index[$model->id] = $keys;
+	}
+
+	/**
 	 * @param bool $purge_first Drop these records' existing tokens before writing the new ones. Required
 	 *   whenever a record may already be indexed: the insert is `INSERT IGNORE` on
 	 *   `(token_hash, record_id)`, so without it a re-index only ADDS -- tokens for text the record no
@@ -1206,12 +1237,11 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		if (!$this->_searchTableExists($model))
 			$this->_createSearchIndexTable($model);
 		
-		$record_ext = $model->getRecordTypeExtension();
 		$record_template = ($model->extension_params['content'] ?? '') ?: '{{__label}}';
 		$record_template_boost = ($model->extension_params['content_boost'] ?? '');
 		
 		$record_models = $record_ext->getModelObjects($record_ids);
-		$record_expand = ['customfields'];
+		$record_expand = $this->_getRecordExpandKeys($model, $record_template, $record_template_boost);
 		$record_dicts = \DevblocksDictionaryDelegate::getDictionariesFromModels($record_models, $record_ext->id, $record_expand);
 		
 		$buffer_insert_values = [];

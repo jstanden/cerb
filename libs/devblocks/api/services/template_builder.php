@@ -10,6 +10,7 @@ use Twig\Sandbox\SecurityNotAllowedMethodError;
 use Twig\Sandbox\SecurityNotAllowedPropertyError;
 use Twig\Sandbox\SecurityNotAllowedTagError;
 use Twig\Sandbox\SecurityPolicyInterface;
+use Twig\Source;
 use Twig\Template;
 
 class _DevblocksTwigSecurityPolicy implements SecurityPolicyInterface {
@@ -459,6 +460,8 @@ class _DevblocksTemplateBuilder {
 
 		foreach($templates as $template) {
 			try {
+				if(!($template instanceof Source))
+					$template = new Source((string) $template, '');
 				
 				$token_stream = $this->_twig->tokenize($template); /* @var $token_stream \Twig\TokenStream */
 				$node_stream = $this->_twig->parse($token_stream); /* @var $node_stream \Twig\Node\ModuleNode */
@@ -471,7 +474,7 @@ class _DevblocksTemplateBuilder {
 				//var_dump($visitor->getFoundTokens());
 				$tokens = array_merge($tokens, $visitor->getFoundTokens());
 				
-			} catch(Exception $e) {
+			} catch(Throwable $e) {
 				//var_dump($e->getMessage());
 			}
 		}
