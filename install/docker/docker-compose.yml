@@ -30,7 +30,7 @@ services:
       - ../..:/var/www/html:ro
       - ./_conf/cerb.config.template.php:/tmp/cerb.framework.config.template:ro
       - ./_conf/cerb.config.php:/var/www/html/framework.config.php
-      - storage:/var/www/html/storage
+      - storage:/mnt/storage
   mysql:
     image: mysql:8.4
     command: >

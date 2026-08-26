@@ -13,7 +13,8 @@ const DEVELOPMENT_MODE = true;
  * [JAS]: Don't change the following unless you know what you're doing!
  ***************************************************************************/
 define('APP_PATH',dirname(__FILE__));
-const APP_STORAGE_PATH = APP_PATH . '/storage';
+// Nested under the /var/www/html bind mount, Docker Desktop silently drops this volume
+const APP_STORAGE_PATH = '/mnt/storage';
 const APP_TEMP_PATH = APP_STORAGE_PATH . '/tmp';
 const DEVBLOCKS_PATH = APP_PATH . '/libs/devblocks/';
 const DEVBLOCKS_REWRITE = true;
