@@ -74,7 +74,9 @@ class DAO_MetricValue {
 				$dimension_values[2] ?? 0,
 				self::PERIOD_DAYS_1,
 				$ts_1d,
-				(86_400 * $metric->retention_days), // 0 = forever
+				// 0 = forever. A capped metric expires relative to its own bin, like the tiers above -- the
+				// bare duration would be an epoch in 1970, which gc() collects on its next pass.
+				$metric->retention_days > 0 ? ($ts_1d + (self::PERIOD_DAYS_1 * $metric->retention_days)) : 0,
 				$values->samples,
 				$db->qstr($values->sum),
 				$db->qstr($values->min),
