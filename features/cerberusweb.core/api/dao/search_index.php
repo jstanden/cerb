@@ -427,9 +427,24 @@ class DAO_SearchIndex extends Cerb_ORMHelper {
 		$search_indexes = DAO_SearchIndex::getIds($ids);
 		
 		foreach($search_indexes as $search_index) {
-			$search_extension = $search_index->getExtension();
+			if(!($search_extension = $search_index->getExtension()))
+				continue;
+			
 			$search_extension->deleteIndex($search_index);
 		}
+		
+		// Queue cleanup
+		
+		// A reindex job outlives its index otherwise, and its messages keep dequeuing against an index
+		// that's no longer there. Deleting the job cascades to them.
+		$job_keys = array_map(fn($id) => sprintf('search_index:%d:reindex', $id), $ids);
+		
+		$job_ids = $db->GetArrayMaster(sprintf("SELECT id FROM queue_job WHERE singleton_key IN (%s)",
+			implode(',', self::qstrArray($job_keys))
+		));
+		
+		if($job_ids)
+			DAO_QueueJob::delete(array_column($job_ids, 'id'));
 		
 		// Delete the primary records
 		
