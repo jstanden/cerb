@@ -108,6 +108,14 @@
 		&::placeholder { color: var(--cerb-color-background-contrast-150); }
 	}
 
+	// filterIn:'body' — the filter rides atop the scroll body instead of the head row (for a rail whose head
+	// already carries a control). Its --content wrapper supplies the gutter; it just fills that width.
+	&--filter-in-body {
+		display: block;
+		width: 100%;
+		flex: none;
+	}
+
 	// ── Sections ────────────────────────────────────────────────────────
 	&--section { margin-bottom: 10px; }
 

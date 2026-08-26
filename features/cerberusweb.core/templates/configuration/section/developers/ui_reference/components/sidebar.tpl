@@ -78,6 +78,7 @@ const sb = new CerbUI.Sidebar(document.getElementById('nav'), {
 	fullHeight:    false,    // true = sticky 100vh (body scrolls within the viewport); else a normal in-flow block
 	storageKey:    null,     // e.g. 'cerbNav' — persist the collapsed state in localStorage
 	filter:        false,    // search box in the head (shares its row with the collapse chevron); winnows items by label.
+	filterIn:      'head',   // 'head' (inline with the chevron) | 'body' (atop the list, scrolls away with it).
 	                         // ArrowDown from the box focuses the list — then Up/Down rove, Enter/Space select, Esc returns
 	filterPlaceholder: 'Filter…',
 	onToggle:      function(collapsed) {},          // after expand/collapse

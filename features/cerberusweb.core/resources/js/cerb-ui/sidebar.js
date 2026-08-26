@@ -3,7 +3,8 @@
  *
  * Enhances authored markup in place (progressive enhancement, like Tabs/Menu): an <aside class="cerb-ui-sidebar">
  * with three optional slots —
- *   --head : fixed (does not scroll). The component injects the collapse toggle (and, with filter:true, a search box).
+ *   --head : fixed (does not scroll). The component injects the collapse toggle (and, with filter:true, a search
+ *            box -- inline on the toggle's row, or atop the scrolling body with filterIn:'body').
  *   --body : the ONLY scroll region. Holds --section blocks (a muted --label + a <ul> of item <li>s).
  *   --foot : fixed (does not scroll). Optional (e.g. a future "current user" card).
  * A bare <aside> with just sections/uls is auto-wrapped into a --body, so simple callers can skip the slots.
@@ -43,6 +44,7 @@ CerbUI.Sidebar = class {
 		fullHeight: false,       // sticky full-viewport height (body scrolls within); else a normal in-flow block
 		storageKey: null,        // localStorage key to persist the collapsed state across reloads
 		filter: false,           // inject a search box in the head that winnows items by label text
+		filterIn: 'head',        // 'head' (inline on the toggle's row) | 'body' (atop the scrolling list, scrolls away)
 		filterPlaceholder: 'Filter…',
 		onToggle: null,          // (collapsed) after expand/collapse
 		onSelect: null,          // (li, sidebar, e) on item click; return truthy to handle it (skips the default action)
@@ -222,7 +224,17 @@ CerbUI.Sidebar = class {
 		this.filterInput.addEventListener('input', this._onFilterInput);
 		this.filterInput.addEventListener('keydown', this._onFilterKeydown);
 		// Sit the filter inline to the LEFT of the collapse toggle — one head row, no empty bar above it.
-		this.headBar.insertBefore(this.filterInput, this.toggleBtn);
+		// filterIn:'body' instead rides it atop the scroll body (where it scrolls away with the list), for a
+		// rail whose head row already carries a control. A --content wrapper gives it the section gutter.
+		if(this.opts.filterIn === 'body') {
+			this.filterInput.classList.add('cerb-ui-sidebar--filter-in-body');
+			this.filterWrap = document.createElement('div');
+			this.filterWrap.className = 'cerb-ui-sidebar--content cerb-ui-sidebar--hide-collapsed';
+			this.filterWrap.appendChild(this.filterInput);
+			this.body.insertBefore(this.filterWrap, this.body.firstChild);
+		} else {
+			this.headBar.insertBefore(this.filterInput, this.toggleBtn);
+		}
 	}
 
 	_enhanceItems() {
