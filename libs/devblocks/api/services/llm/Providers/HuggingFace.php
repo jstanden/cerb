@@ -14,8 +14,6 @@ use GuzzleHttp\Psr7\Request;
  * whole request/response path — including SSE streaming, `request_timeout`,
  * `Exception_DevblocksLlmApiError` (which is what lets the queue tell a retryable failure from a
  * permanent one) and neutral `images:` expansion, none of which its hand-copied chatCompletion() had.
- *
- * The one structural difference is that the MODEL ID RIDES THE URL PATH rather than only the body.
  */
 class HuggingFace extends OpenAI {
 	const ID = 'huggingface';
@@ -25,7 +23,7 @@ class HuggingFace extends OpenAI {
 	}
 
 	function getIconColor() : string {
-		return '#FF9D00';
+		return '#FFD21E';
 	}
 
 	/**
@@ -36,7 +34,7 @@ class HuggingFace extends OpenAI {
 		Extension_DevblocksLlmProvider::__construct($params, false);
 
 		if(!$this->getParam('api_endpoint_url'))
-			$this->setParam('api_endpoint_url', 'https://api-inference.huggingface.co');
+			$this->setParam('api_endpoint_url', 'https://router.huggingface.co');
 
 		if($validate && !$this->getParam('model'))
 			throw new Exception_DevblocksAutomationError('llm:inputs:llm:huggingface:model: is required.');
@@ -48,14 +46,6 @@ class HuggingFace extends OpenAI {
 	 */
 	function getSystemPromptRole() : string {
 		return 'system';
-	}
-
-	// The model id is part of the PATH here, not just the body. CRLF-stripped because it lands in a
-	// request line.
-	function getChatCompletionEndpointUrl(string $base_url) : string {
-		$model = DevblocksPlatform::services()->string()->strStripCrlf($this->getParam('model', ''));
-
-		return sprintf('%s/models/%s/v1/chat/completions', $base_url, $model);
 	}
 
 	// `max_tokens`, and nothing else. Reasoning rides its own seam (_getReasoningParams), so this override
@@ -79,18 +69,21 @@ class HuggingFace extends OpenAI {
 	}
 
 	/**
-	 * Kept rather than inherited for ONE difference, on the `tool` branch: this pairs a tool result by
-	 * the tool's NAME where every other OpenAI-family provider pairs by `tool_call_id`. returnTool()
-	 * below writes both keys, so the id is available and pairing by it would be more correct when the
-	 * same tool is called twice in a turn — but changing which key identifies a result would rewrite how
-	 * existing HuggingFace transcripts replay, which is its own change and not this one.
+	 * Kept rather than inherited for the `tool` branch: HuggingFace's stored tool message carries a `name`
+	 * alongside `tool_call_id`, and the pairing here tolerates a row that has only the name.
+	 *
+	 * Pairing reads the ID first. It used to read the name, which collapsed N parallel calls to the same tool
+	 * onto one key -- and a name in that slot matches no call at all, so a transcript found no result to show
+	 * and toNativeMessage() replayed an unmatchable `tool_call_id` onto another provider. returnTool() below
+	 * has always stored both keys, so every existing row pairs by id without a migration.
 	 */
 	public function convertToGenericMessage(array $message, ?string $message_uuid=null): DevblocksLlmChatResponse {
 		$chat_response = new DevblocksLlmChatResponse('', $message_uuid);
 
 		if('tool' == $message['role'] ?? '') {
 			$chat_response->setRole('tool');
-			$chat_response->pushToolResult($message['name'] ?? '', $message['content'] ?? '');
+			$tool_result_id = strval($message['tool_call_id'] ?? '') ?: strval($message['name'] ?? '');
+			$chat_response->pushToolResult($tool_result_id, $message['content'] ?? '');
 
 		} else {
 			if (array_key_exists('role', $message))
@@ -145,6 +138,19 @@ class HuggingFace extends OpenAI {
 	}
 
 	/**
+	 * Feature-extraction rides a LONGER path than chat: the serving backend is named in it (`hf-inference`),
+	 * and the task is a `/pipeline/<task>` suffix that only feature-extraction and sentence-similarity take.
+	 * Both segments are load-bearing -- without them the router has no route and answers 404.
+	 *
+	 * CRLF-stripped because the model lands in a request line.
+	 */
+	function getEmbeddingsEndpointUrl(string $base_url) : string {
+		$model = DevblocksPlatform::services()->string()->strStripCrlf($this->getParam('model', ''));
+
+		return sprintf('%s/hf-inference/models/%s/pipeline/feature-extraction', $base_url, $model);
+	}
+
+	/**
 	 * HuggingFace's feature-extraction endpoint. Kept rather than inherited: it is NOT an
 	 * OpenAI-shaped `/v1/embeddings` call — the model rides the path, the field is `inputs`, and the
 	 * response IS the vector array rather than a `{data:[{embedding}]}` envelope.
@@ -154,12 +160,11 @@ class HuggingFace extends OpenAI {
 	function embed(array $texts) : array {
 		$http = DevblocksPlatform::services()->http();
 
-		$base_url = rtrim($this->getParam('api_endpoint_url', 'https://api-inference.huggingface.co'), '/');
+		$base_url = rtrim($this->getParam('api_endpoint_url', 'https://router.huggingface.co'), '/');
 		$authentication_uri = $this->getParam('authentication', null);
-		$model = $this->getParam('model');
 
 		$verb = 'POST';
-		$url = $base_url . '/models/' . $model;
+		$url = $this->getEmbeddingsEndpointUrl($base_url);
 		$headers = [
 			'Content-Type' => 'application/json',
 		];
@@ -199,10 +204,18 @@ class HuggingFace extends OpenAI {
 		];
 	}
 
+	// Hints, not an inventory -- the router fronts thousands of models across a dozen serving backends, and
+	// the authoritative list is the live one from fetchChatModels() (the editor's Refresh button). Ordered by
+	// how many backends serve them, so the top of the list is the least likely to be unavailable.
 	function getChatModels() : array {
 		return [
-			'meta-llama/Llama-3.2-3B-Instruct',
-			'google/gemma-2-2b-it',
+			'openai/gpt-oss-120b',
+			'zai-org/GLM-5.2',
+			'google/gemma-4-31B-it',
+			'deepseek-ai/DeepSeek-V4-Pro',
+			'moonshotai/Kimi-K3',
+			'meta-llama/Llama-3.3-70B-Instruct',
+			'Qwen/Qwen3.8-27B',
 		];
 	}
 
@@ -219,7 +232,7 @@ class HuggingFace extends OpenAI {
 			'values' => [
 				'model:' => $this->getChatModels(),
 				'authentication:' => ['type' => 'cerb-uri', 'params' => ['connected_account' => null]],
-				'api_endpoint_url:' => ['https://api-inference.huggingface.co'],
+				'api_endpoint_url:' => ['https://router.huggingface.co'],
 				'effort:' => $this->getEffortLevels(),
 			],
 		];
@@ -241,7 +254,7 @@ class HuggingFace extends OpenAI {
 			'values' => [
 				'model:' => $this->getEmbeddingModels(),
 				'authentication:' => ['type' => 'cerb-uri', 'params' => ['connected_account' => null]],
-				'api_endpoint_url:' => ['https://api-inference.huggingface.co'],
+				'api_endpoint_url:' => ['https://router.huggingface.co'],
 			],
 		];
 	}
