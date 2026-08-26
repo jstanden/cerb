@@ -41,6 +41,11 @@ class Platform implements Command {
 		return implode("\n", [
 			"cerb platform -- what's installed and extensible in THIS Cerb install.",
 			'',
+			"  cerb platform version",
+			"      What version of Cerb this is, and what it runs on. Ask before assuming a feature exists:",
+			"      a feature that shipped in 12.0 is absent in 11.x, and packages and workflows gate on this",
+			"      exact string (`cerb_version: '>=12.0'`).",
+			'',
 			"  cerb platform plugins [--filter <text>] [--enabled|--disabled]",
 			"      Every plugin, by fully qualified ID, with whether it's enabled here. A disabled plugin's",
 			"      record types, extensions, and features are all absent from this install.",
@@ -72,12 +77,109 @@ class Platform implements Command {
 			// A bare namespace ANSWERS with its usage rather than pointing at it. Telling a model to go read
 			// the help costs a whole extra tool round trip to learn something we already had in hand.
 			'' => $this->_ok($this->getHelp()),
+			'version' => $this->_version($args, $flags),
 			'plugins' => $this->_plugins($args, $flags),
 			'points' => $this->_points($args, $flags),
 			'extensions' => $this->_extensions($args, $flags),
 			// Same reasoning, but it IS an error: say what went wrong, then answer the obvious next question.
 			default => $this->_fail(sprintf("cerb platform: %s: unknown sub-command.\n\n%s", $subcommand, $this->getHelp())),
 		};
+	}
+
+	/**
+	 * What this install IS.
+	 *
+	 * There is nowhere else to read this. The version was reachable only as the `cerberusweb.core` row of
+	 * `cerb platform plugins`, which nobody looks in for it, so an agent that needed the version guessed at
+	 * one instead of asking.
+	 */
+	private function _version(array $args, array $flags) : array {
+		$is_cloud = $this->_isCerbCloud();
+
+		$rows = [
+			[
+				'component' => 'cerb',
+				'version' => strval(APP_VERSION),
+				'build' => strval(APP_BUILD),
+				'detail' => '',
+			],
+			[
+				'component' => 'deployment',
+				'version' => $is_cloud ? 'Cerb Cloud' : 'Self-Hosted',
+				'build' => '',
+				'detail' => $is_cloud ? strval(constant('CERB_CLOUD_SUBDOMAIN')) : '',
+			],
+			[
+				'component' => 'devblocks',
+				// Devblocks has no semantic version; the build serial is its only one.
+				'version' => '',
+				'build' => strval(PLATFORM_BUILD),
+				'detail' => 'the framework Cerb is built on',
+			],
+			[
+				'component' => 'php',
+				'version' => strval(PHP_VERSION),
+				'build' => '',
+				'detail' => strval(php_sapi_name()),
+			],
+			[
+				'component' => 'database',
+				'version' => $this->_databaseVersion(),
+				'build' => '',
+				'detail' => '',
+			],
+		];
+
+		if($this->_wantsJson($flags))
+			return $this->_json($rows, 'version');
+
+		$table = $this->_table(
+			['component', 'version', 'build', 'detail'],
+			array_map(fn($r) => [$r['component'], $r['version'], $r['build'], $r['detail']], $rows)
+		);
+
+		$out = [
+			"# Version",
+			'',
+			sprintf("This is Cerb %s (build %s), %s.", APP_VERSION, APP_BUILD, $is_cloud ? 'hosted on Cerb Cloud' : 'self-hosted'),
+			'',
+			$table,
+			'',
+			"`version` is what a compatibility gate compares -- `cerb_version: '>=12.0'` on a workflow, or",
+			"`requires.cerb_version` in a package. `build` is a date serial that moves with every release and",
+			"is what the updater compares; it is not a version and does not sort against one.",
+			'',
+			"Read `cerb platform plugins` for the version of an individual plugin, which can differ from Cerb's.",
+		];
+
+		return $this->_ok(implode("\n", $out), $rows, 'version');
+	}
+
+	/**
+	 * Whether Cerb hosts this install.
+	 *
+	 * Both constants are defined only in Cloud's own `framework.config.php`, so they're read through
+	 * `defined()` -- naming an undefined constant directly is a fatal everywhere else.
+	 */
+	private function _isCerbCloud() : bool {
+		return defined('CERB_CLOUD_SUBDOMAIN') && defined('CERB_CLOUD_TOKEN');
+	}
+
+	/**
+	 * The database server's own version string, which names the flavor too (`11.4.2-MariaDB`).
+	 *
+	 * Answering "(unavailable)" beats fataling the whole command: the other three rows are still the answer
+	 * to what was asked.
+	 */
+	private function _databaseVersion() : string {
+		try {
+			$db = DevblocksPlatform::services()->database();
+
+			return strval($db->GetOneReader('SELECT VERSION()') ?: '(unavailable)');
+
+		} catch(\Throwable) {
+			return '(unavailable)';
+		}
 	}
 
 	/**
