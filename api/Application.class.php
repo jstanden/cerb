@@ -8198,9 +8198,6 @@ class _CerbApplication_Packages {
 	function importToLibraryFromString($package_json) {
 		$db = DevblocksPlatform::services()->database();
 		
-		$storage = new DevblocksStorageEngineDisk();
-		$storage->setOptions([]);
-		
 		if(false === (@$package_data = json_decode($package_json, true)))
 			return;
 		
@@ -8235,77 +8232,93 @@ class _CerbApplication_Packages {
 			));
 		}
 		
-		// Package images
+		// Package art
 		//
 		// `image` is polymorphic and single-valued: an embedded `data:` image (PNG or SVG) is stored as
-		// an avatar blob, any other non-empty value is a cerb-icon name kept on the package's `icon`
+		// an avatar blob, any other non-empty value is an icon spec kept on the package's `icon`
 		// column, and empty means "use the per-type default". Reconcile on every import so exactly one
-		// of {avatar blob, icon column} survives and the other is cleared — otherwise a package that
+		// of {avatar blob, icon spec} survives and the other is cleared -- otherwise a package that
 		// switched from an image to an icon would keep its stale blob (has_image stays true).
-		if($package_id && array_key_exists('image', $library_meta)) {
-			$imagedata = $library_meta['image'] ?? '';
-			$content_type = null;
+		if($package_id && array_key_exists('image', $library_meta))
+			$this->setLibraryArt($package_id, $library_meta['image'] ?? '');
+	}
 
-			if(DevblocksPlatform::strStartsWith($imagedata,'data:image/png;base64,')) {
-				$content_type = 'image/png';
-				$imagedata = base64_decode(substr($imagedata, strlen('data:image/png;base64,')));
-			} else if(DevblocksPlatform::strStartsWith($imagedata,'data:image/svg+xml;base64,')) {
-				$content_type = 'image/svg+xml';
-				$imagedata = base64_decode(substr($imagedata, strlen('data:image/svg+xml;base64,')));
-			}
+	/**
+	 * Reconcile a package's placeholder art from a `library.image` value: an embedded `data:` image
+	 * (PNG or SVG) becomes an avatar blob, anything else is stored verbatim as the `icon` spec --
+	 * "<cerb-icon> [<background> [<foreground>]]", e.g. "todo" or "todo #7f7f7f #ffffff". The two are
+	 * mutually exclusive; whichever the package now uses clears the other.
+	 */
+	function setLibraryArt($package_id, $imagedata) : void {
+		$db = DevblocksPlatform::services()->database();
 
-			if($content_type && false !== $imagedata) {
-				// Embedded image → store the blob and clear any icon-name override (image supersedes it)
-				if(!($storage_id = $db->GetOneMaster(sprintf("SELECT id FROM context_avatar WHERE context = %s AND context_id = %d", $db->qstr('cerberusweb.contexts.package.library'), $package_id)))) {
-					$sql = sprintf("INSERT INTO context_avatar (context,context_id,content_type,is_approved,updated_at) ".
-						"VALUES (%s,%d,%s,%d,%d)",
-						$db->qstr('cerberusweb.contexts.package.library'),
-						$package_id,
-						$db->qstr($content_type),
-						1,
-						time()
-					);
-					$db->ExecuteMaster($sql);
+		$storage = new DevblocksStorageEngineDisk();
+		$storage->setOptions([]);
 
-					$storage_id = $db->LastInsertId();
-				} else {
-					$sql = sprintf("UPDATE context_avatar SET content_type=%s, is_approved=%d, updated_at=%d WHERE context = %s AND context_id = %d",
-						$db->qstr($content_type),
-						1,
-						time(),
-						$db->qstr('cerberusweb.contexts.package.library'),
-						$package_id
-					);
-					$db->ExecuteMaster($sql);
-				}
+		$imagedata = strval($imagedata);
+		$content_type = null;
 
-				// Put in storage
-				$storage_key = $storage->put('context_avatar', $storage_id, $imagedata);
+		if(DevblocksPlatform::strStartsWith($imagedata,'data:image/png;base64,')) {
+			$content_type = 'image/png';
+			$imagedata = base64_decode(substr($imagedata, strlen('data:image/png;base64,')));
+		} else if(DevblocksPlatform::strStartsWith($imagedata,'data:image/svg+xml;base64,')) {
+			$content_type = 'image/svg+xml';
+			$imagedata = base64_decode(substr($imagedata, strlen('data:image/svg+xml;base64,')));
+		}
 
-				// Update record key
-				$sql = sprintf("UPDATE context_avatar SET storage_extension = %s, storage_key = %s, storage_size = %d WHERE id = %d",
-					$db->qstr('devblocks.storage.engine.disk'),
-					$db->qstr($storage_key),
-					strlen($imagedata),
-					$storage_id
+		if($content_type && false !== $imagedata) {
+			// Embedded image → store the blob and clear any icon-name override (image supersedes it)
+			if(!($storage_id = $db->GetOneMaster(sprintf("SELECT id FROM context_avatar WHERE context = %s AND context_id = %d", $db->qstr('cerberusweb.contexts.package.library'), $package_id)))) {
+				$sql = sprintf("INSERT INTO context_avatar (context,context_id,content_type,is_approved,updated_at) ".
+					"VALUES (%s,%d,%s,%d,%d)",
+					$db->qstr('cerberusweb.contexts.package.library'),
+					$package_id,
+					$db->qstr($content_type),
+					1,
+					time()
 				);
 				$db->ExecuteMaster($sql);
 
-				$db->ExecuteMaster(sprintf("UPDATE package_library SET icon = '' WHERE id = %d", $package_id));
-
+				$storage_id = $db->LastInsertId();
 			} else {
-				// Not an embedded image: it's a bare cerb-icon name (or empty, or an unrecognized
-				// `data:` type). Store the icon name and remove any previously-stored avatar blob so the
-				// client renders the icon / per-type default instead of a stale image.
-				$icon = DevblocksPlatform::strStartsWith($imagedata,'data:') ? '' : $imagedata;
-
-				$db->ExecuteMaster(sprintf("UPDATE package_library SET icon = %s WHERE id = %d",
-					$db->qstr($icon),
+				$sql = sprintf("UPDATE context_avatar SET content_type=%s, is_approved=%d, updated_at=%d WHERE context = %s AND context_id = %d",
+					$db->qstr($content_type),
+					1,
+					time(),
+					$db->qstr('cerberusweb.contexts.package.library'),
 					$package_id
-				));
-
-				DAO_ContextAvatar::deleteByContext(CerberusContexts::CONTEXT_PACKAGE, $package_id);
+				);
+				$db->ExecuteMaster($sql);
 			}
+
+			// Put in storage
+			$storage_key = $storage->put('context_avatar', $storage_id, $imagedata);
+
+			// Update record key
+			$sql = sprintf("UPDATE context_avatar SET storage_extension = %s, storage_key = %s, storage_size = %d WHERE id = %d",
+				$db->qstr('devblocks.storage.engine.disk'),
+				$db->qstr($storage_key),
+				strlen($imagedata),
+				$storage_id
+			);
+			$db->ExecuteMaster($sql);
+
+			$db->ExecuteMaster(sprintf("UPDATE package_library SET icon = '' WHERE id = %d", $package_id));
+
+		} else {
+			// Not an embedded image: it's an icon spec (or empty, or an unrecognized `data:` type).
+			// Store it and remove any previously-stored avatar blob so the client renders the icon /
+			// per-type default instead of a stale image. Model_PackageLibrary parses the spec -- an
+			// unknown icon name or a non-hex color degrades to that part's default rather than failing.
+			// Trailing whitespace would survive a round-trip through the column, so normalize it here.
+			$icon = DevblocksPlatform::strStartsWith($imagedata,'data:') ? '' : trim($imagedata);
+
+			$db->ExecuteMaster(sprintf("UPDATE package_library SET icon = %s WHERE id = %d",
+				$db->qstr($icon),
+				$package_id
+			));
+
+			DAO_ContextAvatar::deleteByContext(CerberusContexts::CONTEXT_PACKAGE, $package_id);
 		}
 	}
 	
