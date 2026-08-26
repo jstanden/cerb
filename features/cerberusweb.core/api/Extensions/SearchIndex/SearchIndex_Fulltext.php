@@ -1190,6 +1190,13 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		$logger = DevblocksPlatform::services()->log();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
+		// A record type from an uninstalled or disabled plugin. Fail the message rather than fataling
+		// the consumer, which would re-dequeue and fatal again forever.
+		if(!($record_ext = $model->getRecordTypeExtension())) {
+			$error = sprintf('Invalid record type: %s', $model->record_type);
+			return false;
+		}
+		
 		// We need to check if this search table exists and create it if not
 		if (!$this->_searchTableExists($model))
 			$this->_createSearchIndexTable($model);

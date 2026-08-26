@@ -38,7 +38,12 @@ class _DevblocksSearchService {
 
 				$error = null;
 
-				$search_extension = $search_index->getExtension();
+				if(!($search_extension = $search_index->getExtension())) {
+					$error = sprintf('Invalid search index extension: %s', $search_index->extension_id);
+					$queue_message->reportStatus(QueueMessageStatus::FAILED, $error);
+					continue;
+				}
+
 				$ids = $queue_message->message['ids'] ?? [];
 
 				// A job means a full reindex, which TRUNCATEs the index before enqueueing anything, so these
