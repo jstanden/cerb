@@ -45,6 +45,22 @@ class RecordFieldsPreview {
 		if(!empty($properties_cfields))
 			$properties = array_merge($properties, $properties_cfields);
 
+		// Lead with the saved display order. The picker renders cells in `properties` order, so
+		// without this it always drew them in profileGetFields() order -- reopening a config
+		// silently discarded the dragged order, and saving wrote the canonical order back.
+		if(is_array($selected_groups[0] ?? null) && $selected_groups[0]) {
+			$ordered = [];
+
+			foreach($selected_groups[0] as $property_key) {
+				if(array_key_exists($property_key, $properties)) {
+					$ordered[$property_key] = $properties[$property_key];
+					unset($properties[$property_key]);
+				}
+			}
+
+			$properties = $ordered + $properties;
+		}
+
 		// All custom fieldsets, with real values
 		$custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $record?->id, $values, true);
 
