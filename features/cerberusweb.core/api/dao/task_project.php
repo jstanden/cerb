@@ -139,30 +139,40 @@ class DAO_TaskProject extends Cerb_ORMHelper {
 	 * @param string $where
 	 * @return Model_TaskProject[]
 	 */
-	static function autocomplete($term, $as='models') {
-		$db = DevblocksPlatform::services()->database();
-		$objects = [];
+	/**
+	 * @param string $term the text typed into the chooser
+	 * @param string $as 'models' (default) or 'ids'
+	 * @param string|null $query the chooser's scope query, so a caller can narrow which projects it
+	 *   offers (e.g. `owner.worker:(id:5)`). Applied first, then the always-on filters below.
+	 */
+	static function autocomplete($term, $as='models', $query=null) {
+		$context_ext = Extension_DevblocksContext::get(Context_TaskProject::ID);
+
+		$view = $context_ext->getSearchView('autocomplete_task_project');
+		$view->is_ephemeral = true;
+		$view->renderPage = 0;
+		$view->renderLimit = 25;
+		$view->renderSortBy = SearchFields_TaskProject::NAME;
+		$view->renderSortAsc = true;
+		$view->renderTotal = false;
+
+		$view->addParamsWithQuickSearch($query, true);
 
 		// Archived projects are hidden from the picker
-		$results = $db->GetArrayReader(sprintf("SELECT id ".
-			"FROM task_project ".
-			"WHERE name LIKE %s AND is_closed = 0 ".
-			"ORDER BY name ASC ".
-			"LIMIT 25 ",
-			$db->qstr('%'.$term.'%')
-		));
+		$view->addParamsWithQuickSearch('closed:n', false);
 
-		if(is_array($results))
-			foreach($results as $row)
-				$objects[$row['id']] = null;
+		// An empty term opens the picker on the first 25. The wildcards are explicit because a bound
+		// value is forced to quoted text, which skips the `name:` field's own partial-match wrapping --
+		// without them this would be an exact-name match.
+		if(0 != strlen(strval($term)))
+			$view->addParamsWithQuickSearch('name:${term}', false, ['term' => '*' . $term . '*']);
 
-		switch($as) {
-			case 'ids':
-				return array_keys($objects);
+		list($results,) = $view->getData();
 
-			default:
-				return DAO_TaskProject::getIds(array_keys($objects));
-		}
+		return match ($as) {
+			'ids' => array_keys($results),
+			default => DAO_TaskProject::getIds(array_keys($results)),
+		};
 	}
 
 	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null, $options=null) {
@@ -801,7 +811,7 @@ class Context_TaskProject extends Extension_DevblocksContext implements IDevbloc
 		$active_worker = CerberusApplication::getActiveWorker();
 		$list = [];
 
-		$models = DAO_TaskProject::autocomplete($term);
+		$models = DAO_TaskProject::autocomplete($term, 'models', $query);
 
 		if(!$models)
 			return $list;
