@@ -532,6 +532,35 @@ TABLE.worklist {
 	}
 }
 
+// The `records.worklist` toolbar (worker interactions) renders into the same row as a worklist's built-in
+// action buttons (explore, bulk update, ...), so its items wear the app button chrome and the strip gives up
+// its frame -- otherwise a boxed rail of flat items sits beside a row of gradient buttons.
+[data-cerb-worklist-toolbar] {
+	.cerb-ui-toolbar--strip {
+		background: transparent;
+		border: 0;
+		border-radius: 0;
+		padding: 0;
+		gap: 0; // items carry the app button's own 1px right margin
+		vertical-align: middle;
+	}
+
+	// Scoped through --strip (0,3,0) so it also outranks the item's own :hover wash (0,2,0).
+	.cerb-ui-toolbar--strip .cerb-ui-toolbar--item {
+		@include cerb-app-button;
+		color: var(--cerb-color-button-icon);
+
+		> span.cerb-icons { font-size: 1.4em; } // the global `button > span.cerb-icons` size
+
+		// This selector also outranks the global `button:has(> span.cerb-icons):hover` (0,2,2), so the
+		// hover color the neighboring buttons get is re-asserted here.
+		&:hover { color: var(--cerb-color-button-icon--hover); }
+
+		// Same reason: a pressed toggle's `--item-active` (0,1,0) would lose to the rule above.
+		&.cerb-ui-toolbar--item-active { @include cerb-ui-toolbar-button-active; }
+	}
+}
+
 TABLE.worklistBody {
 	th {
 		background: var(--cerb-color-background-contrast-240) linear-gradient(to bottom, var(--cerb-color-background-contrast-240), var(--cerb-color-background-contrast-200));

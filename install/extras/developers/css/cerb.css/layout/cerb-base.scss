@@ -154,10 +154,13 @@ SELECT {
 	}
 }
 
-BUTTON {
+// The app's default button chrome, as a mixin so a component that has to sit inline with plain <button>s
+// can borrow the same look instead of approximating it -- e.g. the dynamic worklist toolbar sharing the
+// action row under every worklist (see [data-cerb-worklist-toolbar] in cerb-styles.scss). Color is left to
+// the caller: cerb-styles.scss re-sets BUTTON's.
+@mixin cerb-app-button {
 	height: 2.4em;
 	vertical-align: middle;
-	color: var(--cerb-color-button-text);
 	padding: 0.5em;
 	font-weight: bold;
 	margin: 0 1px 0 0;
@@ -166,6 +169,11 @@ BUTTON {
 
 	background: linear-gradient(to bottom, var(--cerb-color-button-gradient), var(--cerb-color-button-gradient-to));
 	border-radius: 0.5em;
+}
+
+BUTTON {
+	@include cerb-app-button;
+	color: var(--cerb-color-button-text);
 
 	&:hover {
 		color: var(--cerb-color-button-icon--hover);
