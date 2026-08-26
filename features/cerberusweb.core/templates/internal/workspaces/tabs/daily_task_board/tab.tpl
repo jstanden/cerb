@@ -321,9 +321,6 @@ html.dark #{$dtb_id} .dtb-card--date-edit { background: #1f2937; border-color: r
 				<button type="button" class="cerb-ui-toolbar-button" data-cerb-dtb="jump-date">
 					<span class="cerb-icons cerb-icon-calendar"></span> Jump to Date
 				</button>
-				<button type="button" class="cerb-ui-toolbar-button" data-cerb-dtb="report">
-					<span class="cerb-icons cerb-icon-file-document"></span> Generate Report
-				</button>
 			</div>
 		</div>
 		{/if}
