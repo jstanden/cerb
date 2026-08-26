@@ -33,6 +33,7 @@
 CerbUI.Menu = class {
 	static _instances = new WeakMap();
 	static _hoverGroups = new Map();
+	static _HOVER_CLICK_GRACE = 500; // ms after a hover open during which a click on the trigger won't toggle it shut
 
 	static _DEFAULTS = {
 		onSelect: null,       // (renderedLi, sourceLi, event) on leaf click / Enter
@@ -54,6 +55,8 @@ CerbUI.Menu = class {
 		virtBuffer: 6,        // extra rows rendered above/below the visible window
 		inline: false,        // render the root panel in document flow vs. floating
 		hoverTrigger: null,   // element that opens on mouseenter / closes on mouseleave
+		clickFallback: true,  // hoverTrigger only: also open on click, since touch devices have no hover. Pass
+		                      // false when the host already binds its own click toggle to that same element.
 		clickTrigger: null,   // element that TOGGLES the menu on click (anchored to it) — the click-to-open counterpart to hoverTrigger
 		hoverGroup: null,     // links sibling hover menus (only one open per group)
 		hoverCloseDelay: 150, // ms before a hover menu closes after the mouse leaves
@@ -105,6 +108,8 @@ CerbUI.Menu = class {
 		this.triggerEnter = null;
 		this.triggerLeave = null;
 		this.triggerClick = null;
+		this.triggerHoverClick = null;
+		this._hoverOpenedAt = 0;
 		this.anchor = null;
 		this.docDown = null;
 		this.docKey = null;
@@ -293,6 +298,7 @@ CerbUI.Menu = class {
 		if(this.opts.hoverTrigger && this.triggerEnter && this.triggerLeave) {
 			this.opts.hoverTrigger.removeEventListener('mouseenter', this.triggerEnter);
 			this.opts.hoverTrigger.removeEventListener('mouseleave', this.triggerLeave);
+			if(this.triggerHoverClick) this.opts.hoverTrigger.removeEventListener('click', this.triggerHoverClick);
 		}
 		if(this.opts.clickTrigger && this.triggerClick) {
 			this.opts.clickTrigger.removeEventListener('click', this.triggerClick);
@@ -666,19 +672,33 @@ CerbUI.Menu = class {
 	// ── Hover trigger ───────────────────────────────────────────────────
 
 	_bindHoverTrigger(el) {
+		const openExclusive = () => {
+			if(this.opts.hoverGroup) {
+				const g = CerbUI.Menu._hoverGroups.get(this.opts.hoverGroup);
+				if(g) g.forEach(m => { if(m !== this) m.close(); });
+			}
+			this._hoverOpenedAt = Date.now();
+			this.open(el);
+		};
+
 		this.triggerEnter = () => {
 			this._hoverIn();
-			if(!this.isOpen()) {
-				if(this.opts.hoverGroup) {
-					const g = CerbUI.Menu._hoverGroups.get(this.opts.hoverGroup);
-					if(g) g.forEach(m => { if(m !== this) m.close(); });
-				}
-				this.open(el);
-			}
+			if(!this.isOpen()) openExclusive();
 		};
 		this.triggerLeave = () => this._hoverOut();
+
+		// Touch has no hover, so a hover trigger is unreachable without this: a tap opens the menu. Binding
+		// click is also what makes Safari/iOS treat a plain <a> (no href) as tappable at all, and dispatch the
+		// simulated mouseenter it fires first. That simulated open must not be toggled straight back shut by
+		// the click behind it -- hence the grace window; a second, deliberate tap still closes.
+		this.triggerHoverClick = () => {
+			if(!this.isOpen()) { openExclusive(); return; }
+			if(Date.now() - (this._hoverOpenedAt ?? 0) >= CerbUI.Menu._HOVER_CLICK_GRACE) this.close();
+		};
+
 		el.addEventListener('mouseenter', this.triggerEnter);
 		el.addEventListener('mouseleave', this.triggerLeave);
+		if(this.opts.clickFallback) el.addEventListener('click', this.triggerHoverClick);
 	}
 
 	// Click-to-toggle: open anchored to the trigger, or close if already open. open()'s capture-phase outside-close
@@ -788,6 +808,15 @@ CerbUI.Menu = class {
 		const li = target ? target.closest('.cerb-ui-menu--item') : null;
 		if(!li) return;
 		const item = pnl.items[+(li.dataset['i'] ?? -1)];
+
+		// A branch opens on click too -- on touch the hover path that normally opens it never runs.
+		if(item && item.children && !this.opts.selectableParents) {
+			if(this.hoverTimer !== null) { clearTimeout(this.hoverTimer); this.hoverTimer = null; }
+			const open = this.pnls[pnl.depth + 1];
+			if(!open || open.items !== item.children) this._push(item.children, pnl.depth + 1);
+			return;
+		}
+
 		if(item && (!item.children || this.opts.selectableParents)) {
 			this._select(li, item.el, e);
 			if(this.opts.inline) {

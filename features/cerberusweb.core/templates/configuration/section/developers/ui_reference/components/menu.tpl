@@ -75,6 +75,8 @@ const menu = new CerbUI.Menu(ul, {
 	inline:          false, // render the root in document flow vs. floating
 	hoverTrigger:    null,  // opens on mouseenter / closes on mouseleave (the hover counterpart to clickTrigger)
 	hoverGroup:      null,  // links sibling hover menus (only one open per group)
+	clickFallback:   true,  // hoverTrigger also opens on click (touch has no hover); false when the host
+	                        // already binds its own click toggle to that element
 	hoverCloseDelay: 150,   // ms before a hover menu closes after the mouse leaves
 	fixed:           false, // position:fixed instead of absolute
 	filter:          false, // type-to-filter: start typing to reveal a search box that narrows the list

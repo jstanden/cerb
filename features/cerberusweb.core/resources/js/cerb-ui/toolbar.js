@@ -515,6 +515,7 @@ CerbUI.Toolbar = class {
 			selectableParents: this.opts.selectableParents,
 			hoverTrigger: item.hover ? btn : null,
 			hoverGroup: item.hover ? this._hoverGroup : null,
+			clickFallback: false, // the button binds its own click toggle (_toggleMenu) -- both would cancel out
 		});
 
 		this.menus.set(item.key, menu);
