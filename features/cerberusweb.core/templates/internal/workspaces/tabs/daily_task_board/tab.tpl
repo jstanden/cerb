@@ -50,10 +50,9 @@
    the stash schedule pill; later comment/link counters + an unread-notification dot. Hidden when empty. */
 #{$dtb_id} .dtb-card--meta:empty { display: none; }
 
-/* Focus "My tasks" toggle: lit when active. */
-/* "My tasks" toggle "on" state — matches the cerb-ui-toolbar active look (driven by aria-pressed). */
-#{$dtb_id} .dtb-focus-toggle[aria-pressed="true"] { background: var(--cerb-color-button-icon-enabled-background); color: var(--cerb-color-button-icon-enabled); }
-#{$dtb_id} .dtb-focus-toggle[aria-pressed="true"] .cerb-icons { color: var(--cerb-color-button-icon-enabled); }
+/* Focus scope switcher: the "My tasks" segment wears the worker's own avatar -- the same identity chip
+   the cards use -- rather than a generic user icon. */
+#{$dtb_id} .dtb-focus-avatar { width: 18px; height: 18px; border-radius: 50%; object-fit: cover; display: block; }
 /* In focus mode every visible card is mine, so the per-card avatar is redundant — hide it (cards only,
    not the add-editor's "Me" avatar). */
 #{$dtb_id}.dtb-focus-mine .dtb-card .dtb-card--owner { display: none; }
@@ -314,10 +313,11 @@ html.dark #{$dtb_id} .dtb-card--date-edit { background: #1f2937; border-color: r
 		</div>
 		{if $has_projects}
 		<div class="cerb-ui-header--right">
+			<div class="cerb-ui-switcher dtb-focus-switcher" data-cerb-dtb="focus-switcher">
+				<button type="button" data-value="all" title="Show everyone's tasks"><span class="cerb-icons cerb-icon-users"></span> All tasks</button>
+				<button type="button" data-value="mine" title="Show only my tasks (hide everyone else's across all columns + stash)"><img class="dtb-focus-avatar" src="{$worker_meta[$active_worker_id].avatar|default:''}" alt=""> My tasks</button>
+			</div>
 			<div class="cerb-ui-toolbar-strip">
-				<button type="button" class="cerb-ui-toolbar-button dtb-focus-toggle" data-cerb-dtb="focus-mine" aria-pressed="false" title="Show only my tasks (hide everyone else's across all columns + stash)">
-					<span class="cerb-icons cerb-icon-user"></span> My tasks
-				</button>
 				<button type="button" class="cerb-ui-toolbar-button" data-cerb-dtb="jump-date">
 					<span class="cerb-icons cerb-icon-calendar"></span> Jump to Date
 				</button>
@@ -1756,15 +1756,16 @@ html.dark #{$dtb_id} .dtb-card--date-edit { background: #1f2937; border-color: r
 	if(dtbConfigBtn) dtbConfigBtn.addEventListener('click', openConfigDialog);
 
 	// ── Focus "my tasks": float my owned cards to the top of TODO / In Progress (others stay below). ──
-	const focusBtn = root.querySelector('[data-cerb-dtb="focus-mine"]');
-	if(focusBtn) {
-		focusBtn.setAttribute('aria-pressed', focusMine ? 'true' : 'false');
-		focusBtn.addEventListener('click', function() {
-			focusMine = !focusMine;
-			focusBtn.setAttribute('aria-pressed', focusMine ? 'true' : 'false');
-			applyProjectView(currentSelected);
-			// Persist independently of the project view (read-modify-write keeps selected/order intact).
-			dtbInvoke('saveFocus', { focus_mine: focusMine ? 1 : 0 });
+	const focusSwitcherEl = root.querySelector('[data-cerb-dtb="focus-switcher"]');
+	if(focusSwitcherEl && CerbUI.Switcher) {
+		new CerbUI.Switcher(focusSwitcherEl, {
+			value: focusMine ? 'mine' : 'all',
+			onSelect: function(value) {
+				focusMine = (value === 'mine');
+				applyProjectView(currentSelected);
+				// Persist independently of the project view (read-modify-write keeps selected/order intact).
+				dtbInvoke('saveFocus', { focus_mine: focusMine ? 1 : 0 });
+			}
 		});
 	}
 
