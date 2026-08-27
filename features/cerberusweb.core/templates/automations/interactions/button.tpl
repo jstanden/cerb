@@ -319,7 +319,12 @@ $(function() {
 				clearActiveOnLeave: true, // hovering a row then moving off un-highlights it
 				virtThreshold: 1000, // non-uniform tile rows: don't virtualize (global menu is small anyway)
 				itemHeight: 44,
-				maxHeight: 480,
+				// Caps the LIST, not the whole bar -- the filter row and the dialog's own padding sit on top of
+				// it, which is what the reserved 180px is for. The bar is a centered MODAL that nothing else has
+				// to share the screen with, so it takes the viewport it's given rather than a fixed 480px that
+				// scrolled a dozen rows out of sight on a tall display. Floored so a short window behaves as it
+				// always did. Recomputed per open: the whole popup is rebuilt each time (see openCommandBar).
+				maxHeight: Math.max(480, window.innerHeight - 180),
 				panelClass: 'cerb-command-bar-menu', // tile styling reaches floating submenus (appended to <body>)
 				onRenderItem: renderCommandItem,
 				onSelect: function(rendered, source) {
