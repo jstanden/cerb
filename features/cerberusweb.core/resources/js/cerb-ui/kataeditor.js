@@ -2140,12 +2140,25 @@ CerbUI.KataEditor = class {
 			const pStart = prevNl + 1;
 			const pLine = text.slice(pStart, idx);
 			idx = prevNl;
-			if(pLine.trim().length === 0) continue;
-			const pIndent = pLine.length - pLine.trimStart().length;
-			if(pIndent < walkIndent) {
-				const pm = pLine.match(KEY);
-				if(pm) path.unshift(pm[2] + ':');
-				walkIndent = pIndent;
+			// A comment fixes no indent, so it's not an ancestor -- reading one as a dedent truncated the path
+			// (a `# note` in column 0 between nested rows dropped every segment above it).
+			if(pLine.trim().length === 0 || /^\s*#/.test(pLine)) continue;
+			const pi = CerbUI.KataEditor._lineKeyInfo(pLine, lists);
+			// A dash whose entry content aligns with the level we're climbing out of heads the entry we're INSIDE,
+			// so its own key (if any) is a SIBLING of what we have, not an ancestor -- take the subscript only.
+			if(pi.dashIndent !== null && pi.indent === walkIndent) {
+				path.unshift('[' + this._listIndexBefore(text, idx, pi.dashIndent) + ']');
+				walkIndent = pi.dashIndent + 1;
+				continue;
+			}
+			if(pi.indent < walkIndent) {
+				if(pi.key) path.unshift(pi.key + ':');
+				walkIndent = pi.indent;
+				// That ancestor is itself the head of an entry (`- b:`), so it's already one level down.
+				if(pi.dashIndent !== null) {
+					path.unshift('[' + this._listIndexBefore(text, idx, pi.dashIndent) + ']');
+					walkIndent = pi.dashIndent + 1;
+				}
 			}
 		}
 
