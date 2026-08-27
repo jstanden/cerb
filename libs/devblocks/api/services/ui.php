@@ -419,12 +419,35 @@ class DevblocksUiEventHandler {
 	}
 	
 	private function _isHandlerEnabled(array $handler_data) : bool {
-		foreach($handler_data as $k => $v) {
-			$key_type = DevblocksPlatform::strLower(DevblocksPlatform::services()->string()->strBefore($k, '/'));
+		return self::isBlockEnabled($handler_data);
+	}
+	
+	/**
+	 * Does a KATA block's own `enabled:` / `disabled:` say it should run? Default TRUE -- authoring the block
+	 * is the opt-in, and the flag is how you turn one off without deleting what you wrote (a UI editor can't
+	 * comment a block out the way a hand author can).
+	 *
+	 * The two things worth not re-deriving, both of which a hand-rolled `!empty()` gets wrong:
+	 *
+	 *   - `toBool()`, because an UNANNOTATED `disabled: off` stays the raw string "off" in the tree and PHP
+	 *     calls that truthy -- switching the block off with the word for on. `disabled: 0` fails the other way
+	 *     on a stricter test. Only `@bool` produces a real bool, and an author shouldn't have to know that.
+	 *   - `strBefore($k, '/')`, so a named flag (`disabled/over_budget:`) counts. Several flags may coexist;
+	 *     the FIRST decisive one wins, which is what lets an author put the specific case above the general.
+	 *
+	 * Public and static because this polarity is now shared by event handlers, toolbar items, outcomes, and
+	 * agent component blocks -- four readers of one convention, and a copy that drifts is a block that runs
+	 * when its author switched it off.
+	 */
+	public static function isBlockEnabled(array $block) : bool {
+		$strings = DevblocksPlatform::services()->string();
+		
+		foreach($block as $k => $v) {
+			$key_type = DevblocksPlatform::strLower($strings->strBefore($k, '/'));
 			
 			if(in_array($key_type, ['enabled', 'disabled'])) {
 				if(!is_bool($v))
-					$v = DevblocksPlatform::services()->string()->toBool($v);
+					$v = $strings->toBool($v);
 				
 				if($key_type == 'enabled' && $v)
 					return true;

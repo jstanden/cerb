@@ -4938,6 +4938,158 @@ class _CerbApplication_KataAutocompletions {
 }
 
 class _CerbApplication_KataSchemas {
+	/**
+	 * `agent.config_kata` -- what an AI worker contributes to any turn that runs as it.
+	 *
+	 * The blocks an agent contributes (`commands:`, `terminal:`, `mounts:`, `tools:`) are DELIBERATELY the same
+	 * grammar as `llm.agent: inputs:` in automation(). An author who has written one has written the other, the
+	 * KATA editor's existing completions apply, and the node can merge the two without translating between them.
+	 *
+	 * `tools:` takes `automation/` entries ONLY -- a REFERENCE to an `llm.tool` automation, which is where a tool
+	 * is actually implemented. The `tool/` branch that `llm.agent:` also accepts is deliberately absent: a `tool/`
+	 * is answered by an `on_tool:` branch in the calling script, and an agent record has no script, so declaring
+	 * one here would define a tool nothing can ever answer. `params:` is absent for the same reason -- nothing
+	 * reads it for an `automation/` tool (the model's own arguments become the automation's `inputs`).
+	 *
+	 * What an entry MAY carry is presentation: `description` (what the model reads -- the automation's own is the
+	 * default), `icon` and `labels` (how the call paints in a transcript), and `disabled`. Those otherwise have to
+	 * be re-authored in every interaction that uses the tool. The tool NAME is the key itself (`automation/
+	 * web-search:`), so renaming needs no field.
+	 *
+	 * Wrapping a tool in an `agent_tool` record is the direction this points -- define "Web Search" once with its
+	 * presentation and its approval/guardrail policy, then reference it per surface with an optional override.
+	 * See `PLANS/PLAN-agent-tools.md`; this grammar is the shape that record would take a reference to.
+	 *
+	 * `components:` is an attributePatterns block rather than a fixed key list because the surface catalog is
+	 * `Cerb\Agent\Pane\Components` -- a new pane component must not need a schema edit to be configurable.
+	 *
+	 * AUTHORING A COMPONENT BLOCK IS THE OPT-IN; `disabled@bool: yes` is how you turn one off without losing
+	 * what you wrote. The UI builder can't comment a block out the way a hand author would, so "off" has to be
+	 * a value rather than an absence -- otherwise switching a surface off would throw away its prompt, tools,
+	 * and model query. Same polarity as `is_disabled` everywhere else in Cerb, and as `disabled@bool:` on a
+	 * tool.
+	 */
+	function agent() : string {
+		return <<< EOD
+    &agentCommands:
+      types:
+        object:
+          attributes:
+            command:
+              multiple@bool: yes
+              types:
+                object:
+    &agentTerminal:
+      types:
+        object:
+          attributes:
+            cerb:
+              types:
+                object:
+                  attributePatterns:
+                    pattern/namespace:
+                      match: *
+                      attributes:
+                        types:
+                          bool:
+                          object:
+    &agentMounts:
+      types:
+        object:
+          attributePatterns:
+            pattern/filesystem:
+              match: *
+              attributes:
+                types:
+                  object:
+                    attributes:
+                      at:
+                        types:
+                          string:
+                      create:
+                        types:
+                          bool:
+                      filesystem:
+                        types:
+                          string:
+                      mode:
+                        types:
+                          string:
+    &agentTools:
+      types:
+        object:
+          attributes:
+            automation:
+              multiple@bool: yes
+              types:
+                object:
+                  attributes:
+                    description:
+                      types:
+                        string:
+                    disabled:
+                      types:
+                        bool:
+                    icon:
+                      types:
+                        string:
+                    labels:
+                      types:
+                        object:
+                          attributes:
+                            active:
+                              types:
+                                string:
+                            summary:
+                              types:
+                                string:
+                    uri:
+                      types:
+                        string:
+    schema:
+      attributes:
+        automation:
+          types:
+            string:
+        commands@ref: agentCommands
+        components:
+          types:
+            object:
+              attributePatterns:
+                pattern/component:
+                  match: *
+                  attributes:
+                    types:
+                      object:
+                        attributes:
+                          automation:
+                            types:
+                              string:
+                          commands@ref: agentCommands
+                          disabled:
+                            types:
+                              bool:
+                          models_query:
+                            types:
+                              string:
+                          mounts@ref: agentMounts
+                          system_prompt:
+                            types:
+                              string:
+                          terminal@ref: agentTerminal
+                          tools@ref: agentTools
+        models_query:
+          types:
+            string:
+        mounts@ref: agentMounts
+        system_prompt:
+          types:
+            string:
+        terminal@ref: agentTerminal
+        tools@ref: agentTools
+    EOD;
+	}
+	
 	function automation() : string {
 		return <<< EOD
     definitions:

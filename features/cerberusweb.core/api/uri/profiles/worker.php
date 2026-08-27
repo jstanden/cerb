@@ -126,6 +126,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				$is_superuser = DevblocksPlatform::importGPC($_POST['is_superuser'] ?? null, 'bit', 0);
 				$disabled = DevblocksPlatform::importGPC($_POST['is_disabled'] ?? null, 'bit',0);
 				$is_ai = DevblocksPlatform::importGPC($_POST['is_ai'] ?? null, 'bit', 0);
+				$agent_config_kata = DevblocksPlatform::importGPC($_POST['agent_config_kata'] ?? null, 'string', '');
 				$is_password_disabled = DevblocksPlatform::importGPC($_POST['is_password_disabled'] ?? null, 'bit',0);
 				$is_mfa_required = DevblocksPlatform::importGPC($_POST['is_mfa_required'] ?? null, 'bit',0);
 				$group_memberships = DevblocksPlatform::importGPC($_POST['group_memberships'] ?? null, 'array');
@@ -133,6 +134,16 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				$existing_worker = DAO_Worker::get($id);
 				$profile_image_changed = false;
 				$error = null;
+				
+				// The AI tab's config, checked BEFORE anything is written. It lives on the `agent` satellite
+				// rather than on `worker`, so a failure here would otherwise leave the worker saved and the
+				// config silently dropped -- the one outcome that reads as "it worked".
+				if($is_ai && '' !== trim($agent_config_kata)) {
+					$kata = DevblocksPlatform::services()->kata();
+					
+					if(false === $kata->validate($agent_config_kata, CerberusApplication::kataSchemas()->agent(), $error))
+						throw new Exception_DevblocksAjaxValidationError(sprintf("AI configuration: %s", $error));
+				}
 				
 				// ============================================
 				// Defaults
@@ -317,7 +328,11 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 						CerberusApplication::sendEmailTemplate($updated_worker->getEmailString(), 'worker_invite', $values);
 					}
 					
-					if(!$is_ai) {
+					if($is_ai) {
+						// Already validated above, so a false here is a database problem, not authoring.
+						if(!DAO_Agent::setConfigKata($updated_worker->id, $agent_config_kata, $error))
+							throw new Exception_DevblocksAjaxValidationError(sprintf("AI configuration: %s", $error));
+					} else {
 						DAO_Agent::deleteByWorkerIds([$updated_worker->id]);
 					}
 

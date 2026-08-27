@@ -4010,11 +4010,17 @@ class CerbPatch_Core_v12_0_0 {
 		// the next things that land here.
 		//
 		// Rows are created on demand (upsert), so a worker without one is simply an agent with no overrides.
+		//
+		// `config_kata` is the whole configuration: the default system prompt, model query, tools, filesystems,
+		// and terminal, plus a per-surface override of each under `components:`. ONE column because none of it
+		// is ever filtered in SQL -- `DAO_Agent::getAll()` reads every row into one cache entry and the parsed
+		// tree rides along -- so a column per knob would buy nothing and cost an ALTER per idea.
 
 		if(!isset($this->_tables['agent'])) {
 			$this->_db->ExecuteMaster("
 				CREATE TABLE `agent` (
 				`worker_id` int unsigned NOT NULL,
+				`config_kata` mediumtext,
 				`created_at` int unsigned NOT NULL DEFAULT 0,
 				`updated_at` int unsigned NOT NULL DEFAULT 0,
 				PRIMARY KEY (`worker_id`)
@@ -4031,6 +4037,9 @@ class CerbPatch_Core_v12_0_0 {
 			// dropping and re-adding an unreleased table would be churn for nothing.
 			if(array_key_exists('model_router_id', $columns))
 				$this->_db->ExecuteMaster("ALTER TABLE agent DROP COLUMN model_router_id");
+
+			if(!array_key_exists('config_kata', $columns))
+				$this->_db->ExecuteMaster("ALTER TABLE agent ADD COLUMN config_kata mediumtext AFTER worker_id");
 		}
 	}
 
@@ -4100,6 +4109,11 @@ class CerbPatch_Core_v12_0_0 {
 		
 		if(!array_key_exists('is_read', $indexes))
 			$this->_db->ExecuteMaster("ALTER TABLE llm_agent_session ADD INDEX is_read (is_read)");
+
+		// Now that an agent record configures a turn, `agent_id` is a real question to ask of this table --
+		// "everything this agent has done" for the profile, usage reporting, and the memory layer's actor.
+		if(!array_key_exists('agent_id', $indexes))
+			$this->_db->ExecuteMaster("ALTER TABLE llm_agent_session ADD INDEX agent_id (agent_id)");
 	}
 	
 	private function patchWorkflowCerbAiAgent() : void {

@@ -188,6 +188,14 @@ tables:
             unique@text:
   agent:
     columns:
+      config_kata:
+        field: config_kata
+        type: mediumtext
+        collation: utf8mb4_unicode_ci
+        nullable: NULL
+        key@text:
+        default@text:
+        extra@text:
       created_at:
         field: created_at
         type: int unsigned
@@ -6951,7 +6959,7 @@ tables:
         type: int unsigned
         collation@text:
         nullable: NOT NULL
-        key@text:
+        key: MUL
         default: 0
         extra@text:
       automation_id:
@@ -7100,6 +7108,13 @@ tables:
             index_type: BTREE
             subpart@text:
             unique: 1
+      agent_id:
+        columns:
+          agent_id:
+            column_name: agent_id
+            index_type: BTREE
+            subpart@text:
+            unique@text:
       created_at:
         columns:
           created_at:

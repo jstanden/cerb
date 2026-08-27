@@ -2363,11 +2363,17 @@ class _DevblocksLlmService {
 		
 		$automation_inputs = $tool_dict->get('inputs', []);
 		
+		// The tool automation describes itself, and that's the right default -- it's the thing that knows what it
+		// does. But a caller may override it: the same automation reads differently to an agent drafting a reply
+		// than to one editing an icon, and the alternative is a second automation that only differs by a
+		// sentence. Blank falls through, so an override is opt-in per call site.
+		$tool_description = trim(strval($tool['description'] ?? ''));
+
 		$tool_schema = [
 			'type' => 'function',
 			'function' => [
 				'name' => $tool_name,
-				'description' => $tool_automation->description ?? '',
+				'description' => ('' !== $tool_description) ? $tool_description : ($tool_automation->description ?? ''),
 				$schema_key => [
 					'type' => 'object',
 					'properties' => (object)[],
