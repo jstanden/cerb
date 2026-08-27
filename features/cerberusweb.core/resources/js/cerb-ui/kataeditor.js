@@ -583,11 +583,11 @@ CerbUI.KataEditor = class {
 	getPathForRow(modelRow) {
 		const lines = this._modelLines();
 		if(!(modelRow >= 0 && modelRow < lines.length)) return [];
-		const km = lines[modelRow].match(CerbUI.KataEditor._KEY_RE);
-		if(!km) return [];
+		const info = CerbUI.KataEditor._lineKeyInfo(lines[modelRow], true);
+		if(!info.key) return [];
 		let off = 0;
 		for(let i = 0; i < modelRow; i++) off += lines[i].length + 1;
-		return this._scopePathAt(this._model, off + km[0].length).path;
+		return this._scopePathAt(this._model, off + info.end, { lists: true }).path;
 	}
 
 	// {row, column} (MODEL row, 0-based) for a viewport point, or null if it's outside the text field — the hook
@@ -1545,7 +1545,9 @@ CerbUI.KataEditor = class {
 
 		const h = document.createElement('span');
 		h.className = 'cerb-ui-pill cerb-ui-pill--circle cerb-ui-kataeditor--key-handle';
-		h.title = 'Drag this into an editor as a placeholder, or click to insert it';
+		h.title = (typeof this.opts.onKeyClick === 'function')
+			? 'Drag this into an editor as a placeholder, or click to insert it'
+			: 'Drag this into an editor as a placeholder';
 		h.hidden = true;
 		const icon = document.createElement('span');
 		icon.className = 'cerb-icons cerb-icon-placeholders';
@@ -1629,7 +1631,7 @@ CerbUI.KataEditor = class {
 		const info = CerbUI.KataEditor._lineKeyInfo(this.getLine(modelRow), true);
 		const w = this._keyHandle.offsetWidth || 22;
 		const gutterW = this.gutter ? this.gutter.offsetWidth : 0;
-		const x = padL + (km ? km[1].length : 0) * cw - w - 4 - this.textarea.scrollLeft;
+		const x = padL + info.start * cw - w - 4 - this.textarea.scrollLeft;
 		const minX = 2 - gutterW;                                        // may overhang the gutter, not the editor
 		const maxX = Math.max(minX, this.textarea.clientWidth - w - 4);
 		this._keyHandle.style.left = Math.max(minX, Math.min(x, maxX)) + 'px';
@@ -2166,19 +2168,26 @@ CerbUI.KataEditor = class {
 		const nlAfter = text.indexOf('\n', caret);
 		const curLine = text.slice(lineStart, nlAfter === -1 ? undefined : nlAfter);
 		const indentLen = curLine.length - curLine.trimStart().length;
-		const KEY = CerbUI.KataEditor._KEY_RE;
 
 		const path = [];
 		let prefix = '', prefixRaw = '', walkIndent = indentLen;
 
-		const km = curLine.match(KEY);
-		if(km && km[0].length <= col) {
+		const info = CerbUI.KataEditor._lineKeyInfo(curLine, lists);
+		const hasLineKey = !!(info.key && info.end <= col);
+
+		if(hasLineKey) {
 			// Value position: a key precedes the caret on this line.
-			path.push(km[2] + ':');
-			const valStr = before.slice(lineStart + km[0].length); // text after the key, up to the caret
+			path.push(info.key + ':');
+			const valStr = before.slice(lineStart + info.end); // text after the key, up to the caret
 			const wm = valStr.match(/(\S*)$/);
 			prefix = wm ? wm[1] : '';
 			prefixRaw = prefix;
+			// The key heads a sequence entry (`- type: text`), so it's already one level down: subscript the
+			// path, then climb from the dash's own column -- YAML lets the owning key sit there, not just left of it.
+			if(info.dashIndent !== null) {
+				path.unshift('[' + this._listIndexBefore(text, lineStart - 1, info.dashIndent) + ']');
+				walkIndent = info.dashIndent + 1;
+			}
 		} else {
 			// Key position: the partial key being typed is the prefix.
 			prefix = before.slice(lineStart + indentLen);
@@ -2226,7 +2235,6 @@ CerbUI.KataEditor = class {
 		// matches no query path. That is why a block would complete the first field and then go dead: every
 		// keystroke after `hasVision:` moved the path out of the query. So when the full path misses AND the
 		// caret line contributed a key, retry against the PARENT path.
-		const hasLineKey = !!(km && km[0].length <= col);
 		let queryContext = this._queryValueContext(path);
 		let inlineValue = (queryContext !== null && hasLineKey);
 

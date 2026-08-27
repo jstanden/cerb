@@ -582,14 +582,14 @@ $(function() {
 		
 		// Dot-notation is the wall most authors hit reading a simulated state, so both state panes let you drag a
 		// key row's gutter grip into the script editor: the drag chip shows the placeholder you'll get, and the
-		// editor writes the parent path for you. Clicking the grip inserts at the caret (the script editor is
-		// often scrolled out of drag range).
+		// editor writes the parent path for you. Drag only -- a click would insert wherever the caret happens to
+		// be sitting, which is rarely where you meant.
 		{literal}
 		var insertPlaceholder = function(payload) {
 			editor_automation.insertSnippet('{{' + payload.expr + '}}');
 		};
 		{/literal}
-		var state_opts = { minLines: 15, maxLines: 15, dragKeys: true, onKeyClick: insertPlaceholder };
+		var state_opts = { minLines: 15, maxLines: 15, dragKeys: true };
 
 		// Run Input / Output — KataEditor (no autocompletion; KATA is a better fit than YAML here, though some
 		// YAML-only keys aren't representable yet). Fixed 15-line height (was Ace setOption minLines/maxLines).
@@ -844,15 +844,9 @@ $(function() {
 			formData.set('input', editor_state_start.getValue());
 			formData.set('output', editor_state_end.getValue());
 
-			var $p = genericAjaxPopup('editorStateDiff{$form_id}', formData, null, null, '80%');
-
-			// The Output side's keys drag out as placeholders too (the popup can't know where to put them, so it
-			// hands the viewer up). The dialog isn't modal — drag onto the script editor behind it, or click a
-			// handle to insert at the caret without moving anything.
-			$p.one('cerb-diff-viewer-ready', function(e) {
-				e.stopPropagation();
-				if(e.viewer && e.viewer.right) e.viewer.right.opts.onKeyClick = insertPlaceholder;
-			});
+			// The Output side's keys drag out as placeholders too. The dialog isn't modal, so the drop target is
+			// the script editor behind it.
+			genericAjaxPopup('editorStateDiff{$form_id}', formData, null, null, '80%');
 		});
 		editor_state_start.onChange(refreshDiffButton);
 		editor_state_end.onChange(refreshDiffButton);
