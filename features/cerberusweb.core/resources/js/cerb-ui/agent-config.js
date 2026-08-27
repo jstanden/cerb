@@ -84,6 +84,22 @@ CerbUI.AgentConfig = class {
 		return this.model.components[surface];
 	}
 
+	/*
+	 * The same scope for READING, without bringing it into existence.
+	 *
+	 * `_scope()` creates the block it's asked for, which is right for a writer and wrong for everything else:
+	 * authoring a component block IS the opt-in, so a render-time read of a surface's terminal or mounts would
+	 * quietly switch the agent ON everywhere just for opening the tab.
+	 */
+	_peek(surface) {
+		if(!surface) return this.model;
+
+		const components = this.model.components;
+		const block = (components && typeof components === 'object') ? components[surface] : null;
+
+		return (block && typeof block === 'object' && !Array.isArray(block)) ? block : {};
+	}
+
 	_isEnabled(surface) {
 		const components = this.model.components;
 
@@ -363,7 +379,7 @@ CerbUI.AgentConfig = class {
 		form.className = 'cerb-ui-form';
 		form.setAttribute('data-cerb-agent-scope', surface);
 
-		const scope = surface ? ((this.model.components || {})[surface] || {}) : this.model;
+		const scope = this._peek(surface);
 		const inherits = !!surface;
 
 		form.appendChild(this._fieldSystemPrompt(surface, scope, inherits));
@@ -736,7 +752,7 @@ CerbUI.AgentConfig = class {
 
 	/* Is `name` on for this scope once the agent's defaults are taken into account? */
 	_terminalState(surface, name) {
-		const own = ((this._scope(surface).terminal || {}).cerb || {});
+		const own = ((this._peek(surface).terminal || {}).cerb || {});
 
 		if(Object.prototype.hasOwnProperty.call(own, name))
 			return own[name] !== false;
