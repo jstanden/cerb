@@ -69,16 +69,30 @@ class Controller_Avatars extends DevblocksControllerExtension {
 		$this->_renderDefaultAvatar($avatar_context_mft->id, $avatar_context_id);
 	}
 	
+	// Set when we fall back to a default because a stored avatar couldn't be read. The fallback is then
+	// served uncacheable so a transient failure isn't pinned in the browser for the usual 24 hours.
+	private bool $_is_error_fallback = false;
+
+	// The Cache-Control for whatever we're about to serve: the standard day, or no-store on the error path.
+	private function _cacheControl() : string {
+		return $this->_is_error_fallback ? 'no-store' : 'max-age=86400';
+	}
+
 	private function _renderAvatar(Model_ContextAvatar $avatar, $default_context=null, $default_context_id=null) {
 		if(empty($default_context))
 			$default_context = $avatar->context;
 		if(empty($default_context_id))
 			$default_context_id = $avatar->context_id;
 		
+		// A record that claims an image but whose bytes we can't read is a failure, not a record that
+		// has no avatar. Serving the generic default with the usual 24-hour cache pins that default in
+		// the browser for a day, so a transient read failure (a burst of avatar requests exhausting the
+		// worker pool, say) looks permanent. Mark it uncacheable so the next load tries again.
 		if(empty($avatar->content_type) 
 				|| empty($avatar->storage_size) 
 				|| empty($avatar->storage_key) 
 				|| !($contents = Storage_ContextAvatar::get($avatar))) {
+			$this->_is_error_fallback = true;
 			$this->_renderDefaultAvatar($default_context, $default_context_id);
 			return;
 		}
@@ -184,7 +198,6 @@ class Controller_Avatars extends DevblocksControllerExtension {
 		switch($context) {
 			case CerberusContexts::CONTEXT_APPLICATION:
 				$this->_renderFilePng(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/app.png');
-				break;
 				
 			// Check if the addy's org has an avatar
 			case CerberusContexts::CONTEXT_ADDRESS:
@@ -215,7 +228,7 @@ class Controller_Avatars extends DevblocksControllerExtension {
 					}
 
 					// Display monograms by default
-					self::renderMonogram(substr($addy->email,0,1), $context_id);
+					self::renderMonogram(substr($addy->email,0,1), $context_id, !$this->_is_error_fallback);
 					return;
 				}
 				
@@ -223,11 +236,10 @@ class Controller_Avatars extends DevblocksControllerExtension {
 				$all_keys = array(1,2,3,4,5,6);
 				$n = $all_keys[$context_id % 6];
 				$this->_renderFilePng(APP_PATH . sprintf('/features/cerberusweb.core/resources/images/avatars/person%d.png', $n));
-				break;
 				
 			case CerberusContexts::CONTEXT_CONTACT:
 				if($context_id && false != ($contact = DAO_Contact::get($context_id))) {
-					self::renderMonogram($contact->getInitials(), $context_id);
+					self::renderMonogram($contact->getInitials(), $context_id, !$this->_is_error_fallback);
 					return;
 				}
 
@@ -235,17 +247,15 @@ class Controller_Avatars extends DevblocksControllerExtension {
 				$all_keys = [1,2,3,4,5,6];
 				$n = $all_keys[$context_id % 6];
 				$this->_renderFilePng(APP_PATH . sprintf('/features/cerberusweb.core/resources/images/avatars/person%d.png', $n));
-				break;
 				
 			case CerberusContexts::CONTEXT_ORG:
 				$all_keys = array(1,2,3);
 				$n = $all_keys[$context_id % 3];
 				$this->_renderFilePng(APP_PATH . sprintf('/features/cerberusweb.core/resources/images/avatars/building%d.png', $n));
-				break;
 				
 			case CerberusContexts::CONTEXT_WORKER:
 				if($context_id && ($worker = DAO_Worker::get($context_id))) {
-					self::renderMonogram($worker->getInitials(), $context_id);
+					self::renderMonogram($worker->getInitials(), $context_id, !$this->_is_error_fallback);
 					return;
 				}
 
@@ -253,7 +263,6 @@ class Controller_Avatars extends DevblocksControllerExtension {
 				$all_keys = [1,2,3,4,5,6];
 				$n = $all_keys[$context_id % 6];
 				$this->_renderFilePng(APP_PATH . sprintf('/features/cerberusweb.core/resources/images/avatars/person%d.png', $n));
-				break;
 			
 			case CerberusContexts::CONTEXT_BUCKET:
 				// Look up the avatar record
@@ -270,25 +279,21 @@ class Controller_Avatars extends DevblocksControllerExtension {
 
 			case CerberusContexts::CONTEXT_BOT:
 				$this->_renderFilePng(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/va.png');
-				break;
 
 			case CerberusContexts::CONTEXT_CONNECTED_SERVICE:
 				if($context_id && ($service = DAO_ConnectedService::get($context_id))) {
 					// Hash off the URI so the color stays stable across renames
-					self::renderMonogram(mb_substr($service->name, 0, 1), $service->uri);
+					self::renderMonogram(mb_substr($service->name, 0, 1), $service->uri, !$this->_is_error_fallback);
 					return;
 				}
 
 				$this->_renderFilePng(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/va.png');
-				break;
 				
 			case CerberusContexts::CONTEXT_PACKAGE:
 				$this->_renderFilePng(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/package.png');
-				break;
 				
 			case CerberusContexts::CONTEXT_GROUP:
 				$this->_renderFilePng(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/convo.png');
-				break;
 				
 			case CerberusContexts::CONTEXT_TICKET:
 				// Look up the avatar record
@@ -305,7 +310,6 @@ class Controller_Avatars extends DevblocksControllerExtension {
 				
 			default:
 				$this->_renderFilePng(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/va.png');
-				break;
 		}
 	}
 	
@@ -321,18 +325,18 @@ class Controller_Avatars extends DevblocksControllerExtension {
 		// Set headers
 		DevblocksPlatform::services()->http()
 			->setHeader('Accept-Ranges', 'bytes')
-			->setHeader('Cache-Control', 'max-age=86400') // 24 hours // , must-revalidate
+			->setHeader('Cache-Control', $this->_cacheControl()) // 24 hours // , must-revalidate
 			->setHeader('Content-Length', strlen($contents))
 			->setHeader('Content-Type', 'image/png')
-			->setHeader('Expires', gmdate('D, d M Y H:i:s',time()+86400) . ' GMT') // 2 hours
-			->setHeader('Pragma', 'cache')
+			->setHeader('Expires', gmdate('D, d M Y H:i:s', time() + ($this->_is_error_fallback ? -1 : 86400)) . ' GMT')
+			->setHeader('Pragma', $this->_is_error_fallback ? 'no-cache' : 'cache')
 		;
 		
 		echo $contents;
 		exit;
 	}
 	
-	public static function renderMonogram($text, $hash=null) {
+	public static function renderMonogram($text, $hash=null, $cache=true) {
 		$text = mb_substr(mb_convert_case($text, MB_CASE_UPPER), 0, 3);
 		$font = DEVBLOCKS_PATH . 'resources/font/Oswald-Bold.ttf';
 		
@@ -360,10 +364,10 @@ class Controller_Avatars extends DevblocksControllerExtension {
 		
 		DevblocksPlatform::services()->http()
 			->setHeader('Accept-Ranges', 'bytes')
-			->setHeader('Cache-Control', 'max-age=86400') // 24 hours // , must-revalidate
+			->setHeader('Cache-Control', $cache ? 'max-age=86400' : 'no-store') // 24 hours // , must-revalidate
 			->setHeader('Content-Type', 'image/png')
-			->setHeader('Expires', gmdate('D, d M Y H:i:s',time()+86400) . ' GMT') // 2 hours
-			->setHeader('Pragma',  'cache')
+			->setHeader('Expires', gmdate('D, d M Y H:i:s', time() + ($cache ? 86400 : -1)) . ' GMT')
+			->setHeader('Pragma', $cache ? 'cache' : 'no-cache')
 		;
 		
 		if(!($im = @imagecreate(100, 100)))
