@@ -34,6 +34,9 @@ class Launchers {
 	/** The chat an agent runs when its record names none of its own. */
 	const DEFAULT_AUTOMATION_URI = 'cerb:automation:cerb.ai.agent.chat';
 
+	/** The global command bar. Its rows read differently from a pane tile -- see `getKata()`. */
+	const SURFACE_COMMANDBAR = 'commandbar';
+
 	/**
 	 * The launcher input naming the agent -- RESERVED, and consumed by
 	 * `PageSection_ProfilesAutomation::_startBotInteractionAsAutomation()` before the script's `inputs:` are
@@ -62,8 +65,10 @@ class Launchers {
 			$worker = $agent['worker'];
 			$config = Config::resolve($agent['config'], $surface);
 
+			$name = $worker->getName();
+
 			$item = [
-				'label' => $worker->getName(),
+				'label' => $name,
 				'uri' => trim(strval($config['automation'] ?? '')) ?: self::DEFAULT_AUTOMATION_URI,
 				'icon' => 'bot',
 				// The agent's own picture, so the tile is the agent rather than a generic glyph. The command bar
@@ -77,6 +82,21 @@ class Launchers {
 					self::INPUT_AGENT => sprintf('cerb:worker:%d', $worker_id),
 				],
 			];
+
+			// The command bar is a global palette, not an agent's own pane: its rows are two-line (title over a
+			// subtitle), and they sit among every other shortcut in Cerb rather than among other agents. So the
+			// title is the `@handle` -- the same thing a person types to reach this agent anywhere else -- and
+			// the subtitle says plainly what picking the row does.
+			//
+			// The subtitle is an explicit `description:` because the alternative is the AUTOMATION's own
+			// description, and one script now serves every agent: whatever it says has to be true of all of
+			// them, which makes it too generic to tell two rows apart.
+			if(self::SURFACE_COMMANDBAR === $surface) {
+				if('' !== ($mention = trim(strval($worker->at_mention_name ?? ''))))
+					$item['label'] = '@' . $mention;
+
+				$item['description'] = sprintf('Start a chat with %s', $name);
+			}
 
 			$tree[sprintf('interaction/agent_%d', $worker_id)] = array_filter(
 				$item,

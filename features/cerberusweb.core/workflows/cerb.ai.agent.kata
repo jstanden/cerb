@@ -1,6 +1,6 @@
 workflow:
   name: cerb.ai.agent
-  version: 2026-08-27T01:00:00Z
+  version: 2026-08-28T01:00:00Z
   description: An AI agent chat in every editor, worklist, and the command bar
   website: https://cerb.ai/workflows/cerb.ai.agent/
   requirements:
@@ -11,7 +11,7 @@ records:
     fields:
       name: cerb.ai.agent.chat
       extension_id: cerb.trigger.interaction.worker.agent
-      description: Ask questions about Cerb and its functionality
+      description: Chat with an AI agent
       script@raw:
         # The built-in Cerb agent, managed by the `cerb.ai.agent` workflow. Edits here are REPLACED on the
         # next update. To make your own, use Automations > Build > AI Agent Chat, which generates a copy you
