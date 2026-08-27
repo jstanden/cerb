@@ -286,7 +286,7 @@ class DAO_AutomationContinuation extends Cerb_ORMHelper {
 	 * the shape can keep moving without a migration per key.
 	 */
 	static function getResumeMetadataKeys() : array {
-		return ['preview', 'icon', 'color'];
+		return ['preview', 'icon', 'color', 'agent_id'];
 	}
 
 	/**
@@ -446,7 +446,7 @@ class DAO_AutomationContinuation extends Cerb_ORMHelper {
 		$out = [];
 
 		try {
-			if(!($row = $db->GetRowReader(sprintf("SELECT provider, provider_params FROM llm_agent_session WHERE uuid = UUID_TO_BIN(%s)",
+			if(!($row = $db->GetRowReader(sprintf("SELECT agent_id, provider, provider_params FROM llm_agent_session WHERE uuid = UUID_TO_BIN(%s)",
 				$db->qstr($session_uuid)
 			))))
 				return $out;
@@ -490,6 +490,14 @@ class DAO_AutomationContinuation extends Cerb_ORMHelper {
 
 		if('' !== $color)
 			$out['color'] = $color;
+
+		// WHO the conversation is with, so History can paint the agent's own face and demote the model's mark to
+		// a corner badge -- the same split the transcript itself makes. The ID is stored rather than the avatar
+		// URL: a URL would freeze a name and a picture that the record is free to change, and a parked
+		// conversation is exactly where that goes stale. Resolved at list time instead
+		// (`getResumableRowsForScopes`), which is also how the launcher's own identity works.
+		if(($agent_id = intval($row['agent_id'] ?? 0)) > 0)
+			$out['agent_id'] = strval($agent_id);
 
 		// `validate: false` builds the provider as a PARSER -- no credentials, no connected account, no
 		// network. The same form the transcript viewer and `AgentPromptAwait::_boundaryText()` use.
@@ -675,6 +683,18 @@ class DAO_AutomationContinuation extends Cerb_ORMHelper {
 			$metadata = $row['metadata'];
 			$launcher = $launcher_identity[$row['uri']] ?? [];
 
+			// The agent the conversation is actually with, resolved NOW rather than read off a stamped URL, so a
+			// renamed agent or a new picture shows up in History immediately. `DAO_Worker::get()` reads the
+			// cached `getAll()`, so this is a lookup rather than a query per row.
+			//
+			// It also outranks the launcher's picture on purpose: launcher identity is keyed by automation URI,
+			// and every agent that hasn't overridden `automation:` shares the one Cerb ships -- so the launcher
+			// map holds whichever agent happened to be listed first, which is the wrong face for all the others.
+			$agent = ($agent_id = intval($metadata['agent_id'] ?? 0))
+				? DAO_Worker::get($agent_id) : null;
+
+			$image = ($agent && $agent->is_ai) ? $agent->getImageUrl() : '';
+
 			// Precedence, most specific first. The author's explicit keys win; then what the transcript knows
 			// about itself; then the tile that launched it; then the automation's own description.
 			$out[$token] = [
@@ -687,6 +707,8 @@ class DAO_AutomationContinuation extends Cerb_ORMHelper {
 					?: ($launcher['icon'] ?? '')
 					?: 'history',
 				'color' => strval($metadata['color'] ?? ''),
+				// With a picture, `icon`/`color` become the model's corner badge rather than the avatar itself.
+				'image' => $image ?: strval($launcher['image'] ?? ''),
 				'description' => DevblocksPlatform::strPrettyTime($row['updated_at']),
 				'updated_at' => $row['updated_at'],
 			];

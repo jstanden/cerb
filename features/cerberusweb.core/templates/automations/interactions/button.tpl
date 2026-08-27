@@ -99,9 +99,32 @@ $(function() {
 			// Always a WHITE glyph, never a contrast-picked one: brand marks are drawn white on their own color
 			// everywhere else (`_avatar.scss` does exactly this), so computing per-color legibility here would
 			// make the same conversation look different in the pane and the command bar.
-			if(ds.iconColor) {
+			if(ds.iconColor && !ds.image) {
 				tile.style.backgroundColor = ds.iconColor;
 				tile.style.color = '#fff';
+			}
+
+			// A row with BOTH is a conversation with an agent: the agent's face is the tile, and the model's
+			// mark demotes to a corner badge rather than being dropped. Without this the picture simply replaced
+			// the mark and every History row looked the same as every other -- they all ran the same model, and
+			// the agent is the part worth telling apart. Same split the agent pane and the transcript make.
+			if(ds.image && ds.icon) {
+				tile.classList.add('cerb-avatar-badged');
+
+				let badge = document.createElement('span');
+				badge.className = 'cerb-ui-pill cerb-ui-pill--circle cerb-command-bar--icon-badge';
+
+				if(ds.iconColor) {
+					badge.style.setProperty('--cerb-ui-pill-color', ds.iconColor);
+					badge.style.color = '#fff';
+				}
+
+				let mark = document.createElement('span');
+				mark.className = 'cerb-icons cerb-icon-' + ds.icon;
+				mark.setAttribute('aria-hidden', 'true');
+				badge.appendChild(mark);
+
+				tile.appendChild(badge);
 			}
 
 			rendered.insertBefore(tile, rendered.firstChild);

@@ -148,9 +148,7 @@ CerbUI.AgentPane = class {
 		chat.className = 'cerb-agent-pane--chat' + (this._float ? ' cerb-agent-pane--float' : '');
 		chat.innerHTML =
 			'<div class="cerb-agent-pane--chat-head">' +
-				'<div class="cerb-agent-pane--chat-title"><span class="cerb-icons cerb-icon-bot-message"></span> ' +
-					this._escape(this.opts.chatTitle) +
-				'</div>' +
+				'<div class="cerb-agent-pane--chat-title"></div>' +
 				'<button type="button" class="cerb-ui-button cerb-ui-button--transparent cerb-agent-pane--chat-close" title="Close"><span class="cerb-icons cerb-icon-circle-remove"></span></button>' +
 			'</div>' +
 			'<div class="cerb-agent-pane--chat-body"></div>';
@@ -166,6 +164,9 @@ CerbUI.AgentPane = class {
 		this.chatEl      = chat;
 		this.chatBodyEl  = chat.querySelector('.cerb-agent-pane--chat-body');
 		this.chatCloseEl = chat.querySelector('.cerb-agent-pane--chat-close');
+		this.chatTitleEl = chat.querySelector('.cerb-agent-pane--chat-title');
+
+		this.setChatIdentity(null);
 
 		// (In float mode the dialog's titlebar carries the title and the close/minimize controls, so the chat head
 		// is hidden by the `--float` CSS rather than doubled up here.)
@@ -318,6 +319,9 @@ CerbUI.AgentPane = class {
 		const $ = window.jQuery;
 		if(!this.chatBodyEl || !this._hasItems) return;
 
+		// Back to the picker, so the head goes back to offering a new chat rather than naming the last one.
+		this.setChatIdentity(null);
+
 		const src = document.createElement('div');
 		src.innerHTML = this.opts.toolbarHtml || '';
 
@@ -358,6 +362,10 @@ CerbUI.AgentPane = class {
 
 			tile.appendChild(avatar);
 			tile.appendChild(text);
+
+			// cerbBotTrigger owns the click that LAUNCHES; this only renames the head, so both run.
+			tile.addEventListener('click', () => this.setChatIdentity({ label: label, image: image, icon: icon }));
+
 			select.appendChild(tile);
 		});
 
@@ -379,6 +387,107 @@ CerbUI.AgentPane = class {
 		}
 
 		this._loadHistory(select);
+	}
+
+	/*
+	 * The chat head names WHO you're talking to, not what you were about to do.
+	 *
+	 * The picker's title is a call to action ("New Agent Chat"), which stops being true the moment a chat
+	 * starts -- a running conversation with @cerb sat under a header offering to begin one. So launching a tile
+	 * or resuming a row hands its own identity over, and returning to the picker (`showSelect`) hands back
+	 * null. Float mode has no visible head of its own, so the dialog's titlebar carries the same name.
+	 *
+	 * `identity` is `{label, image, icon, badge}` -- `icon` being the glyph to show when there's no picture,
+	 * and `badge` an optional `{icon, color}` corner mark. null restores the picker's title.
+	 */
+	setChatIdentity(identity) {
+		if(!this.chatTitleEl) return;
+
+		this._chatIdentity = identity || null;
+
+		const label = (identity && identity.label) ? String(identity.label) : this.opts.chatTitle;
+
+		this.chatTitleEl.replaceChildren();
+
+		if(identity && identity.image) {
+			// The agent's own face, with the model's mark demoted to a corner badge -- the same split the
+			// transcript below it makes, so the head and the turns agree about who is speaking.
+			this.chatTitleEl.appendChild(this._identityAvatar(identity, 24));
+
+			// The head has to enhance its OWN avatar. `showSelect()` and `_loadHistory()` each run
+			// `CerbUI.Avatar.enhance()` across the container they just filled, and the chat head is in neither --
+			// so without this the `data-avatar-*` markup is correct and the picture simply never paints.
+			if(window.CerbUI && CerbUI.Avatar && CerbUI.Avatar.enhance)
+				CerbUI.Avatar.enhance(this.chatTitleEl, '.cerb-ui-avatar');
+		} else {
+			const glyph = document.createElement('span');
+			glyph.className = 'cerb-icons cerb-icon-' + this._safeIcon((identity && identity.icon) || 'bot-message');
+			this.chatTitleEl.appendChild(glyph);
+		}
+
+		const text = document.createElement('span');
+		text.className = 'cerb-u-truncate';
+		text.textContent = label;
+		text.title = label;
+		this.chatTitleEl.appendChild(text);
+
+		if(this.dialog && typeof this.dialog.setTitle === 'function')
+			this.dialog.setTitle(label);
+	}
+
+	/*
+	 * An avatar for an identity that has a picture, badged with its model's mark when it carries one.
+	 *
+	 * Returns the BADGE WRAPPER when there's a badge and the bare avatar when there isn't, so a caller appends
+	 * the result without caring which it got. `CerbUI.Avatar.enhance()` finds the avatar inside either.
+	 */
+	_identityAvatar(identity, size) {
+		const avatar = document.createElement('span');
+		avatar.className = 'cerb-ui-avatar';
+		avatar.setAttribute('data-avatar', identity.label || '');
+		avatar.setAttribute('data-avatar-image', identity.image);
+		avatar.setAttribute('data-avatar-seed', identity.label || identity.image);
+		avatar.setAttribute('data-avatar-size', String(size));
+
+		const mark = identity.badge || null;
+
+		// No mark to demote -- the picture stands alone. A launcher tile is this case: nothing has picked a
+		// model yet, so there is nothing honest to badge it with.
+		if(!mark || !mark.icon)
+			return avatar;
+
+		const wrap = document.createElement('span');
+		wrap.className = 'cerb-avatar-badged';
+		wrap.appendChild(avatar);
+
+		const badge = document.createElement('span');
+		badge.className = 'cerb-ui-pill cerb-ui-pill--circle';
+
+		// The one place a font-size is set from code rather than inherited: `--circle` sizes itself in `em`, and
+		// the avatar it pins to is sized in PIXELS by the caller. Inheriting would put the same badge on a 22px
+		// head avatar and a 40px History row -- swallowing one and dwarfing the other. 0.3 keeps it at ~half the
+		// avatar, which is the proportion the transcript's badge already reads at.
+		badge.style.fontSize = (size * 0.3) + 'px';
+
+		// A brand mark is drawn white on its own color everywhere else it appears (the transcript, the command
+		// bar), so it's white here too rather than contrast-picked per color.
+		if(mark.color) {
+			badge.style.setProperty('--cerb-ui-pill-color', mark.color);
+			badge.style.color = 'rgb(255,255,255)';
+		}
+
+		const glyph = document.createElement('span');
+		glyph.className = 'cerb-icons cerb-icon-' + this._safeIcon(mark.icon);
+		badge.appendChild(glyph);
+
+		wrap.appendChild(badge);
+
+		return wrap;
+	}
+
+	/* An icon name reaches the DOM as a class, so anything outside the set's own character range is refused. */
+	_safeIcon(name) {
+		return /^[a-z0-9-]+$/.test(String(name || '')) ? String(name) : 'bot-message';
 	}
 
 	// The launcher identity. The server derives the continuation's `resume_scope` from this at launch and
@@ -435,15 +544,28 @@ CerbUI.AgentPane = class {
 				tile.setAttribute('role', 'button');
 				tile.setAttribute('tabindex', '0');
 
-				const avatar = document.createElement('span');
-				avatar.className = 'cerb-ui-avatar';
-				avatar.setAttribute('data-avatar-icon', item.icon || 'history');
-				avatar.setAttribute('data-avatar-seed', item.token || '');
-				avatar.setAttribute('data-avatar-size', '40');
-				// A conversation that declared its own color (its provider's brand mark, usually) keeps it; one
-				// that didn't falls back to the token-seeded hash, so rows stay visually distinct either way.
-				if(item.color)
-					avatar.setAttribute('data-avatar-color', item.color);
+				// WHO over WHAT. A conversation with an agent wears the agent's face and demotes the model's mark
+				// to a corner badge -- the same split the transcript makes, and the reason a History row is worth
+				// scanning at all: every row here ran the same model, and none of them ran the same agent.
+				let avatar;
+
+				if(item.image) {
+					avatar = this._identityAvatar({
+						label: item.label || '',
+						image: item.image,
+						badge: item.icon ? { icon: item.icon, color: item.color || '' } : null,
+					}, 40);
+				} else {
+					avatar = document.createElement('span');
+					avatar.className = 'cerb-ui-avatar';
+					avatar.setAttribute('data-avatar-icon', item.icon || 'history');
+					avatar.setAttribute('data-avatar-seed', item.token || '');
+					avatar.setAttribute('data-avatar-size', '40');
+					// A conversation that declared its own color (its provider's brand mark, usually) keeps it; one
+					// that didn't falls back to the token-seeded hash, so rows stay visually distinct either way.
+					if(item.color)
+						avatar.setAttribute('data-avatar-color', item.color);
+				}
 
 				const text = document.createElement('div');
 				text.className = 'cerb-ui-tile--text';
@@ -472,6 +594,13 @@ CerbUI.AgentPane = class {
 
 				const resume = () => {
 					if(!(window.Devblocks && Devblocks.resumeInteraction)) return;
+
+					this.setChatIdentity({
+						label: item.label || '',
+						image: item.image || '',
+						icon: item.icon || 'history',
+						badge: (item.image && item.icon) ? { icon: item.icon, color: item.color || '' } : null,
+					});
 
 					Devblocks.resumeInteraction(item.token, {
 						target: $(this.chatBodyEl),

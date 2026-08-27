@@ -360,6 +360,14 @@
 		&:has(> img.cerb-avatar) {
 			background: none;
 		}
+
+		// The model's mark, pinned to the corner of an agent's picture (see renderCommandItem). `.cerb-ui-pill--
+		// circle` sizes itself in `em` while the tile it pins to is a fixed 30px, so inheriting the menu's font
+		// size would put a 24px badge on a 30px avatar. This is a proportion, not a type choice -- the one
+		// sanctioned reason to set a size here.
+		> .cerb-command-bar--icon-badge {
+			font-size: 9px;
+		}
 	}
 
 	// Title + optional subtitle, stacked. The menu's own --label is the title.
