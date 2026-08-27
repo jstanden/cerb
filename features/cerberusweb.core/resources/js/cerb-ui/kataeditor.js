@@ -69,6 +69,30 @@ CerbUI.KataEditor = class {
 	// `&?[a-z0-9\-_/.*]+` (kata.php); top-level-only is a dereference semantic, not lexical, so we don't gate on indent.
 	static _KEY_RE = /^(\s*)((?:&?[\w.-]+)(?:\/[^\s:@]+)?(?:@[A-Za-z0-9_,]+)?):/;
 
+	// A YAML sequence entry: `- `, or a bare `-` on an empty entry.
+	static _LIST_ITEM_RE = /^(\s*)-(?:[ \t]+|$)/;
+
+	// A sequence subscript as the path walk writes it (`[0]`). Already an accessor -- it takes no dot.
+	static _INDEX_SEG_RE = /^\[\d+\]$/;
+
+	// One line's key token. With `lists` on it sees THROUGH a sequence dash -- `  - type: text` keys as `type`
+	// starting at column 4, which is exactly where the entry's remaining keys sit on the lines below it -- and
+	// reports the dash's own column. Off (the default) a dash line has no key, which is what KATA wants: KATA
+	// has no sequence syntax, so a leading `-` there is prose inside a text block.
+	// `indent` is where the line's content begins (past the dash), i.e. the column its siblings align on.
+	static _lineKeyInfo(line, lists) {
+		const dm = lists ? line.match(CerbUI.KataEditor._LIST_ITEM_RE) : null;
+		const at = dm ? dm[0].length : (line.length - line.trimStart().length);
+		const km = line.slice(at).match(CerbUI.KataEditor._KEY_RE);
+		return {
+			key: km ? km[2] : null,
+			start: at + (km ? km[1].length : 0),   // first column of the key token
+			end: at + (km ? km[0].length : 0),     // just past its ':'
+			indent: at,
+			dashIndent: dm ? dm[1].length : null,
+		};
+	}
+
 	// Strip /identifiers and @annotations from each path segment so `series/s0:metric@int:` keys as `series:metric:`.
 	// Segments keep their trailing ':' (the shape getTokenPath/_scopePathAt return).
 	static _normalizePath(path) {
@@ -84,6 +108,7 @@ CerbUI.KataEditor = class {
 
 	// A key path (as returned by getTokenPath/getPathForRow) as a Twig accessor:
 	//   ['http_response:','headers:','set-cookie:']  ->  http_response.headers['set-cookie']
+	//   ['results:','messages:','[0]','content:']   ->  results.messages[0].content
 	// Dot notation is only valid for a segment Twig lexes as a NAME. A KATA key may hold `-` or `.` (see _KEY_RE),
 	// and dotting those is silently WRONG rather than an error: `headers.set-cookie` parses as the subtraction
 	// `headers.set - cookie`. Such segments become a quoted subscript — the established Cerb idiom, as in the mail
@@ -92,6 +117,7 @@ CerbUI.KataEditor = class {
 		if(!Array.isArray(path) || !path.length) return '';
 		const segs = CerbUI.KataEditor._normalizePath(path).map(s => s.endsWith(':') ? s.slice(0, -1) : s);
 		return segs.map((s, i) => {
+			if(CerbUI.KataEditor._INDEX_SEG_RE.test(s)) return s;
 			// The root can only be a bare name — a subscript needs something to hang off, and `_context[...]` isn't
 			// an idiom Cerb uses. In practice a dictionary's top-level keys are always identifiers.
 			if(i === 0) return s;
@@ -550,7 +576,10 @@ CerbUI.KataEditor = class {
 	// The KATA key path OF a MODEL row (the row-keyed sibling of the caret-keyed getTokenPath), e.g. ['a:','b:'].
 	// Runs over the model so a row hidden inside a fold still resolves. Placing the probe just past the row's own
 	// `key:` puts _scopePathAt in VALUE position, which is what makes it push that key on as the last segment and
-	// prepend the ancestor chain. [] when the row isn't a key line (a blank, a comment, a `- list` item).
+	// prepend the ancestor chain. [] when the row isn't a key line (a blank, a comment, a bare `- value` item).
+	//
+	// This walk is SEQUENCE-AWARE while the caret-keyed one isn't: these panes hold emitted YAML as often as KATA
+	// (the automation simulator's state), so a key inside a `- ` entry gets its `[n]` subscript -- see _lineKeyInfo.
 	getPathForRow(modelRow) {
 		const lines = this._modelLines();
 		if(!(modelRow >= 0 && modelRow < lines.length)) return [];
@@ -1570,12 +1599,11 @@ CerbUI.KataEditor = class {
 	}
 
 	// The MODEL row whose KEY token covers (row, column), or -1. The token spans the key plus its ':' — pointing
-	// at the indent, the value, or a non-key row (blank / comment / `- list` item) is not the key.
+	// at the indent, the dash, the value, or a non-key row (blank / comment / bare `- value`) is not the key.
 	_keyTokenRowAt(row, column) {
-		const km = this.getLine(row).match(CerbUI.KataEditor._KEY_RE);
-		if(!km) return -1;
-		const start = km[1].length;
-		return (column >= start && column < km[0].length) ? row : -1;
+		const info = CerbUI.KataEditor._lineKeyInfo(this.getLine(row), true);
+		if(!info.key) return -1;
+		return (column >= info.start && column < info.end) ? row : -1;
 	}
 
 	// Park the handle immediately LEFT of `modelRow`'s key, vertically centered on the line. -1 hides it. Uses
@@ -1598,7 +1626,7 @@ CerbUI.KataEditor = class {
 		// so this goes NEGATIVE and reaches back over the gutter, which is deliberate (see the CSS): it beats a
 		// left-hand text lane, which would indent every line to serve one hovered row. Clamped to the editor's
 		// left edge, and to the right edge so a horizontally scrolled line can't slide it out of the box.
-		const km = this.getLine(modelRow).match(CerbUI.KataEditor._KEY_RE);
+		const info = CerbUI.KataEditor._lineKeyInfo(this.getLine(modelRow), true);
 		const w = this._keyHandle.offsetWidth || 22;
 		const gutterW = this.gutter ? this.gutter.offsetWidth : 0;
 		const x = padL + (km ? km[1].length : 0) * cw - w - 4 - this.textarea.scrollLeft;
@@ -2095,7 +2123,34 @@ CerbUI.KataEditor = class {
 		return m ? m[1] : null;
 	}
 
-	_scopePathAt(text, caret) {
+	// How many sequence entries precede the one whose `-` sits at column `dashIndent` and whose head line ends at
+	// `idx` (the index of the newline before it) -- the `[n]` subscript for everything inside that entry. Counts
+	// sibling dashes in the same column upward and stops at the owning key: any content at or left of the dash
+	// that isn't one of those dashes. An entry's own deeper lines are passed over, so they can't miscount.
+	_listIndexBefore(text, idx, dashIndent) {
+		let n = 0;
+
+		while(idx >= 0) {
+			const prevNl = text.lastIndexOf('\n', idx - 1);
+			const line = text.slice(prevNl + 1, idx);
+			idx = prevNl;
+
+			if(!line.trim().length || /^\s*#/.test(line)) continue;
+
+			const pi = CerbUI.KataEditor._lineKeyInfo(line, true);
+
+			if(pi.dashIndent === dashIndent) { n++; continue; }
+			if(pi.indent <= dashIndent) break;
+		}
+
+		return n;
+	}
+
+	_scopePathAt(text, caret, opts) {
+		// opts.lists: read `- ` sequence entries (see _lineKeyInfo) and subscript the path with the entry's [n].
+		// Off for autocompletion, which walks KATA -- where a leading `-` is prose, not structure.
+		const lists = !!(opts && opts.lists);
+
 		// Inside a script tag the "path" is meaningless; return the partial script word so an accepted
 		// suggestion replaces it (not the surrounding KATA value).
 		const tctx = CerbUI.editorCore.kataScript.contextAt(text, caret);
