@@ -136,21 +136,15 @@ abstract class C4_AbstractView {
 	 * @noinspection PhpUnused
 	 */
 	function getAgentToolbar() : array {
-		$active_worker = CerberusApplication::getActiveWorker();
-
-		if(!($toolbar = DAO_Toolbar::getByName('agent.pane')))
-			return [];
-
 		// `worklist_record_type` is the record type ALIAS (`ticket`), not the context id -- that's what an author
 		// writes in `data.query ... of:` and what the pane sends as a caller param, so all three channels agree.
 		// (getToolbar() puts the context id under this same key; it predates the alias and has shipped that way.)
 		$record_type = $this->getRecordType() ?: $this->getContext();
 
-		// Unlike getToolbar(), set `caller_name` so parse-time caller policy matches the runtime caller. It must
-		// be the caller NAME the pane posts, not the extension id, or enforceCallerPolicy() hides every item.
-		$toolbar_dict = DevblocksDictionaryDelegate::instance([
-			'caller_name' => Toolbar_AgentPane::CALLER_NAME,
-			'component' => 'worklist',
+		// The worklist's own state rides along so an agent's automation can read what it's looking at. The
+		// caller name and `worker_*` come from newDict(), which is also where parse-time caller policy gets the
+		// name the pane actually posts -- an extension id there hides every item.
+		return \Cerb\Agent\Pane\Launchers::parse('worklist', \Cerb\Agent\Pane\Launchers::newDict('worklist', [
 			'worklist_id' => $this->id,
 			'worklist_record_type' => $record_type,
 			'worklist_record_context' => $this->getContext(),
@@ -158,17 +152,7 @@ abstract class C4_AbstractView {
 			'worklist_query_required' => $this->getParamsRequiredQuery(),
 			'worklist_page' => $this->renderPage,
 			'worklist_limit' => $this->renderLimit,
-		]);
-
-		if($active_worker) {
-			$toolbar_dict->mergeKeys('worker_', DevblocksDictionaryDelegate::getDictionaryFromModel($active_worker, CerberusContexts::CONTEXT_WORKER));
-		} else {
-			$toolbar_dict->set('worker__context', CerberusContexts::CONTEXT_WORKER);
-			$toolbar_dict->set('worker__type', 'worker');
-			$toolbar_dict->set('worker_id', 0);
-		}
-
-		return $toolbar->getKata($toolbar_dict);
+		]));
 	}
 
 	/**

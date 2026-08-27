@@ -348,8 +348,18 @@
 		background: var(--cerb-color-background-contrast-235);
 		color: var(--cerb-color-text);
 
-		> .cerb-icons { font-size: 1.1em; }
-		> img.cerb-avatar { width: 20px; height: 20px; border-radius: 4px; }
+		// 1.1em left most of a 30px tile empty, which read as a tiny glyph floating in a plate.
+		> .cerb-icons { font-size: 2em; }
+
+		// A real picture FILLS the tile rather than sitting inside it.
+		> img.cerb-avatar { width: 30px; height: 30px; border-radius: 7px; }
+
+		// ...and the plate goes with it: a background behind a photo reads as a border drawn around someone's
+		// avatar. An agent always has one (a worker with no upload still gets a monogram image), so this is the
+		// normal case for an agent row, not an edge case.
+		&:has(> img.cerb-avatar) {
+			background: none;
+		}
 	}
 
 	// Title + optional subtitle, stacked. The menu's own --label is the title.
@@ -396,6 +406,11 @@
 		.cerb-command-bar--icon {
 			background: var(--cerb-color-action-primary-text);
 			color: var(--cerb-color-action-primary);
+
+			// The accent plate is for a GLYPH; behind a picture it's the same border, just highlighted.
+			&:has(> img.cerb-avatar) {
+				background: none;
+			}
 		}
 
 		.cerb-command-bar--subtitle,

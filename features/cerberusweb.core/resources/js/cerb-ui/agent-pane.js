@@ -341,6 +341,10 @@ CerbUI.AgentPane = class {
 
 			const avatar = document.createElement('span');
 			avatar.className = 'cerb-ui-avatar';
+			// An agent launcher carries the AGENT's picture, so a tile reads as who it is rather than as a
+			// generic glyph. The icon stays as the fallback for a tile with no image (and for the monogram).
+			const image = li.getAttribute('data-image') || '';
+			if(image) avatar.setAttribute('data-avatar-image', image);
 			avatar.setAttribute('data-avatar-icon', icon);
 			avatar.setAttribute('data-avatar-seed', uri || label);
 			avatar.setAttribute('data-avatar-size', '40');

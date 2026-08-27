@@ -44,6 +44,8 @@
 				new CerbUI.RecordChooser(this, {
 					context: this.getAttribute('data-context'),
 					name: this.getAttribute('data-name'),
+					// A scoped input offers only its subset -- `agent_*` is a worker, but only an AI one.
+					query: this.getAttribute('data-query') || '',
 					multiple: '1' === this.getAttribute('data-multiple')
 				});
 			});

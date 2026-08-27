@@ -13,6 +13,7 @@
 			data-prime-chooser
 			data-context="{$field.record_type}"
 			data-name="prompts[{$field.key}]"
+			{if $field.query|default:''}data-query="{$field.query}"{/if}
 			data-multiple="{if $field.multiple|default:false}1{else}0{/if}">
 			{foreach from=$field.selected item=sel}
 			<li data-context="{$field.record_type}" data-context-id="{$sel.id}" data-label="{$sel.label}" data-image="{$sel.image}"></li>

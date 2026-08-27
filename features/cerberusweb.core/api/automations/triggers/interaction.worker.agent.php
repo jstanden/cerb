@@ -16,9 +16,30 @@ class AutomationTrigger_InteractionWorkerAgent extends AutomationTrigger_Interac
 	const ID = 'cerb.trigger.interaction.worker.agent';
 
 	function getInputsMeta() {
-		// Same scope as any worker interaction; only the note changes. `caller_params` is where the pane puts
-		// the two keys that matter here, and `component` in particular is now load-bearing rather than
-		// informational -- it's what `llm.agent:` resolves this host's UI-command tools from.
+		// Same scope as any worker interaction, PLUS `agent_*`: the AI worker this chat was launched for. The
+		// launcher knows which agent it is -- an agent pane lists one tile per agent -- so a script reads it
+		// from scope (`agent@key: agent_id`) instead of naming an id or an `@mention`. That is what lets ONE
+		// interaction serve every agent rather than being copied per agent.
+		$inputs = array_merge(parent::getInputsMeta(), [
+			[
+				'key' => 'agent_*',
+				'type' => 'record',
+				'params' => [
+					'record_type' => 'worker',
+					// An agent IS a worker, but only an AI one -- so the simulator's chooser offers only those.
+					'query' => 'isAi:y',
+				],
+				'notes' => "The AI [worker](https://cerb.ai/docs/records/types/worker/#dictionary-placeholders) this "
+					. "chat runs as, set by the launcher. Supports key expansion, so `agent_name` and "
+					. "`agent__image_url` are the agent's own name and avatar. Pass `agent@key: agent_id` to "
+					. "`llm.agent:` and `agentPrompt:` rather than hardcoding one -- that is what makes this "
+					. "interaction reusable by every agent. Unset when no agent launched it.",
+			],
+		]);
+
+		// `caller_params` is where the pane puts the two keys that matter here, and `component` in particular is
+		// crucial rather than informational -- it's what `llm.agent:` resolves this host's UI-command tools
+		// from, and which per-surface overrides an agent applies.
 		return array_map(
 			fn($input) => ('caller_params' === ($input['key'] ?? '')) ? array_merge($input, [
 				'notes' => "Built-in parameters based on the caller type. An agent pane supplies `component`, the "
@@ -36,7 +57,7 @@ class AutomationTrigger_InteractionWorkerAgent extends AutomationTrigger_Interac
 					. "changes on its own rebuilds it every turn, and the prompt prefix is the most cacheable part "
 					. "of the request.",
 			]) : $input,
-			parent::getInputsMeta()
+			$inputs
 		);
 	}
 

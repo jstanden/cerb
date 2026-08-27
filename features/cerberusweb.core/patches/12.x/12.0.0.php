@@ -3663,23 +3663,6 @@ class CerbPatch_Core_v12_0_0 {
 		}
 	}
 	
-	private function patchToolbarAgentPane() : void {
-		// ===========================================================================
-		// `agent.pane` toolbar — the toolbar an editor's agent pane (CerbUI.AgentPane) hosts to launch agent
-		// interactions inline into its side pane. Seed the toolbar record only (no sections); its items are authored per
-		// environment and gated by the `{{component}}` host state var. Idempotent (existence-guarded).
-		
-		if (!$this->_db->GetOneMaster("SELECT id FROM toolbar WHERE name = 'agent.pane'")) {
-			$this->_db->ExecuteMaster(sprintf("INSERT INTO toolbar (name, extension_id, description, created_at, updated_at) VALUES (%s,%s,%s,%d,%d)",
-				$this->_db->qstr('agent.pane'),
-				$this->_db->qstr('cerb.toolbar.agent.pane'),
-				$this->_db->qstr('Agent interactions available inside an editor agent pane'),
-				time(),
-				time()
-			));
-		}
-	}
-	
 	private function patchTableAgentFilesystem() : void {
 		// ===========================================================================
 		// Agent filesystem: `agent_filesystem` (a named virtual volume of files) + `agent_file` (its files).
@@ -4116,6 +4099,34 @@ class CerbPatch_Core_v12_0_0 {
 			$this->_db->ExecuteMaster("ALTER TABLE llm_agent_session ADD INDEX agent_id (agent_id)");
 	}
 	
+	private function patchRetireAgentPaneToolbar() : void {
+		// ===========================================================================
+		// The `agent.pane` TOOLBAR is retired. Which agent appears on which surface is now the agent record's
+		// own `components:` block, and the launcher tiles are derived from it -- so a hand-authored section
+		// naming an automation is a second, contradictory answer to the same question.
+		//
+		// The extension is gone, so a surviving row would point at a class that no longer loads. Its sections
+		// go with it; nothing else references them.
+		//
+		// The method that CREATED this toolbar was removed from this same (unreleased) patch file rather than
+		// left in place: both run in one pass, so a surviving creator would re-insert the row on every update
+		// for this one to delete again.
+		//
+		// The caller NAME `agent.pane` is untouched -- it is the first segment of every stored `resume_scope`,
+		// so parked conversations keep resuming.
+
+		if(!array_key_exists('toolbar', $this->_tables))
+			return;
+
+		if(!($toolbar_id = $this->_db->GetOneMaster("SELECT id FROM toolbar WHERE name = 'agent.pane'")))
+			return;
+
+		if(array_key_exists('toolbar_section', $this->_tables))
+			$this->_db->ExecuteMaster("DELETE FROM toolbar_section WHERE toolbar_name = 'agent.pane'");
+
+		$this->_db->ExecuteMaster(sprintf("DELETE FROM toolbar WHERE id = %d", $toolbar_id));
+	}
+
 	private function patchWorkflowCerbAiAgent() : void {
 		// Enable the built-in Cerb agent on upgrade (a fresh install gets it from install)
 		if($this->_revision >= 1561)

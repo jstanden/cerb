@@ -38,8 +38,8 @@ namespace Cerb\Agent\Pane;
  * didn't simply never reaches a model. That second direction now costs more than it used to: these entries
  * ARE the agent's tools at runtime, not just a template the author can fix up afterwards.
  *
- * (`mail_compose` appears in Toolbar_AgentPane's placeholder notes but no host implements it. It is not
- * here, and should not be until one does.)
+ * (`mail_compose` was named in the retired `agent.pane` toolbar's placeholder notes but no host implements it.
+ * It is not here, and should not be until one does.)
  */
 class Components {
 	/**

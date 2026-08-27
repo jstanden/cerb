@@ -502,7 +502,6 @@ INSERT INTO `toolbar` VALUES (9,'global.search','cerb.toolbar.global.search','Se
 INSERT INTO `toolbar` VALUES (10,'comment.editor','cerb.toolbar.comment.editor','Editing a comment',UNIX_TIMESTAMP(),UNIX_TIMESTAMP());
 INSERT INTO `toolbar` VALUES (11,'records.worklist','cerb.toolbar.records.worklist','Viewing a worklist of records',UNIX_TIMESTAMP(),UNIX_TIMESTAMP());
 INSERT INTO `toolbar` VALUES (12,'record.profile.image.editor','cerb.toolbar.record.profile.image.editor','Editing a record profile image',UNIX_TIMESTAMP(),UNIX_TIMESTAMP());
-INSERT INTO `toolbar` VALUES (14,'agent.pane','cerb.toolbar.agent.pane','Agent interactions available inside an editor agent pane',UNIX_TIMESTAMP(),UNIX_TIMESTAMP());
 
 INSERT INTO `toolbar_section` VALUES (1,'Default','global.menu',0,25,UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),'');
 INSERT INTO `toolbar_section` VALUES (2,'Default','mail.compose',0,25,UNIX_TIMESTAMP(),UNIX_TIMESTAMP(),'');

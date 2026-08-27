@@ -1,16 +1,11 @@
 workflow:
   name: cerb.ai.agent
-  version: 2026-08-24T00:00:00Z
+  version: 2026-08-27T01:00:00Z
   description: An AI agent chat in every editor, worklist, and the command bar
   website: https://cerb.ai/workflows/cerb.ai.agent/
   requirements:
     cerb_version: >=12.0 <12.1
     cerb_plugins: cerberusweb.core
-  config:
-    query/models_query:
-      label: Restrict to agent models matching:
-      record_type: agent_model
-
 records:
   automation/agentChat:
     fields:
@@ -20,42 +15,12 @@ records:
       script@raw:
         # The built-in Cerb agent, managed by the `cerb.ai.agent` workflow. Edits here are REPLACED on the
         # next update. To make your own, use Automations > Build > AI Agent Chat, which generates a copy you
-        # own, then add it to the `agent.pane` toolbar.
-        #
-        # Models come from whatever this environment has available, narrowed by the workflow's own
-        # `models_query` config, so this runs as soon as one agent model is set up under Search > Agent
-        # Models. With none matching, the chat says so once and stops.
+        # own, then point an agent's `automation:` at it.
 
         start:
           set/init:
             prompt_agent@text:
             session_id: {{uuid()}}
-
-          # Load the permitted from the workflow config, otherwise all available models
-          llm.router:
-            output: routed
-            inputs:
-              models_query/admin: {{cerb_workflow_config('cerb.ai.agent','models_query')}}
-            on_error:
-
-          outcome/noModels:
-            if@bool: {{routed.models is empty}}
-            then:
-              await:
-                form:
-                  title: Cerb
-                  elements:
-                    say/no_models:
-                      content@text:
-                        ## No agent models are available
-                        Cerb needs at least one **agent model** configured before this agent can answer anything.
-
-                        {% if worker_is_superuser %}
-                        Configure an agent model from **Search > Agent Models**.
-                        {% endif %}
-                    submit:
-                      reset@bool: no
-              return:
 
           while:
             if@bool: yes
@@ -67,28 +32,17 @@ records:
                   llm.agent:
                     output: results
                     inputs:
+                      # WHO this turn runs as, from the launcher rather than from this script. It carries the
+                      # agent's instructions, tools, filesystems, terminal, and model policy, and stamps the
+                      # session so the transcript shows that agent's own name and picture. Reading it from
+                      # scope is what lets ONE interaction serve every agent.
+                      agent@key: agent_id
                       session_id@key: session_id
                       messages:
                         message:
                           role: user
                           content@key: prompt_agent
                           images@key,optional: prompt_agent__images
-                      # The built-in `/commands` this agent honors. Opt-in and per-node: nothing is exposed
-                      # that you didn't ask for.
-                      commands:
-                        command/compact:
-                      # The `cerb` CLI. Reflects THIS install's record types, fields, and filter keys, so the
-                      # agent looks a name up instead of recalling one that may not exist here.
-                      terminal:
-                        cerb:
-                          platform:
-                          records:
-                      # Cerb's own documentation and reference skills, read on demand. The runtime system
-                      # prompt points at both BY NAME, so deleting either leaves that pointer aimed at files
-                      # the agent cannot read.
-                      mounts:
-                        cerb-agents:
-                        cerb-docs:
                     on_success:
                       set:
                         session_id: {{results.session_id}}
@@ -100,16 +54,14 @@ records:
               # Show the transcript and prompt for the next message.
               await/chat:
                 form:
-                  title: Cerb
+                  # The agent, by handle -- with its name alongside when that says something the handle doesn't.
+                  title: {% if agent_at_mention_name %}@{{agent_at_mention_name}}{% if agent_name and agent_name != agent_at_mention_name %} ({{agent_name}}){% endif %}{% else %}{{agent_name|default('Agent')}}{% endif %}
                   elements:
                     llmTranscript/prompt_transcript:
                       session_id: {{session_id}}
-                      # A literal identity rather than a worker reference: Cerb does not ship an AI worker,
-                      # and one that named a record would break on every install that lacks it.
-                      agent:
-                        name: Cerb
-                        icon: bot
-                        color: blue
+                      # No `agent:` here on purpose. The transcript reads the AI worker the SESSION runs as
+                      # (stamped by `llm.agent: agent:`), so it shows that agent's real name and picture --
+                      # which is also why this script works for ANY agent rather than one named Cerb.
                       thinking: raw
                       tools: raw
                       expand: none
@@ -119,20 +71,7 @@ records:
                       placeholder: Message the agent...
                       session_id: {{session_id}}
                       required@bool: yes
-                      models@key: routed:models
-                      # What the composer OFFERS -- deliberately separate from the `commands:`/`mounts:`
-                      # above, which are what the agent ACTS on.
-                      commands:
-                        compact:
-                        rewrite/flatten:
-                          description: Aggressively compact the thread
-                          text@text: /compact hard
-                      # What `@` autocompletes. Opt-in: without this block `@` completes nothing.
-                      references:
-                        workers:
-                        filesystems:
-                          cerb-docs:
-                          cerb-agents:
+                      agent@key: agent_id
                     submit:
                       continue@bool: no
                       reset@bool: no
@@ -144,18 +83,3 @@ records:
         commands:
           llm.agent:
             allow@bool: yes
-          llm.router:
-            allow@bool: yes
-  toolbar_section/agentPane:
-    fields:
-      name: Cerb
-      toolbar_name: agent.pane
-      priority@int: 50
-      is_disabled: 0
-      toolbar_kata@raw:
-        # No `hidden@bool:` gate, so this appears on every agent pane and in the command bar. To keep it to
-        # one editor, add one -- e.g. `hidden@bool: {{ component != 'mail_reply' }}`.
-        interaction/cerbAgent:
-          label: Cerb
-          uri: cerb:automation:cerb.ai.agent.chat
-          icon: bot

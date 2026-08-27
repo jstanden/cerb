@@ -264,7 +264,7 @@ class DAO_AutomationContinuation extends Cerb_ORMHelper {
 		if(Toolbar_GlobalMenu::ID === $name)
 			return 'commandbar';
 
-		if(Toolbar_AgentPane::CALLER_NAME === $name) {
+		if(\Cerb\Agent\Pane\Launchers::CALLER_NAME === $name) {
 			$component = trim(strval($caller['params']['component'] ?? ''));
 			return $component ? ('agent.pane:' . $component) : '';
 		}
@@ -600,6 +600,9 @@ class DAO_AutomationContinuation extends Cerb_ORMHelper {
 			$out[$uri] = [
 				'label' => trim(strval($item['label'] ?? '')),
 				'icon' => trim(strval($item['icon'] ?? '')),
+				// An agent launcher carries the agent's avatar, so a resumed conversation wears the same face in
+				// History and the command bar that started it. Blank for a launcher with no picture.
+				'image' => trim(strval($item['image'] ?? '')),
 			];
 		}
 

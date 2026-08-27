@@ -219,8 +219,12 @@ class LlmTranscriptAwait extends AbstractAwait {
 			], fn($v) => '' !== $v);
 		}
 
+		// No authored `agent:` -> the AI worker the SESSION already runs as. `llm.agent: agent:` stamped it on
+		// `llm_agent_session.agent_id`, so the transcript can just show who is actually talking instead of
+		// making every script restate a name, an icon, and a color that the record already has. An authored
+		// block still wins, for a chat with no agent record behind it.
 		if('' === ($ref = trim(strval($agent ?? ''))))
-			return [];
+			return $this->_sessionAgentIdentity();
 
 		if(!($worker = \Cerb\AutomationBuilder\Node\LlmAgentNode::resolveAgentWorker($ref))) {
 			DevblocksPlatform::services()->log()->info(
@@ -229,6 +233,33 @@ class LlmTranscriptAwait extends AbstractAwait {
 
 			return [];
 		}
+
+		return array_filter([
+			'name' => $worker->getName(),
+			'image' => $worker->getImageUrl(),
+			'seed' => 'worker:' . $worker->id,
+		], fn($v) => '' !== $v);
+	}
+
+	/**
+	 * The identity of the agent this transcript's SESSION runs as, or `[]`.
+	 *
+	 * Read from the session rather than from config, so a chat that named its agent once on `llm.agent:` paints
+	 * that agent's real name and avatar everywhere -- the composer tile, the transcript byline, History. The
+	 * worker is resolved fresh rather than stamped, so renaming an agent or changing its picture shows up
+	 * immediately; what a transcript must never lose is which MODEL ran, and that is stamped separately on the
+	 * session's `provider_params`.
+	 */
+	private function _sessionAgentIdentity() : array {
+		if('' === ($session_id = trim(strval($this->_data['session_id'] ?? ''))))
+			return [];
+
+		// Through the memo -- a render already loaded this session, and the identity paints on every turn.
+		if(!($session = $this->_getSession($session_id)) || !$session->agent_id)
+			return [];
+
+		if(!($worker = \DAO_Worker::get($session->agent_id)) || !$worker->is_ai)
+			return [];
 
 		return array_filter([
 			'name' => $worker->getName(),

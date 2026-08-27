@@ -100,7 +100,11 @@
 		padding: 0.5em;
 		display: flex;
 		flex-direction: column;
-		align-items: flex-start;
+		// STRETCH, not flex-start. This is a COLUMN, so the cross axis is horizontal: `flex-start` sized every
+		// tile to its own content, which let a long preview line widen the tile past the pane and put a
+		// horizontal scrollbar under the whole sidebar. Stretched, each tile fills the width, and the ellipsis
+		// its preview already asks for finally has a boundary to truncate against.
+		align-items: stretch;
 		gap: 0.5em;
 	}
 
@@ -114,7 +118,8 @@
 	}
 
 	// The last prompt, as a one-line glance at where the conversation left off. Clamped rather than wrapped: in a
-	// sidebar this narrow a two-line preview pushes the idle time out of sight, which is the other half of picking.
+	// sidebar this narrow a two-line preview pushes the idle time out of sight, which is the other half of
+	// picking. Truncation depends on the tile being width-bounded -- see `--select`'s `align-items`.
 	&--tile-preview {
 		overflow: hidden;
 		white-space: nowrap;

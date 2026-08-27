@@ -51,24 +51,21 @@ class Toolbar_GlobalMenu extends Extension_Toolbar {
 			$legacy_interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('global', [], $active_worker);
 		}
 		
-		// The command bar's menu is TWO toolbars. Agent chats for the command bar are authored on `agent.pane`
-		// alongside the six editor panes -- `commandbar` is one of its components -- so an author manages every
-		// agent chat in one place instead of remembering that this one surface is different. `global.menu` keeps
-		// the non-agentic shortcuts it always had: look up an IP, reload a website cache, renew a cert.
+		// The command bar's menu is TWO sources. Agents reach it the same way they reach an editor pane -- by
+		// enabling the `commandbar` component on their record -- so there is nothing special to remember about
+		// this surface. `global.menu` keeps the non-agentic shortcuts it always had: look up an IP, reload a
+		// website cache, renew a cert.
 		//
-		// Merged as RAW KATA and parsed once, which is why `getKata()` is called with no dict (a dict makes it
-		// return a parsed tree instead). Agents lead, then this toolbar's own items, then the legacy shim
-		// appended below. Model_Toolbar::mergeKata() renames a top-level key the second toolbar reuses, exactly
-		// as it does for two sections of one toolbar.
-		//
-		// `agent.pane` items are gated by `hidden@bool: {{ component != 'commandbar' }}`, which resolves against
-		// the `component` in the parse dict below -- an editor-only chat comes back flagged hidden and is
-		// dropped. An UNGATED item shows here as it shows on every pane; that's the author's call, same as
-		// anywhere else on that toolbar.
+		// Merged as RAW KATA and parsed once, which is why `getKata()` is called with no dict (a dict makes the
+		// toolbar return a parsed tree instead). Agents lead, then this toolbar's own items, then the legacy
+		// shim appended below. Model_Toolbar::mergeKata() renames a top-level key the second source reuses,
+		// exactly as it does for two sections of one toolbar.
 		$katas = [];
 
-		if(null != ($agent_toolbar = DAO_Toolbar::getByName('agent.pane')))
-			$katas[] = $agent_toolbar->getKata();
+		// The agent launchers for the `commandbar` surface -- already filtered to the agents enabled there, so
+		// nothing arrives needing a `hidden` gate to drop it.
+		if('' !== ($agent_kata = \Cerb\Agent\Pane\Launchers::getKata('commandbar')))
+			$katas[] = $agent_kata;
 
 		if(null != ($toolbar = DAO_Toolbar::getByName('global.menu')))
 			$katas[] = $toolbar->getKata();

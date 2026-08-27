@@ -27,12 +27,14 @@
 					data-interaction-params="{if array_key_exists('inputs', $item) && is_array($item.inputs)}{DevblocksPlatform::services()->url()->arrayToQueryString($item.inputs)}{/if}"
 					data-interaction-done="{if array_key_exists('after', $item) && is_array($item.after)}{DevblocksPlatform::services()->url()->arrayToQueryString($item.after)}{/if}"
 					{if array_key_exists('icon', $item) && $item.icon}data-icon="{$item.icon}"{/if}
+					{if array_key_exists('image', $item) && $item.image}data-image="{$item.image}"{/if}
 					{if array_key_exists('keyboard', $item) && $item.keyboard}data-keyboard="{$item.keyboard}"{/if}
 					{if $item_subtitle}data-subtitle="{$item_subtitle}"{/if}
 					>{$item.label}</li>
 			{elseif 'resume' == $item_key_parts[0]}
 				<li class="cerb-bot-resume-trigger"
 					data-continuation-token="{$item.token}"
+					{if array_key_exists('image', $item) && $item.image}data-image="{$item.image}"{/if}
 					{if array_key_exists('icon', $item) && $item.icon}data-icon="{$item.icon}"{/if}
 					{if array_key_exists('color', $item) && $item.color}data-icon-color="{$item.color}"{/if}
 					{if array_key_exists('preview', $item) && $item.preview}data-subtitle="{$item.preview}"{/if}
@@ -62,12 +64,14 @@
 					data-interaction-params="{if array_key_exists('inputs', $item) && is_array($item.inputs)}{DevblocksPlatform::services()->url()->arrayToQueryString($item.inputs)}{/if}"
 					data-interaction-done="{if array_key_exists('after', $item) && is_array($item.after)}{DevblocksPlatform::services()->url()->arrayToQueryString($item.after)}{/if}"
 					{if array_key_exists('icon', $item) && $item.icon}data-icon="{$item.icon}"{/if}
+					{if array_key_exists('image', $item) && $item.image}data-image="{$item.image}"{/if}
 					{if array_key_exists('keyboard', $item) && $item.keyboard}data-keyboard="{$item.keyboard}"{/if}
 					{if $item_subtitle}data-subtitle="{$item_subtitle}"{/if}
 					>{$item.label}</li>
 			{elseif 'resume' == $item.type}
 				<li class="cerb-bot-resume-trigger"
 					data-continuation-token="{$item.token}"
+					{if array_key_exists('image', $item) && $item.image}data-image="{$item.image}"{/if}
 					{if array_key_exists('icon', $item) && $item.icon}data-icon="{$item.icon}"{/if}
 					{if array_key_exists('color', $item) && $item.color}data-icon-color="{$item.color}"{/if}
 					{if array_key_exists('preview', $item) && $item.preview}data-subtitle="{$item.preview}"{/if}

@@ -930,20 +930,15 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 			return;
 		}
 
-		// The same toolbar the pane rendered its launcher tiles from, re-parsed here so a resumed conversation can
-		// inherit the label and icon of the tile that started it. Scoped by `component`, exactly as the host page
-		// section builds it, so an item hidden from this editor can't name a row in its History.
-		$identity = [];
+		// The same launchers the pane rendered its tiles from, re-parsed here so a resumed conversation inherits
+		// the label and picture of the tile that started it -- which is now the AGENT's name and avatar. Scoped
+		// by `component` exactly as the host page section builds it, so an agent not enabled on this editor
+		// can't name a row in its History.
+		$surface = strval($caller['params']['component'] ?? '');
 
-		$toolbar_dict = DevblocksDictionaryDelegate::instance([
-			'component' => strval($caller['params']['component'] ?? ''),
-			'caller_name' => Toolbar_AgentPane::CALLER_NAME,
-			'worker_id' => $active_worker->id,
-			'worker__context' => CerberusContexts::CONTEXT_WORKER,
-		]);
-
-		if(($toolbar = DAO_Toolbar::getKataByName('agent.pane', $toolbar_dict)))
-			$identity = DAO_AutomationContinuation::launcherIdentityFromToolbarItems($toolbar);
+		$identity = DAO_AutomationContinuation::launcherIdentityFromToolbarItems(
+			\Cerb\Agent\Pane\Launchers::parse($surface, \Cerb\Agent\Pane\Launchers::newDict($surface))
+		);
 
 		echo json_encode([
 			'status' => true,
@@ -1157,6 +1152,53 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		}
 	}
 	
+	/**
+	 * Take the launcher's RESERVED `agent` key out of the interaction params and hand back the trigger state it
+	 * becomes: `agent__context` + `agent_id`, the same shape `worker_*` takes, so `{{agent_name}}` and
+	 * `{{agent__image_url}}` expand lazily off the context.
+	 *
+	 * It is consumed rather than passed through because an automation validates its inputs against its own
+	 * declared `inputs:` block -- an undeclared one fails the run outright ("Unknown inputs: agent"). Requiring
+	 * every agent chat to declare it would make WHICH AGENT something each script configures, and it isn't:
+	 * it belongs to the trigger's state, exactly like the active worker does. That is also what lets ONE
+	 * interaction serve every agent, with `agent@key: agent_id` instead of a hardcoded id or `@mention`.
+	 *
+	 * `$interaction_params` is by reference because the key must be gone BEFORE it becomes `inputs`.
+	 *
+	 * An unresolvable or non-AI reference contributes nothing rather than seeding a scope that lies about who
+	 * is running.
+	 *
+	 * ⚠ THIS IS THE ENFORCEMENT POINT FOR AGENT ACL, AND THERE ISN'T ONE YET.
+	 *
+	 * The reference arrives in client-supplied params (`data-interaction-params` -> POST), so today any worker
+	 * who can open an agent pane can start ANY agent by editing the posted id -- including one an administrator
+	 * configured for themselves. The only gate is `resolveAgentWorker()`: it must be an `is_ai` worker that
+	 * isn't disabled. What's missing is a per-agent audience: a query on the agent record for which workers may
+	 * use it, checked HERE before the state is seeded, and refusing the launch rather than silently dropping the
+	 * keys (a silent drop would run the chat as nobody, which reads as a bug rather than a refusal).
+	 *
+	 * Bounded today, not safe: an agent's instructions, tools, filesystems, and model pool are reachable this
+	 * way, though anything a tool actually DOES is still gated by the automation's own policy, and RESUME is
+	 * already safe -- `_profileAction_resumeInteraction()` checks the continuation's `worker_id`, so this is a
+	 * start-time hole only.
+	 */
+	private function _agentStateFor(array &$interaction_params) : array {
+		$ref = trim(strval($interaction_params[\Cerb\Agent\Pane\Launchers::INPUT_AGENT] ?? ''));
+
+		unset($interaction_params[\Cerb\Agent\Pane\Launchers::INPUT_AGENT]);
+
+		if('' === $ref)
+			return [];
+
+		if(!($worker = \Cerb\AutomationBuilder\Node\LlmAgentNode::resolveAgentWorker($ref)))
+			return [];
+
+		return [
+			'agent__context' => CerberusContexts::CONTEXT_WORKER,
+			'agent_id' => $worker->id,
+		];
+	}
+
 	private function _startBotInteractionAsAutomation(Model_Automation $automation) : void {
 		$automator = DevblocksPlatform::services()->automation();
 		
@@ -1170,7 +1212,10 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		$error = null;
 		$user_agent = DevblocksPlatform::getClientUserAgent();
 		
-		$initial_state = [
+		// Before `inputs` is built from them -- see _agentStateFor().
+		$agent_state = $this->_agentStateFor($interaction_params);
+		
+		$initial_state = array_merge([
 			'caller_name' => '',
 			'caller_params' => [],
 			'client_ip' => DevblocksPlatform::getClientIp(),
@@ -1181,7 +1226,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 			'inputs' => $interaction_params,
 			'worker__context' => CerberusContexts::CONTEXT_WORKER,
 			'worker_id' => $active_worker->id,
-		];
+		], $agent_state);
 		
 		if($caller) {
 			$initial_state['caller_name'] = DevblocksPlatform::importGPC($caller['name'] ?? null, 'string', '');
@@ -1275,7 +1320,12 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$user_agent = DevblocksPlatform::getClientUserAgent();
 		
-		$initial_state = [
+
+		// The same promotion the run's dict gets: this one is STORED on the continuation, so it's what every
+		// resume reads back.
+		$agent_state = $this->_agentStateFor($interaction_params);
+		
+		$initial_state = array_merge([
 			'caller_name' => '',
 			'caller_params' => [],
 			'client_ip' => DevblocksPlatform::getClientIp(),
@@ -1285,7 +1335,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 			'inputs' => $interaction_params,
 			'worker__context' => CerberusContexts::CONTEXT_WORKER,
 			'worker_id' => $active_worker->id,
-		];
+		], $agent_state);
 		
 		if($caller) {
 			$initial_state['caller_name'] = DevblocksPlatform::importGPC($caller['name'] ?? '', 'string', '');

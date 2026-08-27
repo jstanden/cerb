@@ -34,6 +34,15 @@
 		border-radius: 10px;
 		margin-bottom: 0.75em;
 
+		// Contain the floated avatar. A turn whose content is SHORTER than the 44px avatar -- an empty one, or
+		// an assistant turn that only called a tool -- otherwise lets the float escape the card's bottom
+		// border. `--turn-collapsed` already had to solve this with `overflow: hidden`; this is the same
+		// failure without the folding, so the base card handles it for every case.
+		//
+		// `flow-root` rather than `overflow: hidden`: it makes a block formatting context and nothing else,
+		// where hidden would also CLIP -- and this card has a hover toolbar on its top right.
+		display: flow-root;
+
 		&:last-child { margin-bottom: 0; }
 	}
 

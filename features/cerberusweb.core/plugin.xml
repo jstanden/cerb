@@ -84,7 +84,7 @@
 
 		<patch version="11.0.0" revision="1476" file="patches/11.x/11.0.0.php" />
 		<patch version="11.1.0" revision="1491" file="patches/11.x/11.1.0.php" />
-		<patch version="12.0.0" revision="1562" file="patches/12.x/12.0.0.php" />
+		<patch version="12.0.0" revision="1563" file="patches/12.x/12.0.0.php" />
 	</patches>
 
 	<!-- Exported Classes -->
@@ -5027,18 +5027,6 @@
 			<class>
 				<file>api/toolbars/automation.editor.php</file>
 				<name>Toolbar_AutomationEditor</name>
-			</class>
-			<params>
-				<param key="icon" value="bot" />
-			</params>
-		</extension>
-
-		<extension point="cerb.toolbar">
-			<id>cerb.toolbar.agent.pane</id>
-			<name>agent.pane</name>
-			<class>
-				<file>api/toolbars/agent.pane.php</file>
-				<name>Toolbar_AgentPane</name>
 			</class>
 			<params>
 				<param key="icon" value="bot" />

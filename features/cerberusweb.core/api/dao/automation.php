@@ -2491,21 +2491,13 @@ class Context_Automation extends Extension_DevblocksContext implements IDevblock
 			$tpl->assign('model', $model);
 			$tpl->assign('view_id', $view_id);
 
-			// The agent.pane toolbar, scoped to this editor via {{component}} = 'automation'. Its items launch an
-			// interaction inline into the editor's agent pane; the caller name must match a caller the launched
-			// automation's policy allows. Empty until a toolbar section is authored (the pane hides its toggle).
-			$agent_toolbar_html = '';
-
-			$agent_toolbar_dict = DevblocksDictionaryDelegate::instance([
-				'component' => 'automation',
-				'caller_name' => 'agent.pane',
-				'worker_id' => $active_worker->id,
-				'worker__context' => CerberusContexts::CONTEXT_WORKER,
-			]);
-
-			if(($agent_toolbar = DAO_Toolbar::getKataByName('agent.pane', $agent_toolbar_dict)))
-				$agent_toolbar_html = DevblocksPlatform::services()->ui()->toolbar()->fetch($agent_toolbar);
-
+			// The agent-pane launchers for this editor: one tile per AGENT enabled on this surface. There is
+			// no `agent.pane` toolbar any more -- an agent record's `components:` block is the only thing
+			// that says where it appears. Empty when no agent is enabled here (the pane hides its toggle).
+			$agent_toolbar_html = \Cerb\Agent\Pane\Launchers::fetch(
+				'automation',
+				\Cerb\Agent\Pane\Launchers::newDict('automation')
+			);
 			$tpl->assign('agent_toolbar_html_json', json_encode($agent_toolbar_html));
 
 			$tpl->display('devblocks:cerberusweb.core::internal/automation/peek_edit.tpl');

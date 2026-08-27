@@ -3,6 +3,7 @@ namespace Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits;
 
 use _DevblocksValidationService;
 use DAO_AgentModel;
+use DAO_AutomationContinuation;
 use DAO_LlmAgentMessage;
 use DAO_LlmAgentSession;
 use DAO_Worker;
@@ -328,7 +329,11 @@ class AgentPromptAwait extends AbstractAwait {
 		$session_id = $this->_data['session_id'] ?? null;
 		$is_required = array_key_exists('required', $this->_data) && $this->_data['required'];
 
-		$models = $this->_getModels();
+		// FIRST render resolves the offered models and FREEZES them onto the continuation; every render and
+		// validate after this one reads them back as an ordinary authored `models:`. See _freezeModels().
+		$models = $this->_getModels($this->_surfaceFor($continuation));
+
+		$this->_freezeModels($continuation, array_keys($models));
 
 		// Seed the picker from the last-chosen model (persisted in setValue) so it doesn't revert each turn;
 		// otherwise the first catalog entry (the client resolves that to the first ENABLED model).
@@ -471,7 +476,7 @@ class AgentPromptAwait extends AbstractAwait {
 	// record by name (the same grammar as `llm.agent:`/`llm.chat:` `model:`), optionally overriding its
 	// provider knobs; the record supplies provider/model/auth/vision/context_window. Falls back to the
 	// referenced session's own block when no models are configured.
-	private function _getModels() : array {
+	private function _getModels(string $surface = '') : array {
 		$out = [];
 		$models = $this->_data['models'] ?? [];
 
@@ -488,11 +493,17 @@ class AgentPromptAwait extends AbstractAwait {
 				return $out;
 		}
 
-		// Nothing configured -> every AVAILABLE model, in the admin's `priority` order. This is the zero-config
-		// path: an agentPrompt that says nothing about models offers whatever the environment prefers, so a
-		// shipped interaction never has to name one. Entries whose record is missing or disabled are still
+		// Nothing configured -> the pool the AGENT may use, or every AVAILABLE model in the admin's `priority`
+		// order when no agent is named or it sets no policy. This is the zero-config path: an agentPrompt that
+		// says nothing about models offers whatever the environment prefers, so a shipped interaction never has
+		// to name one -- and now an agent's Models field reaches the picker without the script resolving an
+		// `llm.router:` and passing `models@key:`. Entries whose record is missing or disabled are still
 		// dropped by _resolveModelEntry().
-		foreach(\DAO_AgentModel::mapNamesToModels(\DAO_AgentModel::resolveQueryModelNames('')) as $name => $overrides) {
+		$agent_pool = \Cerb\Agent\Config::resolveModelPool(
+			\Cerb\Agent\Config::forWorker($this->_getAgentWorkerId(), $surface)
+		);
+
+		foreach($agent_pool as $name => $overrides) {
 			if(($entry = $this->_resolveModelEntry(strval($name), is_array($overrides) ? $overrides : [])))
 				$out[strval($name)] = $entry;
 		}
@@ -511,37 +522,77 @@ class AgentPromptAwait extends AbstractAwait {
 		return $out;
 	}
 
+	/**
+	 * Which surface this interaction is running on, for an agent's per-surface model policy.
+	 *
+	 * Only reachable from a render, which is the only place a continuation is in hand -- and it only has to be
+	 * reachable ONCE, because _freezeModels() turns the answer into stored config.
+	 */
+	private function _surfaceFor(Model_AutomationContinuation $continuation) : string {
+		$caller_params = $continuation->state_data['dict']['caller_params'] ?? null;
+
+		return is_array($caller_params) ? strval($caller_params['component'] ?? '') : '';
+	}
+
+	/**
+	 * Freeze the offered models onto the continuation's own copy of this element, once.
+	 *
+	 * Two problems, one fix. `validate()` runs BEFORE `setValue()` and is handed no dict, so it can't resolve
+	 * an agent's per-surface policy the way `render()` can -- and a picker narrower than its validator is the
+	 * direction that rejects a legitimate choice. And re-resolving per turn would let an admin's edit change
+	 * the list under an open conversation.
+	 *
+	 * Writing the resolved NAMES into `__return.form.elements[<key>].models` solves both: that is exactly the
+	 * config `validate()` is later constructed from (`_applyAwaitFormPromptValues()` reads
+	 * `$continuation->state_data['dict']['__return']['form']['elements']`), so from the second call onward both
+	 * paths take the ordinary authored-`models:` branch and agree by construction. The list is fixed for the
+	 * interaction, which is what it should be: the agent can't change mid-chat, so neither should its pool.
+	 *
+	 * NAMES, not hydrated entries -- the records stay authoritative, so one that is deleted or disabled mid-chat
+	 * still drops out through `_resolveModelEntry()`. Once a model is picked it is stamped onto the session
+	 * anyway, so the transcript keeps its single `llm:` branch regardless of what this list later says.
+	 *
+	 * Never overwrites: an authored `models:` block took the branch above and never reaches here, and a frozen
+	 * list is only written when there isn't one.
+	 */
+	private function _freezeModels(Model_AutomationContinuation $continuation, array $names) : void {
+		if(!$names || ($this->_data['models'] ?? []))
+			return;
+
+		$element_key = 'agentPrompt/' . $this->_key;
+		$elements = $continuation->state_data['dict']['__return']['form']['elements'] ?? null;
+
+		// The synthesized renders (a between-tool-calls repaint, the async-turn poll) build their own element
+		// data and have nothing on the continuation to write to. They read the frozen list like everyone else.
+		if(!is_array($elements) || !array_key_exists($element_key, $elements))
+			return;
+
+		if(($elements[$element_key]['models'] ?? []))
+			return;
+
+		$continuation->state_data['dict']['__return']['form']['elements'][$element_key]['models'] =
+			array_fill_keys(array_map('strval', $names), []);
+
+		DAO_AutomationContinuation::update($continuation->token, [
+			DAO_AutomationContinuation::STATE_DATA => json_encode($continuation->state_data),
+		]);
+	}
+
+	/**
+	 * The AI worker this composer is attached to, from `agent:`.
+	 *
+	 * Through the SHARED resolver, not a local copy. This method used to reimplement it and was never called at
+	 * all -- exactly the drift `LlmTranscriptAwait` warns about when it says one resolver keeps `agent:` meaning
+	 * the same thing everywhere. An author who writes the same reference on `llm.agent:` and here must get the
+	 * same worker, and a form one accepts must be accepted by the other.
+	 */
 	private function _getAgentWorkerId() : int {
 		if('' === ($ref = trim(strval($this->_data['agent'] ?? ''))))
 			return 0;
 
-		$worker = null;
+		$worker = \Cerb\AutomationBuilder\Node\LlmAgentNode::resolveAgentWorker($ref);
 
-		if(str_starts_with($ref, '@')) {
-			$worker = DAO_Worker::getByAtMention(DevblocksPlatform::strLower(ltrim($ref, '@')));
-
-		} else if(str_starts_with($ref, 'cerb:')) {
-			$parts = explode(':', $ref);
-
-			if(3 === count($parts) && 'worker' === ($parts[1] ?? '')) {
-				// `@` trimmed inside the URI too -- autocomplete offers `@handle`, so `cerb:worker:@handle` is
-				// what pasting a suggestion into the URI form produces.
-				$handle = ltrim($parts[2], '@');
-
-				$worker = is_numeric($handle)
-					? DAO_Worker::get(intval($handle))
-					: DAO_Worker::getByAtMention(DevblocksPlatform::strLower($handle))
-					;
-			}
-
-		} else if(is_numeric($ref)) {
-			$worker = DAO_Worker::get(intval($ref));
-
-		} else {
-			$worker = DAO_Worker::getByAtMention(DevblocksPlatform::strLower($ref));
-		}
-
-		return ($worker && $worker->is_ai && !$worker->is_disabled) ? intval($worker->id) : 0;
+		return $worker ? intval($worker->id) : 0;
 	}
 
 	// Resolve one `models:` entry — an `agent_model` NAME + optional overrides — to a normalized picker model.
@@ -803,6 +854,12 @@ class AgentPromptAwait extends AbstractAwait {
 	private function _getCommands() : array {
 		$commands = $this->_data['commands'] ?? [];
 
+		// Nothing authored -> what the AGENT acts on, so the picker offers exactly the commands the node will
+		// honor. Without this a script that declares nothing (because its agent declares everything) would show
+		// an empty command picker while `/compact` quietly worked anyway.
+		if(!is_array($commands) || !$commands)
+			$commands = \Cerb\Agent\Config::forWorker($this->_getAgentWorkerId())['commands'] ?? [];
+
 		if(!is_array($commands))
 			return [];
 
@@ -876,6 +933,15 @@ class AgentPromptAwait extends AbstractAwait {
 	 */
 	private function _getReferences() : array {
 		$refs = $this->_data['references'] ?? null;
+
+		// Nothing authored -> `@` completes the volumes the AGENT actually mounts, plus workers. Naming them in
+		// the script would be a second copy of the mount list, drifting the moment someone edits the agent.
+		if(!is_array($refs)) {
+			$mounts = \Cerb\Agent\Config::forWorker($this->_getAgentWorkerId())['mounts'] ?? [];
+
+			if(is_array($mounts) && $mounts)
+				$refs = ['workers' => [], 'filesystems' => $mounts];
+		}
 
 		if(!is_array($refs))
 			return ['workers' => false, 'filesystems' => []];

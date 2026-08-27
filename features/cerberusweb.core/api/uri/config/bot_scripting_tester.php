@@ -32,21 +32,12 @@ class PageSection_SetupDevelopersBotScriptingTester extends Extension_PageSectio
 		
 		$visit->set(ChConfigurationPage::ID, 'bot_scripting_tester');
 
-		// The agent.pane toolbar, scoped to this editor via {{component}} = 'automation_scripting'. Its items launch
-		// interactions inline into the agent pane; the caller name must match a caller the launched automation's
-		// policy allows. Empty until a toolbar section is authored (the pane hides its toggle).
-		$agent_toolbar_html = '';
-
-		$toolbar_dict = DevblocksDictionaryDelegate::instance([
-			'component' => 'automation_scripting',
-			'caller_name' => 'agent.pane',
-			'worker_id' => $active_worker->id,
-			'worker__context' => CerberusContexts::CONTEXT_WORKER,
-		]);
-
-		if(($toolbar = DAO_Toolbar::getKataByName('agent.pane', $toolbar_dict)))
-			$agent_toolbar_html = DevblocksPlatform::services()->ui()->toolbar()->fetch($toolbar);
-
+		// The agent-pane launchers for this editor: one tile per AGENT enabled on this surface. An agent
+		// record's `components:` block is the only thing that says where it appears.
+		$agent_toolbar_html = \Cerb\Agent\Pane\Launchers::fetch(
+			'automation_scripting',
+			\Cerb\Agent\Pane\Launchers::newDict('automation_scripting')
+		);
 		$tpl->assign('agent_toolbar_html_json', json_encode($agent_toolbar_html));
 
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/developers/bot-scripting-tester/index.tpl');

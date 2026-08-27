@@ -220,6 +220,28 @@ class Config {
 	}
 
 	/**
+	 * The models this agent may use, as the `{name => overrides}` map `llm.agent:`, `llm.chat:`, and
+	 * `agentPrompt:` already consume.
+	 *
+	 * Takes a RESOLVED config (defaults ⊕ surface), so a per-surface `models_query` narrows the pool wherever
+	 * the surface is known. A blank query is the zero-config pool -- every available model in the admin's
+	 * `priority` order -- which is what an agent with no model policy should get.
+	 *
+	 * This is the whole reason `llm.router:` doesn't need an `agent:` input: an agent's model policy reaches a
+	 * turn through the same two places its identity already does, so a script that names an agent gets its
+	 * pool without wiring one up. `llm.router:` stays for the case it was built for -- needing the list AS
+	 * DATA, to round-robin or budget against.
+	 *
+	 * `status:available` is forced ahead of the query by `resolveQueryModelNames()`, so a query here can only
+	 * ever narrow -- an agent record cannot widen its own pool.
+	 */
+	static function resolveModelPool(array $resolved_config, ?string &$error = null) : array {
+		$query = trim(strval($resolved_config[self::KEY_MODELS_QUERY] ?? ''));
+
+		return \DAO_AgentModel::mapNamesToModels(\DAO_AgentModel::resolveQueryModelNames($query, $error));
+	}
+
+	/**
 	 * Resolve every record a config REFERENCES, for an editor that has to show them as chips.
 	 *
 	 * The config stores portable references -- a filesystem by name, an automation by `cerb:automation:` URI --

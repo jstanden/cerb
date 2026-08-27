@@ -26,20 +26,12 @@ class PageSection_SetupDevelopersIconBuilder extends Extension_PageSection {
 
 		$visit->set(ChConfigurationPage::ID, 'icon_builder');
 
-		// The agent.pane toolbar, scoped to this editor via {{component}} = 'icon'. Its items launch interactions
-		// inline into the agent pane; the caller name must match a caller the launched automation's policy allows.
-		$agent_toolbar_html = '';
-
-		$toolbar_dict = DevblocksDictionaryDelegate::instance([
-			'component' => 'icon',
-			'caller_name' => 'agent.pane',
-			'worker_id' => $active_worker->id,
-			'worker__context' => CerberusContexts::CONTEXT_WORKER,
-		]);
-
-		if(($toolbar = DAO_Toolbar::getKataByName('agent.pane', $toolbar_dict)))
-			$agent_toolbar_html = DevblocksPlatform::services()->ui()->toolbar()->fetch($toolbar);
-
+		// The agent-pane launchers for this editor: one tile per AGENT enabled on this surface. An
+		// agent record's `components:` block is the only thing that says where it appears.
+		$agent_toolbar_html = \Cerb\Agent\Pane\Launchers::fetch(
+			'icon',
+			\Cerb\Agent\Pane\Launchers::newDict('icon')
+		);
 		$tpl->assign('agent_toolbar_html_json', json_encode($agent_toolbar_html));
 
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/developers/icon-builder/index.tpl');

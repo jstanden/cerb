@@ -630,7 +630,13 @@ class LlmAgentNode extends AbstractNode {
 			return;
 		}
 
-		if(($default_models = \DAO_AgentModel::mapNamesToModels(\DAO_AgentModel::resolveQueryModelNames('')))) {
+		// The zero-config pool, narrowed by the AGENT's model policy for this surface. That's what makes an
+		// agent's Models field reach a turn without the script wiring an `llm.router:` -- the same way its
+		// tools and mounts arrive. With no agent, or an agent with no query, this is every available model in
+		// the admin's `priority` order, exactly as before.
+		$pool_error = null;
+
+		if(($default_models = \Cerb\Agent\Config::resolveModelPool($this->_agent_config, $pool_error))) {
 			$router_error = null;
 
 			if(null !== ($resolved = $llm->resolveModelInput($default_models, $router_error))) {
@@ -645,6 +651,14 @@ class LlmAgentNode extends AbstractNode {
 				return;
 			}
 		}
+
+		// Naming the agent's query when it's the reason nothing matched: "make a model available" is misleading
+		// advice when there ARE models and this agent is restricted away from all of them.
+		if(($agent_query = trim(strval($this->_agent_config['models_query'] ?? ''))))
+			throw new Exception_DevblocksAutomationError(sprintf(
+				"`llm.agent` has no models: this agent is restricted to `%s`, which matches no available agent model.",
+				$agent_query
+			));
 
 		throw new Exception_DevblocksAutomationError("`llm.agent` has no models. Give it a `session_id:` (primed by an agentPrompt or a prior turn), an `llm:` block, or a `model:` reference -- or make at least one agent model available.");
 	}
@@ -911,6 +925,15 @@ class LlmAgentNode extends AbstractNode {
 		$this->_agent_worker_id = 0;
 		$this->_agent_config = [];
 		$this->_agent_surface = '';
+
+		// Normalize a scalar to its string form BEFORE validation runs (this is called ahead of it).
+		//
+		// `agent:` validates as a string, but the normal way to write it now is `agent@key: agent_id` off the
+		// trigger's own scope -- and that yields an INT, which failed with "`agent:` is not a string" before
+		// the resolver (which takes a numeric id happily) ever saw it. A non-scalar is left alone so an array
+		// still fails as the authoring mistake it is.
+		if(array_key_exists('agent', $this->_inputs) && is_scalar($this->_inputs['agent']))
+			$this->_inputs['agent'] = strval($this->_inputs['agent']);
 
 		if('' === ($agent_ref = trim(strval($this->_inputs['agent'] ?? ''))))
 			return;

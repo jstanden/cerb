@@ -851,10 +851,17 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				$d = ['emit' => 'record', 'key' => $key, 'component' => 'chooser',
 					'label' => $label, 'record_type' => $record_type, 'context' => ($ext ? $ext->id : '')];
 
-				// Pre-fill: worker → the active worker; other records → a random sample id.
-				if($record_type === 'worker' && $active_worker) {
+				// An optional scope query, so an input that means a SUBSET of a record type offers only that
+				// subset (`agent_*` is a worker, but only an AI one).
+				if(($query = trim(strval($meta['params']['query'] ?? ''))))
+					$d['query'] = $query;
+
+				// Pre-fill: the `worker_*` scope key is the person running this, so it defaults to them. Any
+				// OTHER worker-typed input is a different worker entirely -- defaulting it to the author was
+				// how `agent_*` came up pre-filled with the administrator's own account.
+				if($record_type === 'worker' && $key === 'worker' && $active_worker) {
 					$d['default'] = $active_worker->id;
-				} elseif($ext && ($dao = $ext->getDaoClass()) && method_exists($dao, 'random')) {
+				} elseif($record_type !== 'worker' && $ext && ($dao = $ext->getDaoClass()) && method_exists($dao, 'random')) {
 					$d['default'] = $dao::random();
 				}
 				$out[] = $d;
