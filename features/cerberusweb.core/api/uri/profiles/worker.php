@@ -126,7 +126,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				$is_superuser = DevblocksPlatform::importGPC($_POST['is_superuser'] ?? null, 'bit', 0);
 				$disabled = DevblocksPlatform::importGPC($_POST['is_disabled'] ?? null, 'bit',0);
 				$is_ai = DevblocksPlatform::importGPC($_POST['is_ai'] ?? null, 'bit', 0);
-				$agent_config_kata = DevblocksPlatform::importGPC($_POST['agent_config_kata'] ?? null, 'string', '');
+				$agent_config_json = DevblocksPlatform::importGPC($_POST['agent_config_json'] ?? null, 'string', '');
 				$is_password_disabled = DevblocksPlatform::importGPC($_POST['is_password_disabled'] ?? null, 'bit',0);
 				$is_mfa_required = DevblocksPlatform::importGPC($_POST['is_mfa_required'] ?? null, 'bit',0);
 				$group_memberships = DevblocksPlatform::importGPC($_POST['group_memberships'] ?? null, 'array');
@@ -135,13 +135,26 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				$profile_image_changed = false;
 				$error = null;
 				
-				// The AI tab's config, checked BEFORE anything is written. It lives on the `agent` satellite
-				// rather than on `worker`, so a failure here would otherwise leave the worker saved and the
-				// config silently dropped -- the one outcome that reads as "it worked".
-				if($is_ai && '' !== trim($agent_config_kata)) {
-					$kata = DevblocksPlatform::services()->kata();
+				// The AI tab posts its MODEL as JSON and the KATA is emitted here, by the one emitter every other
+				// KATA writer in Cerb uses. A second implementation in the browser would be a second copy of the
+				// rules that are easy to get subtly wrong -- when `@text:` is needed, that a `#` mid-value is
+				// ordinary text, that an empty object is a childless key.
+				//
+				// Emitted and checked BEFORE anything is written: the config lives on the `agent` satellite
+				// rather than on `worker`, so a failure after the worker save would leave the worker updated and
+				// the config silently dropped -- the one outcome that reads as "it worked".
+				$agent_config_kata = '';
+				
+				if($is_ai && '' !== trim($agent_config_json)) {
+					$agent_config_model = json_decode($agent_config_json, true);
 					
-					if(false === $kata->validate($agent_config_kata, CerberusApplication::kataSchemas()->agent(), $error))
+					if(!is_array($agent_config_model))
+						throw new Exception_DevblocksAjaxValidationError("AI configuration: the form sent something unreadable.");
+					
+					$kata = DevblocksPlatform::services()->kata();
+					$agent_config_kata = $kata->emit($agent_config_model);
+					
+					if('' !== $agent_config_kata && false === $kata->validate($agent_config_kata, CerberusApplication::kataSchemas()->agent(), $error))
 						throw new Exception_DevblocksAjaxValidationError(sprintf("AI configuration: %s", $error));
 				}
 				

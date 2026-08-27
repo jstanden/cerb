@@ -55,6 +55,8 @@ class Controller_UI extends DevblocksControllerExtension {
 	
 	private function _invoke($action) {
 		switch($action) {
+			case 'agentConfigKata':
+				return $this->_uiAction_agentConfigKata();
 			case 'behavior':
 				return $this->_uiAction_behavior();
 			case 'calendarEventsJson':
@@ -1333,6 +1335,42 @@ class Controller_UI extends DevblocksControllerExtension {
 	
 	// Sheet Builder: resolve the dataset + parse the sheet KATA + register the requested column types →
 	// render the sheet HTML. A dataset-aware sibling of _uiAction_sheet(). Superuser-only.
+	/**
+	 * The AI tab's live KATA preview: the editor's model as the KATA that a save would store.
+	 *
+	 * A round-trip rather than emitting in the browser, because `kata()->emit()` is what the save path runs --
+	 * a locally-approximated preview would be a preview of something else, which is worse than none. It only
+	 * formats: nothing is read, nothing is written, and the worker id never enters into it.
+	 */
+	private function _uiAction_agentConfigKata() {
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		// Same gate as the peek that hosts it -- editing an agent is superuser-only.
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
+		$config_json = DevblocksPlatform::importGPC($_POST['config_json'] ?? null, 'string', '');
+		$model = json_decode($config_json, true);
+
+		$kata = DevblocksPlatform::services()->kata();
+		$error = null;
+
+		$out = [
+			'kata' => is_array($model) ? $kata->emit($model) : '',
+		];
+
+		// Reported, not enforced: this is a preview, and a config the schema rejects is exactly the one someone
+		// wants to look at. The save path validates for real.
+		if('' !== $out['kata'] && false === $kata->validate($out['kata'], CerberusApplication::kataSchemas()->agent(), $error))
+			$out['error'] = strval($error);
+
+		header('Content-Type: application/json; charset=utf-8');
+		echo json_encode($out);
+	}
+
 	private function _uiAction_sheetBuilderPreview() {
 		$tpl = DevblocksPlatform::services()->template();
 		

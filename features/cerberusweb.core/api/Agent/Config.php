@@ -20,7 +20,9 @@ namespace Cerb\Agent;
  *   system_prompt                 default, then the surface's addendum -- a persona plus what's different here
  *   models_query, automation      the surface's value wins when it isn't blank
  *   tools, mounts, commands,      deep union; the surface overrides only the leaves it names, so it can turn
- *   terminal                      one inherited tool off or re-point one mount without restating the entry
+ *   terminal                      one inherited tool off or re-point one mount without restating the entry.
+ *                                 A `terminal:` namespace switches OFF with a false value (`records@bool: no`)
+ *                                 -- see _pruneTerminal(), the one place a merge alone can't express removal.
  *   disabled                      surface only -- never inherited from the defaults
  *
  * AUTHORING A COMPONENT BLOCK IS THE OPT-IN. A surface the agent has no block for is not enabled, so adding a
@@ -165,7 +167,47 @@ class Config {
 			);
 		}
 
+		$resolved[self::KEY_TERMINAL] = self::_pruneTerminal($resolved[self::KEY_TERMINAL]);
+
 		return $resolved;
+	}
+
+	/**
+	 * Drop `cerb` namespaces switched off with a false value, and any block left empty.
+	 *
+	 * A merge can only ADD, so without this a surface could turn a CLI namespace on but never off -- the one
+	 * asymmetry in the whole config, because `Cli::_enabled()` gates on a key being PRESENT
+	 * (`array_intersect_key`) rather than on its value. `tools:` and `mounts:` don't need it: an entry there is
+	 * an object with a `disabled:` of its own.
+	 *
+	 * So `records@bool: no` under a surface means "not here" while the agent keeps it everywhere else, and
+	 * absent still means "inherit". Read through `toBool()` for the same reason the enablement flag is: an
+	 * unannotated `records: no` is the raw string "no", which is truthy.
+	 *
+	 * An emptied `cerb:` is removed rather than left as an empty block, because an empty block would still
+	 * advertise the CLI with nothing under it.
+	 */
+	private static function _pruneTerminal(mixed $terminal) : array {
+		if(!is_array($terminal))
+			return [];
+
+		$strings = \DevblocksPlatform::services()->string();
+
+		foreach($terminal as $key => $namespaces) {
+			if(!is_array($namespaces))
+				continue;
+
+			foreach($namespaces as $name => $enabled) {
+				// An object (including the empty one a childless key parses to) is the ON shape.
+				if(!is_array($enabled) && !$strings->toBool($enabled))
+					unset($terminal[$key][$name]);
+			}
+
+			if(!$terminal[$key])
+				unset($terminal[$key]);
+		}
+
+		return $terminal;
 	}
 
 	/**
@@ -175,6 +217,74 @@ class Config {
 	 */
 	static function forWorker(int $worker_id, string $surface = '') : array {
 		return self::resolve(\DAO_Agent::getConfig($worker_id), $surface);
+	}
+
+	/**
+	 * Resolve every record a config REFERENCES, for an editor that has to show them as chips.
+	 *
+	 * The config stores portable references -- a filesystem by name, an automation by `cerb:automation:` URI --
+	 * because that's what survives an export and reads correctly in KATA. A record chooser needs `{id, label}`.
+	 * Rather than make the browser resolve them one request at a time, every reference in every scope is
+	 * collected here and looked up in two queries.
+	 *
+	 * A reference that resolves to nothing is simply absent from the map: the editor shows the raw name, which
+	 * is the honest rendering of a filesystem someone deleted.
+	 *
+	 * @return array `{filesystems: {name => {id, label}}, automations: {uri => {id, label}}}`
+	 */
+	static function describeReferences(array $config) : array {
+		$scopes = [$config];
+
+		foreach(($config[self::KEY_COMPONENTS] ?? []) as $block) {
+			if(is_array($block))
+				$scopes[] = $block;
+		}
+
+		$mount_names = [];
+		$automation_uris = [];
+
+		foreach($scopes as $scope) {
+			foreach(array_keys(is_array($scope[self::KEY_MOUNTS] ?? null) ? $scope[self::KEY_MOUNTS] : []) as $name) {
+				// A mount key may carry an annotation (`docs@optional:`); the name is what precedes it.
+				$mount_names[\DevblocksPlatform::services()->string()->strBefore(strval($name), '@')] = true;
+			}
+
+			foreach((is_array($scope[self::KEY_TOOLS] ?? null) ? $scope[self::KEY_TOOLS] : []) as $tool) {
+				if(is_array($tool) && ($uri = trim(strval($tool['uri'] ?? ''))))
+					$automation_uris[$uri] = true;
+			}
+
+			if(($uri = trim(strval($scope[self::KEY_AUTOMATION] ?? ''))))
+				$automation_uris[$uri] = true;
+		}
+
+		$filesystems = [];
+
+		if($mount_names) {
+			foreach(\DAO_AgentFilesystem::getAll() as $fs) {
+				// Case-insensitively, because that's how a mount resolves at runtime
+				// (`Filesystem::describeSpecs()` lowercases the name).
+				if(array_key_exists(\DevblocksPlatform::strLower($fs->name), array_change_key_case($mount_names)))
+					$filesystems[$fs->name] = ['id' => $fs->id, 'label' => $fs->name];
+			}
+		}
+
+		$automations = [];
+
+		if($automation_uris) {
+			$names = array_map(
+				fn($uri) => \DevblocksPlatform::services()->string()->strAfter($uri, 'cerb:automation:') ?: $uri,
+				array_keys($automation_uris)
+			);
+
+			foreach(\DAO_Automation::getByUris($names) as $automation)
+				$automations['cerb:automation:' . $automation->name] = ['id' => $automation->id, 'label' => $automation->name];
+		}
+
+		return [
+			'filesystems' => $filesystems,
+			'automations' => $automations,
+		];
 	}
 
 	/**

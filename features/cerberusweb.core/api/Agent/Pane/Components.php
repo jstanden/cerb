@@ -30,8 +30,7 @@ namespace Cerb\Agent\Pane;
  *   icon           features/cerberusweb.core/resources/js/cerb-ui/icon-builder.js
  *   worklist       features/cerberusweb.core/templates/search/quick_search.tpl
  *   mail_reply     features/cerberusweb.core/templates/display/rpc/reply.tpl
- *
- * (`commandbar` has no row: it declares no commands, because its host has no command bridge yet.)
+ *   commandbar     features/cerberusweb.core/templates/automations/interactions/button.tpl
  *
  * Adding a command to a host means adding it here too, BY HAND -- nothing checks. The two drift silently,
  * and the failure is quiet on both sides: a command listed here that the host doesn't implement returns '',
@@ -54,7 +53,9 @@ class Components {
 	 * Every component, keyed by its `component` string (the value the host passes to CerbUI.AgentPane and the
 	 * one `{{component}}` gates on in the `agent.pane` toolbar).
 	 *
-	 * `description` is what the WIZARD's author reads when picking a location.
+	 * `description` is what an author reads when picking a location -- the Agent Chat wizard's chooser and the
+	 * worker peek's AI tab. Both render it beside the `label`, so it must NOT restate the name: "Icon Builder --
+	 * the Setup icon builder" tells a reader nothing. Lead with what the agent can DO there.
 	 *
 	 * `instructions` is the FALLBACK role -- what the model reads when the role asset is missing. The real
 	 * one lives in `assets/agents/<component>.md` (see getRoleFor()), because it is prose and a PHP
@@ -97,7 +98,7 @@ class Components {
 			'automation' => [
 				'label' => 'Automation editor',
 				'icon' => 'zap',
-				'description' => "The automation editor popup -- reads and writes name, description, trigger, script, and policy.",
+				'description' => "Reads and writes the name, description, trigger, script, and policy of the automation being edited.",
 				'instructions' => "You are an assistant embedded in Cerb's automation editor. You help write and debug automations: KATA scripts bound to a trigger, plus the command policy that grants the script its privileges.\n\nThe script and the policy move together. A script that gains a privileged command stops working until the policy allows it, so when you add one, check the policy in the same turn.\n\nWhen the request doesn't imply a trigger, use `cerb.trigger.automation.function` and say you assumed it.\n\nPrefer edit_field over set_field for the script and the policy. They are long, the author may have unsaved work elsewhere in them, and a whole-field overwrite silently discards it.",
 				'skills' => [
 					'kata' => 'write or edit any KATA',
@@ -236,7 +237,7 @@ class Components {
 			'data_query' => [
 				'label' => 'Data Query Tester',
 				'icon' => 'database',
-				'description' => "The Setup data-query tester -- reads and writes the query editor.",
+				'description' => "Reads and writes the query being tested, under Setup > Developers.",
 				'instructions' => "You are an assistant embedded in Cerb's data query tester. You help write data queries: the `type:` of source, its required parameters, and the fields, formats, and subtotals it returns.\n\nRead the editor before you change it. A data query is dense and mostly parameters, so a targeted edit is nearly always right and a whole-field rewrite nearly always loses something the author meant to keep.",
 				'skills' => [
 					'data-queries' => 'write or edit a data query',
@@ -313,8 +314,8 @@ class Components {
 
 			'automation_scripting' => [
 				'label' => 'Automation Scripting Tester',
-				'icon' => 'console',
-				'description' => "The Setup automation scripting tester -- reads and writes the script editor.",
+				'icon' => 'editor',
+				'description' => "Reads and writes the script being tested, under Setup > Developers.",
 				'instructions' => "You are an assistant embedded in Cerb's automation scripting tester. You help write and debug Twig expressions and templates against a test dictionary.\n\nThis is real Twig, sandboxed: standard Twig works, Cerb adds its own filters/functions/tests on top, and the template-composition tags (macro, include, import, extends, block) are unavailable.\n\nThis editor is for trying an expression in isolation, so keep changes small and explain what a filter chain does rather than only handing back a longer one.",
 				'skills' => [
 					'scripting' => 'write or edit any scripting expression or template',
@@ -398,7 +399,7 @@ class Components {
 			'icon' => [
 				'label' => 'Icon Builder',
 				'icon' => 'sparkles',
-				'description' => "The Setup icon builder -- reads and writes the SVG geometry of the icon being drawn.",
+				'description' => "Reads and writes the SVG geometry of the icon being drawn, and can look up every name in the set.",
 				'instructions' => "You are an assistant embedded in Cerb's icon builder. You help draw icons for Cerb's icon set: SVG geometry on a 24x24 viewBox, rendered as a CSS mask and tinted by currentColor.\n\nBecause it is a mask, only the shape matters -- fill and stroke colors in the geometry are discarded. Read the current geometry before editing, and use get_icon_geometry to look at a shipped icon when you need the set's existing conventions for weight, corner radius, or optical sizing.",
 				'skills' => [
 					'icons' => 'draw or edit any icon geometry',
@@ -458,7 +459,7 @@ class Components {
 			'worklist' => [
 				'label' => 'Worklist search bar',
 				'icon' => 'search',
-				'description' => "A worklist quick-search bar -- reads and rewrites the query, and can run the search.",
+				'description' => "Reads and rewrites the search query above any worklist, and can run it.",
 				'instructions' => "You are an assistant embedded in a Cerb worklist's search bar. You turn what someone is looking for into a Cerb search query.\n\nCall get_fields first, every time. The worklist's record type decides which fields are even valid, and a query written for the wrong type looks reasonable and matches nothing. Write the query, then run it -- the search runs asynchronously, so you will not see the results; say what you searched for and let the worklist answer.",
 				'skills' => [
 					'search-queries' => 'write or edit a search query',
@@ -501,7 +502,7 @@ class Components {
 			'mail_reply' => [
 				'label' => 'Mail reply editor',
 				'icon' => 'mail',
-				'description' => "The ticket reply/forward composer -- reads and writes recipients, subject, format, and body.",
+				'description' => "Reads and writes the recipients, subject, format, and body of a reply or forward.",
 				'instructions' => "You are an assistant embedded in Cerb's reply composer. You help a support worker write a reply to a customer.\n\nRead the draft before you touch it -- the worker may have already started, and replacing the body would discard it. Match the tone of the conversation, keep the worker's voice rather than imposing your own, and never invent facts about an account, an order, or a policy: if you need something you were not given, leave a gap and say so instead of filling it. You are drafting, not sending; the worker reviews and sends.",
 				'skills' => [
 					'mail-replies' => 'draft or revise a reply',
@@ -551,7 +552,7 @@ class Components {
 			'commandbar' => [
 				'label' => 'Command bar',
 				'icon' => 'console',
-				'description' => "The global command bar -- app-wide rather than tied to an editor. Opens things for the worker.",
+				'description' => "App-wide rather than tied to an editor. Reports what page the worker is on, and opens a prefilled search for any record type.",
 				'instructions' => "You are an assistant in Cerb's command bar. You are not attached to any editor: you help with whatever the worker is doing anywhere in Cerb -- answering questions, looking things up, and explaining how Cerb works.\n\nWhen the question is about where they are -- \"what is this page?\", \"what am I looking at\" -- call get_page rather than asking them to describe it, and use what it returns as search terms against any documentation you have. It tells you the page, never its contents, so anything ON the screen you still have to ask about.\n\nYou can also put things in front of them: open a search popup for any record type, with a query you have written. Prefer that over describing a query and asking them to paste it.\n\nWhen you don't know something about this particular installation -- whether a record type exists, what fields it has -- look it up rather than guessing at a name.",
 				'skills' => [
 					'search-queries' => 'write a search query',
@@ -592,6 +593,34 @@ class Components {
 	 */
 	static function get(string $component) : ?array {
 		return self::getAll()[$component] ?? null;
+	}
+
+	/**
+	 * Just the identity of each surface -- what an editor needs to offer them as a list, without shipping every
+	 * tool description and parameter schema to the browser.
+	 *
+	 * The catalog being the single source of this list is what makes a new component configurable on an agent
+	 * the moment it's added here: no template edit, no schema edit (`agent()`'s `components:` is an
+	 * attributePatterns block), and no migration for agents that don't mention it.
+	 *
+	 * Ordered by label so the list reads the same on every install.
+	 *
+	 * @return array `{component => {label, icon, description}}`
+	 */
+	static function getSurfaceCatalog() : array {
+		$surfaces = [];
+
+		foreach(self::getAll() as $key => $meta) {
+			$surfaces[$key] = [
+				'label' => strval($meta['label'] ?? $key),
+				'icon' => strval($meta['icon'] ?? 'bot'),
+				'description' => strval($meta['description'] ?? ''),
+			];
+		}
+
+		uasort($surfaces, fn($a, $b) => strcasecmp($a['label'], $b['label']));
+
+		return $surfaces;
 	}
 
 	/**

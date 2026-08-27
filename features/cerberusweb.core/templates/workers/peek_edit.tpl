@@ -209,10 +209,51 @@
 		{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_WORKER context_id=$worker->id}
 	</div>
 
-	{* ─────────────── AI ─────────────── *}
+	{* ─────────────── AI ───────────────
+
+	   Everything here is one `agent.config_kata` blob on the `agent` satellite, not `worker` columns. The
+	   panels are a view over it: CerbUI.AgentConfig owns the parsed tree, renders these controls from it, and
+	   writes the whole tree back to the hidden input below as JSON. The KATA itself is emitted server-side by
+	   `kata()->emit()`, so there's only ever one implementation of that. Keys the form doesn't render are
+	   carried through untouched, so hand-authored config survives a visit to this tab. *}
 	<div id="{$form_id}Ai">
+		<input type="hidden" name="agent_config_json" id="agentConfigJson_{$form_id}" value="">
+
+		<div class="cerb-ui-panel cerb-ui-panel--spaced" id="agentDefaults_{$form_id}">
+			<div class="cerb-ui-header cerb-ui-header--tight">
+				<div class="cerb-ui-header--title-sm">Defaults</div>
+				<div class="cerb-ui-header--subtitle">What this agent brings everywhere it runs. Each surface below can add to it or override it.</div>
+			</div>
+			{* Rendered by CerbUI.AgentConfig, from the same builder each surface's override panel uses -- one
+			   description of the field set, so the two can't drift. *}
+			<div data-cerb-agent-defaults></div>
+		</div>
+
+		<div class="cerb-ui-panel cerb-ui-panel--spaced" id="agentSurfaces_{$form_id}">
+			<div class="cerb-ui-header cerb-ui-header--tight">
+				<div class="cerb-ui-header--title-sm">Where it runs</div>
+				<div class="cerb-ui-header--subtitle">Turn this agent on for a surface, then customize what it brings there.</div>
+			</div>
+			<div data-cerb-agent-surfaces></div>
+		</div>
+
 		<div class="cerb-ui-panel cerb-ui-panel--spaced">
-			<div class="cerb-u-text-muted">
+			<div class="cerb-ui-header cerb-ui-header--tight">
+				<div class="cerb-ui-header--title-sm">Events</div>
+				<div class="cerb-ui-header--subtitle">Reacting to an @mention, an assignment, or a new message is coming. Today an agent runs where a worker opens it.</div>
+			</div>
+		</div>
+
+		<div class="cerb-ui-panel cerb-ui-panel--spaced">
+			<div class="cerb-ui-header cerb-ui-header--tight cerb-ui-header--center">
+				<div class="cerb-ui-header--title-sm">KATA</div>
+				<div class="cerb-ui-header--right">
+					<button type="button" class="cerb-ui-button cerb-ui-button--subtle" data-cerb-agent-kata-toggle><span class="cerb-icons cerb-icon-console"></span> Show</button>
+				</div>
+			</div>
+			<div data-cerb-agent-kata-preview hidden>
+				<textarea data-cerb-agent-kata-editor rows="12" spellcheck="false" readonly="readonly"></textarea>
+				<div class="cerb-ui-form--hint">Exactly what a save would store, formatted by the server. Read-only here; edit it with the Records API or an automation if you need something these controls don't offer.</div>
 			</div>
 		</div>
 	</div>
@@ -545,6 +586,42 @@ $(function() {
 			});
 		}
 
+		// AI tab — one CerbUI.AgentConfig over the whole `agent.config_kata` blob. It renders the panels, and
+		// every change writes the model back to the hidden input as JSON, so the form is the only writer.
+		//
+		// Loaded ON DEMAND rather than from the cerb-ui bundle: this styles and drives ONE surface, and putting
+		// it in what every page loads would be paying for it everywhere to use it here. Only an AI worker has
+		// the tab at all, so nothing is fetched until the Type switcher says so.
+		let agentConfigLoading = null;
+
+		function loadAgentConfig() {
+			if(agentConfigLoading) return agentConfigLoading;
+
+			agentConfigLoading = new Promise(function(resolve) {
+				Devblocks.loadResources({
+					'css': ['/resource/cerberusweb.core/css/cerb-ui/agent-config.css'],
+					'js': ['/resource/cerberusweb.core/js/cerb-ui/agent-config.js']
+				}, function() {
+					try {
+						new CerbUI.AgentConfig($popup.find('#{$form_id}Ai')[0], {
+							input: document.getElementById('agentConfigJson_{$form_id}'),
+							config: {$agent_config_json nofilter},
+							surfaces: {$agent_surfaces_json nofilter},
+							namespaces: {$agent_cli_namespaces_json nofilter},
+							refs: {$agent_refs_json nofilter},
+							isNew: {if $agent_is_new}true{else}false{/if},
+							skillsVolume: '{$agent_skills_volume|escape:'javascript' nofilter}'
+						});
+					} catch(e) {
+						if(console && console.error) console.error(e);
+					}
+
+					resolve();
+				});
+			});
+
+			return agentConfigLoading;
+		}
 		// Type drives which tabs exist: an AI gets the AI tab and no Authentication (it can never hold a
 		// session — see Page_Login::_routeAuthenticated). Live, so creating an agent needs no save first.
 		(function() {
@@ -554,6 +631,9 @@ $(function() {
 			function applyType(isAi) {
 				if(aiTab) aiTab.style.display = isAi ? '' : 'none';
 				if(loginTab) loginTab.style.display = isAi ? 'none' : '';
+
+				// The one place that knows this worker is an agent, so the one place that pulls the editor.
+				if(isAi) loadAgentConfig();
 
 				// Human-only profile fields (location, DOB) — meaningless on an agent
 				$popup.find('[data-cerb-field-human]').each(function() { this.style.display = isAi ? 'none' : ''; });

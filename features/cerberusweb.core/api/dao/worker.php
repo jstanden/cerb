@@ -3780,6 +3780,26 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			// Time Format
 			$tpl->assign('time_format', DevblocksPlatform::getDateTimeFormat());
 
+			// AI tab: what the agent is configured to do, and the surfaces it can be turned on for.
+			//
+			// The PARSED tree goes to the browser, never the raw text: the editor works on the tree and posts it
+			// back as JSON, and `kata()->emit()` turns it into KATA on the way in. So nothing parses or emits
+			// KATA client-side. The surface list comes from the component catalog
+			// rather than the template, so a new agent-pane component is configurable the moment it's added
+			// there -- no template edit, and no migration for agents that don't mention it.
+			$agent_row = DAO_Agent::get($worker->id);
+
+			$tpl->assign('agent_config_json', json_encode($agent_row['config'] ?? (object)[]));
+			$tpl->assign('agent_surfaces_json', json_encode(\Cerb\Agent\Pane\Components::getSurfaceCatalog()));
+			$tpl->assign('agent_cli_namespaces_json', json_encode(\Cerb\Agent\Cli::getNamespaces()));
+			$tpl->assign('agent_refs_json', json_encode(\Cerb\Agent\Config::describeReferences($agent_row['config'] ?? [])));
+
+			// A never-saved agent gets the skills volume mounted by default -- it's how the per-surface skills
+			// reach the model, and an agent without it quietly ignores every convention Cerb ships. Keyed on the
+			// ROW existing, not on the config being empty, so removing the mount doesn't bring it back.
+			$tpl->assign('agent_is_new', empty($agent_row['created_at']));
+			$tpl->assign('agent_skills_volume', \Cerb\Agent\FilesystemAssets::VOLUME_SKILLS);
+
 			$tpl->display('devblocks:cerberusweb.core::workers/peek_edit.tpl');
 
 		} else {
