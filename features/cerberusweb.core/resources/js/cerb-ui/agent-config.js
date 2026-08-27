@@ -18,7 +18,7 @@
  * (when `@text:` is needed, that a `#` mid-value is ordinary text, that an empty object is a childless key),
  * and a preview of something other than what gets stored.
  *
- * The schema has more in it than this form does -- `commands:`, a mount's `at:`/`mode:`/`create:`, a tool's
+ * The schema has more in it than this form does -- `commands:`, a mount's `at:`/`create:`, a tool's
  * `icon:`/`labels:`/`description:` -- and all of it is carried through untouched. Visiting this tab must never
  * be a way to lose config written through the API or an automation. What is NOT recoverable is comments and
  * any key order beyond the object's own, which is why the KATA pane here is a preview and not an editor.
@@ -135,7 +135,7 @@ CerbUI.AgentConfig = class {
 	 * ordinary text (comments are whole lines only), and that an empty object is a childless key. A second
 	 * emitter in here would be a second set of those rules to keep right.
 	 *
-	 * Anything the form doesn't render rides along untouched -- `commands:`, a mount's `at:`/`mode:`, a tool's
+	 * Anything the form doesn't render rides along untouched -- `commands:`, a mount's `at:`/`create:`, a tool's
 	 * `icon:`/`labels:` -- so visiting this tab can't lose config written through the API or an automation.
 	 */
 	serializeModel() {
@@ -378,8 +378,10 @@ CerbUI.AgentConfig = class {
 
 	_fieldMounts(surface, scope, inherits) {
 		const field = this._field('Filesystems', inherits
-			? 'Mounted here in addition to the agent\'s own.'
-			: 'Volumes the agent can browse and read, everywhere it runs.');
+			? 'Mounted here in addition to the agent\'s own. Read-only unless made writable.'
+			: 'Volumes the agent can browse and read, everywhere it runs. Read-only unless made writable.');
+
+		const hint = field.querySelector('.cerb-ui-form--hint');
 
 		const host = document.createElement('div');
 		host.className = 'cerb-ui-record-chooser';
@@ -395,13 +397,19 @@ CerbUI.AgentConfig = class {
 			host.appendChild(this._chooserSeed(ref ? ref.id : 0, ref ? ref.label : name));
 		});
 
-		field.insertBefore(host, field.querySelector('.cerb-ui-form--hint'));
+		field.insertBefore(host, hint);
+
+		// Per-mount `mode:`, as its own row rather than something on the chip: the chooser rebuilds its tiles on
+		// every add and remove, so a control parked inside one wouldn't survive the next change.
+		const modes = document.createElement('div');
+		modes.className = 'cerb-agent-config--mount-modes cerb-u-flex cerb-u-items-center cerb-u-flex-wrap cerb-u-gap-3 cerb-u-mt-2';
+		field.insertBefore(modes, hint);
 
 		this._chooser(host, { context: 'cerb.contexts.agent.filesystem', multiple: true, emptyIcon: 'folder' }, (items) => {
 			const mounts = {};
 
 			// Keyed by NAME, not id: a name is what survives an export, and it's what reads correctly in KATA.
-			// Any per-mount options already authored (`at:`, `mode:`) are carried over rather than reset.
+			// Any per-mount options already authored (`at:`, `create:`, and the `mode:` set below) are carried over.
 			// Live scope, not the render-time snapshot: for a surface with no block yet, `scope` is a throwaway
 			// object, so reading per-mount options off it would lose them.
 			const was = this._scope(surface).mounts || {};
@@ -412,9 +420,77 @@ CerbUI.AgentConfig = class {
 			});
 
 			this._set(surface, 'mounts', mounts);
+			this._renderMountModes(modes, surface);
 		});
 
+		this._renderMountModes(modes, surface);
+
 		return field;
+	}
+
+	/*
+	 * One checkbox per mounted volume in this scope: read-only (the default, and what every mount was before
+	 * this) or writable.
+	 *
+	 * Without it there is no way to reach `mode:` from the UI at all, so an agent could never keep notes, write
+	 * back what it learned, or produce a file -- every mount it added was permanently read-only. The chooser
+	 * carries a mount's other keys through untouched, but it can't ADD one.
+	 *
+	 * Rebuilt whole rather than patched, since it's derived from the mount set the chooser just rewrote.
+	 */
+	_renderMountModes(hostEl, surface) {
+		const mounts = this._peek(surface).mounts || {};
+		const keys = Object.keys(mounts);
+
+		hostEl.replaceChildren();
+
+		if(!keys.length)
+			return;
+
+		const caption = document.createElement('span');
+		caption.className = 'cerb-u-text-muted';
+		caption.textContent = 'Writable:';
+		hostEl.appendChild(caption);
+
+		keys.forEach((key) => {
+			const wrap = document.createElement('label');
+			wrap.className = 'cerb-u-flex cerb-u-items-center cerb-u-gap-1';
+			wrap.title = 'The agent can create, change, and delete files in this volume.';
+
+			const cb = document.createElement('input');
+			cb.type = 'checkbox';
+			cb.checked = this._mountIsWritable(mounts[key]);
+
+			cb.addEventListener('change', () => this._setMountMode(surface, key, cb.checked));
+
+			wrap.appendChild(cb);
+			wrap.appendChild(document.createTextNode(String(key).split('@')[0]));
+			hostEl.appendChild(wrap);
+		});
+	}
+
+	/* Mirrors `LlmAgentNode::_getMountSpecs()`: anything but the three rw spellings is read-only. */
+	_mountIsWritable(mount) {
+		const mode = String((mount && mount.mode) || '').trim().toLowerCase();
+		return ['rw', 'read-write', 'readwrite'].indexOf(mode) >= 0;
+	}
+
+	/*
+	 * Read-only is the DEFAULT, so off deletes the key rather than writing `mode: read-only`. A mount that says
+	 * nothing is the common case and shouldn't carry a line saying so.
+	 *
+	 * `read-write` is the spelling the docs and the tutorial workflow use, of the three the resolver accepts.
+	 */
+	_setMountMode(surface, key, writable) {
+		const mounts = this._peek(surface).mounts;
+
+		if(!mounts || !mounts[key] || typeof mounts[key] !== 'object')
+			return;
+
+		if(writable) mounts[key].mode = 'read-write';
+		else delete mounts[key].mode;
+
+		this._sync();
 	}
 
 	_fieldTools(surface, scope, inherits) {
