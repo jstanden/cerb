@@ -351,6 +351,7 @@ class PageSection_SetupDevelopersLlmAgentTranscripts extends Extension_PageSecti
 			$tpl->assign('llm_session', $llm_session);
 			$tpl->assign('llm_session_automation', $llm_session->getAutomation());
 			$tpl->assign('llm_session_user', $llm_session->getUser());
+			$tpl->assign('llm_session_agent', $llm_session->getAgent());
 			$tpl->assign('llm_session_auth', $auth_account);
 			$tpl->assign('turns', $turns);
 			// Milliseconds per tool call. Only where BOTH ends are known — a call with no result yet has no

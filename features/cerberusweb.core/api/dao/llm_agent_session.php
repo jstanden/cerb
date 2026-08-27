@@ -606,4 +606,31 @@ class Model_LlmAgentSession {
 			default => null,
 		};
 	}
+
+	/**
+	 * The AI worker this session ran AS, stamped by `llm.agent: agent:` (`setAgentIfEmpty()`).
+	 *
+	 * Null for a session started by a script that named no agent -- still legal, and the reason every reader
+	 * has to have a fallback rather than assuming one. `DAO_Worker::get()` reads the cached `getAll()`, so
+	 * calling this per row in a list is a lookup, not a query.
+	 */
+	public function getAgent() : ?Model_Worker {
+		if(!$this->agent_id)
+			return null;
+
+		$worker = DAO_Worker::get($this->agent_id);
+
+		return ($worker && $worker->is_ai) ? $worker : null;
+	}
+
+	/**
+	 * The first segment of the uuid, the way a git commit is quoted by its first few characters.
+	 *
+	 * A full v4 uuid is 36 characters of which only the leading run distinguishes one session from another at
+	 * a glance, and printing all of it crowds out the things you actually pick a transcript by -- who ran it,
+	 * for whom, how long ago. The whole value stays one hover (and one Permalink) away.
+	 */
+	public function getShortUuid() : string {
+		return substr($this->uuid, 0, 8);
+	}
 }

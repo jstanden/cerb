@@ -1,5 +1,12 @@
+{* WHO the session ran as, which is the one thing that tells two transcripts apart at a glance -- they all
+   share a provider, and the uuid distinguishes without describing. A session started by a script that named
+   no agent still has none, so every reader here needs the fallback. *}
+{$transcript_agent = $llm_session_agent}
+
 <div class="cerb-ui-header cerb-ui-header--tight cerb-ui-header--center">
-    <div class="cerb-ui-header--title" style="font-family:ui-monospace,Menlo,Consolas,monospace;">{$llm_session->uuid}</div>
+    <div>
+        <div class="cerb-ui-header--title">{$llm_session->uuid}</div>
+    </div>
     <div class="cerb-ui-header--right">
         <div class="cerb-ui-toolbar-strip">
             {if !$llm_session->is_read}
@@ -37,6 +44,15 @@
         {/if}
         {if $llm_session_auth}<div><div class="cerb-ui-chip--label">Authentication</div><div class="cerb-ui-chip--value"><a data-context="{CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}" data-context-id="{$llm_session_auth->id}" data-cerb-peek>{$llm_session_auth->name}</a></div></div>{/if}
     </div>
+    {* Leads the chips: an agent record is what carries the instructions, tools, filesystems, and model policy
+       this whole session ran under, so it answers "why did it behave that way" before the LLM chip does. *}
+    {if $transcript_agent}
+    <div class="cerb-ui-chip" style="flex:0 0 auto;" title="The AI worker this session ran as. Its record carries the instructions, tools, filesystems, and model policy the turns were composed from.">
+        <div class="cerb-ui-chip--head">Agent</div>
+        <div><div class="cerb-ui-chip--label">Name</div><div class="cerb-ui-chip--value"><a data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$transcript_agent->id}" data-cerb-peek><span class="cerb-icons cerb-icon-bot"></span> {$transcript_agent->getName()}</a></div></div>
+        {if $transcript_agent->at_mention_name}<div><div class="cerb-ui-chip--label">Mention</div><div class="cerb-ui-chip--value">@{$transcript_agent->at_mention_name}</div></div>{/if}
+    </div>
+    {/if}
     {if $llm_session->user_type || $llm_session->user_ip}
     <div class="cerb-ui-chip" style="flex:0 0 auto;" title="The session's initiating user.">
         <div class="cerb-ui-chip--head">User</div>
@@ -173,7 +189,16 @@
                     <span data-cerb-transcript-avatar data-avatar-icon="user" data-avatar-seed="user"></span>
                 {/if}
             {else}
-                <span data-cerb-transcript-avatar data-avatar-icon="{$agent_provider_icon}" data-avatar-seed="agent:{$llm_session->uuid}"{if $agent_provider_color} data-avatar-color="{$agent_provider_color}"{/if}></span>
+                {* Same split as the live transcript (`await/_transcript_turns.tpl`): a real agent takes the
+                   avatar and DEMOTES the model's mark to a corner badge, so the reader sees who was speaking
+                   and still that it was an AI. With no agent the mark IS the avatar, as before.
+                   agent-transcript.js moves the badge into the avatar box it builds. *}
+                {if $transcript_agent}
+                    <span data-cerb-transcript-avatar data-avatar="{$transcript_agent->getName()}" data-avatar-seed="worker:{$transcript_agent->id}" data-avatar-image="{$transcript_agent->getImageUrl()}"></span>
+                    {if $agent_provider_icon}<span data-cerb-transcript-avatar-badge class="cerb-ui-pill cerb-ui-pill--circle"{if $agent_provider_color} style="--cerb-ui-pill-color:{$agent_provider_color};color:rgb(255,255,255);"{/if} title="{$llm_session->provider}"><span class="cerb-icons cerb-icon-{$agent_provider_icon}"></span></span>{/if}
+                {else}
+                    <span data-cerb-transcript-avatar data-avatar-icon="{$agent_provider_icon}" data-avatar-seed="agent:{$llm_session->uuid}"{if $agent_provider_color} data-avatar-color="{$agent_provider_color}"{/if}></span>
+                {/if}
             {/if}
 
             <div data-cerb-transcript-sender>
@@ -185,7 +210,14 @@
                         <span class="cerb-ui-agent-transcript--sender-name">User</span> <span class="cerb-u-text-muted">Portal visitor</span>
                     {/if}
                 {else}
-                    <span class="cerb-ui-agent-transcript--sender-name">Agent</span> <span class="cerb-ui-pill">{$llm_session->provider}{if $llm_session->isPrimed() && $llm_session->getModel()} &middot; {$llm_session->getModel()}{/if}</span>
+                    {* A peek link like the user's byline above it -- on this page the agent's record is exactly
+                       what you'd want to open next, since it holds the instructions and tools behind the turn. *}
+                    {if $transcript_agent}
+                        <a class="cerb-ui-agent-transcript--sender-name cerb-u-underline-hover" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$transcript_agent->id}" data-cerb-peek>{$transcript_agent->getName()}</a>
+                    {else}
+                        <span class="cerb-ui-agent-transcript--sender-name">Agent</span>
+                    {/if}
+                    <span class="cerb-ui-pill">{$llm_session->provider}{if $llm_session->isPrimed() && $llm_session->getModel()} &middot; {$llm_session->getModel()}{/if}</span>
                 {/if}
             </div>
 
