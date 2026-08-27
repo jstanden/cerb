@@ -601,6 +601,33 @@ EOD;
 		$this->assertEquals($expected, $actual);
 	}
 	
+	/**
+	 * `float` has to stay in `$_valid_annotations`. That list is what `parse()` consults to decide whether an
+	 * annotated key with indented lines under it opens a text block or an object -- so dropping `float` back
+	 * out makes this document a syntax error, and `nothing@float:` return an empty object instead of a number.
+	 */
+	function testKataAnnotationFloatBlock() {
+		$kata_string = <<< EOD
+object:
+  pi@float:
+    3.1415
+EOD;
+
+		$error = null;
+
+		$tree = DevblocksPlatform::services()->kata()->parse($kata_string, $error);
+		$actual = DevblocksPlatform::services()->kata()->formatTree($tree);
+
+		$this->assertNull($error);
+		$this->assertSame(3.1415, $actual['object']['pi']);
+
+		$tree = DevblocksPlatform::services()->kata()->parse("pi@float: 3.1415\nnothing@float:\n", $error);
+		$actual = DevblocksPlatform::services()->kata()->formatTree($tree);
+
+		$this->assertSame(3.1415, $actual['pi']);
+		$this->assertSame(0.0, $actual['nothing']);
+	}
+
 	function testKataReferences() {
 		$kata = <<< EOD
 event/start:

@@ -27,6 +27,7 @@ class _DevblocksKataService {
 		'bool',
 		'csv',
 		'date',
+		'float',
 		'int',
 		'json',
 		'kata',
