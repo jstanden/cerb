@@ -211,9 +211,10 @@ html.dark .dtb-triage--head { border-bottom-color: #374151; }
 /* Me / Unassigned assignee switcher — right-aligned past the Add/Cancel buttons; icon-sized segments.
    Outline-only (no box background, no filled active segment): selection is shown with an outline ring. */
 #{$dtb_id} .dtb-editor-assign { margin-left: auto; border: 0; overflow: visible; gap: 0.2em; background: none; }
-/* height:auto + line-height:1 override the global BUTTON { height: 2.4em } so the segment sizes square
-   to its 18px icon (else the 50% radius / outline becomes a tall oval). */
-#{$dtb_id} .dtb-editor-assign button { padding: 0.25em; height: auto; line-height: 1; display: inline-flex; align-items: center; justify-content: center; background: none; border: 0; border-radius: 50%; opacity: 0.5; }
+/* height:auto + min-height:0 + line-height:1 override the global BUTTON { height: 2.4em } and the
+   .cerb-ui-switcher button { min-height: 2.4em } so the segment sizes square to its 18px icon. Miss
+   either one and the box is taller than wide, so the 50% radius / outline draws a tall oval. */
+#{$dtb_id} .dtb-editor-assign button { padding: 0.25em; height: auto; min-height: 0; line-height: 1; display: inline-flex; align-items: center; justify-content: center; background: none; border: 0; border-radius: 50%; opacity: 0.5; }
 #{$dtb_id} .dtb-editor-assign button + button { border-left: 0; }
 #{$dtb_id} .dtb-editor-assign button.cerb-ui-switcher--active { background: none; color: inherit; opacity: 1; outline: 2px solid var(--cerb-color-action-primary); outline-offset: 1px; }
 #{$dtb_id} .dtb-editor-assign .dtb-card--owner { width: 18px; height: 18px; margin: 0; }
@@ -230,14 +231,18 @@ html.dark #{$dtb_id} .dtb-card--edit, html.dark #{$dtb_id} .dtb-card-editor .dtb
 #{$dtb_id} .dtb-card-editor .cerb-ui-selectmenu { background: #e5e7eb; border-color: #d1d5db; }
 html.dark #{$dtb_id} .dtb-card-editor .cerb-ui-selectmenu { background: #374151; border-color: #4b5563; color: #f9fafb; }
 /* Project switcher (≤5 projects): wraps within the editor's column width; outline-only like the
-   assignee switcher (no fill/idle backgrounds — far less distracting), active = an outline ring. */
+   assignee switcher (no fill/idle backgrounds — far less distracting), active = an outline ring.
+   The font-size bump is deliberate: these pills pick the task's project, so they need to read as
+   comfortably as the Add Task / Cancel buttons they sit above. */
 #{$dtb_id} .dtb-editor-project-switcher { display: flex; flex-wrap: wrap; gap: 0.3em; overflow: visible; border: 0; background: none; }
-#{$dtb_id} .dtb-editor-project-switcher button { height: auto; line-height: 1; padding: 0.35em 0.6em; background: none; border: 0; border-radius: 8px; opacity: 0.5; }
+#{$dtb_id} .dtb-editor-project-switcher button { height: auto; min-height: 0; line-height: 1; padding: 0.55em 0.9em; font-size: 1.05em; background: none; border: 0; border-radius: 8px; opacity: 0.5; }
 #{$dtb_id} .dtb-editor-project-switcher button + button { border-left: 0; }
 #{$dtb_id} .dtb-editor-project-switcher button.cerb-ui-switcher--active { background: none; color: inherit; opacity: 1; outline: 2px solid var(--cerb-color-action-primary); outline-offset: 1px; }
 
-/* Flat SortBrain-style action buttons (no gradient/CTA chrome) */
-#{$dtb_id} .dtb-editor-btn { border-style: solid; border-color: #d1d5db; }
+/* Flat SortBrain-style action buttons (no gradient/CTA chrome). height:auto drops the fixed
+   .cerb-ui-button height so the roomier padding isn't clipped; the font-size bump is deliberate --
+   these are the editor's primary actions and should outweigh the card text beside them. */
+#{$dtb_id} .dtb-editor-btn { border-style: solid; border-color: #d1d5db; height: auto; padding: 0.6em 1.2em; font-size: 1.1em; }
 #{$dtb_id} .dtb-editor-add { background: #e5e7eb; color: var(--cerb-color-text); }
 #{$dtb_id} .dtb-editor-add:hover { background: #dadde1; color: var(--cerb-color-text); }
 #{$dtb_id} .dtb-editor-cancel { background: transparent; color: var(--cerb-color-text); }
