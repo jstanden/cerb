@@ -4,7 +4,16 @@
 
 {$is_self = ($active_worker->id == $worker->id)}
 
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="{$form_id}">
+{* The dialog's title as DOM data rather than a string emitted into the <script> below. Smarty escapes an
+   attribute correctly on its own; a translated name reaching a JS string literal needs `|escape:'javascript'`
+   and is silently broken the first time someone forgets it. *}
+{if $worker->id}
+	{$popup_title = "{'common.edit'|devblocks_translate|capitalize}: {$worker->getName()}"}
+{else}
+	{$popup_title = "{'common.create'|devblocks_translate|capitalize}: {'common.worker'|devblocks_translate|capitalize}"}
+{/if}
+
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="{$form_id}" data-cerb-dialog-title="{$popup_title}">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="worker">
@@ -216,7 +225,10 @@
 	   writes the whole tree back to the hidden input below as JSON. The KATA itself is emitted server-side by
 	   `kata()->emit()`, so there's only ever one implementation of that. Keys the form doesn't render are
 	   carried through untouched, so hand-authored config survives a visit to this tab. *}
-	<div id="{$form_id}Ai">
+	{* The skills volume's NAME rides on the host element rather than being written into the script below: it
+	   comes from `FilesystemAssets::VOLUME_SKILLS`, and a value Smarty can escape as an attribute should never
+	   need escaping as a JS string literal. (The four `_json` blobs below are structured data, not text.) *}
+	<div id="{$form_id}Ai" data-cerb-skills-volume="{$agent_skills_volume}">
 		<input type="hidden" name="agent_config_json" id="agentConfigJson_{$form_id}" value="">
 
 		<div class="cerb-ui-panel cerb-ui-panel--spaced" id="agentDefaults_{$form_id}">
@@ -485,13 +497,6 @@ $(function() {
 	Devblocks.formDisableSubmit($frm);
 
 	$popup.one('popup_open', function(event,ui) {
-		{if $worker->id}
-			{$popup_title = "{'common.edit'|devblocks_translate|capitalize}: {$worker->getName()}"}
-		{else}
-			{$popup_title = "{'common.create'|devblocks_translate|capitalize}: {'common.worker'|devblocks_translate|capitalize}"}
-		{/if}
-		$popup.dialog('option','title',"{$popup_title|escape:'javascript' nofilter}");
-
 		// Tabs (no remember — always opens on the first tab)
 		let tabsUl = document.getElementById('{$form_id}Tabs');
 		let workerTabs = null;
@@ -603,14 +608,16 @@ $(function() {
 					'js': ['/resource/cerberusweb.core/js/cerb-ui/agent-config.js']
 				}, function() {
 					try {
-						new CerbUI.AgentConfig($popup.find('#{$form_id}Ai')[0], {
+						const aiHost = $popup.find('#{$form_id}Ai')[0];
+
+						new CerbUI.AgentConfig(aiHost, {
 							input: document.getElementById('agentConfigJson_{$form_id}'),
 							config: {$agent_config_json nofilter},
 							surfaces: {$agent_surfaces_json nofilter},
 							namespaces: {$agent_cli_namespaces_json nofilter},
 							refs: {$agent_refs_json nofilter},
 							isNew: {if $agent_is_new}true{else}false{/if},
-							skillsVolume: '{$agent_skills_volume|escape:'javascript' nofilter}'
+							skillsVolume: aiHost.dataset.cerbSkillsVolume || ''
 						});
 					} catch(e) {
 						if(console && console.error) console.error(e);
@@ -631,9 +638,6 @@ $(function() {
 			function applyType(isAi) {
 				if(aiTab) aiTab.style.display = isAi ? '' : 'none';
 				if(loginTab) loginTab.style.display = isAi ? 'none' : '';
-
-				// The one place that knows this worker is an agent, so the one place that pulls the editor.
-				if(isAi) loadAgentConfig();
 
 				// Human-only profile fields (location, DOB) — meaningless on an agent
 				$popup.find('[data-cerb-field-human]').each(function() { this.style.display = isAi ? 'none' : ''; });

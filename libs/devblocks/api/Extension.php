@@ -478,11 +478,28 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	 * dictionary's lazy-load path just for being asked.
 	 */
 	function getIcon($dict = null) : string {
-		if($dict instanceof DevblocksDictionaryDelegate && $dict->exists('_icon')
-			&& ($icon = trim(strval($dict->get('_icon')))))
+		if('' !== ($icon = $this->getRecordIcon($dict)))
 			return $icon;
 
 		return $this->manifest->params['icon'] ?? 'circle';
+	}
+
+	/**
+	 * ONLY this record's own glyph (`_icon`), with no fall back to the type's -- empty when the record doesn't
+	 * carry one, mirroring `getIconColor()`'s contract.
+	 *
+	 * What it's for: a caller that already draws something else in the tile (a context avatar) and wants to
+	 * know whether there's a per-record mark worth badging on top. `getIcon()` can't answer that -- it always
+	 * returns something, so it would badge every record with its type's static glyph.
+	 *
+	 * ⚠ `exists()`, never `$dict->_icon`: reading a missing key off a dictionary LAZY-LOADS it, so asking this
+	 * of a type that never sets `_icon` would run a `lazyLoadContextValues()` pass per record, per render.
+	 */
+	function getRecordIcon($dict = null) : string {
+		if($dict instanceof DevblocksDictionaryDelegate && $dict->exists('_icon'))
+			return trim(strval($dict->get('_icon')));
+
+		return '';
 	}
 
 	/**

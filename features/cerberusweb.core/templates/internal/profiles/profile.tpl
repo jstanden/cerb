@@ -23,7 +23,7 @@
 		class="cerb-ui-avatar cerb-ui-avatar--tile"
 		data-avatar="{$dict->_label}"
 		{* data-avatar-seed="{$page_context}:{$page_context_id}" *}
-	  data-avatar-color="{if $record_icon_color}{$record_icon_color}{else}var(--cerb-color-background-contrast-180){/if}"
+		data-avatar-color="{if $record_icon_color}{$record_icon_color}{else}var(--cerb-color-background-contrast-180){/if}"
 		data-avatar-size="75"
 		{if $context_ext->hasOption('avatars')}data-avatar-image="{devblocks_url}c=avatars&context={$page_record_uri}&context_id={$page_context_id}{/devblocks_url}?v={$dict->updated_at|default:$dict->updated|default:$dict->updated_date}"{else}data-avatar-icon="{$context_ext->getIcon($dict)}"{/if}
 	></span>
