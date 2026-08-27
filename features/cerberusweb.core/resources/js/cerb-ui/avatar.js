@@ -8,9 +8,11 @@
  *   - Enhance one you already rendered: new CerbUI.Avatar(el)  // reads data-avatar* off the element
  *   - Enhance a whole list at once:     CerbUI.Avatar.enhance(scope)  // every [data-avatar] within
  *
- * As a placeholder it pairs with a real photo: pass imageUrl (or data-avatar-image) and the monogram
- * shows instantly as a "graybox", then the picture swaps in once it loads — how a long list of profile
- * images paints without flashing empty.
+ * As a placeholder it pairs with a real photo: pass imageUrl (or data-avatar-image) and the avatar
+ * shows a pulsing skeleton until the picture swaps in — how a long list of profile images paints
+ * without flashing empty. Loads run in bounded batches with a per-request timeout and retries, so a
+ * page full of avatars doesn't burst the server; if one exhausts its retries the skeleton clears and
+ * the monogram/icon underneath is what remains.
  *
  * Pass an `icon` (option) or data-avatar-icon (a cerb-icons name) to paint a glyph inside the color-locked
  * circle instead of initials — e.g. a record-type / category avatar that's an icon, not a person's monogram.
@@ -104,7 +106,7 @@ CerbUI.Avatar = class {
 		} else {
 			el.textContent = CerbUI.Avatar.initials(label);
 		}
-		el.classList.remove('cerb-ui-avatar--image');
+		el.classList.remove('cerb-ui-avatar--image', 'cerb-ui-avatar--loading', 'cerb-u-anim-pulse');
 		if(spec.imageUrl) CerbUI.Avatar._loadImage(el, spec.imageUrl, spec.enqueue);
 		return el;
 	}
@@ -128,20 +130,94 @@ CerbUI.Avatar = class {
 		return CerbUI.color.idealTextColor(bg) || '';
 	}
 
-	// Swap the monogram for a real image once it loads. `enqueue` (optional) routes the load through a
-	// caller-supplied bounded queue (e.g. chooserCore's) so a long list never bursts the server.
+	// ── Bounded image loader ────────────────────────────────────────────
+	// Every avatar URL is its own backend request, and a list can hold dozens (the connected-service
+	// package library is ~60). Requesting them all at once exhausts the browser's per-host connection
+	// pool and the server's workers, and enough of them time out that some tiles never paint. So load
+	// in small batches, cap how long any one request may hold a slot, and put a failure back in line
+	// for another try instead of leaving the tile stuck on its placeholder.
+	static MAX_INFLIGHT = 6;
+	static TIMEOUT_MS = 15000;
+	static MAX_ATTEMPTS = 3;
+	static _queue = [];
+	static _inflight = 0;
+
+	static _pump() {
+		while(CerbUI.Avatar._inflight < CerbUI.Avatar.MAX_INFLIGHT && CerbUI.Avatar._queue.length) {
+			const job = CerbUI.Avatar._queue.shift();
+			if(job.cancelled) continue;
+
+			CerbUI.Avatar._inflight++;
+
+			const img = new Image();
+			let settled = false;
+
+			// One exit for load / error / timeout: free the slot exactly once, then either paint, retry,
+			// or give up. A hung request that never fires an event would otherwise hold a slot forever
+			// and stall everything queued behind it.
+			const finish = function(ok) {
+				if(settled) return;
+				settled = true;
+				clearTimeout(timer);
+				img.onload = img.onerror = null;
+				CerbUI.Avatar._inflight--;
+
+				if(!job.cancelled) {
+					if(ok) {
+						job.onload(img.src);
+					} else if(++job.attempts < CerbUI.Avatar.MAX_ATTEMPTS) {
+						CerbUI.Avatar._queue.push(job); // back of the line, after the current batch drains
+					} else if(typeof job.onfail === 'function') {
+						job.onfail();
+					}
+				}
+
+				CerbUI.Avatar._pump();
+			};
+
+			const timer = setTimeout(function() {
+				img.src = ''; // abort the in-flight request so the retry isn't racing it
+				finish(false);
+			}, CerbUI.Avatar.TIMEOUT_MS);
+
+			img.onload = function() { finish(true); };
+			img.onerror = function() { finish(false); };
+			img.src = job.url;
+		}
+	}
+
+	// Queue one image. Returns the job so a caller can set `cancelled` (e.g. a row scrolled away).
+	static _enqueue(url, onload, onfail) {
+		const job = { url: url, onload: onload, onfail: onfail, attempts: 0, cancelled: false };
+		CerbUI.Avatar._queue.push(job);
+		CerbUI.Avatar._pump();
+		return job;
+	}
+
+	// Swap the skeleton for a real image once it loads. `enqueue` (optional) routes the load through a
+	// caller-supplied queue (e.g. chooserCore's, which also cancels rows that scroll away) instead of
+	// the shared one above.
 	static _loadImage(el, url, enqueue) {
+		const settle = function() {
+			el.classList.remove('cerb-ui-avatar--loading', 'cerb-u-anim-pulse');
+		};
 		const onload = function(src) {
+			settle();
 			el.style.backgroundImage = 'url("' + src + '")';
 			el.style.backgroundColor = 'transparent';
 			el.textContent = '';
 			el.classList.add('cerb-ui-avatar--image');
 		};
-		if(typeof enqueue === 'function') return enqueue(url, onload);
-		const probe = new Image();
-		probe.addEventListener('load', function() { onload(probe.src); });
-		probe.src = url;
-		return null;
+		// Out of retries: drop the skeleton and leave the monogram/icon already painted underneath, so
+		// a tile that can't load its picture still reads as that record rather than pulsing forever.
+		const onfail = settle;
+
+		// Skeleton until one of those fires -- a pulsing block reads as "still loading", where a glyph
+		// that never resolves is indistinguishable from the record's real art.
+		el.classList.add('cerb-ui-avatar--loading', 'cerb-u-anim-pulse');
+
+		if(typeof enqueue === 'function') return enqueue(url, onload, onfail);
+		return CerbUI.Avatar._enqueue(url, onload, onfail);
 	}
 
 	// ── Build a fresh element ───────────────────────────────────────────

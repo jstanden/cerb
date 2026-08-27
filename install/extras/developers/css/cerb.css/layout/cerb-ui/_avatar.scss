@@ -1,5 +1,5 @@
-// Avatar: a small monogram circle (CerbUI.Avatar). Hash-locked bg + white initials; swaps to a
-// background-image when a real photo lazy-loads (--image). Size defaults to 22px; callers override
+// Avatar: a small monogram circle (CerbUI.Avatar). Hash-locked bg + white initials; shows a pulsing
+// skeleton (--loading) while a real photo loads, then swaps to a background-image (--image). Size defaults to 22px; callers override
 // via the JS `size` option (inline width/height/font-size) or a wrapper class.
 .cerb-ui-avatar {
 	flex: 0 0 auto;
@@ -35,6 +35,18 @@
 	// space. Applied automatically when the avatar is non-square. Override the corner via
 	// `--cerb-ui-avatar-art-radius`.
 	&.cerb-ui-avatar--art { border-radius: var(--cerb-ui-avatar-art-radius, 10px); }
+
+	// Loading skeleton — while a real image is in flight the avatar is a plain pulsing block (the JS
+	// pairs this with .cerb-u-anim-pulse, which is reduced-motion aware). The monogram/icon is still in
+	// the markup and is what shows if the load ultimately fails; hiding it here keeps "still loading"
+	// from being mistaken for the record's actual art. !important beats the inline background-color the
+	// JS sets from the seed/color.
+	&.cerb-ui-avatar--loading {
+		background-color: var(--cerb-color-background-contrast-190) !important;
+		color: transparent;
+
+		> * { visibility: hidden; }
+	}
 }
 
 // Badged avatar: a positioning context that pins a small circular status pill (sent/received/

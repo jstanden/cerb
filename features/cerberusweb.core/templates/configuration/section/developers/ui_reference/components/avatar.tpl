@@ -128,7 +128,7 @@ CerbUI.Avatar.hash('worker:5');             // the 32-bit seed hash
 
 		{* Example: graybox → photo — instant monogram placeholder, real image swaps in on load *}
 		<div class="cerb-ui-header">
-			<div class="cerb-ui-header--label">Graybox &rarr; photo &mdash; pass <code>imageUrl</code> and the monogram shows <strong>instantly</strong> as a placeholder, then the real picture swaps in once it loads. This is how a long list of profile images paints without flashing empty</div>
+			<div class="cerb-ui-header--label">Graybox &rarr; photo &mdash; pass <code>imageUrl</code> and a skeleton paints <strong>instantly</strong>, then the real picture swaps in once it loads. This is how a long list of profile images paints without flashing empty</div>
 		</div>
 		<div class="cerb-uiref-example">
 			<div class="cerb-uiref-demo">
@@ -142,8 +142,46 @@ CerbUI.Avatar.hash('worker:5');             // the 32-bit seed hash
 	seed:     'worker:' + id,             // stable placeholder color
 	imageUrl: '/avatar/worker/' + id,     // swaps in on load; falls back to the monogram if it never loads
 	size:     32,
-	// enqueue: chooserCore's bounded loader — throttles a 1,000-row list so it never bursts the server
+	// enqueue: an alternate loader (chooserCore passes one that also cancels rows scrolled out of view)
 });{/literal}</pre>
+			</div>
+		</div>
+
+		{* Example: loading skeleton — the pulsing block an avatar shows while its image is in flight *}
+		<div class="cerb-ui-header">
+			<div class="cerb-ui-header--label">Loading skeleton &mdash; an avatar with an <code>imageUrl</code> paints a pulsing block until the picture lands, so <em>still loading</em> is never mistaken for the record's real art. Loads run <strong>6 at a time</strong> with a 15s timeout and up to 3 attempts, so a view with dozens of avatars can't burst the server; if the retries run out the skeleton clears and the monogram or icon underneath is what remains. The pulse is <code>cerb-u-anim-pulse</code>, so it stops under <code>prefers-reduced-motion</code></div>
+		</div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<div class="cerb-u-flex cerb-u-flex-wrap cerb-u-items-center cerb-u-gap-3">
+					{* Held open (no imageUrl) so the state stays visible -- the live row below is over in a blink *}
+					<span class="cerb-ui-avatar cerb-ui-avatar--loading cerb-u-anim-pulse" style="width:32px;height:32px;" title="Circle"></span>
+					<span class="cerb-ui-avatar cerb-ui-avatar--tile cerb-ui-avatar--loading cerb-u-anim-pulse" style="width:32px;height:32px;" title="Tile"></span>
+					<span class="cerb-ui-avatar cerb-ui-avatar--art cerb-ui-avatar--loading cerb-u-anim-pulse" style="width:96px;height:54px;" title="Art (16:9)"></span>
+					<span class="cerb-u-text-muted">held open</span>
+				</div>
+
+				<div class="cerb-u-flex cerb-u-flex-wrap cerb-u-items-center cerb-u-gap-2 cerb-u-mt-3">
+					<div id="uiref-avatar-skeleton-live" class="cerb-u-flex cerb-u-flex-wrap cerb-u-items-center cerb-u-gap-2"></div>
+					<button type="button" id="uiref-avatar-skeleton-reload" class="cerb-ui-button cerb-ui-button--subtle"><span class="cerb-icons cerb-icon-refresh"></span> Replay</button>
+				</div>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>{literal}// Nothing to opt into — any avatar with an imageUrl gets the skeleton and the batched loader
+CerbUI.Avatar.enhance('#package-list');
+
+// Tuning (shared by every avatar on the page, chooser rows included)
+CerbUI.Avatar.MAX_INFLIGHT = 6;      // requests in flight at once
+CerbUI.Avatar.TIMEOUT_MS   = 15000;  // a hung request can't hold a slot longer than this
+CerbUI.Avatar.MAX_ATTEMPTS = 3;      // a failure goes to the back of the line, then gives up{/literal}</pre>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>&lt;!-- The skeleton is two classes, if you ever need to hold one open yourself --&gt;
+&lt;span class="cerb-ui-avatar cerb-ui-avatar--loading cerb-u-anim-pulse" style="width:32px;height:32px;"&gt;&lt;/span&gt;</pre>
 			</div>
 		</div>
 
@@ -386,6 +424,44 @@ new CerbUI.AvatarStack(el2, {
 			el.setAttribute('title', p.label);
 			host.appendChild(el);
 		});
+	})();
+
+	// Loading skeleton: replay skeleton -> photo on demand. The URL is cache-busted per run, otherwise
+	// the second click paints from cache with no visible transition at all.
+	(function() {
+		const host = document.getElementById('uiref-avatar-skeleton-live');
+		const btn = document.getElementById('uiref-avatar-skeleton-reload');
+		if(!host || !btn) return;
+
+		const people = [
+			{ label: 'Jane Doe', seed: 'worker:1', imageUrl: '{devblocks_url}c=resource&p=cerberusweb.core&f=images/avatars/person1.png{/devblocks_url}' },
+			{ label: 'Ravi Patel', seed: 'worker:2', imageUrl: '{devblocks_url}c=resource&p=cerberusweb.core&f=images/avatars/person2.png{/devblocks_url}' },
+			{ label: 'Mia Wong', seed: 'worker:3', imageUrl: '{devblocks_url}c=resource&p=cerberusweb.core&f=images/avatars/person3.png{/devblocks_url}' },
+			{ label: 'Sam Lee', seed: 'worker:4', imageUrl: '{devblocks_url}c=resource&p=cerberusweb.core&f=images/avatars/person4.png{/devblocks_url}' },
+			{ label: 'Ana Cruz', seed: 'worker:5', imageUrl: '{devblocks_url}c=resource&p=cerberusweb.core&f=images/avatars/person5.png{/devblocks_url}' },
+			{ label: 'Tom Reed', seed: 'worker:6', imageUrl: '{devblocks_url}c=resource&p=cerberusweb.core&f=images/avatars/person6.png{/devblocks_url}' }
+		];
+
+		let run = 0;
+
+		const paint = function() {
+			run++;
+			host.replaceChildren();
+			people.forEach(function(p, i) {
+				const bust = (p.imageUrl.indexOf('?') > -1 ? '&' : '?') + '_uiref=' + run + '.' + i;
+				const el = CerbUI.Avatar.create({
+					label: p.label,
+					seed: p.seed,
+					imageUrl: p.imageUrl + bust,
+					size: 32
+				});
+				el.setAttribute('title', p.label);
+				host.appendChild(el);
+			});
+		};
+
+		btn.addEventListener('click', paint);
+		paint();
 	})();
 
 	// Enhance in place: paint every server-rendered [data-avatar] within the scope

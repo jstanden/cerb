@@ -24,36 +24,12 @@
 CerbUI.chooserCore = (function() {
 	'use strict';
 
-	// ── Global lazy-avatar queue (shared across all chooser instances) ──────────
-	// Bounds in-flight avatar requests so a visible page never bursts the server.
-	const AVATAR_MAX_INFLIGHT = 6;
-	let _avatarInflight = 0;
-	const _avatarQueue = [];
-
-	function _avatarPump() {
-		while(_avatarInflight < AVATAR_MAX_INFLIGHT && _avatarQueue.length) {
-			const job = _avatarQueue.shift();
-			if(job.cancelled) continue;
-			_avatarInflight++;
-			const img = new Image();
-			img.onload = img.onerror = function() {
-				_avatarInflight--;
-				_avatarPump();
-			};
-			img.onload = function() {
-				_avatarInflight--;
-				if(!job.cancelled) job.onload(img.src);
-				_avatarPump();
-			};
-			img.src = job.url;
-		}
-	}
-
+	// ── Lazy-avatar loading ────────────────────────────────────────────────────
+	// Delegated to CerbUI.Avatar's bounded loader (batched, per-request timeout, retries) so a chooser
+	// and a plain avatar list share one budget against the server rather than two. The returned job is
+	// still the cancellation handle for a row that scrolls away.
 	function _avatarEnqueue(url, onload) {
-		const job = { url: url, onload: onload, cancelled: false };
-		_avatarQueue.push(job);
-		_avatarPump();
-		return job; // caller keeps it to cancel when the row scrolls away
+		return CerbUI.Avatar._enqueue(url, onload);
 	}
 
 	// ── Client-side monogram — delegated to the shared CerbUI.Avatar (hash-locked color) ──
