@@ -891,9 +891,18 @@ CerbUI.AgentTranscript = class {
 	}
 
 	// Active vs past phrasing ("Searching…" / "Searched…", "Thinking…" / "Thought for 5 seconds"). Either may
-	// be omitted; fall back to the other, then to a generic verb — a summary is prose for a reader, so the
-	// fallback is never the machine tool name. The generic PAST verb takes the measured duration when the
-	// caller supplies one ("Worked for 340ms"); an authored phrase is left alone, since it's the author's words.
+	// be omitted; fall back to the other, then to the TOOL'S OWN NAME, and only then to a generic verb. An
+	// authored phrase is left alone, since it's the author's words.
+	//
+	// Naming the tool reverses an earlier rule here ("the fallback is never the machine tool name", on the
+	// grounds that a summary is prose). In practice a bare "Worked" tells a reader nothing at all, and most
+	// tools carry no labels: they're referenced by URI from an agent record, and only a hand-authored ~20 line
+	// KATA block sets `labels:` today. Between prose that says nothing and a name that says which tool ran, the
+	// name wins. `web_search` is humanized to "web search" so it reads as words rather than an identifier.
+	// (When `agent_tool` records land they'll carry labels, and this stops being the common path.)
+	//
+	// The duration still rides along when the caller measured one -- that was the real reason this fallback
+	// lives in the renderer rather than in `getLabels()`, and losing it would be a regression.
 	_summaryFor(node, isTool, isActive) {
 		const d = node.dataset;
 		const active = d.summaryActive || '';
@@ -902,9 +911,14 @@ CerbUI.AgentTranscript = class {
 		if(chosen) return chosen;
 
 		if(isTool) {
-			if(isActive) return 'Working';
+			const name = (d.toolName || '').trim().replace(/[_-]+/g, ' ');
+
+			if(isActive) return name ? ('Running ' + name) : 'Working';
+
+			const verb = name ? ('Ran ' + name) : 'Worked';
 			const ms = parseInt(d.durationMs, 10);
-			return isNaN(ms) ? 'Worked' : ('Worked for ' + this._duration(ms));
+
+			return isNaN(ms) ? verb : (verb + ' for ' + this._duration(ms));
 		}
 
 		return isActive ? 'Thinking' : 'Thought';
