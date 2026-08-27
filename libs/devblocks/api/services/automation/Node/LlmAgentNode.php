@@ -40,6 +40,14 @@ class LlmAgentNode extends AbstractNode {
 
 	// The AI worker this turn runs AS, from `agent:`. 0 = anonymous (no agent named).
 	private int $_agent_worker_id = 0;
+
+	// That agent's config, already resolved for this SURFACE (its defaults merged with the per-surface
+	// overrides). Empty when no agent is named, so every consumer can read it without branching.
+	private array $_agent_config = [];
+
+	// The surface this turn is running on, held so the config resolution and the prompt-cache gate can't
+	// disagree about which overrides applied.
+	private string $_agent_surface = '';
 	
 	// One slot per node. The provider is NOT part of the key anymore — the session id is stable across
 	// provider switches (they rewrite in place), so a single slot holds the active session for this node.
@@ -679,7 +687,7 @@ class LlmAgentNode extends AbstractNode {
 		if(!$tools_config && $session_id && ($session = \DAO_LlmAgentSession::get($session_id)))
 			$tools_config = $session->tools;
 
-		$tools_config = $this->_withTriggerTools($tools_config);
+		$tools_config = $this->_withTriggerTools($this->_withAgentTools($tools_config));
 
 		foreach($tools_config as $tool_key => $tool) {
 			list($tool_type, $tool_name) = array_pad(explode('/', $tool_key, 2), 2, null);
@@ -719,6 +727,45 @@ class LlmAgentNode extends AbstractNode {
 	 * Duck-typed rather than an interface: this file is platform code and the only trigger that answers lives
 	 * in cerberusweb.core — the same arrangement `_renderFormElements()` uses for `getFormComponentMeta()`.
 	 */
+	/**
+	 * The AGENT's `tools:` folded into this turn's, by the same first-wins-by-NAME rule `_withTriggerTools()`
+	 * uses -- so precedence reads script > agent > trigger.
+	 *
+	 * The script wins because it is the most specific statement of intent: an author who names a tool here has
+	 * said something about THIS conversation that the agent record can't know. The agent beats the trigger for
+	 * the same reason one step down -- the trigger's contribution is structural (the host editor's own
+	 * commands), and a person configuring an agent is making a choice.
+	 *
+	 * FIRST-WINS, not a deep merge, and that's deliberate: what this merge is FOR is the union of tools with
+	 * distinct names. Blending two entries that share a name would mean merging the per-node properties of an
+	 * automation reference, which isn't a meaningful operation -- and the two sides may not even name the same
+	 * automation, in which case the survivor would carry a `description` written for a different one.
+	 *
+	 * Note this differs from how a record merges its OWN layers: there, `Config::resolve()` deep-merges a
+	 * surface's entry onto the default's, because a surface block is explicitly an override OF THAT ENTRY.
+	 * Across independently authored sources, a shared name is not proof of a shared tool.
+	 */
+	private function _withAgentTools(array $tools_config) : array {
+		if(!($agent_tools = $this->_agent_config['tools'] ?? []) || !is_array($agent_tools))
+			return $tools_config;
+
+		$authored_names = [];
+
+		foreach(array_keys($tools_config) as $tool_key) {
+			list($tool_type, $tool_name) = array_pad(explode('/', strval($tool_key), 2), 2, null);
+			$authored_names[$tool_name ?: $tool_type] = true;
+		}
+
+		foreach($agent_tools as $tool_key => $tool) {
+			list($tool_type, $tool_name) = array_pad(explode('/', strval($tool_key), 2), 2, null);
+
+			if(!array_key_exists($tool_name ?: $tool_type, $authored_names))
+				$tools_config[$tool_key] = is_array($tool) ? $tool : [];
+		}
+
+		return $tools_config;
+	}
+
 	private function _withTriggerTools(array $tools_config) : array {
 		if(!$this->_automation)
 			return $tools_config;
@@ -765,9 +812,13 @@ class LlmAgentNode extends AbstractNode {
 	 *
 	 * The `cerb` CLI needs no term of its own: it is authored under `terminal:`, which is hashed whole.
 	 *
-	 * Returns NULL when this turn authored nothing at all -- a pure resume, which replays the session's
-	 * stored config (see `_getMountSpecs()`). Hashing absent inputs would read as "the author deleted
-	 * everything" and recompose on every single resume, the exact opposite of the point.
+	 * Returns NULL when this turn has nothing at all to hash -- no authored inputs AND no agent, which is a
+	 * pure resume replaying the session's stored config (see `_getMountSpecs()`). Hashing absent inputs would
+	 * read as "the author deleted everything" and recompose on every single resume, the exact opposite of the
+	 * point.
+	 *
+	 * A turn that names an agent but authors nothing else DOES hash, and stably: the value moves only when the
+	 * agent record does. That's the point -- it's what carries an edit into a conversation.
 	 *
 	 * Caveat worth knowing: an input built from a placeholder that changes per turn moves this hash every
 	 * turn, and the prefix with it. `getInputsMeta()` on the agent-pane trigger already warns against
@@ -776,11 +827,19 @@ class LlmAgentNode extends AbstractNode {
 	private function _prefixInputsGate() : ?string {
 		// Fixed key order -- json_encode preserves insertion order, and a hash whose stability depends on
 		// array ordering is a hash that silently misses on every turn.
+		//
+		// The AGENT is in here too, by id + the surface + its row's `updated_at`. Editing an agent is someone's
+		// INTENT, unlike the role assets excluded above -- if changing an agent's instructions didn't reach the
+		// conversation you were looking at when you changed them, the editor would read as broken. The cost is
+		// that an edit recomposes open conversations on their next turn, which is the trade we want.
 		$authored = [
 			'system_prompt' => $this->_inputs['system_prompt'] ?? null,
 			'tools' => $this->_inputs['tools'] ?? null,
 			'mounts' => $this->_inputs['mounts'] ?? null,
 			'terminal' => $this->_inputs['terminal'] ?? null,
+			'agent' => $this->_agent_worker_id
+				? [$this->_agent_worker_id, $this->_agent_surface, \DAO_Agent::get($this->_agent_worker_id)['updated_at'] ?? 0]
+				: null,
 		];
 
 		foreach($authored as $value) {
@@ -850,6 +909,8 @@ class LlmAgentNode extends AbstractNode {
 	 */
 	private function _applyAgentDefaults() : void {
 		$this->_agent_worker_id = 0;
+		$this->_agent_config = [];
+		$this->_agent_surface = '';
 
 		if('' === ($agent_ref = trim(strval($this->_inputs['agent'] ?? ''))))
 			return;
@@ -858,6 +919,33 @@ class LlmAgentNode extends AbstractNode {
 			throw new Exception_DevblocksAutomationError(sprintf("`llm.agent` couldn't resolve `agent: %s` to an AI worker.", $agent_ref));
 
 		$this->_agent_worker_id = $agent->id;
+
+		// Resolved ONCE per activation, for the surface this turn is running on. Every consumer below
+		// (system prompt, tools, mounts, terminal, commands) reads this same tree, so they can't disagree
+		// about which overrides applied.
+		$this->_agent_surface = $this->_agentSurfaceKey();
+		$this->_agent_config = \Cerb\Agent\Config::forWorker($agent->id, $this->_agent_surface);
+	}
+
+	/**
+	 * WHERE this turn is running, as the agent's config names it -- an agent-pane component today
+	 * (`mail_reply`, `icon`), an event later.
+	 *
+	 * Asked of the TRIGGER, duck-typed like `getLlmAgentTools()`, because only the trigger knows what its
+	 * callers mean. That's what keeps the pane's `component` vocabulary out of this file: a trigger with no
+	 * surfaces answers nothing and the agent contributes its defaults, which is the right answer for an
+	 * `llm.agent:` that isn't in a pane at all.
+	 */
+	private function _agentSurfaceKey() : string {
+		if(!$this->_automation)
+			return '';
+
+		$trigger = $this->_automation->getTriggerExtension();
+
+		if(!$trigger || !method_exists($trigger, 'getAgentSurfaceKey'))
+			return '';
+
+		return trim(strval($trigger->getAgentSurfaceKey($this->_dict)));
 	}
 
 	/**
@@ -924,6 +1012,11 @@ class LlmAgentNode extends AbstractNode {
 		if(array_key_exists('mounts', $this->_inputs) || array_key_exists('terminal', $this->_inputs))
 			return true;
 
+		// An agent that mounts anything enables it too -- otherwise its volumes resolve and then reach no tool,
+		// which looks exactly like a broken mount.
+		if(($this->_agent_config['mounts'] ?? []) || ($this->_agent_config['terminal'] ?? []))
+			return true;
+
 		if($session_id && ($session = \DAO_LlmAgentSession::get($session_id)))
 			return !is_null($session->mounts);
 
@@ -949,8 +1042,31 @@ class LlmAgentNode extends AbstractNode {
 	 * Provisioning (`create@bool`) is handled separately in _provisionMounts() before this resolver runs.
 	 */
 	private function _getMountSpecs(?string $session_id = null) : array {
-		$mounts_config = $this->_inputs['mounts'] ?? [];
-		$has_terminal = array_key_exists('terminal', $this->_inputs);
+		// The agent contributes mounts and a terminal the same way it contributes tools. Merged by NORMALIZED
+		// volume name so an authored `docs:` overrides an agent's `docs:` instead of mounting it twice, and so
+		// an annotated key (`docs@optional:`) is the same volume as a bare one.
+		$mounts_config = [];
+
+		foreach([$this->_agent_config['mounts'] ?? [], $this->_inputs['mounts'] ?? []] as $source) {
+			if(!is_array($source))
+				continue;
+
+			foreach($source as $key => $mount) {
+				$key = DevblocksPlatform::services()->string()->strBefore(strval($key), '@');
+
+				if('' !== $key)
+					$mounts_config[$key] = is_array($mount) ? $mount : [];
+			}
+		}
+
+		// One level deep, so a script adding a namespace keeps the agent's -- and `<name>@bool: no` still turns
+		// one off, which _getCliSpec() honors.
+		$terminal_config = array_replace_recursive(
+			is_array($this->_agent_config['terminal'] ?? null) ? $this->_agent_config['terminal'] : [],
+			is_array($this->_inputs['terminal'] ?? null) ? $this->_inputs['terminal'] : []
+		);
+
+		$has_terminal = array_key_exists('terminal', $this->_inputs) || (bool) $terminal_config;
 
 		// Pure resume: the session stores the RESOLVED specs (an indexed list, not the authored map), so
 		// they're already in fromSpecs() shape — return them verbatim rather than re-normalizing. They carry the
@@ -965,18 +1081,7 @@ class LlmAgentNode extends AbstractNode {
 
 		$specs = [];
 
-		if(!is_array($mounts_config))
-			$mounts_config = [];
-
 		foreach($mounts_config as $key => $mount) {
-			$key = DevblocksPlatform::services()->string()->strBefore(strval($key), '@');
-
-			if('' === $key)
-				continue;
-
-			if(!is_array($mount))
-				$mount = [];
-
 			// Source: an explicit `filesystem:` (name/id/URI) wins; otherwise the mountpoint key is the source
 			// too (a `cerb:` URI for the wrong context resolves to '' and falls back to the key).
 			$source = '';
@@ -999,7 +1104,7 @@ class LlmAgentNode extends AbstractNode {
 			];
 		}
 
-		if($has_terminal && ($cli_spec = self::_getCliSpec(($this->_inputs['terminal'] ?? [])['cerb'] ?? null)))
+		if($has_terminal && ($cli_spec = self::_getCliSpec($terminal_config['cerb'] ?? null)))
 			$specs[] = $cli_spec;
 
 		return $specs;
@@ -1202,10 +1307,13 @@ class LlmAgentNode extends AbstractNode {
 		}
 
 		if($compose) {
-			// Ours first, the author's appended: someone adding one line about their own tool appends one line
-			// instead of reimplementing the whole prompt.
+			// Ours first, then the agent's, then the author's. Each layer is more specific than the last: the
+			// trigger describes the SURFACE, the agent record is who is running there, and the script speaks for
+			// this one conversation. Someone adding a line about their own tool appends a line rather than
+			// reimplementing the prompt.
 			$composed = trim(implode("\n\n", array_filter([
 				$this->_triggerSystemPrompt($session_id),
+				trim(strval($this->_agent_config['system_prompt'] ?? '')),
 				trim(strval($this->_inputs['system_prompt'] ?? '')),
 			])));
 
@@ -1234,7 +1342,7 @@ class LlmAgentNode extends AbstractNode {
 		// that gains a command reaches an existing conversation on its next turn -- note this is the tool MAP
 		// only. It deliberately does NOT feed the prefix gate (_prefixInputsGate), so a host gaining a command
 		// never rewrites an open conversation's system prompt.
-		$tools_config = $this->_withTriggerTools(is_array($tools_config) ? $tools_config : []);
+		$tools_config = $this->_withTriggerTools($this->_withAgentTools(is_array($tools_config) ? $tools_config : []));
 
 		if($tools_config)
 			\DAO_LlmAgentSession::setTools($session_id, $tools_config);
@@ -1245,7 +1353,14 @@ class LlmAgentNode extends AbstractNode {
 		// An EMPTY authored block persists `[]`, which is how a /tmp-only filesystem survives a resume — the
 		// column being NULL is what means "never enabled".
 		// `terminal:` rides the same stored list as a reserved entry, so authoring EITHER block is a reason to write.
-		if(array_key_exists('mounts', $this->_inputs) || array_key_exists('terminal', $this->_inputs))
+		// The agent's mounts count as authored for this purpose: if only IT contributes them, the session must
+		// still store the resolved specs, or the next resume reads null and the volumes silently disappear.
+		if(
+			array_key_exists('mounts', $this->_inputs)
+			|| array_key_exists('terminal', $this->_inputs)
+			|| ($this->_agent_config['mounts'] ?? [])
+			|| ($this->_agent_config['terminal'] ?? [])
+		)
 			\DAO_LlmAgentSession::setMounts($session_id, $this->_getMountSpecs());
 	}
 
@@ -1367,6 +1482,14 @@ class LlmAgentNode extends AbstractNode {
 		$commands = $this->_inputs['commands'] ?? [];
 
 		if(!is_array($commands))
+			$commands = [];
+
+		// The agent's commands union the script's. A command is a capability rather than a configuration, so
+		// there's nothing to override -- either side naming one enables it.
+		if(($agent_commands = $this->_agent_config['commands'] ?? []) && is_array($agent_commands))
+			$commands = array_replace($agent_commands, $commands);
+
+		if(!$commands)
 			return [];
 
 		$names = [];
@@ -1384,7 +1507,10 @@ class LlmAgentNode extends AbstractNode {
 				$names[] = $name;
 		}
 
-		return $names;
+		// Deduped on the NAME, because the key isn't the identity: `command/compact:` and a bare `compact:` are
+		// the same command, so an agent writing one and a script writing the other would otherwise enable it
+		// twice.
+		return array_values(array_unique($names));
 	}
 
 	// The commands the node itself implements. An author's arbitrary `/text` is NOT one of these — it stays in

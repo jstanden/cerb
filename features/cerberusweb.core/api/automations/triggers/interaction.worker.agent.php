@@ -62,6 +62,26 @@ class AutomationTrigger_InteractionWorkerAgent extends AutomationTrigger_Interac
 	}
 
 	/**
+	 * WHICH SURFACE this pane is, for an agent record's per-surface config.
+	 *
+	 * `llm.agent:` calls this through duck-typing off the automation's trigger, like `getLlmAgentTools()`. The
+	 * answer is the same `component` those tools already resolve from -- one vocabulary, so an agent enabled on
+	 * `mail_reply` gets the reply editor's tools AND the overrides someone wrote for `mail_reply`, and there is
+	 * no second list of surface names to keep in step with the catalog.
+	 *
+	 * A caller that isn't an agent pane gets `''`: the agent still contributes its defaults, which is right for
+	 * an `llm.agent:` running outside any pane.
+	 */
+	function getAgentSurfaceKey(DevblocksDictionaryDelegate $dict) : string {
+		$caller_params = $dict->get('caller_params', []);
+
+		if(!is_array($caller_params))
+			return '';
+
+		return strval($caller_params['component'] ?? '');
+	}
+
+	/**
 	 * The agent's ROLE as the opening of its system prompt, resolved from the live caller.
 	 *
 	 * `llm.agent:` calls this through duck-typing (`method_exists`) off the automation's trigger extension,
