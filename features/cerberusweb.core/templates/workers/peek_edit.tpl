@@ -227,7 +227,8 @@
 			{if isset($worker_groups[$group_id])}
 				{if $worker_groups[$group_id]->is_manager}{$role = 2}{else}{$role = 1}{/if}
 			{/if}
-			{$row = ['id' => $group->id, 'name' => $group->name, 'role' => $role]}
+			{capture assign=group_avatar_url}{devblocks_url}c=avatars&context=group&context_id={$group->id}{/devblocks_url}?v={$group->updated}{/capture}
+			{$row = ['id' => $group->id, 'name' => $group->name, 'role' => $role, 'image' => $group_avatar_url]}
 			{$group_roster[] = $row}
 		{/foreach}
 
