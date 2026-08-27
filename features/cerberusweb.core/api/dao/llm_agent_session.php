@@ -521,10 +521,10 @@ class Model_LlmAgentSession {
 		return $this->provider && $this->provider_params;
 	}
 
-	// Normalize the stored `tools:` config into a tool-name → descriptor map. The key mirrors
-	// LlmAgentNode::_getTools() (`<type>/<name>` split, annotations stripped) so the tool_name matches what a
-	// transcript tool call reports via getName(). `uri` is the `cerb:automation:` target for automation tools
-	// (empty for inline `tool/` types, which can't be reproduced).
+	// Normalize the stored `tools:` config into a tool-name → descriptor map, through the SHARED
+	// LlmAgentNode::normalizeToolMap() (`<type>/<name>` split, annotations stripped) so the tool_name matches
+	// what a transcript tool call reports via getName(). `uri` is the `cerb:automation:` target for automation
+	// tools (empty for inline `tool/` types, which can't be reproduced).
 	//
 	// `icon` and `labels` are display-only metadata for a transcript — the agent never sees them (LlmAgentNode
 	// rebuilds each provider schema field-by-field, so unknown keys are dropped before the wire). Because the
@@ -537,23 +537,19 @@ class Model_LlmAgentSession {
 	public function getToolMap() : array {
 		$map = [];
 
-		foreach($this->tools as $tool_key => $tool) {
-			if(!is_array($tool))
-				continue;
-
-			$clean_key = explode('@', strval($tool_key), 2)[0];
-			list($tool_type, $tool_name) = array_pad(explode('/', $clean_key, 2), 2, null);
-
-			if(!$tool_name)
-				$tool_name = $tool_type;
-
+		// A DISPLAY projection built on the shared normalizer, so the names here match the ones the provider
+		// was given. `$skip_disabled` is false and `$mounts` is null on purpose: this map is a label lookup for
+		// calls that already happened, so a since-disabled tool must still resolve (dropping it would re-render
+		// an old, legitimate call as "Unknown tool"), and the terminal's entry is a different shape entirely --
+		// it's added below.
+		foreach(\Cerb\AutomationBuilder\Node\LlmAgentNode::normalizeToolMap($this->tools, null, false) as $tool_name => $tool) {
 			$labels = $tool['labels'] ?? [];
 
 			if(!is_array($labels))
 				$labels = [];
 
 			$map[$tool_name] = [
-				'type' => $tool_type,
+				'type' => $tool['type'],
 				'uri' => strval($tool['uri'] ?? ''),
 				'description' => strval($tool['description'] ?? ''),
 				'icon' => strval($tool['icon'] ?? ''),

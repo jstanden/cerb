@@ -3023,36 +3023,14 @@ class _DevblocksLlmService {
 
 	// Normalize the session's stored `tools` (`<type>/<name>` keys, skip disabled) into a name→descriptor map,
 	// then synthesize the shared `agent_terminal` tool from the stored mounts (an author tool of that name wins).
+	//
+	// `$session->mounts`: `[]` is enabled-with-no-volumes (a /tmp-only filesystem); only NULL means the session
+	// never had one.
 	private function _sessionToolMap(Model_LlmAgentSession $session) : array {
-		$tools = [];
-
-		foreach(($session->tools ?? []) as $tool_key => $tool) {
-			if(!is_array($tool))
-				continue;
-
-			list($tool_type, $tool_name) = array_pad(explode('/', strval($tool_key)), 2, null);
-
-			if(empty($tool_name))
-				$tool_name = $tool_type;
-
-			if(array_key_exists('disabled', $tool) && $tool['disabled'])
-				continue;
-
-			$tool['type'] = $tool_type;
-			$tools[$tool_name] = $tool;
-		}
-
-		$terminal_name = \Cerb\AutomationBuilder\Node\LlmAgentNode::TOOL_TERMINAL;
-
-		// `[]` is enabled-with-no-volumes (a /tmp-only filesystem); only NULL means the session never had one.
-		if(!is_null($session->mounts) && !array_key_exists($terminal_name, $tools)) {
-			$tools[$terminal_name] = [
-				'type' => 'agent_terminal',
-				'mounts' => $session->mounts,
-			];
-		}
-
-		return $tools;
+		return \Cerb\AutomationBuilder\Node\LlmAgentNode::normalizeToolMap(
+			$session->tools ?? [],
+			$session->mounts
+		);
 	}
 
 	// A custom (`tool/`) tool's schema — one object of `string` params. Ported verbatim from LlmAgentNode.

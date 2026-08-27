@@ -376,20 +376,33 @@ class LlmAgentNode extends AbstractNode {
 					if('automation' == $tool_dict['type']) {
 						$automator = DevblocksPlatform::services()->automation();
 						
-						if (!($tool_automation = DAO_Automation::getByUri($tool['uri'] ?? '', \AutomationTrigger_LlmTool::ID)))
-							return false;
-						
-						$initial_state = [
-							'inputs' => $tool_spec->getParameters() ?? [],
-						];
-						
-						if (false === ($automation_results = $automator->executeScript($tool_automation, $initial_state, $error))) {
+						// Renamed or deleted since this turn's schema was built. Answer the model, the way an
+						// unknown tool name does -- aborting here strands a resumable conversation on a
+						// reference the author can still fix, and returns before `__tool` is cleared below.
+						if (!($tool_automation = DAO_Automation::getByUri($tool['uri'] ?? '', \AutomationTrigger_LlmTool::ID))) {
+							DevblocksPlatform::logError(sprintf(
+								"[LLM] Tool `%s` references an automation that no longer exists: %s",
+								$tool_spec->getName(),
+								$tool['uri'] ?? ''
+							));
+							
 							$tool_response = [
-								'content' => "ERROR: " . $error,
+								'content' => 'ERROR: This tool is no longer available.',
 							];
+							
 						} else {
-							// [TODO] Validate the return contains `content`
-							$tool_response = $automation_results->get('__return', []);
+							$initial_state = [
+								'inputs' => $tool_spec->getParameters() ?? [],
+							];
+							
+							if (false === ($automation_results = $automator->executeScript($tool_automation, $initial_state, $error))) {
+								$tool_response = [
+									'content' => "ERROR: " . $error,
+								];
+							} else {
+								// [TODO] Validate the return contains `content`
+								$tool_response = $automation_results->get('__return', []);
+							}
 						}
 						
 						$llm_provider->returnTool($tool_spec, $tool_response['content'] ?? '', $memory_store);
@@ -690,9 +703,62 @@ class LlmAgentNode extends AbstractNode {
 		return $fields;
 	}
 	
-	private function _getTools(?string $session_id = null) : array {
+	/**
+	 * THE normalizer for a `tools:` config: `<type>/<name>` keys to a `name => entry` map, with `type` set on
+	 * each entry, plus the synthesized `agent_terminal` when a filesystem is mounted.
+	 *
+	 * Shared because this was implemented three times -- here, `_DevblocksLlmService::_sessionToolMap()`, and
+	 * `Model_LlmAgentSession::getToolMap()` -- and the three disagreed. Each divergence is resolved toward
+	 * whichever was already right, so adding a tool SOURCE now teaches one place instead of four:
+	 *
+	 *   - `is_array()`, or a `tools@key:` loop that emits a scalar for one entry fatals the turn.
+	 *   - `@` annotations stripped from the key. Without it a tool authored as `automation/foo@x` is advertised
+	 *     to the provider as `foo@x` while the transcript looks up `foo`, so its `labels` and `icon` silently
+	 *     vanish. Adopting the strip here CHANGES what such a tool is called on the wire -- that is the fix.
+	 *   - `explode` limit 2, so `automation/foo/bar` is the tool `foo/bar` everywhere rather than `foo` in one
+	 *     place and `foo/bar` in another.
+	 *
+	 * $mounts: NULL = the filesystem was never enabled; [] = enabled with no volumes (/tmp only). That
+	 * distinction is load-bearing -- see `_isFilesystemEnabled()`.
+	 *
+	 * $skip_disabled: false for a DISPLAY projection. A transcript's map is a label lookup for calls that
+	 * already happened, and dropping a since-disabled tool from it would re-render an old, legitimate call as
+	 * "Unknown tool". Dispatch and schema builders must leave it true.
+	 */
+	static function normalizeToolMap(array $tools_config, ?array $mounts = null, bool $skip_disabled = true) : array {
 		$tools = [];
 
+		foreach($tools_config as $tool_key => $tool) {
+			if(!is_array($tool))
+				continue;
+
+			$clean_key = explode('@', strval($tool_key), 2)[0];
+
+			list($tool_type, $tool_name) = array_pad(explode('/', $clean_key, 2), 2, null);
+
+			if(empty($tool_name))
+				$tool_name = $tool_type;
+
+			if($skip_disabled && array_key_exists('disabled', $tool) && $tool['disabled'])
+				continue;
+
+			$tool['type'] = $tool_type;
+			$tools[$tool_name] = $tool;
+		}
+
+		// Mounting a filesystem provisions the one shared `agent_terminal` tool over the composed VFS. An author
+		// tool already using that name wins (we never silently replace it).
+		if(!is_null($mounts) && !array_key_exists(self::TOOL_TERMINAL, $tools)) {
+			$tools[self::TOOL_TERMINAL] = [
+				'type' => 'agent_terminal',
+				'mounts' => $mounts,
+			];
+		}
+
+		return $tools;
+	}
+	
+	private function _getTools(?string $session_id = null) : array {
 		// Use the inbound `tools:`; on a pure-resume (no `inputs.tools`) fall back to the session's
 		// stored tools (the session is the source of truth, like system_prompt / provider_params).
 		// Omitting `tools:` on resume therefore inherits the prior turn's tools rather than sending none.
@@ -703,28 +769,10 @@ class LlmAgentNode extends AbstractNode {
 
 		$tools_config = $this->_withTriggerTools($this->_withAgentTools($tools_config));
 
-		foreach($tools_config as $tool_key => $tool) {
-			list($tool_type, $tool_name) = array_pad(explode('/', $tool_key, 2), 2, null);
-			if (empty($tool_name)) $tool_name = $tool_type;
-			
-			// Conditionally disable tools
-			if(array_key_exists('disabled', $tool) && $tool['disabled'])
-				continue;
-			
-			$tool['type'] = $tool_type;
-			$tools[$tool_name] = $tool;
-		}
-
-		// Mounting a filesystem provisions the one shared `agent_terminal` tool over the composed VFS. An author
-		// tool already using that name wins (we never silently replace it).
-		if($this->_isFilesystemEnabled($session_id) && !array_key_exists(self::TOOL_TERMINAL, $tools)) {
-			$tools[self::TOOL_TERMINAL] = [
-				'type' => 'agent_terminal',
-				'mounts' => $this->_getMountSpecs($session_id),
-			];
-		}
-
-		return $tools;
+		return self::normalizeToolMap(
+			$tools_config,
+			$this->_isFilesystemEnabled($session_id) ? $this->_getMountSpecs($session_id) : null
+		);
 	}
 
 	/**
