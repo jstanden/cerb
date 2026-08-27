@@ -50,6 +50,10 @@
    the stash schedule pill; later comment/link counters + an unread-notification dot. Hidden when empty. */
 #{$dtb_id} .dtb-card--meta:empty { display: none; }
 
+/* Project picker: the board's primary control, so it's deliberately a step larger than the rest of the
+   toolbar. Scoped to the trigger host -- the popover mounts on <body>, so it keeps the inherited size. */
+#{$dtb_id}-projects { font-size: 1.2em; }
+
 /* Focus scope switcher: the "My tasks" segment wears the worker's own avatar -- the same identity chip
    the cards use -- rather than a generic user icon. */
 #{$dtb_id} .dtb-focus-avatar { width: 18px; height: 18px; border-radius: 50%; object-fit: cover; display: block; }
