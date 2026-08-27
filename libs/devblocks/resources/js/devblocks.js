@@ -485,7 +485,7 @@ function DevblocksClass() {
 		var ul = document.createElement('ul');
 
 		[
-			{ disposition: 'pause', icon: 'pause', label: 'Pause' },
+			{ disposition: 'pause', icon: 'stopwatch', label: 'Continue later' },
 			{ disposition: 'end',   icon: 'trash', label: 'End' },
 		].forEach(function(it) {
 			var li = document.createElement('li');
