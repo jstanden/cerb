@@ -6685,6 +6685,7 @@ class _CerbApplication_KataSchemas {
           types:
             object:
               attributes:
+                all@ref: policyRule
                 api.command@ref: policyRule
                 data.query@ref: policyRule
                 decrypt.pgp@ref: policyRule

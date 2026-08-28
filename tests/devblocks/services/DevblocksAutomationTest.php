@@ -288,4 +288,43 @@ EOD;
 		
 		$this->assertEquals($expected, $automation_result->get('example'));
 	}
+
+	private function _isCommandAllowed(string $policy_kata, string $command) : bool {
+		$policy = new CerbAutomationPolicy(DevblocksPlatform::services()->kata()->parse($policy_kata));
+
+		return $policy->isCommandAllowed($command, DevblocksDictionaryDelegate::instance([]));
+	}
+
+	function testPolicyCommandsAllIsSchemaValid() {
+		// `all:` is honored by isCommandAllowed(), so the save-time schema has to accept it too.
+		$kata = DevblocksPlatform::services()->kata();
+		$schema = CerberusApplication::kataSchemas()->automationPolicy();
+		$error = null;
+
+		$this->assertTrue($kata->validate("commands:\n  all:\n    allow@bool: yes\n", $schema, $error), strval($error));
+		$this->assertTrue($kata->validate("commands:\n  all:\n    deny/prod@bool: yes\n", $schema, $error), strval($error));
+
+		// The enumeration still rejects an unknown command
+		$this->assertFalse($kata->validate("commands:\n  not.a.command:\n    allow@bool: yes\n", $schema, $error));
+	}
+
+	function testPolicyCommandsAllIsAFallbackNotAnOverride() {
+		// Named rules are evaluated BEFORE `all:` (isCommandAllowed merges `all` onto the end), and the
+		// first truthy rule wins. So `all:` only applies to commands with no named rule of their own --
+		// a blanket `all: deny` does NOT override a named allow, in either KATA order.
+		$this->assertFalse($this->_isCommandAllowed("commands:\n  all:\n    deny/x@bool: yes\n", 'http.request'));
+		$this->assertTrue($this->_isCommandAllowed("commands:\n  all:\n    allow@bool: yes\n", 'http.request'));
+
+		$named_then_all = "commands:\n  http.request:\n    allow@bool: yes\n  all:\n    deny/x@bool: yes\n";
+		$all_then_named = "commands:\n  all:\n    deny/x@bool: yes\n  http.request:\n    allow@bool: yes\n";
+
+		$this->assertTrue($this->_isCommandAllowed($named_then_all, 'http.request'));
+		$this->assertTrue($this->_isCommandAllowed($all_then_named, 'http.request'));
+
+		// ...but `all:` still governs a command with no named rule
+		$this->assertFalse($this->_isCommandAllowed($named_then_all, 'record.create'));
+
+		// Default-deny with no rules at all
+		$this->assertFalse($this->_isCommandAllowed('', 'http.request'));
+	}
 }
