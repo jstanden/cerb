@@ -44,9 +44,9 @@
 	</div>
 
 	<div class="cerb-u-flex cerb-u-flex-wrap cerb-u-items-center cerb-u-gap-2">
-		<a href="https://cerb.ai/docs/building-bots/scripting/commands" target="_blank" rel="noopener" class="cerb-ui-pill">Commands <span class="cerb-icons cerb-icon-new-window"></span></a>
-		<a href="https://cerb.ai/docs/building-bots/scripting/functions" target="_blank" rel="noopener" class="cerb-ui-pill">Functions <span class="cerb-icons cerb-icon-new-window"></span></a>
-		<a href="https://cerb.ai/docs/building-bots/scripting/filters" target="_blank" rel="noopener" class="cerb-ui-pill">Filters <span class="cerb-icons cerb-icon-new-window"></span></a>
+		<a href="https://cerb.ai/docs/scripting/commands/" target="_blank" rel="noopener" class="cerb-ui-pill">Commands <span class="cerb-icons cerb-icon-new-window"></span></a>
+		<a href="https://cerb.ai/docs/scripting/functions/" target="_blank" rel="noopener" class="cerb-ui-pill">Functions <span class="cerb-icons cerb-icon-new-window"></span></a>
+		<a href="https://cerb.ai/docs/scripting/filters/" target="_blank" rel="noopener" class="cerb-ui-pill">Filters <span class="cerb-icons cerb-icon-new-window"></span></a>
 	</div>
 </div>
 
