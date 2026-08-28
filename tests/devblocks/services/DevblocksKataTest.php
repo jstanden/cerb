@@ -780,7 +780,7 @@ EOD;
 object:
   string: Cerb
   int@int: 2020
-  float: 3.1415
+  float@float: 3.1415
   list_int@list:
     1
     2
@@ -797,7 +797,7 @@ object:
   nested_object:
     string: Cerb
     int@int: 2020
-    float: 3.1415
+    float@float: 3.1415
     list_int@list:
       1
       2
@@ -1096,5 +1096,36 @@ EOD;
 		$actual = DevblocksPlatform::services()->kata()->treeDiff($tree1, $tree2);
 		
 		$this->assertEquals($expected, $actual);
+	}
+
+	function testKataEmitFloatAnnotation() {
+		$kata = DevblocksPlatform::services()->kata();
+
+		// Without `@float` a float emitted bare and parsed back as a string, while an int survived.
+		$this->assertEquals('f@float: 1.5', $kata->emit(['f' => 1.5]));
+		$this->assertEquals('f@float: 2.0', $kata->emit(['f' => 2.0]));
+		$this->assertEquals('f@float: -2.75', $kata->emit(['f' => -2.75]));
+
+		// var_export(), not interpolation: `precision=14` would emit this as `0.3`.
+		$this->assertEquals('f@float: 0.30000000000000004', $kata->emit(['f' => 0.1 + 0.2]));
+
+		// Untouched neighbours
+		$this->assertEquals('n@int: 100', $kata->emit(['n' => 100]));
+		$this->assertEquals('s: 1.5', $kata->emit(['s' => '1.5']));
+
+		// INF/NAN have no KATA representation and keep the old bare output
+		$this->assertEquals('f: INF', $kata->emit(['f' => INF]));
+	}
+
+	function testKataEmitFloatRoundTrips() {
+		$kata = DevblocksPlatform::services()->kata();
+		$error = null;
+
+		foreach([1.5, 2.0, -2.75, 0.1 + 0.2, 1/3, 1.0E+20] as $float) {
+			$tree = $kata->parse($kata->emit(['f' => $float]), $error);
+			$actual = $kata->formatTree($tree, null, $error);
+
+			$this->assertSame($float, $actual['f'], var_export($float, true) . ' did not round-trip');
+		}
 	}
 }

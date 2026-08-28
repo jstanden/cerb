@@ -457,7 +457,13 @@ class _DevblocksKataService {
 							
 						} else if(is_integer($v)) {
 							$output .= str_repeat('  ', $indent) . $k . "@int: " . $v . "\n";
-							
+
+						} else if(is_float($v) && is_finite($v)) {
+							// var_export(), not string interpolation: `precision=14` truncates, so 0.1+0.2
+							// emits as `0.3` and reads back as a different number. INF/NAN have no KATA
+							// representation and fall through to the generic branch.
+							$output .= str_repeat('  ', $indent) . $k . "@float: " . var_export($v, true) . "\n";
+
 						} else {
 							$output .= str_repeat('  ', $indent) . $k . ($k_annotations ? ('@' . $k_annotations) : '') . ': ' . $v . "\n";
 						}
