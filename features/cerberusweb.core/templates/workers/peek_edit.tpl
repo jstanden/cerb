@@ -544,6 +544,9 @@ $(function() {
 
 		// Buttons
 		$popup.find('button.save').click(Devblocks.callbackPeekEditSave);
+		// Saves and leaves the popup open, so a run of small edits doesn't cost the AI tab's selected surface
+		// and scroll position each time. The DOM is untouched, so every derived state stays as it was.
+		$popup.find('button.save-continue').click({ mode: 'continue' }, Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
 		if(window.CerbUI && CerbUI.Form) CerbUI.Form.ConfirmDelete($popup[0]);
 
