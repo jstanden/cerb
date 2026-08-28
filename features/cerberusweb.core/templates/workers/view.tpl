@@ -12,7 +12,7 @@
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
 		<td nowrap="nowrap" align="right" class="title-toolbar">
-			{if $active_worker->is_superuser}<a title="{'common.add'|devblocks_translate|capitalize}" class="minimal cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="0"><span class="cerb-icons cerb-icon-circle-plus"></span></a>{/if}
+			{if $active_worker->is_superuser}<a title="{'common.add'|devblocks_translate|capitalize}" class="minimal cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="0" data-width="80%"><span class="cerb-icons cerb-icon-circle-plus"></span></a>{/if}
 			<a data-cerb-worklist-icon-search title="{'common.search'|devblocks_translate|capitalize}" class="minimal"><span class="cerb-icons cerb-icon-search"></span></a>
 			<a data-cerb-worklist-icon-customize title="{'common.customize'|devblocks_translate|capitalize}" class="minimal"><span class="cerb-icons cerb-icon-gear"></span></a>
 			<a data-cerb-worklist-icon-subtotals title="{'common.subtotals'|devblocks_translate|capitalize}" class="minimal"><span class="cerb-icons cerb-icon-signal"></span></a>
@@ -89,6 +89,7 @@
 				{if $result.w_is_disabled}({'common.inactive'|devblocks_translate|capitalize}){/if}
 				<input type="checkbox" name="row_id[]" value="{$result.w_id}" style="display:none;">
 				<a href="{devblocks_url}c=profiles&a=worker&id={$result.w_id}-{$worker_name|devblocks_permalink}{/devblocks_url}" class="subject">{$worker_name}</a>
+				{if $result.w_is_ai}<span class="cerb-ui-pill cerb-u-px-1"><span class="cerb-icons cerb-icon-bot cerb-u-text-muted"></span></span>{/if}
 				<button type="button" class="peek cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$result.w_id}"><span class="cerb-icons cerb-icon-new-window"></span></button>
 			</td>
 		</tr>
