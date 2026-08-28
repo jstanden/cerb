@@ -39,6 +39,7 @@ class AgentChat extends Extension_AutomationTemplate {
 
 		// Tools and filesystems are added live via CerbUI.RecordChooser -- there can be dozens of either, so
 		// neither is a list we can render up front.
+
 		return $tpl->fetch('devblocks:cerberusweb.core::internal/automation/editor/wizard_agent_chat.tpl');
 	}
 
@@ -333,50 +334,22 @@ KATA;
 	}
 
 	/**
-	 * The author's picked `llm.tool` automations. Each answer is { id, alias, label_summary, label_active }.
-	 * Resolve id -> automation name for the uri; key by the author's readable alias (default = the name) so
-	 * the model sees `docs_search`, not `tool123`, and carry the transcript labels.
+	 * The author's picked `agent_tool` records. Each answer is { id, name }, and the key is that name -- which
+	 * is what the model calls the tool.
 	 */
 	private function _automationToolsBlock(array $tools_answer) : string {
-		$tools_by_id = [];
+		$block = '';
 
 		foreach($tools_answer as $tool) {
 			if(!is_array($tool))
 				continue;
 
-			if(($id = intval($tool['id'] ?? 0)))
-				$tools_by_id[$id] = $tool;
-		}
+			$name = trim(strval($tool['name'] ?? ''));
 
-		if(!$tools_by_id)
-			return '';
-
-		$block = '';
-		$automations = DAO_Automation::getIds(array_keys($tools_by_id));
-
-		foreach($tools_by_id as $id => $tool) {
-			if(!isset($automations[$id]))
+			if('' === $name)
 				continue;
 
-			$name = $automations[$id]->name;
-			$alias = $this->_toolAlias(strval($tool['alias'] ?? '')) ?: $this->_toolAlias($name);
-
-			$block .= sprintf("automation/%s:\n", $alias);
-			$block .= sprintf("  uri: cerb:automation:%s\n", $name);
-
-			$active = trim(strval($tool['label_active'] ?? ''));
-			$summary = trim(strval($tool['label_summary'] ?? ''));
-
-			if('' === $active && '' === $summary)
-				continue;
-
-			$block .= "  labels:\n";
-
-			if('' !== $active)
-				$block .= sprintf("    active: %s\n", $active);
-
-			if('' !== $summary)
-				$block .= sprintf("    summary: %s\n", $summary);
+			$block .= sprintf("%s:\n", $name);
 		}
 
 		return $block;
@@ -409,9 +382,4 @@ KATA;
 		return $this->_indent($block, 12);
 	}
 
-	// A readable, KATA-safe alias (function name the model sees): lowercase, non-word -> underscore.
-	private function _toolAlias(string $name) : string {
-		$alias = trim(preg_replace('/[^a-z0-9_]+/', '_', strtolower($name)), '_');
-		return $alias ?: 'tool';
-	}
 }

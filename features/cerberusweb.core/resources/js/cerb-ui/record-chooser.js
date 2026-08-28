@@ -74,6 +74,9 @@ CerbUI.RecordChooser = class {
 						id:        r.value,
 						label:     r.label,
 						image_url: r.icon || '',
+						// A record whose identity is a GLYPH rather than a picture (an agent tool, a filesystem)
+						// sends `icon_name`; `icon` stays what it has always been, an avatar URL.
+						icon_name: r.icon_name || '',
 						sublabel:  r.meta ? Object.values(r.meta).filter(Boolean).join(' · ') : '',
 					})),
 					more: false,
@@ -106,6 +109,9 @@ CerbUI.RecordChooser = class {
 			multiple:          false,
 			searchPlaceholder: 'Search…',
 			emptyIcon:         'file',
+			itemIcon:          '',    // a cerb-icons name every tile falls back to when the record offers no
+			                          // `icon_name` of its own. For a context whose records share one identity
+			                          // (every agent filesystem is a folder), where initials say nothing.
 			name:              null,
 			value:             null,
 			onSelect:          null,
@@ -358,9 +364,21 @@ CerbUI.RecordChooser = class {
 
 		const av = document.createElement('span');
 		av.className = 'cerb-ui-chooser--avatar cerb-ui-record-chooser--avatar';
-		av.style.backgroundColor = CerbUI.chooserCore.monogramColor((item.context || '') + ':' + item.id);
-		av.textContent = CerbUI.chooserCore.initials(item.label);
-		if(item.image_url) {
+
+		// A glyph beats a monogram when the record HAS one: initials say nothing about a tool, and every tool
+		// in a list would otherwise be a differently-coloured pair of letters.
+		const glyph = item.icon_name || this.opts.itemIcon;
+
+		if(glyph) {
+			av.style.backgroundColor = 'transparent';
+			av.innerHTML = '<span class="cerb-icons" aria-hidden="true"></span>';
+			av.firstChild.classList.add('cerb-icon-' + glyph);
+		} else {
+			av.style.backgroundColor = CerbUI.chooserCore.monogramColor((item.context || '') + ':' + item.id);
+			av.textContent = CerbUI.chooserCore.initials(item.label);
+		}
+
+		if(!glyph && item.image_url) {
 			const probe = new Image();
 			probe.addEventListener('load', () => {
 				av.style.backgroundImage = 'url("' + probe.src + '")';

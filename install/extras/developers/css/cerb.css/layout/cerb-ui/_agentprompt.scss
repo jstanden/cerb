@@ -138,34 +138,32 @@
     }
 }
 
-// ── AgentPrompt.ModelPicker / .ToolPicker — design-time model/tool card editors ──────────────────
-// Shared by the Form Builder's agentPrompt inspector and the Automation Builder's Agent Chat wizard.
-.cerb-ui-agent-model-picker--head,
-.cerb-ui-agent-tool-picker--head { margin-bottom: 0.4em; }
+// ── AgentPrompt.ModelPicker — the design-time model card editor ──────────────────────────────────
+// Used by the Form Builder's agentPrompt inspector.
+.cerb-ui-agent-model-picker--head { margin-bottom: 0.4em; }
 
-.cerb-ui-agent-model-picker--card,
-.cerb-ui-agent-tool-picker--card {
-    border: 1px solid var(--cerb-color-background-contrast-200);
+// A card has to read as a distinct object against a form that is already mostly gray. The lifted surface plus
+// a slightly stronger edge does that without a border color loud enough to compete with the fields inside it.
+// Still fully opaque, so the Sortable drag helper isn't transparent.
+.cerb-ui-agent-model-picker--card {
+    border: 1px solid var(--cerb-color-background-contrast-210);
     border-radius: 6px;
     padding: 0.6em;
-    background: var(--cerb-color-background); // opaque so the Sortable drag helper isn't transparent
+    margin-bottom: 0.6em;
+    background: var(--cerb-color-background-contrast-245);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
-.cerb-ui-agent-model-picker--card { margin-bottom: 0.6em; }
-
-.cerb-ui-agent-model-picker--card-head,
-.cerb-ui-agent-tool-picker--card-head {
+.cerb-ui-agent-model-picker--card-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 0.5em;
     margin-bottom: 0.4em;
+    cursor: grab;
 }
 
-.cerb-ui-agent-model-picker--card-head { cursor: grab; }
-
-.cerb-ui-agent-model-picker--card-title,
-.cerb-ui-agent-tool-picker--card-title {
+.cerb-ui-agent-model-picker--card-title {
     display: flex;
     align-items: center;
     gap: 0.4em;
@@ -173,16 +171,6 @@
 }
 
 .cerb-ui-agent-model-picker--auth { min-width: 0; }
-
-.cerb-ui-agent-tool-picker--adder { margin-top: 0.6em; }
-
-// Tool order doesn't matter — let the cards flow inline.
-.cerb-ui-agent-tool-picker--list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 0.6em;
-}
-
 
 // Model rows carry a second line of rating meters. Scoped with :has() so the effort SUBMENU leaves keep the
 // 28px default -- only rows that actually have meters grow. ⚠ CerbUI.Menu's `itemHeight` must match this

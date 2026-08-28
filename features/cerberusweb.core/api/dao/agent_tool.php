@@ -17,7 +17,6 @@ class DAO_AgentTool extends Cerb_ORMHelper {
 	const LABEL_ACTIVE = 'label_active';
 	const LABEL_SUMMARY = 'label_summary';
 	const NAME = 'name';
-	const PARAMS_KATA = 'params_kata';
 	const STATUS = 'status';
 	const UPDATED_AT = 'updated_at';
 	const URI = 'uri';
@@ -112,25 +111,9 @@ class DAO_AgentTool extends Cerb_ORMHelper {
 			})
 			;
 		$validation
-			->addField(self::PARAMS_KATA)
-			->string()
-			->setMaxLength(16777215)
-			->addValidator(function($value, &$error=null) {
-				if('' === trim($value))
-					return true;
-
-				$kata = DevblocksPlatform::services()->kata();
-
-				if(false === $kata->validate($value, CerberusApplication::kataSchemas()->agentTool(), $error))
-					return false;
-
-				return true;
-			})
-			;
-		$validation
 			->addField(self::STATUS)
 			->uint()
-			->setPossibleValues(array_keys(Model_AgentTool::getStatuses()))
+			->setMax(max(array_keys(Model_AgentTool::getStatuses())))
 			;
 		$validation
 			->addField(self::UPDATED_AT)
@@ -225,7 +208,7 @@ class DAO_AgentTool extends Cerb_ORMHelper {
 
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 
-		$sql = "SELECT created_at, description, icon, id, label, label_active, label_summary, name, params_kata, status, updated_at, uri " .
+		$sql = "SELECT created_at, description, icon, id, label, label_active, label_summary, name, status, updated_at, uri " .
 			"FROM agent_tool " .
 			$where_sql .
 			$sort_sql .
@@ -252,7 +235,7 @@ class DAO_AgentTool extends Cerb_ORMHelper {
 	static function getAll($nocache=false) {
 		$cache = DevblocksPlatform::services()->cache();
 
-		if($nocache || false === ($objects = $cache->get(self::_CACHE_ALL))) {
+		if($nocache || null === ($objects = $cache->load(self::_CACHE_ALL))) {
 			$objects = self::getWhere(null, self::NAME, true, null, DevblocksORMHelper::OPT_GET_MASTER_ONLY);
 			$cache->save($objects, self::_CACHE_ALL);
 		}
@@ -344,7 +327,6 @@ class DAO_AgentTool extends Cerb_ORMHelper {
 			$object->label_active = $row['label_active'];
 			$object->label_summary = $row['label_summary'];
 			$object->name = $row['name'];
-			$object->params_kata = $row['params_kata'];
 			$object->status = intval($row['status']);
 			$object->updated_at = intval($row['updated_at']);
 			$object->uri = $row['uri'];
@@ -423,11 +405,10 @@ class DAO_AgentTool extends Cerb_ORMHelper {
 			"agent_tool.label_active as %s, ".
 			"agent_tool.label_summary as %s, ".
 			"agent_tool.name as %s, ".
-			"agent_tool.params_kata as %s, ".
 			"agent_tool.status as %s, ".
 			"agent_tool.updated_at as %s, ".
 			"agent_tool.uri as %s",
-			SearchFields_AgentTool::CREATED_AT, SearchFields_AgentTool::DESCRIPTION, SearchFields_AgentTool::ICON, SearchFields_AgentTool::ID, SearchFields_AgentTool::LABEL, SearchFields_AgentTool::LABEL_ACTIVE, SearchFields_AgentTool::LABEL_SUMMARY, SearchFields_AgentTool::NAME, SearchFields_AgentTool::PARAMS_KATA, SearchFields_AgentTool::STATUS, SearchFields_AgentTool::UPDATED_AT, SearchFields_AgentTool::URI
+			SearchFields_AgentTool::CREATED_AT, SearchFields_AgentTool::DESCRIPTION, SearchFields_AgentTool::ICON, SearchFields_AgentTool::ID, SearchFields_AgentTool::LABEL, SearchFields_AgentTool::LABEL_ACTIVE, SearchFields_AgentTool::LABEL_SUMMARY, SearchFields_AgentTool::NAME, SearchFields_AgentTool::STATUS, SearchFields_AgentTool::UPDATED_AT, SearchFields_AgentTool::URI
 		);
 
 		$join_sql = "FROM agent_tool ";
@@ -472,7 +453,6 @@ class SearchFields_AgentTool extends DevblocksSearchFields {
 	const LABEL_ACTIVE = 'a_label_active';
 	const LABEL_SUMMARY = 'a_label_summary';
 	const NAME = 'a_name';
-	const PARAMS_KATA = 'a_params_kata';
 	const STATUS = 'a_status';
 	const UPDATED_AT = 'a_updated_at';
 	const URI = 'a_uri';
@@ -559,7 +539,6 @@ class SearchFields_AgentTool extends DevblocksSearchFields {
 			self::LABEL_ACTIVE => new DevblocksSearchField(self::LABEL_ACTIVE, 'agent_tool', 'label_active', $translate->_('dao.agent_tool.label_active'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::LABEL_SUMMARY => new DevblocksSearchField(self::LABEL_SUMMARY, 'agent_tool', 'label_summary', $translate->_('dao.agent_tool.label_summary'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'agent_tool', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::PARAMS_KATA => new DevblocksSearchField(self::PARAMS_KATA, 'agent_tool', 'params_kata', $translate->_('common.parameters'), Model_CustomField::TYPE_MULTI_LINE, true),
 			self::STATUS => new DevblocksSearchField(self::STATUS, 'agent_tool', 'status', $translate->_('common.status'), Model_CustomField::TYPE_NUMBER, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'agent_tool', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			self::URI => new DevblocksSearchField(self::URI, 'agent_tool', 'uri', $translate->_('common.uri'), Model_CustomField::TYPE_SINGLE_LINE, true),
@@ -588,12 +567,9 @@ class Model_AgentTool extends DevblocksRecordModel {
 	public $label_active;
 	public $label_summary;
 	public $name;
-	public $params_kata;
 	public $status;
 	public $updated_at;
 	public $uri;
-
-	private ?array $_params = null;
 
 	/**
 	 * Available = offered by a chooser. Unlisted = hidden from choosers but still runs when an agent names
@@ -629,35 +605,6 @@ class Model_AgentTool extends DevblocksRecordModel {
 		return '' !== trim(strval($this->uri));
 	}
 
-	/**
-	 * The parsed `params_kata`, as `{parameters}` -- the model-facing schema, in the same grammar an author
-	 * writes under `tool/<name>:` (`string/<name>: {description, enum, required, default}`), so the provider
-	 * schema builder reads it unchanged.
-	 *
-	 * A `default:` fills a parameter the model omitted, and the model may still send its own. Values the model
-	 * must NOT choose are not here at all -- those are the `params:` an agent writes on its reference to this
-	 * tool, which are applied over the call and stripped from the schema. That split is why the same record can
-	 * be mounted twice under different aliases with different fixed values.
-	 */
-	public function getParams() : array {
-		if(!is_null($this->_params))
-			return $this->_params;
-
-		$parsed = [];
-
-		if('' !== trim(strval($this->params_kata))) {
-			$kata = DevblocksPlatform::services()->kata();
-			$error = null;
-
-			if(false !== ($tree = $kata->parse($this->params_kata, $error)))
-				$parsed = $kata->formatTree($tree, null, $error) ?: [];
-		}
-
-		return $this->_params = [
-			'parameters' => is_array($parsed['parameters'] ?? null) ? $parsed['parameters'] : [],
-		];
-	}
-
 	public function getDisplayName() : string {
 		return trim(strval($this->label)) ?: strval($this->name);
 	}
@@ -687,16 +634,16 @@ class View_AgentTool extends C4_AbstractView implements IAbstractView_Subtotals,
 
 		$this->view_columns = [
 			SearchFields_AgentTool::NAME,
+			SearchFields_AgentTool::LABEL,
 			SearchFields_AgentTool::DESCRIPTION,
 			SearchFields_AgentTool::URI,
 			SearchFields_AgentTool::STATUS,
 			SearchFields_AgentTool::UPDATED_AT,
 		];
 
-		// `params_kata` is a document, and the icon columns are drawn as the row's glyph rather than read.
+		// The icon column is drawn as the row's glyph rather than read.
 		$this->addColumnsHidden([
 			SearchFields_AgentTool::ICON,
-			SearchFields_AgentTool::PARAMS_KATA,
 		]);
 
 		$this->doResetCriteria();
@@ -968,7 +915,6 @@ class View_AgentTool extends C4_AbstractView implements IAbstractView_Subtotals,
 			case SearchFields_AgentTool::LABEL_ACTIVE:
 			case SearchFields_AgentTool::LABEL_SUMMARY:
 			case SearchFields_AgentTool::NAME:
-			case SearchFields_AgentTool::PARAMS_KATA:
 			case SearchFields_AgentTool::URI:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
@@ -1022,6 +968,9 @@ class Context_AgentTool extends Extension_DevblocksContext implements IDevblocks
 				$entry = new stdClass();
 				$entry->label = $model->name;
 				$entry->value = sprintf("%d", $id);
+				// A tool's identity is its GLYPH, not a picture -- `icon` is an avatar URL everywhere else, so
+				// a chooser reads the name from here and draws it instead of a monogram of the tool's initials.
+				$entry->icon_name = $model->getDisplayIcon();
 				$list[] = $entry;
 			}
 
@@ -1162,7 +1111,6 @@ class Context_AgentTool extends Extension_DevblocksContext implements IDevblocks
 			'label' => $prefix.$translate->_('common.label'),
 			'label_active' => $prefix.$translate->_('dao.agent_tool.label_active'),
 			'label_summary' => $prefix.$translate->_('dao.agent_tool.label_summary'),
-			'params_kata' => $prefix.$translate->_('common.parameters'),
 			'status' => $prefix.$translate->_('common.status'),
 			'uri' => $prefix.$translate->_('common.uri'),
 		];
@@ -1179,7 +1127,6 @@ class Context_AgentTool extends Extension_DevblocksContext implements IDevblocks
 			'label' => Model_CustomField::TYPE_SINGLE_LINE,
 			'label_active' => Model_CustomField::TYPE_SINGLE_LINE,
 			'label_summary' => Model_CustomField::TYPE_SINGLE_LINE,
-			'params_kata' => Model_CustomField::TYPE_SINGLE_LINE,
 			'status' => Model_CustomField::TYPE_SINGLE_LINE,
 			'uri' => Model_CustomField::TYPE_SINGLE_LINE,
 		];
@@ -1208,7 +1155,6 @@ class Context_AgentTool extends Extension_DevblocksContext implements IDevblocks
 			$token_values['label'] = $agent_tool->label;
 			$token_values['label_active'] = $agent_tool->label_active;
 			$token_values['label_summary'] = $agent_tool->label_summary;
-			$token_values['params_kata'] = $agent_tool->params_kata;
 			$token_values['status'] = Model_AgentTool::getStatuses()[$agent_tool->status] ?? '';
 			$token_values['uri'] = $agent_tool->uri;
 			$token_values = $this->_importModelCustomFieldsAsValues($agent_tool, $token_values);
@@ -1232,7 +1178,6 @@ class Context_AgentTool extends Extension_DevblocksContext implements IDevblocks
 			'label_active' => DAO_AgentTool::LABEL_ACTIVE,
 			'label_summary' => DAO_AgentTool::LABEL_SUMMARY,
 			'name' => DAO_AgentTool::NAME,
-			'params_kata' => DAO_AgentTool::PARAMS_KATA,
 			'status' => DAO_AgentTool::STATUS,
 			'updated_at' => DAO_AgentTool::UPDATED_AT,
 			'uri' => DAO_AgentTool::URI,

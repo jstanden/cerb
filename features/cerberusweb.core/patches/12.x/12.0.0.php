@@ -4161,7 +4161,6 @@ class CerbPatch_Core_v12_0_0 {
 				`label_active` varchar(255) NOT NULL DEFAULT '',
 				`label_summary` varchar(255) NOT NULL DEFAULT '',
 				`uri` varchar(255) NOT NULL DEFAULT '',
-				`params_kata` mediumtext,
 				`status` tinyint unsigned NOT NULL DEFAULT 0,
 				`created_at` int unsigned NOT NULL DEFAULT 0,
 				`updated_at` int unsigned NOT NULL DEFAULT 0,

@@ -3084,6 +3084,16 @@ class _DevblocksLlmService {
 			}
 		}
 
+		// PHP can't tell an empty map from an empty list, and `json_encode([])` is `[]` -- which a provider
+		// rejects outright ("[] is not of type 'object'"). A tool that takes no arguments is the ordinary case,
+		// and so is one whose every parameter was dropped above, so normalize both back to an object.
+		if(!$tool_schema['function']['parameters']['properties'])
+			$tool_schema['function']['parameters']['properties'] = (object) [];
+
+		// An empty `required` is legal but says nothing; drop it rather than ship it.
+		if(empty($tool_schema['function']['parameters']['required']))
+			unset($tool_schema['function']['parameters']['required']);
+
 		return $tool_schema;
 	}
 

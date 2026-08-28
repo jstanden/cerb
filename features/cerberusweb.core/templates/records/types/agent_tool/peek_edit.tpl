@@ -41,7 +41,7 @@
 					{if !empty($automation)}<li data-context-id="{$automation->id}" data-label="{$automation->name}"></li>{/if}
 				</div>
 			</div>
-			<div class="cerb-ui-form--hint">The <code>agent.tool</code> automation that does the work and returns a <code>content</code> string. Optional -- leave it empty and the calling conversation answers the tool itself from its <code>on_tool:</code> branch.</div>
+			<div class="cerb-ui-form--hint">The <code>agent.tool</code> automation that does the work and returns a <code>content</code> string. Its own <code>inputs:</code> are the arguments the agent may send. Optional -- leave it empty and the calling conversation answers the tool itself from its <code>on_tool:</code> branch.</div>
 		</div>
 
 		<div class="cerb-ui-form--field">
@@ -81,22 +81,6 @@
 			</div>
 		</div>
 		<div class="cerb-ui-form--hint">Either label may use <code>&#123;&#123;placeholders&#125;&#125;</code> from the tool's own parameters, e.g. <code>Searched for &#123;&#123;query&#125;&#125;</code>.</div>
-	</div>
-</div>
-
-<div class="cerb-ui-panel cerb-ui-panel--spaced">
-	<div class="cerb-ui-header cerb-ui-header--tight">
-		<div class="cerb-ui-header--title-sm"><span class="cerb-icons cerb-icon-adjust"></span> {'common.parameters'|devblocks_translate|capitalize}</div>
-	</div>
-	<div class="cerb-ui-form">
-		<div class="cerb-ui-form--field">
-			<textarea name="params_kata" id="paramsKata_{$form_id}" rows="10" spellcheck="false">{$model->params_kata}</textarea>
-			<div class="cerb-ui-form--hint"><code>parameters:</code> is what the model may send -- each with a description, and optionally <code>enum</code>, <code>required</code>, and a <code>default</code> for when the model leaves it out. Values the model must NOT choose belong on the agent's reference to this tool, not here.</div>
-		</div>
-
-		{if !empty($custom_fields)}
-			{include file="devblocks:cerberusweb.core::internal/custom_fields/form.tpl" custom_fields=$custom_fields}
-		{/if}
 	</div>
 </div>
 
@@ -158,13 +142,6 @@ $(function() {
 					onSelect: v => input.value = v
 				});
 			});
-		}
-
-		if(window.CerbUI && CerbUI.KataEditor) {
-			const paramsEl = document.getElementById('paramsKata_{$form_id}');
-
-			if(paramsEl)
-				new CerbUI.KataEditor(paramsEl, { minLines: 8, maxLines: 24 });
 		}
 
 		$popup.find('button.save').click(Devblocks.callbackPeekEditSave);

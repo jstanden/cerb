@@ -4946,60 +4946,20 @@ class _CerbApplication_KataAutocompletions {
 
 class _CerbApplication_KataSchemas {
 	/**
-	 * An `agent_tool` record's `params_kata`: what the model may send, and what it may not.
-	 *
-	 * `parameters:` is the model-facing schema, in the SAME grammar an author writes under `llm.agent:`
-	 * `tools: tool/<name>: parameters:`, so `_DevblocksLlmService::_toolSchemaCustom()` reads it unchanged and
-	 * the existing KATA autocomplete applies. `string/` is the only parameter type the provider schema builder
-	 * emits; anything else is silently dropped, so the editor should reject it rather than let a parameter
-	 * vanish at request time.
-	 *
-	 * A `default:` fills a parameter the model omitted, and the model may still send its own. Values the model
-	 * must NOT choose are not in here at all -- those are the `params:` an agent writes on its REFERENCE to
-	 * this tool, applied over the call and stripped from the schema. That split is what lets one record be
-	 * mounted twice under different aliases with different fixed values, which a per-record block could not
-	 * express.
-	 */
-	function agentTool() : string {
-		return <<< EOD
-    schema:
-      attributes:
-        parameters:
-          types:
-            object:
-              attributes:
-                string:
-                  multiple@bool: yes
-                  types:
-                    object:
-                      attributes:
-                        default:
-                          types:
-                            string:
-                        description:
-                          types:
-                            string:
-                        enum:
-                          types:
-                            list:
-                        required:
-                          types:
-                            bool:
-    EOD;
-	}
-	
-	/**
 	 * `agent.config_kata` -- what an AI worker contributes to any turn that runs as it.
 	 *
 	 * The blocks an agent contributes (`commands:`, `terminal:`, `mounts:`, `tools:`) are DELIBERATELY the same
 	 * grammar as `llm.agent: inputs:` in automation(). An author who has written one has written the other, the
 	 * KATA editor's existing completions apply, and the node can merge the two without translating between them.
 	 *
-	 * `tools:` takes `automation/` entries ONLY -- a REFERENCE to an `llm.tool` automation, which is where a tool
-	 * is actually implemented. The `tool/` branch that `llm.agent:` also accepts is deliberately absent: a `tool/`
-	 * is answered by an `on_tool:` branch in the calling script, and an agent record has no script, so declaring
-	 * one here would define a tool nothing can ever answer. `params:` is absent for the same reason -- nothing
-	 * reads it for an `automation/` tool (the model's own arguments become the automation's `inputs`).
+	 * A `tools:` entry is keyed `<agent_tool record>[/<alias>]`. The record holds what the tool IS -- the name
+	 * the model calls, its description, its parameters, its transcript wording -- and the entry holds only what
+	 * is true of THIS mount: `params:` that fix an argument the model is then never offered, plus optional
+	 * presentation overrides. The alias is what makes the same record mountable twice, restricted differently,
+	 * which a per-record setting could not express.
+	 *
+	 * Keeping the record name as the key BASE is deliberate: the KATA editor can resolve which record an entry
+	 * refers to from the path alone, so it can offer that record's own parameters without evaluating the body.
 	 *
 	 * What an entry MAY carry is presentation: `description` (what the model reads -- the automation's own is the
 	 * default), `icon` and `labels` (how the call paints in a transcript), and `disabled`. Those otherwise have to

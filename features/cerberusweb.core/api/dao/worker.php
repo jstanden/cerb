@@ -3782,23 +3782,52 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 
 			// AI tab: what the agent is configured to do, and the surfaces it can be turned on for.
 			//
-			// The PARSED tree goes to the browser, never the raw text: the editor works on the tree and posts it
-			// back as JSON, and `kata()->emit()` turns it into KATA on the way in. So nothing parses or emits
-			// KATA client-side. The surface list comes from the component catalog
-			// rather than the template, so a new agent-pane component is configurable the moment it's added
-			// there -- no template edit, and no migration for agents that don't mention it.
+			// The tab is an ordinary server-rendered form -- these are the values it renders from, and its
+			// fields post on their own. `Cerb\Agent\Config::fromForm()` turns that POST back into the tree and
+			// `kata()->emit()` writes it, so nothing parses or emits KATA client-side. The surface list comes
+			// from the component catalog rather than the template, so a new agent-pane component is
+			// configurable the moment it's added there -- no template edit, and no migration for agents that
+			// don't mention it.
 			$agent_row = DAO_Agent::get($worker->id);
-
-			$tpl->assign('agent_config_json', json_encode($agent_row['config'] ?? (object)[]));
-			$tpl->assign('agent_surfaces_json', json_encode(\Cerb\Agent\Pane\Components::getSurfaceCatalog()));
-			$tpl->assign('agent_cli_namespaces_json', json_encode(\Cerb\Agent\Cli::getNamespaces()));
-			$tpl->assign('agent_refs_json', json_encode(\Cerb\Agent\Config::describeReferences($agent_row['config'] ?? [])));
+			$agent_config = is_array($agent_row['config'] ?? null) ? $agent_row['config'] : [];
 
 			// A never-saved agent gets the skills volume mounted by default -- it's how the per-surface skills
 			// reach the model, and an agent without it quietly ignores every convention Cerb ships. Keyed on the
 			// ROW existing, not on the config being empty, so removing the mount doesn't bring it back.
-			$tpl->assign('agent_is_new', empty($agent_row['created_at']));
-			$tpl->assign('agent_skills_volume', \Cerb\Agent\FilesystemAssets::VOLUME_SKILLS);
+			if(empty($agent_row['created_at']) && empty($agent_config[\Cerb\Agent\Config::KEY_MOUNTS]))
+				$agent_config[\Cerb\Agent\Config::KEY_MOUNTS] = [\Cerb\Agent\FilesystemAssets::VOLUME_SKILLS => []];
+
+			$agent_surfaces = \Cerb\Agent\Pane\Components::getSurfaceCatalog();
+
+			$tpl->assign('agent_surfaces', $agent_surfaces);
+
+			// The records every reference resolves to, so a chooser's chips render without one request each.
+			$agent_refs = \Cerb\Agent\Config::describeReferences($agent_config);
+			$agent_namespaces = \Cerb\Agent\Cli::getNamespaces();
+
+			// One description per panel. The global scope is described with no `$global` of its own, which is
+			// what tells it there is nothing above it to fall back to.
+			$agent_scope_global = \Cerb\Agent\Config::describeScopeForForm($agent_config, $agent_refs, $agent_namespaces);
+
+			$agent_scope_surfaces = [];
+			$agent_enabled = [];
+
+			foreach(array_keys($agent_surfaces) as $surface_key) {
+				$block = $agent_config[\Cerb\Agent\Config::KEY_COMPONENTS][$surface_key] ?? [];
+
+				$agent_scope_surfaces[$surface_key] = \Cerb\Agent\Config::describeScopeForForm(
+					is_array($block) ? $block : [],
+					$agent_refs,
+					$agent_namespaces,
+					$agent_config
+				);
+
+				$agent_enabled[$surface_key] = \Cerb\Agent\Config::isEnabledOn($agent_config, $surface_key);
+			}
+
+			$tpl->assign('agent_scope_global', $agent_scope_global);
+			$tpl->assign('agent_scope_surfaces', $agent_scope_surfaces);
+			$tpl->assign('agent_enabled', $agent_enabled);
 
 			$tpl->display('devblocks:cerberusweb.core::workers/peek_edit.tpl');
 

@@ -71,7 +71,6 @@ class PageSection_ProfilesAgentTool extends Extension_PageSection {
 				$icon = DevblocksPlatform::importGPC($_POST['icon'] ?? null, 'string', '');
 				$label_active = DevblocksPlatform::importGPC($_POST['label_active'] ?? null, 'string', '');
 				$label_summary = DevblocksPlatform::importGPC($_POST['label_summary'] ?? null, 'string', '');
-				$params_kata = DevblocksPlatform::importGPC($_POST['params_kata'] ?? null, 'string', '');
 				$status = DevblocksPlatform::importGPC($_POST['status'] ?? null, 'integer', 0);
 				$automation_id = DevblocksPlatform::importGPC($_POST['automation_id'] ?? null, 'integer', 0);
 
@@ -102,7 +101,6 @@ class PageSection_ProfilesAgentTool extends Extension_PageSection {
 					DAO_AgentTool::ICON => $icon,
 					DAO_AgentTool::LABEL_ACTIVE => $label_active,
 					DAO_AgentTool::LABEL_SUMMARY => $label_summary,
-					DAO_AgentTool::PARAMS_KATA => $params_kata,
 					DAO_AgentTool::STATUS => $status,
 					DAO_AgentTool::URI => $uri,
 				];

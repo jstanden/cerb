@@ -28,6 +28,14 @@
  */
 CerbUI.AgentConfig = class {
 	static _instances = new WeakMap();
+
+	/*
+	 * The `tools:` key prefixes that are NOT an agent_tool record -- mirrors
+	 * LlmAgentNode::TOOL_RESERVED_PREFIXES. Entries under these keys are carried through the editor untouched
+	 * rather than shown as cards: there's nothing here to configure, and rebuilding the map without them would
+	 * quietly delete a hand-authored one.
+	 */
+	static TOOL_RESERVED_PREFIXES = ['agent_terminal', 'agent_tool', 'automation', 'tool', 'ui_command', 'ui_server'];
 	static from(el) { return CerbUI.AgentConfig._instances.get(el) || null; }
 
 	/*
@@ -509,53 +517,134 @@ CerbUI.AgentConfig = class {
 		this._sync();
 	}
 
+	/*
+	 * Tools as CARDS, one per mount, via the shared CerbUI.AgentPrompt.ToolPicker (the Automation Builder's
+	 * wizard uses the same component, so the two can't drift).
+	 *
+	 * A mount is `<record>[/<alias>]`, which is why this is a list rather than a chooser's set: the same tool
+	 * can be added twice and restricted differently, and a RecordChooser dedupes by design.
+	 */
 	_fieldTools(surface, scope, inherits) {
 		// "Custom" because every surface already contributes its own built-in tools -- reading the editor,
 		// writing a field, running a search. These are the ones you add.
 		const field = this._field('Custom Tools', inherits
 			? 'Available here in addition to the agent\'s own.'
-			: 'Tool automations the agent can call, on top of what each surface already gives it. Each one describes itself to the model.');
+			: 'Tools the agent can call, on top of what each surface already gives it. Each one describes itself to the model.');
 
 		const host = document.createElement('div');
-		host.className = 'cerb-ui-record-chooser';
-
-		const refs = (this.opts.refs || {}).automations || {};
-
-		Object.keys(scope.tools || {}).forEach((key) => {
-			const uri = String(((scope.tools || {})[key] || {}).uri || '');
-			const ref = refs[uri];
-
-			host.appendChild(this._chooserSeed(ref ? ref.id : 0, ref ? ref.label : (uri || key)));
-		});
-
 		field.insertBefore(host, field.querySelector('.cerb-ui-form--hint'));
 
-		this._chooser(host, {
-			context: 'cerb.contexts.automation',
-			multiple: true,
-			emptyIcon: 'zap',
-			query: 'trigger:cerb.trigger.llm.tool'
-		}, (items) => {
-			const tools = {};
-			const was = this._scope(surface).tools || {};
+		const refs = (this.opts.refs || {}).tools || {};
+		const tools = [];
 
-			items.forEach((item) => {
-				const name = String(item.label || '');
-				if(!name) return;
+		Object.keys(scope.tools || {}).forEach((key) => {
+			const entry = (scope.tools || {})[key] || {};
+			const clean = String(key).split('@')[0];
+			const parts = clean.split('/');
+			const base = parts[0];
 
-				const uri = 'cerb:automation:' + name;
+			// A legacy `automation/<name>:` entry names no record; leave it to the pass-through below rather
+			// than showing it as a tool card that can't be configured.
+			if(this.constructor.TOOL_RESERVED_PREFIXES.indexOf(base) >= 0)
+				return;
 
-				// The entry KEY is the tool name the model calls, so it can't be the dotted automation name --
-				// pick the last segment. An existing entry keeps whatever key and overrides it already had, so
-				// a renamed tool or a hand-written description isn't reset by touching this chooser.
-				let key = Object.keys(was).find((k) => String((was[k] || {}).uri || '') === uri);
+			const ref = refs[base] || {};
 
-				if(!key) key = 'automation/' + (name.split('.').pop() || name);
-
-				tools[key] = Object.assign({}, was[key] || {}, { uri: uri });
+			tools.push({
+				id: ref.id || 0,
+				name: base,
+				alias: parts[1] || base,
+				params: (entry.params && typeof entry.params === 'object') ? Object.assign({}, entry.params) : {},
 			});
+		});
 
-			this._set(surface, 'tools', tools);
+		// Entries the picker doesn't manage -- a legacy `automation/` reference, an inline `tool/`, anything
+		// under a reserved prefix. They're carried through untouched on save, which is right, but carrying
+		// them through was ALSO the only thing happening to them: with no card and no row, there was no way to
+		// delete one. Listed here with a remove button, so "untouched" doesn't mean "permanent".
+		const legacy = document.createElement('div');
+		legacy.className = 'cerb-u-mt-2';
+		field.insertBefore(legacy, field.querySelector('.cerb-ui-form--hint'));
+
+		const renderLegacy = () => {
+			const live = this._peek(surface).tools || {};
+
+			legacy.replaceChildren();
+
+			Object.keys(live).forEach((key) => {
+				const base = String(key).split('@')[0].split('/')[0];
+
+				if(this.constructor.TOOL_RESERVED_PREFIXES.indexOf(base) < 0)
+					return;
+
+				const row = document.createElement('div');
+				row.className = 'cerb-u-flex cerb-u-items-center cerb-u-gap-2';
+
+				const name = document.createElement('code');
+				name.textContent = key;
+				row.appendChild(name);
+
+				const note = document.createElement('span');
+				note.className = 'cerb-u-text-muted cerb-u-fs-n1';
+				note.textContent = 'written by hand; not editable here';
+				row.appendChild(note);
+
+				const del = document.createElement('button');
+				del.type = 'button';
+				del.className = 'cerb-ui-button cerb-ui-button--subtle';
+				del.innerHTML = '<span class="cerb-icons cerb-icon-circle-remove"></span>';
+				del.addEventListener('click', () => {
+					const tools = this._scope(surface).tools || {};
+					delete tools[key];
+					this._set(surface, 'tools', tools);
+					renderLegacy();
+				});
+				row.appendChild(del);
+
+				legacy.appendChild(row);
+			});
+		};
+
+		renderLegacy();
+
+		if(!window.CerbUI || !CerbUI.AgentPrompt || !CerbUI.AgentPrompt.ToolPicker)
+			return field;
+
+		this._toolPickers = this._toolPickers || {};
+		this._toolPickers[surface] = new CerbUI.AgentPrompt.ToolPicker(host, {
+			tools: tools,
+			toolMeta: refs,
+			heading: '',
+			onChange: (picked) => {
+				const was = this._scope(surface).tools || {};
+				const next = {};
+
+				// Anything this picker doesn't manage rides through untouched -- a legacy `automation/` entry,
+				// an inline `tool/`, a hand-written `labels:` override. Rebuilding the map from the cards alone
+				// would silently drop them the first time someone touched the field.
+				Object.keys(was).forEach((key) => {
+					const base = String(key).split('@')[0].split('/')[0];
+					if(this.constructor.TOOL_RESERVED_PREFIXES.indexOf(base) >= 0)
+						next[key] = was[key];
+				});
+
+				picked.forEach((t) => {
+					const key = (t.alias && t.alias !== t.name) ? (t.name + '/' + t.alias) : t.name;
+
+					// Keep whatever else was authored on this mount (an `icon:`/`labels:`/`disabled:` override),
+					// and replace only what the card owns.
+					const prior = was[key] || {};
+					const entry = Object.assign({}, prior);
+
+					if(Object.keys(t.params || {}).length) entry.params = t.params;
+					else delete entry.params;
+
+					next[key] = entry;
+				});
+
+				this._set(surface, 'tools', next);
+				renderLegacy();
+			},
 		});
 
 		return field;

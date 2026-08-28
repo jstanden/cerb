@@ -221,51 +221,70 @@
 	{* ─────────────── AI ───────────────
 
 	   Everything here is one `agent.config_kata` blob on the `agent` satellite, not `worker` columns. The
-	   panels are a view over it: CerbUI.AgentConfig owns the parsed tree, renders these controls from it, and
-	   writes the whole tree back to the hidden input below as JSON. The KATA itself is emitted server-side by
-	   `kata()->emit()`, so there's only ever one implementation of that. Keys the form doesn't render are
-	   carried through untouched, so hand-authored config survives a visit to this tab. *}
-	{* The skills volume's NAME rides on the host element rather than being written into the script below: it
-	   comes from `FilesystemAssets::VOLUME_SKILLS`, and a value Smarty can escape as an attribute should never
-	   need escaping as a JS string literal. (The four `_json` blobs below are structured data, not text.) *}
-	<div id="{$form_id}Ai" data-cerb-skills-volume="{$agent_skills_volume}">
-		<input type="hidden" name="agent_config_json" id="agentConfigJson_{$form_id}" value="">
+	   panels are a view over it, server-rendered like the rest of this form: each control posts its own field
+	   and `Cerb\Agent\Config::fromForm()` rebuilds the tree on save. Keys the form doesn't render are carried
+	   through untouched, so hand-authored config survives a visit to this tab.
 
-		<div class="cerb-ui-panel cerb-ui-panel--spaced" id="agentDefaults_{$form_id}">
-			<div class="cerb-ui-header cerb-ui-header--tight">
-				<div class="cerb-ui-header--title-sm">Defaults</div>
-				<div class="cerb-ui-header--subtitle">What this agent brings everywhere it runs. Each surface below can add to it or override it.</div>
-			</div>
-			{* Rendered by CerbUI.AgentConfig, from the same builder each surface's override panel uses -- one
-			   description of the field set, so the two can't drift. *}
-			<div data-cerb-agent-defaults></div>
-		</div>
+	   A rail rather than a stack of expandable rows: what a surface OFFERS is the same everywhere, so inviting
+	   a reader to compare two surfaces was inviting them to read the same thing twice. The comparison worth
+	   making is Defaults against one surface, which is what each surface panel shows inline. The pip is the
+	   whole status: green runs here, gray doesn't. *}
+	{$agent_has_namespaces = ($agent_scope_global.terminal|count > 0)}
+	<div id="{$form_id}Ai" class="cerb-agent-config">
+		<div class="cerb-ui-sidebar-layout cerb-u-items-start">
+			<aside class="cerb-ui-sidebar" id="agentRail_{$form_id}" style="--cerb-ui-sidebar-width:210px;">
+				<div class="cerb-ui-sidebar--body">
+					<div class="cerb-ui-sidebar--section">
+						<ul>
+							<li data-target="_global" data-icon="bot">Everywhere</li>
+						</ul>
+					</div>
 
-		<div class="cerb-ui-panel cerb-ui-panel--spaced" id="agentSurfaces_{$form_id}">
-			<div class="cerb-ui-header cerb-ui-header--tight">
-				<div class="cerb-ui-header--title-sm">Where it runs</div>
-				<div class="cerb-ui-header--subtitle">Turn this agent on for a surface, then customize what it brings there.</div>
-			</div>
-			<div data-cerb-agent-surfaces></div>
-		</div>
+					<div class="cerb-ui-sidebar--section">
+						<div class="cerb-ui-sidebar--label">Surfaces</div>
+						<ul>
+							{foreach from=$agent_surfaces key=surface_key item=surface_meta}
+								<li data-target="{$surface_key}" data-pip="{if $agent_enabled[$surface_key]}green{else}gray{/if}">{$surface_meta.label}</li>
+							{/foreach}
+						</ul>
+					</div>
 
-		<div class="cerb-ui-panel cerb-ui-panel--spaced">
-			<div class="cerb-ui-header cerb-ui-header--tight">
-				<div class="cerb-ui-header--title-sm">Events</div>
-				<div class="cerb-ui-header--subtitle">Reacting to an @mention, an assignment, or a new message is coming. Today an agent runs where a worker opens it.</div>
-			</div>
-		</div>
-
-		<div class="cerb-ui-panel cerb-ui-panel--spaced">
-			<div class="cerb-ui-header cerb-ui-header--tight cerb-ui-header--center">
-				<div class="cerb-ui-header--title-sm">KATA</div>
-				<div class="cerb-ui-header--right">
-					<button type="button" class="cerb-ui-button cerb-ui-button--subtle" data-cerb-agent-kata-toggle><span class="cerb-icons cerb-icon-console"></span> Show</button>
+					<div class="cerb-ui-sidebar--section">
+						<div class="cerb-ui-sidebar--label">Events</div>
+						<div class="cerb-ui-sidebar--content cerb-u-text-muted cerb-u-fs-n1">Reacting to an @mention, an assignment, or a new message is coming. Today an agent runs where a worker opens it.</div>
+					</div>
 				</div>
-			</div>
-			<div data-cerb-agent-kata-preview hidden>
-				<textarea data-cerb-agent-kata-editor rows="12" spellcheck="false" readonly="readonly"></textarea>
-				<div class="cerb-ui-form--hint">Exactly what a save would store, formatted by the server. Read-only here; edit it with the Records API or an automation if you need something these controls don't offer.</div>
+			</aside>
+
+			<div class="cerb-ui-sidebar-layout--content">
+				<div class="cerb-ui-panel cerb-ui-panel--spaced" data-cerb-agent-panel="_global">
+					<div class="cerb-ui-header cerb-ui-header--tight">
+						<div class="cerb-ui-header--title-sm">Everywhere</div>
+						<div class="cerb-ui-header--subtitle">What this agent brings everywhere it runs. A surface adds to it; only the model query and the chat it runs get replaced.</div>
+					</div>
+					{include file="devblocks:cerberusweb.core::workers/_agent_scope.tpl" agent_scope=$agent_scope_global prefix='agent' surface='' surface_meta=[] has_namespaces=$agent_has_namespaces uid='global'}
+				</div>
+
+				{foreach from=$agent_surfaces key=surface_key item=surface_meta}
+					<div class="cerb-ui-panel cerb-ui-panel--spaced{if !$agent_enabled[$surface_key]} cerb-agent-panel--off{/if}" data-cerb-agent-panel="{$surface_key}" hidden>
+						<div class="cerb-ui-header cerb-ui-header--tight cerb-ui-header--center">
+							<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-3">
+								{* The hidden input is what POSTS -- a checkbox sends nothing when it's off, and "off"
+								   is a state this form has to state, since it keeps the block and its config. *}
+								<input type="hidden" name="agent[components][{$surface_key}][enabled]" id="agentEnabled_{$surface_key}_{$form_id}" value="{if $agent_enabled[$surface_key]}1{else}0{/if}">
+								<label class="cerb-ui-toggle cerb-u-flex-shrink-0">
+									<input type="checkbox" data-cerb-agent-enabled="{$surface_key}"{if $agent_enabled[$surface_key]} checked="checked"{/if}>
+									<span class="cerb-ui-toggle--slider"></span>
+								</label>
+								<div>
+									<div class="cerb-ui-header--title-sm"><span class="cerb-icons cerb-icon-{$surface_meta.icon}"></span> {$surface_meta.label}</div>
+									<div class="cerb-ui-header--subtitle">{$surface_meta.description}</div>
+								</div>
+							</div>
+						</div>
+						{include file="devblocks:cerberusweb.core::workers/_agent_scope.tpl" agent_scope=$agent_scope_surfaces[$surface_key] prefix="agent[components][{$surface_key}]" surface=$surface_key surface_meta=$surface_meta has_namespaces=$agent_has_namespaces uid=$surface_key}
+					</div>
+				{/foreach}
 			</div>
 		</div>
 	</div>
@@ -428,6 +447,7 @@
 {if $active_worker->is_superuser}
 <div class="buttons" style="margin-top:10px;">
 	<button type="button" class="cerb-ui-button save"><span class="cerb-icons cerb-icon-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button>
+	{if !empty($worker->id)}<button type="button" class="cerb-ui-button cerb-ui-button--subtle save-continue"><span class="cerb-icons cerb-icon-circle-arrow-right"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>{/if}
 	{if !empty($worker->id) && !$is_self}<button type="button" class="cerb-ui-button cerb-ui-button--subtle delete-prompt"><span class="cerb-icons cerb-icon-trash"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 {else}
@@ -483,6 +503,25 @@
 }
 .cerb-group-row--avatar { display: inline-flex; flex: 0 0 auto; }
 .cerb-group-row--name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* ── AI tab ──────────────────────────────────────────────────────────────── */
+
+/* This tab's record choosers (filesystems, custom tools, interaction) draw their glyph with NO disc. A
+   monogram needs a filled disc -- two letters have to be legible against a page -- but a glyph is already a
+   shape and reads on its own, and every chooser here is a column of them. TWO selectors because a chooser is
+   two places at once: the chips live in this tab, the dropdown mounts to document.body. */
+.cerb-agent-config .cerb-ui-chooser--avatar-glyph,
+.cerb-agent-config--chooser .cerb-ui-chooser--avatar-glyph {
+	background-color: transparent;
+	color: var(--cerb-color-background-contrast-100);
+}
+
+/* An embedded editor shell is inline-flex by default, so it collapses to its content inside a form field. */
+.cerb-agent-config .cerb-ui-searchquery { width: 100%; }
+
+/* Switched off, config kept. The panel stays readable -- this says "not running here", not "unavailable". */
+.cerb-agent-panel--off .cerb-ui-form { opacity: 0.55; }
+
+
 /* Icon-only compact role switcher (left column) */
 .cerb-group-switcher { flex: 0 0 auto; }
 .cerb-group-switcher button { padding: 0.25em 0.5em; min-height: 0; }
@@ -591,44 +630,260 @@ $(function() {
 			});
 		}
 
-		// AI tab — one CerbUI.AgentConfig over the whole `agent.config_kata` blob. It renders the panels, and
-		// every change writes the model back to the hidden input as JSON, so the form is the only writer.
-		//
-		// Loaded ON DEMAND rather than from the cerb-ui bundle: this styles and drives ONE surface, and putting
-		// it in what every page loads would be paying for it everywhere to use it here. Only an AI worker has
-		// the tab at all, so nothing is fetched until the Type switcher says so.
-		let agentConfigLoading = null;
+		// AI tab — an ordinary server-rendered form. What's left here is enhancement: the rail that picks a
+		// panel, and the CerbUI component each field asked for. Every value posts as its own field, so nothing
+		// in here owns state and nothing has to be kept in sync with the form.
+		(function() {
+			const aiHost = $popup.find('#{$form_id}Ai')[0];
+			if(!aiHost) return;
 
-		function loadAgentConfig() {
-			if(agentConfigLoading) return agentConfigLoading;
+			const rail = document.getElementById('agentRail_{$form_id}');
+			const panels = aiHost.querySelectorAll('[data-cerb-agent-panel]');
 
-			agentConfigLoading = new Promise(function(resolve) {
-				Devblocks.loadResources({
-					'css': ['/resource/cerberusweb.core/css/cerb-ui/agent-config.css'],
-					'js': ['/resource/cerberusweb.core/js/cerb-ui/agent-config.js']
-				}, function() {
-					try {
-						const aiHost = $popup.find('#{$form_id}Ai')[0];
-
-						new CerbUI.AgentConfig(aiHost, {
-							input: document.getElementById('agentConfigJson_{$form_id}'),
-							config: {$agent_config_json nofilter},
-							surfaces: {$agent_surfaces_json nofilter},
-							namespaces: {$agent_cli_namespaces_json nofilter},
-							refs: {$agent_refs_json nofilter},
-							isNew: {if $agent_is_new}true{else}false{/if},
-							skillsVolume: aiHost.dataset.cerbSkillsVolume || ''
-						});
-					} catch(e) {
-						if(console && console.error) console.error(e);
-					}
-
-					resolve();
+			const showPanel = function(target) {
+				panels.forEach(function(panel) {
+					panel.hidden = (panel.getAttribute('data-cerb-agent-panel') !== target);
 				});
-			});
+			};
 
-			return agentConfigLoading;
-		}
+			if(rail && window.CerbUI && CerbUI.Sidebar) {
+				// Returning truthy suppresses the component's own navigate-somewhere default action.
+				const sidebar = new CerbUI.Sidebar(rail, {
+					onSelect: function(li) { showPanel(li.getAttribute('data-target')); return true; }
+				});
+
+				const first = rail.querySelector('li[data-target]');
+				if(first) sidebar.setActive(first);
+			}
+
+			// ── What Everywhere contributes, shown inside each surface's own field ────────────────────
+			//
+			// The additive fields (filesystems, tools, terminal) resolve to global ∪ surface, so a surface has
+			// to show BOTH -- and a placeholder can't: it disappears the moment you add anything, which is
+			// exactly when you most need to see what you're adding to. So the global set arrives as GHOST
+			// tiles: same space as a real chip, no remove button, no value on submit.
+			//
+			// The two scalar fields keep a placeholder, because there is nothing to sit beside -- a blank one
+			// IS the global value.
+			//
+			// Display only. Every field still posts its own value; nothing here owns state.
+			const GLOBAL_SCOPE = '_global';
+			const globalPanel = aiHost.querySelector('[data-cerb-agent-panel="' + GLOBAL_SCOPE + '"]');
+
+			const fieldIn = function(panel, field) {
+				return panel ? panel.querySelector('[data-cerb-agent-field="' + field + '"]') : null;
+			};
+			const controlIn = function(panel, field, selector) {
+				const el = fieldIn(panel, field);
+				return el ? el.querySelector(selector) : null;
+			};
+			const chooserIn = function(panel, field) {
+				const host = controlIn(panel, field, '[data-cerb-agent-chooser]');
+				return (host && window.CerbUI && CerbUI.RecordChooser) ? CerbUI.RecordChooser.from(host) : null;
+			};
+			const pickerIn = function(panel, field) {
+				const host = controlIn(panel, field, '[data-cerb-agent-value-picker]');
+				return (host && window.CerbUI && CerbUI.ValuePicker) ? CerbUI.ValuePicker.from(host) : null;
+			};
+
+			const surfacePanels = function() {
+				return Array.prototype.filter.call(
+					aiHost.querySelectorAll('[data-cerb-agent-panel]'),
+					function(p) { return p.getAttribute('data-cerb-agent-panel') !== GLOBAL_SCOPE; }
+				);
+			};
+
+			// A chooser's chips PLUS the hand-authored rows it can't represent -- the same set the merge will
+			// actually apply, so a ghost never promises something the config doesn't do.
+			const ghostsOf = function(field) {
+				const owner = fieldIn(globalPanel, field);
+				if(!owner) return [];
+
+				const chooser = chooserIn(globalPanel, field);
+				const chosen = chooser ? [].concat(chooser.getValue() || []).filter(Boolean) : [];
+
+				// `value` is what makes a ghost EXCLUDE its record from being picked again here -- the same key
+				// the chooser dedupes its own chips with.
+				const ghosts = chosen.map(function(item) {
+					return {
+						value: item.id,
+						context: item.context || '',
+						label: String(item.label || ''),
+						icon_name: item.icon_name || '',
+						title: 'From Everywhere'
+					};
+				});
+
+				// A hand-authored row resolved to no record, so it has no identity to exclude on -- and nothing
+				// a search could return would collide with it anyway. Display only.
+				owner.querySelectorAll('[data-cerb-agent-raw] input[type="hidden"]').forEach(function(input) {
+					if(input.value) ghosts.push({ label: input.value, title: 'From Everywhere' });
+				});
+
+				return ghosts.filter(function(g) { return g.label; });
+			};
+
+			const syncGhosts = function() {
+				if(!globalPanel) return;
+
+				const sets = {
+					mounts: ghostsOf('mounts'),
+					tools: ghostsOf('tools'),
+					automation: ghostsOf('automation')
+				};
+
+				surfacePanels().forEach(function(panel) {
+					Object.keys(sets).forEach(function(field) {
+						const chooser = chooserIn(panel, field);
+						if(chooser) chooser.setGhosts(sets[field]);
+					});
+				});
+			};
+
+			const syncPlaceholders = function() {
+				if(!globalPanel) return;
+
+				['system_prompt', 'models_query'].forEach(function(field) {
+					const source = controlIn(globalPanel, field, 'textarea');
+					const value = source ? source.value.trim() : '';
+
+					surfacePanels().forEach(function(panel) {
+						const el = controlIn(panel, field, 'textarea');
+						const owner = fieldIn(panel, field);
+						if(el) el.placeholder = value || (owner ? owner.getAttribute('data-placeholder-empty') || '' : '');
+					});
+				});
+			};
+
+			// A granted namespace stops being pickable on every surface and becomes a ghost there. The option
+			// itself never moves -- setGhosts() is the whole change, which is why nothing has to be rebuilt.
+			const syncTerminal = function() {
+				const granted = pickerIn(globalPanel, 'terminal');
+				const values = granted ? granted.getValue() : [];
+
+				surfacePanels().forEach(function(panel) {
+					const picker = pickerIn(panel, 'terminal');
+					if(picker) picker.setGhosts(values);
+				});
+			};
+
+			const syncFromGlobal = function() {
+				syncPlaceholders();
+				syncGhosts();
+				syncTerminal();
+			};
+
+			if(globalPanel) {
+				globalPanel.querySelectorAll('[data-cerb-agent-field] textarea').forEach(function(el) {
+					el.addEventListener('input', syncPlaceholders);
+				});
+			}
+
+
+			// Filesystems, custom tools, interaction — one loop over what the template declared, so adding a
+			// field is a template edit and nothing else.
+			if(window.CerbUI && CerbUI.RecordChooser) {
+				aiHost.querySelectorAll('[data-cerb-agent-chooser]').forEach(function(el) {
+					const panel = el.closest('[data-cerb-agent-panel]');
+					const isGlobal = !!panel && (panel.getAttribute('data-cerb-agent-panel') === GLOBAL_SCOPE);
+
+					new CerbUI.RecordChooser(el, {
+						context: el.getAttribute('data-context'),
+						name: el.getAttribute('data-name'),
+						multiple: el.hasAttribute('data-multiple'),
+						emptyIcon: el.getAttribute('data-empty-icon') || '',
+						// Every record here shares one identity (a volume, a tool, a chat), so a monogram of its
+						// name says nothing. One glyph for all of them.
+						itemIcon: el.getAttribute('data-item-icon') || '',
+						query: el.getAttribute('data-query') || '',
+						create: el.hasAttribute('data-create'),
+						searchPlaceholder: el.getAttribute('data-placeholder') || '',
+						// The dropdown mounts to document.body, so it has no ancestor inside this tab. Tagging
+						// the popup is what lets a row and its chip be styled together and only here.
+						panelClass: 'cerb-agent-config--chooser',
+						// onChange, not onSelect: the latter is add-only by contract, and dropping a volume
+						// from Everywhere has to stop every surface ghosting it.
+						onChange: isGlobal ? function() { syncGhosts(); } : null
+					});
+				});
+			}
+
+			// Terminal namespaces are GRANTS, so they read as a set you add to -- not a row of checkboxes,
+			// which would imply an unchecked one could take something away.
+			if(window.CerbUI && CerbUI.ValuePicker) {
+				aiHost.querySelectorAll('[data-cerb-agent-value-picker]').forEach(function(el) {
+					const panel = el.closest('[data-cerb-agent-panel]');
+					const owner = el.closest('[data-cerb-agent-field]');
+					const isGlobal = !!panel && (panel.getAttribute('data-cerb-agent-panel') === GLOBAL_SCOPE);
+
+					new CerbUI.ValuePicker(el, {
+						multiple: true,
+						searchPlaceholder: owner ? (owner.getAttribute('data-placeholder-empty') || '') : '',
+						ghosts: (el.getAttribute('data-ghosts') || '').split(',').map(function(v) { return v.trim(); }).filter(Boolean),
+						onSelect: isGlobal ? function() { syncTerminal(); } : null
+					});
+				});
+			}
+
+			// The same query vocabulary `llm.router: models_query:` autocompletes, so a query written in one
+			// place reads the same in the other. The textarea keeps its name and posts its own value.
+			if(window.CerbUI && CerbUI.SearchQuery) {
+				const modelContext = 'cerb.contexts.agent.model';
+
+				aiHost.querySelectorAll('[data-cerb-agent-models-query]').forEach(function(el) {
+					new CerbUI.SearchQuery(el, {
+						context: modelContext,
+						onAutocomplete: CerbUI.SearchQuery.queryFieldSource(modelContext)
+					});
+				});
+			}
+
+			// "Runs here" — writes the hidden input that posts, dims the panel, and repaints the rail's pip.
+			// Switching a surface OFF keeps its block: that's the whole reason the flag exists rather than
+			// deleting the key, so the description, prompt, and tools authored here survive.
+			if(window.CerbUI && CerbUI.Toggle) {
+				aiHost.querySelectorAll('[data-cerb-agent-enabled]').forEach(function(cb) {
+					const surface = cb.getAttribute('data-cerb-agent-enabled');
+					const input = document.getElementById('agentEnabled_' + surface + '_{$form_id}');
+					const panel = aiHost.querySelector('[data-cerb-agent-panel="' + surface + '"]');
+					const pip = rail ? rail.querySelector('li[data-target="' + surface + '"] .cerb-ui-pip') : null;
+
+					new CerbUI.Toggle(cb, {
+						onChange: function(checked) {
+							if(input) input.value = checked ? '1' : '0';
+							if(panel) panel.classList.toggle('cerb-agent-panel--off', !checked);
+							// Mirrors CerbUI.Sidebar._resolveColor() — the dot is currentColor.
+							if(pip) pip.style.color = 'var(--cerb-color-tag-' + (checked ? 'green' : 'gray') + ')';
+						}
+					});
+				});
+			}
+
+
+
+			// Seed every surface from the LIVE Everywhere scope now that its components exist, so the load state
+			// and every later state come out of one derivation rather than agreeing by coincidence.
+			syncFromGlobal();
+
+			// A hand-authored entry is kept by its hidden input being posted, so removing the row removes it.
+			aiHost.addEventListener('click', function(e) {
+				const btn = e.target.closest('[data-cerb-agent-remove]');
+				if(!btn) return;
+
+				e.preventDefault();
+				e.stopPropagation();
+
+				const row = btn.closest('[data-cerb-agent-raw]');
+				if(!row) return;
+
+				const panel = row.closest('[data-cerb-agent-panel]');
+				row.remove();
+
+				if(panel && panel.getAttribute('data-cerb-agent-panel') === GLOBAL_SCOPE)
+					syncGhosts();
+			});
+		})();
+
 		// Type drives which tabs exist: an AI gets the AI tab and no Authentication (it can never hold a
 		// session — see Page_Login::_routeAuthenticated). Live, so creating an agent needs no save first.
 		(function() {

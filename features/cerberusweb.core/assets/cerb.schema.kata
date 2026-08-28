@@ -730,14 +730,6 @@ tables:
         key: UNI
         default@text:
         extra@text:
-      params_kata:
-        field: params_kata
-        type: mediumtext
-        collation: utf8mb4_unicode_ci
-        nullable: NULL
-        key@text:
-        default@text:
-        extra@text:
       status:
         field: status
         type: tinyint unsigned

@@ -158,10 +158,10 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 	}
 	
 	/**
-	 * Which blocks an `agent.tool` script uses that it must not: a top-level `inputs:` (the record owns the
-	 * parameters) and any `await:` at any depth (a tool has no continuation to resume into).
+	 * Which blocks an `agent.tool` script uses that it must not: any `await:` at any depth, since a tool has no
+	 * continuation to resume into.
 	 *
-	 * Returns a set keyed by block name, so the caller reports one specific problem rather than a generic
+	 * Returns a set keyed by block name, so the caller can report one specific problem rather than a generic
 	 * "unsupported" list.
 	 */
 	private function _collectAgentToolUnsupportedBlocks(string $script) : array {
@@ -173,9 +173,6 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 			return [];
 
 		$found = [];
-
-		if(array_key_exists('inputs', $tree))
-			$found['inputs'] = true;
 
 		$walk = function($node) use (&$walk, &$found) {
 			if(!is_array($node))
@@ -330,17 +327,11 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 					}
 				}
 
-				// Guard: an agent tool's parameters live on its `agent_tool` record, and it runs to completion
-				// inside a single tool call. A script that declares `inputs:` or suspends on `await:` would be
-				// silently ignored or strand the turn, so reject the save with the actionable message instead.
+				// Guard: an agent tool runs to completion inside a single tool call, so an `await:` has nothing
+				// to suspend to and would strand the turn. Its `inputs:` block, by contrast, is REQUIRED
+				// reading -- that block is the schema the model is shown.
 				if(AutomationTrigger_AgentTool::ID === $trigger_ext->id) {
 					$offenders = $this->_collectAgentToolUnsupportedBlocks($script);
-
-					if(array_key_exists('inputs', $offenders))
-						throw new Exception_DevblocksAjaxValidationError(
-							'An agent tool declares its parameters on its `agent_tool` record, not in an `inputs:` block. '
-							. 'Move them to the tool record\'s Parameters and read them here as `params.<name>`.'
-						);
 
 					if(array_key_exists('await', $offenders))
 						throw new Exception_DevblocksAjaxValidationError(

@@ -3,11 +3,11 @@
  * The automation behind an `agent_tool` record: an AI agent calls the tool, this runs, and its `content:` is
  * what the model reads back.
  *
- * The split from the older `llm.tool` trigger is where the parameters live. There, a tool automation declared
- * its own `inputs:` block and that block did two unrelated jobs at once -- telling the model what it may send,
- * and telling a caller what it must pass. Here the `agent_tool` RECORD owns the model-facing schema, so the
- * arguments arrive as `params.*` and the script declares nothing. That is also what lets one automation back
- * several tool records: read `tool_name` and branch.
+ * The automation declares its own `inputs:`, exactly as an `llm.tool` one did, and THAT is the schema the model
+ * is shown -- so a tool is self-documenting and there is only one place to change what it takes. The
+ * `agent_tool` record supplies everything an automation has nowhere to say: the name the model calls, the
+ * description it reads, the transcript's icon and wording. One automation can still back several records --
+ * read `tool_name` and branch.
  *
  * It receives an environment as well as arguments -- which agent is running, whom it serves, which surface it
  * was called from -- so a tool can refuse work that doesn't belong where it was invoked.
@@ -29,13 +29,13 @@ class AutomationTrigger_AgentTool extends Extension_AutomationTrigger {
 	function getInputsMeta() {
 		return [
 			[
-				'key' => 'params.*',
+				'key' => 'inputs.*',
 				'type' => 'dict',
-				'notes' => "The arguments for this call, read as `params.<name>` (e.g. `{{params.query}}`). The "
-					. "[agent tool](https://cerb.ai/docs/records/types/agent_tool/) record declares which ones the "
-					. "model may send; a `defaults:` value fills one it left out, and a `pinned:` value overrides "
-					. "whatever it sent. **Do not declare an `inputs:` block** -- a tool's parameters live on its "
-					. "record, and a script that declares one is rejected on save.",
+				'notes' => "The arguments for this call, read as `inputs.<name>` (e.g. `{{inputs.query}}`). Declare "
+					. "them in this automation's own `inputs:` block: that block IS the schema the model is shown, "
+					. "so its `description`, `required`, `allowed_values` and `default` are what the model reads and "
+					. "obeys. An agent may also FIX an argument on its reference to the tool, in which case the "
+					. "fixed value arrives here and the model was never offered the choice.",
 			],
 			[
 				'key' => 'tool_*',
@@ -144,52 +144,4 @@ class AutomationTrigger_AgentTool extends Extension_AutomationTrigger {
 		];
 	}
 	
-	/**
-	 * The simulator can't fan one field out from another -- the descriptor list is built once, server-side,
-	 * before the popup renders. So `params:` is primed as a KATA document the author types, rather than as a
-	 * generated form derived from whichever tool they picked above it.
-	 *
-	 * `emit: none` is exactly for this: the field renders, and getSimulationState() below maps it.
-	 */
-	function getSimulationInputs() : array {
-		$inputs = parent::getSimulationInputs();
-		
-		foreach($inputs as $idx => $input) {
-			if('params' !== ($input['key'] ?? ''))
-				continue;
-			
-			$inputs[$idx] = [
-				'emit' => 'none',
-				'key' => 'params',
-				'component' => 'scripting_editor',
-				'label' => 'Parameters',
-				'default' => "query: example\n",
-			];
-		}
-		
-		return $inputs;
-	}
-	
-	function getSimulationState(array $answers, &$error = null) : array {
-		$state = parent::getSimulationState($answers, $error);
-		
-		if(is_string($error) && $error)
-			return $state;
-		
-		$params_kata = trim(strval($answers['params'] ?? ''));
-		
-		if('' !== $params_kata) {
-			$kata = DevblocksPlatform::services()->kata();
-			$parse_error = null;
-			
-			if(false === ($params = $kata->parse($params_kata, $parse_error))) {
-				$error = 'Parameters: ' . $parse_error;
-				return $state;
-			}
-			
-			$state['params'] = $kata->formatTree($params, null, $parse_error) ?: [];
-		}
-		
-		return $state;
-	}
 }

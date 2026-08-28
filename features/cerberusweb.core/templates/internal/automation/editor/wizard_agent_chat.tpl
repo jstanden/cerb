@@ -1,6 +1,6 @@
 {$wizard_uid = uniqid('abwiz')}
 <style>{literal}
-/* Wizard layout only -- the tool card styles live in cerb-ui/_agentprompt.scss (shared with Form Builder). */
+/* Wizard layout only. */
 .cerb-ab-wizard--title { display:flex; align-items:center; gap:0.4em; margin-bottom:0.75em; font-weight:bold; font-size: 1.5em; }
 .cerb-ab-wizard--split { min-height:340px; }
 .cerb-ab-wizard--left, .cerb-ab-wizard--right { min-width:0; padding:0 0.6em; box-sizing:border-box; overflow:auto; }
@@ -35,7 +35,7 @@
 				</div>
 			</div>
 
-			<div class="cerb-ab-wizard--section" data-cerb-agent-tool-picker></div>
+			<div class="cerb-ab-wizard--section"><div class="cerb-ui-record-chooser" data-cerb-agent-tool-picker></div></div>
 		</div>
 
 		<div class="cerb-ab-wizard--right">
@@ -60,8 +60,16 @@
 
 	const hasAP = window.CerbUI && CerbUI.AgentPrompt;
 
-	const tools = (hasAP && CerbUI.AgentPrompt.ToolPicker)
-		? new CerbUI.AgentPrompt.ToolPicker(root.querySelector('[data-cerb-agent-tool-picker]'), { context: 'cerb.contexts.automation', query: 'trigger:cerb.trigger.llm.tool' })
+	// A tool mount carries nothing but the record, so a multi-chooser is the whole control. `create` lets a
+	// tool be defined without leaving the wizard.
+	const tools = (window.CerbUI && CerbUI.RecordChooser)
+		? new CerbUI.RecordChooser(root.querySelector('[data-cerb-agent-tool-picker]'), {
+			context: 'cerb.contexts.agent.tool',
+			multiple: true,
+			emptyIcon: 'wrench',
+			query: 'status:[available,unlisted]',
+			create: true
+		})
 		: null;
 
 	// Which editor the chat is written FOR. This shapes the system prompt only -- the orientation an agent in
@@ -204,7 +212,7 @@
 		return {
 			title: (titleEl && titleEl.value) || '',
 			component: componentEl.value || '',
-			tools: tools ? tools.getTools() : [],
+			tools: tools ? tools.values.map(v => ({ id: v.id, name: String(v.label || '') })) : [],
 			filesystems: mounts.map(m => ({ name: m.name, mode: m.mode }))
 		};
 	};

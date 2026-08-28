@@ -5,18 +5,26 @@ records:
       extension_id: cerb.trigger.agent.tool
       description: A tool an AI agent can call: it receives arguments, does work, and returns a result.
       script@raw:
-        # An Agent Tool automation does the work behind an `agent_tool` record. That record declares what the
-        # model may send; those arguments arrive here as `params.*`. Return a `content` string the agent reads.
-        #
-        # Do NOT declare an `inputs:` block -- a tool's parameters live on its record, not in this script.
+        # An Agent Tool automation does the work behind an `agent_tool` record. The `inputs:` you declare below
+        # ARE what the agent is shown -- each argument's description, whether it's required, its allowed values
+        # -- so the tool documents itself. Return a `content` string the agent reads back.
+
+        inputs:
+          text/query:
+            description: What to look up
+            required@bool: yes
 
         start:
-          # [TODO] Do the tool's work here.
+          # [TODO] Do the tool's work here. The agent's arguments arrive as `inputs.*`.
+          #
+          # Also in scope: `tool_*` (the agent_tool record that was called), `agent_*` (the AI worker calling
+          # it), and `transcript_*` (which conversation, whom it serves, and which surface it's running on) --
+          # enough to refuse work that doesn't belong where it was invoked.
 
           return:
             # The agent reads this back as the tool result.
             content@text:
-              You called this tool with: {{params.query}}
+              You called this tool with: {{inputs.query}}
       policy_kata@raw:
         commands:
           # This tool performs no privileged commands yet. As you add commands (record.*, http.request, etc.),

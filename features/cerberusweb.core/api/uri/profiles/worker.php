@@ -126,7 +126,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				$is_superuser = DevblocksPlatform::importGPC($_POST['is_superuser'] ?? null, 'bit', 0);
 				$disabled = DevblocksPlatform::importGPC($_POST['is_disabled'] ?? null, 'bit',0);
 				$is_ai = DevblocksPlatform::importGPC($_POST['is_ai'] ?? null, 'bit', 0);
-				$agent_config_json = DevblocksPlatform::importGPC($_POST['agent_config_json'] ?? null, 'string', '');
+				$agent_post = DevblocksPlatform::importGPC($_POST['agent'] ?? null, 'array', []);
 				$is_password_disabled = DevblocksPlatform::importGPC($_POST['is_password_disabled'] ?? null, 'bit',0);
 				$is_mfa_required = DevblocksPlatform::importGPC($_POST['is_mfa_required'] ?? null, 'bit',0);
 				$group_memberships = DevblocksPlatform::importGPC($_POST['group_memberships'] ?? null, 'array');
@@ -135,21 +135,24 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				$profile_image_changed = false;
 				$error = null;
 				
-				// The AI tab posts its MODEL as JSON and the KATA is emitted here, by the one emitter every other
-				// KATA writer in Cerb uses. A second implementation in the browser would be a second copy of the
-				// rules that are easy to get subtly wrong -- when `@text:` is needed, that a `#` mid-value is
-				// ordinary text, that an empty object is a childless key.
+				// The AI tab posts ordinary form fields; the tree is rebuilt here and the KATA emitted by the one
+				// emitter every other KATA writer in Cerb uses. A second implementation in the browser would be a
+				// second copy of rules that are easy to get subtly wrong -- when `@text:` is needed, that a `#`
+				// mid-value is ordinary text, that an empty object is a childless key.
 				//
 				// Emitted and checked BEFORE anything is written: the config lives on the `agent` satellite
 				// rather than on `worker`, so a failure after the worker save would leave the worker updated and
 				// the config silently dropped -- the one outcome that reads as "it worked".
 				$agent_config_kata = '';
 				
-				if($is_ai && '' !== trim($agent_config_json)) {
-					$agent_config_model = json_decode($agent_config_json, true);
-					
-					if(!is_array($agent_config_model))
-						throw new Exception_DevblocksAjaxValidationError("AI configuration: the form sent something unreadable.");
+				if($is_ai) {
+					$agent_config_model = Cerb\Agent\Config::fromForm(
+						DAO_Agent::get($id)['config'] ?? [],
+						$agent_post,
+						$this->_getAgentFormRefs($agent_post),
+						array_keys(Cerb\Agent\Pane\Components::getSurfaceCatalog()),
+						array_keys(Cerb\Agent\Cli::getNamespaces())
+					);
 					
 					$kata = DevblocksPlatform::services()->kata();
 					$agent_config_kata = $kata->emit($agent_config_model);
@@ -402,6 +405,54 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 			]);
 			return true;
 		}
+	}
+	
+	/**
+	 * The record ids the AI tab posted, resolved to the NAMES the config keys on.
+	 *
+	 * A `CerbUI.RecordChooser` posts ids; KATA references a filesystem, a tool, and an automation by name,
+	 * because a name is what survives an export. Resolving happens here, once for every scope at a time, so
+	 * `Config::fromForm()` stays free of DAOs -- and so a form with eight scopes costs three queries, not
+	 * twenty-four.
+	 *
+	 * @return array `{filesystems: {id => name}, tools: {id => name}, automations: {id => name}}`
+	 */
+	private function _getAgentFormRefs(array $post) : array {
+		$scopes = [$post];
+		
+		foreach(($post['components'] ?? []) as $block) {
+			if(is_array($block))
+				$scopes[] = $block;
+		}
+		
+		$mount_ids = [];
+		$tool_ids = [];
+		$automation_ids = [];
+		
+		foreach($scopes as $scope) {
+			$mount_ids = array_merge($mount_ids, DevblocksPlatform::sanitizeArray($scope['mount_ids'] ?? [], 'int'));
+			$tool_ids = array_merge($tool_ids, DevblocksPlatform::sanitizeArray($scope['tool_ids'] ?? [], 'int'));
+			
+			if(($automation_id = intval($scope['automation_id'] ?? 0)))
+				$automation_ids[] = $automation_id;
+		}
+		
+		$refs = [
+			'filesystems' => [],
+			'tools' => [],
+			'automations' => [],
+		];
+		
+		foreach(DAO_AgentFilesystem::getIds(array_unique(array_filter($mount_ids))) as $filesystem)
+			$refs['filesystems'][$filesystem->id] = $filesystem->name;
+		
+		foreach(DAO_AgentTool::getIds(array_unique(array_filter($tool_ids))) as $tool)
+			$refs['tools'][$tool->id] = $tool->name;
+		
+		foreach(DAO_Automation::getIds(array_unique($automation_ids)) as $automation)
+			$refs['automations'][$automation->id] = $automation->name;
+		
+		return $refs;
 	}
 	
 	// Impostor mode

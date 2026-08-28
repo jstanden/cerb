@@ -919,13 +919,12 @@ class LlmAgentNode extends AbstractNode {
 	}
 
 	/**
-	 * The `tools:` key prefixes that are NOT a tool record. Everything else is: a bare `web_search:` names the
-	 * record and calls it by its own name, and `web_search/acme_docs:` mounts the same record under an alias --
-	 * which is how one tool appears twice with different fixed arguments.
+	 * The `tools:` key prefixes that are NOT a tool record. Everything else IS one: the key is simply the
+	 * record's name, which is also the name the model calls.
 	 *
-	 * Keeping the record name as the key BASE is what lets the KATA editor autocomplete inside the entry: the
-	 * path alone says which record it is, so its parameters can be offered without evaluating the body.
-	 * `DAO_AgentTool` refuses these words as record names, so the two can never be confused.
+	 * That the key is the record name is what lets the KATA editor autocomplete inside the entry -- the path
+	 * alone says which record it is. `DAO_AgentTool` refuses these words as record names, so the two can never
+	 * be confused.
 	 */
 	const TOOL_RESERVED_PREFIXES = ['agent_terminal', 'agent_tool', 'automation', 'tool', 'ui_command', 'ui_server'];
 
@@ -933,15 +932,14 @@ class LlmAgentNode extends AbstractNode {
 	 * The scope an `agent.tool` automation runs with: the call's arguments, and the environment it was called
 	 * in -- which tool, which agent, whom that agent serves, and where the conversation is happening.
 	 *
-	 * Arguments merge the reference's fixed `params:` OVER the model's OVER the record's own defaults, using
-	 * `+` (left wins). They arrive as `params.*` rather than `inputs.*` on purpose: `inputs` is validated
-	 * against the script's own `inputs:` block, so reusing that key would reject every argument.
+	 * The model's arguments over the declared defaults, using `+` (left wins), arriving as `inputs.*` -- the
+	 * automation declares them, so they validate against its own `inputs:` block exactly as any other caller's
+	 * would. A script that wants to force one rewrites `__tool.parameters` in `on_tool:`, which runs first and
+	 * is what `$tool_spec` is rebuilt from here.
 	 */
 	private function _agentToolState(\Model_AgentTool $record, array $tool, DevblocksLlmChatResponse_Tool $tool_spec, ?string $session_id) : array {
-		$fixed = is_array($tool['params'] ?? null) ? $tool['params'] : [];
-
-		// The record's per-parameter `default:`, read off the FROZEN schema rather than the record, so a running
-		// conversation keeps the defaults it started with -- the same reason the schema itself is frozen.
+		// The declared `default:` per argument, read off the FROZEN schema rather than the automation, so a
+		// running conversation keeps the defaults it started with -- the same reason the schema is frozen.
 		$defaults = [];
 
 		foreach((is_array($tool['parameters'] ?? null) ? $tool['parameters'] : []) as $param_key => $param) {
@@ -950,7 +948,7 @@ class LlmAgentNode extends AbstractNode {
 		}
 
 		$state = [
-			'params' => $fixed + ($tool_spec->getParameters() ?? []) + $defaults,
+			'inputs' => ($tool_spec->getParameters() ?? []) + $defaults,
 			'tool__context' => \Context_AgentTool::ID,
 			'tool_id' => $record->id,
 			'transcript_uuid' => strval($session_id),
@@ -990,12 +988,15 @@ class LlmAgentNode extends AbstractNode {
 	 * record is read once and frozen: an edit reaches NEW conversations, and running ones keep the tools they
 	 * started with.
 	 *
-	 * The same reasoning is why a tool going `disabled` mid-conversation does not shrink the set -- removing it
+	 * The same reasoning is why a tool going `disabled` MID-conversation does not shrink the set -- removing it
 	 * would bust the prefix just as surely. The call is refused at execution instead, with an error the model
 	 * reads back, which is also the shape a guardrail denial takes.
 	 *
-	 * The authored key is `<record>[/<alias>]`; what gets STORED is the canonical `agent_tool/<alias>` with the
-	 * record name in the body. Resolving the family on first parse and freezing it is what keeps every later
+	 * A conversation starting NOW is the opposite case and is handled below: a disabled or missing tool is
+	 * never admitted, so the model is never shown something it will only be refused.
+	 *
+	 * The authored key is the record's name; what gets STORED is the canonical `agent_tool/<name>` with the
+	 * name in the body too. Resolving the family on first parse and freezing it is what keeps every later
 	 * reader -- dispatch, provider schema, transcript -- off the record entirely.
 	 */
 	private function _withResolvedAgentTools(array $tools_config, ?string $session_id) : array {
@@ -1008,7 +1009,7 @@ class LlmAgentNode extends AbstractNode {
 
 		foreach($tools_config as $tool_key => $tool) {
 			$tool_key = strval($tool_key);
-			list($base, $alias) = array_pad(explode('/', explode('@', $tool_key, 2)[0], 2), 2, null);
+			$base = strval(explode('/', explode('@', $tool_key, 2)[0], 2)[0]);
 
 			// Another family, or already canonical: pass it through untouched.
 			if(!is_array($tool) || in_array($base, self::TOOL_RESERVED_PREFIXES, true)) {
@@ -1016,12 +1017,27 @@ class LlmAgentNode extends AbstractNode {
 				continue;
 			}
 
-			$canonical = 'agent_tool/' . ($alias ?: $base);
+			$canonical = 'agent_tool/' . $base;
 
 			// Already frozen onto this session: reuse verbatim. `parameters` is the marker, because every
 			// resolved entry has one -- even a tool that takes no arguments.
 			if(is_array($frozen[$canonical] ?? null) && array_key_exists('parameters', $frozen[$canonical])) {
 				$out[$canonical] = $frozen[$canonical];
+				continue;
+			}
+
+			// FIRST resolve. A tool that is switched off, or whose record is gone, must never enter the set at
+			// all -- the freeze is about not SHRINKING a conversation that already has one, and says nothing
+			// about admitting one to a conversation starting now. Advertising it and refusing the call is the
+			// mid-conversation compromise, not the intended experience: the model would see the tool, spend a
+			// turn calling it, and be told no.
+			if(!($record = \DAO_AgentTool::getByName($base)) || !$record->isUsable()) {
+				DevblocksPlatform::logError(sprintf(
+					"[LLM] Skipping agent tool `%s`: %s",
+					$base,
+					$record ? 'it is disabled' : 'no such tool record'
+				));
+
 				continue;
 			}
 
@@ -1035,11 +1051,19 @@ class LlmAgentNode extends AbstractNode {
 	 * One tool-record reference plus its record, flattened into the shape every other tool already speaks --
 	 * `description` + `parameters` -- so the provider schema builder reads it with no special case.
 	 *
-	 * The reference may override the record's presentation, and its `params:` fixes arguments the model is never
-	 * offered: they are dropped from the schema here, and applied over the call in `_agentToolState()`.
+	 * The arguments come from the ANSWERING AUTOMATION's own `inputs:` block. That block is the tool's contract:
+	 * it already carries a description, `required`, `allowed_values` and a `default` per argument, and it is
+	 * what the script reads back as `inputs.<name>`. Declaring them a second time on the record would mean two
+	 * places to change and one of them silently wrong -- the automation would be made to conform to a contract
+	 * written somewhere else, which is the opposite of what these records are for.
 	 *
-	 * A missing record still yields an entry. The reference is kept so execution can name what broke, and the
-	 * tool advertises no arguments rather than vanishing from a prefix that is already cached.
+	 * The record supplies what an automation has nowhere to put: the name the model calls, the description it
+	 * reads, the transcript's icon and wording. The REFERENCE may override that presentation, nothing more --
+	 * a mount that has to force an argument rewrites `__tool.parameters` in the calling script's `on_tool:`,
+	 * which runs before the tool and is what `$tool_spec` is rebuilt from.
+	 *
+	 * A missing record or automation still yields an entry. The reference is kept so execution can name what
+	 * broke, and the tool advertises no arguments rather than vanishing from a prefix that is already cached.
 	 */
 	private function _resolveAgentToolEntry(string $record_name, array $entry) : array {
 		$resolved = $entry;
@@ -1051,27 +1075,55 @@ class LlmAgentNode extends AbstractNode {
 			return $resolved;
 		}
 
-		$params = is_array($entry['params'] ?? null) ? $entry['params'] : [];
 		$labels = is_array($entry['labels'] ?? null) ? $entry['labels'] : [];
 
 		$resolved['uri'] = strval($record->uri);
-		$resolved['params'] = $params;
 		$resolved['description'] = trim(strval($entry['description'] ?? '')) ?: strval($record->description);
 		$resolved['icon'] = trim(strval($entry['icon'] ?? '')) ?: $record->getDisplayIcon();
 		$resolved['labels'] = [
 			'active' => trim(strval($labels['active'] ?? '')) ?: strval($record->label_active),
 			'summary' => trim(strval($labels['summary'] ?? '')) ?: strval($record->label_summary),
 		];
-
-		// A fixed argument is not the model's to choose, so it never reaches the schema. Keyed `string/<name>`
-		// there and bare in `params:`, so the name half is what's compared.
-		$resolved['parameters'] = array_filter(
-			$record->getParams()['parameters'],
-			fn($k) => !array_key_exists(strval(explode('/', strval($k), 2)[1] ?? $k), $params),
-			ARRAY_FILTER_USE_KEY
-		);
+		$resolved['parameters'] = self::_toolParametersFromAutomation($record);
 
 		return $resolved;
+	}
+
+	/**
+	 * The answering automation's `inputs:` as the model-facing parameter map.
+	 *
+	 * Every input is advertised as a `string` regardless of its declared type, which is what
+	 * `getToolSchemaForAutomation()` always did: a provider takes JSON scalars, and a `record/` input is a name
+	 * or an id to the model either way.
+	 */
+	private static function _toolParametersFromAutomation(\Model_AgentTool $record) : array {
+		if(!$record->hasAutomation())
+			return [];
+
+		if(!($automation = DAO_Automation::getByUri($record->uri, \AutomationTrigger_AgentTool::ID)))
+			return [];
+
+		$parameters = [];
+
+		foreach($automation->getInputsMeta() as $input) {
+			if(!is_array($input) || '' === ($key = strval($input['key'] ?? '')))
+				continue;
+
+			$parameter = ['description' => strval($input['description'] ?? '')];
+
+			if($input['required'] ?? false)
+				$parameter['required'] = true;
+
+			if(is_array($input['allowed_values'] ?? null) && $input['allowed_values'])
+				$parameter['enum'] = array_values(array_map('strval', $input['allowed_values']));
+
+			if(array_key_exists('default', $input) && is_scalar($input['default']))
+				$parameter['default'] = $input['default'];
+
+			$parameters['string/' . $key] = $parameter;
+		}
+
+		return $parameters;
 	}
 
 	/**

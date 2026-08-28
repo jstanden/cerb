@@ -73,9 +73,15 @@
 			{elseif $column == "a_name"}
 			<td>
 				<input type="checkbox" name="row_id[]" value="{$result.a_id}" style="display:none;">
-				<span class="cerb-icons cerb-icon-{$view->getRowIcon($result)}"></span>
+				{* The tool's own mark, so the list scans by glyph rather than by reading names. *}
+				<span data-cerb-agent-tool-avatar
+					style="vertical-align:middle;margin-right:0.4em;"
+					data-avatar="{$result.a_name}"
+					data-avatar-icon="{$view->getRowIcon($result)}"
+					data-avatar-size="20"
+					data-avatar-color="var(--cerb-color-background-contrast-180)"
+				></span>
 				<a href="{devblocks_url}c=profiles&type=agent_tool&id={$result.a_id}-{$result.a_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.a_name}</a>
-				{if $result.a_label && $result.a_label != $result.a_name}<span class="cerb-u-fgg-4">{$result.a_label}</span>{/if}
 				<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.a_id}"><span class="cerb-icons cerb-icon-new-window"></span></button>
 			</td>
 			{elseif $column == "a_status"}
@@ -117,5 +123,10 @@
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	let $frm = $('#viewForm{$view->id}');
+
+	// Paint the per-row tool marks. Scoped to this form and re-run on every worklist render (paging, sort and
+	// filter all re-emit this template), so there's no global scan to keep in sync.
+	if(window.CerbUI && CerbUI.Avatar)
+		CerbUI.Avatar.enhance($frm[0], '[data-cerb-agent-tool-avatar]');
 });
 </script>
