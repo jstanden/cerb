@@ -1,6 +1,6 @@
 workflow:
   name: cerb.quickstart
-  version: 2026-08-22T00:00:00Z
+  version: 2026-08-25T00:00:00Z
   description: A guided setup tour that walks administrators through initial Cerb configuration
   website: https://cerb.ai/workflows/cerb.quickstart/
   requirements:
@@ -56,10 +56,14 @@ records:
                 url: c=pages
                 label: Create a new Home page from your workspace pages list.
               9:
+                title: Configure agent models
+                url: c=search&context=agent_model
+                label: Add the AI models that your agents and automations can use.
+              10:
                 title: Add your license
                 url: c=config&a=license
                 label: Add your license, or request a free 3-seat license from cerb.ai/pricing.
-              10:
+              11:
                 title: Enable the scheduler
                 url: c=config&a=scheduler
                 label: Enable the scheduler so Cerb can run its background jobs.
@@ -312,8 +316,43 @@ records:
                                 continue/close:
                                   label: Close
                                   value: close
-                  outcome/license:
+                  outcome/agentModels:
                     if@bool: {{10 == inputs.step}}
+                    then:
+                      await/overview:
+                        form:
+                          title: Configure agent models
+                          elements:
+                            say:
+                              content@text:
+                                ## Agent models
+                                An agent model is an AI model that Cerb is allowed to use, like a chat model from **Anthropic**, **OpenAI**, **Google**, or a local model you run yourself.
+
+                                Each model records its provider, its capabilities (vision, thinking, context window), and how you rate it for cost, speed, intelligence, and privacy.
+                            submit:
+                              buttons:
+                                continue/next:
+                                  label: Next
+                                  icon: chevron-right
+                                  icon_at: end
+                                  value: next
+                      await/credentials:
+                        form:
+                          title: Provider credentials
+                          elements:
+                            say:
+                              content@text:
+                                ## Credentials
+                                A model that uses a hosted provider needs an API key. Create an **API key connected account** under *Setup -> Connected Accounts*, then choose it on the model.
+
+                                Automations ask for models by capability rather than by name, so adding a model here is what makes it available everywhere.
+                            submit:
+                              buttons:
+                                continue/close:
+                                  label: Close
+                                  value: close
+                  outcome/license:
+                    if@bool: {{11 == inputs.step}}
                     then:
                       await:
                         form:
@@ -333,7 +372,7 @@ records:
                                   label: Close
                                   value: close
                   outcome/scheduler:
-                    if@bool: {{11 == inputs.step}}
+                    if@bool: {{12 == inputs.step}}
                     then:
                       await:
                         form:
