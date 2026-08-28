@@ -782,7 +782,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					$otp = $behavior_dict->get($otp_key);
 					
 					$image_bytes = $captcha->createImage($otp);
-					$tpl->assign('image_bytes', $image_bytes);
+					$tpl->assign('image_base64', base64_encode($image_bytes));
 					
 					$tpl->assign('label', $label);
 					$tpl->assign('var', $var);

@@ -3,7 +3,7 @@
 	<h6>{$label}</h6>
 	
 	<p>
-		<img src="data:image/png;base64,{base64_encode($image_bytes)}">
+		<img src="data:image/png;base64,{$image_base64}">
 		<input name="prompts[{$var}]" type="text" value="{$dict->get($var)}" placeholder="(enter the text from the image above)" autocomplete="off" spellcheck="false">
 	</p>
 </div>
