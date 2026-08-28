@@ -92,6 +92,47 @@
 			</div>
 		</div>
 
+		{* Ghosts — display-only tiles for a set that already applies from elsewhere *}
+		<div class="cerb-ui-header">
+			<div class="cerb-ui-header--label">Ghosts &mdash; values the field <em>displays</em> but does not own: an inherited set, a grant from elsewhere. Same tile, faded, no <code>&times;</code>, no hidden input &mdash; and excluded from selection, so the same record can&rsquo;t be stacked on the tile already showing it. They exist because a <em>placeholder</em> can only describe an inherited set while the field is EMPTY, and it disappears the moment you add anything &mdash; exactly when you most need to see what you are adding <em>to</em></div>
+		</div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<div class="cerb-u-flex cerb-u-gap-3 cerb-u-flex-wrap">
+					<div style="flex:1 1 18em;min-width:0;">
+						<div class="cerb-ui-form--label">On every ticket</div>
+						<div id="uiref-recordchooser-ghost-src"></div>
+					</div>
+					<div style="flex:1 1 18em;min-width:0;">
+						<div class="cerb-ui-form--label">Added for this group</div>
+						<div id="uiref-recordchooser-ghost-dst"></div>
+					</div>
+				</div>
+				<div class="cerb-uiref-result">Add a worker on the left &mdash; they appear faded on the right and can no longer be picked there, by autocomplete or by the popup.</div>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>const dst = new CerbUI.RecordChooser(el, {
+	context: 'worker', multiple: true,
+	ghosts: [{ value: 5, label: 'Kim Li', icon_name: '' }],   // display-only tiles
+});
+
+// `value` (falling back to `id`) is the identity, matched against the same key the field dedupes its
+// own chips with. NOT the label: two records can share one, and a ghost's rendered text is a display
+// concern that shouldn't decide what is selectable. A ghost with NEITHER blocks nothing -- right for a
+// reference that resolved to no record at all, since no search can return it to collide.
+dst.setGhosts([{ value: 5, label: 'Kim Li' }]);   // host-managed; getGhosts() reads them back
+
+// Track a live edit elsewhere with onChange -- NOT onSelect, which is add-only by contract, so a host
+// deriving anything from the selection goes stale the moment a chip is removed.
+new CerbUI.RecordChooser(srcEl, {
+	context: 'worker', multiple: true,
+	onChange: (values) =&gt; dst.setGhosts(values.map(v =&gt; ({ value: v.id, label: v.label }))),
+});</pre>
+			</div>
+		</div>
+
 		{* Picker link — a static helper that attaches a search popup to a trigger and writes the picked id into a sibling field *}
 		<div class="cerb-ui-header">
 			<div class="cerb-ui-header--label">Picker link (<code>CerbUI.RecordChooser.pickerLink</code>) &mdash; a <strong>static helper</strong> (no instance/chip). Attach a record-search popup to a clickable trigger (e.g. an &ldquo;ID&rdquo; label); on pick it inserts the chosen record&rsquo;s id into a sibling text field. For <strong>dual-purpose fields</strong> that also accept render-time placeholders (<code>{literal}{{…}}{/literal}</code>) &mdash; it only writes a literal id when the user explicitly picks one. The context comes from the link&rsquo;s <code>data-context</code> (read live, so a coupled &ldquo;Type&rdquo; select can drive it) unless <code>opts.context</code> is given. Default insert format is <code>{literal}id{# label #}{/literal}</code> &mdash; a Cerb placeholder comment that keeps the human label visible while the value resolves to the id</div>
@@ -158,6 +199,32 @@
 			context: 'worker',
 			multiple: true,
 			searchPlaceholder: 'Add workers…',
+		});
+	}
+
+	// Ghosts: the left chooser is what already applies; the right one adds to it and can never re-pick one.
+	const elGhostSrc = document.getElementById('uiref-recordchooser-ghost-src');
+	const elGhostDst = document.getElementById('uiref-recordchooser-ghost-dst');
+
+	if(elGhostSrc && elGhostDst && window.CerbUI && CerbUI.RecordChooser) {
+		const dst = new CerbUI.RecordChooser(elGhostDst, {
+			context: 'worker',
+			multiple: true,
+			searchPlaceholder: 'Add workers…',
+			emptyIcon: 'user',
+		});
+
+		new CerbUI.RecordChooser(elGhostSrc, {
+			context: 'worker',
+			multiple: true,
+			searchPlaceholder: 'Add workers…',
+			emptyIcon: 'user',
+			// onChange, not onSelect — removals have to reach the ghosts too.
+			onChange: function(values) {
+				dst.setGhosts((values || []).map(function(v) {
+					return { value: v.id, label: v.label, image_url: v.image_url || '' };
+				}));
+			},
 		});
 	}
 

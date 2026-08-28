@@ -25,10 +25,17 @@
  *     name: 'field_5',                // optional; else read from the checkboxes' name (sans []) / data-name
  *     searchPlaceholder: 'Filter…',
  *     value: ['a','b'],               // optional; else the `checked` source checkboxes seed the selection
+ *     ghosts: ['c'],                  // option values that already apply from elsewhere — see below
  *     onSelect: (value, picked) => {},// fired per toggle
  *   });
  *
- * API: vp.getValue(); vp.setValue([…]); vp.clear(); vp.destroy(); CerbUI.ValuePicker.from(el).
+ * GHOSTS are options that already apply from somewhere else — an inherited grant, a role's permission. They
+ * render as display-only tiles (no hidden input, no remove button) and drop out of the dropdown entirely,
+ * because there is nothing this field can do to them. Selecting one is impossible rather than merely
+ * pointless, and a ghosted value is dropped from the selection if it was picked before it became one.
+ * setGhosts() is how a host tracks a live edit elsewhere on the form without rebuilding the field.
+ *
+ * API: vp.getValue(); vp.setValue([…]); vp.setGhosts([…]); vp.clear(); vp.destroy(); CerbUI.ValuePicker.from(el).
  * Reuses the chooser CSS (cerb-ui-record-chooser field + cerb-ui-chooser--panel dropdown) for parity.
  * Requires CerbUI.Avatar (monogram for image/icon-less tiles). No backend.
  */
@@ -50,14 +57,17 @@ CerbUI.ValuePicker = class {
 			name:              ds.name || this._readName(),
 			searchPlaceholder: 'Filter…',
 			value:             null,
+			ghosts:            [],
 			onSelect:          null,
 		}, opts);
+
+		this.ghosts = new Set((this.opts.ghosts || []).map(String));
 
 		// Initial selection: explicit value, else the checked source options
 		const initial = (this.opts.value != null)
 			? (Array.isArray(this.opts.value) ? this.opts.value : [this.opts.value]).map(String)
 			: this.options.filter((o) => o.checked).map((o) => o.value);
-		this.values = new Set(this.opts.multiple ? initial : initial.slice(0, 1));
+		this.values = new Set((this.opts.multiple ? initial : initial.slice(0, 1)).filter((v) => !this.ghosts.has(v)));
 
 		this.el.replaceChildren(); // own the element; drop the source checkbox markup
 		this.el.classList.add('cerb-ui-value-picker', 'cerb-ui-record-chooser');
@@ -217,6 +227,10 @@ CerbUI.ValuePicker = class {
 	_toggle(value) {
 		if(!this._optByValue(value)) return;
 
+		// A ghost isn't ours to pick. The row is hidden, but keyboard nav and a host calling this directly
+		// both reach here without going past that.
+		if(this.ghosts.has(String(value))) return;
+
 		if(this.opts.multiple) {
 			if(this.values.has(value)) this.values.delete(value);
 			else this.values.add(value);
@@ -241,12 +255,18 @@ CerbUI.ValuePicker = class {
 		this._syncState();
 		this._filter();
 		requestAnimationFrame(() => { if(!this.input.hidden) this.input.focus(); else if(!this.caretBtn.hidden) this.caretBtn.focus(); });
+
+		// A tile's × is a toggle like any other, and `onSelect` takes a `picked` boolean precisely so a caller
+		// can tell the two apart. Firing only from _toggle() meant every host that derived something from the
+		// selection went stale the moment you removed one from the strip rather than from the dropdown.
+		if(typeof this.opts.onSelect === 'function') this.opts.onSelect(value, false);
 	}
 
 	// ── Tiles (selected, in OPTION order — never click order) ──
-	_buildTile(o) {
+	_buildTile(o, isGhost) {
 		const tile = document.createElement('span');
-		tile.className = 'cerb-ui-record-chooser--tile';
+		tile.className = 'cerb-ui-record-chooser--tile' + (isGhost ? ' cerb-ui-record-chooser--tile--ghost' : '');
+		if(isGhost && o.title) tile.title = o.title;
 
 		const lead = this._leadingEl(o);
 		if(lead) tile.appendChild(lead);
@@ -256,13 +276,16 @@ CerbUI.ValuePicker = class {
 		name.textContent = o.label;
 		tile.appendChild(name);
 
-		const clear = document.createElement('button');
-		clear.type = 'button';
-		clear.className = 'cerb-ui-record-chooser--clear';
-		clear.setAttribute('aria-label', 'Remove');
-		clear.innerHTML = '<span class="cerb-icons cerb-icon-circle-remove" aria-hidden="true"></span>';
-		clear.addEventListener('click', (e) => { e.stopPropagation(); this._removeValue(o.value); });
-		tile.appendChild(clear);
+		// A ghost isn't owned here, so there is nothing to remove.
+		if(!isGhost) {
+			const clear = document.createElement('button');
+			clear.type = 'button';
+			clear.className = 'cerb-ui-record-chooser--clear';
+			clear.setAttribute('aria-label', 'Remove');
+			clear.innerHTML = '<span class="cerb-icons cerb-icon-circle-remove" aria-hidden="true"></span>';
+			clear.addEventListener('click', (e) => { e.stopPropagation(); this._removeValue(o.value); });
+			tile.appendChild(clear);
+		}
 
 		return tile;
 	}
@@ -271,19 +294,26 @@ CerbUI.ValuePicker = class {
 		const filled = this.values.size > 0;
 		const multi = this.opts.multiple;
 
-		// Tiles — iterate options so order is the defined order, not selection order
+		// Tiles — iterate options so order is the defined order, not selection order. Ghosts lead: they're
+		// what this field is adding TO.
 		this.tilesEl.replaceChildren();
+		this.options.forEach((o) => { if(this.ghosts.has(o.value)) this.tilesEl.appendChild(this._buildTile(o, true)); });
 		this.options.forEach((o) => { if(this.values.has(o.value)) this.tilesEl.appendChild(this._buildTile(o)); });
 
-		// Visibility (single-filled collapses to the chip only, like RecordChooser)
+		// Visibility (single-filled collapses to the chip only, like RecordChooser). `filled` is about VALUES,
+		// so a ghost never hides the input -- there'd be no way left to pick anything.
+		const hasTiles = filled || this.ghosts.size > 0;
+
 		this.input.hidden = !multi && filled;
 		this.caretBtn.hidden = !multi && filled;
-		this.el.classList.toggle('cerb-ui-record-chooser--has-tiles', filled);
+		this.el.classList.toggle('cerb-ui-record-chooser--has-tiles', hasTiles);
 
-		// Picked decoration on the dropdown rows
+		// Dropdown rows: picked decoration. Whether a row is OFFERED is _filter()'s call (it also owns the
+		// ghost exclusion), so this never writes `hidden` -- two writers would fight on every keystroke.
 		this.options.forEach((o) => {
 			const row = this.rowByValue[o.value];
-			if(row) row.classList.toggle('cerb-ui-value-picker--picked', this.values.has(o.value));
+			if(!row) return;
+			row.classList.toggle('cerb-ui-value-picker--picked', this.values.has(o.value));
 		});
 
 		// Hidden inputs (option order). Multiple → name[] per value; single → always one name ('' empty).
@@ -313,7 +343,8 @@ CerbUI.ValuePicker = class {
 		this.options.forEach((o) => {
 			const row = this.rowByValue[o.value];
 			if(!row) return;
-			const show = !q || o.label.toLowerCase().indexOf(q) !== -1;
+			// A ghost is never offered, whatever the filter says -- there is nothing this field can do to it.
+			const show = !this.ghosts.has(o.value) && (!q || o.label.toLowerCase().indexOf(q) !== -1);
 			row.hidden = !show;
 			if(show) anyVisible = true;
 		});
@@ -413,6 +444,18 @@ CerbUI.ValuePicker = class {
 		const picked = this.options.filter((o) => this.values.has(o.value)).map((o) => o.value);
 		return this.opts.multiple ? picked : (picked[0] || null);
 	}
+
+	// Replace the set that already applies from elsewhere. A value that just became a ghost stops being a
+	// selection -- keeping it would post a grant the consumer is going to ignore anyway.
+	setGhosts(list) {
+		this.ghosts = new Set((Array.isArray(list) ? list : (list ? [list] : [])).map(String));
+		this.ghosts.forEach((v) => this.values.delete(v));
+		this._syncState();
+		this._filter();
+		return this;
+	}
+
+	getGhosts() { return Array.from(this.ghosts); }
 	setValue(value) {
 		const arr = value == null ? [] : (Array.isArray(value) ? value : [value]).map(String);
 		this.values = new Set(this.opts.multiple ? arr : arr.slice(0, 1));

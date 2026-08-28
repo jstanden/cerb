@@ -94,6 +94,54 @@
 new CerbUI.ValuePicker(el, { multiple:false });  // posts one hidden name="size"</pre>
 			</div>
 		</div>
+
+		{* Ghosts *}
+		<div class="cerb-ui-header">
+			<div class="cerb-ui-header--label">Ghosts &mdash; options that already apply from elsewhere: shown as faded tiles, dropped from the dropdown, and impossible to pick</div>
+		</div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<div class="cerb-u-flex cerb-u-gap-3 cerb-u-flex-wrap">
+					<div style="flex:1 1 16em;min-width:0;">
+						<div class="cerb-ui-form--label">Granted to everyone</div>
+						<div class="cerb-ui-value-picker" id="uiref-valuepicker-ghost-src">
+							<label data-icon="eye-open"><input type="checkbox" name="uiref_perm_all[]" value="read" checked> read</label>
+							<label data-icon="edit"><input type="checkbox" name="uiref_perm_all[]" value="write"> write</label>
+							<label data-icon="trash"><input type="checkbox" name="uiref_perm_all[]" value="delete"> delete</label>
+							<label data-icon="shield"><input type="checkbox" name="uiref_perm_all[]" value="admin"> admin</label>
+						</div>
+					</div>
+					<div style="flex:1 1 16em;min-width:0;">
+						<div class="cerb-ui-form--label">Added for this role</div>
+						<div class="cerb-ui-value-picker" id="uiref-valuepicker-ghost-dst">
+							<label data-icon="eye-open"><input type="checkbox" name="uiref_perm_role[]" value="read"> read</label>
+							<label data-icon="edit"><input type="checkbox" name="uiref_perm_role[]" value="write"> write</label>
+							<label data-icon="trash"><input type="checkbox" name="uiref_perm_role[]" value="delete"> delete</label>
+							<label data-icon="shield"><input type="checkbox" name="uiref_perm_role[]" value="admin"> admin</label>
+						</div>
+					</div>
+				</div>
+				<div class="cerb-uiref-result">Toggle a permission on the left &mdash; it becomes a ghost on the right and leaves that dropdown. The right field posts <code>uiref_perm_role[]</code>: <b id="uiref-valuepicker-ghost-out">&mdash;</b></div>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>// A ghost is an option that already applies from somewhere else -- an inherited grant, a role's
+// permission. It renders as a faded tile with no Ã, posts nothing, and is dropped from the dropdown
+// entirely: there is nothing this field can do to it, so offering it would say otherwise.
+const dst = new CerbUI.ValuePicker(el, {
+	ghosts: ['read'],                     // option VALUES that already apply
+});
+
+// Track a live edit elsewhere on the form. A value that just became a ghost stops being a selection,
+// because keeping it would post a grant the consumer is going to ignore anyway.
+src.opts.onSelect = () =&gt; dst.setGhosts(src.getValue());
+
+// API: dst.setGhosts([â¦]); dst.getGhosts();
+// onSelect fires on add AND remove (its second arg is the new picked state), so a host tracking the
+// source stays in sync whether a tag is removed from the dropdown or by its Ã.</pre>
+			</div>
+		</div>
 	</div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}">
@@ -116,5 +164,28 @@ new CerbUI.ValuePicker(el, { multiple:false });  // posts one hidden name="size"
 
 	const elSingle = document.getElementById('uiref-valuepicker-single');
 	if(elSingle) new CerbUI.ValuePicker(elSingle, { searchPlaceholder: 'Choose a size…' });
+
+	// Ghosts: the left field grants, the right one adds to it and can never touch what the left already gave.
+	const elGhostSrc = document.getElementById('uiref-valuepicker-ghost-src');
+	const elGhostDst = document.getElementById('uiref-valuepicker-ghost-dst');
+	const elGhostOut = document.getElementById('uiref-valuepicker-ghost-out');
+
+	if(elGhostSrc && elGhostDst) {
+		const dst = new CerbUI.ValuePicker(elGhostDst, {
+			searchPlaceholder: 'Add a permission…',
+			onSelect: function() { if(elGhostOut) elGhostOut.textContent = dst.getValue().join(', ') || '—'; }
+		});
+
+		const src = new CerbUI.ValuePicker(elGhostSrc, {
+			searchPlaceholder: 'Grant to everyone…',
+			onSelect: function() {
+				dst.setGhosts(src.getValue());
+				if(elGhostOut) elGhostOut.textContent = dst.getValue().join(', ') || '—';
+			}
+		});
+
+		dst.setGhosts(src.getValue());
+		if(elGhostOut) elGhostOut.textContent = dst.getValue().join(', ') || '—';
+	}
 })();
 </script>

@@ -60,6 +60,7 @@ CerbUI.chooserCore = (function() {
 			closeOnSelect: true,         // false = stay open after a pick (multi-select: add several)
 			hideOnEmpty: null,           // 0 matches → hide the panel (no placeholder); null = auto (on for inline autocomplete, off for the self-contained popup)
 			plain:       false,          // true = plain text rows (no monogram avatar); an optional per-item `icon` (cerb-icons name) renders a leading glyph instead. For text suggestions (CerbUI.TextChooser) where a record avatar would be meaningless.
+			panelClass:  '',             // extra class on the popup. The panel mounts to document.body, so a host that styles its own chooser has no ancestor to scope by -- this is the hook that gives it one.
 			onSelect:    null,           // (item) => {}
 			onClose:     null,
 			onResults:   null,           // (items, query) => {} after each search renders (e.g. an adder that
@@ -87,6 +88,7 @@ CerbUI.chooserCore = (function() {
 		const panel = document.createElement('div');
 		panel.className = 'cerb-ui-chooser--panel';
 		if(useExternalInput) panel.classList.add('cerb-ui-chooser--panel-inline'); // results-only (no head)
+		if(o.panelClass) panel.classList.add(o.panelClass);
 		panel.setAttribute('role', 'dialog');
 		panel.hidden = true;
 

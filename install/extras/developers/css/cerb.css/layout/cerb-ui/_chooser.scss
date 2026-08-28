@@ -242,6 +242,17 @@
 	cursor: default; // a tile isn't the text field; its label (peek link) + × set their own pointer
 }
 
+// A GHOST tile: a value the field displays but doesn't own -- an inherited set, a grant from elsewhere. The
+// SAME tile, faded: it is the same kind of thing as the chips beside it, so drawing it differently would say
+// otherwise. What marks it is the absence of a × (there is nothing here to remove) and, on the field's own
+// terms, that it posts nothing.
+.cerb-ui-record-chooser--tile--ghost {
+	opacity: 0.5;
+	// The × normally sits inside the right padding, so without it the label runs to the edge while the avatar
+	// still has its left inset. A little more right padding puts the two ends back in balance.
+	padding-right: 0.45em;
+}
+
 // Keyboard focus: ring the whole chip when its label (peek link) or × is focused. Unified focus look.
 // Shared by TagInput / ValuePicker / ContextChooser, which reuse this tile.
 .cerb-ui-record-chooser--tile:focus-within {

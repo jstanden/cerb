@@ -17,10 +17,26 @@
  *     name: 'worker_id',                 // hidden input (single) / name[] (multiple) so it posts
  *     value: {id,label,image_url} | [ … ],  // PREFER server-rendered [data-context-id] seed markup over
  *                                           // this JSON option — see _readMarkupValues (the <li> approach)
- *     onSelect: (item) => { ... },       // fired per add
+ *     onSelect: (item) => { ... },       // fired per ADD only (kept as-is; callers rely on it)
+ *     onChange: (values) => { ... },     // fired after ANY change — add, remove, or clear
+ *     ghosts: [{label, icon_name}],      // display-only tiles — see below
  *   });
  *
- * API: rc.getValue(); rc.setValue(item|array|null); rc.clear(); rc.openSearch(); rc.destroy().
+ * GHOST TILES are values the field DISPLAYS but does not own: a set that already applies from somewhere else
+ * (an inherited default, a group's grant) shown inline with what this field adds to it. They carry no hidden
+ * input, so they post nothing, and they have no remove button, because this field is not where they come from.
+ * The host manages them -- setGhosts() -- which is what lets them track a live edit somewhere else on the form.
+ * They render first, ahead of the real values, and are the only tiles allowed to have no id at all.
+ *
+ * A ghost carrying a `value` (or an `id`) is also EXCLUDED from selection -- the autocomplete stops offering it
+ * and the search popup refuses it -- so the same thing can't be stacked on top of the tile already showing it.
+ * One with neither is display-only and blocks nothing, which is correct for a reference that resolved to no
+ * record at all.
+ *
+ * They exist because a placeholder can only describe an inherited set while the field is EMPTY -- it disappears
+ * the moment you add anything, which is exactly when you most need to see what you are adding TO.
+ *
+ * API: rc.getValue(); rc.setValue(item|array|null); rc.setGhosts(list); rc.clear(); rc.openSearch(); rc.destroy().
  * Requires chooserCore + genericAjaxGet + (for the popup/peek) genericAjaxPopup + jQuery.
  */
 CerbUI.RecordChooser = class {
@@ -109,6 +125,11 @@ CerbUI.RecordChooser = class {
 			multiple:          false,
 			searchPlaceholder: 'Search…',
 			emptyIcon:         'file',
+			ghosts:            [],    // display-only tiles (no hidden input, no remove button) -- see setGhosts()
+			onChange:          null,  // (values) after ANY change. `onSelect` is add-only by contract, so a host
+			                          // deriving anything from the selection needs this one or it goes stale the
+			                          // moment a chip is removed.
+
 			itemIcon:          '',    // a cerb-icons name every tile falls back to when the record offers no
 			                          // `icon_name` of its own. For a context whose records share one identity
 			                          // (every agent filesystem is a folder), where initials say nothing.
@@ -125,6 +146,8 @@ CerbUI.RecordChooser = class {
 			create:            false, // opt-in inline create: true | 'if-null'. Renders a "+" that opens the
 			                          // context's create peek; the saved record is added. The CALLER opts in
 			                          // (gate it on the worker's create permission); the peek save re-checks.
+			panelClass:        '',    // extra class on the autocomplete popup, which mounts to document.body --
+			                          // the only way a host can style ITS dropdown rows and not everyone's.
 		}, opts);
 
 		// Initial value(s): an explicit `value` option (an item object, a "context:id" string, or an array
@@ -209,6 +232,7 @@ CerbUI.RecordChooser = class {
 			anchor:        this.input,          // anchor results to the input so they stay connected as tiles grow
 			closeOnSelect: !this.opts.multiple, // multi: stay open to add several
 			search:        (q, page) => this._search(q, page),
+			panelClass:    this.opts.panelClass,
 			onSelect:      (item) => this._choose(item),
 			onResults:     (items, query) => { if(typeof this.opts.onResults === 'function') this.opts.onResults(items, query); },
 		});
@@ -234,6 +258,35 @@ CerbUI.RecordChooser = class {
 	// ── Seams (CerbUI.ContextChooser overrides these to go multi-record-type) ──
 	_context() { return this.opts.context; }      // the context to search / link within
 	_valueKey(item) { return String(item.id); }   // selection identity (dedupe + already-chosen filter)
+
+	/*
+	 * What the ghosts already cover, so the same thing can't be added on top of one.
+	 *
+	 * Matched on an EXPLICIT identity -- a ghost's `value`, falling back to its `id` -- compared against the
+	 * same `_valueKey()` the field already dedupes its own values with. Deliberately not the label: two records
+	 * can share one, and a ghost's rendered text is a display concern that shouldn't decide what is selectable.
+	 *
+	 * A ghost with no identity at all blocks nothing, which is right: it stands for something that resolved to
+	 * no record (a deleted filesystem, a hand-authored name), and no search can return that to collide with it.
+	 */
+	_ghostKeys() {
+		const keys = new Set();
+
+		(this.opts.ghosts || []).forEach((g) => {
+			if(!g) return;
+			const id = (g.value != null && g.value !== '') ? g.value : g.id;
+			if(id != null && id !== '') keys.add(String(id));
+		});
+
+		return keys;
+	}
+
+	_isGhosted(item) { return this._ghostKeys().has(this._valueKey(item)); }
+
+	/* Every path that changes the selection ends here. `onSelect` stays ADD-ONLY by contract. */
+	_changed() {
+		if(typeof this.opts.onChange === 'function') this.opts.onChange(this.getValue());
+	}
 	_hiddenValue(item) { return item.id; }         // the value posted in the hidden input
 
 	// ── Initial-value normalization (option) + markup enhancement (data-* seed) ──
@@ -279,6 +332,9 @@ CerbUI.RecordChooser = class {
 				const selected = new Set(this.values.map((v) => this._valueKey(v)));
 				if(typeof this.opts.exclude === 'function')
 					(this.opts.exclude() || []).forEach((id) => selected.add(this._valueKey({ context: context, id: id })));
+				// …and anything a GHOST already covers: adding it would stack a real chip on a tile that is
+				// already there, for a value the consumer was going to union away anyway.
+				this._ghostKeys().forEach((key) => selected.add(key));
 				resolve({
 					// Drop the "(no X)" sentinel AND records already chosen (don't render repeats)
 					results: rows.filter((r) => r.value && r.value !== '0' && !selected.has(this._valueKey({ context: context, id: r.value }))).map((r) => ({
@@ -326,6 +382,11 @@ CerbUI.RecordChooser = class {
 
 	_choose(item) {
 		if(!item || item.id == null || item.id === '') return; // allow id 0 (e.g. the app:0 "Global" actor)
+
+		// The search POPUP lists everything and never sees the autocomplete's filter, so the guard has to be
+		// here too -- otherwise a ghosted record is one popup away from being added on top of itself.
+		if(this._isGhosted(item)) return;
+
 		if(this.opts.multiple) {
 			if(this.values.some((v) => this._valueKey(v) === this._valueKey(item))) return; // dedupe
 			this.values.push(item);
@@ -345,11 +406,13 @@ CerbUI.RecordChooser = class {
 			});
 		}
 		if(typeof this.opts.onSelect === 'function') this.opts.onSelect(item);
+		this._changed();
 	}
 
 	_removeValue(item) {
 		this.values = this.values.filter((v) => this._valueKey(v) !== this._valueKey(item));
 		this._syncState();
+		this._changed();
 		// Keep the field editable: focus the autocomplete input if it's available, else the search button
 		requestAnimationFrame(() => {
 			if(!this.input.hidden) this.input.focus();
@@ -358,9 +421,10 @@ CerbUI.RecordChooser = class {
 	}
 
 	// ── Tile (avatar + peek label + remove); used for the single chip and multi tokens ──
-	_buildTile(item) {
+	_buildTile(item, isGhost) {
 		const tile = document.createElement('span');
-		tile.className = 'cerb-ui-record-chooser--tile';
+		tile.className = 'cerb-ui-record-chooser--tile' + (isGhost ? ' cerb-ui-record-chooser--tile--ghost' : '');
+		if(isGhost && item.title) tile.title = item.title;
 
 		const av = document.createElement('span');
 		av.className = 'cerb-ui-chooser--avatar cerb-ui-record-chooser--avatar';
@@ -428,13 +492,16 @@ CerbUI.RecordChooser = class {
 			tile.appendChild(name);
 		}
 
-		const clear = document.createElement('button');
-		clear.type = 'button';
-		clear.className = 'cerb-ui-record-chooser--clear';
-		clear.setAttribute('aria-label', 'Remove');
-		clear.innerHTML = '<span class="cerb-icons cerb-icon-circle-remove" aria-hidden="true"></span>';
-		clear.addEventListener('click', (e) => { e.stopPropagation(); this._removeValue(item); });
-		tile.appendChild(clear);
+		// A ghost isn't owned here, so there is nothing to remove.
+		if(!isGhost) {
+			const clear = document.createElement('button');
+			clear.type = 'button';
+			clear.className = 'cerb-ui-record-chooser--clear';
+			clear.setAttribute('aria-label', 'Remove');
+			clear.innerHTML = '<span class="cerb-icons cerb-icon-circle-remove" aria-hidden="true"></span>';
+			clear.addEventListener('click', (e) => { e.stopPropagation(); this._removeValue(item); });
+			tile.appendChild(clear);
+		}
 
 		return tile;
 	}
@@ -444,16 +511,22 @@ CerbUI.RecordChooser = class {
 		const filled = this.values.length > 0;
 		const multi = this.opts.multiple;
 
-		// Tiles
+		// Tiles — ghosts lead, since they're what this field is adding TO
+		const ghosts = Array.isArray(this.opts.ghosts) ? this.opts.ghosts : [];
+
 		this.tilesEl.replaceChildren();
+		ghosts.forEach((item) => this.tilesEl.appendChild(this._buildTile(item, true)));
 		this.values.forEach((item) => this.tilesEl.appendChild(this._buildTile(item)));
 
-		// Visibility
-		this.iconEl.hidden = multi || filled;            // leading icon only for single-empty
+		// Visibility. `filled` is about VALUES, so a single-value field with a ghost still offers its input --
+		// the ghost is what you'd be replacing, not something you have to clear first.
+		const hasTiles = filled || ghosts.length > 0;
+
+		this.iconEl.hidden = multi || hasTiles;          // leading icon only for empty
 		this.input.hidden = !multi && filled;            // single-filled hides the input
 		this.searchBtn.hidden = !multi && filled;        // …and the search button
 		if(this.createBtn) this.createBtn.hidden = !multi && filled; // single-filled hides "+"; multiple keeps it
-		this.el.classList.toggle('cerb-ui-record-chooser--has-tiles', filled); // collapse the idle input when tiles exist
+		this.el.classList.toggle('cerb-ui-record-chooser--has-tiles', hasTiles); // collapse the idle input when tiles exist
 
 		// Hidden form fields. Multi → one `name[]` per value (none when empty). Single → ALWAYS one hidden
 		// `name` field (so it passes through a form even when cleared): its value, or '' when empty.
@@ -481,6 +554,16 @@ CerbUI.RecordChooser = class {
 	// ── Public API ──
 	getValue() { return this.opts.multiple ? this.values.slice() : (this.values[0] || null); }
 
+	// Replace the display-only tiles. Host-managed on purpose: what they represent lives outside this field,
+	// so only the host knows when it changed.
+	setGhosts(list) {
+		this.opts.ghosts = Array.isArray(list) ? list : (list ? [list] : []);
+		this._syncState();
+		return this;
+	}
+
+	getGhosts() { return (this.opts.ghosts || []).slice(); }
+
 	setValue(value) {
 		this.values = value ? (Array.isArray(value) ? value.slice() : [value]) : [];
 		this._syncState();
@@ -493,6 +576,7 @@ CerbUI.RecordChooser = class {
 		this.values = [];
 		this.input.value = '';
 		this._syncState();
+		this._changed();
 		if(focus) requestAnimationFrame(() => this.input.focus());
 	}
 
