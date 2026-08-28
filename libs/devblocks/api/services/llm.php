@@ -2719,7 +2719,9 @@ class _DevblocksLlmService {
 					if(!($response = $this->nextSessionTurn($session_id, $turn_messages, $error, $turn_timeout, stream: true, stall_secs: $turn_stall_secs, was_interrupted: $was_interrupted))) {
 						// A null return is a setup/config failure (unknown session/provider), never transient.
 						$queue_message->retry_count = self::RETRY_COUNT_TERMINAL;
-						$this->_stashTurnError($session_id, $error ?: 'The LLM turn could not run.', 0);
+						// Safe to hand to the interaction verbatim: a setup failure is OUR text (unknown session,
+						// unsupported image), never a provider or transport string -- see _stashTurnError().
+						$this->_stashTurnError($session_id, 0, null, $error ?: 'The LLM turn could not run.');
 						$queue_message->reportStatus(QueueMessageStatus::FAILED, $error ?: 'The LLM turn could not run.', [
 							'duration_ms' => $elapsed_ms(),
 						]);
@@ -2790,7 +2792,7 @@ class _DevblocksLlmService {
 					// `on_error:`), and there is nowhere on the message itself to put it — see turnErrorCacheKey().
 					// Written on EVERY attempt, overwriting: a requeue that later succeeds leaves a stale slot, but the
 					// node clears it at enqueue, and if the retries do run out this holds the final attempt's reason.
-					$this->_stashTurnError($session_id, $e->getMessage(), $status_code, $retry_after);
+					$this->_stashTurnError($session_id, $status_code, $retry_after);
 
 					// A cheap rejection goes back on the queue under its OWN uuid — which is what keeps the
 					// interaction's `await:queue:` gate (it holds those uuids) waiting instead of erroring, and reads
@@ -2846,11 +2848,17 @@ class _DevblocksLlmService {
 	 * has no column for a reason, and reportStatus() metadata is dropped for job-less messages — which every LLM
 	 * turn is. Without this the interaction can only say "a queued agent turn failed", which is what it used to.
 	 *
+	 * `$message` IS PRINTED VERBATIM IN THE TRANSCRIPT, so it may only ever carry Cerb's own words -- a setup or
+	 * validation failure. NEVER a provider or Guzzle string: those name endpoint URLs, api keys riding a query
+	 * string, request ids and echoed payload, and that transcript is an anonymous visitor's screen on a website
+	 * interaction. A provider failure stashes the STATUS alone and leaves its text in the error log above, which
+	 * is all the node's sentence is built from anyway.
+	 *
 	 * Overwritten by each attempt (a retry's reason is the current one) and consumed by the node on read, so it
 	 * can't resurface against a later, unrelated failure. TTL is generous but finite: a cold slot degrades to a
 	 * generic sentence, never to a wrong one.
 	 */
-	private function _stashTurnError(string $session_id, string $message, int $status, ?int $retry_after = null) : void {
+	private function _stashTurnError(string $session_id, int $status, ?int $retry_after = null, string $message = '') : void {
 		if('' === $session_id)
 			return;
 
@@ -2957,6 +2965,43 @@ class _DevblocksLlmService {
 			529 => 'The model provider is overloaded.',
 			default => 'The model provider could not take the request.',
 		};
+	}
+
+	/**
+	 * A failure a human can act on, built from the HTTP STATUS. The provider's own text never reaches here: it
+	 * goes to the error log instead, because this sentence is printed into an agent transcript or an author's
+	 * `on_error:` output, and on a website interaction that is an anonymous visitor's screen.
+	 *
+	 * `$message` is the other kind of failure -- Cerb's own setup/validation words, which say something the
+	 * status can't and disclose nothing. Passed through verbatim, and NEVER sourced from a provider response.
+	 *
+	 * `$retry_after` is the provider's own answer in seconds, or null when it didn't give one -- and the
+	 * difference is visible on purpose. "Try again in 47 seconds" is only worth saying when someone actually
+	 * said 47; the rest of the time "wait a moment" is the honest version.
+	 */
+	public static function formatTurnFailure(int $status, ?int $retry_after = null, string $message = '') : string {
+		if('' !== ($message = trim($message)))
+			return $message;
+
+		$wait = ($retry_after > 0) ? sprintf(' Try again in %s.', self::_formatWait($retry_after)) : '';
+
+		return match(true) {
+			429 === $status => 'The model provider is rate limiting requests (429).' . ($wait ?: ' Wait a moment and send again.'),
+			in_array($status, [500, 502, 503, 504, 529], true) => sprintf('The model provider is unavailable (%d).', $status) . ($wait ?: ' Try again in a moment.'),
+			0 === $status => 'The model provider could not be reached, or the request timed out.',
+			default => sprintf('The model provider returned an error (HTTP %d).', $status),
+		};
+	}
+
+	// A wait a person reads rather than parses. Rounded UP to the minute past 90s, because coming back early
+	// to the same rate limit is the failure this sentence exists to prevent.
+	private static function _formatWait(int $secs) : string {
+		if($secs <= 90)
+			return sprintf('%d second%s', $secs, 1 === $secs ? '' : 's');
+
+		$mins = intval(ceil($secs / 60));
+
+		return sprintf('%d minute%s', $mins, 1 === $mins ? '' : 's');
 	}
 
 	/**

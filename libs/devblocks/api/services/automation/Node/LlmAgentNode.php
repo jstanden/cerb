@@ -7,6 +7,7 @@ use DevblocksLlmChatResponse;
 use DevblocksLlmChatResponse_Tool;
 use DevblocksPlatform;
 use Exception_DevblocksAutomationError;
+use Exception_DevblocksLlmApiError;
 use Model_Automation;
 
 class LlmAgentNode extends AbstractNode {
@@ -575,7 +576,24 @@ class LlmAgentNode extends AbstractNode {
 			}
 			
 		} catch (Exception_DevblocksAutomationError $e) {
-			$error = sprintf("[%s] %s", $this->node->getId(), $e->getMessage());
+			$message = $e->getMessage();
+
+			// A provider failure carries the provider's -- or Guzzle's -- own text, which routinely names the
+			// endpoint URL, an api key riding a query string, request ids, and echoed payload fragments. This
+			// string is printed straight into the transcript, and on a website interaction that transcript is
+			// an anonymous visitor's screen. Log it where an admin can read it; show only the class.
+			if($e instanceof Exception_DevblocksLlmApiError) {
+				DevblocksPlatform::logError(sprintf(
+					'[llm.agent] session=%s provider turn failed (status=%d): %s',
+					strval($this->_dict->getKeyPath($this->_getSessionKey(), '', '::')),
+					$e->statusCode,
+					$message
+				));
+
+				$message = \_DevblocksLlmService::formatTurnFailure($e->statusCode, $e->retryAfter);
+			}
+
+			$error = sprintf("[%s] %s", $this->node->getId(), $message);
 			
 			if (null != ($event_error = $this->node->getChild($this->node->getId() . ':on_error'))) {
 				if ($this->_output) {
@@ -2306,13 +2324,15 @@ class LlmAgentNode extends AbstractNode {
 		$key = self::turnErrorCacheKey($session_id);
 
 		// Consumed on read: one failure, one report. A stale stash surfacing on a later, unrelated failure would
-		// name the wrong provider error, which is worse than the generic sentence below.
+		// classify it against the wrong status, which is worse than the generic sentence below.
 		$stash = ('' !== $session_id) ? $cache->load($key, true) : null;
 
 		if($session_id && $stash)
 			$cache->remove($key);
 
 		return [
+			// Set ONLY for a setup/validation failure, where the text is Cerb's own and safe to print. A provider
+			// failure stashes no message at all -- see _DevblocksLlmService::_stashTurnError().
 			'message' => is_array($stash) ? strval($stash['message'] ?? '') : '',
 			// 0 = no HTTP response at all (network/timeout), which is also the fallback when the stash is cold.
 			'status' => is_array($stash) ? intval($stash['status'] ?? 0) : 0,
@@ -2332,7 +2352,7 @@ class LlmAgentNode extends AbstractNode {
 	private function _failTurn(array $failure, array $state_params) : void {
 		$session_id = strval($this->_dict->getKeyPath($this->_getSessionKey(), '', '::'));
 		$retry_after = is_null($failure['retry_after'] ?? null) ? null : intval($failure['retry_after']);
-		$message = $this->_formatTurnFailure(strval($failure['message'] ?? ''), intval($failure['status'] ?? 0), $retry_after);
+		$message = \_DevblocksLlmService::formatTurnFailure(intval($failure['status'] ?? 0), $retry_after, strval($failure['message'] ?? ''));
 
 		// Put the branch back where it was before Send. The worker appends the user message (and, if it ran, this
 		// turn's compaction fold) BEFORE calling the provider, so a failed turn otherwise leaves the session
@@ -2374,43 +2394,6 @@ class LlmAgentNode extends AbstractNode {
 		];
 
 		throw new Exception_DevblocksAutomationError($message);
-	}
-
-	// A failure a human can act on. The provider's own text is kept (it's often the only thing that names the
-	// model or the region), but the class comes first: `RateLimitReached` doesn't tell a worker to just wait.
-	//
-	// `$retry_after` is the provider's own answer in seconds, or null when it didn't give one — and the
-	// difference is visible on purpose. "Try again in 47 seconds" is only worth saying when someone actually
-	// said 47; the rest of the time "wait a moment" is the honest version.
-	private function _formatTurnFailure(string $message, int $status, ?int $retry_after = null) : string {
-		$wait = ($retry_after > 0) ? sprintf(' Try again in %s.', $this->_formatWait($retry_after)) : '';
-
-		$prefix = match(true) {
-			429 === $status => 'The model provider is rate limiting requests (429).' . ($wait ?: ' Wait a moment and send again.'),
-			in_array($status, [500, 502, 503, 504, 529], true) => sprintf('The model provider is unavailable (%d).', $status) . ($wait ?: ' Try again in a moment.'),
-			0 === $status => 'The model provider could not be reached, or the turn timed out.',
-			default => '',
-		};
-
-		$message = trim($message);
-
-		// Nothing was stashed (an evicted slot, or a worker killed before it could write). The classification is
-		// all we have; don't pad it with a second, emptier sentence.
-		if('' === $message)
-			return ('' !== $prefix) ? $prefix : sprintf('The agent turn failed%s.', $status ? sprintf(' (HTTP %d)', $status) : '');
-
-		return ('' !== $prefix) ? ($prefix . ' ' . $message) : $message;
-	}
-
-	// A wait a person reads rather than parses. Rounded UP to the minute past 90s, because coming back early
-	// to the same rate limit is the failure this sentence exists to prevent.
-	private function _formatWait(int $secs) : string {
-		if($secs <= 90)
-			return sprintf('%d second%s', $secs, 1 === $secs ? '' : 's');
-
-		$mins = intval(ceil($secs / 60));
-
-		return sprintf('%d minute%s', $mins, 1 === $mins ? '' : 's');
 	}
 
 	// The text of the message this turn was sending, for the composer to hold onto if the turn fails. Only the

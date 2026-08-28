@@ -6,6 +6,7 @@ use Cerb\LLM\Providers\Interfaces\Chat;
 use DevblocksDictionaryDelegate;
 use DevblocksPlatform;
 use Exception_DevblocksAutomationError;
+use Exception_DevblocksLlmApiError;
 use Model_Automation;
 
 class LlmChatAction extends AbstractAction {
@@ -95,7 +96,24 @@ class LlmChatAction extends AbstractAction {
 				return false;
 			
 		} catch (Exception_DevblocksAutomationError $e) {
-			$error = sprintf("[%s] %s", $this->node->getId(), $e->getMessage());
+			$message = $e->getMessage();
+
+			// A provider failure carries the provider's -- or Guzzle's -- own text, which routinely names the
+			// endpoint URL, an api key riding a query string, request ids, and echoed payload fragments. This
+			// lands in `<output>.error`, which an author is free to print anywhere -- including a website
+			// interaction an anonymous visitor is looking at. Log it for an admin; hand back only the class.
+			if($e instanceof Exception_DevblocksLlmApiError) {
+				DevblocksPlatform::logError(sprintf(
+					'[llm.chat] node=%s provider request failed (status=%d): %s',
+					$this->node->getId(),
+					$e->statusCode,
+					$message
+				));
+
+				$message = \_DevblocksLlmService::formatTurnFailure($e->statusCode, $e->retryAfter);
+			}
+
+			$error = sprintf("[%s] %s", $this->node->getId(), $message);
 			
 			if (null != ($event_error = $this->node->getChild($this->node->getId() . ':on_error'))) {
 				if ($this->_output) {
