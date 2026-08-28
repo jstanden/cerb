@@ -211,7 +211,6 @@ class _DevblocksTemplateBuilder {
 				'do',
 				//'embed',
 				//'extends',
-				'filter',
 				//'flush',
 				'for',
 				//'from',

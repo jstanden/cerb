@@ -38,7 +38,6 @@ let twigAutocompleteSuggestions = {
 		{ value: "endfor", meta: "command" },
 		{ value: "endverbatim", meta: "command" },
 		{ value: "endwith", meta: "command" },
-		{ value: "filter", meta: "command" },
 		{ value: "for", meta: "command" },
 		{ value: "if", meta: "command" },
 		{ value: "set", meta: "command" },
