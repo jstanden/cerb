@@ -2592,8 +2592,6 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		usort($record_types, fn($a, $b) => strcasecmp($a['label'], $b['label']));
 
 		$map_resources = method_exists($trigger_extension, 'getMapResources') ? $trigger_extension::getMapResources() : [];
-		$model_presets = method_exists($trigger_extension, 'getAgentModelPresets') ? $trigger_extension::getAgentModelPresets() : [];
-		$agent_providers = method_exists($trigger_extension, 'getAgentProviders') ? $trigger_extension::getAgentProviders() : [];
 		$agent_models = method_exists($trigger_extension, 'getAgentModelChoices') ? $trigger_extension::getAgentModelChoices() : [];
 
 		// id → uri for connected accounts (agentPrompt auth): the KATA cerb-uri prefers the readable uri over the id.
@@ -2611,8 +2609,6 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		$tpl->assign('form_schema_json', json_encode($schema));
 		$tpl->assign('record_types_json', json_encode($record_types));
 		$tpl->assign('map_resources_json', json_encode($map_resources));
-		$tpl->assign('model_presets_json', json_encode($model_presets));
-		$tpl->assign('agent_providers_json', json_encode($agent_providers));
 		$tpl->assign('agent_models_json', json_encode($agent_models));
 		$tpl->assign('account_uris_json', json_encode((object) $account_uris));
 		$tpl->assign('preview_chrome', $preview['chrome'] ?? 'dialog');

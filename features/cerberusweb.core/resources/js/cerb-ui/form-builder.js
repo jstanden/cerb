@@ -45,19 +45,15 @@ CerbUI.FormBuilder = class {
 		if(!this.el) return;
 		CerbUI.FormBuilder._instances.set(this.el, this);
 
-		this.opts = Object.assign({ extensionId: '', components: {}, schema: {}, recordTypes: [], mapResources: [], modelPresets: [], agentProviders: [], agentModels: [], previewChrome: 'dialog' }, opts);
+		this.opts = Object.assign({ extensionId: '', components: {}, schema: {}, recordTypes: [], mapResources: [], agentModels: [], previewChrome: 'dialog' }, opts);
 		this.components = this.opts.components || {};
 		this.schema = this.opts.schema || {};
 		this.recordTypes = this.opts.recordTypes || [];
 		this.mapResources = this.opts.mapResources || [];
-		this.modelPresets = this.opts.modelPresets || [];
-		this.agentProviders = this.opts.agentProviders || [];   // [{id,label,icon,models:[…],endpoint_default}]
 		this.agentModels = this.opts.agentModels || [];         // [{name,provider,model,icon,vision,context_window}] — agentPrompt model references
 		this.accountUris = this.opts.accountUris || {};         // connected_account id → uri (for readable auth cerb-uris)
 		this._recordTypeByAlias = {};
 		this.recordTypes.forEach(rt => { this._recordTypeByAlias[rt.alias] = rt; });
-		this._providerById = {};
-		this.agentProviders.forEach(p => { this._providerById[p.id] = p; });
 
 		this.model = { title: 'Form', elements: [] };
 		this.selectedIndex = -1;

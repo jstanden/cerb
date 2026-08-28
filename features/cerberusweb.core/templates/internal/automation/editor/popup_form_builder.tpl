@@ -18,8 +18,6 @@ $(function() {
 	const schema = {$form_schema_json nofilter};
 	const recordTypes = {$record_types_json nofilter};
 	const mapResources = {$map_resources_json nofilter};
-	const modelPresets = {$model_presets_json nofilter};
-	const agentProviders = {$agent_providers_json nofilter};
 	const agentModels = {$agent_models_json nofilter};
 	const accountUris = {$account_uris_json nofilter};
 
@@ -33,8 +31,6 @@ $(function() {
 				schema: schema,
 				recordTypes: recordTypes,
 				mapResources: mapResources,
-				modelPresets: modelPresets,
-				agentProviders: agentProviders,
 				agentModels: agentModels,
 				accountUris: accountUris,
 				previewChrome: '{$preview_chrome|default:'dialog'|escape:'javascript'}'

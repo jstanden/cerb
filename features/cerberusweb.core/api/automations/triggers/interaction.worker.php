@@ -221,14 +221,6 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 		];
 	}
 
-	// Every chat-capable LLM provider, for the agentPrompt "+ Model" menu + per-model config: icon, friendly
-	// label, known model ids (TextChooser suggestions), and the default API endpoint (placeholder for overrides).
-	// Delegates to the LLM service, which is the shared source for every model-card host (this trigger's
-	// `agentPrompt` inspector and the worker profile's AI tab).
-	public static function getAgentProviders() : array {
-		return DevblocksPlatform::services()->llm()->getAgentProviders();
-	}
-
 	// The enabled `agent_model` records the agentPrompt design-time pickers offer (Automation Builder wizard +
 	// Form Builder inspector): a model row REFERENCES one by name, and the record supplies provider/model/auth/
 	// vision/context window. Disabled (retired) records are excluded — they can't be referenced.
