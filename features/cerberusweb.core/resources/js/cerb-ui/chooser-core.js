@@ -37,14 +37,28 @@ CerbUI.chooserCore = (function() {
 	function _monogramColor(seed) { return CerbUI.Avatar.color(seed); }
 
 	// Build the avatar cell: instant monogram now; the row wires lazy-load of the real image.
+	//
+	// A record whose identity is a GLYPH rather than a picture (`icon_name`) shows that instead of initials --
+	// initials say nothing about a tool or a filesystem, and a list of them is otherwise just
+	// differently-coloured letter pairs. A glyph also means there is no image to lazy-load.
+	//
+	// The glyph disc is NEUTRAL, not hashed. A monogram's color is locked to the name, so it identifies; a
+	// column of identical glyphs in six colors communicates nothing but that the rows are separate.
 	function _buildAvatar(item) {
 		const wrap = document.createElement('span');
 		wrap.className = 'cerb-ui-chooser--avatar';
 
-		const seed = (item.context || '') + ':' + (item.id != null ? item.id : item.label);
-		wrap.style.backgroundColor = _monogramColor(seed);
-		wrap.textContent = _initials(item.label);
-		wrap.dataset.imageUrl = item.image_url || '';
+		if(item.icon_name) {
+			wrap.classList.add('cerb-ui-chooser--avatar-glyph');
+			wrap.innerHTML = '<span class="cerb-icons" aria-hidden="true"></span>';
+			wrap.firstChild.classList.add('cerb-icon-' + item.icon_name);
+		} else {
+			const seed = (item.context || '') + ':' + (item.id != null ? item.id : item.label);
+			wrap.style.backgroundColor = _monogramColor(seed);
+			wrap.textContent = _initials(item.label);
+			wrap.dataset.imageUrl = item.image_url || '';
+		}
+
 		return wrap;
 	}
 

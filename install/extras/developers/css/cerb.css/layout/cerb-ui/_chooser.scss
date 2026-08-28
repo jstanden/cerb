@@ -155,6 +155,19 @@
 	img { width: 100%; height: 100%; object-fit: cover; display: block; }
 }
 
+// A disc holding a GLYPH instead of initials (an agent tool, a filesystem, an interaction automation).
+//
+// Neutral, because the hashed monogram color is locked to the record's NAME -- it identifies a person or a
+// ticket, but a list of identical folder glyphs in six colors only says "separate rows".
+//
+// The font-size is the one thing that has to be set here: `.cerb-icons` sizes off it, and the 0.7em above is
+// scaled for two initial LETTERS -- a glyph inheriting it lands at a third of the 22px disc and reads as a
+// speck. This is a proportion to a fixed-size box, not a type choice.
+.cerb-ui-chooser--avatar-glyph {
+	background-color: var(--cerb-color-background-contrast-125);
+	font-size: 13px;
+}
+
 // ── RecordChooser field (autocomplete input + magnifier) ─────────────────────
 .cerb-ui-record-chooser {
 	display: inline-flex;

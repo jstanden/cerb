@@ -64,13 +64,6 @@
 		// Ring in the page bg so the badge separates cleanly from the avatar edge
 		box-shadow: 0 0 0 2px var(--cerb-color-background);
 	}
-
-	// Pinned to a LARGE avatar (the 75px card/profile tile). `--circle` sizes itself in `em`, so at body font
-	// the badge lands under a third of that tile and reads as a speck; this is a proportion to the avatar, not
-	// a type choice -- the one reason to set a size here.
-	&--lg > .cerb-ui-pill {
-		font-size: 13px;
-	}
 }
 
 // Avatar stack: a row of overlapping avatars + a trailing "+N" overflow bubble (CerbUI.AvatarStack).

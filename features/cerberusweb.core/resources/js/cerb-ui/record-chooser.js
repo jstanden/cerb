@@ -91,8 +91,10 @@ CerbUI.RecordChooser = class {
 						label:     r.label,
 						image_url: r.icon || '',
 						// A record whose identity is a GLYPH rather than a picture (an agent tool, a filesystem)
-						// sends `icon_name`; `icon` stays what it has always been, an avatar URL.
-						icon_name: r.icon_name || '',
+						// sends `icon_name`; `icon` stays what it has always been, an avatar URL. The chooser's
+						// own `itemIcon` stands in for a context whose records all share one glyph, so the
+						// DROPDOWN and the chip agree.
+						icon_name: r.icon_name || this.opts.itemIcon || '',
 						sublabel:  r.meta ? Object.values(r.meta).filter(Boolean).join(' · ') : '',
 					})),
 					more: false,
@@ -301,7 +303,8 @@ CerbUI.RecordChooser = class {
 		return (typeof item === 'object') ? item : { context: this.opts.context, id: item };
 	}
 	// Read seed values from authored `[data-context-id]` elements inside the chooser (data-context for a
-	// multi-type chooser, data-label + data-image for the chip's name/avatar). Server-render these.
+	// multi-type chooser, data-label + data-image for the chip's name/avatar, data-icon-name for a record whose
+	// identity is a glyph rather than a picture). Server-render these.
 	_readMarkupValues() {
 		const out = [];
 		this.el.querySelectorAll('[data-context-id]').forEach((node) => {
@@ -310,6 +313,7 @@ CerbUI.RecordChooser = class {
 				id:        node.getAttribute('data-context-id'),
 				label:     node.getAttribute('data-label') || '',
 				image_url: node.getAttribute('data-image') || '',
+				icon_name: node.getAttribute('data-icon-name') || '',
 				eyebrow:   node.getAttribute('data-eyebrow') || '',
 			});
 		});
@@ -342,6 +346,11 @@ CerbUI.RecordChooser = class {
 						id:        r.value,
 						label:     r.label,
 						image_url: r.icon || '',
+						// A record whose identity is a GLYPH rather than a picture (an agent tool, a filesystem)
+						// sends `icon_name`; `icon` stays what it has always been, an avatar URL. `itemIcon`
+						// stands in for a context whose records all share one glyph, so the DROPDOWN ROWS and
+						// the chips agree -- without this the rows monogram while the chips show glyphs.
+						icon_name: r.icon_name || this.opts.itemIcon || '',
 						sublabel:  r.meta ? Object.values(r.meta).filter(Boolean).join(' · ') : '',
 					})),
 					more: false,
@@ -429,12 +438,13 @@ CerbUI.RecordChooser = class {
 		const av = document.createElement('span');
 		av.className = 'cerb-ui-chooser--avatar cerb-ui-record-chooser--avatar';
 
-		// A glyph beats a monogram when the record HAS one: initials say nothing about a tool, and every tool
-		// in a list would otherwise be a differently-coloured pair of letters.
+		// A glyph replaces the INITIALS when the record has one -- they say nothing about a tool. On a NEUTRAL
+		// disc, not the hashed one: initials earn their color (it's locked to the name, so it identifies), but a
+		// column of identical folder glyphs in six colors says only "these are separate rows".
 		const glyph = item.icon_name || this.opts.itemIcon;
 
 		if(glyph) {
-			av.style.backgroundColor = 'transparent';
+			av.classList.add('cerb-ui-chooser--avatar-glyph');
 			av.innerHTML = '<span class="cerb-icons" aria-hidden="true"></span>';
 			av.firstChild.classList.add('cerb-icon-' + glyph);
 		} else {
