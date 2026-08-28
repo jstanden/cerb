@@ -400,6 +400,16 @@ CerbUI.AgentConfig = class {
 		return form;
 	}
 
+	/*
+	 * Filesystems as CARDS, one per mount, with the read-only/writable switch ON the card.
+	 *
+	 * It used to be a chooser plus a separate "Writable:" checkbox row, because `RecordChooser._syncState()`
+	 * rebuilds every tile on each add and remove -- so a control parked inside a chip would not survive the next
+	 * change. A card list has no such constraint, and it leaves room for the per-mount options a mount will grow
+	 * (an alias, a subdirectory to chroot into) without inventing another parallel row for each one.
+	 *
+	 * Still deduped, unlike tools: mounting the same volume twice means nothing until those options exist.
+	 */
 	_fieldMounts(surface, scope, inherits) {
 		const field = this._field('Filesystems', inherits
 			? 'Mounted here in addition to the agent\'s own. Read-only unless made writable.'
@@ -407,90 +417,103 @@ CerbUI.AgentConfig = class {
 
 		const hint = field.querySelector('.cerb-ui-form--hint');
 
-		const host = document.createElement('div');
-		host.className = 'cerb-ui-record-chooser';
+		const list = document.createElement('div');
+		list.className = 'cerb-ui-agent-tool-picker--list';
+		field.insertBefore(list, hint);
 
-		const refs = (this.opts.refs || {}).filesystems || {};
+		const adder = document.createElement('div');
+		adder.className = 'cerb-ui-agent-tool-picker--adder';
+		field.insertBefore(adder, hint);
 
-		Object.keys(scope.mounts || {}).forEach((key) => {
-			const name = String(key).split('@')[0];
-			const ref = refs[name];
+		const renderCards = () => {
+			const mounts = this._peek(surface).mounts || {};
+			const refs = (this.opts.refs || {}).filesystems || {};
 
-			// A name that resolves to nothing still shows, as itself -- the honest rendering of a volume
-			// someone deleted, and better than silently dropping it on the next save.
-			host.appendChild(this._chooserSeed(ref ? ref.id : 0, ref ? ref.label : name));
-		});
+			list.replaceChildren();
 
-		field.insertBefore(host, hint);
+			Object.keys(mounts).forEach((key) => {
+				const name = String(key).split('@')[0];
+				const ref = refs[name] || {};
 
-		// Per-mount `mode:`, as its own row rather than something on the chip: the chooser rebuilds its tiles on
-		// every add and remove, so a control parked inside one wouldn't survive the next change.
-		const modes = document.createElement('div');
-		modes.className = 'cerb-agent-config--mount-modes cerb-u-flex cerb-u-items-center cerb-u-flex-wrap cerb-u-gap-3 cerb-u-mt-2';
-		field.insertBefore(modes, hint);
+				const card = document.createElement('div');
+				card.className = 'cerb-ui-agent-tool-picker--card';
 
-		this._chooser(host, { context: 'cerb.contexts.agent.filesystem', multiple: true, emptyIcon: 'folder' }, (items) => {
-			const mounts = {};
+				const head = document.createElement('div');
+				head.className = 'cerb-ui-agent-tool-picker--card-head';
 
-			// Keyed by NAME, not id: a name is what survives an export, and it's what reads correctly in KATA.
-			// Any per-mount options already authored (`at:`, `create:`, and the `mode:` set below) are carried over.
-			// Live scope, not the render-time snapshot: for a surface with no block yet, `scope` is a throwaway
-			// object, so reading per-mount options off it would lose them.
-			const was = this._scope(surface).mounts || {};
+				const title = document.createElement('span');
+				title.className = 'cerb-ui-agent-tool-picker--card-title';
+				// A name that resolves to nothing still shows, as itself -- the honest rendering of a volume
+				// someone deleted, and better than silently dropping it on the next save.
+				title.innerHTML = '<span class="cerb-icons cerb-icon-folder"></span> <b></b>';
+				title.querySelector('b').textContent = ref.label || name;
+				head.appendChild(title);
 
-			items.forEach((item) => {
-				const name = String(item.label || '');
-				if(name) mounts[name] = was[name] || {};
+				const del = document.createElement('button');
+				del.type = 'button';
+				del.className = 'cerb-ui-button cerb-ui-button--subtle';
+				del.innerHTML = '<span class="cerb-icons cerb-icon-circle-remove"></span>';
+				del.addEventListener('click', () => {
+					const live = this._scope(surface).mounts || {};
+					delete live[key];
+					this._set(surface, 'mounts', live);
+					renderCards();
+				});
+				head.appendChild(del);
+				card.appendChild(head);
+
+				const form = document.createElement('div');
+				form.className = 'cerb-ui-form';
+
+				const wrap = document.createElement('label');
+				wrap.className = 'cerb-u-flex cerb-u-items-center cerb-u-gap-1';
+				wrap.title = 'The agent can create, change, and delete files in this volume.';
+
+				const cb = document.createElement('input');
+				cb.type = 'checkbox';
+				cb.checked = this._mountIsWritable(mounts[key]);
+				cb.addEventListener('change', () => this._setMountMode(surface, key, cb.checked));
+
+				wrap.appendChild(cb);
+				wrap.appendChild(document.createTextNode('Writable'));
+				form.appendChild(wrap);
+				card.appendChild(form);
+
+				list.appendChild(card);
 			});
+		};
 
-			this._set(surface, 'mounts', mounts);
-			this._renderMountModes(modes, surface);
-		});
+		renderCards();
 
-		this._renderMountModes(modes, surface);
+		if(window.CerbUI && CerbUI.RecordChooser) {
+			try {
+				const rc = new CerbUI.RecordChooser(adder, {
+					context: 'cerb.contexts.agent.filesystem',
+					emptyIcon: 'folder',
+					searchPlaceholder: 'Add a filesystem…',
+					create: true,
+					// Deduped here rather than by the chooser, since the chooser holds no values of its own.
+					onSelect: (item) => {
+						const name = String((item && item.label) || '');
+						if(!name) return;
+
+						// Live scope, not the render-time snapshot: for a surface with no block yet, `scope` is
+						// a throwaway object, so reading per-mount options off it would lose them.
+						const live = this._scope(surface).mounts || {};
+
+						// Keyed by NAME: a name is what survives an export, and what reads correctly in KATA.
+						if(!Object.keys(live).some((k) => String(k).split('@')[0] === name))
+							live[name] = {};
+
+						this._set(surface, 'mounts', live);
+						renderCards();
+						if(rc.clear) rc.clear();
+					},
+				});
+			} catch(e) {}
+		}
 
 		return field;
-	}
-
-	/*
-	 * One checkbox per mounted volume in this scope: read-only (the default, and what every mount was before
-	 * this) or writable.
-	 *
-	 * Without it there is no way to reach `mode:` from the UI at all, so an agent could never keep notes, write
-	 * back what it learned, or produce a file -- every mount it added was permanently read-only. The chooser
-	 * carries a mount's other keys through untouched, but it can't ADD one.
-	 *
-	 * Rebuilt whole rather than patched, since it's derived from the mount set the chooser just rewrote.
-	 */
-	_renderMountModes(hostEl, surface) {
-		const mounts = this._peek(surface).mounts || {};
-		const keys = Object.keys(mounts);
-
-		hostEl.replaceChildren();
-
-		if(!keys.length)
-			return;
-
-		const caption = document.createElement('span');
-		caption.className = 'cerb-u-text-muted';
-		caption.textContent = 'Writable:';
-		hostEl.appendChild(caption);
-
-		keys.forEach((key) => {
-			const wrap = document.createElement('label');
-			wrap.className = 'cerb-u-flex cerb-u-items-center cerb-u-gap-1';
-			wrap.title = 'The agent can create, change, and delete files in this volume.';
-
-			const cb = document.createElement('input');
-			cb.type = 'checkbox';
-			cb.checked = this._mountIsWritable(mounts[key]);
-
-			cb.addEventListener('change', () => this._setMountMode(surface, key, cb.checked));
-
-			wrap.appendChild(cb);
-			wrap.appendChild(document.createTextNode(String(key).split('@')[0]));
-			hostEl.appendChild(wrap);
-		});
 	}
 
 	/* Mirrors `LlmAgentNode::_getMountSpecs()`: anything but the three rw spellings is read-only. */
