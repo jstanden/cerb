@@ -180,6 +180,26 @@ class _DevblocksTwigEnvironment extends \Twig\Environment {
 
 		return null;
 	}
+	
+	/**
+	 * A compiled template's class identity has to include its escaping mode. Without it, two templates
+	 * with identical source but different `autoescape` settings share one compiled form, and whichever
+	 * compiled first in the request decides the escaping for both.
+	 *
+	 * Keep the strategy tag ahead of any `___<index>` suffix -- loadTemplate() appends that itself, so a
+	 * tag placed after it makes the two derivations disagree for embedded templates.
+	 */
+	public function getTemplateClass(string $name, ?int $index = null): string {
+		$suffix = (null === $index) ? '' : '___' . $index;
+		$tag = '';
+		
+		if($this->hasExtension(\Twig\Extension\EscaperExtension::class)) {
+			$strategy = $this->getExtension(\Twig\Extension\EscaperExtension::class)->getDefaultStrategy($name);
+			$tag = '_esc' . (false === $strategy ? 'off' : preg_replace('/[^A-Za-z0-9]/', '', (string) $strategy));
+		}
+		
+		return parent::getTemplateClass($name, null) . $tag . $suffix;
+	}
 }
 
 class _DevblocksTemplateBuilder {

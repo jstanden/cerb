@@ -3933,7 +3933,14 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 
 	static protected function _getRandom($table, $pkey='id') {
 		$db = DevblocksPlatform::services()->database();
-		$offset = $db->GetOneReader(sprintf("SELECT ROUND(RAND()*(SELECT COUNT(*)-1 FROM %s))", $db->escape($table)));
+		$offset = intval($db->GetOneReader(sprintf("SELECT ROUND(RAND()*(SELECT COUNT(*)-1 FROM %s))", $db->escape($table))));
+
+		// An EMPTY table gives `COUNT(*)-1` = -1, and `LIMIT -1,1` is a SQL SYNTAX ERROR rather than an empty
+		// result -- so a record type with no rows yet took down whatever asked it for a random one (the
+		// simulator prefills a record-typed input this way).
+		if($offset < 0)
+			return null;
+
 		return $db->GetOneReader(sprintf("SELECT %s FROM %s LIMIT %d,1",$db->escape($pkey), $db->escape($table), $offset));
 	}
 

@@ -1081,7 +1081,10 @@ class Filesystem {
 		foreach($top as $term) {
 			$rows[] = sprintf("%{$width}s  %s", $render($term), $term['token'] ?? $term['term']);
 
-			if(!($children = $parts[$term['token']] ?? []))
+			if(!($token = $term['token'] ?? null))
+				continue;
+
+			if(!($children = $parts[$token] ?? []))
 				continue;
 
 			// ONE line, inline, indented under the parent's token. A row each was ten lines of padding for

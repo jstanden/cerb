@@ -110,4 +110,34 @@ class DevblocksTemplateBuilderTest extends TestCase {
 	function testTokenizeUnparseableTemplateIsEmpty() {
 		$this->assertEquals([], DevblocksPlatform::services()->templateBuilder()->tokenize('{{ broken '));
 	}
+
+	function testAutoescapeIsNotSharedBetweenBuilders() {
+		// Builders differing only in `autoescape` must not share a compiled template.
+		$src = '<td>{{ s }}</td>';
+		$vars = ['s' => '<script>x</script>'];
+
+		$off = _DevblocksTemplateBuilder::newInstance();
+		$html = _DevblocksTemplateBuilder::newInstance('html');
+
+		$this->assertEquals('<td><script>x</script></td>', $off->build($src, $vars));
+		$this->assertEquals('<td>&lt;script&gt;x&lt;/script&gt;</td>', $html->build($src, $vars));
+	}
+
+	function testAutoescapeIsNotSharedBetweenBuildersReversed() {
+		// The other direction: an autoescaping compile must not make a non-escaping builder escape.
+		$src = '<th>{{ s }}</th>';
+		$vars = ['s' => '<script>x</script>'];
+
+		$html = _DevblocksTemplateBuilder::newInstance('html');
+		$off = _DevblocksTemplateBuilder::newInstance();
+
+		$this->assertEquals('<th>&lt;script&gt;x&lt;/script&gt;</th>', $html->build($src, $vars));
+		$this->assertEquals('<th><script>x</script></th>', $off->build($src, $vars));
+	}
+
+	function testFilterTagIsNotAvailable() {
+		// `{% filter %}` was removed in Twig 3.0; `{% apply %}` replaced it.
+		$this->assertFalse($this->build('{% filter upper %}hi{% endfilter %}', []));
+		$this->assertEquals('HI', $this->build('{% apply upper %}hi{% endapply %}', []));
+	}
 }
