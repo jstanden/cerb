@@ -57,6 +57,18 @@ class Components {
 	 * worker peek's AI tab. Both render it beside the `label`, so it must NOT restate the name: "Icon Builder --
 	 * the Setup icon builder" tells a reader nothing. Lead with what the agent can DO there.
 	 *
+	 * `description` and `tagline` are BOTH one line about this surface, aimed at different readers.
+	 *
+	 * `description` states what the surface can do. It labels the row in the AI tab's "Where it runs" list,
+	 * where a person is deciding whether to switch an agent on here.
+	 *
+	 * `tagline` answers "what is an agent on this surface for", in the voice an author would use -- so it is
+	 * written about an AGENT rather than about the surface. It SHIPS as the default: every launcher on this
+	 * surface reads it until an agent says something more specific in its own per-surface `description:`
+	 * (`Launchers::getKata()`), and it is the placeholder under that field so the editor shows exactly what
+	 * leaving it blank will produce. Keep it short and true of ANY agent here -- it is what most launchers will
+	 * actually say, and one long enough to clip in a text input has stopped being a tagline.
+	 *
 	 * `instructions` is the FALLBACK role -- what the model reads when the role asset is missing. The real
 	 * one lives in `assets/agents/<component>.md` (see getRoleFor()), because it is prose and a PHP
 	 * string literal is a bad place to maintain prose. Keep this copy short and correct: it is what a broken
@@ -94,14 +106,15 @@ class Components {
 	 *                   generic bridge command has one sensible use here. They also win over anything the
 	 *                   model sends under the same name, so a pinned argument stays pinned.
 	 *
-	 * @return array<string,array{label:string,icon:string,description:string,instructions:string,skills:array<int|string,string>,docs:array,commands:array}>
+	 * @return array<string,array{label:string,icon:string,description:string,tagline:string,instructions:string,skills:array<int|string,string>,docs:array,commands:array}>
 	 */
 	static function getAll() : array {
 		return [
 			'automation' => [
-				'label' => 'Automation editor',
+				'label' => 'Automation Editor',
 				'icon' => 'zap',
 				'description' => "Reads and writes the name, description, trigger, script, and policy of the automation being edited.",
+				'tagline' => 'Help writing and debugging automations',
 				'instructions' => "You are an assistant embedded in Cerb's automation editor. You help write and debug automations: KATA scripts bound to a trigger, plus the command policy that grants the script its privileges.\n\nThe script and the policy move together. A script that gains a privileged command stops working until the policy allows it, so when you add one, check the policy in the same turn.\n\nWhen the request doesn't imply a trigger, use `cerb.trigger.automation.function` and say you assumed it.\n\nPrefer edit_field over set_field for the script and the policy. They are long, the author may have unsaved work elsewhere in them, and a whole-field overwrite silently discards it.",
 				'skills' => [
 					'kata' => 'write or edit any KATA',
@@ -241,6 +254,7 @@ class Components {
 				'label' => 'Data Query Tester',
 				'icon' => 'database',
 				'description' => "Reads and writes the query being tested, under Setup > Developers.",
+				'tagline' => 'Help writing data queries',
 				'instructions' => "You are an assistant embedded in Cerb's data query tester. You help write data queries: the `type:` of source, its required parameters, and the fields, formats, and subtotals it returns.\n\nRead the editor before you change it. A data query is dense and mostly parameters, so a targeted edit is nearly always right and a whole-field rewrite nearly always loses something the author meant to keep.",
 				'skills' => [
 					'data-queries' => 'write or edit a data query',
@@ -319,6 +333,7 @@ class Components {
 				'label' => 'Automation Scripting Tester',
 				'icon' => 'editor',
 				'description' => "Reads and writes the script being tested, under Setup > Developers.",
+				'tagline' => 'Help with automation scripting',
 				'instructions' => "You are an assistant embedded in Cerb's automation scripting tester. You help write and debug Twig expressions and templates against a test dictionary.\n\nThis is real Twig, sandboxed: standard Twig works, Cerb adds its own filters/functions/tests on top, and the template-composition tags (macro, include, import, extends, block) are unavailable.\n\nThis editor is for trying an expression in isolation, so keep changes small and explain what a filter chain does rather than only handing back a longer one.",
 				'skills' => [
 					'scripting' => 'write or edit any scripting expression or template',
@@ -403,6 +418,7 @@ class Components {
 				'label' => 'Icon Builder',
 				'icon' => 'sparkles',
 				'description' => "Reads and writes the SVG geometry of the icon being drawn, and can look up every name in the set.",
+				'tagline' => 'Help drawing icons',
 				'instructions' => "You are an assistant embedded in Cerb's icon builder. You help draw icons for Cerb's icon set: SVG geometry on a 24x24 viewBox, rendered as a CSS mask and tinted by currentColor.\n\nBecause it is a mask, only the shape matters -- fill and stroke colors in the geometry are discarded. Read the current geometry before editing, and use get_icon_geometry to look at a shipped icon when you need the set's existing conventions for weight, corner radius, or optical sizing.",
 				'skills' => [
 					'icons' => 'draw or edit any icon geometry',
@@ -460,9 +476,10 @@ class Components {
 			],
 
 			'worklist' => [
-				'label' => 'Worklist search bar',
+				'label' => 'Worklist Search Bar',
 				'icon' => 'search',
 				'description' => "Reads and rewrites the search query above any worklist, and can run it.",
+				'tagline' => 'Help searching for records',
 				'instructions' => "You are an assistant embedded in a Cerb worklist's search bar. You turn what someone is looking for into a Cerb search query.\n\nCall get_fields first, every time. The worklist's record type decides which fields are even valid, and a query written for the wrong type looks reasonable and matches nothing. Write the query, then run it -- the search runs asynchronously, so you will not see the results; say what you searched for and let the worklist answer.",
 				'skills' => [
 					'search-queries' => 'write or edit a search query',
@@ -503,9 +520,10 @@ class Components {
 			],
 
 			'mail_reply' => [
-				'label' => 'Mail reply editor',
+				'label' => 'Mail Reply Editor',
 				'icon' => 'mail',
 				'description' => "Reads and writes the recipients, subject, format, and body of a reply or forward.",
+				'tagline' => 'Help writing replies to customers',
 				'instructions' => "You are an assistant embedded in Cerb's reply composer. You help a support worker write a reply to a customer.\n\nRead the draft before you touch it -- the worker may have already started, and replacing the body would discard it. Match the tone of the conversation, keep the worker's voice rather than imposing your own, and never invent facts about an account, an order, or a policy: if you need something you were not given, leave a gap and say so instead of filling it. You are drafting, not sending; the worker reviews and sends.",
 				'skills' => [
 					'mail-replies' => 'draft or revise a reply',
@@ -553,9 +571,10 @@ class Components {
 			 * key -- and those keep working beside an `interaction.worker.agent` chat.
 			 */
 			'commandbar' => [
-				'label' => 'Command bar',
+				'label' => 'Command Bar',
 				'icon' => 'console',
-				'description' => "App-wide rather than tied to an editor. Reports what page the worker is on, and opens a prefilled search for any record type.",
+				'description' => "Available on every page from the lower-right floating icon.",
+				'tagline' => 'Start an AI agent chat',
 				'instructions' => "You are an assistant in Cerb's command bar. You are not attached to any editor: you help with whatever the worker is doing anywhere in Cerb -- answering questions, looking things up, and explaining how Cerb works.\n\nWhen the question is about where they are -- \"what is this page?\", \"what am I looking at\" -- call get_page rather than asking them to describe it, and use what it returns as search terms against any documentation you have. It tells you the page, never its contents, so anything ON the screen you still have to ask about.\n\nYou can also put things in front of them: open a search popup for any record type, with a query you have written. Prefer that over describing a query and asking them to paste it.\n\nWhen you don't know something about this particular installation -- whether a record type exists, what fields it has -- look it up rather than guessing at a name.",
 				'skills' => [
 					'search-queries' => 'write a search query',
@@ -608,7 +627,7 @@ class Components {
 	 *
 	 * Ordered by label so the list reads the same on every install.
 	 *
-	 * @return array `{component => {label, icon, description}}`
+	 * @return array `{component => {label, icon, description, tagline}}`
 	 */
 	static function getSurfaceCatalog() : array {
 		$surfaces = [];
@@ -618,6 +637,7 @@ class Components {
 				'label' => strval($meta['label'] ?? $key),
 				'icon' => strval($meta['icon'] ?? 'bot'),
 				'description' => strval($meta['description'] ?? ''),
+				'tagline' => strval($meta['tagline'] ?? ''),
 			];
 		}
 

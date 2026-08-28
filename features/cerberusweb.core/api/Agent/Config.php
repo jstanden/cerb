@@ -41,6 +41,7 @@ class Config {
 	const KEY_AUTOMATION = 'automation';
 	const KEY_COMMANDS = 'commands';
 	const KEY_COMPONENTS = 'components';
+	const KEY_DESCRIPTION = 'description';
 	const KEY_DISABLED = 'disabled';
 	const KEY_MODELS_QUERY = 'models_query';
 	const KEY_MOUNTS = 'mounts';
@@ -377,7 +378,8 @@ class Config {
 	 * `$surface` may be '' (no surface, or one this agent has no block for) -- the defaults are still returned,
 	 * because `agent:` on an `llm.agent:` outside any pane is a legitimate way to run as an agent.
 	 *
-	 * @return array `{system_prompt, models_query, automation, commands, terminal, mounts, tools}`
+	 * @return array `{system_prompt, description, models_query, automation, commands, terminal, mounts, tools}`
+	 *               -- `description` is the SURFACE's alone; everything else starts from the defaults.
 	 */
 	static function resolve(array $config, string $surface = '') : array {
 		$override = [];
@@ -390,6 +392,11 @@ class Config {
 				$config[self::KEY_SYSTEM_PROMPT] ?? '',
 				$override[self::KEY_SYSTEM_PROMPT] ?? ''
 			),
+			// SURFACE ONLY, like `disabled` -- there is no agent-wide default to inherit, because the only
+			// place anyone reads this is a surface's launcher. An agent-level line would be a value you could
+			// author and never see. Blank falls back to the SURFACE's `tagline` at render, which is the same
+			// sentence written about any agent here (see `Launchers::getKata()`).
+			self::KEY_DESCRIPTION => trim(strval($override[self::KEY_DESCRIPTION] ?? '')),
 			self::KEY_MODELS_QUERY => self::_replaceScalar(
 				$config[self::KEY_MODELS_QUERY] ?? '',
 				$override[self::KEY_MODELS_QUERY] ?? ''

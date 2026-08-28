@@ -59,6 +59,10 @@ class Launchers {
 		if('' === trim($surface))
 			return '';
 
+		// The surface's own line, and the DEFAULT every launcher on it starts from. Read once: it's the same
+		// for every agent here, and an agent only replaces it by saying something more specific.
+		$surface_tagline = trim(strval((Components::get($surface) ?? [])['tagline'] ?? ''));
+
 		$tree = [];
 
 		foreach(Config::getEnabledAgents($surface) as $worker_id => $agent) {
@@ -67,6 +71,14 @@ class Launchers {
 
 			$name = $worker->getName();
 
+			// What this agent is for, HERE. Two levels: the surface says what a launcher on it is generally
+			// good for, and an agent overrides that when it does something narrower -- "Help with server
+			// infrastructure, deployments, and monitoring" instead of "Help with anything in Cerb".
+			//
+			// NOT the worker's `title`. That column is a job title ("System Administrator", "Agent"), which
+			// names a role rather than a purpose and reads as nothing under a launcher.
+			$description = trim(strval($config[Config::KEY_DESCRIPTION] ?? '')) ?: $surface_tagline;
+
 			$item = [
 				'label' => $name,
 				'uri' => trim(strval($config['automation'] ?? '')) ?: self::DEFAULT_AUTOMATION_URI,
@@ -74,8 +86,10 @@ class Launchers {
 				// The agent's own picture, so the tile is the agent rather than a generic glyph. The command bar
 				// already renders `image:`; the pane's own renderer passes it through as `data-image`.
 				'image' => $worker->getImageUrl(),
-				// Read as the tile's tooltip -- an agent's title is the one-line "what is this one for".
-				'tooltip' => trim(strval($worker->title ?? '')),
+				// Shown, not just hovered: a pane tile renders this as its second line and the command bar as its
+				// subtitle. `tooltip` carries the same string for a host that renders the raw toolbar `<li>`.
+				'description' => $description,
+				'tooltip' => $description,
 				// What makes ONE interaction serve every agent: the script reads `agent_id` from scope instead
 				// of naming an id or an `@mention`.
 				'inputs' => [
@@ -83,19 +97,17 @@ class Launchers {
 				],
 			];
 
-			// The command bar is a global palette, not an agent's own pane: its rows are two-line (title over a
-			// subtitle), and they sit among every other shortcut in Cerb rather than among other agents. So the
-			// title is the `@handle` -- the same thing a person types to reach this agent anywhere else -- and
-			// the subtitle says plainly what picking the row does.
+			// The command bar is a global palette, not an agent's own pane: its rows sit among every other
+			// shortcut in Cerb rather than among other agents. So the title is the `@handle` -- the same thing a
+			// person types to reach this agent anywhere else. Only the LABEL differs; the description is the
+			// same sentence it is everywhere.
 			//
-			// The subtitle is an explicit `description:` because the alternative is the AUTOMATION's own
-			// description, and one script now serves every agent: whatever it says has to be true of all of
-			// them, which makes it too generic to tell two rows apart.
+			// It has to be explicit because the fallback would be the AUTOMATION's own description, and one
+			// script now serves every agent: whatever it said would have to be true of all of them, which makes
+			// it too generic to tell two rows apart.
 			if(self::SURFACE_COMMANDBAR === $surface) {
 				if('' !== ($mention = trim(strval($worker->at_mention_name ?? ''))))
 					$item['label'] = '@' . $mention;
-
-				$item['description'] = sprintf('Start a chat with %s', $name);
 			}
 
 			$tree[sprintf('interaction/agent_%d', $worker_id)] = array_filter(

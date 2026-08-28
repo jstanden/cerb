@@ -5102,6 +5102,9 @@ class _CerbApplication_KataSchemas {
                             types:
                               string:
                           commands@ref: agentCommands
+                          description:
+                            types:
+                              string:
                           disabled:
                             types:
                               bool:

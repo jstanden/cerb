@@ -335,6 +335,10 @@ CerbUI.AgentPane = class {
 			const uri = li.getAttribute('data-interaction-uri') || '';
 			const params = li.getAttribute('data-interaction-params') || '';
 			const label = (li.textContent || '').trim() || 'Start a chat';
+			// What this agent is for here -- its own per-surface line, or the surface's tagline
+			// (`Launchers::getKata()`). A tile is otherwise a picture and a name, which tells you who but not
+			// what for, and every agent on a surface looks equally plausible.
+			const description = li.getAttribute('data-description') || '';
 
 			const tile = document.createElement('div');
 			tile.className = 'cerb-ui-tile cerb-agent-pane--tile';
@@ -359,6 +363,13 @@ CerbUI.AgentPane = class {
 			name.className = 'cerb-ui-tile--name';
 			name.textContent = label;
 			text.appendChild(name);
+
+			if(description) {
+				const body = document.createElement('div');
+				body.className = 'cerb-ui-tile--body';
+				body.textContent = description;
+				text.appendChild(body);
+			}
 
 			tile.appendChild(avatar);
 			tile.appendChild(text);
