@@ -373,7 +373,65 @@ class LlmAgentNode extends AbstractNode {
 						}
 					}
 
-					if('automation' == $tool_dict['type']) {
+					if('agent_tool' == $tool_dict['type']) {
+						$automator = DevblocksPlatform::services()->automation();
+
+						$record = \DAO_AgentTool::getByName(strval($tool['tool'] ?? ''));
+
+						// `on_tool:` already answered -- an approval gate that declined, or an author overriding
+						// a tool while testing. Its answer stands and the automation never runs, which is what
+						// makes a human-in-the-loop approval possible without touching the advertised tool set.
+						if(array_key_exists('content', $tool_dict)) {
+							$tool_response = [
+								'content' => $tool_dict['content'],
+							];
+
+						// The set was frozen when the conversation started, so a tool deleted or switched off
+						// since then is still advertised -- shrinking it would bust the cached prompt prefix for
+						// everyone mid-conversation. Refuse the CALL instead and let the model read why.
+						} elseif(!$record || !$record->isUsable()) {
+							$tool_response = [
+								'content' => 'ERROR: This tool is not available.',
+							];
+
+						// No automation on the record: the calling script's `on_tool:` was meant to answer it with
+						// `tool.return:`. That is all an inline tool ever was -- now with its name, description
+						// and parameters authored on a record instead of restated in every script, which is also
+						// what leaves room for the cases only a script can answer (pushing an interaction,
+						// synthesizing a form for a missing argument, gating on an approval). Reaching here means
+						// the branch did not answer, which is an authoring bug worth saying out loud rather than
+						// handing the model an empty result.
+						} elseif(!$record->hasAutomation()) {
+							$tool_response = [
+								'content' => 'ERROR: This tool has no automation, and `on_tool:` did not answer it with `tool.return:`.',
+							];
+
+						} elseif(!($tool_automation = DAO_Automation::getByUri($record->uri, \AutomationTrigger_AgentTool::ID))) {
+							DevblocksPlatform::logError(sprintf(
+								"[LLM] Agent tool `%s` references an automation that no longer exists: %s",
+								$record->name,
+								$record->uri
+							));
+
+							$tool_response = [
+								'content' => 'ERROR: This tool is no longer available.',
+							];
+
+						} else {
+							$initial_state = $this->_agentToolState($record, $tool, $tool_spec, $session_id);
+
+							if(false === ($automation_results = $automator->executeScript($tool_automation, $initial_state, $error))) {
+								$tool_response = [
+									'content' => "ERROR: " . $error,
+								];
+							} else {
+								$tool_response = $automation_results->get('__return', []);
+							}
+						}
+
+						$llm_provider->returnTool($tool_spec, $tool_response['content'] ?? '', $memory_store);
+
+					} elseif('automation' == $tool_dict['type']) {
 						$automator = DevblocksPlatform::services()->automation();
 						
 						// Renamed or deleted since this turn's schema was built. Answer the model, the way an
@@ -767,7 +825,10 @@ class LlmAgentNode extends AbstractNode {
 		if(!$tools_config && $session_id && ($session = \DAO_LlmAgentSession::get($session_id)))
 			$tools_config = $session->tools;
 
-		$tools_config = $this->_withTriggerTools($this->_withAgentTools($tools_config));
+		$tools_config = $this->_withResolvedAgentTools(
+			$this->_withTriggerTools($this->_withAgentTools($tools_config)),
+			$session_id
+		);
 
 		return self::normalizeToolMap(
 			$tools_config,
@@ -775,20 +836,6 @@ class LlmAgentNode extends AbstractNode {
 		);
 	}
 
-	/**
-	 * Overlay the tools contributed by this automation's TRIGGER onto a `tools:` config, keyed `<type>/<name>`
-	 * like any authored entry — so everything downstream (the flatten below, the provider schema, the
-	 * transcript's labels) reads them without knowing where they came from.
-	 *
-	 * Today that's an agent pane handing the chat one `ui_command/` tool per UI command its host editor
-	 * answers, which is what lets a chat beside an editor read and rewrite it with nothing in its script.
-	 *
-	 * Same rule as `agent_terminal`: an author tool of the same NAME wins, always — matched on the name rather
-	 * than the whole key, since `tool/get_fields` and `ui_command/get_fields` are one collision, not two tools.
-	 *
-	 * Duck-typed rather than an interface: this file is platform code and the only trigger that answers lives
-	 * in cerberusweb.core — the same arrangement `_renderFormElements()` uses for `getFormComponentMeta()`.
-	 */
 	/**
 	 * The AGENT's `tools:` folded into this turn's, by the same first-wins-by-NAME rule `_withTriggerTools()`
 	 * uses -- so precedence reads script > agent > trigger.
@@ -855,6 +902,162 @@ class LlmAgentNode extends AbstractNode {
 		}
 
 		return $tools_config;
+	}
+
+	/**
+	 * The `tools:` key prefixes that are NOT a tool record. Everything else is: a bare `web_search:` names the
+	 * record and calls it by its own name, and `web_search/acme_docs:` mounts the same record under an alias --
+	 * which is how one tool appears twice with different fixed arguments.
+	 *
+	 * Keeping the record name as the key BASE is what lets the KATA editor autocomplete inside the entry: the
+	 * path alone says which record it is, so its parameters can be offered without evaluating the body.
+	 * `DAO_AgentTool` refuses these words as record names, so the two can never be confused.
+	 */
+	const TOOL_RESERVED_PREFIXES = ['agent_terminal', 'agent_tool', 'automation', 'tool', 'ui_command', 'ui_server'];
+
+	/**
+	 * The scope an `agent.tool` automation runs with: the call's arguments, and the environment it was called
+	 * in -- which tool, which agent, whom that agent serves, and where the conversation is happening.
+	 *
+	 * Arguments merge the reference's fixed `params:` OVER the model's OVER the record's own defaults, using
+	 * `+` (left wins). They arrive as `params.*` rather than `inputs.*` on purpose: `inputs` is validated
+	 * against the script's own `inputs:` block, so reusing that key would reject every argument.
+	 */
+	private function _agentToolState(\Model_AgentTool $record, array $tool, DevblocksLlmChatResponse_Tool $tool_spec, ?string $session_id) : array {
+		$fixed = is_array($tool['params'] ?? null) ? $tool['params'] : [];
+
+		// The record's per-parameter `default:`, read off the FROZEN schema rather than the record, so a running
+		// conversation keeps the defaults it started with -- the same reason the schema itself is frozen.
+		$defaults = [];
+
+		foreach((is_array($tool['parameters'] ?? null) ? $tool['parameters'] : []) as $param_key => $param) {
+			if(is_array($param) && array_key_exists('default', $param))
+				$defaults[strval(explode('/', strval($param_key), 2)[1] ?? $param_key)] = $param['default'];
+		}
+
+		$state = [
+			'params' => $fixed + ($tool_spec->getParameters() ?? []) + $defaults,
+			'tool__context' => \Context_AgentTool::ID,
+			'tool_id' => $record->id,
+			'transcript_uuid' => strval($session_id),
+			'transcript_surface' => $this->_agent_surface,
+		];
+
+		if($this->_agent_worker_id) {
+			$state['agent__context'] = \CerberusContexts::CONTEXT_WORKER;
+			$state['agent_id'] = $this->_agent_worker_id;
+		}
+
+		if($session_id && ($session = \DAO_LlmAgentSession::get($session_id))) {
+			// Which KIND of conversation this is, so a tool can refuse to run somewhere it doesn't belong.
+			$state['transcript_trigger'] = strval($session->getAutomation()?->extension_id ?? '');
+
+			if('worker' === $session->user_type && $session->user_id) {
+				$state['transcript_user__context'] = \CerberusContexts::CONTEXT_WORKER;
+				$state['transcript_user_id'] = intval($session->user_id);
+			}
+
+			if($session->agent_id) {
+				$state['transcript_agent__context'] = \CerberusContexts::CONTEXT_WORKER;
+				$state['transcript_agent_id'] = intval($session->agent_id);
+			}
+		}
+
+		return $state;
+	}
+
+	/**
+	 * Bake every tool-record reference into a self-contained descriptor -- ONCE, and never again for the life
+	 * of the session.
+	 *
+	 * The provider schema is built from the session's stored `tools`, and the tool set sits in the CACHED PROMPT
+	 * PREFIX beside the system prompt. A tool whose schema was re-read from its record each turn would throw
+	 * that cache away the moment an admin touched the record, for every conversation open at the time. So the
+	 * record is read once and frozen: an edit reaches NEW conversations, and running ones keep the tools they
+	 * started with.
+	 *
+	 * The same reasoning is why a tool going `disabled` mid-conversation does not shrink the set -- removing it
+	 * would bust the prefix just as surely. The call is refused at execution instead, with an error the model
+	 * reads back, which is also the shape a guardrail denial takes.
+	 *
+	 * The authored key is `<record>[/<alias>]`; what gets STORED is the canonical `agent_tool/<alias>` with the
+	 * record name in the body. Resolving the family on first parse and freezing it is what keeps every later
+	 * reader -- dispatch, provider schema, transcript -- off the record entirely.
+	 */
+	private function _withResolvedAgentTools(array $tools_config, ?string $session_id) : array {
+		$frozen = [];
+
+		if($session_id && ($session = \DAO_LlmAgentSession::get($session_id)))
+			$frozen = is_array($session->tools ?? null) ? $session->tools : [];
+
+		$out = [];
+
+		foreach($tools_config as $tool_key => $tool) {
+			$tool_key = strval($tool_key);
+			list($base, $alias) = array_pad(explode('/', explode('@', $tool_key, 2)[0], 2), 2, null);
+
+			// Another family, or already canonical: pass it through untouched.
+			if(!is_array($tool) || in_array($base, self::TOOL_RESERVED_PREFIXES, true)) {
+				$out[$tool_key] = $tool;
+				continue;
+			}
+
+			$canonical = 'agent_tool/' . ($alias ?: $base);
+
+			// Already frozen onto this session: reuse verbatim. `parameters` is the marker, because every
+			// resolved entry has one -- even a tool that takes no arguments.
+			if(is_array($frozen[$canonical] ?? null) && array_key_exists('parameters', $frozen[$canonical])) {
+				$out[$canonical] = $frozen[$canonical];
+				continue;
+			}
+
+			$out[$canonical] = $this->_resolveAgentToolEntry(strval($base), $tool);
+		}
+
+		return $out;
+	}
+
+	/**
+	 * One tool-record reference plus its record, flattened into the shape every other tool already speaks --
+	 * `description` + `parameters` -- so the provider schema builder reads it with no special case.
+	 *
+	 * The reference may override the record's presentation, and its `params:` fixes arguments the model is never
+	 * offered: they are dropped from the schema here, and applied over the call in `_agentToolState()`.
+	 *
+	 * A missing record still yields an entry. The reference is kept so execution can name what broke, and the
+	 * tool advertises no arguments rather than vanishing from a prefix that is already cached.
+	 */
+	private function _resolveAgentToolEntry(string $record_name, array $entry) : array {
+		$resolved = $entry;
+		$resolved['tool'] = $record_name;
+
+		if(!($record = \DAO_AgentTool::getByName($record_name))) {
+			$resolved['description'] = trim(strval($entry['description'] ?? ''));
+			$resolved['parameters'] = [];
+			return $resolved;
+		}
+
+		$params = is_array($entry['params'] ?? null) ? $entry['params'] : [];
+		$labels = is_array($entry['labels'] ?? null) ? $entry['labels'] : [];
+
+		$resolved['uri'] = strval($record->uri);
+		$resolved['params'] = $params;
+		$resolved['description'] = trim(strval($entry['description'] ?? '')) ?: strval($record->description);
+		$resolved['icon'] = trim(strval($entry['icon'] ?? '')) ?: $record->getDisplayIcon();
+		$resolved['labels'] = [
+			'active' => trim(strval($labels['active'] ?? '')) ?: strval($record->label_active),
+			'summary' => trim(strval($labels['summary'] ?? '')) ?: strval($record->label_summary),
+		];
+
+		// A fixed argument is not the model's to choose, so it never reaches the schema. Keyed `string/<name>`
+		// there and bare in `params:`, so the name half is what's compared.
+		$resolved['parameters'] = array_filter(
+			$record->getParams()['parameters'],
+			fn($k) => !array_key_exists(strval(explode('/', strval($k), 2)[1] ?? $k), $params),
+			ARRAY_FILTER_USE_KEY
+		);
+
+		return $resolved;
 	}
 
 	/**
@@ -1413,7 +1616,10 @@ class LlmAgentNode extends AbstractNode {
 		// that gains a command reaches an existing conversation on its next turn -- note this is the tool MAP
 		// only. It deliberately does NOT feed the prefix gate (_prefixInputsGate), so a host gaining a command
 		// never rewrites an open conversation's system prompt.
-		$tools_config = $this->_withTriggerTools($this->_withAgentTools(is_array($tools_config) ? $tools_config : []));
+		$tools_config = $this->_withResolvedAgentTools(
+			$this->_withTriggerTools($this->_withAgentTools(is_array($tools_config) ? $tools_config : [])),
+			$session_id
+		);
 
 		if($tools_config)
 			\DAO_LlmAgentSession::setTools($session_id, $tools_config);
@@ -2216,7 +2422,7 @@ class LlmAgentNode extends AbstractNode {
 				'type' => $tool_type,
 			]);
 
-			if(in_array($tool_type, ['automation', 'tool'])) {
+			if(in_array($tool_type, ['agent_tool', 'automation', 'tool'])) {
 				// Run the custom `on_tool:` branch
 				if (null != ($this->node->getChild($this->node->getId() . ':on_tool'))) {
 					$this->_node_memory['stack'][] = ['tool_branch', []];

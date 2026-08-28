@@ -3010,6 +3010,11 @@ class _DevblocksLlmService {
 				// tool -- a name, a description, and string params -- since WHERE a result comes from is a
 				// dispatch concern the provider never sees.
 				'ui_command', 'ui_server' => $this->_toolSchemaCustom($tool_name, $tool),
+				// An `agent_tool` reference was flattened into exactly this shape when the session froze its
+				// tool set (LlmAgentNode::_resolveAgentToolEntry), so there is nothing left to look up here --
+				// which is the point. Re-reading the record per turn would move the tool set, and the tool set
+				// is in the cached prompt prefix.
+				'agent_tool' => $this->_toolSchemaCustom($tool_name, $tool),
 				'agent_terminal' => $this->_toolSchemaAgentTerminal($tool_name, $tool),
 				default => null,
 			};

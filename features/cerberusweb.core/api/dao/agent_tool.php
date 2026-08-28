@@ -601,16 +601,26 @@ class Model_AgentTool extends DevblocksRecordModel {
 	}
 
 	/**
-	 * The parsed `params_kata`, as `{parameters, defaults, pinned}`.
+	 * A tool with no automation is answered by the CALLING script's `on_tool:` branch via `tool.return:`.
 	 *
-	 * `parameters:` is the model-facing schema, in the same grammar an author writes under `tool/<name>:`
-	 * (`string/<name>: {description, enum, required}`), so the provider schema builder reads it unchanged.
-	 * `defaults:` and `pinned:` are flat scalar maps: a default fills a parameter the model omitted, a pinned
-	 * value is merged over whatever the model sent AND stripped from the schema, so the model never sees it.
+	 * That is the whole of what an inline `tool/<name>:` block used to do, so a record covers it too -- and
+	 * covers it better, since the name, description and parameters are then authored in a form rather than
+	 * restated in every script. It also leaves room for the cases only a script can answer: pushing an
+	 * interaction, synthesizing a form to collect a missing argument, gating on an approval.
+	 */
+	public function hasAutomation() : bool {
+		return '' !== trim(strval($this->uri));
+	}
+
+	/**
+	 * The parsed `params_kata`, as `{parameters}` -- the model-facing schema, in the same grammar an author
+	 * writes under `tool/<name>:` (`string/<name>: {description, enum, required, default}`), so the provider
+	 * schema builder reads it unchanged.
 	 *
-	 * Both are flat on purpose -- they are the two blocks an agent or surface may override, and
-	 * `Cerb\Agent\Config::resolve()` deep-merges with `array_replace_recursive`, which merges LISTS by index.
-	 * Keeping the only list-valued leaf (`enum@csv:`) here, on the record, keeps that hazard out of reach.
+	 * A `default:` fills a parameter the model omitted, and the model may still send its own. Values the model
+	 * must NOT choose are not here at all -- those are the `params:` an agent writes on its reference to this
+	 * tool, which are applied over the call and stripped from the schema. That split is why the same record can
+	 * be mounted twice under different aliases with different fixed values.
 	 */
 	public function getParams() : array {
 		if(!is_null($this->_params))
@@ -628,8 +638,6 @@ class Model_AgentTool extends DevblocksRecordModel {
 
 		return $this->_params = [
 			'parameters' => is_array($parsed['parameters'] ?? null) ? $parsed['parameters'] : [],
-			'defaults' => is_array($parsed['defaults'] ?? null) ? $parsed['defaults'] : [],
-			'pinned' => is_array($parsed['pinned'] ?? null) ? $parsed['pinned'] : [],
 		];
 	}
 

@@ -4946,6 +4946,49 @@ class _CerbApplication_KataAutocompletions {
 
 class _CerbApplication_KataSchemas {
 	/**
+	 * An `agent_tool` record's `params_kata`: what the model may send, and what it may not.
+	 *
+	 * `parameters:` is the model-facing schema, in the SAME grammar an author writes under `llm.agent:`
+	 * `tools: tool/<name>: parameters:`, so `_DevblocksLlmService::_toolSchemaCustom()` reads it unchanged and
+	 * the existing KATA autocomplete applies. `string/` is the only parameter type the provider schema builder
+	 * emits; anything else is silently dropped, so the editor should reject it rather than let a parameter
+	 * vanish at request time.
+	 *
+	 * A `default:` fills a parameter the model omitted, and the model may still send its own. Values the model
+	 * must NOT choose are not in here at all -- those are the `params:` an agent writes on its REFERENCE to
+	 * this tool, applied over the call and stripped from the schema. That split is what lets one record be
+	 * mounted twice under different aliases with different fixed values, which a per-record block could not
+	 * express.
+	 */
+	function agentTool() : string {
+		return <<< EOD
+    schema:
+      attributes:
+        parameters:
+          types:
+            object:
+              attributes:
+                string:
+                  multiple@bool: yes
+                  types:
+                    object:
+                      attributes:
+                        default:
+                          types:
+                            string:
+                        description:
+                          types:
+                            string:
+                        enum:
+                          types:
+                            list:
+                        required:
+                          types:
+                            bool:
+    EOD;
+	}
+	
+	/**
 	 * `agent.config_kata` -- what an AI worker contributes to any turn that runs as it.
 	 *
 	 * The blocks an agent contributes (`commands:`, `terminal:`, `mounts:`, `tools:`) are DELIBERATELY the same
@@ -4976,67 +5019,6 @@ class _CerbApplication_KataSchemas {
 	 * and model query. Same polarity as `is_disabled` everywhere else in Cerb, and as `disabled@bool:` on a
 	 * tool.
 	 */
-	/**
-	 * An `agent_tool` record's `params_kata`: what the model may send, and what it may not.
-	 *
-	 * `parameters:` is the model-facing schema, in the SAME grammar an author writes under `llm.agent:`
-	 * `tools: tool/<name>: parameters:`, so `_DevblocksLlmService::_toolSchemaCustom()` reads it unchanged and
-	 * the existing KATA autocomplete applies. `string/` is the only parameter type the provider schema builder
-	 * emits; anything else is silently dropped, so the editor should reject it rather than let a parameter
-	 * vanish at request time.
-	 *
-	 * `defaults:` and `pinned:` are flat scalar maps, and the split is the point. A default fills a parameter
-	 * the model omitted and the model may override it. A pinned value is merged over whatever the model sent
-	 * AND stripped from the schema, so the model never sees the key and cannot argue with it -- the same thing
-	 * `Cerb\Agent\Pane\Components`' `command_params` does for a host editor's built-in tools.
-	 *
-	 * Both are flat rather than nested because they are the two blocks an agent or surface may override, and
-	 * `Cerb\Agent\Config::resolve()` deep-merges with `array_replace_recursive`, which merges LISTS by index.
-	 * Keeping the only list-valued leaf (`enum:`) here on the record keeps that hazard out of reach.
-	 */
-	function agentTool() : string {
-		return <<< EOD
-    schema:
-      attributes:
-        defaults:
-          types:
-            object:
-              attributePatterns:
-                pattern/parameter:
-                  match: *
-                  attributes:
-                    types:
-                      string:
-        parameters:
-          types:
-            object:
-              attributes:
-                string:
-                  multiple@bool: yes
-                  types:
-                    object:
-                      attributes:
-                        description:
-                          types:
-                            string:
-                        enum:
-                          types:
-                            list:
-                        required:
-                          types:
-                            bool:
-        pinned:
-          types:
-            object:
-              attributePatterns:
-                pattern/parameter:
-                  match: *
-                  attributes:
-                    types:
-                      string:
-    EOD;
-	}
-	
 	function agent() : string {
 		return <<< EOD
     &agentCommands:
@@ -5086,6 +5068,32 @@ class _CerbApplication_KataSchemas {
     &agentTools:
       types:
         object:
+          attributePatterns:
+            pattern/agent_tool:
+              match: *
+              attributes:
+                types:
+                  object:
+                    attributes:
+                      description:
+                        types:
+                          string:
+                      disabled:
+                        types:
+                          bool:
+                      icon:
+                        types:
+                          string:
+                      labels:
+                        types:
+                          object:
+                            attributes:
+                              active:
+                                types:
+                                  string:
+                              summary:
+                                types:
+                                  string:
           attributes:
             automation:
               multiple@bool: yes
@@ -5766,6 +5774,32 @@ class _CerbApplication_KataSchemas {
                               tools:
                                 types:
                                   object:
+                                    attributePatterns:
+                                      pattern/agent_tool:
+                                        match: *
+                                        attributes:
+                                          types:
+                                            object:
+                                              attributes:
+                                                description:
+                                                  types:
+                                                    string:
+                                                disabled:
+                                                  types:
+                                                    bool:
+                                                icon:
+                                                  types:
+                                                    string:
+                                                labels:
+                                                  types:
+                                                    object:
+                                                      attributes:
+                                                        active:
+                                                          types:
+                                                            string:
+                                                        summary:
+                                                          types:
+                                                            string:
                                     attributes:
                                       automation:
                                         multiple@bool: yes

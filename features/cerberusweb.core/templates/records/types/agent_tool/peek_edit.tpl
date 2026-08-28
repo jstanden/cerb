@@ -41,7 +41,7 @@
 					{if !empty($automation)}<li data-context-id="{$automation->id}" data-label="{$automation->name}"></li>{/if}
 				</div>
 			</div>
-			<div class="cerb-ui-form--hint">The <code>agent.tool</code> automation that does the work and returns a <code>content</code> string.</div>
+			<div class="cerb-ui-form--hint">The <code>agent.tool</code> automation that does the work and returns a <code>content</code> string. Optional -- leave it empty and the calling conversation answers the tool itself from its <code>on_tool:</code> branch.</div>
 		</div>
 
 		<div class="cerb-ui-form--field">
@@ -91,7 +91,7 @@
 	<div class="cerb-ui-form">
 		<div class="cerb-ui-form--field">
 			<textarea name="params_kata" id="paramsKata_{$form_id}" rows="10" spellcheck="false">{$model->params_kata}</textarea>
-			<div class="cerb-ui-form--hint"><code>parameters:</code> is what the model may send. <code>defaults:</code> fills one it left out. <code>pinned:</code> is merged over whatever it sent and never appears in the schema, so the model cannot see or change it.</div>
+			<div class="cerb-ui-form--hint"><code>parameters:</code> is what the model may send -- each with a description, and optionally <code>enum</code>, <code>required</code>, and a <code>default</code> for when the model leaves it out. Values the model must NOT choose belong on the agent's reference to this tool, not here.</div>
 		</div>
 
 		{if !empty($custom_fields)}
