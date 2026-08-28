@@ -18,7 +18,7 @@
 			<div class="cerb-ui-form--field">
 				<label class="cerb-ui-form--label">{'common.name'|devblocks_translate|capitalize} <span class="cerb-ui-form--required">*</span></label>
 				<input type="text" name="name" value="{$model->name}" autofocus="autofocus" autocomplete="off" spellcheck="false" placeholder="web_search">
-				<div class="cerb-ui-form--hint">The name the model calls. Lowercase letters, numbers, and underscores.</div>
+				<div class="cerb-ui-form--hint">The name the model calls. Lowercase letters, numbers, and underscores. <code>cerb_</code> is reserved for Cerb's own tools.</div>
 			</div>
 
 			<div class="cerb-ui-form--field">

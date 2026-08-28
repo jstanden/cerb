@@ -271,7 +271,7 @@ $(function() {
 			// it -- naming the page in the system prompt -- is the one place it must never go: the system prompt
 			// is the most stable part of the cached prompt prefix, and `_persistSessionConfig()` rewrites it from
 			// the freshly-evaluated input every turn, so a value that ever changes invalidates the whole prefix.
-			// `get_page` reads it live instead, which is both cache-safe and correct after the worker moves.
+			// `cerb_get_page` reads it live instead, which is both cache-safe and correct after the worker moves.
 			let commandBarCaller = {
 				'name': 'cerb.toolbar.global.menu',
 				'params': {

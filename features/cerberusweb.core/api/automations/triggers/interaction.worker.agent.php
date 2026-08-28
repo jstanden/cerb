@@ -50,7 +50,7 @@ class AutomationTrigger_InteractionWorkerAgent extends AutomationTrigger_Interac
 					. "given a system prompt describing that surface, so `system_prompt:` is for what YOU want to "
 					. "add -- it's appended to ours, not a replacement for it.\n\n"
 					. "Deliberately NOT here: which page the worker is on. It would be a snapshot from launch, and "
-					. "would go stale the moment they navigate -- the command bar's `get_page` tool reads it live "
+					. "would go stale the moment they navigate -- the command bar's `cerb_get_page` tool reads it live "
 					. "instead. Don't interpolate a changing value into `system_prompt:` either. The composed "
 					. "prompt is built on the first turn and reused unchanged after that; it is rebuilt only when "
 					. "you EDIT this automation, which takes effect on the worker's next message. A value that "
@@ -183,7 +183,7 @@ class AutomationTrigger_InteractionWorkerAgent extends AutomationTrigger_Interac
 			return sprintf('No icon names match `%s`.', $filter);
 
 		// Deliberately just the names. There are hundreds, and the geometry of any one of them is a
-		// `get_icon_geometry` away -- returning them all would spend the context window on shapes nobody asked
+		// `cerb_get_icon_geometry` away -- returning them all would spend the context window on shapes nobody asked
 		// to see.
 		return implode("\n", $icons);
 	}

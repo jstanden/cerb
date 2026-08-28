@@ -91,6 +91,23 @@ class DAO_AgentTool extends Cerb_ORMHelper {
 					return false;
 				}
 
+				// A tool name must be unique within a turn, and the tools a surface contributes share this
+				// namespace. `cerb_` is reserved for those so a customer's tool can never shadow one -- the
+				// same reservation the `cerb.*` automation namespace makes, and the same move MCP hosts make
+				// with `mcp__<server>__<tool>`.
+				if(str_starts_with($value, 'cerb_')) {
+					$error = "must not start with `cerb_`, which is reserved for Cerb's built-in tools.";
+					return false;
+				}
+
+				// These are the key prefixes a `tools:` block uses for the non-record families. A record taking
+				// one as its name would make `tool/foo:` ambiguous between an inline tool and an alias of a
+				// record called `tool`.
+				if(in_array($value, ['agent_terminal', 'automation', 'tool', 'ui_command', 'ui_server'], true)) {
+					$error = sprintf("must not be `%s`, which is reserved by the `tools:` grammar.", $value);
+					return false;
+				}
+
 				return true;
 			})
 			;

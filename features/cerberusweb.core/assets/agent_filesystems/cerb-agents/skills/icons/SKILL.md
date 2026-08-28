@@ -92,10 +92,10 @@ Practical notes that follow from those pages:
 
 ## Draft, look, refine -- do not try to one-shot it
 
-`set_geometry` pushes a revision and the preview updates immediately, so you can SEE the icon. That makes a rough first pass cheap and a long analytical build expensive. Get something on screen in your first turn or two, then adjust.
+`cerb_set_geometry` pushes a revision and the preview updates immediately, so you can SEE the icon. That makes a rough first pass cheap and a long analytical build expensive. Get something on screen in your first turn or two, then adjust.
 
 - **Ship the draft early.** A plain first version -- right family, right proportions, nothing refined -- teaches you more in one turn than another round of reasoning does. The user is watching the preview and will often correct you before you would have caught it yourself.
-- **Refine in small passes.** One change per revision, or a couple of related ones. Every `set_geometry` is undoable, so a wrong step costs a revision rather than the work.
+- **Refine in small passes.** One change per revision, or a couple of related ones. Every `cerb_set_geometry` is undoable, so a wrong step costs a revision rather than the work.
 - **Reason about geometry when the preview disagrees with you.** Winding at the center of an evenodd cutout, stroke growth against the viewBox edge, the gap eaten between two stroked shapes -- these are diagnoses for a symptom you can see, not a checklist to run before drawing.
 - **Don't precompute what you can just look at.** Curve math, traced coordinates, a scratch file of alternatives: reach for those when a shape is genuinely fiddly, not by default.
 - **Say where you are.** "Here is a first pass -- I will tighten the stem next" sets the expectation that this is a draft. Several silent minutes reads as being stuck, and a perfect icon delivered late is worth less than a good one delivered in three quick rounds.

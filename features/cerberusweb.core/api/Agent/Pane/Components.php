@@ -82,7 +82,10 @@ class Components {
 	 * Commands are keyed by the BRIDGE name (camelCase -- what `runCommand` dispatches on and what a
 	 * `uiCommand` element's `command:` must say). Each carries:
 	 *
-	 *   tool            the snake_case name the MODEL calls
+	 *   tool            the snake_case name the MODEL calls. ALWAYS `cerb_`-prefixed: a tool name has to be
+	 *                 	 unique within a turn, and an agent's own `agent_tool` records share that namespace.
+	 *                 	 The prefix is reserved (DAO_AgentTool rejects it) so a customer's tool can never
+	 *    	           	 shadow a host's -- the same move MCP hosts make with `mcp__<server>__<tool>`.
 	 *   description     what the model reads to decide whether to call it
 	 *   icon            transcript icon -- MUST exist in getCerbIcons(); an invented name renders nothing
 	 *   labels          transcript strings: `active` while running, `summary` once done
@@ -109,14 +112,14 @@ class Components {
 				'docs' => ['references/docs/automations.md', 'references/docs/kata.md'],
 				'commands' => [
 					'getFields' => [
-						'tool' => 'get_fields',
+						'tool' => 'cerb_get_fields',
 						'description' => "Read the current automation form state from the user's browser. Call this first when the user refers to \"this automation\" or asks what it does.",
 						'icon' => 'eye-open',
 						'labels' => ['active' => 'Reading the automation...', 'summary' => 'Read the automation'],
 						'parameters' => [],
 					],
 					'setField' => [
-						'tool' => 'set_field',
+						'tool' => 'cerb_set_field',
 						'description' => "Replace a field's entire value. Send the COMPLETE new value; it overwrites what is there. Prefer edit_field for targeted changes to script or policy.",
 						'icon' => 'edit',
 						'labels' => ['active' => 'Updating the automation...', 'summary' => 'Updated the automation'],
@@ -133,7 +136,7 @@ class Components {
 						],
 					],
 					'editField' => [
-						'tool' => 'edit_field',
+						'tool' => 'cerb_edit_field',
 						'description' => "Undo-safe search/replace on the script or policy. `old` must match exactly once; if it matches zero or more than one time you get an error telling you to expand or uniquify the context. Prefer this over set_field for targeted edits.",
 						'icon' => 'edit',
 						'labels' => ['active' => 'Applying an edit...', 'summary' => 'Edited the automation'],
@@ -154,7 +157,7 @@ class Components {
 						],
 					],
 					'grepField' => [
-						'tool' => 'grep_field',
+						'tool' => 'cerb_grep_field',
 						'description' => "Search a field and get back matching lines as [{line, path, text}] -- exact line numbers plus the KATA key path for each hit, so you never have to guess a location.",
 						'icon' => 'search',
 						'labels' => ['active' => 'Searching the automation...', 'summary' => 'Searched the automation'],
@@ -175,7 +178,7 @@ class Components {
 						],
 					],
 					'getDiff' => [
-						'tool' => 'get_diff',
+						'tool' => 'cerb_get_diff',
 						'description' => "Read a field's pending changes as hunks against its baseline: {key, tracked, hunks:[{status, line, endLine, added, removed}]} with 1-based line numbers. `tracked: false` means there is no baseline to diff against. Use it to review your own edits before summarizing them.",
 						'icon' => 'history',
 						'labels' => ['active' => 'Reading the diff...', 'summary' => 'Read the diff'],
@@ -188,7 +191,7 @@ class Components {
 						],
 					],
 					'changeTab' => [
-						'tool' => 'change_tab',
+						'tool' => 'cerb_change_tab',
 						'description' => "Switch the focused tab in the editor, to show the user the result of a change.",
 						'icon' => 'tab',
 						'labels' => ['active' => 'Switching tabs...', 'summary' => 'Switched tabs'],
@@ -201,7 +204,7 @@ class Components {
 						],
 					],
 					'highlightLine' => [
-						'tool' => 'highlight_line',
+						'tool' => 'cerb_highlight_line',
 						'description' => "Flash a line in the script editor to point the user at the code you are discussing. Cheaper and clearer than pasting the code back at them.",
 						'icon' => 'sparkles',
 						'labels' => ['active' => 'Highlighting a line...', 'summary' => 'Highlighted a line'],
@@ -213,7 +216,7 @@ class Components {
 						],
 					],
 					'highlightKey' => [
-						'tool' => 'highlight_key',
+						'tool' => 'cerb_highlight_key',
 						'description' => "Flash the row for a KATA key path (e.g. start:while:do:llm.agent). A robust sibling of highlight_line: it targets the path, so it survives edits that shift line numbers.",
 						'icon' => 'sparkles',
 						'labels' => ['active' => 'Highlighting a key...', 'summary' => 'Highlighted a key'],
@@ -247,14 +250,14 @@ class Components {
 				'docs' => ['references/docs/data-queries/'],
 				'commands' => [
 					'getEditorValue' => [
-						'tool' => 'get_query',
+						'tool' => 'cerb_get_query',
 						'description' => "Read the current query from the user's editor. Call this first when the user refers to \"this query\".",
 						'icon' => 'eye-open',
 						'labels' => ['active' => 'Reading the query...', 'summary' => 'Read the query'],
 						'parameters' => [],
 					],
 					'setEditorValue' => [
-						'tool' => 'set_query',
+						'tool' => 'cerb_set_query',
 						'description' => "Replace the entire query. Send the COMPLETE new value. Prefer edit_query for targeted changes.",
 						'icon' => 'edit',
 						'labels' => ['active' => 'Updating the query...', 'summary' => 'Updated the query'],
@@ -266,7 +269,7 @@ class Components {
 						],
 					],
 					'editField' => [
-						'tool' => 'edit_query',
+						'tool' => 'cerb_edit_query',
 						'description' => "Undo-safe search/replace on the query. `old` must match exactly once; if it matches zero or more than one time you get an error telling you to expand or uniquify the context.",
 						'icon' => 'edit',
 						'labels' => ['active' => 'Applying an edit...', 'summary' => 'Edited the query'],
@@ -282,7 +285,7 @@ class Components {
 						],
 					],
 					'grepField' => [
-						'tool' => 'grep_query',
+						'tool' => 'cerb_grep_query',
 						'description' => "Search the query and get back matching lines as [{line, path, text}] -- exact line numbers plus the KATA key path for each hit.",
 						'icon' => 'search',
 						'labels' => ['active' => 'Searching the query...', 'summary' => 'Searched the query'],
@@ -298,7 +301,7 @@ class Components {
 						],
 					],
 					'highlightLine' => [
-						'tool' => 'highlight_line',
+						'tool' => 'cerb_highlight_line',
 						'description' => "Flash a line in the editor to point the user at the code you are discussing.",
 						'icon' => 'sparkles',
 						'labels' => ['active' => 'Highlighting a line...', 'summary' => 'Highlighted a line'],
@@ -324,14 +327,14 @@ class Components {
 				'docs' => ['references/docs/scripting.md'],
 				'commands' => [
 					'getEditorValue' => [
-						'tool' => 'get_script',
+						'tool' => 'cerb_get_script',
 						'description' => "Read the current script from the user's editor. Call this first when the user refers to \"this script\".",
 						'icon' => 'eye-open',
 						'labels' => ['active' => 'Reading the script...', 'summary' => 'Read the script'],
 						'parameters' => [],
 					],
 					'setEditorValue' => [
-						'tool' => 'set_script',
+						'tool' => 'cerb_set_script',
 						'description' => "Replace the entire script. Send the COMPLETE new value. Prefer edit_script for targeted changes.",
 						'icon' => 'edit',
 						'labels' => ['active' => 'Updating the script...', 'summary' => 'Updated the script'],
@@ -343,7 +346,7 @@ class Components {
 						],
 					],
 					'editField' => [
-						'tool' => 'edit_script',
+						'tool' => 'cerb_edit_script',
 						'description' => "Undo-safe search/replace on the script. `old` must match exactly once; if it matches zero or more than one time you get an error telling you to expand or uniquify the context.",
 						'icon' => 'edit',
 						'labels' => ['active' => 'Applying an edit...', 'summary' => 'Edited the script'],
@@ -359,7 +362,7 @@ class Components {
 						],
 					],
 					'grepField' => [
-						'tool' => 'grep_script',
+						'tool' => 'cerb_grep_script',
 						'description' => "Search the script and get back matching lines as [{line, path, text}] -- exact line numbers plus the KATA key path for each hit.",
 						'icon' => 'search',
 						'labels' => ['active' => 'Searching the script...', 'summary' => 'Searched the script'],
@@ -375,7 +378,7 @@ class Components {
 						],
 					],
 					'highlightLine' => [
-						'tool' => 'highlight_line',
+						'tool' => 'cerb_highlight_line',
 						'description' => "Flash a line in the editor to point the user at the code you are discussing.",
 						'icon' => 'sparkles',
 						'labels' => ['active' => 'Highlighting a line...', 'summary' => 'Highlighted a line'],
@@ -387,7 +390,7 @@ class Components {
 						],
 					],
 					'getDiff' => [
-						'tool' => 'get_diff',
+						'tool' => 'cerb_get_diff',
 						'description' => "Read the script's pending changes as hunks against its baseline: {tracked, hunks:[{status, line, endLine, added, removed}]} with 1-based line numbers. `tracked: false` means there is no baseline. Use it to review your own edits before summarizing them.",
 						'icon' => 'history',
 						'labels' => ['active' => 'Reading the diff...', 'summary' => 'Read the diff'],
@@ -408,7 +411,7 @@ class Components {
 				// Naming an existing icon is most of this job, and `get_icon_geometry` can only look one up once
 				// you know it exists -- so the set has to be enumerable.
 				'server_tools' => [
-					'list_icons' => [
+					'cerb_list_icons' => [
 						'handler' => self::HANDLER_ICONS_LIST,
 						'description' => "List the names of every icon already in the Cerb set, one per line. Use it to find a related icon to match, or to check whether a name is taken. Narrow a long list with `filter`.",
 						'icon' => 'search',
@@ -423,14 +426,14 @@ class Components {
 				],
 				'commands' => [
 					'getGeometry' => [
-						'tool' => 'get_geometry',
+						'tool' => 'cerb_get_geometry',
 						'description' => "Read the SVG geometry currently in the builder. Call this first when the user refers to \"this icon\".",
 						'icon' => 'eye-open',
 						'labels' => ['active' => 'Reading the icon...', 'summary' => 'Read the icon'],
 						'parameters' => [],
 					],
 					'setGeometry' => [
-						'tool' => 'set_geometry',
+						'tool' => 'cerb_set_geometry',
 						'description' => "Replace the icon's SVG geometry (the inner markup, without the outer <svg> element). This pushes a new revision, so the user can undo it and sees the preview update immediately.",
 						'icon' => 'edit',
 						'labels' => ['active' => 'Drawing the icon...', 'summary' => 'Drew the icon'],
@@ -442,7 +445,7 @@ class Components {
 						],
 					],
 					'getIconGeometry' => [
-						'tool' => 'get_icon_geometry',
+						'tool' => 'cerb_get_icon_geometry',
 						'description' => "Read another icon's geometry from the existing Cerb set, by name -- use it to match the house style before drawing. Returns no output when no such icon exists.",
 						'icon' => 'search',
 						'labels' => ['active' => 'Looking up an icon...', 'summary' => 'Looked up an icon'],
@@ -468,7 +471,7 @@ class Components {
 				'docs' => ['references/docs/search.md'],
 				'commands' => [
 					'getFields' => [
-						'tool' => 'get_fields',
+						'tool' => 'cerb_get_fields',
 						'description' => "Read the current search query and the record type it searches, as {query, record_type, record_context, view_id}. Call this first -- the record type determines which fields are even valid.",
 						'icon' => 'eye-open',
 						'labels' => ['active' => 'Reading the search...', 'summary' => 'Read the search'],
@@ -477,7 +480,7 @@ class Components {
 					// The bridge is the generic `setField`, but a worklist has exactly ONE writable field, so `key`
 					// is pinned rather than asked for: an enum of one is an argument a model can only get wrong.
 					'setField' => [
-						'tool' => 'set_query',
+						'tool' => 'cerb_set_query',
 						'description' => "Write the search query. This only updates the field; call run_search to actually run it.",
 						'icon' => 'edit',
 						'labels' => ['active' => 'Updating the search...', 'summary' => 'Updated the search'],
@@ -490,7 +493,7 @@ class Components {
 						],
 					],
 					'runSearch' => [
-						'tool' => 'run_search',
+						'tool' => 'cerb_run_search',
 						'description' => "Run the query currently in the field. The search runs asynchronously, so this reports that it STARTED, not what it found -- do not expect results back.",
 						'icon' => 'search',
 						'labels' => ['active' => 'Running the search...', 'summary' => 'Ran the search'],
@@ -509,14 +512,14 @@ class Components {
 				],
 				'commands' => [
 					'getFields' => [
-						'tool' => 'get_fields',
+						'tool' => 'cerb_get_fields',
 						'description' => "Read the reply form as {to, cc, bcc, subject, format, content}. `format` is markdown or plaintext. Call this first when the user refers to \"this reply\".",
 						'icon' => 'eye-open',
 						'labels' => ['active' => 'Reading the reply...', 'summary' => 'Read the reply'],
 						'parameters' => [],
 					],
 					'setField' => [
-						'tool' => 'set_field',
+						'tool' => 'cerb_set_field',
 						'description' => "Replace a field's entire value. Send the COMPLETE new value; it overwrites what is there. Writing `format` also switches the editor's mode.",
 						'icon' => 'edit',
 						'labels' => ['active' => 'Updating the reply...', 'summary' => 'Updated the reply'],
@@ -560,14 +563,14 @@ class Components {
 				],
 				'commands' => [
 					'getPage' => [
-						'tool' => 'get_page',
+						'tool' => 'cerb_get_page',
 						'description' => "Read where the worker is right now, as {page_uri, page_title, page_id, url, open_popups}. `page_uri` is the path Cerb ROUTED (e.g. `profiles/ticket/1234`), which is what they are actually looking at -- the browser `url` can say otherwise. Call this when they ask about \"this page\" or \"what am I looking at\", and use it as search terms against your documentation. It reports WHERE they are, never the contents.",
 						'icon' => 'compass',
 						'labels' => ['active' => 'Checking the page...', 'summary' => 'Checked the page'],
 						'parameters' => [],
 					],
 					'openSearch' => [
-						'tool' => 'open_search',
+						'tool' => 'cerb_open_search',
 						'description' => "Open a search popup in front of the worker, for one record type, optionally prefilled with a query. This SHOWS them results; it does not return any to you -- you will not see what matched, or how many. Say what you searched for and let them read it.",
 						'icon' => 'search',
 						'labels' => ['active' => 'Opening a search...', 'summary' => 'Opened a search'],

@@ -501,7 +501,7 @@ class LlmAgentNode extends AbstractNode {
 						$this->_dict->unset($var);
 
 					// Providers reject an empty tool result, and '' is genuinely ambiguous here: a host that threw,
-					// a command it doesn't implement, and an honestly empty answer (`get_icon_geometry` on an
+					// a command it doesn't implement, and an honestly empty answer (`cerb_get_icon_geometry` on an
 					// unknown icon) are indistinguishable by the time the value reaches us. So say the same thing
 					// `agent_terminal` says for a command that produced nothing, and don't guess at a cause.
 					$content = strval($content) ?: '(no output)';
@@ -875,6 +875,20 @@ class LlmAgentNode extends AbstractNode {
 		return $tools_config;
 	}
 
+	/**
+	 * Overlay the tools contributed by this automation's TRIGGER onto a `tools:` config, keyed `<type>/<name>`
+	 * like any authored entry — so everything downstream (the flatten below, the provider schema, the
+	 * transcript's labels) reads them without knowing where they came from.
+	 *
+	 * Today that's an agent pane handing the chat one `ui_command/` tool per UI command its host editor
+	 * answers, which is what lets a chat beside an editor read and rewrite it with nothing in its script.
+	 *
+	 * Same rule as `agent_terminal`: an author tool of the same NAME wins, always — matched on the name rather
+	 * than the whole key, since `tool/cerb_get_fields` and `ui_command/cerb_get_fields` are one collision, not two tools.
+	 *
+	 * Duck-typed rather than an interface: this file is platform code and the only trigger that answers lives
+	 * in cerberusweb.core — the same arrangement `_renderFormElements()` uses for `getFormComponentMeta()`.
+	 */
 	private function _withTriggerTools(array $tools_config) : array {
 		if(!$this->_automation)
 			return $tools_config;
