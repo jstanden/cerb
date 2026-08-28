@@ -85,6 +85,13 @@ class PageSection_ProfilesAgentTool extends Extension_PageSection {
 					if(!($automation = DAO_Automation::get($automation_id)))
 						throw new Exception_DevblocksAjaxValidationError("The selected automation no longer exists.");
 
+					// The chooser filters on the trigger, but the id arrives in a POST -- and an automation on
+					// any other trigger would resolve to nothing at call time and drop the tool silently.
+					if(AutomationTrigger_AgentTool::ID !== $automation->extension_id)
+						throw new Exception_DevblocksAjaxValidationError(
+							"The selected automation must use the `agent.tool` trigger."
+						);
+
 					$uri = 'cerb:automation:' . $automation->name;
 				}
 

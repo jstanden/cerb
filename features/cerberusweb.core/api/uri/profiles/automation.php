@@ -157,6 +157,44 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		echo json_encode((object) $out);
 	}
 	
+	/**
+	 * Which blocks an `agent.tool` script uses that it must not: a top-level `inputs:` (the record owns the
+	 * parameters) and any `await:` at any depth (a tool has no continuation to resume into).
+	 *
+	 * Returns a set keyed by block name, so the caller reports one specific problem rather than a generic
+	 * "unsupported" list.
+	 */
+	private function _collectAgentToolUnsupportedBlocks(string $script) : array {
+		$error = null;
+		$tree = DevblocksPlatform::services()->kata()->parse($script, $error, true);
+
+		// A genuine syntax error is reported by the schema validation elsewhere -- don't double-report here.
+		if(!is_array($tree))
+			return [];
+
+		$found = [];
+
+		if(array_key_exists('inputs', $tree))
+			$found['inputs'] = true;
+
+		$walk = function($node) use (&$walk, &$found) {
+			if(!is_array($node))
+				return;
+
+			foreach($node as $key => $value) {
+				// `await:` and `await/<name>:` are the same command.
+				if(is_string($key) && ('await' === $key || str_starts_with($key, 'await/')))
+					$found['await'] = true;
+
+				$walk($value);
+			}
+		};
+
+		$walk($tree);
+
+		return $found;
+	}
+	
 	// Collect the `<type>` of every `await:form:elements:<type>/<var>` element in a script (element keys carry a
 	// `/`). Used to validate authored form elements against the trigger's advertised getFormComponentMeta() — a
 	// type the trigger doesn't advertise is silently dropped at render, so we reject it at save time.
@@ -290,6 +328,25 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 							$hint
 						));
 					}
+				}
+
+				// Guard: an agent tool's parameters live on its `agent_tool` record, and it runs to completion
+				// inside a single tool call. A script that declares `inputs:` or suspends on `await:` would be
+				// silently ignored or strand the turn, so reject the save with the actionable message instead.
+				if(AutomationTrigger_AgentTool::ID === $trigger_ext->id) {
+					$offenders = $this->_collectAgentToolUnsupportedBlocks($script);
+
+					if(array_key_exists('inputs', $offenders))
+						throw new Exception_DevblocksAjaxValidationError(
+							'An agent tool declares its parameters on its `agent_tool` record, not in an `inputs:` block. '
+							. 'Move them to the tool record\'s Parameters and read them here as `params.<name>`.'
+						);
+
+					if(array_key_exists('await', $offenders))
+						throw new Exception_DevblocksAjaxValidationError(
+							'An agent tool cannot `await:`. It runs to completion inside a single tool call, so there '
+							. 'is nothing to suspend to -- return a `content:` string instead.'
+						);
 				}
 
 				// Validate policy KATA

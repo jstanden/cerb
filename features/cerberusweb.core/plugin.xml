@@ -4160,7 +4160,7 @@
 				<param key="description" value="A tool an AI agent can call: it receives arguments, does work, and returns a result." />
 				<param key="icon" value="wrench" />
 				<param key="section" value="AI" />
-				<param key="trigger" value="cerb.trigger.llm.tool" />
+				<param key="trigger" value="cerb.trigger.agent.tool" />
 				<param key="sort" value="20" />
 			</params>
 		</extension>
@@ -4575,6 +4575,24 @@
 					<value>
 						<data key="await" />
 						<data key="callers" />
+						<data key="inputs" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<extension point="cerb.automation.trigger">
+			<id>cerb.trigger.agent.tool</id>
+			<name>agent.tool</name>
+			<class>
+				<file>api/automations/triggers/agent.tool.php</file>
+				<name>AutomationTrigger_AgentTool</name>
+			</class>
+			<params>
+				<param key="icon" value="wrench" />
+				<param key="description" value="The automation behind an agent tool: it receives arguments and returns a result the AI agent reads" />
+				<param key="features">
+					<value>
 						<data key="inputs" />
 					</value>
 				</param>

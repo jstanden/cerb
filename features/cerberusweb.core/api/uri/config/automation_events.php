@@ -248,7 +248,7 @@ class PageSection_SetupDevelopersAutomationEvents extends Extension_PageSection 
 					$trig('scripting.function'),
 					$trig('automation.function'),
 					$trig('behavior.action'),
-					$trig('llm.tool'),
+					$trig('agent.tool'),
 					$trig('interaction.internal'),
 					$trig('queue.consumer'),
 					$trig('map.clicked'),
