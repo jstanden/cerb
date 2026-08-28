@@ -2233,6 +2233,16 @@
 				<seg>param</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.parameter">
+			<tuv xml:lang="en_US">
+				<seg>Parameter</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.parameters">
+			<tuv xml:lang="en_US">
+				<seg>Parameters</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.params">
 			<tuv xml:lang="en_US">
 				<seg>params</seg>
@@ -5818,11 +5828,6 @@ For example: *receipt*</seg>
 				<seg>Model</seg>
 			</tuv>
 		</tu>
-		<tu tuid="dao.agent_model.params_kata">
-			<tuv xml:lang="en_US">
-				<seg>Parameters</seg>
-			</tuv>
-		</tu>
 		<tu tuid="dao.agent_model.rating_cost">
 			<tuv xml:lang="en_US">
 				<seg>Cost</seg>
@@ -5846,6 +5851,17 @@ For example: *receipt*</seg>
 		<tu tuid="dao.agent_model.provider">
 			<tuv xml:lang="en_US">
 				<seg>Provider</seg>
+			</tuv>
+		</tu>
+		<!-- Agent Tool -->
+		<tu tuid="dao.agent_tool.label_active">
+			<tuv xml:lang="en_US">
+				<seg>Running Label</seg>
+			</tuv>
+		</tu>
+		<tu tuid="dao.agent_tool.label_summary">
+			<tuv xml:lang="en_US">
+				<seg>Finished Label</seg>
 			</tuv>
 		</tu>
 		<!-- Agent File -->

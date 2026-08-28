@@ -204,7 +204,7 @@
 		   schema change. Provider-specific knobs live HERE rather than as columns: only some providers accept
 		   an endpoint override, so a fixed field would lie about the ones that don't. *}
 		<div class="cerb-ui-form--field">
-			<label class="cerb-ui-form--label">{'dao.agent_model.params_kata'|devblocks_translate|capitalize}</label>
+			<label class="cerb-ui-form--label">{'common.parameters'|devblocks_translate|capitalize}</label>
 			<textarea name="params_kata" id="paramsKata_{$form_id}" rows="8" spellcheck="false">{$model->params_kata}</textarea>
 			<div class="cerb-ui-form--hint">Provider knobs in <code>llm:</code> grammar. The fields above win where they overlap.</div>
 		</div>

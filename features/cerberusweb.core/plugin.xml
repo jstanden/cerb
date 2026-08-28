@@ -84,7 +84,7 @@
 
 		<patch version="11.0.0" revision="1476" file="patches/11.x/11.0.0.php" />
 		<patch version="11.1.0" revision="1491" file="patches/11.x/11.1.0.php" />
-		<patch version="12.0.0" revision="1563" file="patches/12.x/12.0.0.php" />
+		<patch version="12.0.0" revision="1564" file="patches/12.x/12.0.0.php" />
 	</patches>
 
 	<!-- Exported Classes -->
@@ -837,6 +837,14 @@
 			<class name="View_AgentModel" />
 		</file>
 
+		<file path="api/dao/agent_tool.php">
+			<class name="Context_AgentTool" />
+			<class name="DAO_AgentTool" />
+			<class name="Model_AgentTool" />
+			<class name="SearchFields_AgentTool" />
+			<class name="View_AgentTool" />
+		</file>
+
 		<file path="api/dao/agent_file.php">
 			<class name="Context_AgentFile" />
 			<class name="DAO_AgentFile" />
@@ -1178,6 +1186,50 @@
 		</extension>
 
 		<!-- Contexts -->
+
+		<extension point="devblocks.context">
+			<id>cerb.contexts.agent.tool</id>
+			<name>Agent Tool</name>
+			<class>
+				<file>api/dao/agent_tool.php</file>
+				<name>Context_AgentTool</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="agent tool" value="singular" />
+						<data key="agent tools" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="agent_tool" />
+				<param key="icon" value="wrench" />
+				<param key="dao_class" value="DAO_AgentTool" />
+				<param key="view_class" value="View_AgentTool" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="comments" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="records" />
+						<data key="search" />
+						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="watchers" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
+					</value>
+				</param>
+			</params>
+		</extension>
 
 		<extension point="devblocks.context">
 			<id>cerb.contexts.agent.model</id>
@@ -6488,6 +6540,18 @@
 				</params>
 			</extension>
 
+			<extension point="cerberusweb.ui.page.section">
+				<id>cerberusweb.page.profiles.agent_tool</id>
+				<name>Agent Tool Section</name>
+				<class>
+					<file>api/profiles/agent_tool.php</file>
+					<name>PageSection_ProfilesAgentTool</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="agent_tool" />
+				</params>
+			</extension>
 
 			<extension point="cerberusweb.ui.page.section">
 				<id>cerberusweb.page.profiles.agent_file</id>

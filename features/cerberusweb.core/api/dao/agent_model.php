@@ -1969,7 +1969,7 @@ class Context_AgentModel extends Extension_DevblocksContext implements IDevblock
 		];
 
 		$properties['params_kata'] = [
-			'label' => mb_ucfirst($translate->_('dao.agent_model.params_kata')),
+			'label' => mb_ucfirst($translate->_('common.parameters')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'value' => $model->params_kata,
 		];
@@ -2065,7 +2065,7 @@ class Context_AgentModel extends Extension_DevblocksContext implements IDevblock
 			'status' => $prefix.$translate->_('common.status'),
 			'label' => $prefix.$translate->_('dao.agent_model.label'),
 			'model' => $prefix.$translate->_('dao.agent_model.model'),
-			'params_kata' => $prefix.$translate->_('dao.agent_model.params_kata'),
+			'params_kata' => $prefix.$translate->_('common.parameters'),
 			'provider' => $prefix.$translate->_('dao.agent_model.provider'),
 		];
 

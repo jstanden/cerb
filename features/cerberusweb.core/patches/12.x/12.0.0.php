@@ -4143,6 +4143,38 @@ class CerbPatch_Core_v12_0_0 {
 		
 		$this->_logger->info("[Patch] Enabled the built-in Cerb agent workflow (cerb.ai.agent).");
 	}
+
+	private function patchTableAgentTool() : void {
+		// ===========================================================================
+		// A tool an AI agent can call: the model-facing name and parameter schema, the transcript's icon and
+		// action labels, and the `agent.tool` automation that answers it -- defined once, referenced by name
+		// from any agent or surface.
+
+		if (!isset($this->_tables['agent_tool'])) {
+			$this->_db->ExecuteMaster("
+				CREATE TABLE `agent_tool` (
+				`id` bigint unsigned NOT NULL AUTO_INCREMENT,
+				`name` varchar(64) NOT NULL DEFAULT '',
+				`label` varchar(128) NOT NULL DEFAULT '',
+				`description` text,
+				`icon` varchar(64) NOT NULL DEFAULT '',
+				`label_active` varchar(255) NOT NULL DEFAULT '',
+				`label_summary` varchar(255) NOT NULL DEFAULT '',
+				`uri` varchar(255) NOT NULL DEFAULT '',
+				`params_kata` mediumtext,
+				`status` tinyint unsigned NOT NULL DEFAULT 0,
+				`created_at` int unsigned NOT NULL DEFAULT 0,
+				`updated_at` int unsigned NOT NULL DEFAULT 0,
+				PRIMARY KEY (`id`),
+				UNIQUE KEY `name` (`name`),
+				INDEX `uri` (`uri`),
+				INDEX `updated_at` (`updated_at`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+			") or die("[MySQL Error] " . $this->_db->ErrorMsgMaster());
+			
+			$this->_tables['agent_tool'] = 'agent_tool';
+		}
+	}
 }
 
 $patch = new CerbPatch_Core_v12_0_0();

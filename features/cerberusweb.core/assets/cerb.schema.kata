@@ -664,6 +664,133 @@ tables:
             index_type: BTREE
             subpart@text:
             unique@text:
+  agent_tool:
+    columns:
+      created_at:
+        field: created_at
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      description:
+        field: description
+        type: text
+        collation: utf8mb4_unicode_ci
+        nullable: NULL
+        key@text:
+        default@text:
+        extra@text:
+      icon:
+        field: icon
+        type: varchar(64)
+        collation: utf8mb4_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
+      id:
+        field: id
+        type: bigint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key: PRI
+        default@text:
+        extra: auto_increment
+      label:
+        field: label
+        type: varchar(128)
+        collation: utf8mb4_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
+      label_active:
+        field: label_active
+        type: varchar(255)
+        collation: utf8mb4_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
+      label_summary:
+        field: label_summary
+        type: varchar(255)
+        collation: utf8mb4_unicode_ci
+        nullable: NOT NULL
+        key@text:
+        default@text:
+        extra@text:
+      name:
+        field: name
+        type: varchar(64)
+        collation: utf8mb4_unicode_ci
+        nullable: NOT NULL
+        key: UNI
+        default@text:
+        extra@text:
+      params_kata:
+        field: params_kata
+        type: mediumtext
+        collation: utf8mb4_unicode_ci
+        nullable: NULL
+        key@text:
+        default@text:
+        extra@text:
+      status:
+        field: status
+        type: tinyint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
+      updated_at:
+        field: updated_at
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key: MUL
+        default: 0
+        extra@text:
+      uri:
+        field: uri
+        type: varchar(255)
+        collation: utf8mb4_unicode_ci
+        nullable: NOT NULL
+        key: MUL
+        default@text:
+        extra@text:
+    indexes:
+      PRIMARY:
+        columns:
+          id:
+            column_name: id
+            index_type: BTREE
+            subpart@text:
+            unique: 1
+      name:
+        columns:
+          name:
+            column_name: name
+            index_type: BTREE
+            subpart@text:
+            unique: 1
+      updated_at:
+        columns:
+          updated_at:
+            column_name: updated_at
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+      uri:
+        columns:
+          uri:
+            column_name: uri
+            index_type: BTREE
+            subpart@text:
+            unique@text:
   attachment:
     columns:
       id:
