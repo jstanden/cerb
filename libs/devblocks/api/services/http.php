@@ -88,7 +88,10 @@ class _DevblocksHttpService {
 			return false;
 			
 		} catch (GuzzleException $e) {
-			$error = get_class($e);
+			// Keep the message. A ConnectException isn't a RequestException, so it lands here -- and the class
+			// name alone ("GuzzleHttp\Exception\ConnectException") tells a caller nothing about which host or
+			// why. Matches _sendWithSink() below.
+			$error = get_class($e) . ': ' . $e->getMessage();
 			DevblocksPlatform::logException($e);
 			return false;
 		}
