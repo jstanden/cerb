@@ -37,7 +37,32 @@ $(function() {
 
 		genericAjaxPost('frmJobRun', '', null, function(json) {
 			if('object' != typeof json || false == json.status) {
-				$spinner.html('<span style="color:var(--cerb-color-tag-red);">' + ((json && json.error) ? json.error : 'The job failed to run.') + '</span>');
+				const $error = $(
+					'<div class="cerb-ui-panel cerb-ui-panel--alert">' +
+						'<div class="cerb-ui-header">' +
+							'<div class="cerb-ui-callout">' +
+								'<span class="cerb-icons cerb-icon-alert cerb-ui-callout--icon"></span>' +
+								'<div>' +
+									'<div class="cerb-ui-header--title-sm">The job failed to run.</div>' +
+									'<div class="cerb-ui-header--subtitle"></div>' +
+								'</div>' +
+							'</div>' +
+						'</div>' +
+					'</div>'
+				);
+
+				// Set with .text(), never interpolated into the markup above: json.error is server prose,
+				// and a throttled run (no free slot) reports its reason through this same path.
+				const reason = (json && json.error) ? json.error : '';
+				const $subtitle = $error.find('.cerb-ui-header--subtitle');
+
+				if(reason)
+					$subtitle.text(reason);
+				else
+					$subtitle.remove();
+
+				$spinner.hide();
+				$('#jobRunBody').append($error);
 				return;
 			}
 
