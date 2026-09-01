@@ -253,6 +253,7 @@ class _DevblocksTemplateBuilder {
 				'base64_decode',
 				'base64url_encode',
 				'base64url_decode',
+				'bin2hex',
 				'bytes_pretty',
 				'cerb_translate',
 				'context_alias',
@@ -261,6 +262,7 @@ class _DevblocksTemplateBuilder {
 				'date_pretty',
 				'hash',
 				'hash_hmac',
+				'hex2bin',
 				'html_to_text',
 				'image_info',
 				'indent',
@@ -2097,6 +2099,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFilter('base64_decode', [$this, 'filter_base64_decode']),
 			new \Twig\TwigFilter('base64url_encode', [$this, 'filter_base64url_encode']),
 			new \Twig\TwigFilter('base64url_decode', [$this, 'filter_base64url_decode']),
+			new \Twig\TwigFilter('bin2hex', [$this, 'filter_bin2hex']),
 			new \Twig\TwigFilter('bytes_pretty', [$this, 'filter_bytes_pretty']),
 			new \Twig\TwigFilter('cerb_translate', [$this, 'filter_cerb_translate']),
 			new \Twig\TwigFilter('context_alias', [$this, 'filter_context_alias']),
@@ -2105,6 +2108,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFilter('date_pretty', [$this, 'filter_date_pretty']),
 			new \Twig\TwigFilter('hash', [$this, 'filter_hash']),
 			new \Twig\TwigFilter('hash_hmac', [$this, 'filter_hash_hmac']),
+			new \Twig\TwigFilter('hex2bin', [$this, 'filter_hex2bin']),
 			new \Twig\TwigFilter('html_to_text', [$this, 'filter_html_to_text']),
 			new \Twig\TwigFilter('image_info', [$this, 'filter_image_info']),
 			new \Twig\TwigFilter('indent', [$this, 'filter_indent']),
@@ -2222,6 +2226,16 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			return '';
 		
 		return DevblocksPlatform::services()->string()->base64UrlDecode($string);
+	}
+	
+	function filter_bin2hex($string) {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
+		if(!is_string($string))
+			return '';
+		
+		return bin2hex($string);
 	}
 	
 	function filter_bytes_pretty($string, $precision='0') {
@@ -2347,6 +2361,20 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			return '';
 		
 		return $hash;
+	}
+	
+	function filter_hex2bin($string) {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
+		if(!is_string($string) || '' === $string)
+			return '';
+		
+		// hex2bin() warns and returns false on odd-length or non-hex input
+		if(0 !== strlen($string) % 2 || !ctype_xdigit($string))
+			return '';
+		
+		return hex2bin($string);
 	}
 	
 	function filter_html_to_text($string, $truncate=50_000) {
