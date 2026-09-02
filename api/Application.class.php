@@ -317,6 +317,10 @@ class CerberusApplication extends DevblocksApplication {
 		}
 	}
 
+	static function isCerbCloud() : bool {
+		return defined('CERB_CLOUD_SUBDOMAIN');
+	}
+	
 	static function checkRequirements() : array {
 		$errors = [];
 

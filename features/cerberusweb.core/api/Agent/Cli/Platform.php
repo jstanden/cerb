@@ -155,14 +155,8 @@ class Platform implements Command {
 		return $this->_ok(implode("\n", $out), $rows, 'version');
 	}
 
-	/**
-	 * Whether Cerb hosts this install.
-	 *
-	 * Both constants are defined only in Cloud's own `framework.config.php`, so they're read through
-	 * `defined()` -- naming an undefined constant directly is a fatal everywhere else.
-	 */
 	private function _isCerbCloud() : bool {
-		return defined('CERB_CLOUD_SUBDOMAIN') && defined('CERB_CLOUD_TOKEN');
+		return \CerberusApplication::isCerbCloud();
 	}
 
 	/**
