@@ -43,6 +43,16 @@ class _DevblocksQueueService {
 
 		return null;
 	}
+	
+	/**
+	 * Hand a slot back as soon as its drain finishes rather than waiting for the request to end.
+	 * GET_LOCK is connection-scoped, so connection close remains the backstop for a crash; this
+	 * just stops a 25s drain from holding a scarce slot for the rest of a long request.
+	 */
+	public function releaseConcurrencySlot(int $slot) : void {
+		$db = DevblocksPlatform::services()->database();
+		$db->ExecuteMaster(sprintf("DO RELEASE_LOCK(%s)", $db->qstr(sprintf("queue_slot_%d", $slot))));
+	}
 
 	const int RETRY_BACKOFF_MIN_SECS = 10;
 
