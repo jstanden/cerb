@@ -8,6 +8,10 @@ class _DevblocksQueueService {
 	// method running per SLOT LOCK -- every acquire, usage read and widget poll calls it. Nothing that
 	// feeds it can change mid-request (singleton license, compile-time constant).
 	private array $_max_concurrency_slots = [];
+	// Messages this request currently holds a claim on: claim_id => [uuid => true]. Fed by dequeue(),
+	// drained as each message reaches a disposition, and re-leased by heartbeat().
+	private array $_claim_leases = [];
+	private int $_claim_renewed_at = 0;
 	private array $_status_buffer = ['success'=>[], 'failure'=>[]];
 	private array $_jobs_buffer = [];
 	private array $_log_buffer = [];
@@ -148,8 +152,8 @@ class _DevblocksQueueService {
 	}
 
 	/**
-	 * Put a claimed message back on the queue, to be re-claimed in `$delay_secs`, WITHOUT it counting as a
-	 * failure.
+	 * Put a claimed message back on the queue, to be re-claimed in `$delay_secs`, without recording a
+	 * FAILURE. Advances `retry_count` because the attempt RAN -- use deferMessage() when it never started.
 	 *
 	 * The third disposition, beside reportSuccess() and reportFailure(). Those two are terminal-ish judgements
 	 * governed by the QUEUE's `retry_max`; this one is the consumer saying "I know what this failure cost, and
@@ -165,14 +169,36 @@ class _DevblocksQueueService {
 	 * @param int $delay_secs Seconds from now before a worker may claim it again; floored at 0.
 	 */
 	public function requeueMessage(Model_QueueMessage $message, int $delay_secs) : void {
+		$this->_requeueMessage($message, $delay_secs, $message->retry_count + 1);
+	}
+
+	/**
+	 * Put a claimed message back WITHOUT advancing `retry_count`, for work that never started -- it lost a
+	 * lock, or its dependency was busy. There is no attempt to penalize.
+	 *
+	 * `retry_count` is free at the QUEUE layer (these queues run `retry_max = 0`, so queue policy never
+	 * reads it), which is why the split is easy to miss. Consumers are not: `llm.php` treats a non-zero
+	 * count as proof a prior attempt already called the provider, so it drops the caller's new messages
+	 * and can ack the turn as "already landed". Bumping the counter for a deferral silently discards the
+	 * message.
+	 *
+	 * @param int $delay_secs Seconds from now before a worker may claim it again; floored at 0.
+	 */
+	public function deferMessage(Model_QueueMessage $message, int $delay_secs) : void {
+		$this->_requeueMessage($message, $delay_secs, $message->retry_count);
+	}
+
+	private function _requeueMessage(Model_QueueMessage $message, int $delay_secs, int $retry_count) : void {
 		if('' === $message->uuid)
 			return;
 
 		DAO_QueueMessage::requeue(
 			[$message->uuid],
 			time() + max(0, $delay_secs),
-			$message->retry_count + 1
+			$retry_count
 		);
+
+		$this->_releaseClaimLeases([$message]);
 	}
 
 	private static function _retryNoticeCacheKey(string $message_uuid) : string {
@@ -244,7 +270,65 @@ class _DevblocksQueueService {
 		if(null == ($queue = $this->_getQueueByName($queue_name)))
 			return false;
 
-		return DAO_QueueMessage::dequeue($queue, $limit, $claim_id, $job_id);
+		$messages = DAO_QueueMessage::dequeue($queue, $limit, $claim_id, $job_id);
+
+		foreach($messages as $message)
+			$this->_claim_leases[strval($claim_id)][$message->uuid] = true;
+
+		if($messages)
+			$this->_claim_renewed_at = time();
+
+		return $messages;
+	}
+
+	const int CLAIM_RENEW_INTERVAL_SECS = 15;
+
+	/**
+	 * "Still working" — re-lease every message this request holds, so a short `claim_window_secs`
+	 * reaps abandoned work quickly without ever reaping live work.
+	 *
+	 * Called from two places, which between them cover both shapes of long consumer:
+	 *   - every HTTP transfer's curl progress callback (_DevblocksHttpService), so a single provider
+	 *     round trip that runs for ten minutes keeps its claim alive the whole way down;
+	 *   - each reportSuccess()/reportFailure(), so a batch consumer chewing through a claim of many
+	 *     messages re-leases the rest as it goes.
+	 *
+	 * Cheap to call at any rate: it returns on an in-memory check when nothing is claimed, and
+	 * writes at most once per CLAIM_RENEW_INTERVAL_SECS. curl calls its progress function about
+	 * once a second, so the throttle is what keeps that from becoming an UPDATE per second.
+	 */
+	public function heartbeat() : void {
+		if(!$this->_claim_leases)
+			return;
+
+		if(time() - $this->_claim_renewed_at < self::CLAIM_RENEW_INTERVAL_SECS)
+			return;
+
+		$this->_claim_renewed_at = time();
+
+		foreach($this->_claim_leases as $claim_id => $uuids)
+			DAO_QueueMessage::renewClaims(array_keys($uuids), strval($claim_id));
+	}
+
+	/**
+	 * Stop re-leasing messages that have reached a disposition. A claim we keep renewing after we're
+	 * done with it holds the reaper off work we've abandoned.
+	 *
+	 * @param Model_QueueMessage[] $messages
+	 */
+	private function _releaseClaimLeases(array $messages) : void {
+		if(!$this->_claim_leases)
+			return;
+
+		foreach($this->_claim_leases as $claim_id => $uuids) {
+			foreach($messages as $message)
+				unset($uuids[$message->uuid]);
+
+			if($uuids)
+				$this->_claim_leases[$claim_id] = $uuids;
+			else
+				unset($this->_claim_leases[$claim_id]);
+		}
 	}
 
 	/**
@@ -293,6 +377,8 @@ class _DevblocksQueueService {
 		}
 		$this->_trackJobIds($messages);
 		$this->_bufferLogEntry($messages, 1 /* SUCCESS */, $message, $metadata);
+		$this->_releaseClaimLeases($messages);
+		$this->heartbeat();
 	}
 
 	public function reportFailure(array $messages, string $message='', array $metadata=[]) : void {
@@ -310,6 +396,8 @@ class _DevblocksQueueService {
 		}
 		$this->_trackJobIds($messages);
 		$this->_bufferLogEntry($messages, 3 /* ERROR */, $message, $metadata);
+		$this->_releaseClaimLeases($messages);
+		$this->heartbeat();
 	}
 
 	/**
@@ -317,8 +405,10 @@ class _DevblocksQueueService {
 	 * (a crashed/stalled consumer never reported status). Each reaped message is
 	 * treated exactly like a reported failure — metrics, retry backoff or terminal
 	 * FAILED, job progress + finalization — flushed immediately rather than at
-	 * shutdown. The claim window is the consumer's completion deadline; a consumer
-	 * that finishes after its claim was reaped just re-reports the message's status.
+	 * shutdown. The claim window is a SILENCE deadline, not a completion deadline -- a live
+	 * consumer re-leases as it works (see heartbeat()), so reaching it means nothing has
+	 * reported progress in that long. A consumer that finishes after its claim was reaped
+	 * just re-reports the message's status.
 	 */
 	public function reapStalledMessages() : int {
 		if(!($stalled = DAO_QueueMessage::getStalled()))

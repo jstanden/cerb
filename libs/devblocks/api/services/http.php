@@ -35,7 +35,17 @@ class _DevblocksHttpService {
 				
 				if(!array_key_exists(RequestOptions::TIMEOUT, $options))
 					$options[RequestOptions::TIMEOUT] = 30;
-				
+
+				// Liveness for the queue's claim leases. curl calls its progress function roughly once a
+				// second for the life of a transfer, whether or not bytes are moving, which is the only
+				// signal that says "this consumer is still connected and waiting" during a single provider
+				// round trip that runs for ten minutes. The queue service throttles the actual write and
+				// no-ops entirely when this request holds no claim, so an ordinary web request pays a
+				// function call. Guzzle maps this to CURLOPT_PROGRESSFUNCTION and will THROW if a caller
+				// also passes CURLOPT_NOPROGRESS/PROGRESSFUNCTION/XFERINFOFUNCTION in `curl` options.
+				if(!array_key_exists(RequestOptions::PROGRESS, $options))
+					$options[RequestOptions::PROGRESS] = fn() => DevblocksPlatform::services()->queue()->heartbeat();
+
 				if(defined('DEVBLOCKS_HTTP_PROXY') && DEVBLOCKS_HTTP_PROXY) {
 					$options[RequestOptions::PROXY] = [
 						'http' => DEVBLOCKS_HTTP_PROXY,

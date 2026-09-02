@@ -156,6 +156,38 @@ class DAO_QueueMessage {
 		return $messages;
 	}
 
+	/**
+	 * Extend the lease on in-flight messages by restamping `claimed_at`, so a consumer that is
+	 * demonstrably still working isn't reaped by getStalled(). This is what lets `claim_window_secs`
+	 * be short: the window sizes how long a DEAD consumer holds work hostage, not how long a live one
+	 * is allowed to take.
+	 *
+	 * Scoped to the caller's own `claim_id`. Without that, a message already reaped and re-claimed
+	 * elsewhere would have the NEW holder's lease extended by the dead one.
+	 *
+	 * @param string[] $uuids 32-hex (or dashed) message uuids
+	 * @param string $claim_id The `0x…` literal handed back by dequeue()
+	 * @return int messages renewed
+	 */
+	static function renewClaims(array $uuids, string $claim_id) : int {
+		$db = DevblocksPlatform::services()->database();
+
+		if(!$uuids || '' === $claim_id)
+			return 0;
+
+		$literals = array_map(fn($uuid) => '0x' . str_replace('-', '', $db->escape($uuid)), $uuids);
+
+		$db->ExecuteMaster(sprintf(
+			"UPDATE queue_message SET claimed_at=%d WHERE uuid IN (%s) AND status_id=%d AND claim_id=%s",
+			time(),
+			implode(',', $literals),
+			QueueMessageStatus::IN_FLIGHT->value,
+			$db->escape($claim_id)
+		));
+
+		return intval($db->Affected_Rows());
+	}
+
 	static function reportSuccess(array $message_uuids) : void {
 		self::_reportStatus(QueueMessageStatus::DONE, $message_uuids);
 	}
@@ -338,6 +370,9 @@ class DAO_QueueMessage {
 	/**
 	 * Find in-flight messages whose claim outlived their queue's `claim_window_secs`
 	 * (abandoned by a crashed/stalled consumer). Queues with a zero window never reap.
+	 *
+	 * Measured from the last renewal, not the original claim -- a live consumer restamps
+	 * `claimed_at` as it works (renewClaims()), so a long run is never mistaken for a dead one.
 	 *
 	 * @return Model_QueueMessage[] Payload-free models (uuid, queue_id, job_id, retry_count)
 	 */
