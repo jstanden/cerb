@@ -127,7 +127,7 @@ class ChCronController extends DevblocksControllerExtension {
 				
 				// Are we out of time?
 				if($time_left < 20)
-					continue;
+					break;
 				
 				$started_at = time();
 				
