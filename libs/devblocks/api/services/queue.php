@@ -3,6 +3,11 @@ class _DevblocksQueueService {
 	private static ?_DevblocksQueueService $_instance = null;
 	
 	private array $_queue_cache = [];
+	// Per-request, keyed soft/hard. Not a cross-request cache: the license is already a singleton that
+	// validates once and its setting is already cached, so the only repetition worth removing is this
+	// method running per SLOT LOCK -- every acquire, usage read and widget poll calls it. Nothing that
+	// feeds it can change mid-request (singleton license, compile-time constant).
+	private array $_max_concurrency_slots = [];
 	private array $_status_buffer = ['success'=>[], 'failure'=>[]];
 	private array $_jobs_buffer = [];
 	private array $_log_buffer = [];
@@ -25,11 +30,62 @@ class _DevblocksQueueService {
 		return $this->_queue_cache[$queue_name];
 	}
 	
-	public function getConcurrencySlot(int $max_slots=APP_QUEUE_CONCURRENCY_SLOTS) {
+	public function getMaxConcurrencySlots($with_soft_cap=true) : int {
+		$memo_key = $with_soft_cap ? 'soft' : 'hard';
+		
+		if(array_key_exists($memo_key, $this->_max_concurrency_slots))
+			return $this->_max_concurrency_slots[$memo_key];
+		
+		// Please be honest
+		$slots_community = 3;
+		$slots_configured = APP_QUEUE_CONCURRENCY_SLOTS;
+		
+		if(defined('CERB_CLOUD_SEATS')) {
+			$slots_licensed = CERB_CLOUD_SEATS;
+			
+		} else {
+			$license = CerberusLicense::getInstance();
+			$is_covered = is_null($license->upgrades) || $license->upgrades >= time();
+			$slots_licensed = max($slots_community, $is_covered ? intval($license->seats) : 0);
+		}
+		
+		return $this->_max_concurrency_slots[$memo_key] = $slots_licensed
+			|> (fn($x) => $with_soft_cap ? min($x, $slots_configured) : $x)
+			|> (fn($x) => max(0, $x))
+		;
+	}
+	
+	public function getConcurrencySlot(int $slot) : ?int {
 		$db = DevblocksPlatform::services()->database();
 		
-		// If for some reason we're given 0 slots
-		if(!$max_slots) return null;
+		// Slot pool must be enabled
+		if(($max_slots = self::getMaxConcurrencySlots()) < 1)
+			return null;
+		
+		// Must be in the range 0...max_slots
+		if($slot != DevblocksPlatform::intClamp($slot, 0, $max_slots))
+			return null;
+		
+		// Check the slot
+		$result = sprintf("queue_slot_%d", $slot)
+			|> $db->qstr(...)
+			|> (fn($x) => sprintf("SELECT GET_LOCK(%s, 0)", $x))
+			|> $db->GetOneMaster(...)
+		;
+		
+		return $result ? $slot : null;
+	}
+	
+	/**
+	 * Reserve one of the pool's `queue_slot_N` advisory locks, or null when they're all held.
+	 */
+	public function getAvailableConcurrencySlot(int $limit=PHP_INT_MAX) : ?int {
+		$db = DevblocksPlatform::services()->database();
+		
+		if(($max_slots = self::getMaxConcurrencySlots()) < 1)
+			return null;
+		
+		$max_slots = min($limit, $max_slots);
 		
 		// Shuffle the max number of slots and attempt to reserve them
 		$slots = range(1, $max_slots);
