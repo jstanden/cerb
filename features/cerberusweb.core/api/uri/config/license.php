@@ -27,7 +27,23 @@ class PageSection_SetupLicense extends Extension_PageSection {
 		$visit->set(ChConfigurationPage::ID, 'license');
 
 		$tpl->assign('license', CerberusLicense::getInstance());
-
+		
+		// On Cloud the plan is provisioned by the platform, so there is no key to add or remove. The
+		// template swaps the active-subscription block and drops the form; _configAction_saveJson()
+		// refuses the POST regardless, since hiding a form is not enforcement.
+		$tpl->assign('is_cerb_cloud', CerberusApplication::isCerbCloud());
+		$tpl->assign('cerb_cloud_subdomain', defined('CERB_CLOUD_SUBDOMAIN') ? constant('CERB_CLOUD_SUBDOMAIN') : '');
+		
+		// The effective pool, not the license's raw number: APP_QUEUE_CONCURRENCY_SLOTS clamps it, and on
+		// Cloud the constant replaces it outright. The page has to show what actually gets enforced.
+		$tpl->assign('max_concurrency_slots', DevblocksPlatform::services()->queue()->getMaxConcurrencySlots());
+		$tpl->assign('max_concurrency_slots_licensed', DevblocksPlatform::services()->queue()->getMaxConcurrencySlots(with_soft_cap: false));
+		
+		// Lapsed coverage floors concurrency to Community, and nothing else announces that -- without
+		// this the page would just quietly show a smaller number than the customer is paying for.
+		$license = CerberusLicense::getInstance();
+		$tpl->assign('license_is_expired', !is_null($license->upgrades) && $license->upgrades < time());
+		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/license/index.tpl');
 	}
 	
@@ -52,7 +68,13 @@ class PageSection_SetupLicense extends Extension_PageSection {
 			
 			if(!$active_worker || !$active_worker->is_superuser)
 				throw new Exception(DevblocksPlatform::translate('error.core.no_acl.admin'));
-				
+			
+			// Not merely hidden in the template: hiding a form is not enforcement. A stored key would do
+			// nothing here anyway -- getMaxConcurrencySlots() reads the Cloud constant and never reaches
+			// the license on this path.
+			if(CerberusApplication::isCerbCloud())
+				throw new Exception("Your subscription is managed by Cerb Cloud and can't be changed here.");
+			
 			$key = DevblocksPlatform::importGPC($_POST['key'] ?? null, 'string','');
 			$company = DevblocksPlatform::importGPC($_POST['company'] ?? null, 'string','');
 			$email = DevblocksPlatform::importGPC($_POST['email'] ?? null, 'string','');
@@ -70,10 +92,6 @@ class PageSection_SetupLicense extends Extension_PageSection {
 					
 				} elseif(null==($valid = CerberusLicense::validate($key,$company,$email)) || empty($valid)) {
 					throw new Exception("The provided license could not be verified.  Please double-check the company name and e-mail address and make sure they exactly match your order.");
-					
-				} elseif($valid['upgrades'] < CerberusLicense::getReleaseDate(APP_VERSION)) {
-					throw new Exception(sprintf("The provided license is expired and does not activate version %s.", APP_VERSION));
-					
 				}
 				
 				/*

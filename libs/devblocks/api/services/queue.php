@@ -45,8 +45,7 @@ class _DevblocksQueueService {
 			
 		} else {
 			$license = CerberusLicense::getInstance();
-			$is_covered = is_null($license->upgrades) || $license->upgrades >= time();
-			$slots_licensed = max($slots_community, $is_covered ? intval($license->seats) : 0);
+			$slots_licensed = max($slots_community, $license->isLicensed() ? intval($license->slots) : 0);
 		}
 		
 		return $this->_max_concurrency_slots[$memo_key] = $slots_licensed

@@ -4,11 +4,12 @@
 			<div>
 				<a class="menu"><span class="cerb-icons cerb-icon-gear"></span> {'common.configure'|devblocks_translate|capitalize} <span class="cerb-icons cerb-icon-chevron-down"></span></a>
 				<ul hidden>
+					<li><a href="{devblocks_url}c=config&a=license{/devblocks_url}">Subscription</a></li>
+					<li><hr></li>
 					<li><a href="{devblocks_url}c=config&a=branding{/devblocks_url}">Branding</a></li>
 					<li><a href="{devblocks_url}c=config&a=plugins{/devblocks_url}">{'common.plugins'|devblocks_translate|capitalize}</a></li>
 					<li><a href="{devblocks_url}c=config&a=scheduler{/devblocks_url}">Scheduler</a></li>
 					{if !$smarty.const.DEVBLOCKS_CACHE_ENGINE_PREVENT_CHANGE}<li><a href="{devblocks_url}c=config&a=cache{/devblocks_url}">Cache</a></li>{/if}
-					<li><a href="{devblocks_url}c=config&a=license{/devblocks_url}">License</a></li>
 					<li><a href="{devblocks_url}c=config&a=localization{/devblocks_url}">Localization</a></li>
 
 					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.settings')}

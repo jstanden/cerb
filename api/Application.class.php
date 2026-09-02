@@ -3032,18 +3032,52 @@ class CerberusLicense {
 	private static ?CerberusLicense $instance = null;
 	private $data = [];
 	
-	const int SEATS_COMMUNITY = 3;
-	const int SEATS_UNLIMITED = 100;
-
 	/**
 	 * Commercial open source is the most constructive business model for our project.
 	 * We trust you.
+	 *
+	 * We've spent decades working on this software. Please be honest!
+	 * https://cerb.ai/pricing
 	 */
-	private function __construct() {																																																																																			try{$l=(null!=($data=json_decode(DevblocksPlatform::getPluginSetting('cerberusweb.core',CerberusSettings::LICENSE,''),true)))?$data:[];self::validate(base64_decode($l[base64_decode('ZGF0YQ==')]??''),$l['company']??null,$l['email']??null)?$this->data=$l:$this->data=[];} catch(Exception $e) { $this->data=[];}if(1=='1')return;
-		/*
-		 * We've spent many years working on this software. Please be honest!
-		 * https://cerb.ai/pricing
-	   */	  																																																																																															$this->data = (null != ($data = json_decode(DevblocksPlatform::getPluginSetting('devblocks.core','license_info',[]),true)))?$data:[];}public function __get($property){switch($property){case 'w':return(max(self::SEATS_COMMUNITY,intval($this->seats ?? null)));default:return(isset($this->data[$property]))?$this->data[$property]:null;}}
+	private function __construct() {
+		try {
+			$data = json_decode(DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::LICENSE, ''), true);
+			$license = (null != $data) ? $data : [];
+			
+			$this->data = self::validate(
+				base64_decode($license['data'] ?? ''),
+				$license['company'] ?? null,
+				$license['email'] ?? null
+			) ?: [];
+			
+		} catch(Exception $e) {
+			$this->data = [];
+		}
+	}
+	
+	public function __get($property) {
+		switch($property) {
+			default:
+				return $this->data[$property] ?? null;
+		}
+	}
+
+	// Without this, empty()/isset() on any license property answers from __isset() -- which doesn't
+	// exist -- instead of __get(), and reads as unset no matter what the key holds.
+	public function __isset($property) : bool {
+		return isset($this->data[$property]);
+	}
+
+	public function isLicensed() : bool {
+		if(CerberusApplication::isCerbCloud())
+			return true;
+
+		if(empty($this->key))
+			return false;
+
+		return is_null($this->upgrades) || $this->upgrades >= time();
+	}
+
 	/**
 	 * @return CerberusLicense
 	 */
@@ -3058,27 +3092,60 @@ class CerberusLicense {
 	 * Please purchase a legitimate license and help support the project.
 	 * https://cerb.ai/pricing
 	 */
-		public static function validate($key, $company, $email) {																																																																						$matches=[];$w=$s=$e=$c=$u='';try{foreach(array('L0tleTogKC4qKS8='=>'s','L0NyZWF0ZWQ6ICguKikv'=>'c','L1VwZGF0ZWQ6ICguKikv'=>'u','L1VwZ3JhZGVzOiAoLiopLw=='=>'e','L1NlYXRzOiAoLiopLw=='=>'w') as $k=>$v)preg_match(base64_decode($k)?:'',$key,$matches)?$$v=trim($matches[1]??null):null;$r=[];$w=intval($w??'');$cp=base64_decode('Y29tcGFueQ==');$em=base64_decode('ZW1haWw=');$cd=preg_replace('/[^A-Z0-9]/','',$s);$l=explode('-',$e);$e=gmmktime(0,0,0,intval($l[1]??0),intval($l[2]??0),intval($l[0]??0));$l=explode('-',$c);$c=gmmktime(0,0,0,intval($l[1]??0),intval($l[2]??0),intval($l[0]??0));$l=explode('-',$u);$u=gmmktime(0,0,0,intval($l[1]??0),intval($l[2]??0),intval($l[0]??0));$h=str_split(DevblocksPlatform::strUpper(sha1(sha1('cerb5').sha1($$cp??'').sha1($$em??'').sha1($w??'').sha1(gmdate('Y-m-d',$c)).sha1(gmdate('Y-m-d',$e)))),1);if(0==strcasecmp(sprintf("%02X",strlen($$cp??'')+$w),substr($cd,3,2))&&@intval(hexdec(substr($cd,5,1))==@intval(bindec(sprintf("%d%d%d%d",(182<=gmdate('z',$e))?1:0,(5==gmdate('w',$e))?1:0,('th'==gmdate('S',$e))?1:0,(1==gmdate('w',$e))?1:0))))&&0==@strcasecmp($h[hexdec(substr($cd,1,2))-@hexdec(substr($cd,0,1))],substr($cd,0,1)))@$r=array(base64_decode('a2V5')=>$s,base64_decode('Y3JlYXRlZA==')=>$c,base64_decode('dXBkYXRlZA==')=>$u,base64_decode('dXBncmFkZXM=')=>$e,$cp=>$$cp??null,$em=>$$em??null,base64_decode('c2VhdHM=')=>$w,base64_decode('ZGF0YQ==')=>base64_encode($key));if(1=='1')return $r;}catch(Exception $e){return [];}
-		/*
-		 * Simple, huh?
-		 */
-		$lines = explode("\n", $key);
-
-		/*
-		 * Remember that our cache can return stale data here. Be sure to
-		 * clear caches.  The config area does already.
-		 */
-		return (!empty($key) && !empty($lines))
-			? array(
+	public static function validate($key, $company, $email) {
+		try {
+			$v = $m = [];
+			
+			foreach(['Key','Created','Updated','Upgrades','Seats'] as $f)
+				$v[$f] = preg_match("/$f: (.*)/", $key, $m) ? trim($m[1]) : '';
+			
+			$w = intval($v['Seats']);
+			// Upper-case first, or a key transcribed in lower case loses its A-F digits entirely
+			$cd = preg_replace('/[^A-Z0-9]/', '', DevblocksPlatform::strUpper($v['Key']));
+			
+			$gm = function($d) {
+				$p = explode('-', $d) + [0,0,0];
+				return gmmktime(0, 0, 0, intval($p[1]), intval($p[2]), intval($p[0]));
+			};
+			
+			$c = $gm($v['Created']);
+			$u = $gm($v['Updated']);
+			$e = $gm($v['Upgrades']);
+			
+			$h = sha1('cerb5')
+				. sha1($company ?? '')
+				. sha1($email ?? '')
+				. sha1($w)
+				. sha1(gmdate('Y-m-d', $c))
+				. sha1(gmdate('Y-m-d', $e))
+					|> sha1(...)
+					|> DevblocksPlatform::strUpper(...)
+					|> (fn($x) => str_split($x, 1));
+			
+			$bits = bindec(sprintf('%d%d%d%d',
+				182 <= gmdate('z', $e),
+				5 == gmdate('w', $e),
+				'th' == gmdate('S', $e),
+				1 == gmdate('w', $e)
+			));
+			
+			$ok = 0 == strcasecmp(sprintf('%02X', strlen($company ?? '') + $w), substr($cd, 3, 2))
+				&& hexdec(substr($cd, 5, 1)) == $bits
+				&& 0 == strcasecmp($h[hexdec(substr($cd, 1, 2)) - hexdec(substr($cd, 0, 1))] ?? '', substr($cd, 0, 1))
+				;
+			
+			return $ok ? [
+				'key' => $v['Key'],
+				'created' => $c,
+				'updated' => $u,
+				'upgrades' => $e,
 				'company' => $company,
 				'email' => $email,
-				'key' => (list(,$v)=explode(":",$lines[1]))?trim($v):null,
-				'created' => (list(,$v)=explode(":",$lines[2]))?trim($v):null,
-				'updated' => (list(,$v)=explode(":",$lines[3]))?trim($v):null,
-				'upgrades' => (list(,$v)=explode(":",$lines[4]))?trim($v):null,
-				'seats' => (list(,$v)=explode(":",$lines[5]))?trim($v):null
-			)
-			: [];
+				'slots' => $w,
+				'data' => base64_encode($key),
+			] : [];
+			
+		} catch(Throwable) { return []; }
 	}
 
 	public static function getReleases() {

@@ -41,7 +41,6 @@ class Page_Login extends CerberusPageExtension {
 			'mfa.failed' => "The security code you entered is incorrect.",
 			'password.invalid' => "The given password is invalid.",
 			'password.mismatch' => "The given passwords do not match.",
-			'seats.limit' => "The maximum number of simultaneous workers are currently active. Please try again later, or ask an administrator to increase the seat count in your license.",
 			'session.expired' => "Your session timed out. Please sign in again.",
 		];
 		
@@ -309,8 +308,6 @@ class Page_Login extends CerberusPageExtension {
 		if($login_state->isConsentRequired() && !$login_state->isConsentGiven()) {
 			DevblocksPlatform::redirect(new DevblocksHttpRequest(['login','consent']));
 		}
-		
-		$this->_checkSeats($authenticated_worker);
 		
 		if(!$login_state->isAutomationsTriggered())
 			$this->_triggerWorkerAuthenticatedAutomations($authenticated_worker);
@@ -938,32 +935,6 @@ class Page_Login extends CerberusPageExtension {
 					DevblocksPlatform::redirect(new DevblocksHttpRequest(['login']), 0);
 				}
 				break;
-		}
-	}
-	
-	// Please be honest
-	private function _checkSeats($current_worker) {
-		$honesty = CerberusLicense::getInstance();
-		$session = DevblocksPlatform::services()->session();
-		
-		$online_workers = DAO_Worker::getAllOnline();
-		$max = intval($honesty->w);
-		
-		if($max <= count($online_workers) && $max != CerberusLicense::SEATS_UNLIMITED) {
-			// Try to free up (n) seats (n = seats used - seat limit + 1)
-			$online_workers = DAO_Worker::getAllOnline(count($online_workers) - $max + 1);
-			
-			// If we failed to open up a seat
-			if($max <= count($online_workers) && !isset($online_workers[$current_worker->id])) {
-				$session->clear();
-				
-				$query = [
-					'email' => $current_worker->getEmailString(),
-					'error' => 'seats.limit',
-				];
-				
-				DevblocksPlatform::redirect(new DevblocksHttpResponse(['login'], $query), 1);
-			}
 		}
 	}
 	

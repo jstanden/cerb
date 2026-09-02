@@ -15,8 +15,8 @@
 	</div>
 
 	<p>
-		You are now running in <strong>testing mode</strong> with full functionality
-		and no time limit for three seats.
+		You are now using a <strong>Community License</strong> with full functionality,
+		unlimited workers, three concurrency slots, and no time limit.
 	</p>
 
 	<p class="text-muted">

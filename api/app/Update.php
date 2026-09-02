@@ -53,11 +53,6 @@ class ChUpdateController extends DevblocksControllerExtension {
 		$url = DevblocksPlatform::services()->url();
 		
 		switch(array_shift($stack)) {
-			case 'unlicense':
-				DevblocksPlatform::setPluginSetting('cerberusweb.core',CerberusSettings::LICENSE, '');
-				DevblocksPlatform::redirect(new DevblocksHttpResponse(array('update')));
-				break;
-				
 			case 'locked':
 				if(!DevblocksPlatform::versionConsistencyCheck()) {
 					http_response_code(503);
@@ -136,19 +131,6 @@ class ChUpdateController extends DevblocksControllerExtension {
 				 * You're free to make changes for your own use, but we ask that you
 				 * please respect our licensing and help support commercial open source.
 				 */
-				$remuneration = CerberusLicense::getInstance();
-				@$u = $remuneration->upgrades;
-				
-				if(!is_null($u) && $u < CerberusLicense::getReleaseDate(APP_VERSION)) {
-					$errors[] = sprintf("Your Cerb license coverage for major software updates expired on %s, and %s is not included.  Please <a href='%s' target='_blank' rel='noopener'>renew your license</a>%s, <a href='%s'>remove your license</a> and enter Community Edition (3 seats), or <a href='%s' target='_blank' rel='noopener'>download</a> an earlier version.",
-						gmdate("F d, Y",$u),
-						APP_VERSION,
-						'https://cerb.ai/pricing/self-hosted/',
-						!is_null($remuneration->key) ? sprintf(" (%s)",$remuneration->key) : '',
-						$url->write('c=update&a=unlicense'),
-						'https://github.com/cerb/cerb-release'
-					);
-				}
 				
 				// Check requirements
 				$errors += CerberusApplication::checkRequirements();

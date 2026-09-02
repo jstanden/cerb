@@ -11,7 +11,7 @@
 			page generated in: {math equation="x*1000" x=$render_time format="%d"} ms; {if !empty($render_peak_memory)} peak memory used: {$render_peak_memory|devblocks_prettybytes:2}{/if} 
 			-  
 			{if !$fair_pay->key}
-			Community Edition
+			Community License
 			{else}
 			Licensed{if !is_null($fair_pay->company)} to {$fair_pay->company}{/if}
 			{/if}

@@ -1,6 +1,6 @@
 workflow:
   name: cerb.quickstart
-  version: 2026-08-25T00:00:00Z
+  version: 2026-09-02T00:00:00Z
   description: A guided setup tour that walks administrators through initial Cerb configuration
   website: https://cerb.ai/workflows/cerb.quickstart/
   requirements:
@@ -62,7 +62,7 @@ records:
               10:
                 title: Add your license
                 url: c=config&a=license
-                label: Add your license, or request a free 3-seat license from cerb.ai/pricing.
+                label: Add a license to raise your concurrency limit. See cerb.ai/pricing.
               11:
                 title: Enable the scheduler
                 url: c=config&a=scheduler
@@ -361,9 +361,9 @@ records:
                             say:
                               content@text:
                                 ## License
-                                Your first three seats are free forever with no license required.
+                                Self-hosting is free forever with unlimited workers and seats, and no license required.
 
-                                A license unlocks additional seats and premium features. Add your key here,
+                                A license raises your concurrency limit and unlocks premium features. Add your key here,
 
                                 or see [cerb.ai/pricing](https://cerb.ai/pricing).
                             submit:

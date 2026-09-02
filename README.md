@@ -10,11 +10,11 @@ Teams and individuals can build a personalized "mission control" using a wide ar
 
 Try Cerb in Docker or Cerb Cloud for free with no time limit. 100% of the source code is available on GitHub.
 
-* Your first three self-hosted seats are free forever with no license or registration required.
-* Add seats as your team grows.
+* **Self-hosting is free forever with unlimited workers and seats**, and no license or registration required.
+* Add concurrency as your team grows, so background work and AI agent turns run more in parallel.
 * Every member of your team can run a free local copy of Cerb for testing, development, and staging.
 * Downgrade to a community license from self-hosted or Cerb Cloud at any time and retain permanent free access to your data.
-* Academic institutions, non-profits, charities, and open source projects are eligible for additional seats or discounts.
+* Academic institutions, non-profits, charities, and open source projects are eligible for additional concurrency or discounts.
 
 ![image](https://cerb.ai/assets/images/home/features/mission-control.png)
 
@@ -125,7 +125,7 @@ Read the [documentation](https://cerb.ai/docs/) to get started.
 
 The software is distributed under the [Devblocks Public License](https://cerb.ai/license) as a commercial open source project. The full source code is publicly available on GitHub.
 
-Licenses are based on the maximum number of workers able to log in at the same time (i.e. seats). The software can be deployed on independent servers, or as a fully-managed, cloud-based service.
+Self-hosted licenses are based on concurrency: how much background work and how many AI agent turns may run at the same time. Workers and seats are unlimited. The software can be deployed on independent servers, or as a fully-managed, cloud-based service.
 
 # Credits
 

@@ -1,6 +1,6 @@
 workflow:
   name: cerb.tutorial
-  version: 2026-08-23T04:43:59Z
+  version: 2026-08-24T00:00:00Z
   description: A workspace with detailed descriptions and examples of Cerb functionality
   requirements:
     cerb_version: >=12.0 <12.1
@@ -385,7 +385,7 @@ records:
 
                   You can run Cerb on your own hardware, in Docker, or in Cerb Cloud as a fully managed service.
 
-                  We share 100% of our source code on GitHub. Your first three seats are free forever with no license required. This allows you to maintain an archive of your historical data on the latest version in perpetuity at no ongoing cost. Your data is always yours.
+                  We share 100% of our source code on GitHub. Self-hosting is free forever with unlimited workers and seats, and no license required. This allows you to maintain an archive of your historical data on the latest version in perpetuity at no ongoing cost. Your data is always yours.
         toolbar_kata@text:
   workspace_widget/widget_welcome_ui:
     fields:
@@ -7965,8 +7965,6 @@ records:
                   * Worklist file exports (CSV, JSONL, XML)
                   * Worklist bulk updates
                   * Search index reindexing
-
-                  The `APP_QUEUE_CONCURRENCY_SLOTS` configuration option (default `5`) controls the maximum combined concurrency of worker-initiated queue jobs. Slots are reserved on the MySQL writer connection and are automatically released when the connection closes.
         toolbar_kata@text:
   workspace_widget/widget_list_of_queues:
     fields:
