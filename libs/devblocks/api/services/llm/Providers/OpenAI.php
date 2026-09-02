@@ -806,8 +806,8 @@ class OpenAI extends Extension_DevblocksLlmProvider implements Chat, ChatStreami
 	 * stream, and (via resolveDanglingStream) by a provider built with no params at all.
 	 */
 	public function sanitizePartialContent(array $message) : array {
-		// SHAPE, not surface -- and this one is load-bearing. resolveDanglingStream() builds the provider with
-		// NO params, so `api_endpoint_url` defaults to api.openai.com and the surface resolves to `responses`
+		// SHAPE, not surface. resolveDanglingStream() builds the provider with NO params, so
+		// `api_endpoint_url` defaults to api.openai.com and the surface resolves to `responses`
 		// for EVERY dangling stream. Judging a chat-shaped partial by the Responses rules would iterate a
 		// string `content`, blank it, and hasReplayableContent() would then say there is nothing worth keeping
 		// -- deleting a salvageable turn, with nothing logged.

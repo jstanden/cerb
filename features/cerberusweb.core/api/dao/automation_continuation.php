@@ -430,11 +430,11 @@ class DAO_AutomationContinuation extends Cerb_ORMHelper {
 	/**
 	 * The provider mark and latest prompt for a live transcript, in one round trip.
 	 *
-	 * ⚠ `role = 'user'` is NOT the same as "something a person typed" -- every tool RESULT is also a user-role
+	 * `role = 'user'` is NOT the same as "something a person typed" -- every tool RESULT is also a user-role
 	 * message, and on a working agent they outnumber real prompts two to one. A preview taken from the newest
 	 * user row reads `ok`, or a raw SVG path.
 	 *
-	 * ⚠ And `kind` alone does NOT sort them out. It's the right first filter (`text` plus legacy `''`, never
+	 * And `kind` alone does NOT sort them out. It's the right first filter (`text` plus legacy `''`, never
 	 * `tool_result` or `summary` -- a compaction artifact, not something anybody said), but AWS Bedrock records
 	 * Converse-shaped `toolResult` blocks under a passing `kind`. The PROVIDER decides the rest: its own
 	 * `convertToGenericMessage()` already knows its wire format, and every converter flags a tool result by

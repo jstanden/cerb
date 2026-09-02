@@ -262,8 +262,8 @@ class DevblocksLlmChatResponse {
 	}
 
 	// Why generation stopped, normalized across providers (see Extension_DevblocksLlmProvider::normalizeFinishReason).
-	// '' when the provider didn't report one. `length` is the load-bearing value: the turn hit its output ceiling
-	// and whatever it produced is truncated — routinely with EMPTY content, which is otherwise indistinguishable
+	// '' when the provider didn't report one. `length` means the turn hit its output ceiling and whatever it
+	// produced is truncated -- routinely with EMPTY content, which is otherwise indistinguishable
 	// from a model that had nothing to say.
 	function setFinishReason(?string $finish_reason) : void {
 		$this->_finish_reason = strval($finish_reason);
@@ -557,7 +557,6 @@ abstract class Extension_DevblocksLlmProvider {
 	 * The transport. Overridable because not every streaming provider speaks Server-Sent Events —
 	 * Bedrock's ConverseStream returns `application/vnd.amazon.eventstream` binary frames and needs a
 	 * different sink handing the SAME `fn(string $event, string $data) : bool` contract upward.
-	 * See PLANS/PLAN-llm-bedrock-streaming.md.
 	 */
 	protected function _sendStream(Request $request, array $request_options, callable $on_event, &$error, &$aborted) {
 		return DevblocksPlatform::services()->http()->sendStreamingRequest(
@@ -1092,7 +1091,7 @@ abstract class Extension_DevblocksLlmProvider {
 			// nothing can ever reuse (compaction replaces the history; the dev preview is one-shot), and a
 			// write bills ~1.25x — measured as a 32K 1h write on a cold-cache run.
 			//
-			// ⚠ Moving it, NOT dropping it. Dropping the message breakpoint entirely was tried and measured at
+			// Moving it, NOT dropping it. Dropping the message breakpoint entirely was tried and measured at
 			// **14% cached**: hit lookback runs BACKWARD from a breakpoint, so the system-block marker (which
 			// renders before every message) can't reach a message-level entry at all — only tools+system read.
 			// One message back is exactly the position an ordinary agent turn caches, so the read is the same
@@ -2041,8 +2040,8 @@ class _DevblocksLlmService {
 		return true;
 	}
 
-	// The live-compaction directive. "Do not use tools" is load-bearing: the tool schemas MUST stay in the
-	// request (they're part of the cached prefix — removing them is what would force a full-price miss), so the
+	// The live-compaction directive. "Do not use tools" is deliberate: the tool schemas MUST stay in the
+	// request (they're part of the cached prefix -- removing them forces a full-price miss), so the
 	// model is told not to call them rather than having them taken away.
 	const SUMMARIZE_INLINE_PROMPT = "Summarize this conversation so far into a compact briefing that preserves: the user's goals and constraints, key decisions and their rationale, established facts, tool results that still matter, and any open threads or next steps.\nOmit greetings and redundant chatter. Write in the third person. Do not invent information.\nDo not use tools. Reply with the briefing text and nothing else.";
 
@@ -2249,7 +2248,7 @@ class _DevblocksLlmService {
 		// NOTE this does NOT catch a change in how the surface is RESOLVED (a new default): both sides of every
 		// comparison are computed by the same running code, and the signature is never persisted, so they still
 		// match. A session that spans such a change replays its old-dialect history into the new surface, which
-		// is why Responses' _toResponsesInput() reads the chat dialect. That tolerance is load-bearing.
+		// is why Responses' _toResponsesInput() reads the chat dialect. Do not tighten that tolerance.
 		$api = '';
 
 		try {
@@ -3018,7 +3017,7 @@ class _DevblocksLlmService {
 	 * Uses the session HEAD rather than MAX(seq) so a branched/forked session can't be judged by a message that
 	 * isn't on the active path.
 	 *
-	 * ⚠️ Both DAO reads go through `GetRowReader` (a replica, where one is configured). This guard exists to
+	 * Both DAO reads go through `GetRowReader` (a replica, where one is configured). This guard exists to
 	 * observe a write made by a PREVIOUS attempt, so replica lag would produce a FALSE NEGATIVE — we'd miss the
 	 * landed turn and duplicate it, i.e. degrade to today's behavior rather than break anything new. The gap only
 	 * matters on a replicated install with lag exceeding the retry backoff; the durable fix is the request-uuid

@@ -602,7 +602,7 @@ CerbUI.editorCore.Autocomplete = class {
 
 		// A source can also ask for the wider panel WITHOUT the taller rows: a long single-line caption (an agent
 		// filesystem path) needs horizontal room, not a second line. Kept separate from richRows because that flag
-		// also sets itemHeight — and row height is load-bearing for the virtualized scroll math, so it must never
+		// also sets itemHeight, and the virtualized scroll math computes from row height -- so it must never
 		// change just to win some width.
 		const wideRows = items.some(it => it && it.wide);
 

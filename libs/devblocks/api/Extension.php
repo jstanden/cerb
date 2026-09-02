@@ -492,7 +492,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	 * know whether there's a per-record mark worth badging on top. `getIcon()` can't answer that -- it always
 	 * returns something, so it would badge every record with its type's static glyph.
 	 *
-	 * ⚠ `exists()`, never `$dict->_icon`: reading a missing key off a dictionary LAZY-LOADS it, so asking this
+	 * `exists()`, never `$dict->_icon`: reading a missing key off a dictionary LAZY-LOADS it, so asking this
 	 * of a type that never sets `_icon` would run a `lazyLoadContextValues()` pass per record, per render.
 	 */
 	function getRecordIcon($dict = null) : string {
@@ -1242,7 +1242,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	 *     </value>
 	 *   </param>
 	 *
-	 * ⚠ Each key MUST also be a name the context declares in the `names` param, because that's what makes
+	 * Each key MUST also be a name the context declares in the `names` param, because that's what makes
 	 * getByAlias() route the facet back here -- a facet has no id space of its own. Toolbar_GlobalSearch
 	 * skips any facet that doesn't resolve back to its own context, so a typo fails visibly instead of
 	 * quietly opening someone else's worklist.

@@ -1239,7 +1239,7 @@ class AwsBedrock extends Extension_DevblocksLlmProvider implements Chat, ChatStr
 	}
 
 	/**
-	 * The catalog is two calls, and only the first is load-bearing.
+	 * The catalog is two calls, and only the first is required.
 	 *
 	 * The profile pass is ADDITIVE and its failure is swallowed on purpose: an IAM policy that grants
 	 * `bedrock:ListFoundationModels` but not `bedrock:ListInferenceProfiles` should still get a usable list

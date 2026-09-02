@@ -35,10 +35,10 @@ class Responses extends Extension_DevblocksLlmProvider implements ChatSurface {
 	 * The types that are ITEMS in an `input` list, as opposed to the content PARTS that live inside a
 	 * message item.
 	 *
-	 * The distinction is load-bearing and unforgiving. A stored envelope's `content` holds one or the
-	 * other depending on which turn wrote it -- an assistant turn holds items straight off the wire, a
-	 * user turn holds parts built by expandMessageImages() -- and splicing parts where items belong
-	 * produces a 400 that names neither the message nor the reason.
+	 * The distinction is unforgiving. A stored envelope's `content` holds one or the other depending
+	 * on which turn wrote it -- an assistant turn holds items straight off the wire, a user turn holds
+	 * parts built by expandMessageImages() -- and splicing parts where items belong produces a 400 that
+	 * names neither the message nor the reason.
 	 */
 	const INPUT_ITEM_TYPES = ['message', 'function_call', 'function_call_output', 'reasoning'];
 

@@ -4968,7 +4968,7 @@ class _CerbApplication_KataSchemas {
 	 *
 	 * Wrapping a tool in an `agent_tool` record is the direction this points -- define "Web Search" once with its
 	 * presentation and its approval/guardrail policy, then reference it per surface with an optional override.
-	 * See `PLANS/PLAN-agent-tools.md`; this grammar is the shape that record would take a reference to.
+	 * This grammar is the shape that record would take a reference to.
 	 *
 	 * `components:` is an attributePatterns block rather than a fixed key list because the surface catalog is
 	 * `Cerb\Agent\Pane\Components` -- a new pane component must not need a schema edit to be configurable.

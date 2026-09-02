@@ -637,7 +637,7 @@ class AgentPromptAwait extends AbstractAwait {
 	 * explicitly EMPTY list draws no meters at all, which collapses the rows back to one line -- the right
 	 * shape for a portal chat where a rating is an internal judgement the end user shouldn't be reading.
 	 *
-	 * ⚠ This is DISPLAY, never enforcement. A rating that must be honored is a router query
+	 * This is DISPLAY, never enforcement. A rating that must be honored is a router query
 	 * (`privacy:>=zdr`) -- that's what keeps a non-compliant model out of the catalog entirely. Hiding a
 	 * meter hides information; it permits nothing and forbids nothing.
 	 */

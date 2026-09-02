@@ -815,8 +815,8 @@ class Components {
 
 		$role = '';
 
-		// The catalog is the allow-list, and it is load-bearing: `$component` arrives from caller metadata that
-		// is never validated, and it is being concatenated into a path. Only a key the catalog already knows
+		// The catalog is the allowlist: `$component` arrives from caller metadata that is never
+		// validated, and it is being concatenated into a path. Only a key the catalog already knows
 		// gets that far.
 		if(($meta = self::get($component))) {
 			$path = __DIR__ . '/../../../assets/agents/' . $component . '.md';

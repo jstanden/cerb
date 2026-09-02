@@ -31,7 +31,7 @@ class DAO_AgentModel extends Cerb_ORMHelper {
 	// `priority` LEADS, because it is the admin's deliberate fixed order and has to be able to override the
 	// ratings -- "our blessed model first" is exactly the case where the smartest model is not the wanted one.
 	// At a uniform default it contributes nothing and the ratings decide, so an install that ranks nothing sees
-	// no difference. A tier is not a total order either, so `name` is the load-bearing final tie-break: without
+	// no difference. A tier is not a total order either, so `name` is the final tie-break: without
 	// it, which of two `frontier` models a caller gets is whatever the database returned, and it can change
 	// between resolves. Unrated (0) sorts last under DESC, which is right for an install that rates nothing.
 	const QUERY_DEFAULT_SORT = 'priority,-intelligence,name';
@@ -46,7 +46,7 @@ class DAO_AgentModel extends Cerb_ORMHelper {
 	// which are written through their own DAOs and never touch this one.
 	const CACHE_QUERY_TTL = 300;
 
-	// ⚠ The platform cache's in-REQUEST registry is NOT tag-aware: once a key has been loaded in this process it
+	// The platform cache's in-REQUEST registry is NOT tag-aware: once a key has been loaded in this process it
 	// is served from the registry without re-checking tag versions (see `_DevblocksCacheManager::load()`), so a
 	// tag bust alone can't be seen by the request that caused it. An automation that writes an `agent_model` and
 	// then resolves a pool in the same run would read its own stale answer.
@@ -468,7 +468,7 @@ class DAO_AgentModel extends Cerb_ORMHelper {
 	 * stored one, and two callers asking the same thing issue one search. Editing any model invalidates every
 	 * entry (see CACHE_QUERY_TAG).
 	 *
-	 * ⚠ Pass `$nocache` where the answer must reflect an edit made moments ago -- tag versions have ONE-SECOND
+	 * Pass `$nocache` where the answer must reflect an edit made moments ago -- tag versions have ONE-SECOND
 	 * granularity, so a resolve in the same second as a model write can still read the stale entry. Editor
 	 * previews want this; routing does not.
 	 *
@@ -554,7 +554,7 @@ class DAO_AgentModel extends Cerb_ORMHelper {
 	 * array's order, so the first query's `sort:` (or the default) decides ranking and later queries only
 	 * remove.
 	 *
-	 * ⚠ **Each query is parsed SEPARATELY and must stay that way. Do NOT concatenate them.** The root group's
+	 * **Each query is parsed SEPARATELY and must stay that way. Do NOT concatenate them.** The root group's
 	 * boolean mode is decided by the first `T_BOOL` token and applies to every sibling, so a fragment holding a
 	 * top-level `OR` turns the whole string into a UNION -- strictly wider than either input, which is the one
 	 * direction this must never go. Concatenation also defeats `sort:`/`limit:` stripping and lets quote and
@@ -564,7 +564,7 @@ class DAO_AgentModel extends Cerb_ORMHelper {
 	 * @return string[]
 	 */
 	static function intersectQueryModelNames(array $queries, ?string &$error=null) : array {
-		// ⚠ Blank entries are NOT filtered out. A blank query means "every available model", so it narrows
+		// Blank entries are NOT filtered out. A blank query means "every available model", so it narrows
 		// nothing -- but it still counts as a query, which matters because the FIRST one owns the order. Dropping
 		// blanks here would silently hand ordering to the next query and make a caller's declared-but-empty pool
 		// invisible. Callers that want a blank key gone should not pass it (KATA's `@optional` does that).
@@ -1413,7 +1413,7 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 	/**
 	 * Tier names as filter examples, plus the comparisons that are the point of an ordinal.
 	 *
-	 * ⚠ These only surface because the field is declared TYPE_TEXT. The `number` case in the suggestion
+	 * These only surface because the field is declared TYPE_TEXT. The `number` case in the suggestion
 	 * builder (`abstract_view.php`) hardcodes (equals)/(greater than)/… and never reads `examples`, so a
 	 * TYPE_NUMBER rating would autocomplete as an anonymous integer and the tier names would be invisible.
 	 * Parsing doesn't care -- getParamFromQuickSearchFieldTokens() handles these keys itself.

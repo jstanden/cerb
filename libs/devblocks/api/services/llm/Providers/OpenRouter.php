@@ -21,10 +21,10 @@ use Extension_DevblocksLlmProvider;
  * -- where the address is wherever you started the server and the brand says nothing about the model.
  *
  * Model ids are namespaced `vendor/model` (`anthropic/claude-sonnet-5`, `openai/gpt-5.6-terra`). That
- * prefix is load-bearing here: it's what routes the reasoning guardrail below, and it's why a model
- * reached through this provider still paints the OpenRouter mark unless a `display:` block overrides it
- * -- getIcon() has no model argument. Showing the route the tokens (and the bill) actually took is the
- * more useful default; `display:` is there when the underlying vendor is what you'd rather see.
+ * prefix is what routes the reasoning guardrail below, and it's why a model reached through this provider
+ * still paints the OpenRouter mark unless a `display:` block overrides it -- getIcon() has no model
+ * argument. Showing the route the tokens (and the bill) actually took is the more useful default;
+ * `display:` is there when the underlying vendor is what you'd rather see.
  */
 class OpenRouter extends OpenAI {
 	const ID = 'openrouter';

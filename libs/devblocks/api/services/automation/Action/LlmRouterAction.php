@@ -98,7 +98,7 @@ class LlmRouterAction extends AbstractAction {
 						$input_key
 					));
 
-				// ⚠ A key that resolves to BLANK is kept, as an empty query. It is NOT silently dropped.
+				// A key that resolves to BLANK is kept, as an empty query. It is NOT silently dropped.
 				//
 				// Dropping it would be the one direction this command must never move in: a
 				// `models_query/pool: {{config.models_query}}` that an admin hasn't filled in would quietly stop

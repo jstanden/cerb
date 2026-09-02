@@ -176,7 +176,7 @@ class PageSection_SetupDevelopersLlmAgentTranscripts extends Extension_PageSecti
 			$tool_call_at = [];
 			$tool_result_at = [];
 
-			// Calls still waiting on a result, in emission order. Only load-bearing for a result that arrived
+			// Calls still waiting on a result, in emission order. Only consulted for a result that arrived
 			// without an id (see DAO_LlmAgentMessage::matchToolResultKey) -- an id pairs itself.
 			$pending_tool_calls = [];
 

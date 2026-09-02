@@ -2230,7 +2230,7 @@ CerbUI.KataEditor = class {
 		// search-query scope walker so `prefix`/`prefixRaw` describe the token under the caret in THAT grammar --
 		// the KATA rule above ("the last run of non-space") would make `privacy:>=z` the replacement range, so
 		// accepting `zdr` would eat the field name, and `sender:(` would eat the open paren.
-		// ⚠ Inside a BLOCK the caret line's "key" is query content, not a KATA key -- `hasVision:` is shaped
+		// Inside a BLOCK the caret line's "key" is query content, not a KATA key -- `hasVision:` is shaped
 		// exactly like one, so the walk above appended it and the path became `…:models_query:hasVision:`, which
 		// matches no query path. That is why a block would complete the first field and then go dead: every
 		// keystroke after `hasVision:` moved the path out of the query. So when the full path misses AND the
@@ -2571,7 +2571,7 @@ CerbUI.KataEditor.kataFieldSource = function(suggestionMap, opts) {
 			// CerbUI.SearchQuery source a worklist uses, so the whole grammar comes for free: field names,
 			// value suggestions, `field:()` descent into a linked record, and any CUSTOM FIELD an admin adds.
 			//
-			// ⚠ Without this, a query value autocompletes as CHILD KEYS -- toItem() re-opens the menu for any
+			// Without this, a query value autocompletes as CHILD KEYS -- toItem() re-opens the menu for any
 			// inserted text containing ':', which every field name ends with, so `hasVision:` reads as a block
 			// opener and the author gets a key/value menu instead of the next filter.
 			case 'search-query': {

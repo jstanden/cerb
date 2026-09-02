@@ -173,7 +173,7 @@
 .cerb-ui-agent-model-picker--auth { min-width: 0; }
 
 // Model rows carry a second line of rating meters. Scoped with :has() so the effort SUBMENU leaves keep the
-// 28px default -- only rows that actually have meters grow. ⚠ CerbUI.Menu's `itemHeight` must match this
+// 28px default -- only rows that actually have meters grow. CerbUI.Menu's `itemHeight` must match this
 // height; its virtual-scroll math positions rows by that number, not by measurement.
 .cerb-ui-agentprompt--model-menu {
 	// Only rows that ACTUALLY carry meters grow. With `ratings:` switched off the entry block is still

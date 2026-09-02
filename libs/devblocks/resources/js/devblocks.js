@@ -335,8 +335,8 @@ function DevblocksClass() {
 					.html(json.html)
 				;
 
-				// ⚠ The load-bearing line. A resumed chat's `uiCommand` awaits invoke the host's editor through
-				// this bridge; without it they return an EMPTY result with no error anywhere, so the agent reads
+				// A resumed chat's `uiCommand` awaits invoke the host's editor through this bridge; without it
+				// they return an EMPTY result with no error anywhere, so the agent reads
 				// a blank editor and the failure looks like a bad model rather than a missing wire.
 				// Same contract as cerbBotTrigger's inline launch.
 				if('function' == typeof options.command)

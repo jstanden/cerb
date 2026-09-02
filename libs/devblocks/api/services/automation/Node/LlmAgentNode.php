@@ -794,8 +794,8 @@ class LlmAgentNode extends AbstractNode {
 	 *   - `explode` limit 2, so `automation/foo/bar` is the tool `foo/bar` everywhere rather than `foo` in one
 	 *     place and `foo/bar` in another.
 	 *
-	 * $mounts: NULL = the filesystem was never enabled; [] = enabled with no volumes (/tmp only). That
-	 * distinction is load-bearing -- see `_isFilesystemEnabled()`.
+	 * $mounts: NULL = the filesystem was never enabled; [] = enabled with no volumes (/tmp only) -- see
+	 * `_isFilesystemEnabled()`.
 	 *
 	 * $skip_disabled: false for a DISPLAY projection. A transcript's map is a label lookup for calls that
 	 * already happened, and dropping a since-disabled tool from it would re-render an old, legitimate call as
@@ -2262,7 +2262,7 @@ class LlmAgentNode extends AbstractNode {
 	 * Did the awaited turn actually leave an answer on the session? False means it produced nothing usable —
 	 * it failed, or it was stopped and its partial was too incomplete to keep.
 	 *
-	 * ⚠️ Measured against the head we ENQUEUED on, not merely "the head is an assistant row". On a fresh `llm`
+	 * Measured against the head we ENQUEUED on, not merely "the head is an assistant row". On a fresh `llm`
 	 * turn the head is ALREADY an assistant row when we enqueue (the previous turn's answer; this turn's user
 	 * message rides the queue payload and is appended by the worker). So a turn that died before the worker
 	 * appended anything leaves an assistant head that isn't ours, and treating it as landed would re-apply the

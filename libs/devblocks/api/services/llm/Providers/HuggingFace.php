@@ -140,7 +140,7 @@ class HuggingFace extends OpenAI {
 	/**
 	 * Feature-extraction rides a LONGER path than chat: the serving backend is named in it (`hf-inference`),
 	 * and the task is a `/pipeline/<task>` suffix that only feature-extraction and sentence-similarity take.
-	 * Both segments are load-bearing -- without them the router has no route and answers 404.
+	 * Without both segments the router has no route and answers 404.
 	 *
 	 * CRLF-stripped because the model lands in a request line.
 	 */

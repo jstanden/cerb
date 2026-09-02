@@ -14,7 +14,7 @@
 	gap: 0.1em;
 
 	--cerb-ui-rating-color: var(--cerb-color-tag-orange);
-	// Muted end. ⚠ Only steps that EXIST in the contrast ramp -- an undefined one (215, 120, …)
+	// Muted end. Only steps that EXIST in the contrast ramp -- an undefined one (215, 120, …)
 	// silently invalidates the whole declaration and the control renders with inherited button colors.
 	--cerb-ui-rating-color-off: var(--cerb-color-background-contrast-225);
 

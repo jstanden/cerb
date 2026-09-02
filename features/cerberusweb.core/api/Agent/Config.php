@@ -61,7 +61,7 @@ class Config {
 	 * through untouched (`commands:` is the standing example, as is a mount's `at:` or a tool's `labels:`
 	 * nested under a key that IS listed).
 	 *
-	 * ⚠ Must match `_CerbApplication_KataSchemas::agent()`. A key added there and not here is silently dropped
+	 * Must match `_CerbApplication_KataSchemas::agent()`. A key added there and not here is silently dropped
 	 * the next time someone opens the AI tab and saves.
 	 */
 	static function getScopeKeys(bool $is_surface = false) : array {

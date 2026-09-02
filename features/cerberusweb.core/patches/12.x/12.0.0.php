@@ -241,9 +241,9 @@ class CerbPatch_Core_v12_0_0 {
 			// generated a full turn we hung up on and still paid for). Measured live: the same turn produced 19,881
 			// output tokens on one attempt and ran to the 32000 cap at 433s on another, so a retry isn't re-running
 			// deterministic work — it's a fresh dice roll at full cost, with nobody watching. Retry belongs to the
-			// INTERACTION, which knows whether anyone is there and can hand a timeout back to the worker to rephrase
-			// (see PLANS/PLAN-llm-next-turn.md). Scoped to rows still at the shipped 4 so a deliberate admin
-			// setting — including 0 — is left alone.
+			// INTERACTION, which knows whether anyone is there and can hand a timeout back to the worker to
+			// rephrase. Scoped to rows still at the shipped 4 so a deliberate admin setting -- including 0 --
+			// is left alone.
 			$this->_db->ExecuteWriter("UPDATE queue SET retry_max=0 WHERE name = 'cerb.llm.agent.requests' AND retry_max = 4");
 		}
 	}
@@ -4039,8 +4039,8 @@ class CerbPatch_Core_v12_0_0 {
 		// client patches that one node by id, the transcript renders it through the path it already uses, and
 		// "keep the partial" is just clearing the flag.
 		//
-		// It is also load-bearing for correctness, not only display. `_sessionTurnAlreadyLanded()` — the
-		// check-before-call guard that stops a retry from billing a second assistant turn — asks "is the head an
+		// It affects correctness, not only display. `_sessionTurnAlreadyLanded()` -- the check-before-call
+		// guard that stops a retry from billing a second assistant turn -- asks "is the head an
 		// assistant message?". A half-written head would answer yes and make the guard lie, so that check now
 		// requires assistant AND NOT streaming. Same for `is_in_progress` in the transcript, which would
 		// otherwise flip false the instant the row appears and hide the Stop button mid-turn.

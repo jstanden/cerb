@@ -1216,7 +1216,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 	 * An unresolvable or non-AI reference contributes nothing rather than seeding a scope that lies about who
 	 * is running.
 	 *
-	 * ⚠ THIS IS THE ENFORCEMENT POINT FOR AGENT ACL, AND THERE ISN'T ONE YET.
+	 * THIS IS THE ENFORCEMENT POINT FOR AGENT ACL, AND THERE ISN'T ONE YET.
 	 *
 	 * The reference arrives in client-supplied params (`data-interaction-params` -> POST), so today any worker
 	 * who can open an agent pane can start ANY agent by editing the posted id -- including one an administrator
