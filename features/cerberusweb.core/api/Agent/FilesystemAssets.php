@@ -183,14 +183,25 @@ class FilesystemAssets {
 		if(!($queue = DAO_Queue::get($queue_job->queue_id)))
 			return false;
 
+		// A 120s foreground drain PER bundled volume is a heavy tenant of a small pool. Being
+		// throttled is the same outcome as running out of budget, which the contract above already
+		// covers: the job stays RUNNING and the cron finishes it within a minute. (On the install
+		// wizard there is nothing else running, so the slot is always free there.)
+		if(null === ($slot = $queue_service->getAvailableConcurrencySlot()))
+			return false;
+
 		$stop_time = time() + self::DRAIN_SECONDS;
 
-		while(time() < $stop_time) {
-			if(!FilesystemImporter::processQueue($queue, $stop_time, 100, $queue_job))
-				break;
-		}
+		try {
+			while(time() < $stop_time) {
+				if(!FilesystemImporter::processQueue($queue, $stop_time, 100, $queue_job))
+					break;
+			}
 
-		$queue_service->publish();
+			$queue_service->publish();
+		} finally {
+			$queue_service->releaseConcurrencySlot($slot);
+		}
 
 		return (bool) $queue_service->finalizeJobsIfReady([$queue_job->id])
 			|| in_array(\DAO_QueueJob::get($queue_job->id)?->status_id, [\QueueJobStatus::DONE->value], true);
