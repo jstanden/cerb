@@ -44,8 +44,6 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 	function handleActionForPage(string $action, ?string $scope=null) {
 		if('profileAction' == $scope) {
 			switch ($action) {
-				case 'awaitQueueWork':
-					return $this->_profileAction_awaitQueueWork();
 				case 'interruptAgent':
 					return $this->_profileAction_interruptAgent();
 				case 'pollAgentTurn':
@@ -1789,7 +1787,8 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 	}
 
 	/**
-	 * `await:queue:` — the GATED POLL half of the two-loop (its sidecar is `awaitQueueWork`, below).
+	 * `await:queue:` — the GATED POLL half of the two-loop. Its sidecar moved out to
+	 * `POST /queue/nextAgentTurn` (`api/uri/queue.php`) so drains can be routed to their own FPM pool.
 	 *
 	 * READ-ONLY while pending. The marker render carries no status (the client keeps the last transcript + its
 	 * dots spinner), so a poll that finds the turn still cooking has nothing to persist — it re-renders the marker
@@ -1848,46 +1847,6 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		]);
 
 		$this->_respondAutomationAwait($continuation, $automation_results);
-	}
-
-	/**
-	 * `awaitQueueWork` — the WORKER half of the two-loop: a sidecar request that advances the shared LLM queue
-	 * by exactly ONE turn (whoever's next — single-claim) and returns only STATS, never continuation info. The
-	 * client runs one or more of these in parallel while the gated poll (above) waits, so a turn that takes 15s
-	 * to process never blocks the ~`poll_ms` gate check. Scoped to a live interaction continuation for auth.
-	 */
-	private function _profileAction_awaitQueueWork() : void {
-		$active_worker = CerberusApplication::getActiveWorker();
-
-		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 405);
-
-		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
-
-		$continuation_token = DevblocksPlatform::importGPC($_POST['continuation_token'] ?? null, 'string', '');
-
-		if(!($continuation = DAO_AutomationContinuation::getByToken($continuation_token))) {
-			echo json_encode(['error' => 'Unknown interaction.']);
-			return;
-		}
-
-		if(!($automation = $continuation->getAutomation()) || !Context_Automation::isReadableByActor($automation, $active_worker)) {
-			echo json_encode(['error' => 'Access denied.']);
-			return;
-		}
-
-		$processed = 0;
-		$ready = 0;
-
-		if(($queue = DAO_Queue::getByName('cerb.llm.agent.requests'))) {
-			// One turn, published so the gated poll sees the result.
-			$processed = DevblocksPlatform::services()->llm()->processQueue($queue, time() + 25, 1, null, 1);
-			DevblocksPlatform::services()->queue()->publish();
-
-			$ready = DAO_QueueMessage::countAvailable($queue->id);
-		}
-
-		echo json_encode(['processed' => $processed, 'ready' => $ready]);
 	}
 
 	/**

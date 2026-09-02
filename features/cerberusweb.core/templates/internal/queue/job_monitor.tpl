@@ -170,6 +170,17 @@ $(function() {
         return fd;
     };
 
+    // The `worker` verb moved off the widget extensions onto /queue/drainJob, so it needs no invoke
+    // plumbing and no card/profile fork -- just the two ids and which widget kind to load them from.
+    // The other verbs (refresh, pause, resume, cancel) stay on ajax.php above.
+    const funcBuildDrainFormData = function() {
+        const fd = new FormData();
+        fd.set('widget_id', '{$widget->id}');
+        fd.set('widget_type', '{$widget_type}');
+        fd.set('card_context_id', '{$queue_job->id}');
+        return fd;
+    };
+
     const funcAcquireSlot = function() {
         for(let i = 1; i <= MAX_CONCURRENCY; i++) {
             if(!slotsActive.has(i)) {
@@ -319,7 +330,7 @@ $(function() {
         if(slot === null) return;
         funcRenderWorkerCards();
 
-        genericAjaxPost(funcBuildFormData('worker'), null, null, function(json) {
+        genericAjaxPost(funcBuildDrainFormData(), null, null, function(json) {
             const isObj = (typeof json === 'object' && json !== null);
             const processed = (isObj && typeof json.processed === 'number') ? json.processed : 0;
             const ready = (isObj && typeof json.ready === 'number') ? json.ready : 0;

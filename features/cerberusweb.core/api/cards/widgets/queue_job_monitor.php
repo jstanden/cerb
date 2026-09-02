@@ -52,12 +52,6 @@ class CardWidget_QueueJobMonitor extends Extension_CardWidget {
 			case 'refresh':
 				QueueJobMonitor::handleRefresh($queue_job);
 				return true;
-			case 'worker':
-				if($queue_job->worker_id != $active_worker->id
-					&& !Context_QueueJob::isWriteableByActor($queue_job, $active_worker))
-					DevblocksPlatform::dieWithHttpError(null, 403);
-				QueueJobMonitor::handleWorker($queue_job);
-				return true;
 			case 'pause':
 				if($queue_job->worker_id != $active_worker->id
 					&& !Context_QueueJob::isWriteableByActor($queue_job, $active_worker))

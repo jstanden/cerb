@@ -5798,6 +5798,18 @@
 		</extension>
 
 		<extension point="devblocks.controller">
+			<id>core.controller.queue</id>
+			<name>Queue Controller</name>
+			<class>
+				<file>api/uri/queue.php</file>
+				<name>Controller_Queue</name>
+			</class>
+			<params>
+				<param key="uri" value="queue" />
+			</params>
+		</extension>
+
+		<extension point="devblocks.controller">
 			<id>core.controller.cron</id>
 			<name>Scheduled Tasks (Cron) Controller</name>
 			<class>

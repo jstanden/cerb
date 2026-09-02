@@ -92,12 +92,11 @@ $(function() {
 			poll.spawns++;
 			poll.inflight++;
 
+			// No continuation token, and nothing else: this endpoint claims the NEXT waiting turn, not
+			// ours, so the request says only "I am a logged-in worker donating a drain" -- which is all
+			// it ever meant. A real path (not c/a on ajax.php) so nginx can route drains to the
+			// background FPM pool on a URI prefix.
 			var fd = new FormData();
-			fd.set('c', 'profiles');
-			fd.set('a', 'invoke');
-			fd.set('module', 'automation');
-			fd.set('action', 'awaitQueueWork');
-			fd.set('continuation_token', cfg.token);
 
 			genericAjaxPost(fd, null, null, function(json) {
 				poll.inflight--;
@@ -128,6 +127,7 @@ $(function() {
 					setTimeout(spawnWorker, _WORKER_RETRY_MS);
 				}
 			}, {
+				path: 'queue/nextAgentTurn',
 				// Expected, not an error: this sidecar deliberately outlives the gateway's ~30s request timeout
 				// (504, or 0 when the socket is simply closed). The queue worker finishes the turn off-request and
 				// the gated poll collects it, so stay quiet — the default UI would alert and clear alerts.
@@ -263,8 +263,7 @@ $(function() {
 					workers: Math.min(4, Math.max(1, parseInt($queue.attr('data-workers'), 10) || 1)),
 					// Absent attribute means an older marker -- spawn, since failing to drain the queue is
 					// worse than one wasted request.
-					needsWorker: '0' !== ($queue.attr('data-needs-worker') || '1'),
-					token: $queue.attr('data-continuation-token') || ''
+					needsWorker: '0' !== ($queue.attr('data-needs-worker') || '1')
 				});
 
 				// AFTER runQueuePoll(), which re-arms via stopQueuePoll() and would otherwise clear this right

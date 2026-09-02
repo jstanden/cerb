@@ -2,7 +2,6 @@
 namespace Cerb\Records;
 
 use Context_QueueJob;
-use DAO_Queue;
 use DAO_QueueJob;
 use DAO_QueueJobLog;
 use DAO_QueueMessage;
@@ -78,54 +77,5 @@ class QueueJobMonitor {
 		} catch(Throwable $e) {
 			DevblocksPlatform::logException($e);
 		}
-	}
-
-	public static function handleWorker(Model_QueueJob $queue_job) : void {
-		$queue_service = DevblocksPlatform::services()->queue();
-
-		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
-
-		if(null === ($queue_service->getConcurrencySlot())) {
-			// Surface live counts so the widget can distinguish "throttled with
-			// claimable work" (keep trying) from "throttled but nothing ready"
-			// (back off / idle).
-			$counts = DAO_QueueJob::getLiveCounts($queue_job);
-			echo json_encode([
-				'slot' => false,
-				'ready' => $counts['available'],
-				'scheduled' => $counts['scheduled'],
-				'inflight' => $counts['inflight'],
-				'next_available_at' => $counts['next_available_at'],
-			]);
-			return;
-		}
-
-		$stop_time = time() + 10;
-
-		if(!($queue = DAO_Queue::get($queue_job->queue_id))
-			|| !($queue_extension = $queue->getExtension())) {
-			echo json_encode([
-				'slot' => true, 'processed' => 0,
-				'ready' => 0, 'scheduled' => 0, 'inflight' => 0, 'next_available_at' => 0,
-			]);
-			return;
-		}
-
-		$processed = $queue_extension->processQueueMessages($queue, $stop_time, 0, $queue_job);
-
-		// Read live counts directly so the widget paces its worker pool to the work
-		// that's actually claimable now (`ready`), backs off while failed messages
-		// wait out their retry window (`scheduled`), and finalizes only when nothing
-		// remains — cheaper and more accurate than the cached queue_job.count_*.
-		$counts = DAO_QueueJob::getLiveCounts($queue_job);
-
-		echo json_encode([
-			'slot' => true,
-			'processed' => $processed,
-			'ready' => $counts['available'],
-			'scheduled' => $counts['scheduled'],
-			'inflight' => $counts['inflight'],
-			'next_available_at' => $counts['next_available_at'],
-		]);
 	}
 }

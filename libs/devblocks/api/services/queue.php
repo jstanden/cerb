@@ -113,6 +113,64 @@ class _DevblocksQueueService {
 		$db->ExecuteMaster(sprintf("DO RELEASE_LOCK(%s)", $db->qstr(sprintf("queue_slot_%d", $slot))));
 	}
 
+	// 529, not 503. `llm.php` already reads 429/529 as "overloaded, never took the request" and
+	// explicitly rules 503 out as too vague, so a client that already knows how to back off from a
+	// provider needs no second rule for us.
+	const int HTTP_STATUS_OVERLOADED = 529;
+	const int THROTTLED_RETRY_AFTER_SECS = 5;
+
+	/**
+	 * Refuse a drain because the pool is full, in the one place that knows the status code and the
+	 * header. Neither `dieWithHttpError()` nor `respondWithErrorReason()` can carry a header, and the
+	 * latter renders a Smarty page into what is meant to be JSON.
+	 *
+	 * `Retry-After` is a MINIMUM, not an instruction: a client waits max(header, its own backoff).
+	 * That preserves a caller's own exponential backoff, which is better information than a flat
+	 * header can be.
+	 */
+	public function respondThrottled(array $payload, ?int $retry_after = null) : void {
+		$http = DevblocksPlatform::services()->http();
+
+		$http->setHeader('Content-Type', 'application/json; charset=utf-8');
+		$http->setHeader('Retry-After', strval($retry_after ?? self::THROTTLED_RETRY_AFTER_SECS));
+
+		http_response_code(self::HTTP_STATUS_OVERLOADED);
+
+		echo json_encode($payload);
+	}
+
+	/**
+	 * How many of the pool's slots are held right now, in ONE round trip. Master-only:
+	 * GET_LOCK state lives on the writer connection.
+	 */
+	public function getConcurrencyUsage() : array {
+		$db = DevblocksPlatform::services()->database();
+		
+		if(($max_slots = self::getMaxConcurrencySlots()) < 1)
+			return ['used' => 0, 'total' => 0];
+		
+		$terms = [];
+		
+		// IF(... IS NULL, 0, 1) rather than the shorter `IS NOT NULL`: summing the latter is a SYNTAX
+		// ERROR (`a IS NOT NULL + b IS NOT NULL` doesn't parse), and it fails SILENTLY here -- the query
+		// returns false, intval() makes it 0, and the pool reads as permanently idle so a throttle
+		// notice never fires. It only parses at all for a 1-slot pool, which is why it looked fine.
+		foreach(range(1, $max_slots) as $slot)
+			$terms[] = sprintf("IF(IS_USED_LOCK(%s) IS NULL, 0, 1)", $db->qstr(sprintf("queue_slot_%d", $slot)));
+		
+		$used = $db->GetOneMaster('SELECT ' . implode(' + ', $terms));
+		
+		// Don't let a failed read masquerade as an idle pool -- report "unknown" so callers can stay quiet
+		// instead of asserting 0 of N busy.
+		if(false === $used || is_null($used))
+			return ['used' => 0, 'total' => 0];
+		
+		return [
+			'used' => intval($used),
+			'total' => $max_slots,
+		];
+	}
+
 	const int RETRY_BACKOFF_MIN_SECS = 10;
 
 	/**

@@ -1557,9 +1557,15 @@ function genericAjaxPost(formRef,divRef,args,cb,options) {
 	options.contentType = false;
 	options.data = formRef;
 
-	var url = DevblocksAppPath+'ajax.php';
+	// An opt-in real path (e.g. {path: 'queue/nextAgentTurn'}) instead of ajax.php, so nginx can route
+	// on a URI prefix rather than on the `_log` decoration below -- a debug string that must never
+	// become required for dispatch. Such a path is already self-describing in an access log, so
+	// the whole `_log` derivation is skipped for it.
+	var url = options.path
+		? DevblocksWebPath + options.path
+		: DevblocksAppPath + 'ajax.php';
 
-	if(formRef.has && formRef.get) {
+	if(!options.path && formRef.has && formRef.get) {
 		if (formRef.has('_log')) {
 			url += '?_log=' + encodeURIComponent(formRef.get('_log').toString());
 			formRef.delete('_log');
