@@ -4,10 +4,17 @@
    the view with a "waiting" panel. All the poll logic lives in panel.tpl; this only carries its parameters.
 
    `data-notice` is the ONE thing the marker can put on screen: a turn requeued after a rate limit is otherwise a
-   silent gap that reads as a slow model. Empty on an ordinary wait, so the spinner stays the whole story. *}
+   silent gap that reads as a slow model. Empty on an ordinary wait, so the spinner stays the whole story.
+
+   `data-slots-*` / `data-waiting` say the same for the OTHER invisible wait: every concurrency slot is busy, so
+   this turn is queued behind other work. Zeroed unless the pool is actually the reason, and recomputed every gate
+   cycle, so the line appears when contention starts and disappears on its own when a slot frees. *}
 <div data-cerb-await-queue
 	data-poll-ms="{$poll_ms}"
 	data-workers="{$workers}"
 	data-needs-worker="{$needs_worker|default:1}"
 	data-notice="{$notice|default:''}"
+	data-slots-used="{$slots_used|default:0}"
+	data-slots-total="{$slots_total|default:0}"
+	data-waiting="{$waiting|default:0}"
 	data-continuation-token="{$continuation_token}"></div>

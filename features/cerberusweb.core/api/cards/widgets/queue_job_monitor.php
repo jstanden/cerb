@@ -6,6 +6,7 @@ class CardWidget_QueueJobMonitor extends Extension_CardWidget {
 
 	function render(Model_CardWidget $model, $context, $context_id) {
 		$tpl = DevblocksPlatform::services()->template();
+		$queue_service = DevblocksPlatform::services()->queue();
 		$active_worker = CerberusApplication::getActiveWorker();
 
 		if(!($queue_job = DAO_QueueJob::get($context_id)))
@@ -19,8 +20,9 @@ class CardWidget_QueueJobMonitor extends Extension_CardWidget {
 		$tpl->assign('mode', QueueJobMonitor::determineMode($queue_job, $active_worker));
 		$tpl->assign('progress', $queue_job->getProgress());
 		$tpl->assign('widget_type', 'card');
+		$max_slots = $queue_service->getMaxConcurrencySlots();
 		$tpl->assign('max_concurrency',
-			intval($queue_job->metadata['concurrency'] ?? APP_QUEUE_CONCURRENCY_SLOTS));
+			max(1, min($max_slots, intval($queue_job->metadata['concurrency'] ?? $max_slots))));
 
 		// Surface any attachments produced by the job (e.g. worklist exports)
 		$attachments = $queue_job->isDone()

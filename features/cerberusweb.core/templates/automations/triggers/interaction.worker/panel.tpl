@@ -19,6 +19,14 @@ $(function() {
 	// any real content replaces $data.
 	var _queuePoll = null;
 
+	// The EDGE throttle, which the server cannot see. `data-slots-*` on the marker reports the
+	// queue_slot_N pool; nginx's 529 means the background FPM pool had no CHILD free -- a
+	// different resource entirely, and one the app has no visibility into. Without this the
+	// reader gets a spinner and no explanation for a wait that is working exactly as designed.
+	// Client-side because only the client ever learns of it, and it must survive the marker
+	// re-render below.
+	var _edgeThrottled = false;
+
 	// A one-line status beside the spinner, used only when the server has something to say that the spinner
 	// can't: a turn requeued after a rate limit is a silent 10-second gap otherwise, indistinguishable from a
 	// slow model. Detached whenever there's nothing to say, so an ordinary turn looks exactly as it did.
@@ -34,8 +42,36 @@ $(function() {
 		$queueNotice.text(text).insertAfter($data);
 	}
 
+	// The other silent wait: every concurrency slot is busy, so this turn is queued behind other work
+	// and the spinner alone reads as a slow model. Server-computed each gate cycle and zeroed the
+	// moment a slot frees, so this needs no state of its own.
+	//
+	// The chip's CONTENT comes from the shared partial (the queue-job monitor includes the same one);
+	// placement stays here, because only this host knows it belongs beside the spinner. inline-flex +
+	// vertical-align pairs it with the spinner's inline-block on one line.
+	const $queueSlots = $('<div style="vertical-align:middle;margin-left:0.5em;"/>');
+
+	{include file="devblocks:cerberusweb.core::internal/queue/_slot_chip.tpl"}
+
+	function setQueueSlots(used, total, waiting, throttled) {
+		if(!renderSlotChip($queueSlots[0], used, total, waiting, throttled)) {
+			$queueSlots.detach();
+			return;
+		}
+
+		// Beside the spinner, not above it. The spinner is normally already in the DOM on this path
+		// (the submit inserts it before the gate poll ever renders a marker); fall back to $data if a
+		// future path ever calls this with the spinner detached.
+		if($spinner.parent().length)
+			$queueSlots.insertAfter($spinner);
+		else
+			$queueSlots.insertAfter($data);
+	}
+
 	function stopQueuePoll() {
+		_edgeThrottled = false;
 		setQueueNotice('');
+		setQueueSlots(0, 0, 0, false);
 
 		// Deactivate before dropping the reference: a worker sidecar still in flight from this cycle would
 		// otherwise call gatePoll() and fire a stray submit after the interaction has moved on.
@@ -100,16 +136,11 @@ $(function() {
 
 			genericAjaxPost(fd, null, null, function(json) {
 				poll.inflight--;
+
+				// Got through -- whatever the answer, the edge is no longer refusing us.
+				_edgeThrottled = false;
 				if(!poll.active)
 					return;
-
-				// An auth/not-found failure answers HTTP 200 with an `error` key and no counters, so it
-				// would otherwise read as "no work, nothing ready" forever. Stop instead of polling a
-				// dead continuation for as long as the tab stays open.
-				if(json && json.error) {
-					stopQueuePoll();
-					return;
-				}
 
 				var processed = (json && typeof json.processed === 'number') ? json.processed : 0;
 				var ready = (json && typeof json.ready === 'number') ? json.ready : 0;
@@ -118,6 +149,12 @@ $(function() {
 					gatePoll();
 					return;
 				}
+
+				// Every concurrency slot is busy. Unlike a lost claim race, retrying in 1.5s can't help --
+				// nothing frees a slot that fast -- so let the next gate cycle spawn a fresh sidecar and
+				// spend no requests in between. The marker's slot line explains the wait meanwhile.
+				if(json && json.throttled)
+					return;
 
 				// Claimable work we didn't win. `ready` is queue-GLOBAL, so this can be somebody else's
 				// turn entirely -- retry a bounded number of times, throttled, then let the gate's own
@@ -136,6 +173,18 @@ $(function() {
 
 					if(504 === err.status || 0 === err.status)
 						return;
+
+					// 529 = no capacity, from either layer: the app when the concurrency pool is
+					// full (200 + `throttled` on the success path above), nginx when the background
+					// FPM pool has no child free. Same meaning, so the same response -- stay quiet
+					// and spend no requests. Retrying fast cannot help, and the next gate cycle
+					// spawns a fresh sidecar anyway. NOT falling through to ajaxFail() matters:
+					// that clears any alert the worker was reading, for a condition that is normal
+					// backpressure rather than a failure.
+					if(529 === err.status) {
+						_edgeThrottled = true;
+						return;
+					}
 
 					Devblocks.ajaxFail(err);
 				}
@@ -270,6 +319,46 @@ $(function() {
 				// back off. Recomputed server-side every cycle, so it appears when a wait starts and disappears
 				// on its own when the turn resumes.
 				setQueueNotice($queue.attr('data-notice') || '');
+				// `data-needs-worker` is 0 once nothing is claimable -- i.e. our turn is IN FLIGHT, so we
+				// are no longer waiting for a worker whatever the last refusal said. Clearing here is what
+				// stops the chip sticking: the flag used to clear only when a SIDECAR SUCCEEDED, but the
+				// panel stops spawning sidecars the moment needsWorker goes 0, so nothing ever cleared it
+				// and the chip stayed up for the whole turn it was already running.
+				if('0' === ($queue.attr('data-needs-worker') || '1'))
+					_edgeThrottled = false;
+
+				setQueueSlots(
+					parseInt($queue.attr('data-slots-used'), 10) || 0,
+					parseInt($queue.attr('data-slots-total'), 10) || 0,
+					parseInt($queue.attr('data-waiting'), 10) || 0,
+					_edgeThrottled
+				);
+
+				// THE THIRD ENTRY POINT for the transcript poll. The other two both assume a human at a
+				// composer: a render the server already knew was in-progress (`$is_in_progress`), and the
+				// `cerb-agentprompt-submitted` handler. A turn that begins any other way -- a tile-launched
+				// interaction, a resumed continuation, or simply a submit whose event didn't reach a
+				// transcript that wasn't on screen yet -- has no starter, so the transcript, the Stop row
+				// and the working chip all stay at their server-rendered display:none for the WHOLE turn
+				// while the queue drains it. You get nothing, then everything at once.
+				//
+				// This marker is the universal signal that a turn is queued or running, and it arrives on
+				// every route in, so starting here closes the gap for all of them. startPoll() is
+				// idempotent (flagged on the container, not in a closure) precisely so it can be driven
+				// from outside like this, and an idle transcript is never reached -- no marker, no start.
+				// ONCE, not every cycle. startPoll() resets its elapsed clock and force-reveals the
+				// working chip BEFORE its own `_cerbTranscriptPolling` guard, so re-calling it on each
+				// marker pinned the clock at 0s and re-showed a chip the poll response had just hidden
+				// -- a blinking stopwatch. Check the flag here; it clears when the poll stops, so a
+				// genuinely new turn still gets a starter.
+				$data.find('[data-cerb-transcript-echo-key]').each(function() {
+					if(this._cerbTranscriptPolling)
+						return;
+
+					if('function' === typeof this._cerbTranscriptStartPoll)
+						this._cerbTranscriptStartPoll();
+				});
+
 				return;
 			}
 

@@ -2189,7 +2189,12 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		// nothing at all.
 		if(($started_at = intval($queue_state['started_at'] ?? 0)) > 0) {
 			$elapsed = max(0, time() - $started_at);
-			$poll_ms = min(self::AWAIT_QUEUE_POLL_MS_MAX, $poll_ms * (1 << intdiv($elapsed, 15)));
+			// The shift is clamped because it is UNBOUNDED in $elapsed, and a resumed continuation supplies a
+			// large one by construction (`started_at` is when the turn began, not when this panel opened).
+			// Past the platform word size `1 << n` stops growing and starts lying: 63 gives PHP_INT_MIN and
+			// 64+ gives 0, so the cap silently inverted into the FASTEST poll the client allows -- 500ms at
+			// ~16 minutes elapsed, 2s beyond that -- on exactly the long waits it exists to slow down.
+			$poll_ms = min(self::AWAIT_QUEUE_POLL_MS_MAX, $poll_ms * (1 << min(16, intdiv($elapsed, 15))));
 		}
 
 		// Does this client need to run a worker sidecar at all? While the turn is IN_FLIGHT somewhere, a
@@ -2204,10 +2209,11 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		$retry_in = 0;
 		$retry_notice = '';
 
+		$claimable = false;
+
 		if(is_array($queue_state['messages'] ?? null) && $queue_state['messages']) {
 			$states = DAO_QueueMessage::getPollStateByUuids($queue_state['messages']);
 			$now = time();
-			$claimable = false;
 
 			foreach($states as $uuid => $state) {
 				if(QueueMessageStatus::AVAILABLE->value !== $state['status_id'])
@@ -2242,11 +2248,37 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		if($retry_in > 0)
 			$poll_ms = min(15000, ($retry_in * 1000) + 250);
 
+		// Is the POOL why we're still waiting? Only worth asking when our own message is claimable
+		// and nothing has taken it — while the turn is IN_FLIGHT we aren't waiting on a slot, and
+		// during a retry backoff the notice below already explains itself. That keeps the extra
+		// read off every ordinary gate cycle.
+		$slots_used = 0;
+		$slots_total = 0;
+		$waiting = 0;
+
+		if($claimable && 0 === $retry_in) {
+			$usage = DevblocksPlatform::services()->queue()->getConcurrencyUsage();
+
+			// Reported whenever we ask, not only when saturated. The CLIENT decides what's worth showing
+			// (see panel.tpl), and having the real numbers in the DOM on every throttled cycle is what
+			// makes a broken occupancy read visible instead of looking like an idle pool.
+			$slots_used = $usage['used'];
+			$slots_total = $usage['total'];
+
+			if(($llm_queue = DAO_Queue::getByName('cerb.llm.agent.requests')))
+				$waiting = DAO_QueueMessage::countAvailable($llm_queue->id);
+		}
+
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('poll_ms', $poll_ms);
 		$tpl->assign('workers', $workers);
 		$tpl->assign('needs_worker', $needs_worker);
 		$tpl->assign('continuation_token', $continuation_token);
+
+		// ALWAYS assigned, same reason as `notice` below.
+		$tpl->assign('slots_used', $slots_used);
+		$tpl->assign('slots_total', $slots_total);
+		$tpl->assign('waiting', $waiting);
 
 		// One sentence for the reader: what happened, and when it resumes. The reason is best-effort (a
 		// consumer may not have left one, or its slot may have aged out); the timing is always ours.

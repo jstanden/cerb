@@ -157,6 +157,19 @@ $(function() {
                         CerbUI.AgentTranscript.trackStick(scroller);
                         CerbUI.AgentTranscript.stickToBottom(scroller);
                     });
+                }, {
+                    // Best-effort, so a 404 must stay silent. `invokePrompt` requires `prompt_key` in the
+                    // continuation's CURRENT `__return.form.elements`, and once the turn parks on
+                    // `await:queue:` that holds a queue descriptor and no form at all -- so this echo
+                    // 404s whenever the interaction POST wins the race, which a slow model makes the
+                    // common case. The default handler would raise an error banner AND clearAlerts()
+                    // anything the worker was reading.
+                    //
+                    // Nothing is lost but immediacy: the transcript poll renders this turn on its next tick.
+                    fail: function(err) {
+                        if(404 !== err.status)
+                            Devblocks.ajaxFail(err);
+                    }
                 });
             });
         });
@@ -249,7 +262,13 @@ $(function() {
             if(!canStream)
                 return POLL_IDLE_MS;
 
-            // Working but not streaming: a tool is running, or a turn is queued and about to start.
+            // Enqueued but unclaimed -- waiting on a concurrency slot. `working` is true here, but no
+            // worker holds this turn yet, so the transcript CANNOT change until one does. Asking every
+            // second buys nothing: a 60s wait behind a full pool is 60 guaranteed-unchanged requests.
+            if(json && json.queued)
+                return POLL_IDLE_MS;
+
+            // Working, not streaming, and claimed: a tool is running, or a turn is about to be written.
             return (json && json.working) ? POLL_STREAMING_MS : POLL_IDLE_MS;
         };
 

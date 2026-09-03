@@ -541,7 +541,15 @@ class LlmTranscriptAwait extends AbstractAwait {
 			&& 'assistant' === $last_message->role
 			&& 'text' === $last_message->kind
 			&& !$last_message->is_streaming;
-		$is_in_progress = $last_message && !$is_finished && !$this->_hasComposer($continuation);
+		// A turn that is ENQUEUED but not yet claimed leaves the head as the PREVIOUS, completed reply --
+		// so `$is_finished` is true and, without the queued test, `in_progress` reads false and the client
+		// stops watching a turn that has not started yet. It then restarts on the next gate cycle, which
+		// resets the elapsed clock: a stopwatch blinking 0s for the whole wait. Invisible while a browser
+		// sidecar claimed the turn within a second; continuous once the drain is throttled and a turn can
+		// sit unclaimed for minutes.
+		$is_in_progress = $last_message
+			&& (!$is_finished || $this->_isTurnQueued($continuation))
+			&& !$this->_hasComposer($continuation);
 		$tpl->assign('is_in_progress', $is_in_progress);
 		$tpl->assign('session_id', $transcript_id);
 
@@ -671,6 +679,41 @@ class LlmTranscriptAwait extends AbstractAwait {
 	}
 
 	/**
+	 * Is this turn merely QUEUED -- enqueued but not yet claimed by a worker, i.e. waiting on a
+	 * concurrency slot -- rather than actually running?
+	 *
+	 * It matters because `working` conflates the two, and the client pays a 1s cadence for both. A
+	 * turn a worker is running can change the transcript at any moment; a turn waiting for a slot
+	 * CANNOT change anything until one frees, so every fast tick spent on it is guaranteed waste.
+	 *
+	 * Only asked when the turn isn't already streaming (streaming proves a worker has it), so this
+	 * costs a uuid-keyed lookup exactly in the ambiguous window and nothing during a live turn.
+	 */
+	private function _isTurnQueued(Model_AutomationContinuation $continuation) : bool {
+		if('queue' !== strval($continuation->state_await ?? ''))
+			return false;
+
+		$uuids = $continuation->state_data['dict']['__return']['queue']['messages'] ?? null;
+
+		if(!is_array($uuids) || !$uuids)
+			return false;
+
+		$states = \DAO_QueueMessage::getPollStateByUuids($uuids);
+
+		// Absent statuses mean we can't tell -- fall back to the fast cadence. Being wrong that way
+		// costs a few requests; the reverse makes a live turn look frozen.
+		if(count($states) < count($uuids))
+			return false;
+
+		foreach($states as $state) {
+			if(\QueueMessageStatus::IN_FLIGHT->value === intval($state['status_id'] ?? -1))
+				return false;
+		}
+
+		return true;
+	}
+	
+	/**
 	 * `pollTurn` — while a streamed turn is being written, hand back JUST that turn's markup so the client can
 	 * swap one node instead of redrawing the transcript.
 	 *
@@ -681,7 +724,7 @@ class LlmTranscriptAwait extends AbstractAwait {
 	 * Returns JSON rather than markup because the client needs the CONTROL fields too: `in_progress` says
 	 * whether to keep polling, and `seq` says which node to replace.
 	 *
-	 * ⚠️ Read-only, like every `invokePrompt` action. That's precisely what makes it safe to fire concurrently
+	 * Read-only, like every `invokePrompt` action. That's precisely what makes it safe to fire concurrently
 	 * with the interaction's own gate POST — adding a write here would reintroduce the race that design avoids.
 	 */
 	private function _promptAction_pollTurn(Model_AutomationContinuation $continuation) : bool {
@@ -742,6 +785,9 @@ class LlmTranscriptAwait extends AbstractAwait {
 			// this transcript mid-turn, so the client uses it to pick a slow cadence on the FIRST tick
 			// rather than discovering it by polling a second at a time for the length of the turn.
 			'can_stream' => $state['can_stream'] ?? false,
+			// Enqueued but unclaimed -- waiting on a concurrency slot. `working` is true for this too,
+			// so without a separate flag the client can't tell it from a turn actually being written.
+			'queued' => $state['queued'] ?? false,
 		]);
 
 		return true;
@@ -797,20 +843,29 @@ class LlmTranscriptAwait extends AbstractAwait {
 			}
 		}
 
+		// Computed once: `in_progress` and `queued` must not disagree about the same turn.
+		$is_queued = !$is_streaming && $this->_isTurnQueued($continuation);
+
 		return [
 			'fingerprint' => implode(':', [
 				$head_uuid,
 				$is_streaming ? 1 : 0,
 				strlen(json_encode($head->data)),
 			]),
-			// Mirrors _prepare() on BOTH counts, or the cheap path would keep a poll alive that the full render
-			// has already ended -- the fingerprint only moves when a MESSAGE does, and the yield that brings the
-			// composer back writes nothing.
-			'in_progress' => !$is_finished && !$this->_hasComposer($continuation),
+			// Mirrors _prepare() on ALL THREE counts, or the cheap path would keep a poll alive that the full
+			// render has already ended -- the fingerprint only moves when a MESSAGE does, and the yield that
+			// brings the composer back writes nothing.
+			//
+			// `|| $is_queued` because an enqueued-but-unclaimed turn leaves the head as the PREVIOUS completed
+			// reply, so `$is_finished` is true for a turn that has not started. Without it the client stops
+			// watching and the marker restarts it every cycle, resetting the elapsed clock to 0s.
+			'in_progress' => (!$is_finished || $is_queued) && !$this->_hasComposer($continuation),
 			// Work is genuinely underway: a turn is being written, or one is queued and about to be.
 			'working' => $is_streaming || 'queue' === strval($continuation->state_await ?? ''),
 			'streaming' => $is_streaming,
 			'can_stream' => $can_stream,
+			// Streaming proves a worker has the turn, so only ask in the ambiguous case.
+			'queued' => $is_queued,
 		];
 	}
 

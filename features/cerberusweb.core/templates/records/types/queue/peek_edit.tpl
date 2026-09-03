@@ -50,9 +50,9 @@
 			<div class="cerb-ui-form--field">
 				<label class="cerb-ui-form--label">Claims</label>
 				<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-1 cerb-u-flex-wrap">
-					<span class="cerb-u-text-muted">reclaim stalled in-flight messages after</span>
+					<span class="cerb-u-text-muted">reclaim in-flight messages after</span>
 					<input type="number" name="claim_window_secs" value="{$model->claim_window_secs|default:3600}" min="0" style="width:7em;flex:0 0 auto;">
-					<span class="cerb-u-text-muted">seconds (0 = never)</span>
+					<span class="cerb-u-text-muted">seconds without progress (0 = never)</span>
 				</div>
 			</div>
 

@@ -18,6 +18,11 @@
     <button data-cerb-button="cancel" title="Cancel" class="{if $mode != 'process_paused'}cerb-hidden{/if}"><span class="cerb-icons cerb-icon-circle-remove"></span> Cancel</button>
     {/if}
     <button data-cerb-button="refresh"><span class="cerb-icons cerb-icon-refresh"></span> Refresh</button>
+
+    {* Why the worker tiles are throttled. The queue_slot_N pool is shared with LLM agent turns and the
+       cron, so this job can be stalled by work that isn't its own -- the dimmed tiles alone can't say
+       that. Populated from the throttled worker response; hidden whenever nothing is throttled. *}
+    <div data-cerb-slot-chip class="cerb-hidden" style="vertical-align:middle;margin-left:0.5em;"></div>
 </div>
 
 <div data-cerb-worker-cards class="cerb-worker-cards cerb-hidden">
@@ -106,6 +111,12 @@ $(function() {
     // the prior worker has returned. Decouples ramp visibility from worker
     // batch duration — a 10s worker doesn't block the ramp from animating.
     const RAMP_INTERVAL_MS = 2000;
+    // Losing the concurrency slot is NOT the same as losing a claim race: the pool is full, so no
+    // amount of spawning can win one, and a throttled response returns in milliseconds. Backing off
+    // on RETRY_DELAY_MS per worker plus a re-armed ramp is a hot loop against a shared resource --
+    // it got much easier to hit once the pool became license-derived and shared with agent turns.
+    const THROTTLE_BACKOFF_START_MS = 2000;
+    const THROTTLE_BACKOFF_MAX_MS = 20000;
 
     // Semantic colors for the progress Distbar, in segment order: done, error, inflight,
     // retrying, available — matched 1:1 to the <span> order in progress_bar.tpl.
@@ -145,6 +156,13 @@ $(function() {
     // we have real data. Retry-deferred (`scheduled`) messages are deliberately
     // excluded so the pool backs off instead of spinning during a backoff window.
     let lastKnownReady = Infinity;
+    // Last pool occupancy seen from a throttled worker response. Kept across cycles: only the
+    // throttled path reports it, so clearing on every other response would strobe the chip.
+    let lastSlotUsage = { used: 0, total: 0 };
+    // Widget-level, NOT per-slot: an individual slot flips throttled -> running -> throttled every
+    // cycle, so driving UI off slotState[i] strobes. This holds until a worker actually gets a slot.
+    let isThrottled = false;
+    let throttleBackoffMs = THROTTLE_BACKOFF_START_MS;
     const canProcess = (MODE !== 'view');
 
     const $button_refresh = $widget.find('button[data-cerb-button=refresh]');
@@ -238,15 +256,42 @@ $(function() {
                  .toggleClass('cerb-worker-tile--throttled', !s.running && s.throttled)
                  .toggleClass('cerb-u-opacity-50', !isActive);   // dim when idle; full when active
 
-            // Icon: spinner (rotating) while a batch is in flight, stopwatch when idle/throttled
+            // Icon: spinner (rotating) while a batch is in flight, stopwatch when idle/throttled. A
+            // THROTTLED tile pulses -- it's waiting on a slot, which is live state, not the same as an
+            // idle tile that simply has no work.
+            const iconClass = s.running
+                ? 'cerb-icon-spinner cerb-u-anim-spin'
+                : (s.throttled ? 'cerb-icon-stopwatch cerb-u-anim-pulse' : 'cerb-icon-stopwatch');
             $card.find('[data-cerb-worker-card-icon] > .cerb-icons')
-                 .attr('class', 'cerb-icons ' + (s.running ? 'cerb-icon-spinner cerb-u-anim-spin' : 'cerb-icon-stopwatch'));
+                 .attr('class', 'cerb-icons ' + iconClass);
 
             $card.find('[data-cerb-worker-card-done]').text(s.doneTotal.toLocaleString());
 
             const rate = s.activeMs > 0 ? (s.doneTotal / (s.activeMs / 1000)) : 0;
             $card.find('[data-cerb-worker-card-rate]').text(rate.toFixed(1));
         }
+    };
+
+    {include file="devblocks:cerberusweb.core::internal/queue/_slot_chip.tpl"}
+
+    // Shown while the widget is in its throttled state AND the pool we last read was saturated.
+    // Keyed off `isThrottled` rather than slotState[] on purpose: a single slot flips
+    // throttled -> running -> throttled every cycle, which made the chip strobe.
+    //
+    // Content comes from the shared partial above; this host only decides whether the element is
+    // visible. Passing a zeroed pool is how we clear it -- the partial renders nothing unless the
+    // pool is saturated, and reports back whether it drew anything.
+    const funcRenderSlotChip = function() {
+        const $chip = $widget.find('[data-cerb-slot-chip]');
+
+        if(!$chip.length)
+            return;
+
+        const shown = isThrottled
+            ? renderSlotChip($chip[0], lastSlotUsage.used, lastSlotUsage.total, 0)
+            : renderSlotChip($chip[0], 0, 0, 0);
+
+        $chip.toggleClass('cerb-hidden', !shown);
     };
 
     const funcMarkTerminated = function() {
@@ -321,6 +366,55 @@ $(function() {
         $widget.data('queueJobMonitorFinalizeTimer', t);
     };
 
+    // A single deferred probe. One timer slot for the whole widget: without this, every worker in
+    // the pool schedules its own and the "back off" multiplies by MAX_CONCURRENCY.
+    const funcScheduleProbe = function(delay) {
+        const prev = $widget.data('queueJobMonitorRetryTimer');
+        if(prev) clearTimeout(prev);
+        const t = setTimeout(funcSpawnSingleWorker, delay);
+        $widget.data('queueJobMonitorRetryTimer', t);
+    };
+
+    // ONE handler for BOTH refusal layers: the app answers 529 when the concurrency pool is
+    // full, nginx answers 529 when the background FPM pool has no child free. Same meaning, same
+    // payload shape, so the same handling -- and keeping it in one place is what stops the two
+    // from drifting apart. `json` may be missing keys (nginx's body carries no counters), in which
+    // case the last known readings stand rather than being zeroed.
+    const funcHandleThrottled = function(slot, json, retryAfterSecs) {
+        const isObj = (typeof json === 'object' && json !== null);
+
+        // Pace on `ready` only -- deferred retries must not keep the pool hot.
+        if(isObj && typeof json.ready === 'number')
+            lastKnownReady = json.ready;
+
+        // Only a throttled response carries occupancy; keep the last reading otherwise.
+        if(isObj && typeof json.slots_total === 'number') {
+            lastSlotUsage = {
+                used: (typeof json.slots_used === 'number') ? json.slots_used : 0,
+                total: json.slots_total
+            };
+        }
+
+        funcReleaseSlot(slot, 0, true);
+        funcRenderWorkerCards();
+
+        if(!isCurrent()) return;
+        if(isTerminal || isPaused || !canProcess) return;
+
+        // Spawning again can't help -- every slot is held, by this job's own workers or by agent
+        // turns and the cron sharing the pool. Take a single probe on an exponential backoff and
+        // let the ramp stand down until it lands.
+        isThrottled = true;
+        funcRenderSlotChip();
+        funcRefreshProgress();
+
+        // Retry-After is a MINIMUM, not an instruction: honour it, but never let it SHORTEN our
+        // own backoff, which knows how long we have been waiting where a flat header cannot.
+        const delay = Math.max(throttleBackoffMs, (retryAfterSecs > 0 ? retryAfterSecs * 1000 : 0));
+        throttleBackoffMs = Math.min(throttleBackoffMs * 2, THROTTLE_BACKOFF_MAX_MS);
+        funcScheduleProbe(delay);
+    };
+
     const funcSpawnSingleWorker = function() {
         if(!isCurrent()) return;
         if(isTerminal || isPaused || !canProcess) return;
@@ -341,16 +435,38 @@ $(function() {
             // Throttled (no concurrency slot) but there's still work to come back for.
             const wasThrottled = (isObj && json.slot === false && (ready > 0 || scheduled > 0 || inflight > 0));
 
+            // DEFENSIVE. The app answers 529 for a throttled drain, so a 200-shaped refusal no
+            // longer reaches here -- but anything that rewrites the status (a proxy, a future
+            // caller) would otherwise silently lose the backoff, which is the failure this whole
+            // branch exists to prevent. Costs nothing to keep, and routes to the same handler.
+            if(wasThrottled) {
+                funcHandleThrottled(slot, json, 0);
+                return;
+            }
+
             // Update pacing data BEFORE rendering so the ramp scheduler sees fresh
             // data. We pace on `ready` only — deferred retries must not keep the pool hot.
             if(isObj && typeof json.ready === 'number')
                 lastKnownReady = ready;
+
+            // Only the throttled response carries occupancy; keep the last reading otherwise.
+            if(isObj && typeof json.slots_total === 'number') {
+                lastSlotUsage = {
+                    used: (typeof json.slots_used === 'number') ? json.slots_used : 0,
+                    total: json.slots_total
+                };
+            }
 
             funcReleaseSlot(slot, processed, wasThrottled);
             funcRenderWorkerCards();
 
             if(!isCurrent()) return;
             if(isTerminal || isPaused || !canProcess) return;
+
+            // Got a slot (or there's nothing left to do): the pool is reachable again.
+            isThrottled = false;
+            throttleBackoffMs = THROTTLE_BACKOFF_START_MS;
+            funcRenderSlotChip();
 
             // Nothing claimable right now.
             if(ready === 0) {
@@ -408,9 +524,23 @@ $(function() {
             // a worker has finished and we may have room).
             funcStartRamp();
         }, {
-            error: function() {
+            path: 'queue/drainJob',
+            // `fail` REPLACES the default failure UI (`error` would run it first and clear the
+            // user's alerts). Two layers can refuse a drain and the client must treat them the
+            // same: the app answers 200 + `slot:false` when the concurrency pool is full, and
+            // nginx answers 529 when the background FPM pool has no child free. Only the status
+            // differs -- both mean "no capacity, come back later", so a 529 is routed into the
+            // exact same single-probe backoff rather than looking like an error.
+            fail: function(err) {
+                // 529 from EITHER layer. jQuery parses the body into responseJSON because both
+                // emitters send `Content-Type: application/json`, so the app's counters survive
+                // the move from the success path to here.
+                if(529 === err.status)
+                    return funcHandleThrottled(slot, err.responseJSON, parseInt(err.getResponseHeader('Retry-After'), 10));
+
                 funcReleaseSlot(slot, 0, false);
                 funcRenderWorkerCards();
+                Devblocks.ajaxFail(err);
             }
         });
     };
@@ -422,6 +552,10 @@ $(function() {
         $widget.data('queueJobMonitorRampTimer', null);
 
         if(!isCurrent() || isTerminal || isPaused || !canProcess) return;
+
+        // Every slot is held. Growing the pool can only produce more no-op requests; the throttle
+        // backoff owns the retry, and it re-arms the ramp once a worker gets in.
+        if(isThrottled) return;
 
         const cap = isHidden ? 1 : MAX_CONCURRENCY;
         const target = Math.min(cap, lastKnownReady);
@@ -438,6 +572,7 @@ $(function() {
 
     const funcStartRamp = function() {
         if(!isCurrent() || isTerminal || isPaused || !canProcess) return;
+        if(isThrottled) return;
         if($widget.data('queueJobMonitorRampTimer')) return;
         const t = setTimeout(funcRamp, RAMP_INTERVAL_MS);
         $widget.data('queueJobMonitorRampTimer', t);
