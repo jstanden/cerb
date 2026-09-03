@@ -128,6 +128,9 @@ $(function() {
 			poll.spawns++;
 			poll.inflight++;
 
+			var _logTag = ($data.find('[data-cerb-transcript-session-id]')
+				.attr('data-cerb-transcript-session-id') || '').substring(0, 6);
+
 			// No continuation token, and nothing else: this endpoint claims the NEXT waiting turn, not
 			// ours, so the request says only "I am a logged-in worker donating a drain" -- which is all
 			// it ever meant. A real path (not c/a on ajax.php) so nginx can route drains to the
@@ -164,7 +167,13 @@ $(function() {
 					setTimeout(spawnWorker, _WORKER_RETRY_MS);
 				}
 			}, {
-				path: 'queue/nextAgentTurn',
+				// `?_log=` is for the FPM access log only -- the path alone cannot tell two chats apart,
+				// and every sidecar posts an empty body. Six characters of the session uuid is enough to
+				// group a log by conversation without putting a full identifier in a URL.
+				//
+				// It identifies the CALLER, not the work: this endpoint claims the NEXT waiting turn,
+				// which may well belong to someone else.
+				path: 'queue/nextAgentTurn' + (_logTag ? '?_log=' + encodeURIComponent(_logTag) : ''),
 				// Expected, not an error: this sidecar deliberately outlives the gateway's ~30s request timeout
 				// (504, or 0 when the socket is simply closed). The queue worker finishes the turn off-request and
 				// the gated poll collects it, so stay quiet — the default UI would alert and clear alerts.

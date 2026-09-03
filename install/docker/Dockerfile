@@ -26,7 +26,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
-COPY ./_conf/www.conf /etc/php/8.5/fpm/pool.d/www.conf
-COPY --chmod=0700 ./_conf/entry.sh /
+# Every pool definition ships; entry.sh installs the ONE named by CERB_FPM_POOL into
+# pool.d/. They never coexist in a running container.
+COPY ./_conf/pools-available/ /etc/php/8.5/fpm/pools-available/
+RUN rm -f /etc/php/8.5/fpm/pool.d/*.conf
+COPY --chmod=0700 ./_conf/entry/entry*.sh /
 
 ENTRYPOINT [ "/entry.sh" ]

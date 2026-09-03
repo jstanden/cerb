@@ -9,7 +9,8 @@
        time, without every render binding another handler to the persistent form. *}
     <div class="cerb-ui-agent-transcript" data-cerb-agent-transcript
         data-cerb-transcript-echo-key="llmTranscript/{$var}"
-        data-cerb-transcript-echo-token="{$continuation_token}">
+        data-cerb-transcript-echo-token="{$continuation_token}"
+        data-cerb-transcript-session-id="{$session_id}">
         {include file="devblocks:cerberusweb.core::automations/triggers/interaction.worker/await/_transcript_turns.tpl"}
     </div>
 

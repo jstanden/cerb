@@ -10,15 +10,20 @@ services:
       - "${CERB_PORT:-80}:80"
     depends_on:
       - php-fpm
+      - php-fpm-background
+    environment:
+      # Drains run on their own container, so a drain can never occupy a child a page
+      # load needed. Point this back at `php-fpm:9000` to collapse to one pool.
+      CERB_FPM_BACKGROUND: ${CERB_FPM_BACKGROUND:-php-fpm-background:9000}
     volumes:
-      - ./_conf/nginx.conf:/etc/nginx/templates/default.conf.template:ro
+      - ./_conf/nginx/nginx.conf:/etc/nginx/templates/default.conf.template:ro
       - ../../apple-touch-icon.png:/usr/share/nginx/html/apple-touch-icon.png:ro
       - ../../favicon.ico:/usr/share/nginx/html/favicon.ico:ro
       - ../../robots.txt:/usr/share/nginx/html/robots.txt:ro
-  php-fpm:
+  # Renders framework.config.php once and exits; the PHP containers gate on it finishing.
+  cerb-config:
     build: .
-    depends_on:
-      - mysql
+    entrypoint: ["/entry-render-config.sh"]
     environment:
       CERB_DB_HOST: mysql
       CERB_DB_NAME: ${MYSQL_DATABASE:-cerb}
@@ -27,8 +32,39 @@ services:
       CERB_SERVICE_TOKEN: ${CERB_SERVICE_TOKEN:-sk_docker_token}
       CERB_SERVICE_TOKEN_SCOPE: ${CERB_SERVICE_TOKEN_SCOPE:-cron update}
     volumes:
-      - ../..:/var/www/html:ro
       - ./_conf/cerb.config.template.php:/tmp/cerb.framework.config.template:ro
+      - ./_conf/cerb.config.php:/var/www/html/framework.config.php
+  php-fpm:
+    build: .
+    depends_on:
+      mysql:
+        condition: service_started
+      cerb-config:
+        condition: service_completed_successfully
+    environment:
+      CERB_FPM_POOL: www
+      # Page-load children. Short, busy requests -- sized on CPU and memory
+      CERB_WEB_CHILDREN: ${CERB_WEB_CHILDREN:-6}
+    volumes:
+      - ../..:/var/www/html:ro
+      - ./_conf/cerb.config.php:/var/www/html/framework.config.php
+      - storage:/mnt/storage
+  php-fpm-background:
+    build: .
+    depends_on:
+      mysql:
+        condition: service_started
+      cerb-config:
+        condition: service_completed_successfully
+    environment:
+      CERB_FPM_POOL: background
+      # Size this off MEMORY and DB CONNECTIONS, not cores. A drain worker is a
+      # blocking curl_exec and burns ~0 CPU + ~50MB RAM while it waits, plus ONE
+      # MySQL connection for the entire drain.
+      # Scale with: `docker compose up --scale php-fpm-background=3`
+      CERB_BACKGROUND_CHILDREN: ${CERB_BACKGROUND_CHILDREN:-4}
+    volumes:
+      - ../..:/var/www/html:ro
       - ./_conf/cerb.config.php:/var/www/html/framework.config.php
       - storage:/mnt/storage
   mysql:
