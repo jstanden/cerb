@@ -25,8 +25,6 @@ class PageSection_SetupScheduler extends Extension_PageSection {
 		$jobs = DevblocksPlatform::getExtensions('cerberusweb.cron', true);
 		$tpl->assign('jobs', $jobs);
 		
-		$tpl->assign('max_parallel', APP_QUEUE_CONCURRENCY_SLOTS);
-		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/scheduler/index.tpl');
 	}
 	
@@ -63,7 +61,6 @@ class PageSection_SetupScheduler extends Extension_PageSection {
 			return;
 
 		$tpl->assign('job', $job);
-		$tpl->assign('max_parallel', APP_QUEUE_CONCURRENCY_SLOTS);
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/scheduler/job_peek.tpl');
 	}
 
@@ -105,6 +102,25 @@ class PageSection_SetupScheduler extends Extension_PageSection {
 			if(!$job instanceof CerberusCronPageExtension)
 				throw new Exception("Can't load scheduler job.");
 
+			// "Run now" bypasses isReadyToRun(), and _run() writes no PARAM_LOCKED for a parallel
+			// job -- so without this an admin click drains every queue for 600s with neither a
+			// slot nor a lock, concurrent with a legitimately slotted cron pass. Same
+			// interactive reservation as the scheduler's own clamp.
+			$queue_service = DevblocksPlatform::services()->queue();
+			$run_slot = null;
+			
+			if(array_key_exists('parallel', $job->manifest->params)) {
+				$run_slot = $queue_service->getAvailableConcurrencySlot(QueueLane::Slow);
+				
+				if(is_null($run_slot)) {
+					echo json_encode([
+						'status' => false,
+						'error' => 'All concurrency slots are busy. Try again in a moment.',
+					]);
+					return;
+				}
+			}
+			
 			CerberusContexts::pushActivityDefaultActor(CerberusContexts::CONTEXT_APPLICATION, 0);
 			@set_time_limit(600);
 
@@ -118,6 +134,9 @@ class PageSection_SetupScheduler extends Extension_PageSection {
 				$job->_run(); // runs run(), records metrics, updates lastrun; ignores the wait interval
 			} catch(Throwable $e) {
 				$logger->error($e->getMessage());
+			} finally {
+				if(!is_null($run_slot))
+					$queue_service->releaseConcurrencySlot($run_slot);
 			}
 			$log = ob_get_clean();
 
@@ -240,11 +259,7 @@ class PageSection_SetupScheduler extends Extension_PageSection {
 			$job->setParam(CerberusCronPageExtension::PARAM_ENABLED, $enabled);
 			
 			if($is_concurrent) {
-				$concurrency = DevblocksPlatform::importGPC($_POST['concurrency'] ?? null,'integer',0);
-				$concurrency = DevblocksPlatform::intClamp($concurrency, 0, APP_QUEUE_CONCURRENCY_SLOTS);
-				
 				$job->setParam(CerberusCronPageExtension::PARAM_LOCKED, 0);
-				$job->setParam(CerberusCronPageExtension::PARAM_CONCURRENCY, $concurrency);
 				
 			} else {
 				$locked = DevblocksPlatform::importGPC($_POST['locked'] ?? null,'integer',0);
@@ -272,7 +287,6 @@ class PageSection_SetupScheduler extends Extension_PageSection {
 			// in-memory $job already reflects the saved params, so the row reflects the new state.
 			$tpl = DevblocksPlatform::services()->template();
 			$tpl->assign('job', $job);
-			$tpl->assign('max_parallel', APP_QUEUE_CONCURRENCY_SLOTS);
 			$html = $tpl->fetch('devblocks:cerberusweb.core::configuration/section/scheduler/_job_row.tpl');
 
 			echo json_encode(array('status'=>true, 'html'=>$html));

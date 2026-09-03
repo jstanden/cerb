@@ -1,14 +1,14 @@
 {* One scheduler job row. Rendered in the index loop and standalone after a save (saveJobJson)
-   so the row can be swapped in place without a full page reload. Needs only $job + $max_parallel. *}
+   so the row can be swapped in place without a full page reload. Needs only $job. *}
 {$enabled = $job->getParam('enabled',0)}
 {$locked = $job->getParam('locked',0)}
 {$lastrun = $job->getParam('lastrun',0)}
 {$is_concurrent = array_key_exists('parallel', $job->manifest->params)}
-{$concurrency = $job->getParam('concurrency', $max_parallel)}
 {$duration = $job->getParam('duration',5)}
 {$term = $job->getParam('term','m')}
 {$term_word = ($term=='d') ? 'day' : (($term=='h') ? 'hour' : 'minute')}
 {$interval_seconds = $duration * (($term=='d') ? 86400 : (($term=='h') ? 3600 : 60))}
+{if $is_concurrent}{$interval_seconds = 15}{/if}
 {$nextrun = $lastrun + $interval_seconds}
 
 <div class="cerb-ui-panel cerb-ui-panel--spaced cerb-sched-job cerb-u-flex cerb-u-items-center{if !$enabled} cerb-sched-off{/if}" data-sched-job data-job-id="{$job->id}"
@@ -18,8 +18,11 @@
 		<div style="min-width:0;">
 			<div class="cerb-sched-job--name">{$job->manifest->name}</div>
 			<div class="cerb-sched-job--meta cerb-u-flex cerb-u-items-center cerb-u-flex-wrap">
+				{if $is_concurrent}
+				<span class="cerb-ui-pill"><span class="cerb-icons cerb-icon-enqueue"></span> concurrent</span>
+				{else}
 				<span class="cerb-ui-pill">{if $enabled}every {$duration} {$term_word}{if $duration != 1}s{/if}{else}disabled{/if}</span>
-				{if $is_concurrent}<span class="cerb-ui-pill cerb-u-bg-none cerb-u-border-0" style="color:var(--cerb-color-link);"><span class="cerb-icons cerb-icon-branch"></span> {$concurrency} parallel</span>{/if}
+				{/if}
 				<span data-sched-ago>&middot; &mdash;</span>
 			</div>
 		</div>
@@ -36,8 +39,6 @@
 		<div class="cerb-sched-ring-slot cerb-u-flex cerb-u-items-center cerb-u-justify-center cerb-u-flex-shrink-0 cerb-u-ml-auto">
 			{if !$enabled}
 				<span class="cerb-sched-ring-off cerb-u-text-uppercase cerb-u-nowrap cerb-u-text-center">off</span>
-			{elseif $is_concurrent}
-				<span class="cerb-sched-ring-off cerb-u-text-uppercase cerb-u-nowrap cerb-u-text-center">continuous</span>
 			{else}
 				<div class="cerb-ui-time-ring" data-sched-ring></div>
 			{/if}

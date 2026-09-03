@@ -99,4 +99,112 @@ class DevblocksQueueTest extends TestCase {
 			$prev = $cur;
 		}
 	}
+
+	// --- Concurrency lanes -----------------------------------------------------------------------
+	// Pure by design: getLaneSlots() returns the ORDER to try and the caller shuffles, so the split
+	// itself is pinnable here. CI has no MySQL, so anything that acquires a lock is untestable.
+
+	function testLaneWidthBelowThreeHasNoLanes() {
+		// Nothing to divide: a slot per lane would leave no commons, so each lane could only ever
+		// use its own single slot and an idle pool would read as full.
+		$this->assertSame(0, _DevblocksQueueService::getLaneWidth(0));
+		$this->assertSame(0, _DevblocksQueueService::getLaneWidth(1));
+		$this->assertSame(0, _DevblocksQueueService::getLaneWidth(2));
+	}
+
+	function testLaneWidthFloorsAtOne() {
+		// intdiv(3, 4) is 0, which would leave the COMMUNITY pool with no lanes at all.
+		$this->assertSame(1, _DevblocksQueueService::getLaneWidth(3));
+		$this->assertSame(1, _DevblocksQueueService::getLaneWidth(4));
+		$this->assertSame(1, _DevblocksQueueService::getLaneWidth(7));
+		$this->assertSame(2, _DevblocksQueueService::getLaneWidth(8));
+		$this->assertSame(3, _DevblocksQueueService::getLaneWidth(12));
+		$this->assertSame(10, _DevblocksQueueService::getLaneWidth(40));
+	}
+
+	function testLaneSlotsExactVectors() {
+		$this->assertSame([], _DevblocksQueueService::getLaneSlots(0, QueueLane::Fast));
+
+		// Below three: no lanes, so both see the whole pool.
+		$this->assertSame([1, 2], _DevblocksQueueService::getLaneSlots(2, QueueLane::Fast));
+		$this->assertSame([1, 2], _DevblocksQueueService::getLaneSlots(2, QueueLane::Slow));
+
+		// The community pool: one each, one shared.
+		$this->assertSame([1, 3], _DevblocksQueueService::getLaneSlots(3, QueueLane::Fast));
+		$this->assertSame([2, 3], _DevblocksQueueService::getLaneSlots(3, QueueLane::Slow));
+
+		$this->assertSame([1, 2, 5, 6, 7, 8], _DevblocksQueueService::getLaneSlots(8, QueueLane::Fast));
+		$this->assertSame([3, 4, 5, 6, 7, 8], _DevblocksQueueService::getLaneSlots(8, QueueLane::Slow));
+	}
+
+	function testLaneSlotsNullIsTheWholePool() {
+		// An unclassified drain is not confined to a lane.
+		foreach([0, 1, 3, 8, 40] as $n) {
+			$this->assertSame(
+				$n ? range(1, $n) : [],
+				_DevblocksQueueService::getLaneSlots($n, null)
+			);
+		}
+	}
+
+	function testLaneSlotsNeverOverlapAndAlwaysCoverThePool() {
+		foreach([0, 1, 2, 3, 4, 7, 8, 12, 16, 40] as $n) {
+			$fast = _DevblocksQueueService::getLaneSlots($n, QueueLane::Fast);
+			$slow = _DevblocksQueueService::getLaneSlots($n, QueueLane::Slow);
+			$width = _DevblocksQueueService::getLaneWidth($n);
+
+			// Slot 0 is the scheduler's and is never in the pool.
+			$this->assertNotContains(0, $fast, "n=$n");
+
+			// Every slot offered is real.
+            foreach(array_merge($fast, $slow) as $slot)
+                $this->assertLessThanOrEqual($n, $slot, "n=$n");
+
+			// Union is the whole pool: with lanes the commons bridge them, without lanes each IS the pool.
+			// Sorted, because each lane lists its OWN slots first -- the order is per-lane, the set is not.
+			$union = array_unique(array_merge($fast, $slow), SORT_NUMERIC);
+			sort($union);
+
+			$this->assertSame($n ? range(1, $n) : [], $union, "n=$n union");
+
+			// The dedicated heads are disjoint -- that is the whole guarantee.
+			$this->assertSame(
+				[],
+				array_intersect(array_slice($fast, 0, $width), array_slice($slow, 0, $width)),
+				"n=$n dedicated overlap"
+			);
+
+			// Both lanes see the same commons.
+			$this->assertSame(
+				array_slice($fast, $width),
+				array_slice($slow, $width),
+				"n=$n commons"
+			);
+		}
+	}
+
+	function testLaneReservesLessThanHalfThePool() {
+		// Lanes exist to stop one kind of work EXCLUDING the other, not to partition the pool. The
+		// commons must stay the majority or a lane's dedicated slots become the whole story.
+		foreach([3, 4, 7, 8, 12, 16, 40] as $n) {
+			$reserved = 2 * _DevblocksQueueService::getLaneWidth($n);
+			$this->assertLessThanOrEqual($n, $reserved, "n=$n");
+
+			if($n >= 4)
+				$this->assertLessThan($n, $reserved, "n=$n leaves no commons");
+		}
+	}
+
+	function testLaneWidthIsMonotonicInPoolSize() {
+		// A bigger pool must never shrink a lane -- an operator raising slots should not lose capacity.
+		// The steps are where the formula changes: the cutoff at 3, the floor holding to 7, then each
+		// intdiv boundary.
+		$prev = 0;
+
+		foreach([0, 2, 3, 7, 8, 11, 12, 40] as $n) {
+			$width = _DevblocksQueueService::getLaneWidth($n);
+			$this->assertGreaterThanOrEqual($prev, $width, "n=$n");
+			$prev = $width;
+		}
+	}
 }

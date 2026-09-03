@@ -4,7 +4,6 @@
 {$lastrun = $job->getParam('lastrun',0)}
 {$duration = $job->getParam('duration',5)}
 {$term = $job->getParam('term','m')}
-{$concurrency = $job->getParam('concurrency', $max_parallel)}
 
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmJobPeek" class="cerb-ui-form" style="min-width:340px;">
 <input type="hidden" name="c" value="config">
@@ -37,15 +36,7 @@
 		</div>
 
 		<div class="cerb-ui-form--row">
-			{if $is_concurrent}
-				<div class="cerb-ui-form--field">
-					<label class="cerb-ui-form--label">Runs in parallel up to</label>
-					<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-2">
-						<input type="number" name="concurrency" value="{$concurrency|default:$max_parallel}" min="0" max="{$max_parallel}"> instances
-						<span class="cerb-ui-form--hint">(max {$max_parallel})</span>
-					</div>
-				</div>
-			{else}
+			{if !$is_concurrent}
 				<div class="cerb-ui-form--field">
 					<label class="cerb-ui-form--label">Run once every</label>
 					<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-2">

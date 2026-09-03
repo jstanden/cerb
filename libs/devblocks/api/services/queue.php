@@ -1,4 +1,17 @@
 <?php
+/**
+ * Which half of the pool a drain draws from.
+ *
+ * The axis is HOW LONG A SLOT IS HELD, because that is what one kind of work does to the other. A
+ * bulk update yields every hundred records; an agent turn holds its slot for as long as a provider
+ * takes to answer. Without lanes a queue of turns takes the whole pool and every export waits behind
+ * work measured in minutes.
+ */
+enum QueueLane : string {
+	case Fast = 'fast';
+	case Slow = 'slow';
+}
+
 class _DevblocksQueueService {
 	private static ?_DevblocksQueueService $_instance = null;
 	
@@ -61,40 +74,63 @@ class _DevblocksQueueService {
 		;
 	}
 	
-	public function getConcurrencySlot(int $slot) : ?int {
-		$db = DevblocksPlatform::services()->database();
-		
-		// Slot pool must be enabled
-		if(($max_slots = self::getMaxConcurrencySlots()) < 1)
-			return null;
-		
-		// Must be in the range 0...max_slots
-		if($slot != DevblocksPlatform::intClamp($slot, 0, $max_slots))
-			return null;
-		
-		// Check the slot
-		$result = sprintf("queue_slot_%d", $slot)
-			|> $db->qstr(...)
-			|> (fn($x) => sprintf("SELECT GET_LOCK(%s, 0)", $x))
-			|> $db->GetOneMaster(...)
-		;
-		
-		return $result ? $slot : null;
-	}
-	
 	/**
-	 * Reserve one of the pool's `queue_slot_N` advisory locks, or null when they're all held.
+	 * How many slots each lane reserves for itself. The rest are the commons, which either lane may use.
+	 *
+	 * A quarter each to fast and slow, so the split is 1:1:2 and most of the pool stays shared -- lanes
+	 * exist to stop one kind of work EXCLUDING the other, not to partition the pool into private halves.
+	 *
+	 * Below three there is nothing to divide: a slot per lane would leave no commons at all, so each lane
+	 * could only ever use its own single slot and an idle pool would read as full. Everything is shared
+	 * there instead.
+	 *
+	 * The floor of 1 is what makes the community pool of three behave as 1 fast / 1 slow / 1 shared.
+	 * Plain intdiv(3, 4) is 0, which would leave the most common install with no lanes at all.
 	 */
-	public function getAvailableConcurrencySlot(int $limit=PHP_INT_MAX) : ?int {
+	static function getLaneWidth(int $max_slots) : int {
+		if($max_slots < 3)
+			return 0;
+
+		return max(1, intdiv($max_slots, 4));
+	}
+
+	/**
+	 * The slots a caller in `$lane` may attempt: its own, then the commons. Ascending and deterministic
+	 * -- the CALLER shuffles, so this stays a pure function the tests can pin exact vectors on.
+	 *
+	 * A null lane means the whole pool, which is what an unclassified drain gets.
+	 *
+	 * @return int[] slot numbers, 1-based (slot 0 is the scheduler's and is never in the pool)
+	 */
+	static function getLaneSlots(int $max_slots, ?QueueLane $lane = null) : array {
+		if($max_slots < 1)
+			return [];
+
+		$all = range(1, $max_slots);
+
+		if(is_null($lane) || !($width = self::getLaneWidth($max_slots)))
+			return $all;
+
+		return array_merge(
+			array_slice($all, (QueueLane::Fast === $lane) ? 0 : $width, $width),
+			array_slice($all, 2 * $width)
+		);
+	}
+
+	/**
+	 * Acquire any free slot in `$lane`, or null. The caller names a LANE, never a slot -- which slot it
+	 * gets is not its business and it must not assume the same one twice.
+	 */
+	public function getAvailableConcurrencySlot(?QueueLane $lane = null) : ?int {
 		$db = DevblocksPlatform::services()->database();
 		
 		if(($max_slots = self::getMaxConcurrencySlots()) < 1)
 			return null;
 		
-		$max_slots = min($limit, $max_slots);
-		
-		// Shuffle the max number of slots and attempt to reserve them
-		$slots = range(1, $max_slots);
+		// Shuffle so concurrent acquirers spread across the lane instead of contending on its first slot.
+		// Trying each without replacement is O(lane) round trips worst case; at these pool sizes that is
+		// cheaper than reading occupancy first and it needs no second query.
+		$slots = self::getLaneSlots($max_slots, $lane);
 		shuffle($slots);
 		
 		foreach($slots as $slot) {

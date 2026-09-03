@@ -3006,12 +3006,14 @@ abstract class Extension_WorkspaceWidget extends DevblocksExtension {
 abstract class CerberusCronPageExtension extends DevblocksExtension {
 	const POINT = 'cerberusweb.cron';
 	
-	const string PARAM_CONCURRENCY = 'concurrency';
 	const string PARAM_DURATION = 'duration';
 	const string PARAM_ENABLED = 'enabled';
 	const string PARAM_LASTRUN = 'lastrun';
 	const string PARAM_LOCKED = 'locked';
 	const string PARAM_TERM = 'term';
+	
+	// The slot this job's drain holds, released the moment run() returns.
+	private ?int $_concurrency_slot = null;
 	
 	/**
 	 * runs scheduled task
@@ -3028,7 +3030,19 @@ abstract class CerberusCronPageExtension extends DevblocksExtension {
 
 		$started_at = microtime(true) * 1000;
 
-		$this->run();
+		try {
+			$this->run();
+		} finally {
+			// Hand the slot back the moment the drain ends. Without this the lock lives until the
+			// request's MySQL connection closes -- so one cron pass holds a slot while the other
+			// ten scheduler jobs run, and cron.php's isReadyToRun() loop holds one even on a pass
+			// where the remaining-time guard stops the job from running at all.
+			if(!is_null($this->_concurrency_slot)) {
+				DevblocksPlatform::services()->queue()->releaseConcurrencySlot($this->_concurrency_slot);
+				$this->_concurrency_slot = null;
+			}
+		}
+		
 		$ran_at = time();
 
 		// Track invocation count and duration for this scheduler job
@@ -3071,9 +3085,11 @@ abstract class CerberusCronPageExtension extends DevblocksExtension {
 		$is_concurrent = array_key_exists('parallel', $this->manifest->params);
 		
 		if($is_concurrent) {
+			// SLOW: a pass drains for 25s. It yields between queues far more often than an agent turn
+			// does, but it is classified by how long it can HOLD, and that is the same order.
 			$queue_services = DevblocksPlatform::services()->queue();
-			$concurrency = $this->getParam(self::PARAM_CONCURRENCY, APP_QUEUE_CONCURRENCY_SLOTS);
-			return null !== $queue_services->getConcurrencySlot($concurrency);
+			$this->_concurrency_slot = $queue_services->getAvailableConcurrencySlot(QueueLane::Slow);
+			return null !== $this->_concurrency_slot;
 		}
 		
 		$locked = $this->getParam(self::PARAM_LOCKED, 0);

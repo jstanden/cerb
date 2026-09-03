@@ -256,6 +256,7 @@ class _DevblocksClassLoadManager {
 		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/queue.php', [
 			'_DevblocksQueueService',
+			'QueueLane',
 		]);
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/records.php', [
 			'_DevblocksRecordsService',

@@ -10,6 +10,7 @@ use DevblocksRegistryEntry;
 use DirectoryIterator;
 use Generator;
 use Model_AgentFilesystem;
+use QueueLane;
 use Storage_AutomationResource;
 use ZipArchive;
 
@@ -187,7 +188,7 @@ class FilesystemAssets {
 		// throttled is the same outcome as running out of budget, which the contract above already
 		// covers: the job stays RUNNING and the cron finishes it within a minute. (On the install
 		// wizard there is nothing else running, so the slot is always free there.)
-		if(null === ($slot = $queue_service->getAvailableConcurrencySlot()))
+		if(null === ($slot = $queue_service->getAvailableConcurrencySlot(QueueLane::Fast)))
 			return false;
 
 		$stop_time = time() + self::DRAIN_SECONDS;

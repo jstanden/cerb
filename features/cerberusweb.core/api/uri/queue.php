@@ -120,7 +120,8 @@ class Controller_Queue extends DevblocksControllerExtension {
 			// concurrent provider calls, bounded by nothing. Losing the race is NOT an error and must
 			// not disturb the gate: the message stays AVAILABLE, awaitGate() reads `pending`, the panel
 			// keeps its transcript and spinner, and a later sidecar or the cron takes the turn.
-			if(null === ($slot = $queue_service->getAvailableConcurrencySlot())) {
+			// SLOW: one provider round trip, held for as long as the model takes to answer.
+			if(null === ($slot = $queue_service->getAvailableConcurrencySlot(QueueLane::Slow))) {
 				// 529, the same status nginx returns when the background pool has no child free.
 				// One status for one meaning, so a client needs one rule -- the JSON body is
 				// unchanged, and jQuery hands it back as `err.responseJSON`.
@@ -192,7 +193,8 @@ class Controller_Queue extends DevblocksControllerExtension {
 
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 
-		if(null === ($slot = $queue_service->getAvailableConcurrencySlot())) {
+		// FAST: a job consumer yields every batch, so this slot turns over within seconds
+		if(null === ($slot = $queue_service->getAvailableConcurrencySlot(QueueLane::Fast))) {
 			// Surface live counts so the widget can distinguish "throttled with
 			// claimable work" (keep trying) from "throttled but nothing ready"
 			// (back off / idle).
