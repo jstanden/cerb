@@ -10,7 +10,13 @@
     <div class="cerb-ui-agent-transcript" data-cerb-agent-transcript
         data-cerb-transcript-echo-key="llmTranscript/{$var}"
         data-cerb-transcript-echo-token="{$continuation_token}"
-        data-cerb-transcript-session-id="{$session_id}">
+        data-cerb-transcript-session-id="{$session_id}"
+        data-cerb-transcript-view="{$view}"
+        data-cerb-transcript-layout="{$layout|default:'interleaved'}"
+        data-cerb-transcript-thinking="{$thinking|default:'summary'}"
+        data-cerb-transcript-tools="{$tools|default:'summary'}"
+        data-cerb-transcript-expand="{$expand|default:'latest'}"
+        data-cerb-transcript-tokens="{if $show_tokens}1{else}0{/if}">
         {include file="devblocks:cerberusweb.core::automations/triggers/interaction.worker/await/_transcript_turns.tpl"}
     </div>
 
@@ -60,6 +66,24 @@
 $(function() {
     const $prompt = $('#{$element_id}');
 
+    // The render config, declared ONCE on the transcript container and read back here. Three requests
+    // send the same set; keeping it in the DOM means one place to add a field, ordinary attribute
+    // escaping, and no Smarty interpolation inside a JS string.
+    //
+    // Data attributes rather than hidden <input>s ON PURPOSE: this renders inside the interaction's own
+    // <form>, so anything with a name would ride EVERY submit -- including the gate poll, which must not
+    // be able to carry anything the server acts on.
+    const transcriptParams = function(el, fd) {
+        if(!el)
+            return fd;
+
+        ['session_id', 'view', 'layout', 'thinking', 'tools', 'expand', 'tokens'].forEach(function(k) {
+            fd.set(k, el.getAttribute('data-cerb-transcript-' + k.replace('_', '-')) || '');
+        });
+
+        return fd;
+    };
+
     // Stop the running agent (shown only while in-progress). Raises the out-of-band interrupt flag; the node
     // yields at its next tree-safe boundary and control returns here. Disable on click so a double-tap doesn't
     // spam the endpoint — the next render (the yield) restores the composer.
@@ -105,21 +129,23 @@ $(function() {
 
                 // No continuation, nothing to echo against. The simulator's form-state preview renders a
                 // WORKING composer (`is_automation_form_fill` deliberately opts out of the inert render) over
-                // an ephemeral continuation whose token is '', so this handler fires there too -- and
-                // `invokePrompt` answers an unknown token with a 404.
+                // an ephemeral continuation whose token is '', so this handler fires there too -- and an
+                // unknown token answers 404.
                 const token = container.getAttribute('data-cerb-transcript-echo-token') || '';
 
                 if(!token)
                     return;
 
+                // Its own action, NOT invokePrompt: that requires the prompt key to still be in the current
+                // await's form, and an async turn parks on `await:queue:`, which has no form. Display options
+                // ride along for the same reason the poll's do -- they lived on that unreachable element.
                 const fd = new FormData();
                 fd.set('c', 'profiles');
                 fd.set('a', 'invoke');
                 fd.set('module', 'automation');
-                fd.set('action', 'invokePrompt');
-                fd.set('prompt_key', container.getAttribute('data-cerb-transcript-echo-key') || '');
-                fd.set('prompt_action', 'echoTurn');
+                fd.set('action', 'echoAgentTurn');
                 fd.set('continuation_token', token);
+                transcriptParams(container, fd);
                 fd.set('text', data.text || '');
                 (data.images || []).forEach(function(uri) { if(uri) fd.append('images[]', uri); });
 
@@ -158,19 +184,6 @@ $(function() {
                         CerbUI.AgentTranscript.trackStick(scroller);
                         CerbUI.AgentTranscript.stickToBottom(scroller);
                     });
-                }, {
-                    // Best-effort, so a 404 must stay silent. `invokePrompt` requires `prompt_key` in the
-                    // continuation's CURRENT `__return.form.elements`, and once the turn parks on
-                    // `await:queue:` that holds a queue descriptor and no form at all -- so this echo
-                    // 404s whenever the interaction POST wins the race, which a slow model makes the
-                    // common case. The default handler would raise an error banner AND clearAlerts()
-                    // anything the worker was reading.
-                    //
-                    // Nothing is lost but immediacy: the transcript poll renders this turn on its next tick.
-                    fail: function(err) {
-                        if(404 !== err.status)
-                            Devblocks.ajaxFail(err);
-                    }
                 });
             });
         });
@@ -310,13 +323,9 @@ $(function() {
             fd.set('module', 'automation');
             fd.set('action', 'pollAgentTurn');
             fd.set('continuation_token', container.getAttribute('data-cerb-transcript-echo-token') || '');
-            fd.set('session_id', '{$session_id|escape:'javascript'}');
-            fd.set('view', '{$view|escape:'javascript'}');
-            fd.set('layout', '{$layout|default:'interleaved'|escape:'javascript'}');
-            fd.set('thinking', '{$thinking|default:'summary'|escape:'javascript'}');
-            fd.set('tools', '{$tools|default:'summary'|escape:'javascript'}');
-            fd.set('expand', '{$expand|default:'latest'|escape:'javascript'}');
-            fd.set('tokens', '{if $show_tokens}1{else}0{/if}');
+            transcriptParams(container, fd);
+
+            // Per-request state, not config, so it stays explicit: what the client already has on screen.
             fd.set('fingerprint', fingerprint);
 
             genericAjaxPost(fd, null, null, function(json) {

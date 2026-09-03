@@ -46,6 +46,8 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 			switch ($action) {
 				case 'interruptAgent':
 					return $this->_profileAction_interruptAgent();
+				case 'echoAgentTurn':
+					return $this->_profileAction_echoAgentTurn();
 				case 'pollAgentTurn':
 					return $this->_profileAction_pollAgentTurn();
 				case 'editorLog':
@@ -1890,6 +1892,69 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		DevblocksPlatform::services()->cache()->save(true, \Cerb\AutomationBuilder\Node\LlmAgentNode::interruptCacheKey($session_id), [], 600);
 
 		echo json_encode(['ok' => true]);
+	}
+
+	/**
+	 * `echoAgentTurn` — put the message the worker just sent into the transcript immediately, before any
+	 * worker has picked the turn up.
+	 *
+	 * Its own action for the same reason `pollAgentTurn` is: `invokePrompt` requires the prompt key to
+	 * still be in the CURRENT await's `__return.form.elements`, and an async turn parks on `await:queue:`
+	 * whose `__return` carries no form at all. This used to ride `invokePrompt` and got away with it only
+	 * by racing the interaction POST -- it fired before the queue await was persisted. A slow model parks
+	 * almost immediately, so the race is lost as a matter of course and the echo 404s.
+	 *
+	 * Display options ride the request because they lived on that unreachable form element. They are
+	 * cosmetic, and the session is authorized independently below, so nothing trusted comes from them.
+	 */
+	private function _profileAction_echoAgentTurn() : void {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+
+		$continuation_token = DevblocksPlatform::importGPC($_POST['continuation_token'] ?? null, 'string', '');
+		$session_id = DevblocksPlatform::importGPC($_POST['session_id'] ?? null, 'string', '');
+
+		// An unknown continuation answers EMPTY, not 404. This request races the interaction POST that
+		// persists it -- that is the whole point of an optimistic echo -- so a token that is not there yet
+		// is a timing artifact, not a failure. The client drops an empty body, and the transcript poll
+		// renders the turn a moment later regardless. A 404 here would raise an error banner for the most
+		// ordinary case there is: the first message of a conversation.
+		if(!($continuation = DAO_AutomationContinuation::getByToken($continuation_token)))
+			return;
+
+		if(!($automation = $continuation->getAutomation()) || !Context_Automation::isReadableByActor($automation, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
+		// An EXISTING session must be the caller's own -- but unlike pollAgentTurn, an absent one is not an
+		// error here. On the first message of a conversation the id is freshly minted and nothing has been
+		// persisted under it yet, which is precisely the case the optimistic echo exists for. The poll never
+		// sees it because a poll only starts once a turn is already running.
+		$session = ('' !== $session_id) ? DAO_LlmAgentSession::get($session_id) : null;
+
+		if($session && ('worker' !== $session->user_type || intval($session->user_id) !== intval($active_worker->id ?? 0)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+
+		$data = ['session_id' => $session_id];
+
+		foreach(['view', 'layout', 'thinking', 'tools', 'expand'] as $key) {
+			if(($value = DevblocksPlatform::importGPC($_POST[$key] ?? null, 'string', '')))
+				$data[$key] = $value;
+		}
+
+		$data['tokens'] = DevblocksPlatform::importGPC($_POST['tokens'] ?? null, 'bit', 0);
+
+		// No `fingerprint`: an echo always has something new to draw, so there is nothing to short-circuit
+		// against. That is the one way this differs from pollAgentTurn.
+		$await = new \Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\LlmTranscriptAwait('', '', $data);
+
+		// Only hand over a row we actually loaded. setSession(null) would CACHE the absence, and the
+		// interaction POST this request races may have created it in the meantime.
+		if($session)
+			$await->setSession($session);
+
+		$await->invoke('', 'echoTurn', $continuation);
 	}
 
 	/**
