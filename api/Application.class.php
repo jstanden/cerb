@@ -3593,30 +3593,49 @@ class CerbLoginWorkerAuthState {
 			$this->email = $_COOKIE['cerb_login_email'];
 	}
 	
-	function __sleep() {
+	function __serialize() {
 		return [
-			'consent_granted_for',
-			'email',
-			'is_automations_triggered',
-			'is_consent_given',
-			'is_consent_required',
-			'is_mfa_authenticated',
-			'is_mfa_required',
-			'is_motd_confirmed',
-			'is_password_authenticated',
-			'is_sso_authenticated',
-			'motd',
-			'params',
-			'redirect_uris',
-			'time_created_at',
-			'time_consented_at',
-			'time_mfa_challenged_at',
-			'was_consent_asked',
-			'worker_id',
+			'consent_granted_for' => $this->consent_granted_for,
+			'email' => $this->email,
+			'is_automations_triggered' => $this->is_automations_triggered,
+			'is_consent_given' => $this->is_consent_given,
+			'is_consent_required' => $this->is_consent_required,
+			'is_mfa_authenticated' => $this->is_mfa_authenticated,
+			'is_mfa_required' => $this->is_mfa_required,
+			'is_motd_confirmed' => $this->is_motd_confirmed,
+			'is_password_authenticated' => $this->is_password_authenticated,
+			'is_sso_authenticated' => $this->is_sso_authenticated,
+			'motd' => $this->motd,
+			'params' => $this->params,
+			'redirect_uris' => $this->redirect_uris,
+			'time_created_at' => $this->time_created_at,
+			'time_consented_at' => $this->time_consented_at,
+			'time_mfa_challenged_at' => $this->time_mfa_challenged_at,
+			'was_consent_asked' => $this->was_consent_asked,
+			'worker_id' => $this->worker_id,
 		];
 	}
 	
-	function __wakeup() {
+	function __unserialize(array $data) {
+		$this->consent_granted_for = $data['consent_granted_for'];
+		$this->email = $data['email'];
+		$this->is_automations_triggered = $data['is_automations_triggered'];
+		$this->is_consent_given = $data['is_consent_given'];
+		$this->is_consent_required = $data['is_consent_required'];
+		$this->is_mfa_authenticated = $data['is_mfa_authenticated'];
+		$this->is_mfa_required = $data['is_mfa_required'];
+		$this->is_motd_confirmed = $data['is_motd_confirmed'];
+		$this->is_password_authenticated = $data['is_password_authenticated'];
+		$this->is_sso_authenticated = $data['is_sso_authenticated'];
+		$this->motd = $data['motd'];
+		$this->params = $data['params'];
+		$this->redirect_uris = $data['redirect_uris'];
+		$this->time_created_at = $data['time_created_at'];
+		$this->time_consented_at = $data['time_consented_at'];
+		$this->time_mfa_challenged_at = $data['time_mfa_challenged_at'];
+		$this->was_consent_asked = $data['was_consent_asked'];
+		$this->worker_id = $data['worker_id'];
+		
 		if($this->worker_id)
 			$this->setWorker(DAO_Worker::get($this->worker_id));
 	}
