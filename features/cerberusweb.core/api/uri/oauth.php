@@ -125,18 +125,18 @@ class Controller_OAuth extends DevblocksControllerExtension {
 						|| !$login_state->isAuthenticated()
 						|| !$login_state->wasConsentAsked()
 					) {
-						$uri = $http_request->getUri();
+						// Deriving this from the request Host sends the browser off-origin when APP_HOSTNAME differs
+						$return_url = $url_writer->write('c=oauth&a=authorize', true);
 						
-						// Fix HTTPS for proxies
-						if($url_writer->isSSL())
-							$uri = $uri->withScheme('https');
+						if(($query = $http_request->getUri()->getQuery()))
+							$return_url .= '?' . $query;
 						
 						// [TODO] When this happens we need to stow the current login state until the flow is done
 						
 						// If we don't have consent yet
 						$login_state
 							->clearAuthState()
-							->pushRedirectUri($uri->__toString())
+							->pushRedirectUri($return_url)
 							;
 						
 						// If we have an active session, reuse the details

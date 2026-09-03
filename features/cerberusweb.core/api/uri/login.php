@@ -393,7 +393,9 @@ class Page_Login extends CerberusPageExtension {
 				;
 			
 			if(($login_post_url = $login_state->popRedirectUri())) {
-				DevblocksPlatform::redirectURL($login_post_url);
+				// Defense in depth: never follow an unvalidated redirect URI.
+				if(CerbLoginWorkerAuthState::isSafeRedirectUri($login_post_url))
+					DevblocksPlatform::redirectURL($login_post_url);
 			}
 			exit;
 			
