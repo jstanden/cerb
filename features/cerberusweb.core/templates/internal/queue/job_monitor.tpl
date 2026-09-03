@@ -524,7 +524,11 @@ $(function() {
             // a worker has finished and we may have room).
             funcStartRamp();
         }, {
-            path: 'queue/drainJob',
+            // `?_log=` is for the FPM access log only -- every worker in the pool posts the same
+            // path with an identical body, so the job id is what tells one job's drains from
+            // another's when reading durations. Never read server-side: `_log` must stay a
+            // decoration that dispatch does not depend on.
+            path: 'queue/drainJob?_log={$queue_job->id}',
             // `fail` REPLACES the default failure UI (`error` would run it first and clear the
             // user's alerts). Two layers can refuse a drain and the client must treat them the
             // same: the app answers 200 + `slot:false` when the concurrency pool is full, and
