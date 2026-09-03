@@ -40,6 +40,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	const TITLE = 'title';
 	const UPDATED = 'updated';
 	
+	const _AGENT_CONFIG_KATA = '_agent_config_kata';
 	const _EMAIL_IDS = '_email_ids';
 	const _IMAGE = '_image';
 	const _PASSWORD = '_password';
@@ -245,6 +246,12 @@ class DAO_Worker extends Cerb_ORMHelper {
 			->addField(self::_PASSWORD)
 			->string()
 			->setMinLength(8)
+			;
+		// KATA text; `agent.config_kata` is a mediumtext
+		$validation
+			->addField(self::_AGENT_CONFIG_KATA)
+			->string()
+			->setMaxLength(16777215)
 			;
 		$validation
 			->addField('_fieldsets')
@@ -734,6 +741,18 @@ class DAO_Worker extends Cerb_ORMHelper {
 				DAO_Worker::setAuth($id, $fields[self::_PASSWORD]);
 			}
 			unset($fields[self::_PASSWORD]);
+		}
+		
+		// Handle agent config, which lives on the `agent` satellite rather than `worker`
+		if(isset($fields[self::_AGENT_CONFIG_KATA])) {
+			foreach($ids as $id) {
+				$agent_error = null;
+				
+				// setConfigKata() validates against the agent schema and clears the agent cache
+				if(!DAO_Agent::setConfigKata($id, $fields[self::_AGENT_CONFIG_KATA], $agent_error))
+					DevblocksPlatform::logError(sprintf("[Agent] Refused config for worker #%d: %s", $id, $agent_error));
+			}
+			unset($fields[self::_AGENT_CONFIG_KATA]);
 		}
 		
 		// Make a diff for the requested objects in batches
@@ -3401,6 +3420,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 	function getKeyToDaoFieldMap() {
 		return [
 			'address_id' => DAO_Worker::EMAIL_ID,
+			'agent_config' => '_agent_config_kata',
 			'at_mention_name' => DAO_Worker::AT_MENTION_NAME,
 			'calendar_id' => DAO_Worker::CALENDAR_ID,
 			'created_at' => DAO_Worker::CREATED_AT,
@@ -3432,6 +3452,9 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 	function getKeyMeta($with_dao_fields=true) {
 		$keys = parent::getKeyMeta($with_dao_fields);
 		
+		$keys['agent_config']['notes'] = "An AI worker's [agent](https://cerb.ai/docs/agents/) configuration "
+			. "(instructions, model query, tools, filesystems, and which surfaces it runs on). A KATA object, or "
+			. "KATA text. Only meaningful when `is_ai` is set.";
 		$keys['at_mention_name']['notes'] = "The nickname used for `@mention` notifications in comments";
 		$keys['calendar_id']['notes'] = "The ID of the [calendar](/docs/records/types/calendar/) used to compute worker availability";
 		$keys['dob']['notes'] = "Date of birth in `YYYY-MM-DD` format";
@@ -3492,6 +3515,23 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		switch($dict_key) {
+			// An agent's whole configuration. Authored as a nested KATA object so a template can target one
+			// leaf (a `models_query` from workflow config, say) instead of interpolating into a text blob;
+			// a KATA string is accepted too, for anyone writing it by hand.
+			case 'agent_config':
+				if(is_array($value)) {
+					// Emitted, not json_encoded: `agent.config_kata` is read back with kata()->parse(), and
+					// emit() re-applies the annotations formatTree() already consumed (`disabled@bool: yes`
+					// survives the round trip as a bool rather than degrading to `1`).
+					$value = DevblocksPlatform::services()->kata()->emit($value);
+				} else if(!is_string($value)) {
+					$error = "'agent_config' must be an object or KATA text.";
+					return false;
+				}
+				
+				$out_fields[DAO_Worker::_AGENT_CONFIG_KATA] = $value;
+				break;
+				
 			case 'email':
 				if(false == ($address = DAO_Address::lookupAddress($value, true))) {
 					$error = sprintf("Failed to lookup address: %s", $value);
