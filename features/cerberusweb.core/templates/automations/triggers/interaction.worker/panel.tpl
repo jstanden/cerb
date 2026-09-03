@@ -99,13 +99,20 @@ $(function() {
 
 		// The gated poll: a normal interaction re-POST. The server re-runs the script and the automation engine's
 		// await gate decides advance-vs-reassert, so this needs no queue knowledge — it just re-submits.
+		//
+		// `gate: true` because A POLL MUST NOT BE ABLE TO START WORK. The composer's hidden `prompts[]`
+		// inputs are left populated on purpose so Retry can re-post a turn, and every submit carries the
+		// whole form -- so the poll that finds the gate CLEAR would otherwise satisfy the NEXT prompt
+		// await with the message already answered, and enqueue it again. Once per turn, forever.
 		function gatePoll() {
 			if(!poll.active)
 				return;
 			poll.active = false;
 			if(poll.timer)
 				clearTimeout(poll.timer);
-			$form.triggerHandler('cerb-form-builder-submit');
+			$form.triggerHandler('cerb-form-builder-submit', [{
+				gate: true
+			}]);
 		}
 
 		// A worker sidecar: advance the shared LLM queue by ONE turn, then (if it did) re-check the gate NOW so a
@@ -270,7 +277,7 @@ $(function() {
 		return false;
 	});
 
-	$form.on('cerb-form-builder-submit', function(e) {
+	$form.on('cerb-form-builder-submit', function(e, opts) {
 		e.stopPropagation();
 
 		var _now = (window.performance && performance.now) ? performance.now() : (new Date()).getTime();
@@ -292,6 +299,17 @@ $(function() {
 		$spinner.insertAfter($data);
 
 		var formData = new FormData($form[0]);
+
+		// A gate poll asks "has the turn landed"; it is not the worker answering a prompt. Strip the
+		// answers so it can only ever advance the script, never feed it. Snapshot the keys first --
+		// deleting while iterating a FormData skips entries.
+		if(opts && opts.gate) {
+			Array.prototype.slice.call(formData.keys()).forEach(function(k) {
+				if(0 === k.indexOf('prompts['))
+					formData.delete(k);
+			});
+		}
+
 		formData.set('c', 'profiles');
 		formData.set('a', 'invoke');
 		formData.set('module', 'automation');

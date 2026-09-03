@@ -2206,10 +2206,32 @@ class LlmAgentNode extends AbstractNode {
 
 		$queue = DevblocksPlatform::services()->queue();
 
-		if(!($uuids = $queue->enqueue('cerb.llm.agent.requests', [
+		// A session advances ONE turn at a time, and a second queued turn is never legitimate: the composer
+		// is replaced by the Stop button while a turn runs, so a worker cannot send one, and a tool loop
+		// enqueues once at `tools_done` however many tools ran in parallel. It means a client posted an
+		// answer from a poll.
+		//
+		// So await the turn already running rather than stacking another: that defect degrades to a slow
+		// chat instead of a conversation talking to itself. If the composer ever becomes usable during
+		// a turn, this stops being a guard and starts being data loss.
+		$queue_model = \DAO_Queue::getByName('cerb.llm.agent.requests');
+
+		$uuids = $queue_model
+			? \DAO_QueueMessage::getPendingUuidsForSession($queue_model->id, strval($session_id))
+			: [];
+
+		if($uuids) {
+			DevblocksPlatform::logError(sprintf(
+				'[llm.agent] session=%s already has %d queued turn(s); awaiting those instead of enqueueing another.',
+				$session_id,
+				count($uuids)
+			));
+
+		} else if(!($uuids = $queue->enqueue('cerb.llm.agent.requests', [
 			['session_id' => $session_id, 'messages' => $new_messages],
-		], $error)))
+		], $error))) {
 			throw new Exception_DevblocksAutomationError($error ?: 'Failed to enqueue the LLM turn.');
+		}
 
 		// Resume into the consume half once the turn lands. The uuids ride the resume state for tracing; the gate
 		// on __return.queue.messages is what actually clears the await.

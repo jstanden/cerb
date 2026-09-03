@@ -284,6 +284,37 @@ class DAO_QueueMessage {
 	}
 	
 	/**
+	 * The unfinished messages already queued for one LLM session -- AVAILABLE or IN_FLIGHT, in the order
+	 * they were enqueued.
+	 *
+	 * `session_id` lives inside the JSON payload rather than a column, which sounds expensive and is not:
+	 * `queue_claimed` (queue_id, status_id, job_id, ...) narrows to the pending messages of ONE queue
+	 * before any JSON is touched, and agent turns are all `job_id = 0`. That set is bounded by the
+	 * concurrency pool plus whatever is waiting, so it is small by construction.
+	 *
+	 * @return string[] lowercase hex uuids
+	 */
+	static function getPendingUuidsForSession(int $queue_id, string $session_id) : array {
+		$db = DevblocksPlatform::services()->database();
+
+		if(!$queue_id || '' === $session_id)
+			return [];
+
+		return $db->GetArrayMaster(sprintf(
+			"SELECT LOWER(HEX(uuid)) AS uuid FROM queue_message ".
+			"WHERE queue_id = %d AND job_id = 0 AND status_id IN (%d,%d) ".
+			"AND JSON_UNQUOTE(JSON_EXTRACT(message, '$.session_id')) = %s ".
+			"ORDER BY created_at",
+			$queue_id,
+			QueueMessageStatus::AVAILABLE->value,
+			QueueMessageStatus::IN_FLIGHT->value,
+			$db->qstr($session_id)
+		))
+			|> (fn($rows) => array_column($rows, 'uuid'))
+		;
+	}
+	
+	/**
 	 * Current status of specific messages by uuid, keyed by lowercase 32-char hex uuid → status_id
 	 * (QueueMessageStatus). A uuid ABSENT from the result no longer exists (purged after DONE, or never
 	 * created) — callers that need a definitive terminal AND presence must treat absence distinctly.
