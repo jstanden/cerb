@@ -213,6 +213,7 @@ class _DevblocksUiManager {
 			'logo-qwen',
 			'logo-slack',
 			'logo-xai',
+			'logo-youtube',
 			'logo-z-ai',
 			'magic',
 			'mail',
