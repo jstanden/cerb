@@ -387,9 +387,22 @@ class Page_Login extends CerberusPageExtension {
 		if(array_key_exists('accept', $_REQUEST)) {
 			$accept = DevblocksPlatform::importGPC($_REQUEST['accept'] ?? null, 'integer', 0);
 			
+			$consent_params = $login_state->isConsentRequired();
+			
+			if(!is_array($consent_params))
+				$consent_params = [];
+			
+			$consent_scope_ids = array_map(function($scope) {
+				return $scope->getIdentifier();
+			}, $consent_params['scopes'] ?? []);
+			
 			$login_state
 				->setWasConsentAsked(true)
 				->setIsConsentGiven(boolval($accept))
+				->setConsentGrantedFor([
+					'client_id' => $consent_params['client_id'] ?? '',
+					'scopes' => $consent_scope_ids,
+				])
 				;
 			
 			if(($login_post_url = $login_state->popRedirectUri())) {

@@ -3546,6 +3546,7 @@ class CerberusVisit extends DevblocksVisit {
 class CerbLoginWorkerAuthState {
 	private static $_instance = null;
 	
+	private $consent_granted_for = [];
 	private $email = null;
 	private $is_automations_triggered = false;
 	private $is_consent_given = false;
@@ -3594,6 +3595,7 @@ class CerbLoginWorkerAuthState {
 	
 	function __sleep() {
 		return [
+			'consent_granted_for',
 			'email',
 			'is_automations_triggered',
 			'is_consent_given',
@@ -3630,6 +3632,7 @@ class CerbLoginWorkerAuthState {
 		return $this
 			->setWorker(null)
 			->setParams([])
+			->setConsentGrantedFor([])
 			->setIsConsentGiven(false)
 			->setIsMfaAuthenticated(false)
 			->setIsMfaRequired(false)
@@ -3803,6 +3806,18 @@ class CerbLoginWorkerAuthState {
 		return $this;
 	}
 	
+	function setConsentGrantedFor(array $params) {
+		$scope_ids = array_values(array_unique($params['scopes'] ?? []));
+		sort($scope_ids);
+		
+		$this->consent_granted_for = [
+			'client_id' => strval($params['client_id'] ?? ''),
+			'scopes' => $scope_ids,
+		];
+		
+		return $this;
+	}
+	
 	function setIsPasswordAuthenticated($bool) {
 		$this->is_password_authenticated = boolval($bool);
 		return $this;
@@ -3886,6 +3901,20 @@ class CerbLoginWorkerAuthState {
 	function unsetParam($key) {
 		unset($this->params[$key]);
 		return $this;
+	}
+	
+	// Without matching the grant, a consent left behind by an abandoned flow auto-approves the next app to ask
+	function wasConsentAskedFor(string $client_id, array $scope_ids) : bool {
+		if(!$client_id || !$this->was_consent_asked)
+			return false;
+		
+		if(($this->consent_granted_for['client_id'] ?? '') !== $client_id)
+			return false;
+		
+		$scope_ids = array_values(array_unique($scope_ids));
+		sort($scope_ids);
+		
+		return ($this->consent_granted_for['scopes'] ?? []) === $scope_ids;
 	}
 	
 	function wasConsentAsked() {
