@@ -714,7 +714,7 @@ class Components {
 		$skills_volume = trim(strval($volumes['skills'] ?? ''));
 		$docs_volume = trim(strval($volumes['docs'] ?? ''));
 
-		$blocks = [self::getRoleFor($component)];
+		$blocks = [self::getRoleFor($component), self::getSharedRole()];
 
 		if('' !== ($inventory = self::getInventoryFor($component)))
 			$blocks[] = $inventory;
@@ -838,6 +838,33 @@ class Components {
 		}
 
 		return $cache[$component] = $role;
+	}
+
+	/**
+	 * The half of the role that is the same for every component: how to write for a chat this narrow.
+	 *
+	 * `assets/agents/_shared.md`, read once and emitted right after the component's own role. It sits in
+	 * one file rather than a paragraph in each of the seven because the surface is one fact -- a sidebar
+	 * or a floating panel, never a document pane -- and seven copies of it drift the moment one is tuned.
+	 * A new component gets it for free, and so does one whose role asset is missing and falls back to the
+	 * catalog's `instructions`.
+	 *
+	 * The leading underscore keeps it out of the filename-IS-the-lookup namespace `getRoleFor()` uses: no
+	 * component key can collide with it, and it is read by constant path rather than from caller metadata.
+	 *
+	 * Missing is not fatal -- a deploy that lost this file should still answer, just less tidily.
+	 */
+	static function getSharedRole() : string {
+		static $cache = null;
+
+		if(is_null($cache)) {
+			$path = __DIR__ . '/../../../assets/agents/_shared.md';
+			$cache = (is_readable($path) && false !== ($contents = file_get_contents($path)))
+				? trim($contents)
+				: '';
+		}
+
+		return $cache;
 	}
 
 	/**

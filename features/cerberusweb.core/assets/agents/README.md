@@ -8,6 +8,12 @@ change how it works.
 The filename IS the lookup, so a file whose name matches no catalog key is simply never read (this
 README included).
 
+`_shared.md` is the exception, read by constant path and appended to every component's role. It holds
+only what is true of all of them: the chat is a narrow sidebar or floating panel, so wide tables,
+document headings, and long blocks do not fit. Put something there only when it would otherwise be
+copied into all seven files; anything a component could disagree with belongs in its own role. The
+underscore keeps it out of the lookup namespace, since no catalog key starts with one.
+
 `Components::getSystemPromptFor()` reads these at runtime and composes them with a tool inventory
 built from the live catalog, so improving a role here reaches every existing installation on the
 next release -- no automation is patched and nothing is regenerated.
