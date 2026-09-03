@@ -515,11 +515,6 @@
                 <seg>{{actor}} wylogował się z {{ip}}</seg>
             </tuv>
         </tu>
-        <tu tuid="activities.worker.seat_expired">
-            <tuv xml:lang="pl_PL">
-                <seg>{{actor}} wylogował {{target}} aby zwolnić miejsce.</seg>
-            </tuv>
-        </tu>
         <tu tuid="activity.activity">
             <tuv xml:lang="pl_PL">
                 <seg>%s przegląda logi aktywności</seg>

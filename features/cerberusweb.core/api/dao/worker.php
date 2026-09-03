@@ -332,42 +332,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 		});
 	}
 	
-	static function getOnlineAndMostIdle($max=1) {
-		$db = DevblocksPlatform::services()->database();
-		
-		$sql = "SELECT devblocks_session.user_id, MAX(devblocks_session.updated+worker.timeout_idle_secs) as idle_after ".
-			"FROM devblocks_session ".
-			"INNER JOIN worker ON (worker.id=devblocks_session.user_id) ".
-			"WHERE user_id > 0 ".
-			"GROUP BY user_id ".
-			"HAVING idle_after < unix_timestamp() ".
-			"ORDER BY idle_after asc ".
-			($max ? sprintf("LIMIT %d", $max) : '')
-		;
-		$results = $db->GetArrayMaster($sql);
-		
-		if(!$results)
-			return [];
-		
-		return array_column($results, 'idle_after', 'user_id');
-	}
-	
-	static private function _getOnline() {
-		$db = DevblocksPlatform::services()->database();
-		
-		$sql = "SELECT user_id ".
-			"FROM devblocks_session ".
-			"WHERE user_id > 0 ".
-			"GROUP BY user_id "
-		;
-		$results = $db->GetArrayMaster($sql);
-		
-		if(!$results)
-			return [];
-		
-		return DAO_Worker::getIds(array_column($results, 'user_id'));
-	}
-	
 	static public function getOnlineWithoutIdle() {
 		$db = DevblocksPlatform::services()->database();
 		
@@ -384,42 +348,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 			return [];
 		
 		return DAO_Worker::getIds(array_column($results, 'user_id'));
-	}
-	
-	/**
-	 * @param int $idle_kick_limit
-	 * @return Model_Worker[]
-	 */
-	static function getAllOnline($idle_kick_limit=0) {
-		// Do we need to try and make room?
-		if($idle_kick_limit) {
-			$idle_workers = self::getOnlineAndMostIdle($idle_kick_limit);
-			
-			if($idle_workers) {
-				DAO_DevblocksSession::deleteByUserIds(array_keys($idle_workers));
-				
-				foreach($idle_workers as $idle_worker_id => $idle_worker_after) {
-					$idle_worker = DAO_Worker::get($idle_worker_id);
-
-					$idle_secs = time()-($idle_worker_after-$idle_worker->timeout_idle_secs);
-
-					$metrics = DevblocksPlatform::services()->metrics();
-					$metrics->increment('cerb.sessions.seat.kicks', 1, ['worker_id' => $idle_worker_id]);
-					$metrics->increment('cerb.sessions.seat.kicks.duration', $idle_secs, ['worker_id' => $idle_worker_id]);
-
-					// Add the session kick to the worker's activity log
-					// {{actor}} logged {{target}} out to free up a license seat.
-					$entry = [
-						'variables' => [
-							'idle_time' => $idle_secs,
-						],
-					];
-					CerberusContexts::logActivity('worker.seat_expired', CerberusContexts::CONTEXT_WORKER, $idle_worker->id, $entry, CerberusContexts::CONTEXT_APPLICATION, 0);
-				}
-			}
-		}
-		
-		return self::_getOnline();
 	}
 	
 	/**

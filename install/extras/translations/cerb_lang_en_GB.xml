@@ -193,11 +193,6 @@
 				<seg>{{actor}} logged out from {{ip}}</seg>
 			</tuv>
 		</tu>
-		<tu tuid="activities.worker.seat_expired">
-			<tuv xml:lang="en_GB">
-				<seg>{{actor}} logged {{target}} out to free up a license seat.</seg>
-			</tuv>
-		</tu>
 		<tu tuid="activity.kb">
 			<tuv xml:lang="en_GB">
 				<seg>%s is browsing the knowledgebase</seg>

@@ -1000,37 +1000,12 @@ class CerbPatch_Core_v12_0_0 {
 	}
 	
 	private function patchCreateMetrics() : void {
-		// [TODO] This needs to be gated on revision so it doesn't repeat
-		
-		// ===========================================================================
-		// Metrics
-		
 		$this->_db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, dimensions_kata, created_at, updated_at) " .
 			"VALUES (%s, %s, %s, %s, %d, %d)",
 			$this->_db->qstr('cerb.service.token.uses'),
 			$this->_db->qstr('Usage count for service token authentications'),
 			$this->_db->qstr('counter'),
 			$this->_db->qstr("record/token_id:\n  record_type: service_token\ntext/scope:\ntext/client_ip:\n"),
-			time(),
-			time()
-		));
-		
-		$this->_db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, dimensions_kata, created_at, updated_at) " .
-			"VALUES (%s, %s, %s, %s, %d, %d)",
-			$this->_db->qstr('cerb.sessions.seat.kicks'),
-			$this->_db->qstr('Count of worker sessions ended to free up a license seat'),
-			$this->_db->qstr('counter'),
-			$this->_db->qstr("record/worker_id:\n  record_type: worker\n"),
-			time(),
-			time()
-		));
-		
-		$this->_db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, dimensions_kata, created_at, updated_at) " .
-			"VALUES (%s, %s, %s, %s, %d, %d)",
-			$this->_db->qstr('cerb.sessions.seat.kicks.duration'),
-			$this->_db->qstr('Cumulative idle seconds of worker sessions ended to free up a license seat'),
-			$this->_db->qstr('counter'),
-			$this->_db->qstr("record/worker_id:\n  record_type: worker\n"),
 			time(),
 			time()
 		));
@@ -4125,6 +4100,19 @@ class CerbPatch_Core_v12_0_0 {
 			$this->_db->ExecuteMaster("DELETE FROM toolbar_section WHERE toolbar_name = 'agent.pane'");
 
 		$this->_db->ExecuteMaster(sprintf("DELETE FROM toolbar WHERE id = %d", $toolbar_id));
+	}
+
+	private function patchRetireSeatEnforcement() : void {
+		if(array_key_exists('metric', $this->_tables)) {
+			$this->_db->ExecuteWriter("DELETE FROM metric_value WHERE metric_id = (SELECT id FROM metric WHERE name IN ('cerb.sessions.seat.kicks','cerb.sessions.seat.kicks.duration'))");
+			$this->_db->ExecuteWriter("DELETE FROM metric WHERE name IN ('cerb.sessions.seat.kicks','cerb.sessions.seat.kicks.duration')");
+		}
+		
+		if(array_key_exists('context_activity_log', $this->_tables))
+			$this->_db->ExecuteMaster("DELETE FROM context_activity_log WHERE activity_point = 'worker.seat_expired'");
+		
+		if(array_key_exists('notification', $this->_tables))
+			$this->_db->ExecuteMaster("DELETE FROM notification WHERE activity_point = 'worker.seat_expired'");
 	}
 
 	private function patchWorkflowCerbAiAgent() : void {
