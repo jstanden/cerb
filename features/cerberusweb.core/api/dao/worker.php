@@ -3007,7 +3007,7 @@ class DAO_WorkerPref extends Cerb_ORMHelper {
 	}
 };
 
-class Context_Worker extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextBroadcast, IDevblocksContextAutocomplete {
+class Context_Worker extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextBroadcast, IDevblocksContextAutocomplete, IDevblocksContextWorkflow {
 	const ID = 'cerberusweb.contexts.worker';
 	const URI = 'worker';
 	
@@ -3797,11 +3797,73 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			$tpl->assign('agent_scope_surfaces', $agent_scope_surfaces);
 			$tpl->assign('agent_enabled', $agent_enabled);
 
+			// A workflow-managed agent is reimported on every version bump; warn before someone edits it.
+			$workflow_id = DAO_WorkflowResource::getWorkflowIdByRecord(CerberusContexts::CONTEXT_WORKER, $worker->id);
+
+			if($workflow_id && ($workflow = DAO_Workflow::get($workflow_id))) {
+				$tpl->assign('workflow', $workflow);
+
+				if(($ctx_workflow = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_WORKFLOW, true)))
+					$tpl->assign('workflow_url', $ctx_workflow->profileGetUrl($workflow->id));
+			}
+
 			$tpl->display('devblocks:cerberusweb.core::workers/peek_edit.tpl');
 
 		} else {
 			Page_Profiles::renderCard($context, $context_id, $worker);
 		}
 	}
+	/**
+	 * AI workers only.
+	 *
+	 * A human worker's record is personal data -- email, phone, mobile, location, date of birth, timezone --
+	 * and a workflow template is made to be shared. An AI worker has none of that (it can't log in, and
+	 * `DAO_Worker::validate()` doesn't even ask it for an address), so exporting one carries configuration
+	 * rather than a person. A non-AI id is skipped rather than refused: an export query is a worklist filter
+	 * and picking up a human by accident should cost nothing.
+	 *
+	 * `agent_config` is emitted as the PARSED tree, not the raw `config_kata` text, so the exported template
+	 * is real nested KATA -- a workflow can then target one leaf (a `models_query` from its own `config:`)
+	 * instead of interpolating into an opaque blob. The cost is that comments in the authored config are not
+	 * carried across; the structure is.
+	 */
+	function workflowExport(array $ids, DevblocksWorkflowExportModel $export_model, bool $include_children = false) : array {
+		$workflow_kata = [
+			'records' => [],
+		];
+		
+		$record_uri = CerberusContexts::getContextName($this->id, 'uri');
+		
+		foreach(DAO_Worker::getIds($ids) as $model) {
+			if(!$model->is_ai)
+				continue;
+			
+			$model_key = $export_model->getLabelMapFor(sprintf('%s_%d', $record_uri, $model->id));
+			$record_key = sprintf('%s/%s', $record_uri, $model_key);
+			
+			$fields = [
+				'first_name' => $model->first_name,
+				'last_name' => $model->last_name,
+				'at_mention_name' => $model->at_mention_name,
+				'title' => $model->title,
+				'is_ai@int' => 1,
+				'is_superuser@int' => $model->is_superuser ? 1 : 0,
+				'is_disabled@int' => $model->is_disabled ? 1 : 0,
+			];
+			
+			// Drop the blanks rather than shipping empty keys somebody has to read past.
+			$fields = array_filter($fields, fn($v) => is_int($v) || '' !== trim(strval($v)));
+			
+			if(($agent_config = DAO_Agent::get($model->id)['config'] ?? []) && is_array($agent_config))
+				$fields['agent_config'] = $agent_config;
+			
+			$workflow_kata['records'][$record_key] = [
+				'fields' => $fields,
+			];
+		}
+		
+		return $workflow_kata;
+	}
+
 
 };

@@ -231,6 +231,7 @@
 	   whole status: green runs here, gray doesn't. *}
 	{$agent_has_namespaces = ($agent_scope_global.terminal|count > 0)}
 	<div id="{$form_id}Ai" class="cerb-agent-config">
+		{include file="devblocks:cerberusweb.core::records/types/workflow/managed_callout.tpl" workflow=$workflow workflow_url=$workflow_url noun="agent"}
 		<div class="cerb-ui-sidebar-layout cerb-u-items-start">
 			<aside class="cerb-ui-sidebar" id="agentRail_{$form_id}" style="--cerb-ui-sidebar-width:210px;">
 				<div class="cerb-ui-sidebar--body">
