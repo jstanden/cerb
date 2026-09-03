@@ -4,6 +4,8 @@ use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Handler\CurlHandler;
+use GuzzleHttp\Handler\CurlMultiHandler;
+use GuzzleHttp\Promise\PromiseInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
@@ -13,6 +15,8 @@ use Psr\Http\Message\ResponseInterface as ResponseInterfaceAlias;
 class _DevblocksHttpService {
 	static $instance = null;
 	private static $_client = null;
+	private static $_multi_client = null;
+	private static $_multi_handler = null;
 	
 	private function __construct() {}
 	
@@ -72,6 +76,53 @@ class _DevblocksHttpService {
 		return self::$_client;
 	}
 	
+	/**
+	 * The same client, on curl's MULTIPLEXING handler instead of the blocking one.
+	 *
+	 * ️ **It shares `_configure_defaults()` deliberately, and that is a SECURITY property, not tidiness.**
+	 * That middleware is where `DEVBLOCKS_HTTP_PROXY` is applied -- so egress from a multiplexed request
+	 * goes through the same proxy (squid) as every other request, by construction rather than by
+	 * remembering to. It also carries the connect/total timeouts, `http_errors => false`, and the progress
+	 * callback that keeps the queue's claim leases alive during a ten-minute provider call.
+	 *
+	 * This is why multiplexing is built on Guzzle rather than raw `curl_multi_*`: hand-rolled handles
+	 * (whether from `curl_init()` or `DevblocksPlatform::curlInit()`, which sets only timeouts) would have
+	 * to re-apply all of the above, and the failure mode of forgetting is a SILENT proxy bypass.
+	 */
+	function getMultiClient() : GuzzleHttp\Client {
+		if(self::$_multi_client)
+			return self::$_multi_client;
+
+		self::$_multi_handler = new CurlMultiHandler();
+
+		$stack = HandlerStack::create(self::$_multi_handler);
+		$stack->push($this->_configure_defaults());
+
+		self::$_multi_client = new GuzzleHttp\Client(['handler' => $stack]);
+
+		return self::$_multi_client;
+	}
+
+	/**
+	 * The multi handler backing getMultiClient(), so a driver can tick its event loop. Constructing the
+	 * client first is what guarantees the handler exists.
+	 */
+	function getMultiHandler() : CurlMultiHandler {
+		$this->getMultiClient();
+		return self::$_multi_handler;
+	}
+
+	/**
+	 * Build a driver for running several HTTP-bound tasks concurrently.
+	 *
+	 * A factory rather than `new DevblocksHttpMultiplexer()` at the call site, because this file is loaded
+	 * LAZILY as a service -- a caller that reaches for the class without having touched the http service
+	 * first gets "Class not found". Going through the service is what guarantees the class exists.
+	 */
+	function createMultiplexer() : DevblocksHttpMultiplexer {
+		return new DevblocksHttpMultiplexer();
+	}
+
 	/**
 	 *
 	 * @param RequestInterface $request
@@ -200,6 +251,14 @@ class _DevblocksHttpService {
 		};
 
 		try {
+			// Multiplexed when a driver is running AND we are on a fiber it can suspend. Both halves matter:
+			// no driver means nothing would tick the event loop, and no fiber means there is no stack to
+			// park, so either way the blocking client below is the only correct choice. Every caller of
+			// sendStreamingRequest()/sendEventStreamRequest()/sendNdjsonStreamRequest() gets this for free,
+			// which is why neither llm.php nor any provider changes.
+			if(($mux = DevblocksHttpMultiplexer::getActive()) && Fiber::getCurrent())
+				return $mux->await($this->getMultiClient()->sendAsync($request, $options));
+
 			return $this->getClient()->send($request, $options);
 
 		} catch (RequestException $e) {
@@ -225,6 +284,184 @@ class _DevblocksHttpService {
 			$replace
 		);
 		return $this;
+	}
+}
+
+/**
+ * Runs several HTTP-bound tasks concurrently in ONE process, on ONE curl_multi event loop.
+ *
+ * The premise: a drain worker burns approximately zero CPU while it sits in `curl_exec` waiting on a
+ * provider -- that wait is the entire hold, and it is shareable. But a BLOCKING process cannot exploit
+ * its own idleness: `curl_exec` owns the process for the length of the call. Fibers are what let a
+ * synchronous-looking turn park its stack mid-request so the loop can drive the others.
+ *
+ * **Why fibers rather than promises:** every caller stays written the way it is. `_streamTurn()`, the
+ * by-reference accumulator closures, `_salvageStreamedTurn()`, the interrupt check on each throttled
+ * flush -- none of it changes, because the only thing that becomes asynchronous is the transport, and
+ * that is exactly where the waiting was. A promise-based rewrite would have to restructure each
+ * provider's whole turn lifecycle into `then()` chains for the same benefit.
+ *
+ * **It is opt-in by construction.** `getActive()` is null unless a driver is running, so every existing
+ * call site keeps the blocking client and behaves byte-identically. There is no flag to leave on.
+ *
+ * ️ **Sink writes run on the DRIVER's stack, not the fiber's.** curl invokes CURLOPT_WRITEFUNCTION
+ * during `tick()`, so a task's per-chunk work -- decoding, `updateStreamingMessage()`, the interrupt
+ * read -- executes inline in the loop and is therefore SERIALIZED across every task. Nothing corrupts
+ * (there is one DB connection and one thread of control), but a slow query in one task's write path
+ * stalls every other task's progress callbacks, and with them their claim heartbeats. That is the
+ * head-of-line risk to measure before raising the task count far.
+ */
+class DevblocksHttpMultiplexer {
+	private static ?DevblocksHttpMultiplexer $_active = null;
+
+	/** @var Fiber[] */
+	private array $_fibers = [];
+
+	/**
+	 * The driver for the current call stack, or null when nothing is multiplexing. Read by
+	 * _sendWithSink() to decide between the async and blocking transports.
+	 */
+	static function getActive() : ?DevblocksHttpMultiplexer {
+		return self::$_active;
+	}
+
+	/**
+	 * Park the current fiber until $promise settles. The driver resumes us after each tick; we re-check
+	 * rather than trusting the resume, because one tick can settle several tasks at once.
+	 *
+	 * @throws Throwable whatever the request threw, rethrown on the CALLER's stack so a provider's own
+	 *                   try/catch (which is what salvages a partial turn) still sees it.
+	 */
+	function await(PromiseInterface $promise) {
+		$state = ['done' => false, 'value' => null, 'error' => null];
+
+		$promise->then(
+			function($value) use (&$state) { $state['done'] = true; $state['value'] = $value; },
+			function($reason) use (&$state) { $state['done'] = true; $state['error'] = $reason; }
+		);
+
+		while(!$state['done'])
+			Fiber::suspend();
+
+		if($state['error']) {
+			if($state['error'] instanceof Throwable)
+				throw $state['error'];
+
+			throw new Exception(strval($state['error']));
+		}
+
+		return $state['value'];
+	}
+
+	/**
+	 * Run tasks concurrently, optionally REFILLING as they finish, and return their results.
+	 *
+	 * With no `$producer` this is a plain batch: start N, wait for all N. That is the conservative shape
+	 * and it is what a caller wanting "one sweep, then yield" asks for.
+	 *
+	 * With a `$producer` it becomes CONTINUOUS: whenever a task finishes and capacity frees, the producer
+	 * is asked for more. That matters because provider turns skew LONG -- waiting for an entire batch to
+	 * drain before starting another means a second batch essentially never starts, so the capacity freed
+	 * by the quick turns (a short tool call, a brief thinking turn) sits idle for the length of the
+	 * slowest one. The producer owns the admission deadline: it returns an empty array once it should
+	 * stop, and the run then winds down as the last in-flight tasks finish rather than cutting them off.
+	 *
+	 * A task that throws yields its Throwable in place of a result rather than tearing down its
+	 * siblings -- one provider failing must not lose the turns running beside it.
+	 *
+	 * @param array<string|int,callable> $tasks   initial tasks; may be empty when a producer is supplied
+	 * @param callable|null $producer             fn(int $free) : callable[] -- [] means "no more"
+	 * @param int $cap                            max in flight; defaults to the initial task count
+	 * @return array<string|int,mixed>
+	 */
+	function run(array $tasks, ?callable $producer = null, int $cap = 0) : array {
+		if(!$tasks && !$producer)
+			return [];
+
+		if($cap < 1)
+			$cap = max(1, count($tasks));
+
+		$http = DevblocksPlatform::services()->http();
+		$handler = $http->getMultiHandler();
+
+		// Nesting would give two drivers one event loop and each would resume the other's fibers.
+		$previous = self::$_active;
+		self::$_active = $this;
+
+		$results = [];
+		$this->_fibers = [];
+		$next_key = 0;
+
+		// Starting a fiber runs it until its first suspend, so a task that never touches the network
+		// simply completes here.
+		$start = function(array $batch) use (&$results, &$next_key) : void {
+			foreach($batch as $task) {
+				$key = $next_key++;
+				$fiber = new Fiber($task);
+				$this->_fibers[$key] = $fiber;
+
+				try {
+					$fiber->start();
+				} catch(Throwable $e) {
+					$results[$key] = $e;
+					unset($this->_fibers[$key]);
+				}
+			}
+		};
+
+		try {
+			$start(array_values($tasks));
+
+			while(true) {
+				// Refill BEFORE the emptiness test, so a run that started with nothing (producer-only)
+				// gets its first batch, and so the loop ends only when the producer is done AND nothing
+				// is still in flight.
+				if($producer && ($free = $cap - count($this->_fibers)) > 0)
+					$start($producer($free));
+
+				if(!$this->_fibers)
+					break;
+
+				// Drives curl_multi. Blocks in curl_multi_select for up to its select timeout when
+				// transfers are in flight, so an idle loop costs a syscall rather than a spin -- which is
+				// the whole point, since the tasks are waiting on the network and not on us.
+				$handler->tick();
+
+				// Guzzle defers promise callbacks onto a task queue; without draining it the `then()`
+				// above never runs and every fiber waits forever on a request that already finished.
+				\GuzzleHttp\Promise\Utils::queue()->run();
+
+				foreach($this->_fibers as $key => $fiber) {
+					if($fiber->isTerminated()) {
+						$results[$key] = $fiber->getReturn();
+						unset($this->_fibers[$key]);
+						continue;
+					}
+
+					if(!$fiber->isSuspended())
+						continue;
+
+					try {
+						$fiber->resume();
+
+						if($fiber->isTerminated()) {
+							$results[$key] = $fiber->getReturn();
+							unset($this->_fibers[$key]);
+						}
+
+					} catch(Throwable $e) {
+						$results[$key] = $e;
+						unset($this->_fibers[$key]);
+					}
+				}
+			}
+
+		} finally {
+			self::$_active = $previous;
+			$this->_fibers = [];
+		}
+
+		return $results;
 	}
 }
 

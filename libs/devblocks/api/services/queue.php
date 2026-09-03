@@ -12,6 +12,9 @@ class _DevblocksQueueService {
 	// drained as each message reaches a disposition, and re-leased by heartbeat().
 	private array $_claim_leases = [];
 	private int $_claim_renewed_at = 0;
+	// Sessions this PROCESS holds a turn lock on. Not a cache -- a correctness guard; see
+	// getSessionTurnLock() for why the advisory lock alone cannot do this job.
+	private array $_session_turn_locks = [];
 	private array $_status_buffer = ['success'=>[], 'failure'=>[]];
 	private array $_jobs_buffer = [];
 	private array $_log_buffer = [];
@@ -111,6 +114,77 @@ class _DevblocksQueueService {
 	public function releaseConcurrencySlot(int $slot) : void {
 		$db = DevblocksPlatform::services()->database();
 		$db->ExecuteMaster(sprintf("DO RELEASE_LOCK(%s)", $db->qstr(sprintf("queue_slot_%d", $slot))));
+	}
+	
+	/**
+	 * Claim the exclusive right to advance ONE agent session, or fail immediately.
+	 *
+	 * ️ **This closes a hole that exists TODAY, independently of multiplexing.**
+	 * `DAO_QueueMessage::dequeue()` scopes a claim by queue and job -- never by session -- so two
+	 * drainers can each claim a DIFFERENT message for the SAME session and run concurrent turns. That
+	 * is reachable in normal use: a worker can resume one conversation in several tabs, windows or
+	 * devices, and resume does not filter out a session already open elsewhere, so each of them drives
+	 * its own sidecar. `nextSessionTurn()` appends to session history and `resolveDanglingStream()`
+	 * assumes it is resolving the newest thing there, so two concurrent turns interleave their appends
+	 * and produce a tree that cannot be replayed.
+	 *
+	 * An advisory lock rather than a column, because the guarantee has to hold ACROSS PROCESSES -- the
+	 * competing drainers are separate FPM children (and, once turns multiplex, separate fibers sharing
+	 * one connection, which MySQL 8 allows since a session may hold many named locks at once).
+	 *
+	 * Non-blocking by design: a caller that loses this race must DEFER its message, not wait on it.
+	 * Waiting would hold an FPM child for the length of somebody else's turn -- up to 900s -- which is
+	 * the exact cost this whole track exists to stop paying.
+	 *
+	 * The name is hashed: session ids are opaque and MySQL caps a lock name at 64 characters, so
+	 * hashing is what keeps this from silently truncating two sessions onto one lock.
+	 */
+	public function getSessionTurnLock(string $session_id) : bool {
+		if('' === $session_id)
+			return false;
+
+		// THE IN-PROCESS SET IS NOT AN OPTIMISATION. `GET_LOCK` is RE-ENTRANT: a second
+		// acquire on the SAME connection returns 1 and bumps a counter. So the advisory lock alone cannot
+		// stop two turns in one process -- which is precisely the case multiplexing creates, where every
+		// fiber shares one connection. Checked first, so a same-process collision is refused before the
+		// round trip.
+		//
+		// It also makes release SAFE: re-entrancy means N acquires need N releases, so without this a
+		// double acquire followed by one release would leave the lock held until the connection closed.
+		if(array_key_exists($session_id, $this->_session_turn_locks))
+			return false;
+
+		$db = DevblocksPlatform::services()->database();
+
+		$acquired = boolval($db->GetOneMaster(sprintf("SELECT GET_LOCK(%s, 0)",
+			$db->qstr($this->_sessionTurnLockName($session_id))
+		)));
+
+		if($acquired)
+			$this->_session_turn_locks[$session_id] = true;
+
+		return $acquired;
+	}
+
+	public function releaseSessionTurnLock(string $session_id) : void {
+		// Only release what THIS process actually took. A stray release would otherwise decrement a
+		// counter we never incremented, handing the session away while a turn is still writing to it.
+		if('' === $session_id || !array_key_exists($session_id, $this->_session_turn_locks))
+			return;
+
+		unset($this->_session_turn_locks[$session_id]);
+
+		$db = DevblocksPlatform::services()->database();
+
+		$db->ExecuteMaster(sprintf("DO RELEASE_LOCK(%s)",
+			$db->qstr($this->_sessionTurnLockName($session_id))
+		));
+	}
+
+	// NOT the planned `llm_turn_1..N` meter: this is keyed by session IDENTITY, that is an index into a
+	// counted pool. Do not merge the two namespaces.
+	private function _sessionTurnLockName(string $session_id) : string {
+		return 'llm_session_turn_' . sha1($session_id);
 	}
 
 	// 529, not 503. `llm.php` already reads 429/529 as "overloaded, never took the request" and

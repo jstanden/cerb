@@ -243,10 +243,10 @@ class DAO_QueueMessage {
 	 * `available_at` so dequeue() re-claims them once it passes.
 	 *
 	 * PUBLIC because the queue's own retry policy is not the only legitimate reason to put a message back. A
-	 * consumer that knows its failure cost NOTHING — an LLM turn rejected with a 429, where the request never
-	 * reached a model — can requeue deliberately, which is the only way to retry at all on a queue whose
-	 * `retry_max` is 0 by design. Consumers should call _DevblocksQueueService::requeueMessage() rather than
-	 * this directly.
+	 * consumer that knows its failure cost NOTHING -- an LLM turn rejected with a 429, where the request never
+	 * reached a model -- can requeue deliberately, which is the only way to retry at all on a queue whose
+	 * `retry_max` is 0 by design. Consumers should call _DevblocksQueueService::requeueMessage() (attempt ran)
+	 * or deferMessage() (attempt never started) rather than this directly.
 	 *
 	 * Requeuing is NOT reporting a status: nothing here touches the service's status buffer, so a caller that
 	 * requeues a message must not also call reportStatus() for it.
