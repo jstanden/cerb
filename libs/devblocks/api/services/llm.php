@@ -2625,10 +2625,14 @@ class _DevblocksLlmService {
 	const int TURN_MULTIPLEX_MAX = 8;
 
 	/**
+	 * Turns an unlicensed drain process carries at once. The free tier's counterpart to SLOTS_COMMUNITY:
+	 * enough that a community install advances a couple of conversations at once instead of one, while a
+	 * license still buys 4x that on top of the larger slot pool it already buys.
+	 */
+	const int TURN_MULTIPLEX_COMMUNITY = 2;
+
+	/**
 	 * How many turns ONE drain process may carry at once.
-	 *
-	 * Unlicensed installs get 1 -- the ordinary blocking path. Every turn still runs and every feature
-	 * still works; a free install simply advances them one process at a time.
 	 *
 	 * Deliberately NOT derived from memory. A fiber costs almost nothing on its own -- the weight is the
 	 * serialized request body, which is the whole conversation history and is not known until it is
@@ -2636,12 +2640,13 @@ class _DevblocksLlmService {
 	 * nothing. If a real ceiling is ever wanted it belongs where the payload is known, not here.
 	 */
 	function getMaxConcurrentTurns() : int {
-		return CerberusLicense::getInstance()->isLicensed() ? self::TURN_MULTIPLEX_MAX : 1;
+		return CerberusLicense::getInstance()->isLicensed()
+			? self::TURN_MULTIPLEX_MAX
+			: self::TURN_MULTIPLEX_COMMUNITY
+			;
 	}
 
 	function processQueue(Model_Queue $queue, int $stop_time, int $count_hint, ?Model_QueueJob $queue_job = null, int $max_messages = 0) : int {
-		$queue_service = DevblocksPlatform::services()->queue();
-
 		$processed = 0;
 		$count = 0;
 		$claim_id = null;
@@ -2661,47 +2666,16 @@ class _DevblocksLlmService {
 		$turn_stall_secs = 60;
 		$turn_timeout = 900;
 
-		// How many turns this ONE process may have in flight at once. 1 keeps the drain on the original
-		// blocking path, which is what an unlicensed install always gets.
+		// How many turns this ONE process may have in flight at once. Every drain runs through the
+		// multiplexer, whatever the number: a cap of 1 is a run of width 1, not a second code path to
+		// keep honest.
 		$concurrency = $this->getMaxConcurrentTurns();
 
 		// $stop_time is the ADMISSION window, not a deadline: it is checked before taking on work, never
 		// to cut work short. Whatever is already running finishes.
 		//
-		// SEQUENTIAL PATH (the default, concurrency 1). One turn at a time, inline -- no fiber, no event
-		// loop, byte-identical to before multiplexing existed.
-		if(1 === $concurrency) {
-			while($stop_time > time()) {
-				if($max_messages > 0 && $count >= $max_messages)
-					break;
-
-				if(!($runnable = $this->_claimRunnable($queue, 1, $claim_id)))
-					// Nothing claimable, or everything we claimed was deferred. Either way there is no
-					// work we may run right now; a deferred message carries a future `available_at` so it
-					// cannot be re-dequeued into an endless round.
-					break;
-
-				[$message, $message_session_id, $message_command, $message_new] = $runnable[0];
-
-				try {
-					$result = $this->_processQueueMessage(
-						$message, $message_session_id, $message_command, $message_new, $turn_timeout, $turn_stall_secs
-					);
-				} finally {
-					$queue_service->releaseSessionTurnLock($message_session_id);
-				}
-
-				if(!is_null($result)) {
-					$processed += $result;
-					$count++;
-				}
-			}
-
-			return $processed;
-		}
-
-		// CONTINUOUS PATH. Fill to the cap, then REPLACE each turn as it finishes for as long as the
-		// admission window is open.
+		// Fill to the cap, then REPLACE each turn as it finishes for as long as the admission window is
+		// open.
 		//
 		// Refilling is the whole point rather than a refinement: provider turns skew long, so "wait for
 		// the entire batch, then take another" means a second batch essentially never starts, and the
@@ -2768,12 +2742,11 @@ class _DevblocksLlmService {
 	/**
 	 * Claim up to $want messages and keep only those whose session is free, deferring the rest.
 	 *
-	 * Shared by the sequential and multiplexed paths so the admission rule cannot drift between them:
-	 * ONE turn per session at a time, enforced ACROSS drainers. dequeue() scopes a claim by queue and job
-	 * but never by session, so without this two workers -- or two fibers in one -- can each hold a
-	 * different message for the SAME session. Reachable whenever a worker resumes one conversation in
-	 * more than one tab, window or device, since each drives its own sidecar. Their appends would
-	 * interleave and the transcript could not be replayed.
+	 * The admission rule: ONE turn per session at a time, enforced ACROSS drainers. dequeue() scopes a
+	 * claim by queue and job but never by session, so without this two workers -- or two fibers in one --
+	 * can each hold a different message for the SAME session. Reachable whenever a worker resumes one
+	 * conversation in more than one tab, window or device, since each drives its own sidecar. Their
+	 * appends would interleave and the transcript could not be replayed.
 	 *
 	 * DEFER, never drop: deferMessage() puts it back untouched -- no failure, and no `retry_count` bump,
 	 * which matters because a non-zero count would make the next attempt drop the caller's new messages
