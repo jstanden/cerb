@@ -169,70 +169,81 @@ g.canvas.zoomIn();  // the canvas is reachable for pan/zoom
 	(function() {
 		const host = document.getElementById('uiref-nodeeditor');
 		const out = document.getElementById('uiref-nodeeditor-out');
-		if(!host || !CerbUI.NodeEditor) return;
+		if(!host) return;
 
-		// Register the demo dialect's data types (idempotent) — an inheritance tree drives the cascading type menu
-		// when adding a variable (Dictionary ▸ Credentials ▸ API Key …).
-		CerbUI.nodeTypes.register('credentials', 'dictionary', { color: '#ed8936', label: 'Credentials' });
-		CerbUI.nodeTypes.register('api_key', 'credentials', { label: 'API Key' });
-		CerbUI.nodeTypes.register('oauth2_token', 'credentials', { label: 'OAuth2 Token' });
-		CerbUI.nodeTypes.register('http_response', 'dictionary', { color: '#0987a0', label: 'HTTP Response' });
-		CerbUI.nodeTypes.register('record', 'dictionary', { label: 'Record' });
-		CerbUI.nodeTypes.register('ticket', 'record', { label: 'Ticket' });
+		Devblocks.loadResources({
+			'js': [
+				'/resource/cerberusweb.core/js/cerb-ui/node-editor.js?v={$smarty.const.APP_BUILD}'
+			]
+		}, function() {
+			if(!CerbUI.NodeEditor) {
+				console.error('CerbUI.NodeEditor failed to load');
+				return;
+			}
 
-		const editor = new CerbUI.NodeEditor(host, {
-			mode: 'flow',
-			// The host seeds the blackboard at init — these are immutable (like an automation event's inputs);
-			// the user can add their own below, and they're all visible in the Expression Builder.
-			variables: [
-				{ name: 'event', type: 'dictionary' },
-				{ name: 'api_credentials', type: 'api_key' },
-			],
-			nodeTypes: [
-				{ id: 'start',        label: 'Start',        icon: 'play',     headerColor: '#48bb78', category: 'trigger', start: true, singleton: true },
-				{ id: 'log',          label: 'Log',          icon: 'list',     headerColor: '#dd6b20', category: 'action',
-					fields: [ { name: 'message', label: 'message', control: 'text', value: 'Hello, world' } ] },
-				{ id: 'http_request', label: 'HTTP Request', icon: 'cloud',    headerColor: '#dd6b20', category: 'action',
-					fields: [
-						{ name: 'url',    label: 'url',    control: 'text',   value: 'https://api.example.com' },
-						{ name: 'method', label: 'method', control: 'select', value: 'GET', options: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'] },
-						{ name: 'timeout', label: 'timeout', control: 'number', value: '30', dataType: 'int' },
-						{ name: 'followRedirects', label: 'followRedirects', control: 'toggle', value: true },
-					],
-					inlets:   [ { name: 'credentials', dataType: 'credentials' } ],
-					outputs:  [ { name: 'response', dataType: 'http_response' } ],
-					branches: [ { name: 'success' }, { name: 'error' } ] },
-				{ id: 'set_vars',     label: 'Set Variables',icon: 'edit',     headerColor: '#dd6b20', category: 'action',
-					fields: [ { name: 'name', label: 'name', control: 'text', value: '' }, { name: 'value', label: 'value', control: 'text', value: '' } ] },
-				{ id: 'decision',     label: 'Decision',     icon: 'branch',   headerColor: '#805ad5', category: 'logic',
-					branches: [ { name: 'default' } ], canAddOutcomes: true },
-				{ id: 'repeat',       label: 'Repeat',       icon: 'refresh',  headerColor: '#805ad5', category: 'logic',
-					fields: [ { name: 'each', label: 'each', control: 'text', value: '' } ], branches: [ { name: 'do' } ] },
-				{ id: 'return',       label: 'Return',       icon: 'return',   headerColor: '#e53e3e', category: 'terminal', terminal: true,
-					canAddOutputs: true },
-				{ id: 'error',        label: 'Error',        icon: 'alert',    headerColor: '#e53e3e', category: 'terminal', terminal: true,
-					canAddOutputs: true },
-				{ id: 'expression',   label: 'Expression',   icon: 'placeholders', headerColor: '#805ad5', category: 'expression', expression: true },
-				{ id: 'comment',      label: 'Comment',      icon: 'comments', headerColor: '#718096', category: 'utility', comment: true },
-			],
-			onChange: function(ed) {
-				if(out) { const g = ed.toJSON(); out.textContent = g.nodes.length + ' nodes · ' + g.edges.length + ' edges'; }
-			},
-		});
+			// Register the demo dialect's data types (idempotent) — an inheritance tree drives the cascading type menu
+			// when adding a variable (Dictionary ▸ Credentials ▸ API Key …).
+			CerbUI.nodeTypes.register('credentials', 'dictionary', { color: '#ed8936', label: 'Credentials' });
+			CerbUI.nodeTypes.register('api_key', 'credentials', { label: 'API Key' });
+			CerbUI.nodeTypes.register('oauth2_token', 'credentials', { label: 'OAuth2 Token' });
+			CerbUI.nodeTypes.register('http_response', 'dictionary', { color: '#0987a0', label: 'HTTP Response' });
+			CerbUI.nodeTypes.register('record', 'dictionary', { label: 'Record' });
+			CerbUI.nodeTypes.register('ticket', 'record', { label: 'Ticket' });
 
-		// A small starter graph: a flow chain into the rich HTTP node, whose `error` branch routes to an Error node.
-		editor.loadJSON({
-			nodes: [
-				{ id: 'n1', type: 'start',        position: { x: 40,  y: 80 } },
-				{ id: 'n2', type: 'http_request', position: { x: 300, y: 60 } },
-				{ id: 'n3', type: 'error',        position: { x: 720, y: 360 } },
-				{ id: 'n4', type: 'comment',      position: { x: 40,  y: 360 }, data: { text: 'This flow calls an API and routes failures to Error.' } },
-				{ id: 'n5', type: 'expression',   position: { x: 560, y: 70 }, data: { expression: { name: 'isWeekend' } } },
-			],
-			edges: [
-				{ source: 'n1', sourceHandle: '_next',         target: 'n2', targetHandle: '_in' },
-				{ source: 'n2', sourceHandle: 'branch:error',  target: 'n3', targetHandle: '_in' },
-			],
+			const editor = new CerbUI.NodeEditor(host, {
+				mode: 'flow',
+				// The host seeds the blackboard at init — these are immutable (like an automation event's inputs);
+				// the user can add their own below, and they're all visible in the Expression Builder.
+				variables: [
+					{ name: 'event', type: 'dictionary' },
+					{ name: 'api_credentials', type: 'api_key' },
+				],
+				nodeTypes: [
+					{ id: 'start',        label: 'Start',        icon: 'play',     headerColor: '#48bb78', category: 'trigger', start: true, singleton: true },
+					{ id: 'log',          label: 'Log',          icon: 'list',     headerColor: '#dd6b20', category: 'action',
+						fields: [ { name: 'message', label: 'message', control: 'text', value: 'Hello, world' } ] },
+					{ id: 'http_request', label: 'HTTP Request', icon: 'cloud',    headerColor: '#dd6b20', category: 'action',
+						fields: [
+							{ name: 'url',    label: 'url',    control: 'text',   value: 'https://api.example.com' },
+							{ name: 'method', label: 'method', control: 'select', value: 'GET', options: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'] },
+							{ name: 'timeout', label: 'timeout', control: 'number', value: '30', dataType: 'int' },
+							{ name: 'followRedirects', label: 'followRedirects', control: 'toggle', value: true },
+						],
+						inlets:   [ { name: 'credentials', dataType: 'credentials' } ],
+						outputs:  [ { name: 'response', dataType: 'http_response' } ],
+						branches: [ { name: 'success' }, { name: 'error' } ] },
+					{ id: 'set_vars',     label: 'Set Variables',icon: 'edit',     headerColor: '#dd6b20', category: 'action',
+						fields: [ { name: 'name', label: 'name', control: 'text', value: '' }, { name: 'value', label: 'value', control: 'text', value: '' } ] },
+					{ id: 'decision',     label: 'Decision',     icon: 'branch',   headerColor: '#805ad5', category: 'logic',
+						branches: [ { name: 'default' } ], canAddOutcomes: true },
+					{ id: 'repeat',       label: 'Repeat',       icon: 'refresh',  headerColor: '#805ad5', category: 'logic',
+						fields: [ { name: 'each', label: 'each', control: 'text', value: '' } ], branches: [ { name: 'do' } ] },
+					{ id: 'return',       label: 'Return',       icon: 'return',   headerColor: '#e53e3e', category: 'terminal', terminal: true,
+						canAddOutputs: true },
+					{ id: 'error',        label: 'Error',        icon: 'alert',    headerColor: '#e53e3e', category: 'terminal', terminal: true,
+						canAddOutputs: true },
+					{ id: 'expression',   label: 'Expression',   icon: 'placeholders', headerColor: '#805ad5', category: 'expression', expression: true },
+					{ id: 'comment',      label: 'Comment',      icon: 'comments', headerColor: '#718096', category: 'utility', comment: true },
+				],
+				onChange: function(ed) {
+					if(out) { const g = ed.toJSON(); out.textContent = g.nodes.length + ' nodes · ' + g.edges.length + ' edges'; }
+				},
+			});
+
+			// A small starter graph: a flow chain into the rich HTTP node, whose `error` branch routes to an Error node.
+			editor.loadJSON({
+				nodes: [
+					{ id: 'n1', type: 'start',        position: { x: 40,  y: 80 } },
+					{ id: 'n2', type: 'http_request', position: { x: 300, y: 60 } },
+					{ id: 'n3', type: 'error',        position: { x: 720, y: 360 } },
+					{ id: 'n4', type: 'comment',      position: { x: 40,  y: 360 }, data: { text: 'This flow calls an API and routes failures to Error.' } },
+					{ id: 'n5', type: 'expression',   position: { x: 560, y: 70 }, data: { expression: { name: 'isWeekend' } } },
+				],
+				edges: [
+					{ source: 'n1', sourceHandle: '_next',         target: 'n2', targetHandle: '_in' },
+					{ source: 'n2', sourceHandle: 'branch:error',  target: 'n3', targetHandle: '_in' },
+				],
+			});
 		});
 	})();
 

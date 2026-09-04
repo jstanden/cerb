@@ -10,8 +10,19 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	new CerbUI.IconBuilder(document.getElementById('{$uniqid}'), {
-		agentToolbarHtml: {$agent_toolbar_html_json nofilter}
+	Devblocks.loadResources({
+		'js': [
+			'/resource/cerberusweb.core/js/cerb-ui/icon-builder.js?v={$smarty.const.APP_BUILD}'
+		]
+	}, function() {
+		if(!(window.CerbUI && CerbUI.IconBuilder)) {
+			console.error('CerbUI.IconBuilder failed to load');
+			return;
+		}
+
+		new CerbUI.IconBuilder(document.getElementById('{$uniqid}'), {
+			agentToolbarHtml: {$agent_toolbar_html_json nofilter}
+		});
 	});
 });
 </script>

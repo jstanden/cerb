@@ -10,14 +10,25 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	new CerbUI.SheetBuilder(document.getElementById('{$uniqid}'), {
-		columnSchema: {$column_schema_json nofilter},
-		layoutSchema: {$layout_schema_json nofilter},
-		dataSourceSchema: {$datasource_schema_json nofilter},
-		allowedColumnTypes: {$allowed_column_types_json nofilter},
-		allowedDataSourceTypes: {$allowed_datasource_types_json nofilter},
-		recordTypes: {$record_types_json nofilter},
-		sheetDataAutomations: {$sheet_data_automations_json nofilter}
+	Devblocks.loadResources({
+		'js': [
+			'/resource/cerberusweb.core/js/cerb-ui/sheet-builder.js?v={$smarty.const.APP_BUILD}'
+		]
+	}, function() {
+		if(!(window.CerbUI && CerbUI.SheetBuilder)) {
+			console.error('CerbUI.SheetBuilder failed to load');
+			return;
+		}
+
+		new CerbUI.SheetBuilder(document.getElementById('{$uniqid}'), {
+			columnSchema: {$column_schema_json nofilter},
+			layoutSchema: {$layout_schema_json nofilter},
+			dataSourceSchema: {$datasource_schema_json nofilter},
+			allowedColumnTypes: {$allowed_column_types_json nofilter},
+			allowedDataSourceTypes: {$allowed_datasource_types_json nofilter},
+			recordTypes: {$record_types_json nofilter},
+			sheetDataAutomations: {$sheet_data_automations_json nofilter}
+		});
 	});
 });
 </script>

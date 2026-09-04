@@ -24,7 +24,19 @@ $(function() {
 	$popup.one('popup_open', function() {
 		$popup.dialog('option', 'title', 'Form builder');
 
-		if(window.CerbUI && CerbUI.FormBuilder) {
+		{* sheet-builder.js rides along because the "Design sheet" button is only rendered when
+		   CerbUI.SheetBuilder is ALREADY defined -- loading it later drops the button with no error. *}
+		Devblocks.loadResources({
+			'js': [
+				'/resource/cerberusweb.core/js/cerb-ui/form-builder.js?v={$smarty.const.APP_BUILD}',
+				'/resource/cerberusweb.core/js/cerb-ui/sheet-builder.js?v={$smarty.const.APP_BUILD}'
+			]
+		}, function() {
+			if(!(window.CerbUI && CerbUI.FormBuilder)) {
+				console.error('CerbUI.FormBuilder failed to load');
+				return;
+			}
+
 			new CerbUI.FormBuilder($div[0], {
 				extensionId: extensionId,
 				components: components,
@@ -35,7 +47,7 @@ $(function() {
 				accountUris: accountUris,
 				previewChrome: '{$preview_chrome|default:'dialog'|escape:'javascript'}'
 			});
-		}
+		});
 	});
 });
 </script>
