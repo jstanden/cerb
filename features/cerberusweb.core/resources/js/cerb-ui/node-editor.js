@@ -700,7 +700,7 @@ CerbUI.NodeEditor = class {
 				renderedLi.classList.add('cerb-ui-menu--item-tile');
 				const lbl = renderedLi.querySelector('.cerb-ui-menu--label');
 				if(lbl) lbl.remove();   // replace the plain label with a palette tile
-				renderedLi.appendChild(CerbUI.NodeEditor.buildTile(srcLi.dataset));
+				renderedLi.appendChild(CerbUI.Node.buildTile(srcLi.dataset));
 			},
 			onSelect: (renderedLi, srcLi) => {
 				const typeId = srcLi.dataset.nodeType;
@@ -711,35 +711,6 @@ CerbUI.NodeEditor = class {
 			onClose: () => { if(anchor.parentNode) anchor.parentNode.removeChild(anchor); },
 		});
 		menu.open(anchor);
-	}
-
-	// Build a palette tile element from a {icon, color, kind, name} dataset (mirrors CerbUI.Sidebar's tiles).
-	static buildTile(d) {
-		const tile = document.createElement('div');
-		tile.className = 'cerb-ui-tile';
-		const ico = document.createElement('span');
-		ico.className = 'cerb-ui-tile--icon';
-		if(d.color) ico.style.background = d.color;
-		if(d.icon) {
-			const g = document.createElement('span');
-			g.className = 'cerb-icons cerb-icon-' + d.icon;
-			ico.appendChild(g);
-		}
-		tile.appendChild(ico);
-		const text = document.createElement('div');
-		text.className = 'cerb-ui-tile--text';
-		if(d.kind) {
-			const k = document.createElement('div');
-			k.className = 'cerb-ui-tile--kind';
-			k.textContent = d.kind;
-			text.appendChild(k);
-		}
-		const n = document.createElement('div');
-		n.className = 'cerb-ui-tile--name';
-		n.textContent = d.name || '';
-		text.appendChild(n);
-		tile.appendChild(text);
-		return tile;
 	}
 
 	// ── Expression builder (nested editor in a dialog) ──────────────────

@@ -46,6 +46,35 @@ CerbUI.Node = class {
 		onPartOpen: null,      // (part, node, event) => {}  clicked a branch/preview row
 	};
 
+	// Build a palette tile element from a {icon, color, kind, name} dataset (mirrors CerbUI.Sidebar's tiles).
+	static buildTile(d) {
+		const tile = document.createElement('div');
+		tile.className = 'cerb-ui-tile';
+		const ico = document.createElement('span');
+		ico.className = 'cerb-ui-tile--icon';
+		if(d.color) ico.style.background = d.color;
+		if(d.icon) {
+			const g = document.createElement('span');
+			g.className = 'cerb-icons cerb-icon-' + d.icon;
+			ico.appendChild(g);
+		}
+		tile.appendChild(ico);
+		const text = document.createElement('div');
+		text.className = 'cerb-ui-tile--text';
+		if(d.kind) {
+			const k = document.createElement('div');
+			k.className = 'cerb-ui-tile--kind';
+			k.textContent = d.kind;
+			text.appendChild(k);
+		}
+		const n = document.createElement('div');
+		n.className = 'cerb-ui-tile--name';
+		n.textContent = d.name || '';
+		text.appendChild(n);
+		tile.appendChild(text);
+		return tile;
+	}
+
 	constructor(canvas, opts = {}) {
 		this.canvas = canvas;
 		this.opts = Object.assign({}, CerbUI.Node._DEFAULTS, opts);
@@ -89,7 +118,7 @@ CerbUI.Node = class {
 		this.header = document.createElement('div');
 		this.header.className = 'cerb-ui-node--header';
 		const labelText = this.data.label || this.schema.label || this.schema.id || 'Node';
-		this.header.appendChild(CerbUI.NodeEditor.buildTile({
+		this.header.appendChild(CerbUI.Node.buildTile({
 			icon: this.schema.icon, color: this.schema.headerColor,
 			kind: this.schema.category, name: labelText,
 		}));
