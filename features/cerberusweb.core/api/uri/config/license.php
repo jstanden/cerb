@@ -33,16 +33,61 @@ class PageSection_SetupLicense extends Extension_PageSection {
 		// refuses the POST regardless, since hiding a form is not enforcement.
 		$tpl->assign('is_cerb_cloud', CerberusApplication::isCerbCloud());
 		$tpl->assign('cerb_cloud_subdomain', defined('CERB_CLOUD_SUBDOMAIN') ? constant('CERB_CLOUD_SUBDOMAIN') : '');
+		$tpl->assign('cerb_cloud_subscriber', defined('CERB_CLOUD_SUBSCRIBER') ? constant('CERB_CLOUD_SUBSCRIBER') : '');
 		
 		// The effective pool, not the license's raw number: APP_QUEUE_CONCURRENCY_SLOTS clamps it, and on
 		// Cloud the constant replaces it outright. The page has to show what actually gets enforced.
-		$tpl->assign('max_concurrency_slots', DevblocksPlatform::services()->queue()->getMaxConcurrencySlots());
-		$tpl->assign('max_concurrency_slots_licensed', DevblocksPlatform::services()->queue()->getMaxConcurrencySlots(with_soft_cap: false));
+		$queue_service = DevblocksPlatform::services()->queue();
+		$llm_service = DevblocksPlatform::services()->llm();
+		
+		$slots = $queue_service->getMaxConcurrencySlots();
+		$slots_licensed = $queue_service->getMaxConcurrencySlots(with_soft_cap: false);
+		
+		$tpl->assign('max_concurrency_slots', $slots);
+		$tpl->assign('max_concurrency_slots_licensed', $slots_licensed);
 		
 		// Lapsed coverage floors concurrency to Community, and nothing else announces that -- without
 		// this the page would just quietly show a smaller number than the customer is paying for.
 		$license = CerberusLicense::getInstance();
 		$tpl->assign('license_is_expired', !is_null($license->upgrades) && $license->upgrades < time());
+		
+		// Drives one column or two. NOT `$license->key`: an expired key still renders its serial in the
+		// chip above, but its concurrency has already floored to Community, so the comparison would
+		// otherwise claim an entitlement the install no longer has.
+		$tpl->assign('is_licensed', $license->isLicensed());
+		
+		// The Community baseline beside what this install actually gets. Both columns are DERIVED at
+		// render time from the same policy the drain enforces -- no tier table, no prices, nothing that
+		// can go stale against cerb.ai. Turns-at-once is a ceiling, not a reservation: the slow lane is
+		// shared with background jobs, which the template says out loud.
+		$turns_community = _DevblocksLlmService::TURN_MULTIPLEX_COMMUNITY;
+		$turns = $llm_service->getMaxConcurrentTurns();
+		
+		$slots_community = _DevblocksQueueService::SLOTS_COMMUNITY;
+		
+		$drainers = fn(int $pool) => count(_DevblocksQueueService::getLaneSlots($pool, QueueLane::Slow));
+		
+		$tpl->assign('entitlements', [
+			'community' => [
+				'slots' => $slots_community,
+				'agent_slots' => $drainers($slots_community),
+				'turns' => $turns_community,
+				'turns_at_once' => $drainers($slots_community) * $turns_community,
+			],
+			'current' => [
+				'slots' => $slots,
+				'agent_slots' => $drainers($slots),
+				'turns' => $turns,
+				'turns_at_once' => $drainers($slots) * $turns,
+			],
+		]);
+		
+		// Without the lane split on the page, `slots x turns per slot` disagrees with `turns at once` and
+		// reads as an arithmetic bug: the slots reserved to the fast lane never run an agent turn.
+		$lane_width = _DevblocksQueueService::getLaneWidth($slots);
+		
+		$tpl->assign('lane_width', $lane_width);
+		$tpl->assign('lane_slots_shared', max(0, $slots - (2 * $lane_width)));
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/license/index.tpl');
 	}

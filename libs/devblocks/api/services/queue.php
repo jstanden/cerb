@@ -50,6 +50,12 @@ class _DevblocksQueueService {
 		return $this->_queue_cache[$queue_name];
 	}
 	
+	/**
+	 * The pool an unlicensed install gets. Named because the License page states it as the baseline a
+	 * subscription is measured against, and a second literal there would drift from this one.
+	 */
+	const int SLOTS_COMMUNITY = 3;
+
 	public function getMaxConcurrencySlots($with_soft_cap=true) : int {
 		$memo_key = $with_soft_cap ? 'soft' : 'hard';
 		
@@ -57,7 +63,7 @@ class _DevblocksQueueService {
 			return $this->_max_concurrency_slots[$memo_key];
 		
 		// Please be honest
-		$slots_community = 3;
+		$slots_community = self::SLOTS_COMMUNITY;
 		$slots_configured = APP_QUEUE_CONCURRENCY_SLOTS;
 		
 		if(defined('CERB_CLOUD_SEATS')) {
