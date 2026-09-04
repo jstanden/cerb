@@ -67,25 +67,9 @@ class PageSection_SetupLicense extends Extension_PageSection {
 		// Without the lane split on the page, `slots x turns per slot` disagrees with `turns at once` and
 		// reads as an arithmetic bug: the slots reserved to the fast lane never run an agent turn.
 		//
-		// Compressed into runs read off getLaneSlots() rather than rebuilt from getLaneWidth(), so the
-		// chart keeps following the split if it ever changes shape again. Today each lane is a single
-		// run, and where the two runs cross IS the diagram: those are the slots either kind may take.
-		$lane_spans = function(int $pool, QueueLane $lane) : array {
-			$runs = [];
-			
-			foreach(_DevblocksQueueService::getLaneSlots($pool, $lane) as $slot) {
-				if($runs && end($runs)[1] === $slot - 1) {
-					$runs[array_key_last($runs)][1] = $slot;
-				} else {
-					$runs[] = [$slot, $slot];
-				}
-			}
-			
-			return $runs;
-		};
-		
-		$tpl->assign('lane_spans_fast_json', json_encode($lane_spans($slots, QueueLane::Fast)));
-		$tpl->assign('lane_spans_slow_json', json_encode($lane_spans($slots, QueueLane::Slow)));
+		// Where the two runs cross IS the diagram: those are the slots either kind of work may take.
+		$tpl->assign('lane_spans_fast_json', json_encode(_DevblocksQueueService::getLaneSpans($slots, QueueLane::Fast)));
+		$tpl->assign('lane_spans_slow_json', json_encode(_DevblocksQueueService::getLaneSpans($slots, QueueLane::Slow)));
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/license/index.tpl');
 	}

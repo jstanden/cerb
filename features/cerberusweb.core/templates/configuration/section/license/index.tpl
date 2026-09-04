@@ -82,47 +82,13 @@
 	{/if}
 
 	{if $max_concurrency_slots > 0}
-	<div class="cerb-ui-gantt" id="setupLicenseLanes"
-		data-spans-fast="{$lane_spans_fast_json}"
-		data-spans-slow="{$lane_spans_slow_json}"></div>
+		{include file="devblocks:cerberusweb.core::internal/queues/slot_lanes.tpl" id="setupLicenseLanes"}
 	{/if}
 
 	<div class="cerb-u-mt-3 cerb-u-text-muted">
 		<a href="https://cerb.ai/pricing" target="_blank" rel="noopener" class="cerb-u-text-muted">See plans</a> to raise concurrency. Workers and seats are unlimited on every plan.
 	</div>
 </div>
-
-{* Outside the license form below, which Cloud never renders -- this panel does. *}
-<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
-$(function() {
-	const el = document.getElementById('setupLicenseLanes');
-
-	if(!el || !(window.CerbUI && CerbUI.Gantt))
-		return;
-
-	// `step: 1` makes the axis discrete, so a span's end slot is INCLUSIVE and each slot is one cell.
-	// Without it, [1,6] would draw five slots instead of six.
-	//
-	// `segment: true` draws one block per slot rather than one bar per run, because a slot is a unit of
-	// capacity and not a duration: the row shows the blocks it holds and leaves the rest as empty cells.
-	//
-	// No axis: an admin here is reading the SHAPE of the split, and numbering individual slots invites
-	// the question of which slot is which -- a question this page cannot answer and does not need to.
-	new CerbUI.Gantt(el, {
-		xScale: 'linear',
-		step: 1,
-		segment: true,
-		axis: false,
-		rowHeight: 26,
-		barHeight: 14,
-		labelWidth: 100,
-		rows: [
-			{ label: 'Bulk jobs', color: '#0088e6', spans: JSON.parse(el.dataset.spansFast) },
-			{ label: 'Agent turns', color: '#9467bd', spans: JSON.parse(el.dataset.spansSlow) }
-		]
-	});
-});
-</script>
 
 {if !$is_cerb_cloud}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="frmLicense" class="cerb-ui-form" {if $license->key && empty($error)}style="display:none;"{/if}>

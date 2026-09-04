@@ -6341,6 +6341,19 @@
 			</extension>
 
 			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.setup.queues</id>
+				<name>Queues Section</name>
+				<class>
+					<file>api/uri/config/queues.php</file>
+					<name>PageSection_SetupQueues</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.configuration" />
+					<param key="uri" value="queues" />
+				</params>
+			</extension>
+
+			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.setup.license</id>
 				<name>License Section</name>
 				<class>

@@ -233,4 +233,31 @@ class DevblocksQueueTest extends TestCase {
 			$prev = $width;
 		}
 	}
+
+	function testLaneSpansCompressToRuns() {
+		// One run per lane at every size that has lanes at all -- what the Subscription and Queues pages
+		// draw. Read off getLaneSlots(), so a split that fragmented again would show up here first.
+		$this->assertSame([], _DevblocksQueueService::getLaneSpans(0, QueueLane::Fast));
+		$this->assertSame([[1, 1]], _DevblocksQueueService::getLaneSpans(1, QueueLane::Fast));
+		$this->assertSame([[1, 2]], _DevblocksQueueService::getLaneSpans(3, QueueLane::Fast));
+		$this->assertSame([[2, 3]], _DevblocksQueueService::getLaneSpans(3, QueueLane::Slow));
+		$this->assertSame([[1, 4]], _DevblocksQueueService::getLaneSpans(5, QueueLane::Fast));
+		$this->assertSame([[2, 5]], _DevblocksQueueService::getLaneSpans(5, QueueLane::Slow));
+		$this->assertSame([[1, 19]], _DevblocksQueueService::getLaneSpans(25, QueueLane::Fast));
+		$this->assertSame([[7, 25]], _DevblocksQueueService::getLaneSpans(25, QueueLane::Slow));
+	}
+
+	function testLaneSpansCoverExactlyTheLaneSlots() {
+		foreach([0, 1, 2, 3, 4, 5, 7, 8, 12, 16, 25, 40, 200] as $n) {
+			foreach([QueueLane::Fast, QueueLane::Slow, null] as $lane) {
+				$slots = _DevblocksQueueService::getLaneSlots($n, $lane);
+				$covered = [];
+
+				foreach(_DevblocksQueueService::getLaneSpans($n, $lane) as $span)
+					$covered = array_merge($covered, range($span[0], $span[1]));
+
+				$this->assertSame($slots, $covered, sprintf("n=%d %s", $n, $lane?->value ?? 'pool'));
+			}
+		}
+	}
 }

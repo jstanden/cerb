@@ -131,6 +131,29 @@ class _DevblocksQueueService {
 	}
 
 	/**
+	 * The lane's slots compressed into contiguous runs, `[[start, end], ...]`, both ends inclusive.
+	 *
+	 * Read off getLaneSlots() rather than rebuilt from getLaneWidth(), so anything that DRAWS the split
+	 * keeps following what is actually enforced if the shape ever changes again. Today each lane is a
+	 * single run and the two overlap on the commons.
+	 *
+	 * @return array<int, array{int, int}>
+	 */
+	static function getLaneSpans(int $max_slots, ?QueueLane $lane = null) : array {
+		$runs = [];
+		
+		foreach(self::getLaneSlots($max_slots, $lane) as $slot) {
+			if($runs && end($runs)[1] === $slot - 1) {
+				$runs[array_key_last($runs)][1] = $slot;
+			} else {
+				$runs[] = [$slot, $slot];
+			}
+		}
+		
+		return $runs;
+	}
+
+	/**
 	 * Acquire any free slot in `$lane`, or null. The caller names a LANE, never a slot -- which slot it
 	 * gets is not its business and it must not assume the same one twice.
 	 */
@@ -196,7 +219,7 @@ class _DevblocksQueueService {
 		if('' === $session_id)
 			return false;
 
-		// THE IN-PROCESS SET IS NOT AN OPTIMISATION. `GET_LOCK` is RE-ENTRANT: a second
+		// THE IN-PROCESS SET IS NOT AN OPTIMIZATION. `GET_LOCK` is RE-ENTRANT: a second
 		// acquire on the SAME connection returns 1 and bumps a counter. So the advisory lock alone cannot
 		// stop two turns in one process -- which is precisely the case multiplexing creates, where every
 		// fiber shares one connection. Checked first, so a same-process collision is refused before the
@@ -263,20 +286,43 @@ class _DevblocksQueueService {
 	}
 
 	/**
-	 * How many of the pool's slots are held right now, in ONE round trip. Master-only:
+	 * WHICH of the pool's slots are held right now, as slot => bool, in ONE round trip. Master-only:
 	 * GET_LOCK state lives on the writer connection.
+	 *
+	 * Null means the READ failed. An empty array means a pool with no slots. Those are different
+	 * answers and a caller must not collapse either into an idle pool -- see getLocksUsed().
+	 *
+	 * The lock says a slot is HELD, never by which lane: a lane is what the acquirer asked for, and
+	 * GET_LOCK has nowhere to carry it. Anything coloring a slot by lane needs the acquirer to record
+	 * one first.
+	 *
+	 * @return array<int, bool>|null
 	 */
-	public function getConcurrencyUsage() : array {
+	public function getConcurrencySlotUsage() : ?array {
 		$db = DevblocksPlatform::services()->database();
 		
 		if(($max_slots = self::getMaxConcurrencySlots()) < 1)
-			return ['used' => 0, 'total' => 0];
+			return [];
 		
-		$names = array_map(self::_concurrencySlotLockName(...), range(1, $max_slots));
+		$slots = range(1, $max_slots);
+		$names = array_map(self::_concurrencySlotLockName(...), $slots);
+		
+		if(is_null($used = $db->getLocksUsed($names)))
+			return null;
+		
+		return array_combine($slots, array_map(fn($name) => boolval($used[$name] ?? false), $names));
+	}
+
+	/**
+	 * How many of the pool's slots are held right now, in ONE round trip.
+	 */
+	public function getConcurrencyUsage() : array {
+		if(($max_slots = self::getMaxConcurrencySlots()) < 1)
+			return ['used' => 0, 'total' => 0];
 		
 		// Don't let a failed read masquerade as an idle pool -- report "unknown" so callers can stay quiet
 		// instead of asserting 0 of N busy.
-		if(is_null($used = $db->getLocksUsed($names)))
+		if(is_null($used = $this->getConcurrencySlotUsage()))
 			return ['used' => 0, 'total' => 0];
 		
 		return [
@@ -327,7 +373,7 @@ class _DevblocksQueueService {
 	 * Put a claimed message back on the queue, to be re-claimed in `$delay_secs`, without recording a
 	 * FAILURE. Advances `retry_count` because the attempt RAN -- use deferMessage() when it never started.
 	 *
-	 * The third disposition, beside reportSuccess() and reportFailure(). Those two are terminal-ish judgements
+	 * The third disposition, beside reportSuccess() and reportFailure(). Those two are terminal-ish judgments
 	 * governed by the QUEUE's `retry_max`; this one is the consumer saying "I know what this failure cost, and
 	 * it cost nothing, so let me have another go." That distinction is why it can't be expressed by turning
 	 * `retry_max` on: a queue-wide policy retries whatever fails, including the failures that already billed us
