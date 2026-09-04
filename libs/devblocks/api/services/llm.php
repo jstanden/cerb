@@ -2622,12 +2622,12 @@ class _DevblocksLlmService {
 	 * Turns ONE licensed drain process carries at once. Conservative on purpose: multiplexing is new, and
 	 * this is the single number to raise once there is real data on how long turns actually hold.
 	 */
-	const int TURN_MULTIPLEX_MAX = 8;
+	const int TURN_MULTIPLEX_MAX = 6;
 
 	/**
 	 * Turns an unlicensed drain process carries at once. The free tier's counterpart to SLOTS_COMMUNITY:
 	 * enough that a community install advances a couple of conversations at once instead of one, while a
-	 * license still buys 4x that on top of the larger slot pool it already buys.
+	 * license still buys 3x that on top of the larger slot pool it already buys.
 	 */
 	const int TURN_MULTIPLEX_COMMUNITY = 2;
 
