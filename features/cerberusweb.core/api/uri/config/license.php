@@ -51,43 +51,41 @@ class PageSection_SetupLicense extends Extension_PageSection {
 		$license = CerberusLicense::getInstance();
 		$tpl->assign('license_is_expired', !is_null($license->upgrades) && $license->upgrades < time());
 		
-		// Drives one column or two. NOT `$license->key`: an expired key still renders its serial in the
-		// chip above, but its concurrency has already floored to Community, so the comparison would
-		// otherwise claim an entitlement the install no longer has.
-		$tpl->assign('is_licensed', $license->isLicensed());
+		// Every figure below is DERIVED at render time from the same policy the drain enforces -- no tier
+		// table, no prices, nothing that can go stale against cerb.ai.
+		//
+		// Turns-at-once is a CEILING, not a reservation: only the slow lane runs agent turns and it is
+		// shared with background jobs, which is why the panel says so out loud rather than printing the
+		// number bare.
+		$agent_slots = count(_DevblocksQueueService::getLaneSlots($slots, QueueLane::Slow));
+		$turns_per_slot = $llm_service->getMaxConcurrentTurns();
 		
-		// The Community baseline beside what this install actually gets. Both columns are DERIVED at
-		// render time from the same policy the drain enforces -- no tier table, no prices, nothing that
-		// can go stale against cerb.ai. Turns-at-once is a ceiling, not a reservation: the slow lane is
-		// shared with background jobs, which the template says out loud.
-		$turns_community = _DevblocksLlmService::TURN_MULTIPLEX_COMMUNITY;
-		$turns = $llm_service->getMaxConcurrentTurns();
-		
-		$slots_community = _DevblocksQueueService::SLOTS_COMMUNITY;
-		
-		$drainers = fn(int $pool) => count(_DevblocksQueueService::getLaneSlots($pool, QueueLane::Slow));
-		
-		$tpl->assign('entitlements', [
-			'community' => [
-				'slots' => $slots_community,
-				'agent_slots' => $drainers($slots_community),
-				'turns' => $turns_community,
-				'turns_at_once' => $drainers($slots_community) * $turns_community,
-			],
-			'current' => [
-				'slots' => $slots,
-				'agent_slots' => $drainers($slots),
-				'turns' => $turns,
-				'turns_at_once' => $drainers($slots) * $turns,
-			],
-		]);
+		$tpl->assign('agent_slots', $agent_slots);
+		$tpl->assign('turns_per_slot', $turns_per_slot);
+		$tpl->assign('turns_at_once', $agent_slots * $turns_per_slot);
 		
 		// Without the lane split on the page, `slots x turns per slot` disagrees with `turns at once` and
 		// reads as an arithmetic bug: the slots reserved to the fast lane never run an agent turn.
-		$lane_width = _DevblocksQueueService::getLaneWidth($slots);
+		//
+		// Compressed into runs read off getLaneSlots() rather than rebuilt from getLaneWidth(), so the
+		// chart keeps following the split if it ever changes shape again. Today each lane is a single
+		// run, and where the two runs cross IS the diagram: those are the slots either kind may take.
+		$lane_spans = function(int $pool, QueueLane $lane) : array {
+			$runs = [];
+			
+			foreach(_DevblocksQueueService::getLaneSlots($pool, $lane) as $slot) {
+				if($runs && end($runs)[1] === $slot - 1) {
+					$runs[array_key_last($runs)][1] = $slot;
+				} else {
+					$runs[] = [$slot, $slot];
+				}
+			}
+			
+			return $runs;
+		};
 		
-		$tpl->assign('lane_width', $lane_width);
-		$tpl->assign('lane_slots_shared', max(0, $slots - (2 * $lane_width)));
+		$tpl->assign('lane_spans_fast_json', json_encode($lane_spans($slots, QueueLane::Fast)));
+		$tpl->assign('lane_spans_slow_json', json_encode($lane_spans($slots, QueueLane::Slow)));
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/license/index.tpl');
 	}
