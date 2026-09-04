@@ -15,8 +15,15 @@ services:
       # Drains run on their own container, so a drain can never occupy a child a page
       # load needed. Point this back at `php-fpm:9000` to collapse to one pool.
       CERB_FPM_BACKGROUND: ${CERB_FPM_BACKGROUND:-php-fpm-background:9000}
+      # nginx workers. This tier only proxies to FPM, so it needs far fewer than the
+      # stock `auto` (= one per visible core). Concurrency is capped by CERB_WEB_CHILDREN.
+      CERB_NGINX_WORKERS: ${CERB_NGINX_WORKERS:-2}
+      # Render templates over /etc/nginx itself, not just conf.d/, so nginx.conf can
+      # replace the image's own. Subdirectories below are preserved.
+      NGINX_ENVSUBST_OUTPUT_DIR: /etc/nginx
     volumes:
-      - ./_conf/nginx/nginx.conf:/etc/nginx/templates/default.conf.template:ro
+      - ./_conf/nginx/nginx.conf:/etc/nginx/templates/nginx.conf.template:ro
+      - ./_conf/nginx/default.conf:/etc/nginx/templates/conf.d/default.conf.template:ro
       - ../../apple-touch-icon.png:/usr/share/nginx/html/apple-touch-icon.png:ro
       - ../../favicon.ico:/usr/share/nginx/html/favicon.ico:ro
       - ../../robots.txt:/usr/share/nginx/html/robots.txt:ro
