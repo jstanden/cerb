@@ -29,6 +29,34 @@ new CerbUI.Gantt(el, {
 			</div>
 		</div>
 
+		{* Segmented: the same discrete rows drawn as one block per unit. *}
+		<div class="cerb-ui-header">
+			<div class="cerb-ui-header--label">Segmented, for units of capacity rather than durations: a block per unit, and the units a row does not hold stay empty</div>
+		</div>
+		<div class="cerb-uiref-example">
+			<div class="cerb-uiref-demo">
+				<div class="cerb-ui-gantt" id="uiref-gantt-c"></div>
+			</div>
+
+			<div class="cerb-uiref-code">
+				<button type="button" class="cerb-uiref-copy" data-cerb-uiref-copy title="Copy to clipboard"><span class="cerb-icons cerb-icon-copy"></span></button>
+				<pre data-cerb-uiref-source>{literal}// `segment` needs `step`, and cuts both the spans and the track into units.
+// The spans stay whole in the data, so hover still reads back the run.
+new CerbUI.Gantt(el, {
+	xScale: 'linear',
+	step: 1,
+	segment: true,           // one block per slot
+	segmentGap: 3,           // px between blocks
+	rows: [
+		{ label: 'Bulk jobs',   color: '#0088e6', spans: [[1,4]] },
+		{ label: 'Agent turns', color: '#9467bd', spans: [[2,5]] },
+	],
+});
+// Five slots: bulk jobs hold 1-4 and agent turns 2-5, so the empty cell at
+// either end is a slot that lane cannot take, and slots 2-4 are the commons.{/literal}</pre>
+			</div>
+		</div>
+
 		{* A time axis: same component, spans as epoch ms, several per row. *}
 		<div class="cerb-ui-header">
 			<div class="cerb-ui-header--label">A time axis, with several spans per row</div>
@@ -74,6 +102,21 @@ new CerbUI.Gantt(el, {
 			rows: [
 				{ label: 'Bulk jobs', color: '#0088e6', spans: [[1, 19]] },
 				{ label: 'Agent turns', color: '#9467bd', spans: [[7, 25]] }
+			]
+		});
+	}
+
+	// Segmented: a small pool where each slot is its own block.
+	const c = document.getElementById('uiref-gantt-c');
+
+	if(c) {
+		new CerbUI.Gantt(c, {
+			xScale: 'linear',
+			step: 1,
+			segment: true,
+			rows: [
+				{ label: 'Bulk jobs', color: '#0088e6', spans: [[1, 4]] },
+				{ label: 'Agent turns', color: '#9467bd', spans: [[2, 5]] }
 			]
 		});
 	}

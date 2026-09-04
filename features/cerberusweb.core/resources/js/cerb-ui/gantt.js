@@ -8,6 +8,8 @@
  *     xScale: 'linear',          // 'linear' (numbers) | 'time' (epoch ms)
  *     domain: [1, 26],           // omit to derive from the spans
  *     step:   1,                 // see below; omit for continuous ranges
+ *     segment: true,             // with `step`: one block per unit rather than one bar per span
+ *     segmentGap: 3,             // px between blocks
  *     rows: [
  *       { label: 'Bulk jobs',   color: '#0088e6', spans: [ [1,6], [13,25] ] },
  *       { label: 'Agent turns', color: '#9467bd', spans: [ [7,12], [13,25] ] },
@@ -21,6 +23,12 @@
  * where a job from 09:00 to 10:00 must not overlap one starting at 10:00. With `step` the axis is DISCRETE
  * units of that size and `end` is INCLUSIVE, drawn to end+step -- so slots [1,6] covers six cells, not five.
  * Getting this wrong is a silent off-by-one that shows as a bar one unit short, so pick deliberately.
+ *
+ * SEGMENTS. `segment: true` draws each unit as its OWN block instead of one bar per span, and cuts the
+ * row's track the same way -- so a row over a pool of discrete units reads as the units it HOLDS, with
+ * the ones it does not hold left as empty cells. It needs `step` (a continuous axis has no units to cut
+ * on) and is ignored without it. Spans stay whole in the data: hover still reports the run, so a caller
+ * keeps emitting runs and the chart decides how they are drawn.
  *
  * A span is [start, end] or { start, end, label, color, key }; per-span color beats the row's.
  *
@@ -45,6 +53,8 @@ CerbUI.Gantt = class extends CerbUI.Chart {
 
 		this.xScaleType = (options.xScale === 'time') ? 'time' : 'linear';
 		this.step = (options.step != null) ? Number(options.step) : null;
+		this.segment = !!options.segment && !!this.step;
+		this.segmentGap = (options.segmentGap != null) ? Number(options.segmentGap) : 3;
 		this.rowHeight = options.rowHeight || 28;
 		this.barHeight = options.barHeight || 14;
 		this.labelWidth = (options.labelWidth != null) ? options.labelWidth : 110;
@@ -170,6 +180,63 @@ CerbUI.Gantt = class extends CerbUI.Chart {
 		return this.step ? this._stepTicks(d, this.step, this.tickCount) : x.ticks(this.tickCount);
 	}
 
+	/*
+	 * The cells a span is DRAWN as: one per step unit when segmented, otherwise the span itself. Returned in
+	 * data coordinates, half-open, so the caller can hand either straight to the scale.
+	 */
+	_spanCells(span) {
+		if(!this.segment)
+			return [[span.start, this._spanEnd(span)]];
+
+		const out = [];
+
+		// Bounded so a span far wider than its step can't spin here.
+		for(let v = span.start, i = 0; v <= span.end && i < 1000; v += this.step, i++)
+			out.push([v, v + this.step]);
+
+		return out;
+	}
+
+	// The row's background cells. Segmented, the track IS the empty units -- which is what makes a missing
+	// block read as a unit this row does not hold rather than as a gap in the drawing.
+	_trackCells() {
+		if(!this.segment)
+			return [this.domain];
+
+		const out = [];
+
+		for(let v = this.domain[0], i = 0; v + this.step <= this.domain[1] && i < 1000; v += this.step, i++)
+			out.push([v, v + this.step]);
+
+		return out;
+	}
+
+	// A bar rect in DATA coordinates. A segmented cell is inset by half the gap on EACH side so every block
+	// is the same width; taking the whole gap off one edge would make a run's end blocks the odd ones out.
+	_cellRect(x, a, b, barTop, cls, fill) {
+		const sx = x(a), ex = x(b);
+		const cell = Math.abs(ex - sx);
+		// The gap is capped against the cell so a dense pool degrades into thin blocks rather than into a
+		// row of slivers separated by more space than they occupy.
+		const inset = this.segment ? Math.min(this.segmentGap, cell * 0.35) / 2 : 0;
+		// A degenerate span still gets a visible sliver rather than vanishing silently.
+		const w = Math.max(1, cell - inset * 2);
+
+		const attrs = {
+			'class': cls,
+			x: Math.min(sx, ex) + inset,
+			y: barTop,
+			width: w,
+			height: this.barHeight,
+			rx: Math.min(4, this.barHeight / 2, w / 2)
+		};
+
+		if(fill)
+			attrs.fill = fill;
+
+		return this._svgEl('rect', attrs);
+	}
+
 	_svgEl(name, attrs) {
 		const node = document.createElementNS(this.NS, name);
 		Object.keys(attrs || {}).forEach(k => node.setAttribute(k, attrs[k]));
@@ -221,10 +288,9 @@ CerbUI.Gantt = class extends CerbUI.Chart {
 			const barTop = mid - this.barHeight / 2;
 
 			// Full-width track: without it a row of sparse spans reads as an empty gap rather than a lane.
-			svg.appendChild(this._svgEl('rect', {
-				'class': 'cerb-ui-gantt--track',
-				x: x0, y: barTop, width: x1 - x0, height: this.barHeight, rx: Math.min(4, this.barHeight / 2)
-			}));
+			this._trackCells().forEach(cell => {
+				svg.appendChild(this._cellRect(x, cell[0], cell[1], barTop, 'cerb-ui-gantt--track', null));
+			});
 
 			const label = this._svgEl('text', {
 				'class': 'cerb-ui-gantt--row-label',
@@ -234,22 +300,16 @@ CerbUI.Gantt = class extends CerbUI.Chart {
 			svg.appendChild(label);
 
 			row.spans.forEach(span => {
-				const sx = x(span.start), ex = x(this._spanEnd(span));
+				const fill = span.color || this._color(i, row);
 
-				const rect = this._svgEl('rect', {
-					'class': 'cerb-ui-gantt--span',
-					x: Math.min(sx, ex),
-					y: barTop,
-					// A degenerate span still gets a visible sliver rather than vanishing silently.
-					width: Math.max(1, Math.abs(ex - sx)),
-					height: this.barHeight,
-					rx: Math.min(4, this.barHeight / 2),
-					fill: span.color || this._color(i, row)
+				this._spanCells(span).forEach(cell => {
+					const rect = this._cellRect(x, cell[0], cell[1], barTop, 'cerb-ui-gantt--span', fill);
+
+					// Every block of a run carries the whole span, so hover reads back the run either way.
+					rect._row = row;
+					rect._span = span;
+					svg.appendChild(rect);
 				});
-
-				rect._row = row;
-				rect._span = span;
-				svg.appendChild(rect);
 			});
 		});
 
