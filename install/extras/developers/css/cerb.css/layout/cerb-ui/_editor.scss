@@ -56,7 +56,7 @@
 // ── Rich suggestion rows (e.g. @mention: avatar + name/@handle on one line + an optional subtitle line) ──
 // Opt-in: only items whose source supplied avatar fields get this layout (editor-core adds --rich). The row
 // height is FIXED at 40px so it stays in lockstep with the Menu's itemHeight (40) for virtualized scroll math
-// (rows without a subtitle just centre the single line in the same 40px so every row is uniform height).
+// (rows without a subtitle just center the single line in the same 40px so every row is uniform height).
 .cerb-ui-menu--item.cerb-ui-editor-menu--rich {
     height: 40px;
     align-items: center;

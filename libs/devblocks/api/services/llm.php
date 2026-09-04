@@ -3054,7 +3054,7 @@ class _DevblocksLlmService {
 	const TURN_RETRY_MAX_ATTEMPTS = 3;
 
 	// Waits used ONLY when the provider sent no `Retry-After`, indexed by attempts already made. A guess, and
-	// labelled as one — a provider that tells us the answer always wins over this.
+	// labeled as one — a provider that tells us the answer always wins over this.
 	//
 	// TO LENGTHEN: raise THESE and RETRY_AFTER_MAX_SECS, not TURN_RETRY_MAX_ATTEMPTS. Microsoft Foundry
 	// enforces per-MINUTE windows, so a blind 5s retry can be too eager for it; more attempts at the same

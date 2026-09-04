@@ -2085,7 +2085,7 @@ div.cerb-uploads {
 	}
 }
 
-/* Grey out the art of a disabled plugin row */
+/* Gray out the art of a disabled plugin row */
 TBODY.cerb-plugin-disabled td[data-column="icon"] IMG {
 	opacity: 0.6;
 	filter: grayscale(100%);

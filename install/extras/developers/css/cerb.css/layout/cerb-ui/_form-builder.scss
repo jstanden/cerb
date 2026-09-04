@@ -98,7 +98,7 @@
 	&--preview-body { min-height: 1.5em; }
 
 	// Portal chrome (interaction.website): the preview IS the customer-facing portal popup, skinned by the portal's
-	// own stylesheet (loaded into the popup). Only override needed: cap/centre the embedded window in the scroll
+	// own stylesheet (loaded into the popup). Only override needed: cap/center the embedded window in the scroll
 	// canvas (the portal's `--style-embed` otherwise stretches it to 95vw). Two-class specificity beats it.
 	&--preview--portal {
 		.cerb-fb--preview-dialog {

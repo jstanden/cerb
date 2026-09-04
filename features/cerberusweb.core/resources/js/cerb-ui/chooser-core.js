@@ -40,7 +40,7 @@ CerbUI.chooserCore = (function() {
 	//
 	// A record whose identity is a GLYPH rather than a picture (`icon_name`) shows that instead of initials --
 	// initials say nothing about a tool or a filesystem, and a list of them is otherwise just
-	// differently-coloured letter pairs. A glyph also means there is no image to lazy-load.
+	// differently-colored letter pairs. A glyph also means there is no image to lazy-load.
 	//
 	// The glyph disc is NEUTRAL, not hashed. A monogram's color is locked to the name, so it identifies; a
 	// column of identical glyphs in six colors communicates nothing but that the rows are separate.

@@ -689,7 +689,7 @@ CerbUI.Sortable = class {
 
 	// The point of the dragged item used for drop targeting. Lets a host aim by something other than the
 	// cursor when the handle isn't where you visually place the item (e.g. a top-right handle on a wide
-	// widget). Corners/centre are computed from the helper's box; 'pointer' is the raw cursor.
+	// widget). Corners/center are computed from the helper's box; 'pointer' is the raw cursor.
 	anchorPoint(cx, cy, drag) {
 		const mode = this.opts.anchor || (this.opts.grid ? 'top-left' : 'pointer');
 		const left = cx - drag.offsetX;

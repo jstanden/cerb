@@ -202,7 +202,7 @@ $(function() {
 					: '{'config.plugins.toggle.failed'|devblocks_translate|escape:'javascript' nofilter}';
 				Devblocks.createAlertError(msg);
 			} else {
-				// Grey out the plugin art when disabled
+				// Gray out the plugin art when disabled
 				$cb.closest('tbody').toggleClass('cerb-plugin-disabled', 0 === enabled);
 			}
 		});

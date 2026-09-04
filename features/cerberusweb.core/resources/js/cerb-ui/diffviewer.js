@@ -389,7 +389,7 @@ CerbUI.DiffViewer = class {
 			const padTop = parseFloat(window.getComputedStyle(ta).paddingTop) || 0;
 			const vr = this._viewPos(ed, run.startRow);              // the elided run collapses to this boundary
 			const y = padTop + vr * lh - ta.scrollTop;
-			tear.style.top = y + 'px';                               // CSS centres it on the boundary (translateY)
+			tear.style.top = y + 'px';                               // CSS centers it on the boundary (translateY)
 			tear.hidden = (y < -8 || y > ta.clientHeight + 8);       // scrolled out of the pane
 		}
 	}

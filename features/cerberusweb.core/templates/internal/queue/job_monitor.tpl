@@ -408,7 +408,7 @@ $(function() {
         funcRenderSlotChip();
         funcRefreshProgress();
 
-        // Retry-After is a MINIMUM, not an instruction: honour it, but never let it SHORTEN our
+        // Retry-After is a MINIMUM, not an instruction: honor it, but never let it SHORTEN our
         // own backoff, which knows how long we have been waiting where a flat header cannot.
         const delay = Math.max(throttleBackoffMs, (retryAfterSecs > 0 ? retryAfterSecs * 1000 : 0));
         throttleBackoffMs = Math.min(throttleBackoffMs * 2, THROTTLE_BACKOFF_MAX_MS);

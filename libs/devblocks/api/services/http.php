@@ -233,7 +233,7 @@ class _DevblocksHttpService {
 
 	/**
 	 * Shared transport for the streaming sinks. Everything except the decoder is identical, and the two
-	 * safety behaviours below are the reason this isn't inlined per sink.
+	 * safety behaviors below are the reason this isn't inlined per sink.
 	 *
 	 * @param DevblocksHttpSseSink|DevblocksHttpAwsEventStreamSink|DevblocksHttpNdjsonSink $sink
 	 * @return ResponseInterfaceAlias|false

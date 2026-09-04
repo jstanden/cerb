@@ -791,7 +791,7 @@ class AwsBedrock extends Extension_DevblocksLlmProvider implements Chat, ChatStr
 		return array_map(fn($m) => $this->expandMessageImages($m), array_values($messages));
 	}
 
-	// A user turn that is NOTHING but tool results -- the only kind safe to merge with its neighbour. A turn
+	// A user turn that is NOTHING but tool results -- the only kind safe to merge with its neighbor. A turn
 	// mixing text with results is the author saying something alongside them, and must keep its own position.
 	private function _isAllToolResults(mixed $blocks) : bool {
 		if(!is_array($blocks) || !$blocks)

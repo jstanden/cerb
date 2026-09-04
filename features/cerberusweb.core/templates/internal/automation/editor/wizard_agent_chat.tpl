@@ -101,7 +101,7 @@
 	});
 
 	// Every option is in place first -- SelectMenu reads `select.options` once, at construction. No
-	// `placeholder:` opt: "(Any toolbar)" is a real default, and a placeholder would render it greyed and
+	// `placeholder:` opt: "(Any toolbar)" is a real default, and a placeholder would render it grayed and
 	// unadorned. The source select still fires `change` on pick, so syncHint stays bound to it.
 	if(window.CerbUI && CerbUI.SelectMenu)
 		new CerbUI.SelectMenu(componentEl, { filter: false });

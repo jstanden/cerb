@@ -154,7 +154,7 @@ CerbUI.Node = class {
 			this.body.appendChild(desc);
 		}
 
-		// Data-flow value inputs (expression builder): a labelled left-edge inlet you wire a value into.
+		// Data-flow value inputs (expression builder): a labeled left-edge inlet you wire a value into.
 		(this.schema.valueIn || []).forEach((v) => this.body.appendChild(this._renderValueIn(v)));
 
 		// Inline form fields: a label + control (text/number/select/toggle), each with a left-edge param inlet

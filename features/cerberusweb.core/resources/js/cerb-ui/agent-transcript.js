@@ -868,7 +868,7 @@ CerbUI.AgentTranscript = class {
 		// An explicit mark wins. A STREAMED thinking block breaks the emptiness heuristic below: it used to be
 		// safe because a thinking block only appeared once complete, so empty could only mean "not done yet".
 		// Now it accumulates text as it's written, so the moment the first token lands it would read as
-		// finished — labelled "Thought" while visibly still being thought. _enhanceTurn stamps this on the
+		// finished — labeled "Thought" while visibly still being thought. _enhanceTurn stamps this on the
 		// last bubble of a turn the server says is still streaming.
 		if(node.hasAttribute('data-cerb-transcript-active'))
 			return true;

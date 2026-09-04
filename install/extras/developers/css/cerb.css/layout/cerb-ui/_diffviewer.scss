@@ -6,7 +6,7 @@
 // The collapseUnchanged divider, in two states — the same 2px rule, drawn as a MASK over background-color
 // (a gradient can't carry a theme var, so it shapes a themed color instead; cf. _separator.scss).
 //   perforated = a run is torn out here (click to reveal it)   ·  solid = the seam of a revealed run
-// 2px dots every 6px: `repeat-x` on a 3px-tall tile keeps it to a single centred band (no vertical tiling).
+// 2px dots every 6px: `repeat-x` on a 3px-tall tile keeps it to a single centered band (no vertical tiling).
 $_tear-perforated: radial-gradient(circle at 50% 50%, #000 1px, transparent 1.25px) center / 6px 3px repeat-x;
 $_tear-solid: linear-gradient(#000, #000) center / 100% 2px no-repeat;
 
@@ -72,7 +72,7 @@ $_tear-solid: linear-gradient(#000, #000) center / 100% 2px no-repeat;
         left: 0;
         right: 0;
         z-index: 2;                 // above --input (z-index:1), so the click lands here and not in the textarea
-        height: 12px;               // the CLICK target; the rule itself is 2px, centred by the mask
+        height: 12px;               // the CLICK target; the rule itself is 2px, centered by the mask
         transform: translateY(-50%);   // the JS gives `top` the line BOUNDARY, so height changes need no JS edit
         cursor: pointer;
         // A DEFINED step: the ramp is 25/50/75/100/125/150/160/170/180/190/200/210/220/225/230/235/240/245/250.

@@ -1,4 +1,4 @@
-// Section card — the rounded, padded surface that frames a labelled section on the sidebar-landing setup
+// Section card — the rounded, padded surface that frames a labeled section on the sidebar-landing setup
 // pages (Records, Toolbars, Automation Events). Promoted from per-page `.cerb-X-section { … }` duplicates.
 // Background is intentionally NOT set here — each page picks its own fill via a `cerb-u-bgg-*` class
 // (records uses bgg-2, the others bgg-3), so the card stays surface-agnostic.

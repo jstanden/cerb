@@ -61,7 +61,7 @@ class Launchers {
 			];
 
 			// The command bar sits among every other shortcut in Cerb, not among other agents, so a row is
-			// labelled with the `@handle` a person would type to reach this agent anywhere else.
+			// labeled with the `@handle` a person would type to reach this agent anywhere else.
 			if(self::SURFACE_COMMANDBAR === $surface) {
 				if('' !== ($mention = trim(strval($worker->at_mention_name ?? ''))))
 					$item['label'] = '@' . $mention;
