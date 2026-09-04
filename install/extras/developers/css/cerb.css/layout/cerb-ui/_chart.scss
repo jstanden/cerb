@@ -83,6 +83,34 @@
 	}
 }
 
+// Gantt / range chart (named rows of spans on one shared X axis)
+.cerb-ui-gantt {
+	display: block;
+
+	&--grid {
+		stroke: var(--cerb-color-background-contrast-200);
+		stroke-width: 1;
+	}
+	// SVG glyph sizes, matching the sibling charts above: an axis tick inherits the page's body size
+	// otherwise, which crowds the axis and dwarfs the bars it labels.
+	&--tick {
+		fill: var(--cerb-color-background-contrast-150);
+		font-size: 11px;
+	}
+	&--row-label {
+		fill: var(--cerb-color-text);
+		font-size: 11px;
+		font-weight: 600;
+	}
+	// The lane behind a row's spans -- without it a row of sparse spans reads as empty page.
+	&--track {
+		fill: var(--cerb-color-background-contrast-235);
+	}
+	&--span {
+		transition: opacity 0.1s ease;
+	}
+}
+
 // Single-value radial gauge
 .cerb-ui-gauge {
 	display: block;

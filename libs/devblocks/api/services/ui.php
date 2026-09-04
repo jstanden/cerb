@@ -82,6 +82,7 @@ class _DevblocksUiManager {
 			'chart-axis-y2',
 			'chart-bar',
 			'chart-bar-stacked',
+			'chart-gantt',
 			'chart-kata',
 			'chart-line',
 			'chart-pie',
