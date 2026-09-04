@@ -34,6 +34,7 @@
 					<li><a href="{devblocks_url}c=config&a=ai&w=filesystems{/devblocks_url}">Filesystems</a></li>
 					<li><a href="{devblocks_url}c=config&a=ai&w=tools{/devblocks_url}">Tools</a></li>
 					<li><a href="{devblocks_url}c=config&a=ai&w=surfaces{/devblocks_url}">Surfaces</a></li>
+					<li><a href="{devblocks_url}c=config&a=llm_agent_transcripts{/devblocks_url}">Transcripts</a></li>
 
 					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.ai')}
 					{if !empty($exts)}
@@ -159,7 +160,6 @@
 					<li><a href="{devblocks_url}c=config&a=database_schema{/devblocks_url}">Database Schema</a></li>
 					{if DevblocksPlatform::isPluginEnabled('cerb.behaviors.legacy')}<li><a href="{devblocks_url}c=config&a=export_bots{/devblocks_url}">Export Bots</a></li>{/if}
 					<li><a href="{devblocks_url}c=config&a=icon_builder{/devblocks_url}">Icon Builder</a></li>
-					<li><a href="{devblocks_url}c=config&a=llm_agent_transcripts{/devblocks_url}">LLM Agent Transcripts</a></li>
 					<li><a href="{devblocks_url}c=config&a=oauth2_token_generator{/devblocks_url}">OAuth2 Token Generator</a></li>
 					<li><a href="{devblocks_url}c=config&a=platform{/devblocks_url}">Platform</a></li>
 					<li><a href="{devblocks_url}c=config&a=requirements{/devblocks_url}">Requirements Checker</a></li>

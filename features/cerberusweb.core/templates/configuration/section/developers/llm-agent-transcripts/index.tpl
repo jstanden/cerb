@@ -2,7 +2,7 @@
 
 <div class="cerb-ui-header">
     <div>
-        <div class="cerb-ui-header--title">LLM Agent Transcripts</div>
+        <div class="cerb-ui-header--title">Agent Transcripts</div>
         <div class="cerb-ui-header--subtitle"></div>
     </div>
 </div>
