@@ -212,13 +212,22 @@ $(function() {
         const activity = $prompt.find('[data-cerb-transcript-activity]')[0];
         const stopRow = $prompt.find('[data-cerb-transcript-stop]')[0];
 
-        // Fast while a turn is genuinely being WRITTEN -- that's the only time this transcript can change
-        // between ticks. Slow otherwise: the gap while a tool runs, and every turn on a provider that
-        // doesn't stream at all, where the markup is byte-identical for the whole turn.
-        const POLL_STREAMING_MS = 1000;
+        // The SERVER paces this loop (`LlmTranscriptAwait::_pollDelayMs()`), because it is the side that
+        // knows which phase the turn is in and how long it has been running. The constants below are only
+        // for the cases the server does not speak to.
+        //
+        // Fallback for a response carrying no `poll_ms` -- an error, or a server older than this template.
+        // Middling on purpose: being slow here costs a little latency, being fast costs a request every
+        // second for the length of the turn.
+        const POLL_FALLBACK_MS = 3000;
         const POLL_IDLE_MS = 5000;
-        // A backgrounded tab is not being read; keep watching, but stop paying for it every second.
+        // A backgrounded tab is not being read. Stays client-side: visibility is the one input the server
+        // cannot see.
         const POLL_HIDDEN_MS = 15000;
+        // NOT a cadence -- a one-shot delay before the FIRST poll, so it cannot race the optimistic echo
+        // that a submit fires in the same beat. Deliberately short: it is the gap before a turn first
+        // appears, and it happens once per turn rather than every tick.
+        const POLL_FIRST_MS = 1000;
         // Give up after this many consecutive ticks with no work and no change.
         const MAX_IDLE_TICKS = 30;
 
@@ -231,9 +240,6 @@ $(function() {
         // Opaque server token for "what I already have". Lets the server answer from the session head
         // instead of walking the whole active path to rebuild markup we'd only throw away.
         let fingerprint = '';
-        // Until the first response says otherwise, assume the provider streams: being wrong that way costs
-        // a few fast ticks, while the reverse would make a genuinely live turn look frozen.
-        let canStream = true;
         // Owned by the poll's lifetime, not the render's -- both are torn down in stop(). A document-level
         // listener left behind would stack one per render, and the elapsed ticker would outlive its clock.
         let ticker = null;
@@ -265,25 +271,13 @@ $(function() {
         };
 
         const nextDelay = function(json) {
-            if(document.visibilityState === 'hidden')
-                return POLL_HIDDEN_MS;
+            const ms = (json && json.poll_ms > 0)
+                ? json.poll_ms
+                : (json && json.working ? POLL_FALLBACK_MS : POLL_IDLE_MS);
 
-            // Content is arriving right now -- this is the only case that earns a 1s cadence.
-            if(json && json.streaming)
-                return POLL_STREAMING_MS;
-
-            // The provider can't stream, so nothing will change mid-turn no matter how often we ask.
-            if(!canStream)
-                return POLL_IDLE_MS;
-
-            // Enqueued but unclaimed -- waiting on a concurrency slot. `working` is true here, but no
-            // worker holds this turn yet, so the transcript CANNOT change until one does. Asking every
-            // second buys nothing: a 60s wait behind a full pool is 60 guaranteed-unchanged requests.
-            if(json && json.queued)
-                return POLL_IDLE_MS;
-
-            // Working, not streaming, and claimed: a tool is running, or a turn is about to be written.
-            return (json && json.working) ? POLL_STREAMING_MS : POLL_IDLE_MS;
+            // Taking the SLOWER of the two makes this an override rather than a second opinion: a
+            // backgrounded tab is never polled at the live rate, however urgent the server thinks it is.
+            return (document.visibilityState === 'hidden') ? Math.max(ms, POLL_HIDDEN_MS) : ms;
         };
 
         // Elapsed time is the honest liveness signal. During an extended-thinking phase there is genuinely
@@ -309,7 +303,7 @@ $(function() {
             // fixed setInterval a bare `return` was harmless, which is exactly why it reads as safe.)
             // Reachable via the visibility handler's schedule(0) landing on an in-flight request.
             if(inflight)
-                return schedule(POLL_STREAMING_MS);
+                return schedule(POLL_FALLBACK_MS);
 
             inflight = true;
 
@@ -340,9 +334,6 @@ $(function() {
                 // for as long as the tab stays open.
                 if(json && json.error)
                     return stop();
-
-                if(json && typeof json.can_stream === 'boolean')
-                    canStream = json.can_stream;
 
                 if(json && typeof json.fingerprint === 'string')
                     fingerprint = json.fingerprint;
@@ -430,7 +421,7 @@ $(function() {
                     if(++failures >= 5)
                         return stop();
 
-                    // Back off while it's failing rather than retrying at the streaming cadence.
+                    // Back off while it's failing rather than retrying at the live cadence.
                     schedule(POLL_IDLE_MS);
                 }
             });
@@ -459,7 +450,7 @@ $(function() {
             // No immediate tick: a submit fires the optimistic echo at the same moment, and that does a FULL
             // setTurns() replace. Polling in the same beat would race it — we'd patch a turn the echo is
             // about to wipe. One second late costs nothing and removes the race entirely.
-            schedule(POLL_STREAMING_MS);
+            schedule(POLL_FIRST_MS);
 
             // The CLOCK must keep moving at a steady rate even though the REQUESTS back off -- at a 5s
             // cadence the elapsed readout would otherwise jump five seconds at a time.

@@ -713,6 +713,77 @@ class LlmTranscriptAwait extends AbstractAwait {
 		return true;
 	}
 	
+	/*
+	 * POLL PACING. Server-owned for the same reason the queue gate's is (`_renderAwaitQueueMarker()`):
+	 * this response is re-read every cycle, so the pacing belongs where the state is rather than in the
+	 * browser, and it can then be tuned without shipping JS.
+	 *
+	 * The tiers are graded by WHAT CAN CHANGE before the next tick, which is the thing the old flat 1s
+	 * cadence ignored -- it applied the fastest rate to the tool-execution window, where the transcript
+	 * provably cannot change at all.
+	 */
+	const int POLL_MS_STREAMING  = 2_000;   // content arriving; every poll returns something new
+	const int POLL_MS_TOOL       = 3_000;   // claimed and working, nothing written yet: a tool is running
+	const int POLL_MS_TOOL_MAX   = 8_000;
+	const int POLL_MS_QUEUED     = 5_000;   // enqueued, unclaimed: waiting on a concurrency slot
+	const int POLL_MS_QUEUED_MAX = 15_000;
+	const int POLL_MS_IDLE       = 5_000;   // nothing can change mid-turn, or nothing is running
+
+	/**
+	 * Back off as a turn runs long, on the tiers that can afford it. Same shape as the gate's ramp, and
+	 * the same clamp on the shift for the same reason: `1 << n` is UNBOUNDED in elapsed, and past the
+	 * platform word size it stops growing and starts lying -- 63 gives PHP_INT_MIN and 64+ gives 0,
+	 * which would silently invert the backoff into the FASTEST poll allowed on exactly the long waits it
+	 * exists to slow down.
+	 */
+	private function _pollRamp(int $base_ms, int $max_ms, int $elapsed_secs) : int {
+		if($elapsed_secs < 1)
+			return $base_ms;
+
+		return min($max_ms, $base_ms * (1 << min(16, intdiv($elapsed_secs, 15))));
+	}
+
+	/**
+	 * When this turn's wait began, from the same `__return.queue` block the gate paces off. Absent (not
+	 * parked on a queue await) means no ramp, which is the safe direction: an unramped tier is merely
+	 * chattier, while a wrong elapsed could stall a live turn.
+	 */
+	private function _turnElapsedSecs(Model_AutomationContinuation $continuation) : int {
+		$started_at = intval($continuation->state_data['dict']['__return']['queue']['started_at'] ?? 0);
+
+		return ($started_at > 0) ? max(0, time() - $started_at) : 0;
+	}
+
+	/**
+	 * How long the client should wait before asking again, in ms.
+	 *
+	 * Precedence matches what the client used to do locally, so the tiers are the only thing that
+	 * changed. The `working` case is the one that moved: it shared the streaming rate, which meant the
+	 * fastest cadence was spent on the phase with the least to discover.
+	 */
+	private function _pollDelayMs(array $state, int $elapsed_secs) : int {
+		// Content is arriving right now. The only tier that does not ramp -- every poll here returns
+		// something the reader can see, so slowing it down only makes a live answer stutter.
+		if($state['streaming'] ?? false)
+			return self::POLL_MS_STREAMING;
+
+		// The provider cannot stream, so this transcript cannot change until the whole turn lands.
+		if(!($state['can_stream'] ?? false))
+			return self::POLL_MS_IDLE;
+
+		// Enqueued but unclaimed: no worker holds this turn, so nothing can change until one does. A wait
+		// behind a full pool is exactly where a fast poll buys the least.
+		if($state['queued'] ?? false)
+			return $this->_pollRamp(self::POLL_MS_QUEUED, self::POLL_MS_QUEUED_MAX, $elapsed_secs);
+
+		// Claimed, working, streams-capable, but nothing written yet: a tool is running, or the first
+		// token is imminent. Ramped because a tool chain can run for minutes with a frozen transcript.
+		if($state['working'] ?? false)
+			return $this->_pollRamp(self::POLL_MS_TOOL, self::POLL_MS_TOOL_MAX, $elapsed_secs);
+
+		return self::POLL_MS_IDLE;
+	}
+
 	/**
 	 * `pollTurn` — while a streamed turn is being written, hand back JUST that turn's markup so the client can
 	 * swap one node instead of redrawing the transcript.
@@ -738,13 +809,16 @@ class LlmTranscriptAwait extends AbstractAwait {
 		// discards. So answer "nothing moved" from the session head alone, before any of that runs.
 		if(($state = $this->_pollState($continuation))) {
 			if('' !== ($sent = strval($this->_data['fingerprint'] ?? '')) && $sent === $state['fingerprint']) {
-				echo json_encode($state + ['unchanged' => true]);
+				echo json_encode($state + [
+					'unchanged' => true,
+					'poll_ms' => $this->_pollDelayMs($state, $this->_turnElapsedSecs($continuation)),
+				]);
 				return true;
 			}
 		}
 
 		if(!$this->_prepare($continuation, null, may_persist: false)) {
-			echo json_encode(['in_progress' => false, 'working' => false, 'streaming' => false, 'seq' => 0, 'html' => '']);
+			echo json_encode(['in_progress' => false, 'working' => false, 'streaming' => false, 'seq' => 0, 'html' => '', 'poll_ms' => self::POLL_MS_IDLE]);
 			return true;
 		}
 
@@ -788,6 +862,14 @@ class LlmTranscriptAwait extends AbstractAwait {
 			// Enqueued but unclaimed -- waiting on a concurrency slot. `working` is true for this too,
 			// so without a separate flag the client can't tell it from a turn actually being written.
 			'queued' => $state['queued'] ?? false,
+			// How long to wait before asking again. Recomputed every cycle from the state above, so the
+			// cadence follows the turn's phase instead of the browser guessing from stale flags.
+			'poll_ms' => $this->_pollDelayMs([
+				'streaming' => $streaming_seq > 0,
+				'working' => $streaming_seq > 0 || 'queue' === strval($continuation->state_await ?? ''),
+				'can_stream' => $state['can_stream'] ?? false,
+				'queued' => $state['queued'] ?? false,
+			], $this->_turnElapsedSecs($continuation)),
 		]);
 
 		return true;
