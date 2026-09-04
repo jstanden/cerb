@@ -2490,6 +2490,19 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			$tpl->assign('autocomplete_json', json_encode($autocomplete_suggestions));
 			$tpl->assign('routing_placeholders', Model_MailRoutingRule::getPlaceholders());
 			
+			// The agent-pane launchers for the routing editor on the Mail: Incoming tab, plus this group's
+			// bucket names -- the agent reads them through `get_routing`, since a bucket name here resolves
+			// against this group and nothing in the document says which group that is.
+			$agent_toolbar_html = \Cerb\Agent\Pane\Launchers::fetch(
+				'mail_routing',
+				\Cerb\Agent\Pane\Launchers::newDict('mail_routing')
+			);
+			$tpl->assign('agent_toolbar_html_json', json_encode($agent_toolbar_html));
+			$tpl->assign('routing_buckets_json', json_encode(array_values(array_map(
+				fn($bucket) => $bucket->name,
+				$group ? $group->getBuckets() : []
+			))));
+			
 			$tpl->display('devblocks:cerberusweb.core::groups/peek_edit.tpl');
 			
 		} else {

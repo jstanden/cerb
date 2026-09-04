@@ -1,6 +1,7 @@
 {$peek_context = CerberusContexts::CONTEXT_GROUP}
 {$peek_context_id = $group->id}
 {$form_id = "formGroupsPeek{uniqid()}"}
+<div id="routingAgentMount{$form_id}">
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="{$form_id}">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
@@ -313,6 +314,7 @@
 </div>
 
 </form>
+</div>{* #routingAgentMount -- AgentPane wraps this *}
 
 <style nonce="{DevblocksPlatform::getRequestNonce()}">
 {literal}
@@ -576,6 +578,10 @@ $(function() {
 
 		let editor = new CerbUI.KataEditor($popup.find('textarea[name=routing_kata]')[0], {
 			onAutocomplete: CerbUI.KataEditor.kataFieldSource(autocomplete_suggestions),
+			// Mark what changed since the last save. The checkpoint is captured on open and re-taken on save,
+			// so the gutter answers "what have we touched in this sitting" -- whether the edit came from a
+			// person or from the agent, which has no other way to show its work.
+			diffGutter: true,
 			toolbar: {
 				sections: [ $popup.find('[data-cerb-bucket-routing-toolbar-items]')[0] ].filter(Boolean),
 				onAction: function(value, ed, item) {
@@ -618,6 +624,10 @@ $(function() {
 			});
 		};
 		{/if}
+
+		$popup.on('peek_saved', function() { if(typeof editor.resetDiffBaseline === 'function') editor.resetDiffBaseline(); });
+
+		{include file="devblocks:cerberusweb.core::records/types/mail_routing_rule/_agent_pane.tpl" routing_scope="group" mount="routingAgentMount`$form_id`" split=true}
 
 		let $tab_routing = $('#{$form_id}Inbox');
 		let $fieldset_tester = $tab_routing.find('[data-cerb-routing-tester]');

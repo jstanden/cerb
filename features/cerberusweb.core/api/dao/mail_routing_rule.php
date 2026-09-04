@@ -1210,6 +1210,15 @@ class Context_MailRoutingRule extends Extension_DevblocksContext implements IDev
 			$tpl->assign('autocomplete_json', json_encode($autocomplete_suggestions));
 			$tpl->assign('routing_placeholders', Model_MailRoutingRule::getPlaceholders());
 			
+			// The agent-pane launchers for this editor: one tile per AGENT enabled on this surface. An agent
+			// record's `components:` block is the only thing that says where it appears. Empty when no agent
+			// is enabled here (the pane hides its toggle).
+			$agent_toolbar_html = \Cerb\Agent\Pane\Launchers::fetch(
+				'mail_routing',
+				\Cerb\Agent\Pane\Launchers::newDict('mail_routing')
+			);
+			$tpl->assign('agent_toolbar_html_json', json_encode($agent_toolbar_html));
+			
 			// View
 			$tpl->assign('id', $context_id);
 			$tpl->assign('view_id', $view_id);

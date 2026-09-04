@@ -1,6 +1,7 @@
 {$peek_context = CerberusContexts::CONTEXT_MAIL_ROUTING_RULE}
 {$peek_context_id = $model->id}
 {$form_id = uniqid()}
+<div id="routingAgentMount{$form_id}">
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}">
     <input type="hidden" name="c" value="profiles">
     <input type="hidden" name="a" value="invoke">
@@ -154,6 +155,7 @@
         {/if}
     </div>
 </form>
+</div>{* #routingAgentMount -- AgentPane wraps this *}
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
     $(function() {
@@ -191,6 +193,10 @@
 
             let editor = new CerbUI.KataEditor($popup.find('textarea[name=routing_kata]')[0], {
                 onAutocomplete: CerbUI.KataEditor.kataFieldSource(autocomplete_suggestions),
+                // Mark what changed since the last save. The checkpoint is captured on open and re-taken on
+                // save-and-continue, so the gutter answers "what have we touched in this sitting" -- whether
+                // the edit came from a person or from the agent, which has no other way to show its work.
+                diffGutter: true,
                 toolbar: {
                     sections: [
                         $popup.find('[data-cerb-interaction-toolbar] ul.cerb-ui-toolbar')[0],
@@ -271,6 +277,11 @@
                     },
                 })
             ;
+
+            // A plain save closes the popup, so only save-and-continue needs the checkpoint re-taken.
+            $popup.on('peek_saved', function(e) { if(e.is_continue) editor.resetDiffBaseline(); });
+
+            {include file="devblocks:cerberusweb.core::records/types/mail_routing_rule/_agent_pane.tpl" routing_scope="rule" mount="routingAgentMount`$form_id`" split=true}
 
             $fieldset_tester.find('.cerb-code-editor-toolbar-button--run').on('click', function(e) {
                 e.stopPropagation();

@@ -31,6 +31,8 @@ namespace Cerb\Agent\Pane;
  *   worklist       features/cerberusweb.core/templates/search/quick_search.tpl
  *   mail_reply     features/cerberusweb.core/templates/display/rpc/reply.tpl
  *   commandbar     features/cerberusweb.core/templates/automations/interactions/button.tpl
+ *   mail_routing   features/cerberusweb.core/templates/records/types/mail_routing_rule/peek_edit.tpl
+ *                  features/cerberusweb.core/templates/groups/peek_edit.tpl (the Mail: Incoming tab)
  *
  * Adding a command to a host means adding it here too, BY HAND -- nothing checks. The two drift silently,
  * and the failure is quiet on both sides: a command listed here that the host doesn't implement returns '',
@@ -48,6 +50,7 @@ class Components {
 	 * file dependency-free, and it means a component can offer a tool the host's JS knows nothing about.
 	 */
 	const HANDLER_ICONS_LIST = 'icons.list';
+	const HANDLER_ROUTING_TEST = 'routing.test';
 
 	/**
 	 * Every component, keyed by its `component` string (the value the host passes to CerbUI.AgentPane and the
@@ -549,6 +552,138 @@ class Components {
 							],
 							'value' => [
 								'description' => "The complete new value. For `format`, one of markdown or plaintext.",
+								'required' => true,
+							],
+						],
+					],
+				],
+			],
+
+			/*
+			 * Mail routing, on BOTH editors that write a `routing_kata` document: the standalone Mail Routing
+			 * Rule record, and a group's Mail: Incoming tab. One component rather than two because the grammar,
+			 * the schema and the evaluator are all shared -- what differs is where in the pipeline the document
+			 * runs, and `get_fields` reports that as `scope` rather than a second catalog entry saying it.
+			 */
+			'mail_routing' => [
+				'label' => 'Mail Routing',
+				'icon' => 'bot-route',
+				'description' => "Reads and writes the routing rules that decide where new mail lands, and can test them against a sample message.",
+				'tagline' => 'Help routing incoming mail',
+				'instructions' => "You are an assistant embedded in Cerb's mail routing editor. You help write routing KATA: ordered rules whose conditions match an incoming message and whose actions decide where it lands.\n\nCall get_routing first, every time. The same document means different things depending on which editor you are in, and get_routing tells you which one: a standalone rule that picks a GROUP, or a group's own rules that pick a BUCKET within it.\n\nTest before you claim it works. test_routing runs a document against a sample message and reports which rule matched, so a rule you are unsure of costs one tool call to settle.",
+				'skills' => [
+					'kata' => 'write or edit any routing KATA',
+					'scripting',
+					'records',
+				],
+				'docs' => [
+					'references/docs/setup/mail/routing.md',
+					'references/docs/kata.md',
+					'references/docs/buckets.md',
+				],
+				// Answered here rather than by the editor: the tester is an HTTP round trip, and a bridge command
+				// has to answer synchronously (see the uiCommand await). Taking the document as an argument is
+				// what lets a candidate rule be tested BEFORE it is written into the editor.
+				'server_tools' => [
+					'cerb_test_routing' => [
+						'handler' => self::HANDLER_ROUTING_TEST,
+						'description' => "Run a routing document against a sample message and report which rule matched, if any. Test the document you just read or wrote -- this evaluates what you send, not what is in the editor.",
+						'icon' => 'lab',
+						'labels' => ['active' => 'Testing the routing...', 'summary' => 'Tested the routing'],
+						'parameters' => [
+							'routing_kata' => [
+								'description' => 'The complete routing document to test.',
+								'required' => true,
+							],
+							'placeholders' => [
+								'description' => "The sample message, as a KATA document. Recognized keys: `subject`, `body`, `recipients` (a list of To/Cc addresses), `sender_email`, `spam_score` (0.0 to 1.0), and `headers` (a map with lowercase keys).",
+								'required' => true,
+							],
+						],
+					],
+				],
+				'commands' => [
+					'getFields' => [
+						'tool' => 'cerb_get_routing',
+						'description' => "Read the routing document and where it runs, as {scope, routing_kata} plus {group_name, buckets} when the scope is a group. `scope` is `rule` for a standalone rule that decides the group, or `group` for a group's own rules that decide the bucket. Call this first.",
+						'icon' => 'eye-open',
+						'labels' => ['active' => 'Reading the routing...', 'summary' => 'Read the routing'],
+						'parameters' => [],
+					],
+					// The bridge is the generic `setField`, but there is exactly ONE writable field here, so `key`
+					// is pinned rather than asked for: an enum of one is an argument a model can only get wrong.
+					'setField' => [
+						'tool' => 'cerb_set_routing',
+						'description' => "Replace the entire routing document. Send the COMPLETE new value; it overwrites what is there. Prefer edit_routing for targeted changes.",
+						'icon' => 'edit',
+						'labels' => ['active' => 'Updating the routing...', 'summary' => 'Updated the routing'],
+						'command_params' => ['key' => 'routing_kata'],
+						'parameters' => [
+							'value' => [
+								'description' => 'The complete new routing document.',
+								'required' => true,
+							],
+						],
+					],
+					'editField' => [
+						'tool' => 'cerb_edit_routing',
+						'description' => "Undo-safe search/replace on the routing document. `old` must match exactly once; if it matches zero or more than one time you get an error telling you to expand or uniquify the context.",
+						'icon' => 'edit',
+						'labels' => ['active' => 'Applying an edit...', 'summary' => 'Edited the routing'],
+						'parameters' => [
+							'old' => [
+								'description' => 'The exact existing text to replace, including indentation. Must match exactly once.',
+								'required' => true,
+							],
+							'new' => [
+								'description' => 'The replacement text.',
+								'required' => true,
+							],
+						],
+					],
+					'grepField' => [
+						'tool' => 'cerb_grep_routing',
+						'description' => "Search the routing document and get back matching lines as [{line, path, text}] -- exact line numbers plus the KATA key path for each hit, so you never have to guess a location.",
+						'icon' => 'search',
+						'labels' => ['active' => 'Searching the routing...', 'summary' => 'Searched the routing'],
+						'parameters' => [
+							'query' => [
+								'description' => 'The text to search for.',
+								'required' => true,
+							],
+							'limit' => [
+								'description' => 'Maximum number of matches to return (default 25).',
+								'required' => false,
+							],
+						],
+					],
+					'getDiff' => [
+						'tool' => 'cerb_get_diff',
+						'description' => "Read the routing document's pending changes as hunks against its last save: {tracked, hunks:[{status, line, endLine, added, removed}]} with 1-based line numbers. `tracked: false` means there is no baseline to diff against. Use it to review your own edits before summarizing them.",
+						'icon' => 'history',
+						'labels' => ['active' => 'Reading the diff...', 'summary' => 'Read the diff'],
+						'parameters' => [],
+					],
+					'highlightLine' => [
+						'tool' => 'cerb_highlight_line',
+						'description' => "Flash a line in the editor to point the user at the rule you are discussing.",
+						'icon' => 'sparkles',
+						'labels' => ['active' => 'Highlighting a line...', 'summary' => 'Highlighted a line'],
+						'parameters' => [
+							'line' => [
+								'description' => 'The 1-based line number to flash.',
+								'required' => true,
+							],
+						],
+					],
+					'highlightKey' => [
+						'tool' => 'cerb_highlight_key',
+						'description' => "Flash the row for a KATA key path (e.g. rule/billing:then). A robust sibling of highlight_line: it targets the path, so it survives edits that shift line numbers.",
+						'icon' => 'sparkles',
+						'labels' => ['active' => 'Highlighting a key...', 'summary' => 'Highlighted a key'],
+						'parameters' => [
+							'path' => [
+								'description' => 'The colon-delimited KATA key path to flash (e.g. rule/billing:then).',
 								'required' => true,
 							],
 						],

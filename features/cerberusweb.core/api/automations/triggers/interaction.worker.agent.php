@@ -165,6 +165,7 @@ class AutomationTrigger_InteractionWorkerAgent extends AutomationTrigger_Interac
 	function runLlmAgentTool(string $handler, array $params) : ?string {
 		return match($handler) {
 			\Cerb\Agent\Pane\Components::HANDLER_ICONS_LIST => $this->_runIconsList($params),
+			\Cerb\Agent\Pane\Components::HANDLER_ROUTING_TEST => $this->_runRoutingTest($params),
 			default => null,
 		};
 	}
@@ -186,6 +187,60 @@ class AutomationTrigger_InteractionWorkerAgent extends AutomationTrigger_Interac
 		// `cerb_get_icon_geometry` away -- returning them all would spend the context window on shapes nobody asked
 		// to see.
 		return implode("\n", $icons);
+	}
+
+	/**
+	 * Run a routing document against a sample message and say which rule matched.
+	 *
+	 * A SERVER tool rather than a bridge command because the browser answer has to be synchronous (see the
+	 * `uiCommand` await) and the tester is a round trip. The document arrives as an argument for the same
+	 * reason the icon list doesn't: nothing here can see the editor's buffer.
+	 *
+	 * Mirrors `PageSection_ProfilesMailRoutingRule::_profileAction_testRoutingKataJson()` -- deliberately, so
+	 * the agent and the editor's own Test panel can't disagree about what a document does. The one difference
+	 * is that a parse error is REPORTED: that action returns it as `{error}` and both editors drop it on the
+	 * floor, which is how a broken document reads as "no matching rules".
+	 */
+	private function _runRoutingTest(array $params) : string {
+		$kata = DevblocksPlatform::services()->kata();
+		$mail = DevblocksPlatform::services()->mail();
+
+		$routing_kata = strval($params['routing_kata'] ?? '');
+		$placeholder_kata = strval($params['placeholders'] ?? '');
+
+		if('' === trim($routing_kata))
+			return 'error: routing_kata is empty. Send the document you want to test.';
+
+		$error = null;
+
+		if(false === ($placeholders = $kata->parse($placeholder_kata, $error)))
+			return sprintf('error: the sample message did not parse. %s', $error);
+
+		if(false === ($placeholders = $kata->formatTree($placeholders, null, $error)))
+			return sprintf('error: the sample message did not parse. %s', $error);
+
+		$routing_dict = DevblocksDictionaryDelegate::instance($placeholders);
+		$symbol_meta = [];
+
+		if(false === ($routing = $kata->parse($routing_kata, $error, true, $symbol_meta)))
+			return sprintf('error: the routing document did not parse. %s', $error);
+
+		if(false === ($routing = $kata->formatTree($routing, $routing_dict, $error)))
+			return sprintf('error: the routing document did not parse. %s', $error);
+
+		$match = null;
+
+		if(!$routing || !$mail->runRoutingKata($routing, $routing_dict, $match) || !is_array($match))
+			return 'No rule matched this message.';
+
+		// The key path is `<rule>:<if node>` -- the same one grep_routing and highlight_key speak, so a match
+		// can be pointed at without a second lookup.
+		$key_path = $match[0] . ':' . strval($match[1] ?? '');
+		$line = $symbol_meta[$key_path] ?? 0;
+
+		return $line
+			? sprintf('Matched `%s` on line %d.', $key_path, $line)
+			: sprintf('Matched `%s`.', $key_path);
 	}
 
 	public static function getFormComponentMeta() : array {
