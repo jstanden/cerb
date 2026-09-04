@@ -101,10 +101,18 @@ class _DevblocksQueueService {
 	}
 
 	/**
-	 * The slots a caller in `$lane` may attempt: its own, then the commons. Ascending and deterministic
-	 * -- the CALLER shuffles, so this stays a pure function the tests can pin exact vectors on.
+	 * The slots a caller in `$lane` may attempt, ascending. A null lane means the whole pool, which is
+	 * what an unclassified drain gets.
 	 *
-	 * A null lane means the whole pool, which is what an unclassified drain gets.
+	 * NEITHER LANE IS FRAGMENTED: fast takes the head plus the commons, slow takes the commons plus the
+	 * tail. Each lane is therefore ONE contiguous range, and the two overlap exactly on the commons --
+	 * which is what the commons IS, rather than a third kind of slot.
+	 *
+	 * Interleaving them instead (fast head, slow head, shared tail) offers every lane the same slots in
+	 * the same counts, so it is not a capacity change -- but it splits the fast lane around the slow
+	 * lane's block, which is harder to reason about and cannot be drawn as what it is.
+	 *
+	 * Order is not behavior -- the CALLER shuffles. It stays deterministic so the split is pinnable.
 	 *
 	 * @return int[] slot numbers, 1-based (slot 0 is the scheduler's and is never in the pool)
 	 */
@@ -117,10 +125,9 @@ class _DevblocksQueueService {
 		if(is_null($lane) || !($width = self::getLaneWidth($max_slots)))
 			return $all;
 
-		return array_merge(
-			array_slice($all, (QueueLane::Fast === $lane) ? 0 : $width, $width),
-			array_slice($all, 2 * $width)
-		);
+		return (QueueLane::Fast === $lane)
+			? array_slice($all, 0, $max_slots - $width)
+			: array_slice($all, $width);
 	}
 
 	/**

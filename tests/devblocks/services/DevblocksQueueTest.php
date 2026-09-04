@@ -129,12 +129,30 @@ class DevblocksQueueTest extends TestCase {
 		$this->assertSame([1, 2], _DevblocksQueueService::getLaneSlots(2, QueueLane::Fast));
 		$this->assertSame([1, 2], _DevblocksQueueService::getLaneSlots(2, QueueLane::Slow));
 
-		// The community pool: one each, one shared.
-		$this->assertSame([1, 3], _DevblocksQueueService::getLaneSlots(3, QueueLane::Fast));
+		// The community pool: one each, one shared. Fast takes the head, slow the tail, and they
+		// overlap on the middle slot.
+		$this->assertSame([1, 2], _DevblocksQueueService::getLaneSlots(3, QueueLane::Fast));
 		$this->assertSame([2, 3], _DevblocksQueueService::getLaneSlots(3, QueueLane::Slow));
 
-		$this->assertSame([1, 2, 5, 6, 7, 8], _DevblocksQueueService::getLaneSlots(8, QueueLane::Fast));
+		$this->assertSame([1, 2, 3, 4, 5, 6], _DevblocksQueueService::getLaneSlots(8, QueueLane::Fast));
 		$this->assertSame([3, 4, 5, 6, 7, 8], _DevblocksQueueService::getLaneSlots(8, QueueLane::Slow));
+	}
+
+	function testLaneSlotsAreContiguous() {
+		// A fragmented lane offers the same capacity, so nothing here is about throughput -- it is about
+		// the split being one idea instead of two. A lane split around the other lane's block cannot be
+		// stated, drawn, or reasoned about as "the head, plus what we share".
+		foreach([1, 2, 3, 4, 5, 7, 8, 12, 16, 25, 40] as $n) {
+			foreach([QueueLane::Fast, QueueLane::Slow] as $lane) {
+				$slots = _DevblocksQueueService::getLaneSlots($n, $lane);
+
+				$this->assertSame(
+					range(min($slots), max($slots)),
+					$slots,
+					sprintf("n=%d %s is fragmented", $n, $lane->value)
+				);
+			}
+		}
 	}
 
 	function testLaneSlotsNullIsTheWholePool() {
@@ -167,19 +185,27 @@ class DevblocksQueueTest extends TestCase {
 
 			$this->assertSame($n ? range(1, $n) : [], $union, "n=$n union");
 
-			// The dedicated heads are disjoint -- that is the whole guarantee.
-			$this->assertSame(
-				[],
-				array_intersect(array_slice($fast, 0, $width), array_slice($slow, 0, $width)),
-				"n=$n dedicated overlap"
-			);
+			// What each lane holds ALONE is its dedicated block, and the two are equal and disjoint by
+			// construction -- fast owns the head, slow owns the tail.
+			$fast_only = array_values(array_diff($fast, $slow));
+			$slow_only = array_values(array_diff($slow, $fast));
 
-			// Both lanes see the same commons.
-			$this->assertSame(
-				array_slice($fast, $width),
-				array_slice($slow, $width),
-				"n=$n commons"
-			);
+			$this->assertSame([], array_intersect($fast_only, $slow_only), "n=$n dedicated overlap");
+			$this->assertSame($width, count($fast_only), "n=$n fast dedicated");
+			$this->assertSame($width, count($slow_only), "n=$n slow dedicated");
+
+			if($width) {
+				$this->assertSame(range(1, $width), $fast_only, "n=$n fast head");
+				$this->assertSame(range($n - $width + 1, $n), $slow_only, "n=$n slow tail");
+			}
+
+			// The commons is exactly what both lanes can reach -- not a third region either owns.
+			$commons = array_values(array_intersect($fast, $slow));
+
+			$this->assertSame(max(0, $n - 2 * $width), count($commons), "n=$n commons size");
+
+			if($commons)
+				$this->assertSame(range($width + 1, $n - $width), $commons, "n=$n commons");
 		}
 	}
 
