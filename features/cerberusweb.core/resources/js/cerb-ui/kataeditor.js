@@ -2408,20 +2408,6 @@ CerbUI.KataEditor._MARKER_TYPES = {
 	breakpoint: { pip: true,                        color: 'red' },
 };
 
-// Suggestion endpoints that answer with a whole finite set, so the client holds the response for the page
-// and filters it locally instead of re-asking per keystroke. An endpoint that narrows its own results (a
-// record search) must NOT be listed -- its response only describes one prefix.
-CerbUI.KataEditor._CACHED_ACTIONS = {
-	kataSuggestionsRecordFieldsJson: true,
-	kataSuggestionsRecordFieldsValueJson: true,
-	kataSuggestionsRecordTypeJson: true,
-	kataSuggestionsMetricDimensionJson: true,
-	kataSuggestionsAutomationInputsJson: true,
-};
-
-CerbUI.KataEditor._suggestionCache = new Map();   // cacheKeyFor() -> the raw response
-CerbUI.KataEditor._suggestionPending = new Map(); // cacheKeyFor() -> in-flight fetch, shared by all editors
-
 /*
  * kataFieldSource(suggestionMap, opts) — a ready-made onAutocomplete that drives the KATA editor from Cerb's
  * existing autocomplete data, a port of cerberus.js `autocompleterKata` (getCompletions + parseCompletions).
@@ -2482,50 +2468,31 @@ CerbUI.KataEditor.kataFieldSource = function(suggestionMap, opts) {
 		});
 	}
 
-	function cacheKeyFor(action, params) {
-		return action + '|' + Object.keys(params).filter(k => k !== 'prefix' && params[k] != null).sort()
-			.map(k => k + '=' + params[k]).join('&');
+	// Both post helpers end here, so a dynamic branch narrows exactly like staticList() does -- the
+	// Autocomplete controller renders whatever a source hands back, so nothing downstream would.
+	function toItems(json, prefix) {
+		return CerbUI.editorCore.filterItems(json.map(toItem), prefix, mode);
 	}
 
-	/*
-	 * Every dynamic response is filtered here, the same way staticList() filters an inline array -- the
-	 * Autocomplete controller renders whatever a source hands back, so nothing else would narrow it.
-	 *
-	 * The endpoints in _CACHED_ACTIONS answer with a whole finite set (every field on a record type, every
-	 * dimension on a metric), so one response is held for the page and filtered locally on later keystrokes.
-	 * Re-asking per keystroke is what that shape is meant to avoid. The rest are unbounded record searches,
-	 * or depend on the whole document, so they filter server-side and must stay a live request every time.
-	 * A cached set is only as fresh as the page -- a custom field added elsewhere needs a reload to appear.
-	 */
+	// A live request per keystroke, for an endpoint whose answer only describes the prefix it was given
+	// (a record search) or the whole document. It narrows server-side; the filter here is a backstop.
 	function post(action, params) {
-		const prefix = params.prefix || '';
-		const filter = json => CerbUI.editorCore.filterItems(json.map(toItem), prefix, mode);
+		return fetchJson(action, params).then(json => toItems(json, params.prefix || ''));
+	}
 
-		if(!CerbUI.KataEditor._CACHED_ACTIONS[action])
-			return fetchJson(action, params).then(filter);
+	// An endpoint that answers with a complete set -- every field on a record type, every dimension on a
+	// metric. Fetched once and filtered locally after that, so typing costs no further requests. The prefix
+	// is left off the request so it is identical for every keystroke and one fetch serves them all.
+	// A cached set is only as fresh as the page: a custom field added elsewhere needs a reload to appear.
+	function postCached(action, params) {
+		const bare = {};
+		for(const k in params) if(k !== 'prefix' && params[k] != null) bare[k] = params[k];
 
-		const key = cacheKeyFor(action, params);
-		const cache = CerbUI.KataEditor._suggestionCache;
+		const key = 'kata:' + action + '|' + Object.keys(bare).sort().map(k => k + '=' + bare[k]).join('&');
 
-		if(cache.has(key))
-			return Promise.resolve(filter(cache.get(key)));
-
-		const pending = CerbUI.KataEditor._suggestionPending;
-
-		// The prefix is deliberately not sent: the request is the same for every keystroke, and sharing one
-		// in-flight promise keeps a fast typist from opening a request per character.
-		if(!pending.has(key)) {
-			const bare = {};
-			for(const k in params) if(k !== 'prefix' && params[k] != null) bare[k] = params[k];
-
-			pending.set(key, fetchJson(action, bare).then(function(json) {
-				cache.set(key, json);
-				pending.delete(key);
-				return json;
-			}));
-		}
-
-		return pending.get(key).then(filter);
+		return CerbUI.editorCore.suggestionCache
+			.once(key, () => fetchJson(action, bare))
+			.then(json => toItems(json, params.prefix || ''));
 	}
 
 	// Read the inline value of a sibling key (the `value` in `key: value`) via the editor buffer.
@@ -2556,7 +2523,7 @@ CerbUI.KataEditor.kataFieldSource = function(suggestionMap, opts) {
 					});
 				});
 			case 'record-type':
-				return post('kataSuggestionsRecordTypeJson', { prefix: prefix });
+				return postCached('kataSuggestionsRecordTypeJson', { prefix: prefix });
 			case 'icon':
 				return post('kataSuggestionsIconJson', { prefix: prefix });
 			case 'metric-names':
@@ -2580,7 +2547,7 @@ CerbUI.KataEditor.kataFieldSource = function(suggestionMap, opts) {
 					const rp = editor.getTokenPath(); rp.pop(); rp.push('record_type:');
 					record_type = siblingValue(editor, rp) || '';
 				}
-				return post('kataSuggestionsRecordFieldsJson', { prefix: prefix, 'params[record_type]': record_type });
+				return postCached('kataSuggestionsRecordFieldsJson', { prefix: prefix, 'params[record_type]': record_type });
 			}
 			case 'record-fields-value': {
 				const rp = editor.getTokenPath();
@@ -2593,7 +2560,7 @@ CerbUI.KataEditor.kataFieldSource = function(suggestionMap, opts) {
 					record_type = siblingValue(editor, rp) || '';
 				}
 				if(record_type && field)
-					return post('kataSuggestionsRecordFieldsValueJson', {
+					return postCached('kataSuggestionsRecordFieldsValueJson', {
 						prefix: prefix,
 						'params[record_type]': record_type,
 						'params[field_name]': field.split(':')[0].split('@')[0],
@@ -2604,7 +2571,7 @@ CerbUI.KataEditor.kataFieldSource = function(suggestionMap, opts) {
 				const up = editor.getTokenPath(); up.pop(); up.push('uri:');
 				const uri = siblingValue(editor, up);
 				if(uri != null)
-					return post('kataSuggestionsAutomationInputsJson', { prefix: prefix, 'params[uri]': uri });
+					return postCached('kataSuggestionsAutomationInputsJson', { prefix: prefix, 'params[uri]': uri });
 				return Promise.resolve([]);
 			}
 			case 'automation-command-params': {
@@ -2659,7 +2626,7 @@ CerbUI.KataEditor.kataFieldSource = function(suggestionMap, opts) {
 				const kp = editor.getTokenPath(); kp.pop(); kp.push('metric_name:');
 				const metric = siblingValue(editor, kp);
 				if(metric != null)
-					return post('kataSuggestionsMetricDimensionJson', { prefix: prefix, 'params[metric]': metric });
+					return postCached('kataSuggestionsMetricDimensionJson', { prefix: prefix, 'params[metric]': metric });
 				return Promise.resolve([]);
 			}
 			case 'metric-dimensions-series': {
@@ -2669,7 +2636,7 @@ CerbUI.KataEditor.kataFieldSource = function(suggestionMap, opts) {
 					kp.push('metric:');
 					const metric = siblingValue(editor, kp);
 					if(metric != null && metric.indexOf('{{') === -1)
-						return post('kataSuggestionsMetricDimensionJson', { prefix: prefix, 'params[metric]': metric.trim() });
+						return postCached('kataSuggestionsMetricDimensionJson', { prefix: prefix, 'params[metric]': metric.trim() });
 				}
 				return Promise.resolve([]);
 			}

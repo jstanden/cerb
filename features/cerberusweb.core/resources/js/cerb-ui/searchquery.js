@@ -553,6 +553,14 @@ CerbUI.SearchQuery.queryFieldSource = function(rootContext, opts) {
 		});
 	}
 
+	// The field list for a context is a complete set, so it is fetched once per URL and shared across sources.
+	// `cache` below still owns the merge (one response populates many scope keys, plus `_contexts`); this only
+	// keeps two keystrokes racing the same lazy-load from opening two requests. Value lists resolved through
+	// resolveDynamic() are a record search and deliberately do NOT come through here.
+	function getOnce(urlargs) {
+		return CerbUI.editorCore.suggestionCache.once('searchquery:' + urlargs, () => get(urlargs));
+	}
+
 	// Resolve a dynamic {_type:'autocomplete', query, key, min_length} descriptor against c=ui&a=dataQuery.
 	function resolveDynamic(d, prefix) {
 		const minLen = d.min_length || 0;
@@ -630,7 +638,7 @@ CerbUI.SearchQuery.queryFieldSource = function(rootContext, opts) {
 		if(expand !== '' && expandContext === (cache._contexts[''] || ''))
 			return [];
 
-		return get('c=ui&a=querySuggestions&context=' + encodeURIComponent(expandContext)
+		return getOnce('c=ui&a=querySuggestions&context=' + encodeURIComponent(expandContext)
 				+ '&expand=' + encodeURIComponent(expand)).then(json => {
 			if(json && typeof json === 'object') {
 				for(const pathKey in json) {

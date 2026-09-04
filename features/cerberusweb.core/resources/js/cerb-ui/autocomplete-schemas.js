@@ -1653,14 +1653,12 @@ CerbUI.mailReplyAutocompleteSource = function(opts) {
 	var mode = ('compose' === opts.mode) ? 'compose' : 'reply';
 	var mentionFn = (window.CerbUI && CerbUI.MarkdownEditor && CerbUI.MarkdownEditor.mentionSource)
 		? CerbUI.MarkdownEditor.mentionSource() : function() { return []; };
-	var commandsCache = null;
-
 	function loadCommands() {
-		if(Array.isArray(commandsCache)) return Promise.resolve(commandsCache);
-		return new Promise(function(resolve) {
-			genericAjaxGet('', 'c=ui&a=getReplyCommandsJson&mode=' + encodeURIComponent(mode), function(json) {
-				commandsCache = Array.isArray(json) ? json : [];
-				resolve(commandsCache);
+		return CerbUI.editorCore.suggestionCache.once('mail.replyCommands:' + mode, function() {
+			return new Promise(function(resolve) {
+				genericAjaxGet('', 'c=ui&a=getReplyCommandsJson&mode=' + encodeURIComponent(mode), function(json) {
+					resolve(Array.isArray(json) ? json : []);
+				});
 			});
 		});
 	}

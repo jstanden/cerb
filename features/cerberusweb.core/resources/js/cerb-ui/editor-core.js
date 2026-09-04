@@ -472,6 +472,45 @@ CerbUI.editorCore.enhanceEditor = function(EditorClass, field, opts = {}, shellO
 };
 
 /*
+ * CerbUI.editorCore.SuggestionCache -- a keyed memo for a suggestion lookup whose answer is a COMPLETE set.
+ * Fetch it once, then filter it locally with filterItems() on every later keystroke.
+ *
+ * `once(key, loader)` runs `loader` at most once per key and hands every caller the same in-flight promise,
+ * so a fast typist opens one request instead of one per character. A rejected loader is not memoized.
+ *
+ * Only ever memoize a bounded answer. A lookup whose response describes just the prefix that was typed (any
+ * record search) must stay a live request -- cached, the first prefix's answer is served for every later one.
+ */
+CerbUI.editorCore.SuggestionCache = class {
+	constructor() {
+		this._done = new Map();
+		this._inflight = new Map();
+	}
+
+	has(key) { return this._done.has(key); }
+	get(key) { return this._done.get(key); }
+	set(key, value) { this._done.set(key, value); return value; }
+	clear() { this._done.clear(); this._inflight.clear(); }
+
+	once(key, loader) {
+		if(this._done.has(key)) return Promise.resolve(this._done.get(key));
+		if(this._inflight.has(key)) return this._inflight.get(key);
+
+		const p = Promise.resolve().then(loader).then(
+			value => { this._done.set(key, value); this._inflight.delete(key); return value; },
+			err => { this._inflight.delete(key); throw err; }
+		);
+
+		this._inflight.set(key, p);
+		return p;
+	}
+};
+
+// One store for every autocomplete source on the page, so two editors (or a source rebuilt when an automation
+// editor swaps triggers) share what has already been fetched. Keys carry their own endpoint, so they namespace.
+CerbUI.editorCore.suggestionCache = new CerbUI.editorCore.SuggestionCache();
+
+/*
  * CerbUI.editorCore.Autocomplete — the caret-anchored suggestion-menu controller shared by both editors.
  *
  * It owns the debounce timer, a monotonic request token (so a slow source can't clobber a newer request), the
