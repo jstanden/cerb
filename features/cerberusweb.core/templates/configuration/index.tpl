@@ -26,6 +26,27 @@
 		</li>
 		<li>
 			<div>
+				<a class="menu"><span class="cerb-icons cerb-icon-bot"></span> AI <span class="cerb-icons cerb-icon-chevron-down"></span></a>
+				<ul hidden>
+					<li><a href="{devblocks_url}c=config&a=ai&w=agents{/devblocks_url}">Agents</a></li>
+					<li><a href="{devblocks_url}c=config&a=ai&w=models{/devblocks_url}">Models</a></li>
+					<li><a href="{devblocks_url}c=config&a=ai&w=files{/devblocks_url}">Files</a></li>
+					<li><a href="{devblocks_url}c=config&a=ai&w=filesystems{/devblocks_url}">Filesystems</a></li>
+					<li><a href="{devblocks_url}c=config&a=ai&w=tools{/devblocks_url}">Tools</a></li>
+					<li><a href="{devblocks_url}c=config&a=ai&w=surfaces{/devblocks_url}">Surfaces</a></li>
+
+					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.ai')}
+					{if !empty($exts)}
+						<li><hr></li>
+					{/if}
+					{foreach from=$exts item=menu_item}
+						{if method_exists($menu_item,'render')}<li>{$menu_item->render()}</li>{/if}
+					{/foreach}
+				</ul>
+			</div>
+		</li>
+		<li>
+			<div>
 				<a class="menu"><span class="cerb-icons cerb-icon-shield"></span> {'common.security'|devblocks_translate|capitalize} <span class="cerb-icons cerb-icon-chevron-down"></span></a>
 				<ul hidden>
 					<li><a href="{devblocks_url}c=config&a=security{/devblocks_url}">{'common.configure'|devblocks_translate|capitalize}</a></li>

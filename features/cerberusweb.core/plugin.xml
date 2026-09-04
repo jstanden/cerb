@@ -6341,6 +6341,19 @@
 			</extension>
 
 			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.setup.ai</id>
+				<name>AI Section</name>
+				<class>
+					<file>api/uri/config/ai.php</file>
+					<name>PageSection_SetupAi</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.configuration" />
+					<param key="uri" value="ai" />
+				</params>
+			</extension>
+
+			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.setup.queues</id>
 				<name>Queues Section</name>
 				<class>
