@@ -987,14 +987,6 @@ class AgentPromptAwait extends AbstractAwait {
 	}
 
 	/*
-	 * Subsequence match — the query's characters appear in the candidate in order, not necessarily contiguous,
-	 * so `mountpatexa` matches `mount/path/example.md`. Case-insensitive; an empty query matches everything.
-	 *
-	 * This is a deliberate port of `CerbUI.editorCore.match(text, query, 'subsequence')`
-	 * (`resources/js/cerb-ui/editor-core.js`) so the KATA editor's suggestion menus and the agentPrompt's `@`
-	 * completion behave identically. Keep the two in step — if one gains scoring, the other should too.
-	 */
-	/*
 	 * Relevance for one `@` reference candidate. Subsequence matching is intentionally loose — it has to be, for
 	 * `mountpatexa` to find `mount/path/example.md` — but that looseness also lets `pricing` match
 	 * `plugins/cerberusweb.timetracking.md` by scattering across it. Without a score those coincidences sort
@@ -1155,22 +1147,13 @@ class AgentPromptAwait extends AbstractAwait {
 
 		return substr($ref, $at + 1);
 	}
-
+	
+	/*
+	 * Subsequence match — the query's characters appear in the candidate in order, not necessarily contiguous,
+	 * so `mountpatexa` matches `mount/path/example.md`. Case-insensitive; an empty query matches everything.
+	 */
 	private static function _matchSubsequence(string $text, string $query) : bool {
-		if('' === $query)
-			return true;
-
-		$text = DevblocksPlatform::strLower($text);
-		$query = DevblocksPlatform::strLower($query);
-
-		$qi = 0;
-		$qlen = strlen($query);
-
-		for($ti = 0, $tlen = strlen($text); $ti < $tlen && $qi < $qlen; $ti++)
-			if($text[$ti] === $query[$qi])
-				$qi++;
-
-		return $qi === $qlen;
+		return DevblocksPlatform::strMatchSubsequence($text, $query);
 	}
 
 	// ── Server actions ──────────────────────────────────────────────────

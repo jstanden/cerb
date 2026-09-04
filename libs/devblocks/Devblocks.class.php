@@ -1212,6 +1212,32 @@ class DevblocksPlatform extends DevblocksEngine {
 		return mb_convert_case($string, MB_CASE_LOWER);
 	}
 	
+	/*
+	 * Subsequence match -- the query's characters appear in $text in order, not necessarily contiguous, so
+	 * `linadd` matches `links.address`. Case-insensitive; an empty query matches everything.
+	 *
+	 * A port of `CerbUI.editorCore.match(text, query, 'subsequence')` (`resources/js/cerb-ui/editor-core.js`),
+	 * used by suggestion endpoints so the server narrows a list exactly as the editor menu does. A stricter
+	 * server-side predicate (e.g. a substring test) drops candidates the client would have matched.
+	 */
+	static function strMatchSubsequence($text, $query) : bool {
+		$query = self::strLower($query);
+		
+		if('' === $query)
+			return true;
+		
+		$text = self::strLower($text);
+		
+		$qi = 0;
+		$qlen = strlen($query);
+		
+		for($ti = 0, $tlen = strlen($text); $ti < $tlen && $qi < $qlen; $ti++)
+			if($text[$ti] === $query[$qi])
+				$qi++;
+		
+		return $qi === $qlen;
+	}
+	
 	static function strStartsWith($string, $prefixes, $case_sensitive=true) {
 		if(!is_string($string))
 			$string = strval($string);

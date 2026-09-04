@@ -500,7 +500,6 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 				$field_snippet_count = 1;
 				
 				foreach($fields_meta as $field_key => $field_meta) {
-					$field_caption = $field_key . ':';
 					$field_snippet = $field_key;
 					
 					if($field_meta['is_immutable'] ?? null)
@@ -519,13 +518,6 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 					if($field_is_required)
 						$record_suggestions['snippet'] .= '    ' . $field_snippet . "\${" . ++$field_snippet_count . ":}\n";
 					
-					$autocomplete_suggestions[$key][] = [
-						'caption' => $field_caption . (($field_meta['is_required'] ?? null) ? '*' : ''),
-						'snippet' => $field_snippet,
-						'description' => ($field_meta['notes'] ?? ''),
-						'score' => $field_is_required ? 2000 : 1000,
-					];
-				
 					$suggest_key = 'records:' . $record_type->manifest->params['alias'] . ':fields:' . $field_key . ':';
 					$field_type = $field_meta['type'] ?? null;
 					

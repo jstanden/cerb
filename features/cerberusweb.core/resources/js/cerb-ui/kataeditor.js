@@ -2408,6 +2408,20 @@ CerbUI.KataEditor._MARKER_TYPES = {
 	breakpoint: { pip: true,                        color: 'red' },
 };
 
+// Suggestion endpoints that answer with a whole finite set, so the client holds the response for the page
+// and filters it locally instead of re-asking per keystroke. An endpoint that narrows its own results (a
+// record search) must NOT be listed -- its response only describes one prefix.
+CerbUI.KataEditor._CACHED_ACTIONS = {
+	kataSuggestionsRecordFieldsJson: true,
+	kataSuggestionsRecordFieldsValueJson: true,
+	kataSuggestionsRecordTypeJson: true,
+	kataSuggestionsMetricDimensionJson: true,
+	kataSuggestionsAutomationInputsJson: true,
+};
+
+CerbUI.KataEditor._suggestionCache = new Map();   // cacheKeyFor() -> the raw response
+CerbUI.KataEditor._suggestionPending = new Map(); // cacheKeyFor() -> in-flight fetch, shared by all editors
+
 /*
  * kataFieldSource(suggestionMap, opts) — a ready-made onAutocomplete that drives the KATA editor from Cerb's
  * existing autocomplete data, a port of cerberus.js `autocompleterKata` (getCompletions + parseCompletions).
@@ -2458,14 +2472,60 @@ CerbUI.KataEditor.kataFieldSource = function(suggestionMap, opts) {
 		return CerbUI.editorCore.filterItems(arr.map(toItem), prefix, mode);
 	}
 
-	function post(action, params) {
+	function fetchJson(action, params) {
 		return new Promise(function(resolve) {
 			const fd = new FormData();
 			fd.set('c', 'ui');
 			fd.set('a', action);
 			for(const k in params) if(params[k] != null) fd.set(k, params[k]);
-			genericAjaxPost(fd, '', '', function(json) { resolve(Array.isArray(json) ? json.map(toItem) : []); });
+			genericAjaxPost(fd, '', '', function(json) { resolve(Array.isArray(json) ? json : []); });
 		});
+	}
+
+	function cacheKeyFor(action, params) {
+		return action + '|' + Object.keys(params).filter(k => k !== 'prefix' && params[k] != null).sort()
+			.map(k => k + '=' + params[k]).join('&');
+	}
+
+	/*
+	 * Every dynamic response is filtered here, the same way staticList() filters an inline array -- the
+	 * Autocomplete controller renders whatever a source hands back, so nothing else would narrow it.
+	 *
+	 * The endpoints in _CACHED_ACTIONS answer with a whole finite set (every field on a record type, every
+	 * dimension on a metric), so one response is held for the page and filtered locally on later keystrokes.
+	 * Re-asking per keystroke is what that shape is meant to avoid. The rest are unbounded record searches,
+	 * or depend on the whole document, so they filter server-side and must stay a live request every time.
+	 * A cached set is only as fresh as the page -- a custom field added elsewhere needs a reload to appear.
+	 */
+	function post(action, params) {
+		const prefix = params.prefix || '';
+		const filter = json => CerbUI.editorCore.filterItems(json.map(toItem), prefix, mode);
+
+		if(!CerbUI.KataEditor._CACHED_ACTIONS[action])
+			return fetchJson(action, params).then(filter);
+
+		const key = cacheKeyFor(action, params);
+		const cache = CerbUI.KataEditor._suggestionCache;
+
+		if(cache.has(key))
+			return Promise.resolve(filter(cache.get(key)));
+
+		const pending = CerbUI.KataEditor._suggestionPending;
+
+		// The prefix is deliberately not sent: the request is the same for every keystroke, and sharing one
+		// in-flight promise keeps a fast typist from opening a request per character.
+		if(!pending.has(key)) {
+			const bare = {};
+			for(const k in params) if(k !== 'prefix' && params[k] != null) bare[k] = params[k];
+
+			pending.set(key, fetchJson(action, bare).then(function(json) {
+				cache.set(key, json);
+				pending.delete(key);
+				return json;
+			}));
+		}
+
+		return pending.get(key).then(filter);
 	}
 
 	// Read the inline value of a sibling key (the `value` in `key: value`) via the editor buffer.

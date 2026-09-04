@@ -310,7 +310,7 @@ class Controller_UI extends DevblocksControllerExtension {
 		$suggestions = [];
 
 		// Offer the current-record placeholder (resolves to the metric's name on a metric card)
-		if($prefix === '' || false !== stripos('{{record_name}}', $prefix)) {
+		if(DevblocksPlatform::strMatchSubsequence('{{record_name}}', $prefix)) {
 			$suggestions[] = [
 				'caption' => '{{record_name}}',
 				'snippet' => '{{record_name}}',
@@ -319,7 +319,7 @@ class Controller_UI extends DevblocksControllerExtension {
 		}
 
 		foreach(DAO_Metric::getAll() as $metric) { /* @var $metric Model_Metric */
-			if($prefix !== '' && false === stripos($metric->name, $prefix))
+			if(!DevblocksPlatform::strMatchSubsequence($metric->name, $prefix))
 				continue;
 
 			$doc = $metric->type . ($metric->description ? (' — ' . $metric->description) : '');
