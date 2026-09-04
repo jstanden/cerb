@@ -1,8 +1,5 @@
 {$view_context = 'cerb.contexts.agent.tool'}
 {$view_fields = $view->getColumnsAvailable()}
-{$results = $view->getData()}
-{$total = $results[1]}
-{$data = $results[0]}
 
 {include file="devblocks:cerberusweb.core::internal/views/view_marquee.tpl" view=$view}
 
@@ -87,7 +84,17 @@
 			{elseif $column == "a_status"}
 				<td data-column="{$column}">{$statuses[$result.a_status]|default:''|capitalize}</td>
 			{elseif $column == "a_uri"}
-				<td data-column="{$column}">{if $result.a_uri}<code>{$result.a_uri|replace:'cerb:automation:':''}</code>{/if}</td>
+				<td data-column="{$column}">
+					{if $result.a_uri}
+						{$uri_name = $result.a_uri|replace:'cerb:automation:':''}
+						{$uri_automation = $automations_by_name[$uri_name]|default:null}
+						{if $uri_automation}
+							<a class="cerb-peek-trigger cerb-u-underline-hover" data-context="{CerberusContexts::CONTEXT_AUTOMATION}" data-context-id="{$uri_automation->id}">{$uri_name}</a>
+						{else}
+							{$uri_name}
+						{/if}
+					{/if}
+				</td>
 			{elseif in_array($column, ["a_created_at", "a_updated_at"])}
 				<td>
 					{if !empty($result.$column)}

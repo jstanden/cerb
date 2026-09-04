@@ -871,6 +871,24 @@ class View_AgentTool extends C4_AbstractView implements IAbstractView_Subtotals,
 		// The status cell reads a word, not the stored integer.
 		$tpl->assign('statuses', Model_AgentTool::getStatuses());
 
+		list($data, $total) = $this->getData();
+
+		// The URI cell links to the automation it names, so resolve the page's URIs up front rather than
+		// once per row from the template.
+		if(in_array(SearchFields_AgentTool::URI, $this->view_columns)) {
+			$uris = array_filter(array_unique(array_column($data ?? [], SearchFields_AgentTool::URI)));
+			$automations_by_name = [];
+
+			foreach(DAO_Automation::getByUris($uris) as $automation) {
+				$automations_by_name[$automation->name] = $automation;
+			}
+
+			$tpl->assign('automations_by_name', $automations_by_name);
+		}
+
+		$tpl->assign('data', $data);
+		$tpl->assign('total', $total);
+
 		$tpl->assign('view_template', 'devblocks:cerberusweb.core::records/types/agent_tool/view.tpl');
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
