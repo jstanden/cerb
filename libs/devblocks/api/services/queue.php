@@ -134,8 +134,7 @@ class _DevblocksQueueService {
 		shuffle($slots);
 		
 		foreach($slots as $slot) {
-			$slot_name = sprintf("queue_slot_%d", $slot);
-			if($db->GetOneMaster(sprintf("SELECT GET_LOCK(%s, 0)", $db->qstr($slot_name))))
+			if($db->getLock(self::_concurrencySlotLockName($slot)))
 				return $slot;
 		}
 
@@ -149,7 +148,12 @@ class _DevblocksQueueService {
 	 */
 	public function releaseConcurrencySlot(int $slot) : void {
 		$db = DevblocksPlatform::services()->database();
-		$db->ExecuteMaster(sprintf("DO RELEASE_LOCK(%s)", $db->qstr(sprintf("queue_slot_%d", $slot))));
+		$db->releaseLock(self::_concurrencySlotLockName($slot));
+	}
+	
+	// Logical, not server-wide: the database service prefixes it per schema. See getLockName().
+	private static function _concurrencySlotLockName(int $slot) : string {
+		return sprintf('slot:%d', $slot);
 	}
 	
 	/**
@@ -192,9 +196,7 @@ class _DevblocksQueueService {
 
 		$db = DevblocksPlatform::services()->database();
 
-		$acquired = boolval($db->GetOneMaster(sprintf("SELECT GET_LOCK(%s, 0)",
-			$db->qstr($this->_sessionTurnLockName($session_id))
-		)));
+		$acquired = $db->getLock($this->_sessionTurnLockName($session_id));
 
 		if($acquired)
 			$this->_session_turn_locks[$session_id] = true;
@@ -212,15 +214,13 @@ class _DevblocksQueueService {
 
 		$db = DevblocksPlatform::services()->database();
 
-		$db->ExecuteMaster(sprintf("DO RELEASE_LOCK(%s)",
-			$db->qstr($this->_sessionTurnLockName($session_id))
-		));
+		$db->releaseLock($this->_sessionTurnLockName($session_id));
 	}
 
 	// NOT the planned `llm_turn_1..N` meter: this is keyed by session IDENTITY, that is an index into a
 	// counted pool. Do not merge the two namespaces.
 	private function _sessionTurnLockName(string $session_id) : string {
-		return 'llm_session_turn_' . sha1($session_id);
+		return 'llm_session_turn:' . sha1($session_id);
 	}
 
 	// 529, not 503. `llm.php` already reads 429/529 as "overloaded, never took the request" and
@@ -259,24 +259,15 @@ class _DevblocksQueueService {
 		if(($max_slots = self::getMaxConcurrencySlots()) < 1)
 			return ['used' => 0, 'total' => 0];
 		
-		$terms = [];
-		
-		// IF(... IS NULL, 0, 1) rather than the shorter `IS NOT NULL`: summing the latter is a SYNTAX
-		// ERROR (`a IS NOT NULL + b IS NOT NULL` doesn't parse), and it fails SILENTLY here -- the query
-		// returns false, intval() makes it 0, and the pool reads as permanently idle so a throttle
-		// notice never fires. It only parses at all for a 1-slot pool, which is why it looked fine.
-		foreach(range(1, $max_slots) as $slot)
-			$terms[] = sprintf("IF(IS_USED_LOCK(%s) IS NULL, 0, 1)", $db->qstr(sprintf("queue_slot_%d", $slot)));
-		
-		$used = $db->GetOneMaster('SELECT ' . implode(' + ', $terms));
+		$names = array_map(self::_concurrencySlotLockName(...), range(1, $max_slots));
 		
 		// Don't let a failed read masquerade as an idle pool -- report "unknown" so callers can stay quiet
 		// instead of asserting 0 of N busy.
-		if(false === $used || is_null($used))
+		if(is_null($used = $db->getLocksUsed($names)))
 			return ['used' => 0, 'total' => 0];
 		
 		return [
-			'used' => intval($used),
+			'used' => count(array_filter($used)),
 			'total' => $max_slots,
 		];
 	}
@@ -696,9 +687,9 @@ class _DevblocksQueueService {
 		$queues = DAO_Queue::getAll();
 
 		foreach($jobs as $job) {
-			$lock_name = sprintf('cerb_queue_job_complete:%d', $job->id);
+			$lock_name = sprintf('queue_job_complete:%d', $job->id);
 
-			if(!$db->GetOneMaster(sprintf("SELECT GET_LOCK(%s, 0)", $db->qstr($lock_name))))
+			if(!$db->getLock($lock_name))
 				continue;
 
 			try {
@@ -745,7 +736,7 @@ class _DevblocksQueueService {
 				DevblocksPlatform::logException($e);
 
 			} finally {
-				$db->ExecuteWriter(sprintf("DO RELEASE_LOCK(%s)", $db->qstr($lock_name)));
+				$db->releaseLock($lock_name);
 			}
 		}
 	}

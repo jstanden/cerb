@@ -632,6 +632,110 @@ class _DevblocksDatabaseManager {
 		return $results;
 	}
 	
+	/**
+	 * MySQL user-level locks are SERVER-WIDE, not per-schema: GET_LOCK('x') from two databases on one
+	 * server is the SAME lock. Cerb Cloud runs multi-tenant masters, so an unprefixed name silently
+	 * gives every tenant on a master ONE shared pool -- a capacity floor with no symptom on any page,
+	 * which is the same undiagnosable shape as the isLicensed() bug.
+	 *
+	 * Every lock therefore goes through getLockName(). Callers name a logical lock ('slot:5'); only
+	 * this layer knows a tenant exists.
+	 *
+	 * The schema is HASHED rather than used raw so the prefix costs a fixed 9 bytes against the 64
+	 * character limit no matter how long a tenant database name is. 32 bits over the ~30 schemas a
+	 * master carries makes collision negligible, and it stays recoverable by hand:
+	 * substr(hash('sha256', '<schema>'), 0, 8).
+	 */
+	const int LOCK_NAME_MAX_LEN = 64;
+	
+	private ?string $_lock_prefix = null;
+	
+	static function getLockPrefixFor(string $schema) : string {
+		return substr(hash('sha256', $schema), 0, 8) . ':';
+	}
+	
+	/**
+	 * MySQL 8 REJECTS an over-long lock name outright (ER_USER_LOCK_WRONG_NAME) rather than truncating
+	 * it, and a mangled lock name is the exact failure the prefix exists to prevent -- so fold the
+	 * logical half deterministically instead of trimming it.
+	 *
+	 * Pure and static so the naming can be pinned by tests: the CI runner has no database, and
+	 * getInstance() returns null there, so anything reachable only through the instance is untestable.
+	 */
+	static function composeLockName(string $prefix, string $name) : string {
+		if(strlen($prefix) + strlen($name) > self::LOCK_NAME_MAX_LEN)
+			$name = sha1($name);
+		
+		return $prefix . $name;
+	}
+	
+	private function _getLockPrefix() : string {
+		return $this->_lock_prefix ??= self::getLockPrefixFor(APP_DB_DATABASE);
+	}
+	
+	function getLockName(string $name) : string {
+		return self::composeLockName($this->_getLockPrefix(), $name);
+	}
+	
+	/**
+	 * Take a named advisory lock. `$timeout` of 0 means fail immediately rather than wait.
+	 *
+	 * Master-only, and that is not a routing preference: GET_LOCK state lives ON the connection that
+	 * took it, so an acquire and its release have to run on the same one.
+	 */
+	function getLock(string $name, int $timeout=0) : bool {
+		return boolval($this->GetOneMaster(sprintf("SELECT GET_LOCK(%s, %d)",
+			$this->qstr($this->getLockName($name)),
+			max(0, $timeout)
+		)));
+	}
+	
+	function releaseLock(string $name) : void {
+		$this->ExecuteMaster(sprintf("DO RELEASE_LOCK(%s)", $this->qstr($this->getLockName($name))));
+	}
+	
+	/**
+	 * Which of `$names` are held right now, as name => bool, in ONE round trip.
+	 *
+	 * Null means the READ failed. Callers must not fold that into "nothing is held" -- an idle-looking
+	 * pool is precisely the reading that suppresses a throttle notice.
+	 *
+	 * @param string[] $names
+	 * @return array<string,bool>|null
+	 */
+	function getLocksUsed(array $names) : ?array {
+		if(!$names)
+			return [];
+		
+		$terms = [];
+		$keys = [];
+		
+		foreach(array_values($names) as $idx => $name) {
+			$key = sprintf('l%d', $idx);
+			$keys[$key] = $name;
+			
+			// IS_USED_LOCK returns the holding connection id, or NULL when free. IF(... IS NULL, 0, 1)
+			// rather than `IS NOT NULL`, which cannot be combined in an expression without a syntax
+			// error that fails silently here.
+			$terms[] = sprintf("IF(IS_USED_LOCK(%s) IS NULL, 0, 1) AS %s",
+				$this->qstr($this->getLockName($name)),
+				$key
+			);
+		}
+		
+		$row = $this->GetRowMaster('SELECT ' . implode(', ', $terms));
+		
+		if(!is_array($row))
+			return null;
+		
+		$used = [];
+		
+		foreach($keys as $key => $name)
+			$used[$name] = boolval($row[$key] ?? false);
+		
+		return $used;
+	}
+	
 	function qstr($string) {
 		if(!is_string($string))
 			$string = strval($string);

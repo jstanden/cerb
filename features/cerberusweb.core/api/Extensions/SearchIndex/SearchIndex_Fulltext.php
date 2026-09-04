@@ -899,33 +899,38 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		$db = DevblocksPlatform::services()->database();
 		
 		$table_name = sprintf('search_index_%d', $model->id);
-		$lock_name = sprintf('create:%s', $table_name);
+		$lock_name = sprintf('search_index:create:%d', $model->id);
 		
-		if(!($db->GetOneMaster(sprintf("SELECT GET_LOCK(%s, 10)", $db->qstr($lock_name)))))
+		if(!$db->getLock($lock_name, 10))
 			return false;
 		
-		$sql = sprintf(
-			<<< EOD
-			CREATE TABLE IF NOT EXISTS %s (
-				token_hash BIGINT NOT NULL DEFAULT 0,
-				record_id INT UNSIGNED NOT NULL DEFAULT 0,
-			    token_tf FLOAT UNSIGNED NOT NULL DEFAULT 0,
-			    PRIMARY KEY (token_hash, record_id),
-			    INDEX (record_id)
-			) ENGINE=%s
-			EOD,
-			$db->escape($table_name),
-			$db->escape(APP_DB_ENGINE),
-		);
-		
-		if(!$db->ExecuteMaster($sql))
-			return false;
-		
-		$db->ExecuteMaster(sprintf("SELECT RELEASE_LOCK(%s)", $db->qstr($lock_name)));
-		
-		DevblocksPlatform::clearCache(DevblocksEngine::CACHE_TABLES);
-		
-		return true;
+		// The CREATE's early return used to skip the release, holding the lock until the connection
+		// closed -- which in a long-lived drain blocks every later attempt in the same process.
+		try {
+			$sql = sprintf(
+				<<< EOD
+				CREATE TABLE IF NOT EXISTS %s (
+					token_hash BIGINT NOT NULL DEFAULT 0,
+					record_id INT UNSIGNED NOT NULL DEFAULT 0,
+					token_tf FLOAT UNSIGNED NOT NULL DEFAULT 0,
+					PRIMARY KEY (token_hash, record_id),
+					INDEX (record_id)
+				) ENGINE=%s
+				EOD,
+				$db->escape($table_name),
+				$db->escape(APP_DB_ENGINE),
+			);
+			
+			if(!$db->ExecuteMaster($sql))
+				return false;
+			
+			DevblocksPlatform::clearCache(DevblocksEngine::CACHE_TABLES);
+			
+			return true;
+			
+		} finally {
+			$db->releaseLock($lock_name);
+		}
 	}
 	
 	private function _searchTableExists(Model_SearchIndex $model) : bool {
@@ -1025,8 +1030,8 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		// Single-writer on the dictionary: this makes the duplicate-key deadlock
 		// structurally impossible. If the lock can't be acquired in time, we still
 		// proceed — the retry below covers it — rather than dropping data.
-		$lock_name = 'search:index:tokens';
-		$have_lock = (bool) $db->GetOneMaster(sprintf("SELECT GET_LOCK(%s, 10)", $db->qstr($lock_name)));
+		$lock_name = 'search_index:tokens';
+		$have_lock = $db->getLock($lock_name, 10);
 
 		$ok = true;
 
@@ -1049,7 +1054,7 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 
 		} finally {
 			if($have_lock)
-				$db->ExecuteMaster(sprintf("SELECT RELEASE_LOCK(%s)", $db->qstr($lock_name)));
+				$db->releaseLock($lock_name);
 		}
 
 		$tuples_by_hash = [];
@@ -1353,15 +1358,15 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		// `last_indexed_at`/`_id` is one shared position, so two concurrent walkers each advance it past
 		// records the other indexed -- those records are then never indexed by either. Skipping is safe:
 		// whatever this pass misses, the next one starts from the same place and picks up.
-		$lock_name = sprintf('cerb_search_index_%d', $model->id);
+		$lock_name = sprintf('search_index:walk:%d', $model->id);
 		
-		if(!$db->GetOneMaster(sprintf("SELECT GET_LOCK(%s, 0)", $db->qstr($lock_name))))
+		if(!$db->getLock($lock_name))
 			return [];
 		
 		try {
 			return $this->_indexDocumentsByModel($model, $limit);
 		} finally {
-			$db->ExecuteMaster(sprintf("DO RELEASE_LOCK(%s)", $db->qstr($lock_name)));
+			$db->releaseLock($lock_name);
 		}
 	}
 	
