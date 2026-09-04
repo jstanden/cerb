@@ -225,7 +225,7 @@
 			{if isset($members[$worker_id])}
 				{if $members[$worker_id]->is_manager}{$role = 2}{else}{$role = 1}{/if}
 			{/if}
-			{$row = ['id' => $worker->id, 'name' => $worker->getName(), 'role' => $role]}
+			{$row = ['id' => $worker->id, 'name' => $worker->getName(), 'role' => $role, 'image' => $worker->getImageUrl(), 'is_ai' => $worker->is_ai]}
 			{$worker_roster[] = $row}
 		{/foreach}
 
@@ -355,6 +355,7 @@
 }
 .cerb-group-row--avatar { display: inline-flex; flex: 0 0 auto; }
 .cerb-group-row--name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cerb-group-row--ai { flex: 0 0 auto; }
 .cerb-group-switcher { flex: 0 0 auto; }
 .cerb-group-switcher button { padding: 0.25em 0.5em; min-height: 0; }
 {/literal}
@@ -491,7 +492,7 @@ $(function() {
 				let avatarHost = document.createElement('span');
 				avatarHost.className = 'cerb-group-row--avatar cerb-u-ml-2' + (role === '0' ? ' cerb-u-opacity-25' : '');
 				if(window.CerbUI && CerbUI.Avatar)
-					avatarHost.appendChild(CerbUI.Avatar.create({ label: w.name || '?', seed: 'worker:' + w.id, imageUrl: '', size: 22 }));
+					avatarHost.appendChild(CerbUI.Avatar.create({ label: w.name || '?', seed: 'worker:' + w.id, imageUrl: w.image || '', size: 22 }));
 				row.appendChild(avatarHost);
 
 				let name = document.createElement('a');
@@ -500,6 +501,13 @@ $(function() {
 				name.setAttribute('data-context-id', w.id);
 				name.textContent = w.name || ('#' + w.id);
 				row.appendChild(name);
+
+				if(w.is_ai) {
+					let ai = document.createElement('span');
+					ai.className = 'cerb-ui-pill cerb-u-px-1 cerb-group-row--ai' + (role === '0' ? ' cerb-u-opacity-25' : '');
+					ai.innerHTML = '<span class="cerb-icons cerb-icon-bot cerb-u-text-muted"></span>';
+					row.appendChild(ai);
+				}
 
 				return row;
 			};
@@ -519,7 +527,7 @@ $(function() {
 					b.classList.toggle('cerb-ui-switcher--active', b.getAttribute('data-value') === val);
 				});
 				let dim = (val === '0');
-				['.cerb-group-row--avatar', '.cerb-group-row--name'].forEach(function(sel) {
+				['.cerb-group-row--avatar', '.cerb-group-row--name', '.cerb-group-row--ai'].forEach(function(sel) {
 					let el = row.querySelector(sel);
 					if(el) el.classList.toggle('cerb-u-opacity-25', dim);
 				});
