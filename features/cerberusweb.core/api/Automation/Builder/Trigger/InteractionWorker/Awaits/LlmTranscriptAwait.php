@@ -727,7 +727,7 @@ class LlmTranscriptAwait extends AbstractAwait {
 	const int POLL_MS_TOOL_MAX   = 8_000;
 	const int POLL_MS_QUEUED     = 5_000;   // enqueued, unclaimed: waiting on a concurrency slot
 	const int POLL_MS_QUEUED_MAX = 15_000;
-	const int POLL_MS_IDLE       = 5_000;   // nothing can change mid-turn, or nothing is running
+	const int POLL_MS_IDLE       = 5_000;   // nothing is running; also the base for a non-streaming turn
 
 	/**
 	 * Back off as a turn runs long, on the tiers that can afford it. Same shape as the gate's ramp, and
@@ -767,9 +767,16 @@ class LlmTranscriptAwait extends AbstractAwait {
 		if($state['streaming'] ?? false)
 			return self::POLL_MS_STREAMING;
 
-		// The provider cannot stream, so this transcript cannot change until the whole turn lands.
+		// The provider cannot stream, so nothing appears WITHIN a step -- but a multi-step turn still moves
+		// this transcript at each step boundary, because appendMessage() advances the session head for
+		// every message, streamed or not. So the watcher still has a job here; it just has less to do.
+		//
+		// That makes it the same situation as a running tool -- waiting for a discrete step to land -- so
+		// it shares that tier's ceiling rather than declaring a second one that would drift from it. The
+		// ceiling IS the worst-case reveal latency for a tool step, which on a provider like this is the
+		// only sign of life a reader gets.
 		if(!($state['can_stream'] ?? false))
-			return self::POLL_MS_IDLE;
+			return $this->_pollRamp(self::POLL_MS_IDLE, self::POLL_MS_TOOL_MAX, $elapsed_secs);
 
 		// Enqueued but unclaimed: no worker holds this turn, so nothing can change until one does. A wait
 		// behind a full pool is exactly where a fast poll buys the least.
