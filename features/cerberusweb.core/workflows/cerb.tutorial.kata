@@ -1,6 +1,6 @@
 workflow:
   name: cerb.tutorial
-  version: 2026-08-24T00:00:00Z
+  version: 2026-09-03T00:00:00Z
   description: A workspace with detailed descriptions and examples of Cerb functionality
   requirements:
     cerb_version: >=12.0 <12.1
@@ -9665,14 +9665,3 @@ records:
                       style: secondary
           return:
             alert: You finished the interactions demo!
-  toolbar_section/toolbar_global_menu_tutorial:
-    fields:
-      name: Tutorial
-      toolbar_name: global.menu
-      priority@int: 255
-      is_disabled: 0
-      toolbar_kata@raw:
-        interaction/interactionsDemo:
-          label: Interactions Demo
-          uri: cerb:automation:cerb.tutorial.interactions.worker.demo
-          icon: conversation
