@@ -25,6 +25,8 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 	const READER_QUERY_WORKER = 'reader_query_worker';
 	const UPDATED_AT = 'updated_at';
 	
+	const _IMAGE = '_image';
+	
 	const _CACHE_ROLES_ALL = 'ch_roles_all';
 	const _CACHE_WORKER_PRIVS_PREFIX = 'ch_privs_worker_';
 	const _CACHE_WORKER_ROLES_PREFIX = 'ch_roles_worker_';
@@ -73,6 +75,11 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 		$validation
 			->addField(self::UPDATED_AT)
 			->timestamp()
+			;
+		// base64 blob png
+		$validation
+			->addField(self::_IMAGE)
+			->image('image/png', 50, 50, 500, 500, 1000000)
 			;
 		$validation
 			->addField('_fieldsets')
@@ -1142,6 +1149,7 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 	}
 	
 	function autocomplete($term, $query=null) {
+		$url_writer = DevblocksPlatform::services()->url();
 		$list = [];
 
 		$results = DAO_WorkerRole::autocomplete($term);
@@ -1151,6 +1159,7 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 				$entry = new stdClass();
 				$entry->label = $model->name;
 				$entry->value = sprintf("%d", $id);
+				$entry->icon = $url_writer->write('c=avatars&type=role&id=' . $id, true) . '?v=' . $model->updated_at;
 				$list[] = $entry;
 			}
 
@@ -1224,8 +1233,11 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 		
 		// Worker token values
 		if(null != $role) {
+			$url_writer = DevblocksPlatform::services()->url();
+			
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $role->name;
+			$token_values['_image_url'] = $url_writer->writeNoProxy(sprintf('c=avatars&ctx=%s&id=%d', 'role', $role->id), true) . '?v=' . $role->updated_at;
 			$token_values['id'] = $role->id;
 			$token_values['name'] = $role->name;
 			$token_values['member_query_worker'] = $role->member_query_worker;
@@ -1238,7 +1250,6 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 			$token_values = $this->_importModelCustomFieldsAsValues($role, $token_values);
 			
 			// URL
-			$url_writer = DevblocksPlatform::services()->url();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=role&id=%d-%s",$role->id, DevblocksPlatform::strToPermalink($role->name)), true);
 		}
 		
@@ -1248,6 +1259,7 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 	function getKeyToDaoFieldMap() {
 		return [
 			'id' => DAO_WorkerRole::ID,
+			'image' => '_image',
 			'links' => '_links',
 			'name' => DAO_WorkerRole::NAME,
 			'privs_mode' => DAO_WorkerRole::PRIVS_MODE,
@@ -1264,6 +1276,9 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
+			case 'image':
+				$out_fields[DAO_WorkerRole::_IMAGE] = $value;
+				break;
 		}
 		
 		return true;
