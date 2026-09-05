@@ -18,6 +18,23 @@ class _DevblocksHttpService {
 	private static $_multi_client = null;
 	private static $_multi_handler = null;
 	
+	/**
+	 * The connect budget for a request running on the MULTIPLEXED transport, where the 10s default in
+	 * _configure_defaults() measures the wrong thing.
+	 *
+	 * curl enforces CURLOPT_CONNECTTIMEOUT_MS in wall clock, but a handle on CurlMultiHandler only makes
+	 * progress while the driver ticks, and every in-flight task's sink writes run serialized on that same
+	 * stack. So a connect competes with the decode work of every turn beside it, and the budget stops
+	 * measuring "can this host be reached" and starts measuring "how busy is the driver" -- which is how a
+	 * healthy provider gets reported as a connect timeout while five siblings stream normally.
+	 *
+	 * Still a guardrail, not a surrender: an unroutable host fails here in half a minute rather than
+	 * sitting on a fiber for the turn's full ceiling. Deliberately flat rather than derived from the
+	 * concurrency cap -- that number lives behind a license check in llm.php, and importing it here would
+	 * couple the transport to the caller for a figure that is a judgment either way.
+	 */
+	const int MULTIPLEX_CONNECT_TIMEOUT_SECS = 30;
+	
 	private function __construct() {}
 	
 	static function getInstance() {
@@ -256,8 +273,17 @@ class _DevblocksHttpService {
 			// park, so either way the blocking client below is the only correct choice. Every caller of
 			// sendStreamingRequest()/sendEventStreamRequest()/sendNdjsonStreamRequest() gets this for free,
 			// which is why neither llm.php nor any provider changes.
-			if(($mux = DevblocksHttpMultiplexer::getActive()) && Fiber::getCurrent())
+			if(($mux = DevblocksHttpMultiplexer::getActive()) && Fiber::getCurrent()) {
+				// Set HERE rather than in _configure_defaults() so the raise follows the transport that
+				// needs it. That middleware runs for both clients and cannot tell them apart, so widening
+				// it there would also widen every blocking call -- including the request-bound ones (the
+				// simulator, a one-off llm.chat) whose whole reason for a short connect budget is that a
+				// person is waiting on the other end of an FPM worker.
+				if(!array_key_exists(RequestOptions::CONNECT_TIMEOUT, $options))
+					$options[RequestOptions::CONNECT_TIMEOUT] = self::MULTIPLEX_CONNECT_TIMEOUT_SECS;
+
 				return $mux->await($this->getMultiClient()->sendAsync($request, $options));
+			}
 
 			return $this->getClient()->send($request, $options);
 
