@@ -262,8 +262,9 @@
 				<div class="cerb-ui-form--field" data-cerb-reply-html-template style="{$reply_half}{if !$is_html}display:none;{/if}">
 					<label class="cerb-ui-form--label">{'common.html_mail_template'|devblocks_translate|capitalize}</label>
 					<div class="cerb-ui-record-chooser" id="replyHtmlTemplateChooser{$message->id}">
-						{$reply_cur_template = $html_templates[$draft->params.html_template_id]}
-						{if $draft->params.html_template_id && $reply_cur_template}
+						{$reply_html_template_id = $draft->params.html_template_id|default:0}
+						{if $reply_html_template_id && isset($html_templates[$reply_html_template_id])}
+							{$reply_cur_template = $html_templates[$reply_html_template_id]}
 							<li data-context-id="{$reply_cur_template->id}" data-label="{$reply_cur_template->name}"></li>
 						{/if}
 					</div>
