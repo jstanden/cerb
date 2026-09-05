@@ -23,6 +23,9 @@ use Cerb\Agent\Pane\Components;
  * tab in front of these, which is why the page is a tab set rather than five menu entries.
  */
 class PageSection_SetupAi extends Extension_PageSection {
+	// Must match the `data-alias` values in `configuration/section/ai/index.tpl`.
+	private const TABS = ['agents', 'models', 'tools', 'filesystems', 'files', 'surfaces'];
+	
 	function render() {
 		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
@@ -37,7 +40,15 @@ class PageSection_SetupAi extends Extension_PageSection {
 		$stack = $response->path;
 		array_shift($stack); // config
 		array_shift($stack); // ai
-		$tpl->assign('tab', array_shift($stack));
+		$tab = array_shift($stack);
+		
+		// An unknown tab is not a tab: the template can't resolve it against a `data-alias`, so `CerbUI.Tabs`
+		// would silently restore whatever this worker last had open. The AI menu has seven entries and only
+		// six are tabs (Transcripts is its own page), which makes `/config/ai/transcripts` a fair guess.
+		if('' !== strval($tab) && !in_array($tab, self::TABS, true))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		$tpl->assign('tab', $tab);
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/ai/index.tpl');
 	}
