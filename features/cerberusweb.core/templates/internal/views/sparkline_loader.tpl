@@ -9,9 +9,20 @@
      spark_action   the profile action (e.g. 'viewSparklinesJson')
      spark_view_id  the view id (form ref + localStorage key)
      spark_tooltip_labels  optional; force the series label in the tooltip even for a single series
+     spark_key      optional column key, REQUIRED when a worklist has more than one sparkline column --
+                    it scopes the cell selector, the switcher, and the localStorage window so the two
+                    columns don't fight. Omitted = the single-column behavior every other worklist uses.
+     spark_series   optional; POSTed as `series` so one profile action can serve several columns
 *}
 (function() {
 	const sparkFrm = $('#viewForm{$spark_view_id}');
+	{if !empty($spark_key)}
+	const sparkCellSel = '[data-cerb-spark][data-cerb-spark-key="{$spark_key}"]';
+	const sparkSwitcherSel = '[data-cerb-spark-switcher="{$spark_key}"]';
+	{else}
+	const sparkCellSel = '[data-cerb-spark]';
+	const sparkSwitcherSel = '[data-cerb-spark-switcher]';
+	{/if}
 	const sparkScale = (window.CerbUI && CerbUI.colorScale) ? CerbUI.colorScale() : null;
 	const sparkTooltipLabels = {if !empty($spark_tooltip_labels)}true{else}false{/if};
 	let sparkWindow = '1d'; // 2h | 1d | 1w | 1mo (set from the header switcher below)
@@ -33,7 +44,7 @@
 	};
 
 	const sparkLoad = function(showLoading) {
-		const cells = sparkFrm.find('[data-cerb-spark]').toArray();
+		const cells = sparkFrm.find(sparkCellSel).toArray();
 		if(!cells.length) return;
 		const req = ++sparkReq;
 		if(showLoading && window.CerbUI && CerbUI.Spinner) {
@@ -50,6 +61,7 @@
 		sparkData.set('module', '{$spark_module}');
 		sparkData.set('action', '{$spark_action}');
 		sparkData.set('window', sparkWindow);
+		{if !empty($spark_series)}sparkData.set('series', '{$spark_series}');{/if}
 		cells.forEach(function(el) { sparkData.append('ids[]', el.getAttribute('data-cerb-spark')); });
 		genericAjaxPost(sparkData, '', '', function(rows) {
 			if(req !== sparkReq) return; // a newer window/load superseded this response
@@ -58,10 +70,10 @@
 	};
 
 	// Header window toggle (segmented; persists per view in localStorage via the Switcher's storageKey)
-	const sparkSwitcherEl = sparkFrm.find('[data-cerb-spark-switcher]').get(0);
+	const sparkSwitcherEl = sparkFrm.find(sparkSwitcherSel).get(0);
 	if(sparkSwitcherEl && window.CerbUI && CerbUI.Switcher) {
 		const sw = new CerbUI.Switcher(sparkSwitcherEl, {
-			storageKey: 'cerb.spark.{$spark_module}:{$spark_view_id}',
+			storageKey: 'cerb.spark.{$spark_module}{if !empty($spark_key)}.{$spark_key}{/if}:{$spark_view_id}',
 			onSelect: function(value) { sparkWindow = value; sparkLoad(true); },
 		});
 		sparkWindow = sw.getValue() || '1d';

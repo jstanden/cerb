@@ -4,7 +4,7 @@
    can inline its own <th> markup instead of including this. Params: header (column key), view_fields. *}
 <th class="no-sort" style="width:170px;">
 	<span style="margin-right:6px;">{$view_fields.$header->db_label|capitalize}</span>
-	<span class="cerb-ui-switcher cerb-ui-switcher--xs" data-cerb-spark-switcher>
+	<span class="cerb-ui-switcher cerb-ui-switcher--xs" data-cerb-spark-switcher="{$header}">
 		<button type="button" data-value="2h">2h</button>
 		<button type="button" data-value="1d" class="cerb-ui-switcher--active">1d</button>
 		<button type="button" data-value="30d">30d</button>
