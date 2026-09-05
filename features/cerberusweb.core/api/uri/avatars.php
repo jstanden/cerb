@@ -197,7 +197,7 @@ class Controller_Avatars extends DevblocksControllerExtension {
 	private function _renderDefaultAvatar($context=null, $context_id=null) {
 		switch($context) {
 			case CerberusContexts::CONTEXT_APPLICATION:
-				$this->_renderFilePng(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/app.png');
+				$this->_renderFilePng(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/cerb.png');
 				
 			// Check if the addy's org has an avatar
 			case CerberusContexts::CONTEXT_ADDRESS:
@@ -249,8 +249,8 @@ class Controller_Avatars extends DevblocksControllerExtension {
 				$this->_renderFilePng(APP_PATH . sprintf('/features/cerberusweb.core/resources/images/avatars/person%d.png', $n));
 				
 			case CerberusContexts::CONTEXT_ORG:
-				$all_keys = array(1,2,3);
-				$n = $all_keys[$context_id % 3];
+				$all_keys = array(1,2,3,4);
+				$n = $all_keys[$context_id % 4];
 				$this->_renderFilePng(APP_PATH . sprintf('/features/cerberusweb.core/resources/images/avatars/building%d.png', $n));
 				
 			case CerberusContexts::CONTEXT_WORKER:
@@ -278,7 +278,7 @@ class Controller_Avatars extends DevblocksControllerExtension {
 				return;
 
 			case CerberusContexts::CONTEXT_BOT:
-				$this->_renderFilePng(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/va.png');
+				$this->_renderFilePng(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/bot.png');
 
 			case CerberusContexts::CONTEXT_CONNECTED_SERVICE:
 				if($context_id && ($service = DAO_ConnectedService::get($context_id))) {
@@ -287,7 +287,7 @@ class Controller_Avatars extends DevblocksControllerExtension {
 					return;
 				}
 
-				$this->_renderFilePng(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/va.png');
+				$this->_renderFilePng(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/connected-service.png');
 				
 			case CerberusContexts::CONTEXT_PACKAGE:
 				$this->_renderFilePng(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/package.png');
@@ -309,7 +309,7 @@ class Controller_Avatars extends DevblocksControllerExtension {
 				return;
 				
 			default:
-				$this->_renderFilePng(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/va.png');
+				$this->_renderFilePng(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/bot.png');
 		}
 	}
 	

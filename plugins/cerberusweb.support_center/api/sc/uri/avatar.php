@@ -78,7 +78,7 @@ class UmScAvatarController extends Extension_UmScController {
 	private function _renderDefaultAvatar($context=null, $context_id=null) {
 		switch($context) {
 			case CerberusContexts::CONTEXT_APPLICATION:
-				$contents = file_get_contents(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/app.png');
+				$contents = file_get_contents(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/cerb.png');
 				break;
 				
 			// Check if the addy's org has an avatar
@@ -144,7 +144,7 @@ class UmScAvatarController extends Extension_UmScController {
 				break;
 				
 			case CerberusContexts::CONTEXT_BOT:
-				$contents = file_get_contents(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/va.png');
+				$contents = file_get_contents(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/bot.png');
 				break;
 				
 			default:
