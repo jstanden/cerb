@@ -27,9 +27,58 @@ class PageSection_ProfilesAgentModel extends Extension_PageSection {
 					return $this->_profileAction_testJson();
 				case 'viewExplore':
 					return $this->_profileAction_viewExplore();
+				case 'viewSparklinesJson':
+					return $this->_profileAction_viewSparklinesJson();
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Inline sparkline series for BOTH agent-model worklist trend columns, selected by `series`. One
+	 * metrics.timeseries query per page (no N+1), loaded async so the list paints first.
+	 *
+	 * Two columns rather than one because turns are single digits and tokens are thousands: bars sharing a
+	 * scale would flatten the turn bar to nothing.
+	 */
+	private function _profileAction_viewSparklinesJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+
+		$ids = DevblocksPlatform::importGPC($_REQUEST['ids'] ?? [], 'array', []);
+		$ids = array_filter(array_map('intval', $ids));
+
+		$window = DevblocksPlatform::importGPC($_REQUEST['window'] ?? '1d', 'string', '1d');
+		$series = DevblocksPlatform::importGPC($_REQUEST['series'] ?? 'usage', 'string', 'usage');
+
+		$row_series = [];
+
+		if($active_worker && $ids) {
+			foreach($ids as $id) {
+				$row_series[$id] = match($series) {
+					// Tokens: input + output stacked (same unit, so the stack reads as total spend).
+					// cache_read/cache_write are left to the `tokens:` filter -- four bars in 140px is mush.
+					'tokens' => [
+						['metric' => 'cerb.agent.model.tokens.input', 'function' => 'sum', 'type' => 'bar', 'label' => 'input', 'color' => '#1f77b4', 'stack' => 'tokens', 'query' => ['model_id' => $id], 'missing' => 'zero'],
+						['metric' => 'cerb.agent.model.tokens.output', 'function' => 'sum', 'type' => 'bar', 'label' => 'output', 'color' => '#ff7f0e', 'stack' => 'tokens', 'query' => ['model_id' => $id], 'missing' => 'zero'],
+					],
+					// Usage: turn volume as a bar, latency as a line in front. Latency pins status 200 --
+					// a connection refused in 19ms is not this model answering fast.
+					default => [
+						['metric' => 'cerb.agent.model.turns', 'function' => 'count', 'type' => 'bar', 'label' => 'turns', 'color' => '#2ca02c', 'stack' => 'turns', 'query' => ['model_id' => $id], 'missing' => 'zero'],
+						['metric' => 'cerb.agent.model.turns.duration', 'function' => 'avg', 'type' => 'line', 'label' => 'latency', 'color' => '#ff7f0e', 'query' => ['model_id' => $id, 'status' => 200], 'missing' => 'zero', 'suffix' => 'ms'],
+					],
+				};
+			}
+		}
+
+		$out = $row_series
+			? DAO_MetricValue::getSparklines($row_series, $window, $active_worker->timezone ?: null)
+			: [];
+
+		// Cast so the response is always a JSON object ({} when empty), keyed by agent_model id
+		echo json_encode((object) $out);
 	}
 
 	private function _profileAction_savePeekJson() {

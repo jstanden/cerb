@@ -822,6 +822,10 @@ class SearchFields_AgentModel extends DevblocksSearchFields {
 	const UPDATED_AT = 'a_updated_at';
 
 	const VIRTUAL_CONNECTED_ACCOUNT_SEARCH = '*_connected_account_search';
+	const VIRTUAL_TOKENS = '*_tokens';
+	const VIRTUAL_TOKENS_SPARKLINE = '*_tokens_sparkline';
+	const VIRTUAL_USAGE = '*_usage';
+	const VIRTUAL_USAGE_SPARKLINE = '*_usage_sparkline';
 
 	static private $_fields = null;
 
@@ -852,6 +856,12 @@ class SearchFields_AgentModel extends DevblocksSearchFields {
 			case self::VIRTUAL_CONNECTED_ACCOUNT_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_CONNECTED_ACCOUNT, 'agent_model.connected_account_id');
 
+			case self::VIRTUAL_TOKENS:
+				return self::_getWhereSQLFromMetricFilter($param, self::getTokensMetricFilterMap());
+
+			case self::VIRTUAL_USAGE:
+				return self::_getWhereSQLFromMetricFilter($param, self::getUsageMetricFilterMap());
+
 			default:
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
 					return self::_getWhereSQLFromCustomFields($param);
@@ -862,6 +872,57 @@ class SearchFields_AgentModel extends DevblocksSearchFields {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
 		}
+	}
+
+	/**
+	 * The `usage:(...)` threshold vocabulary -- turn volume, provider health, and latency.
+	 *
+	 * Status buckets are spelled out one per code because the metric filter's `query` is EQUALITY ONLY (a
+	 * `!200` is parsed as a literal and silently matches nothing), so there can be no "any error" series.
+	 * `latency` pins 200 for the same reason it exists: a connection refused in 19ms is not this model
+	 * answering fast, and averaging it in makes a dead endpoint look like the quickest model you own.
+	 */
+	static function getUsageMetricFilterMap() : array {
+		return [
+			'turns' => DAO_MetricValue::metricFilterSeries('cerb.agent.model.turns', 'counter'),
+			'rate_limited' => DAO_MetricValue::metricFilterSeries('cerb.agent.model.turns', 'counter', ['query' => ['status' => 429]]),
+			'overloaded' => DAO_MetricValue::metricFilterSeries('cerb.agent.model.turns', 'counter', ['query' => ['status' => 529]]),
+			'unreachable' => DAO_MetricValue::metricFilterSeries('cerb.agent.model.turns', 'counter', ['query' => ['status' => 0]]),
+			'latency' => DAO_MetricValue::metricFilterSeries('cerb.agent.model.turns.duration', 'counter', ['unit' => 'ms', 'default' => 'avg', 'query' => ['status' => 200]]),
+		];
+	}
+
+	// The `tokens:(...)` threshold vocabulary. Its own key, not a series inside `usage:`, so one autocomplete
+	// list never mixes token counts with millisecond durations.
+	static function getTokensMetricFilterMap() : array {
+		return [
+			'input' => DAO_MetricValue::metricFilterSeries('cerb.agent.model.tokens.input', 'counter'),
+			'output' => DAO_MetricValue::metricFilterSeries('cerb.agent.model.tokens.output', 'counter'),
+			'cache_read' => DAO_MetricValue::metricFilterSeries('cerb.agent.model.tokens.cache_read', 'counter'),
+			'cache_write' => DAO_MetricValue::metricFilterSeries('cerb.agent.model.tokens.cache_write', 'counter'),
+		];
+	}
+
+	// Both filters anchor on the `model_id` dimension, whose values ARE agent_model ids, so the matches
+	// filter the primary key directly.
+	private static function _getWhereSQLFromMetricFilter(DevblocksSearchCriteria $param, array $map) : string {
+		if($param->operator != DevblocksSearchCriteria::OPER_CUSTOM || !is_string($param->value))
+			return '0=1';
+
+		$matches = DAO_MetricValue::getDimensionValuesByMetricQuery(
+			$param->value,
+			$map,
+			'model_id',
+			CerberusApplication::getActiveWorker()?->timezone ?: null
+		);
+
+		// null = invalid criteria (typo, unknown key, unparseable value) => match nothing (fail loud)
+		if(is_null($matches))
+			return '0=1';
+
+		$ids = array_filter(array_map('intval', $matches));
+
+		return $ids ? sprintf('%s IN (%s)', self::getPrimaryKey(), implode(',', $ids)) : '0=1';
 	}
 
 	static function getLabelsForKeyValues($key, $values) {
@@ -940,6 +1001,14 @@ class SearchFields_AgentModel extends DevblocksSearchFields {
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'agent_model', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 
 			self::VIRTUAL_CONNECTED_ACCOUNT_SEARCH => new DevblocksSearchField(self::VIRTUAL_CONNECTED_ACCOUNT_SEARCH, '*', 'connected_account_search', null, null, false),
+			self::VIRTUAL_TOKENS => new DevblocksSearchField(self::VIRTUAL_TOKENS, '*', 'tokens', null, null, false),
+			self::VIRTUAL_USAGE => new DevblocksSearchField(self::VIRTUAL_USAGE, '*', 'usage', null, null, false),
+
+			// Empty db_column suppresses the sort link; TYPE_VIRTUAL_SPARKLINES draws the chart tile in the
+			// column picker. Two columns because turns and tokens are orders of magnitude apart and can't
+			// share one 0->max bar scale.
+			self::VIRTUAL_TOKENS_SPARKLINE => new DevblocksSearchField(self::VIRTUAL_TOKENS_SPARKLINE, '*', '', 'Tokens', DevblocksSearchCriteria::TYPE_VIRTUAL_SPARKLINES, false),
+			self::VIRTUAL_USAGE_SPARKLINE => new DevblocksSearchField(self::VIRTUAL_USAGE_SPARKLINE, '*', '', 'Usage', DevblocksSearchCriteria::TYPE_VIRTUAL_SPARKLINES, false),
 		];
 
 		if(($virtual_columns = DevblocksSearchField::getVirtualFields()))
@@ -1220,12 +1289,15 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 			SearchFields_AgentModel::RATING_PRIVACY,
 			SearchFields_AgentModel::RATING_SPEED,
 			SearchFields_AgentModel::RATING_COST,
+			SearchFields_AgentModel::VIRTUAL_TOKENS_SPARKLINE,
 			SearchFields_AgentModel::UPDATED_AT,
 		];
 
 		$this->addColumnsHidden([
 			SearchFields_AgentModel::ID,
 			SearchFields_AgentModel::VIRTUAL_CONNECTED_ACCOUNT_SEARCH,
+			SearchFields_AgentModel::VIRTUAL_TOKENS,
+			SearchFields_AgentModel::VIRTUAL_USAGE,
 		]);
 
 		$this->doResetCriteria();
@@ -1629,6 +1701,12 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 				'options' => ['param_key' => SearchFields_AgentModel::STATUS],
 				'examples' => array_merge(array_values(Model_AgentModel::getStatuses()), ['[a,u]', '![d]']),
 			],
+			// No `examples` on either metric filter -- the `field:()` sub-key autocomplete supersedes them,
+			// driven off getQuickSearchMetricFilterMap() below.
+			'tokens' => [
+				'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+				'options' => ['param_key' => SearchFields_AgentModel::VIRTUAL_TOKENS],
+			],
 			'status.id' => [
 				'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 				'options' => ['param_key' => SearchFields_AgentModel::STATUS],
@@ -1636,6 +1714,10 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 			'updated' => [
 				'type' => DevblocksSearchCriteria::TYPE_DATE,
 				'options' => ['param_key' => SearchFields_AgentModel::UPDATED_AT],
+			],
+			'usage' => [
+				'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+				'options' => ['param_key' => SearchFields_AgentModel::VIRTUAL_USAGE],
 			],
 			'watchers' => [
 				'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
@@ -1654,6 +1736,15 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 		return $fields;
 	}
 
+	// Drives BOTH the marquee parse-error hint and the in-parens autocomplete for each filter key.
+	function getQuickSearchMetricFilterMap(string $field_key) : ?array {
+		return match($field_key) {
+			'tokens' => SearchFields_AgentModel::getTokensMetricFilterMap(),
+			'usage' => SearchFields_AgentModel::getUsageMetricFilterMap(),
+			default => null,
+		};
+	}
+
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
 			case 'authentication':
@@ -1661,6 +1752,12 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
+
+			case 'tokens':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_AgentModel::VIRTUAL_TOKENS);
+
+			case 'usage':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_AgentModel::VIRTUAL_USAGE);
 
 			case 'watchers':
 				return DevblocksSearchCriteria::getWatcherParamFromTokens(DevblocksSearchField::VIRTUAL_WATCHERS, $tokens);
@@ -1770,6 +1867,14 @@ class View_AgentModel extends C4_AbstractView implements IAbstractView_Subtotals
 
 	function renderVirtualCriteria($param) : void {
 		switch($param->field) {
+			case SearchFields_AgentModel::VIRTUAL_TOKENS:
+				echo sprintf("Tokens matches <b>%s</b>", DevblocksPlatform::strEscapeHtml($param->value));
+				break;
+
+			case SearchFields_AgentModel::VIRTUAL_USAGE:
+				echo sprintf("Usage matches <b>%s</b>", DevblocksPlatform::strEscapeHtml($param->value));
+				break;
+
 			case SearchFields_AgentModel::VIRTUAL_CONNECTED_ACCOUNT_SEARCH:
 				echo sprintf("%s matches <b>%s</b>",
 					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('dao.agent_model.connected_account_id')),

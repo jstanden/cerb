@@ -64,6 +64,9 @@
 		</th>
 		{/if}
 		{foreach from=$view->view_columns item=header name=headers}
+			{if in_array($header, ["*_usage_sparkline", "*_tokens_sparkline"])}
+				{include file="devblocks:cerberusweb.core::internal/views/view_header_sparkline.tpl" header=$header view_fields=$view_fields}
+			{else}
 			<th class="{if array_key_exists('disable_sorting', $view->options) && $view->options.disable_sorting}no-sort{/if}">
 			{if (!array_key_exists('disable_sorting', $view->options) || !$view->options.disable_sorting) && !empty($view_fields.$header->db_column)}
 				{include file="devblocks:cerberusweb.core::internal/views/view_header_sort.tpl" view=$view header=$header}
@@ -72,6 +75,7 @@
 				<a style="text-decoration:none;">{$view_fields.$header->db_label|capitalize}</a>
 			{/if}
 			</th>
+			{/if}
 		{/foreach}
 	</tr>
 	</thead>
@@ -166,6 +170,10 @@
 				<td data-column="{$column}">
 					{if $result.$column}<span title="{$result.$column|number_format}">{$result.$column|devblocks_prettynumber}</span>{/if}
 				</td>
+			{elseif in_array($column, ["*_usage_sparkline", "*_tokens_sparkline"])}
+				<td data-column="{$column}" style="width:160px;">
+					<div class="cerb-ui-sparkchart" data-cerb-spark="{$result.a_id}" data-cerb-spark-key="{$column}" style="min-width:140px;"></div>
+				</td>
 			{elseif in_array($column, ["a_created_at", "a_updated_at"])}
 				<td>
 					{if !empty($result.$column)}
@@ -207,5 +215,13 @@ $(function() {
 	// filter all re-emit this template), so there's no global scan to keep in sync.
 	if(window.CerbUI && CerbUI.Avatar)
 		CerbUI.Avatar.enhance($frm[0], '[data-cerb-agent-model-avatar]');
+
+	{if in_array('*_usage_sparkline', $view->view_columns)}
+	{include file="devblocks:cerberusweb.core::internal/views/sparkline_loader.tpl" spark_module='agent_model' spark_action='viewSparklinesJson' spark_view_id=$view->id spark_key='*_usage_sparkline' spark_series='usage' spark_tooltip_labels=true}
+	{/if}
+
+	{if in_array('*_tokens_sparkline', $view->view_columns)}
+	{include file="devblocks:cerberusweb.core::internal/views/sparkline_loader.tpl" spark_module='agent_model' spark_action='viewSparklinesJson' spark_view_id=$view->id spark_key='*_tokens_sparkline' spark_series='tokens' spark_tooltip_labels=true}
+	{/if}
 });
 </script>

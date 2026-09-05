@@ -2999,6 +2999,12 @@ class CerbPatch_Core_v12_0_0 {
 			$this->_db->ExecuteMaster("DELETE FROM worker_view_model WHERE view_id IN ('cerb5_plugins','plugins_installed')");
 			$this->_db->ExecuteWriter("DELETE FROM worker_view_model WHERE class_name IN ('View_Automation', 'View_AutomationEvent', 'View_Mailbox', 'View_MailRoutingRule', 'View_MailTransport', 'View_Metric', 'View_PluginLibrary', 'View_ServiceToken', 'View_TriggerEvent', 'View_Queue', 'View_SearchIndex', 'View_Snippet', 'View_WebhookListener')");
 		}
+		
+		// Agent models gained the Usage + Tokens trend columns; a saved worklist keeps its stored column
+		// list forever, so an existing one never shows them without this.
+		if ($this->_revision < 1566) {
+			$this->_db->ExecuteWriter("DELETE FROM worker_view_model WHERE class_name = 'View_AgentModel'");
+		}
 	}
 	
 	private function patchCreateMetricsExplorerWidgets() : void {
