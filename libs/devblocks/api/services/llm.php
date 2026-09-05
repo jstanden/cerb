@@ -1741,6 +1741,11 @@ class _DevblocksLlmService {
 		if($overrides)
 			$params = array_replace_recursive($params, $overrides);
 
+		// Re-asserted after the merge: a hand-authored `agent_model_id:` override would otherwise forge the
+		// metric dimension and bill one model's spend to another.
+		if($record->id)
+			$params['agent_model_id'] = intval($record->id);
+
 		return [$provider, $params];
 	}
 
@@ -2137,6 +2142,8 @@ class _DevblocksLlmService {
 
 		$provider = $this->getProvider($session->provider, $sidecar_params, false) ?: $provider;
 
+		$started_at = microtime(true);
+
 		try {
 			$response = $provider->chatCompletion(
 				$native_messages,
@@ -2144,6 +2151,11 @@ class _DevblocksLlmService {
 				array_values($this->getSessionToolSchemas($session)),
 				new \Cerb\LLM\MemoryStore\NoHistory()
 			);
+
+			// Counted like any other turn: this is a real provider request against the same model, and its
+			// tokens are persisted onto the summary row, so leaving it out would make the metrics disagree with
+			// the session's own token_usage. It is not distinguishable from a turn in the metric -- no slot left.
+			$this->_recordTurnMetrics($session, $response?->getUsage(), 200, (microtime(true) - $started_at) * 1000);
 
 			// A tool call in the reply is ignored on purpose — the schemas are only present to keep the prefix
 			// identical, and we asked for text. No text at all → let the caller fall back.
@@ -2157,6 +2169,8 @@ class _DevblocksLlmService {
 			return trim($summary);
 
 		} catch(\Throwable $e) {
+			$this->_recordTurnMetrics($session, null, $this->_turnStatusFromError($e), (microtime(true) - $started_at) * 1000);
+
 			return '';
 		}
 	}
@@ -2521,22 +2535,91 @@ class _DevblocksLlmService {
 			}
 		}
 
+		$started_at = microtime(true);
+
 		try {
 			// The call appends the assistant turn to the session store — which, when a streamed row is open,
 			// CLOSES that row instead of inserting a second one.
-			return $provider->chatCompletion(
+			$response = $provider->chatCompletion(
 				$memory_messages,
 				strval($session->system_prompt),
 				array_values($this->getSessionToolSchemas($session)),
 				$memory_store
 			);
 
+			$this->_recordTurnMetrics($session, $response?->getUsage(), 200, (microtime(true) - $started_at) * 1000);
+
+			return $response;
+
 		} catch (\Throwable $e) {
 			// The turn died after we'd already been billed for whatever it generated. Keep what's usable rather
 			// than discarding it, and leave nothing half-written for the next turn to trip over.
 			$this->_salvageStreamedTurn($provider, $memory_store);
+
+			// Usage is unreachable here (the salvaged partial lands on the row, not in a response object), so a
+			// failed turn's tokens go uncounted. Its status and latency still do.
+			$this->_recordTurnMetrics($session, null, $this->_turnStatusFromError($e), (microtime(true) - $started_at) * 1000);
+
 			throw $e;
 		}
+	}
+
+	/**
+	 * Telemetry for one provider request, on the two paths that have a session behind them: an agent turn
+	 * (`nextSessionTurn`, which both the sync node and the queue consumer funnel through, so this fires exactly
+	 * once per turn either way) and the compaction sidecar. `llm.chat` and `testConnection()` are deliberately
+	 * out -- they have no session, so every dimension would be 0.
+	 *
+	 * $status is the provider's HTTP code, with two synthetic values: 200 on success (nothing retains a status
+	 * on the success path -- every provider drops the response object after parsing, and plumbing one through
+	 * would touch all of them), and 0 for no response at all (DNS, refused, cURL timeout).
+	 *
+	 * Never allowed to break a turn: a metrics failure is swallowed whole.
+	 */
+	private function _recordTurnMetrics(\Model_LlmAgentSession $session, ?array $usage, int $status, float $elapsed_ms) : void {
+		try {
+			$metrics = DevblocksPlatform::services()->metrics();
+
+			$model_id = $session->getAgentModelId();
+			$agent_id = intval($session->agent_id);
+
+			// A `portal_visitor` is not a record; 0 reads honestly as unattributed spend.
+			$worker_id = ('worker' === $session->user_type) ? intval($session->user_id) : 0;
+
+			$turn_dimensions = [
+				'model_id' => $model_id,
+				'status' => $status,
+				'agent_id' => $agent_id,
+			];
+
+			$metrics->increment('cerb.agent.model.turns', 1, $turn_dimensions);
+			$metrics->increment('cerb.agent.model.turns.duration', intval(round($elapsed_ms)), $turn_dimensions);
+
+			if(!$usage)
+				return;
+
+			$token_dimensions = [
+				'model_id' => $model_id,
+				'agent_id' => $agent_id,
+				'worker_id' => $worker_id,
+			];
+
+			// `reasoning` is deliberately absent: it's a BREAKDOWN of `output`, so counting it here would
+			// double-count any bare sum across these metrics.
+			foreach(['input', 'output', 'cache_read', 'cache_write'] as $kind) {
+				// Skip zeroes so a provider that never reports cache writes doesn't mint dead rows forever.
+				if(($tokens = intval($usage[$kind] ?? 0)) > 0)
+					$metrics->increment('cerb.agent.model.tokens.' . $kind, $tokens, $token_dimensions);
+			}
+
+		} catch (\Throwable) {
+		}
+	}
+
+	// 0 means no response reached us at all (DNS, connection refused, cURL timeout) -- a distinct bucket from
+	// any status the provider actually returned.
+	private function _turnStatusFromError(\Throwable $e) : int {
+		return ($e instanceof \Exception_DevblocksLlmApiError) ? intval($e->statusCode) : 0;
 	}
 
 	/**

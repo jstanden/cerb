@@ -1156,6 +1156,13 @@ class Model_AgentModel extends DevblocksRecordModel {
 				$display
 			);
 
+		// Attribution only: the metric dimension that ties a session's spend back to this record. Guarded on
+		// `id` because the peek calls this on an unsaved model. Nothing may READ this for display or behavior
+		// -- `display:` above is what survives a rename or delete. Inert on the wire and ignored by
+		// _capabilitySignature(), same contract as `display:`.
+		if($this->id)
+			$params['agent_model_id'] = intval($this->id);
+
 		return [strval($this->provider), $params];
 	}
 

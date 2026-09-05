@@ -706,6 +706,7 @@ class LlmAgentNode extends AbstractNode {
 			$this->_dict->setKeyPath($session_key, $reconciled->uuid, '::');
 			\DAO_LlmAgentSession::setAutomationIfEmpty($reconciled->uuid, $automation->id ?? 0, $this->node->getId());
 			\DAO_LlmAgentSession::setAgentIfEmpty($reconciled->uuid, $this->_agent_worker_id);
+			\DAO_LlmAgentSession::setUserIfEmpty($reconciled->uuid, 'worker', $this->_actingWorkerId($automation) ?? 0);
 			return;
 		}
 
@@ -716,6 +717,7 @@ class LlmAgentNode extends AbstractNode {
 			$this->_dict->setKeyPath($session_key, $session->uuid, '::');
 			\DAO_LlmAgentSession::setAutomationIfEmpty($session->uuid, $automation->id ?? 0, $this->node->getId());
 			\DAO_LlmAgentSession::setAgentIfEmpty($session->uuid, $this->_agent_worker_id);
+			\DAO_LlmAgentSession::setUserIfEmpty($session->uuid, 'worker', $this->_actingWorkerId($automation) ?? 0);
 			return;
 		}
 
@@ -737,6 +739,7 @@ class LlmAgentNode extends AbstractNode {
 				$this->_dict->setKeyPath($session_key, $reconciled->uuid, '::');
 				\DAO_LlmAgentSession::setAutomationIfEmpty($reconciled->uuid, $automation->id ?? 0, $this->node->getId());
 				\DAO_LlmAgentSession::setAgentIfEmpty($reconciled->uuid, $this->_agent_worker_id);
+				\DAO_LlmAgentSession::setUserIfEmpty($reconciled->uuid, 'worker', $this->_actingWorkerId($automation) ?? 0);
 				return;
 			}
 		}
@@ -762,21 +765,36 @@ class LlmAgentNode extends AbstractNode {
 			'agent_id' => $this->_agent_worker_id,
 		];
 
-		if(in_array($automation->extension_id, [
-			\AutomationTrigger_InteractionInternal::ID,
-			\AutomationTrigger_InteractionWorker::ID,
-			\AutomationTrigger_InteractionWorkerAgent::ID,
-			\AutomationTrigger_MailDraftValidate::ID,
-			\AutomationTrigger_MailReplyValidate::ID,
-		])) {
+		if(null !== ($acting_worker_id = $this->_actingWorkerId($automation))) {
 			$fields['user_type'] = 'worker';
-			$fields['user_id'] = $this->_dict->get('worker_id', 0);
+			$fields['user_id'] = $acting_worker_id;
 		} elseif($automation->extension_id == \AutomationTrigger_InteractionWebsite::ID) {
 			$fields['user_type'] = 'portal_visitor';
 			$fields['user_ip'] = $this->_dict->get('client_ip', '');
 		}
 
 		return $fields;
+	}
+
+	// The worker the agent is acting FOR, on the triggers where the dict's `worker_id` is the ACTOR. Do not
+	// widen this list: on a `worker.*` trigger that key is the record being acted on, so a wider list would
+	// attribute an agent's spend to whoever it was writing about. Shared by session create and the backfill
+	// so the two can never disagree.
+	//
+	// null (not 0) for a trigger off the list, because 0 is a legal id here: a whitelisted trigger with no
+	// `worker_id` in the dict still types the session as `worker`, which is what it did before this was split
+	// out of _sessionCreateFields().
+	private function _actingWorkerId(Model_Automation $automation) : ?int {
+		if(!in_array($automation->extension_id, [
+			\AutomationTrigger_InteractionInternal::ID,
+			\AutomationTrigger_InteractionWorker::ID,
+			\AutomationTrigger_InteractionWorkerAgent::ID,
+			\AutomationTrigger_MailDraftValidate::ID,
+			\AutomationTrigger_MailReplyValidate::ID,
+		]))
+			return null;
+
+		return intval($this->_dict->get('worker_id', 0));
 	}
 	
 	/**

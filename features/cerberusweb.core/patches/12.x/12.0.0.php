@@ -1080,6 +1080,66 @@ class CerbPatch_Core_v12_0_0 {
 			time()
 		));
 		
+		$this->_db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, dimensions_kata, created_at, updated_at) " .
+			"VALUES (%s, %s, %s, %s, %d, %d)",
+			$this->_db->qstr('cerb.agent.model.tokens.input'),
+			$this->_db->qstr('Uncached prompt tokens by agent model, agent, and worker'),
+			$this->_db->qstr('counter'),
+			$this->_db->qstr("record/model_id:\n  record_type: agent_model\nrecord/agent_id:\n  record_type: worker\nrecord/worker_id:\n  record_type: worker\n"),
+			time(),
+			time()
+		));
+		
+		$this->_db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, dimensions_kata, created_at, updated_at) " .
+			"VALUES (%s, %s, %s, %s, %d, %d)",
+			$this->_db->qstr('cerb.agent.model.tokens.output'),
+			$this->_db->qstr('Completion tokens by agent model, agent, and worker'),
+			$this->_db->qstr('counter'),
+			$this->_db->qstr("record/model_id:\n  record_type: agent_model\nrecord/agent_id:\n  record_type: worker\nrecord/worker_id:\n  record_type: worker\n"),
+			time(),
+			time()
+		));
+		
+		$this->_db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, dimensions_kata, created_at, updated_at) " .
+			"VALUES (%s, %s, %s, %s, %d, %d)",
+			$this->_db->qstr('cerb.agent.model.tokens.cache_read'),
+			$this->_db->qstr('Cached prompt tokens read by agent model, agent, and worker'),
+			$this->_db->qstr('counter'),
+			$this->_db->qstr("record/model_id:\n  record_type: agent_model\nrecord/agent_id:\n  record_type: worker\nrecord/worker_id:\n  record_type: worker\n"),
+			time(),
+			time()
+		));
+		
+		$this->_db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, dimensions_kata, created_at, updated_at) " .
+			"VALUES (%s, %s, %s, %s, %d, %d)",
+			$this->_db->qstr('cerb.agent.model.tokens.cache_write'),
+			$this->_db->qstr('Prompt tokens written to cache by agent model, agent, and worker'),
+			$this->_db->qstr('counter'),
+			$this->_db->qstr("record/model_id:\n  record_type: agent_model\nrecord/agent_id:\n  record_type: worker\nrecord/worker_id:\n  record_type: worker\n"),
+			time(),
+			time()
+		));
+		
+		$this->_db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, dimensions_kata, created_at, updated_at) " .
+			"VALUES (%s, %s, %s, %s, %d, %d)",
+			$this->_db->qstr('cerb.agent.model.turns'),
+			$this->_db->qstr('LLM turn count by agent model, response status, and agent'),
+			$this->_db->qstr('counter'),
+			$this->_db->qstr("record/model_id:\n  record_type: agent_model\nnumber/status:\nrecord/agent_id:\n  record_type: worker\n"),
+			time(),
+			time()
+		));
+		
+		$this->_db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, dimensions_kata, created_at, updated_at) " .
+			"VALUES (%s, %s, %s, %s, %d, %d)",
+			$this->_db->qstr('cerb.agent.model.turns.duration'),
+			$this->_db->qstr('LLM turn duration (ms) by agent model, response status, and agent'),
+			$this->_db->qstr('counter'),
+			$this->_db->qstr("record/model_id:\n  record_type: agent_model\nnumber/status:\nrecord/agent_id:\n  record_type: worker\n"),
+			time(),
+			time()
+		));
+		
 		// cerb.service.token.uses gained a `record/token_id` dimension during 11.2-dev (it only had scope +
 		// client_ip). Fix the definition and drop the dimensionless samples — the metric isn't released, so
 		// nothing depends on the old data.

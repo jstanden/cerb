@@ -296,6 +296,26 @@ class DAO_LlmAgentSession {
 		return true;
 	}
 
+	// Backfill whom the agent is acting FOR. Same create-only gap as setAgentIfEmpty(): an agentPrompt mints
+	// the session before `llm.agent` runs. The `user_type = ''` half of the guard is what stops a worker who
+	// resumes a portal-visitor session from retyping it as their own.
+	public static function setUserIfEmpty(string $uuid, string $user_type, int $user_id) : bool {
+		if('' === $user_type || !$user_id)
+			return false;
+
+		$db = DevblocksPlatform::services()->database();
+
+		$db->ExecuteWriter(sprintf(
+			"UPDATE llm_agent_session SET `user_type` = %s, `user_id` = %d ".
+			"WHERE `uuid` = UUID_TO_BIN(%s) AND `user_type` = '' AND (`user_id` = 0 OR `user_id` IS NULL)",
+			$db->qstr($user_type),
+			$user_id,
+			$db->qstr($uuid)
+		));
+
+		return true;
+	}
+
 	public static function setAutomationIfEmpty(string $uuid, int $automation_id, string $automation_node) : bool {
 		if(!$automation_id)
 			return false;
@@ -476,6 +496,13 @@ class Model_LlmAgentSession {
 	// The model id lives inside provider_params now (no dedicated column); this is the display/worklist accessor.
 	public function getModel() : string {
 		return strval($this->provider_params['model'] ?? '');
+	}
+
+	// The `agent_model` record behind this session, stamped at prime time. TELEMETRY ONLY -- it is the metric
+	// dimension, and 0 (an inline `llm:` block, or a session primed before this shipped) is a legal value. Never
+	// display from it; the `display:` block above is what survives the record being renamed or deleted.
+	public function getAgentModelId() : int {
+		return intval($this->provider_params['agent_model_id'] ?? 0);
 	}
 
 	// The reasoning level this session ran at, as stamped into provider_params when it was primed. Canonical
