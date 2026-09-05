@@ -209,7 +209,9 @@ CerbUI.AgentPane = class {
 			});
 
 			// Closing the chat resets it to the "New Agent Chat" selection (a new chat next open).
-			this.chatCloseEl.addEventListener('click', () => { this.outerSplit.collapse('second'); this.showSelect(); });
+			this.chatCloseEl.addEventListener('click', () => {
+				this._promptChatClose(this.chatCloseEl, () => { this.outerSplit.collapse('second'); this.showSelect(); });
+			});
 		}
 
 		this.toggleEl.addEventListener('click', (e) => { e.preventDefault(); this.toggle(); });
@@ -240,6 +242,29 @@ CerbUI.AgentPane = class {
 			width: this.opts.floatWidth,
 			closeOnEscape: false,   // Escape belongs to the composer being typed in, not to discarding the chat
 		});
+
+		// Float has no visible chat head -- the dialog's titlebar carries the close -- so the prompt hangs off the
+		// dialog's own close instead, vetoing it until a choice is made. Same technique as
+		// `Devblocks.decorateInteractionDialog()`, including the `_programmaticClose` guard: a close we fire
+		// ourselves after the choice must pass straight through, or it would prompt forever.
+		this.dialog.opts.onClose = () => {
+			if(this.dialog._programmaticClose || this._chatCloseSettling)
+				return undefined;
+
+			if(!this._openContinuationToken())
+				return undefined;
+
+			const closeBtn = this.dialog.el
+				? this.dialog.el.querySelector('.cerb-ui-dialog--btn[aria-label="Close"]')
+				: null;
+
+			this._promptChatClose(closeBtn || this.dialog.el, () => {
+				this._chatCloseSettling = true;
+				try { this.dialog.close(); } finally { this._chatCloseSettling = false; }
+			});
+
+			return false;
+		};
 
 		// Drive _onToggle off the dialog's own events rather than its onOpen/onClose hooks: `onClose` fires
 		// BEFORE the dialog flips its open flag, so isCollapsed() would still report "open" to the host.
@@ -521,6 +546,154 @@ CerbUI.AgentPane = class {
 
 	// Past conversations for THIS pane, appended under the launcher tiles. Fetched rather than rendered with the
 	// select because it's a round trip and the tiles shouldn't wait on it; absent or empty, nothing shows at all.
+	/*
+	 * The close button's job depends on whether a conversation is live.
+	 *
+	 * With no chat running it just collapses the pane, as it always has. With a resumable one it first asks what
+	 * to do with it -- the same Continue later / End choice a dialog-hosted interaction gets from
+	 * `Devblocks.promptInteractionClose()`, in the same words and icons, because a worker should not have to
+	 * learn that the sidebar's close means something different from the popup's.
+	 *
+	 * That is also what keeps the rule intact: the button itself never terminates a conversation. Continue later
+	 * parks it exactly as an unanswered close always did; only End is terminal, and only when chosen.
+	 *
+	 * `proceed` is the close the host actually wanted -- run it after the choice is persisted, never before, or
+	 * the panel is gone before its token can be read.
+	 */
+	_promptChatClose(anchorEl, proceed) {
+		const token = this._openContinuationToken();
+
+		// Nothing to persist -- no conversation, or one that cannot be resumed anyway.
+		if(!token || !(window.CerbUI && CerbUI.Menu)) {
+			proceed();
+			return;
+		}
+
+		let settled = false;
+
+		const restore = () => document.removeEventListener('keydown', onKeyCapture, true);
+
+		const dispose = (disposition) => {
+			if(settled) return;
+			settled = true;
+
+			restore();
+			try { this._chatMenu.close(); } catch(e) {}
+
+			this._disposeInteraction(token, this._chatLabel(), disposition, proceed);
+		};
+
+		// Escape while the menu is up parks it -- the safe default, and the same one the dialog uses. Capture, so
+		// it beats the menu's own Escape handling and any focused input still in the panel.
+		const onKeyCapture = (e) => {
+			if('Escape' === e.key) {
+				e.stopImmediatePropagation();
+				e.preventDefault();
+				dispose('pause');
+			}
+		};
+
+		// Built once and reused: a fresh <ul> per close would leak one onto document.body every time.
+		if(!this._chatMenu) {
+			const ul = document.createElement('ul');
+			ul.hidden = true;
+
+			[
+				{ disposition: 'pause', icon: 'stopwatch', label: 'Continue later' },
+				{ disposition: 'end', icon: 'trash', label: 'End' },
+			].forEach((it) => {
+				const li = document.createElement('li');
+				li.setAttribute('data-disposition', it.disposition);
+				li.setAttribute('data-icon', it.icon);
+				li.textContent = it.label;
+				ul.appendChild(li);
+			});
+
+			document.body.appendChild(ul);
+
+			this._chatMenuUl = ul;
+			// The handler is rebound per open, since the token and the `proceed` differ each time.
+			this._chatMenu = new CerbUI.Menu(ul, {
+				onSelect: (renderedLi, sourceLi) => this._chatMenuOnSelect(sourceLi),
+				// Dismissed without a pick (an outside click) -> leave the conversation as it was, but let go of
+				// the capture listener, or a later Escape would park a conversation from a menu that is gone.
+				onClose: () => { if(this._chatMenuOnClose) this._chatMenuOnClose(); },
+				// Menu mirrors only data-* onto the rendered item and never reads an icon from the markup, so the
+				// glyph has to be injected here -- same hook, same classes as the dialog's version of this menu.
+				onRenderItem: (renderedLi, sourceLi) => {
+					const icon = document.createElement('span');
+					icon.className = 'cerb-icons cerb-u-mr-1 cerb-icon-' + sourceLi.dataset.icon;
+					icon.setAttribute('aria-hidden', 'true');
+					renderedLi.insertBefore(icon, renderedLi.firstChild);
+				},
+			});
+		}
+
+		// Rebound per open: one menu instance outlives many conversations, so the handlers have to close over
+		// THIS open's token and `proceed`.
+		this._chatMenuOnSelect = (sourceLi) => dispose(sourceLi.getAttribute('data-disposition'));
+		this._chatMenuOnClose = restore;
+
+		document.addEventListener('keydown', onKeyCapture, true);
+		this._chatMenu.open(anchorEl || this.chatCloseEl);
+
+		// Take focus off whatever in the panel had it -- the composer, usually -- so the keyboard drives the menu
+		// rather than typing into a conversation being closed. Then pre-highlight the first item, so Enter picks
+		// without an arrow press. Matches the dialog's version of this menu.
+		if(document.activeElement && document.activeElement !== document.body
+				&& typeof document.activeElement.blur === 'function')
+			document.activeElement.blur();
+
+		this._chatMenu.moveActive(1);
+	}
+
+	/*
+	 * The open conversation's token, or ''. Both reads come from the panel the SERVER rendered:
+	 * `__cerb_interaction_resumable` is its own answer to "can this be resumed", so an unfinished run or a
+	 * non-resumable await closes silently rather than offering a choice that would not stick.
+	 */
+	_openContinuationToken() {
+		if(!this.chatBodyEl) return '';
+
+		if(!this.chatBodyEl.querySelector('input[name="__cerb_interaction_resumable"]'))
+			return '';
+
+		const input = this.chatBodyEl.querySelector('input[name="continuation_token"]');
+
+		return input ? String(input.value || '') : '';
+	}
+
+	_chatLabel() {
+		return this.chatTitleEl ? String(this.chatTitleEl.textContent || '').trim() : '';
+	}
+
+	/*
+	 * End a conversation: `disposition: 'end'` sets the continuation's `state` to 'exit', which drops it from
+	 * the resumable list. The TRANSCRIPT is untouched -- `disposeInteraction` never looks at llm_agent_session,
+	 * so the conversation stays in Setup > Developers > LLM Agent Transcripts with its messages and usage.
+	 * Clearing a chat here is tidying the sidebar, not deleting the record of it.
+	 *
+	 * The endpoint owns the permission check (worker_id, resumable extension, resume scope), so this passes the
+	 * token and lets the server refuse.
+	 */
+	_disposeInteraction(token, label, disposition, done) {
+		if(typeof genericAjaxPost !== 'function' || !token) return;
+
+		const fd = new FormData();
+		fd.set('c', 'profiles');
+		fd.set('a', 'invoke');
+		fd.set('module', 'automation');
+		fd.set('action', 'disposeInteraction');
+		fd.set('continuation_token', token);
+		fd.set('disposition', ('pause' === disposition) ? 'pause' : 'end');
+		fd.set('name', label || '');
+
+		// Deliberately NOT Devblocks.flashInteractionButton() on a pause, which the dialog's version calls: that
+		// points at the command bar, and a paused PANE conversation does not live there -- the command bar's scope
+		// allowlist refuses an `agent.pane:` scope. It comes back under this pane's own Recent conversations.
+		genericAjaxPost(fd, null, null, () => { if(typeof done === 'function') done(); });
+	}
+
 	_loadHistory(select) {
 		const $ = window.jQuery;
 		if(!$ || typeof genericAjaxPost !== 'function') return;
@@ -624,6 +797,23 @@ CerbUI.AgentPane = class {
 				tile.addEventListener('keydown', (e) => {
 					if('Enter' === e.key || ' ' === e.key) { e.preventDefault(); resume(); }
 				});
+
+				// Dismiss: ends this conversation so it stops coming back. Its own button rather than a gesture on
+				// the tile, because the tile's whole surface already means "resume this" -- and it stops the click
+				// there, or dismissing would resume the thing it just ended.
+				const dismiss = document.createElement('button');
+				dismiss.type = 'button';
+				dismiss.className = 'cerb-ui-button cerb-ui-button--transparent cerb-agent-pane--tile-dismiss';
+				dismiss.title = 'End this conversation';
+				dismiss.setAttribute('aria-label', 'End this conversation');
+				dismiss.innerHTML = '<span class="cerb-icons cerb-icon-remove"></span>';
+
+				dismiss.addEventListener('click', (e) => {
+					e.stopPropagation();
+					this._disposeInteraction(item.token, item.label || '', 'end', () => tile.remove());
+				});
+
+				tile.appendChild(dismiss);
 
 				select.appendChild(tile);
 			});
@@ -735,6 +925,8 @@ CerbUI.AgentPane = class {
 		if(this.dialog && this.dialog.destroy) this.dialog.destroy();
 		if(this._scrollObserver) this._scrollObserver.disconnect();
 		if(this._scrollTimer) clearTimeout(this._scrollTimer);
+		// The overflow menu's <ul> is parented to document.body, so it outlives the pane unless removed here.
+		if(this._chatMenuUl) this._chatMenuUl.remove();
 		CerbUI.AgentPane._instances.delete(this.host);
 	}
 };

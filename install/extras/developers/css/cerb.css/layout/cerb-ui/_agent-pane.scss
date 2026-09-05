@@ -110,11 +110,33 @@
 
 	&--tile {
 		cursor: pointer;
+		position: relative;
 
 		&:hover {
 			border-color: var(--cerb-color-background-contrast-200);
 			background: var(--cerb-color-background-contrast-235);
 		}
+	}
+
+	// Ends the conversation the tile resumes, so it stops coming back. Revealed on hover/focus like a worklist
+	// row action: a permanent one on every row would compete with the tile's own job, which is to be picked.
+	// Kept focusable-visible so it is reachable without a pointer.
+	&--tile-dismiss {
+		position: absolute;
+		top: 0.25em;
+		right: 0.25em;
+		opacity: 0;
+		transition: opacity 0.1s ease;
+		color: var(--cerb-color-background-contrast-150);
+	}
+
+	&--tile:hover &--tile-dismiss,
+	&--tile-dismiss:focus-visible {
+		opacity: 1;
+	}
+
+	&--tile-dismiss:hover {
+		color: var(--cerb-color-tag-red);
 	}
 
 	// The last prompt, as a one-line glance at where the conversation left off. Clamped rather than wrapped: in a
