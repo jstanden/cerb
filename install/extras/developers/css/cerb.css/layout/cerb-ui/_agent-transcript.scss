@@ -306,11 +306,17 @@
 	}
 
 	// Author: a tool name or "Thinking".
+	// A summary ending in a mount path has nothing to wrap at, and without min-width the flex item won't
+	// shrink below its content, so the text leaves the bubble. Expanding it still shows the full name.
 	.cerb-ui-agent-transcript--bubble-author {
 		color: var(--cerb-color-text);
 		text-decoration: none;
 		font-size: 1.2em;
 		font-weight: 700;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 
 	// Only a clickable (anchor) author shows the interactive affordance — a plain <span> author (a
