@@ -10,7 +10,11 @@
 			<span style="color:rgb(180,180,180);font-size:90%;">
 			page generated in: {math equation="x*1000" x=$render_time format="%d"} ms; {if !empty($render_peak_memory)} peak memory used: {$render_peak_memory|devblocks_prettybytes:2}{/if} 
 			-  
-			{if !$fair_pay->key}
+			{* Cloud stores no license key, so it falls to the Community branch without this. *}
+			{if CerberusApplication::isCerbCloud()}
+			{$cerb_cloud_subscriber=CerberusApplication::getCerbCloudSubscriber()}
+			Licensed{if $cerb_cloud_subscriber} to {$cerb_cloud_subscriber}{/if}
+			{elseif !$fair_pay->key}
 			Community License
 			{else}
 			Licensed{if !is_null($fair_pay->company)} to {$fair_pay->company}{/if}
