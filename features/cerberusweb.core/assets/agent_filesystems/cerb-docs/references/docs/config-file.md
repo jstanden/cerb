@@ -34,7 +34,6 @@ The following variables are required to set up Cerb.
 | --- | --- | --- |
 | `APP_DB_READER_HOST` | (disabled) | Database reader endpoint for read/write splitting |
 | `APP_HOSTNAME` | &nbsp; | Override server hostname (e.g. `support.example.com`) |
-| `APP_QUEUE_CONCURRENCY_SLOTS` | 5 | Max concurrent worker-initiated [queue jobs](/docs/queues/#concurrency-slots) |
 | `APP_SECURITY_ALLOW_ADMIN_SESSION_TOKEN` | true | Allow admin sessions to authenticate `/cron` and `/update`. When `false`, those endpoints always require a [service token](/docs/records/types/service_token/). |
 | `APP_SERVICE_TOKEN` | &nbsp; | Master [service token](/docs/records/types/service_token/) for `/cron`, `/debug`, `/update` |
 | `APP_SERVICE_TOKEN_SCOPE` | `cron update` | Space-separated scopes restricting the master service token (e.g. `cron:* update`) |

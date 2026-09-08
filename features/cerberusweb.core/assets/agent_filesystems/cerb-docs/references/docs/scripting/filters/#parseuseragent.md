@@ -17,9 +17,5 @@ Mozilla/5.0 (Macintosh; Intel Mac OS X 13_0) AppleWebKit/605.1.15 (KHTML, like G
 ```
 
 ```
-{
-    "platform": "Macintosh",
-    "browser": "Safari",
-    "version": "16.1"
-}
+{"platform":"Macintosh","browser":"Safari","version":"16.1"}
 ```

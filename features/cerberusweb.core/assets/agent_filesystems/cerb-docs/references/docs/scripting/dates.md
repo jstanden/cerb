@@ -15,24 +15,21 @@ Use the [date](/docs/scripting/filters/#date) filter to format a [string](/docs/
 {{'+2 weeks 08:00'|date('Y-m-d h:ia T')}}
 ```
 
-```
-December 12, 2017 11:50am PST
-Wed, 13 December 2017 17:00 PST
-2017-12-26 08:00am PST
-```
+Relative English date strings like these are resolved when the script runs, so their output isn't shown here. The examples below use a fixed date instead.
 
 You can use any of the formatting options from PHP DateTime::format.
 
 # Timezones
 
-The second parameter to the [date](/docs/scripting/filters/#date) filter can specify a timezone to use:
+The second parameter to the [date](/docs/scripting/filters/#date) filter is the timezone the result is displayed in. It does not change the timezone a date string is _parsed_ in, so include the zone in the string itself when it matters:
 
 ```
-{% set ts_now = date() -%}
+{% set time_format = 'F j, Y H:i' %}
+{% set ts = date('2017-12-12 14:57 America/New_York') -%}
 
-Bangalore: {{ts_now|date(time_format, 'Asia/Kolkata')}}
-Berlin: {{ts_now|date(time_format, 'Europe/Berlin')}}
-New York: {{ts_now|date(time_format, 'America/New_York')}}
+Bangalore: {{ts|date(time_format, 'Asia/Kolkata')}}
+Berlin: {{ts|date(time_format, 'Europe/Berlin')}}
+New York: {{ts|date(time_format, 'America/New_York')}}
 ```
 
 ```
@@ -46,11 +43,13 @@ New York: December 12, 2017 14:57
 You can get a Unix timestamp (seconds since 1-Jan-1970 00:00:00 UTC) from a date value with the `|date('U')` filter:
 
 ```
-It has been {{'now'|date('U')}} seconds since {{'0'|date(null, 'UTC')}}
+{{"2017-12-12 14:57 America/New_York"|date('U')}}
+{{"1513108620"|date('F j, Y H:i', 'America/New_York')}}
 ```
 
 ```
-It has been 1513108417 seconds since January 1, 1970 00:00
+1513108620
+December 12, 2017 14:57
 ```
 
 # Timestamp Manipulation
@@ -58,15 +57,15 @@ It has been 1513108417 seconds since January 1, 1970 00:00
 If you need to manipulate a date, create a date object with the [date()](/docs/scripting/functions/#date) function and use the [date\_modify](/docs/scripting/filters/#date_modify) filter:
 
 ```
-{% set format = 'D, d M Y T' %}
-{% set timestamp = date('now') %}
-Now: {{timestamp|date(format)}}
-+2 days: {{timestamp|date_modify('+2 days')|date(format)}}
+{% set format = 'D, d M Y' %}
+{% set timestamp = date('2017-12-12', 'UTC') %}
+Then: {{timestamp|date(format, 'UTC')}}
++2 days: {{timestamp|date_modify('+2 days')|date(format, 'UTC')}}
 ```
 
 ```
-Now: Tue, 12 Dec 2017 PST
-+2 days: Thu, 14 Dec 2017 PST
+Then: Tue, 12 Dec 2017
++2 days: Thu, 14 Dec 2017
 ```
 
 [\< Arrays and Objects](/docs/scripting/arrays-objects/)

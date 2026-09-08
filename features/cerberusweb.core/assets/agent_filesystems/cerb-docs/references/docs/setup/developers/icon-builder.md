@@ -17,7 +17,7 @@ The Icon Builder is for drawing icons in Cerb's own [icon set](/docs/developers/
 
 # Access
 
-Click **Setup » Configure » Developers » Icon Builder**. This tool is limited to administrators.
+Click **Setup » Developers » Icon Builder**. This tool is limited to administrators.
 
 # What you're editing
 

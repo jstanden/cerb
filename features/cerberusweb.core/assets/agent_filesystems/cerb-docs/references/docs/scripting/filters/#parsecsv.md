@@ -9,6 +9,8 @@ tags: ["docs", "docs-scripting"]
 
 Parse a document with rows of comma-separated columns. Returns an array of rows with elements for columns.
 
+Cells are addressed by position rather than by name. A header row comes back as the first row of data, not as keys – so reach a column with an index like `{{row.0}}`, and skip the header yourself when the document has one.
+
 `parse_csv(separator=',',enclosure='"',escape='\\')`
 
 | **separator** | An optional character to separate fields by. Defaults to comma (`,`). |

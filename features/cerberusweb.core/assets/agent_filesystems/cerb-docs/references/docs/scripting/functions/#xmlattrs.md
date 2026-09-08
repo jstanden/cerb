@@ -15,7 +15,7 @@ Return all attributes from an XML node.
 
 | Name | Notes |
 | --- | --- |
-| `xml_node` | An single XML node, usually from [xml\_xpath](#xml_xpath) |
+| `xml_node` | A single XML node, usually from [xml\_xpath](#xml_xpath) |
 
 **Returns:** An array of attribute keys and values.
 

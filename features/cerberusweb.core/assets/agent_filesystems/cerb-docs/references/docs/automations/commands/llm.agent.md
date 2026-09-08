@@ -11,8 +11,6 @@ Authentication, API calls, chat history, and tool invocation are all automatical
 
 You simply provide a `system_prompt` with instructions, one or more new conversational `messages` turns, and an optional list of `tools`.
 
-https://www.youtube.com/embed/dkpaBooNNGc
-
 ```
 llm.agent:
   output: results
@@ -33,7 +31,7 @@ llm.agent:
       automation/docs_search:
         uri: cerb:automation:example.llm.tool.docs.search
       tool/license_renew:
-        description: Renew or change seats on a Cerb license.
+        description: Renew or change a Cerb subscription.
   on_tool:
     decision/tool:
       outcome/license_renew:
@@ -71,6 +69,8 @@ llm.agent:
     - [Command turns](#command-turns)
     - [Errors](#errors)
 
+https://www.youtube.com/embed/lNBIxMlOy_c
+
 # Syntax
 
 ## inputs:
@@ -92,7 +92,7 @@ llm.agent:
 
 Run the turn as an [AI worker](/docs/agents/). This attributes the turn to that agent – its name and image appear in the transcript, and the conversation uses that agent's memory and credentials.
 
-**An agent is identity, not model policy.** Naming one says who the work is attributed to, never what it may run, so the same agent can do cheap work and expensive work. Which models a turn may use depends on the work, through [`model:`](#model), rather than on whose name is on it.
+Naming an agent brings its **configuration** to the turn, not only its name. The turn takes the agent's instructions, model query, tools, filesystems, terminal namespaces, and commands from its record, each resolved for the [surface](/docs/toolbars/interactions/agent.pane/#surfaces) the turn is running on – so one agent can bring different things to a mail reply than to an icon builder. See [Where an agent runs](/docs/agents/#where-an-agent-runs).
 
 It accepts an `@mention`, a bare handle, a worker ID, or a `cerb:worker:<id>` URI. A human or disabled worker is rejected.
 
@@ -106,7 +106,7 @@ llm.agent:
         content: {{prompt}}
 ```
 
-An explicit `model:` or `llm:` still wins.
+What the script writes still wins over what the agent contributes: an explicit `model:` or `llm:` overrides the agent's model query, and an explicit `system_prompt:` is appended to the agent's rather than replacing it.
 
 ### model:
 
@@ -209,6 +209,9 @@ llm:
   openai:
     model: gpt-4o
     authentication: cerb:connected_account:openai
+  openrouter:
+    model: anthropic/claude-sonnet-5
+    authentication: cerb:connected_account:openrouter
   qwen:
     model: qwen3.7-plus
     authentication: cerb:connected_account:qwen
@@ -347,7 +350,22 @@ The message keys must be unique but are arbitrary.
 
 ### tools:
 
-There are two types of tools.
+There are three types of tools.
+
+An [agent tool](/docs/records/types/agent_tool/) is referenced by its record's own name, with no prefix. The record supplies the description the model reads and the transcript's icon and wording, and the schema the model is shown comes from the answering [`agent.tool`](/docs/automations/triggers/agent.tool/) automation's `inputs:` block.
+
+```
+tools:
+  search_handbook:
+  lookup_order:
+    labels:
+      active: Checking the order...
+      summary: Checked the order
+```
+
+The entry under a reference may override the record's `description:`, `icon:`, and `labels:`, or switch the tool off with `disabled@bool: yes`. What the tool **takes** is never overridden there.
+
+A conversation's tools are resolved when it starts and frozen for its lifetime, because the tool set sits in the prompt prefix the provider caches. Editing a tool reaches new conversations; one already under way keeps what it started with.
 
 An `automation` tool links to an [llm.tool](/docs/automations/triggers/llm.tool/) automation function. Its description and inputs will be automatically described to the model for you, and its output will automatically be sent back to the model.
 

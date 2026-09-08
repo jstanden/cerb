@@ -5,7 +5,7 @@ url: "https://cerb.ai/docs/automations/triggers/interaction.website/"
 summary: "This webpage provides a detailed overview of interaction.website automations, which facilitate interactions with visitors on third-party websites through multi-step workflows that can pause and resume. These interactions are applicable for various purposes such as surveys, sign-up forms, contact forms, troubleshooters, and customer service bots. The page outlines the inputs and outputs of these interactions, including the use of forms and delegate interactions to enhance modularity and reusability. It also explains the process of initiating interactions through website elements or shared links and concludes with instructions on installation and implementation on websites."
 tags: ["docs", "docs-automations"]
 ---
-https://www.youtube.com/embed/dkpaBooNNGc
+https://www.youtube.com/embed/lNBIxMlOy_c
 
 **interaction.website** [automations](/docs/automations/) are [interactions](/docs/interactions/) with visitors on third-party websites that use [continuations](/docs/automations/#continuations) to pause and resume a multi-step workflow.
 

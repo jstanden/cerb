@@ -9,7 +9,9 @@ tags: ["solutions", "solutions-automations"]
 
 Here is an example of making an HTTP POST request with form-encoded data and handling a JSON response.
 
-When using `Content-Type: application/x-www-form-urlencoded`, a `body:` dictionary will automatically be encoded as form data.
+When using `Content-Type: application/x-www-form-urlencoded`, a `body:` dictionary will automatically be encoded as form data. This is also what happens when the `Content-Type:` header is omitted entirely.
+
+The request encoding and the response encoding are independent. This endpoint takes a form-encoded request and answers with JSON.
 
 - [automation](#)
 - [policy](#)
@@ -21,9 +23,9 @@ start:
     output: http_response
     inputs:
       method: POST
-      url: https://api.cerb.cloud/docs/search
+      url: https://cerb.example/api/search
       headers:
-        Content-Type: application/json
+        Content-Type: application/x-www-form-urlencoded
       body:
         query: How much does it cost?
         limit: 10

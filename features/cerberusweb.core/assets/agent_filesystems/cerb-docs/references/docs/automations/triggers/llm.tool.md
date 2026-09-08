@@ -137,11 +137,11 @@ __return:
     This page provides an overview of the concept of "Contacts" within Cerb, describing them as the clients, customers, partners, and other entities that workers engage with. It likely outlines how contacts are managed and utilized within the Cerb platform to facilitate interactions and relationships.
 
     ----------------------------------------------------------------
-    ID: signup
-    URL: https://cerb.ai/signup/
-    TITLE: Start using Cerb for free
+    ID: pricing
+    URL: https://cerb.ai/pricing/
+    TITLE: Pricing
 
-    This page offers a free trial of Cerb, allowing potential users to sign up with their work email and organization details. It provides options for different types of organizations, including businesses, government agencies, academic institutions, non-profits, and open source projects. Users can choose between two deployment options: Cerb Cloud, a fully managed subscription service, or Self-Hosted, which is deployed on the user's own hardware and network. The page also offers an option to subscribe to an email newsletter for tips on using Cerb. It emphasizes privacy, stating that user information will not be shared with third parties without consent, except as required by law or necessary for service provision.
+    This page explains how Cerb is priced. Self-hosted Cerb is free to run, with unlimited workers and seats and no license key, and a subscription raises concurrency rather than lifting a seat limit. Cerb Cloud is priced on seats and concurrency slots together, with the first three slots included, and starts with a free trial that requires no credit card. Data is fully portable between self-hosted and Cerb Cloud.
 
     ----------------------------------------------------------------
     ID: docs-credits
@@ -155,7 +155,7 @@ __return:
     URL: https://cerb.ai/docs/intro/
     TITLE: Introduction
 
-    This page provides an overview of Cerb, a customizable web-based platform designed for enterprise communication and process automation. Cerb has evolved over 24 years, integrating with API-based services to automate digital workflows using its KATA language and browser-based tools. It allows teams to create personalized workspaces with customizable widgets and manage various tasks through custom records and fields. Common use cases include transforming standard email systems into high-volume team-based webmail with automated features and integrating with large language models for customer support. Cerb can be deployed on personal hardware, Docker, or as a managed service in Cerb Cloud, with its source code available on GitHub. It is free for single-seat use, ensuring users can maintain their data without ongoing costs. The page also directs users to guides for administrators, workers, and developers.
+    This page provides an overview of Cerb, a customizable web-based platform designed for enterprise communication and process automation. Cerb has evolved over 24 years, integrating with API-based services to automate digital workflows using its KATA language and browser-based tools. It allows teams to create personalized workspaces with customizable widgets and manage various tasks through custom records and fields. Common use cases include transforming standard email systems into high-volume team-based webmail with automated features and integrating with large language models for customer support. Cerb can be deployed on personal hardware, Docker, or as a managed service in Cerb Cloud, with its source code available on GitHub. Self-hosting is free with unlimited workers, ensuring users can maintain their data without ongoing costs. The page also directs users to guides for administrators, workers, and developers.
 
     ----------------------------------------------------------------
     ID: docs-plugins-cerberusweb-core

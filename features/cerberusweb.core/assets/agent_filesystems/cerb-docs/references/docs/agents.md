@@ -18,6 +18,15 @@ tags: ["docs"]
       - [cerb platform](#cerb-platform)
       - [cerb code](#cerb-code)
 
+  - [Agent tools](#agent-tools)
+
+- [Where an agent runs](#where-an-agent-runs)
+  - [The default chat](#the-default-chat)
+  - [Everywhere, and per surface](#everywhere-and-per-surface)
+    - [Restricting which models an agent may use](#restricting-which-models-an-agent-may-use)
+
+  - [Authoring the configuration as KATA](#authoring-the-configuration-as-kata)
+
 - [Automations](#automations)
 - [Providers](#providers)
 - [Long conversations](#long-conversations)
@@ -36,13 +45,14 @@ To list only AI workers, search workers with `isAi:y`. You can also give that qu
 
 # The pieces
 
-Three record types work together, and you don't need all of them to get started:
+Four record types work together, and you don't need all of them to get started:
 
 | Record type | Purpose |
 | --- | --- |
 | [Agent Model](/docs/records/types/agent_model/) | A model you can use: its provider, model ID, credentials, context window, capabilities, and ratings |
 | [Worker](/docs/records/types/worker/) (`is_ai`) | The agent's identity – name, image, ownership, `@mention` handle |
 | [Agent Filesystem](/docs/records/types/agent_filesystem/) | A named volume of files an agent can read and write |
+| [Agent Tool](/docs/records/types/agent_tool/) | One tool an agent can call, and the [automation](/docs/automations/) that does the work |
 
 ## Agent models
 
@@ -224,9 +234,20 @@ The documentation describes the plugins that **exist**. It can't say which of th
 
 | Command | Notes |
 | --- | --- |
+| `cerb platform version` | What version of Cerb this is, where it's hosted, and what PHP and database it runs on |
 | `cerb platform plugins` | Every plugin with its ID, version, and whether it's enabled |
 | `cerb platform points` | Every [extension point](/docs/plugins/extensions/), with how many extensions this installation has on it |
 | `cerb platform extensions <point>` | The extensions on one point, by fully qualified ID |
+
+`version` is what an agent should ask before assuming a feature exists. It reports five rows: Cerb's version and build, the deployment, the Devblocks platform build, PHP with its SAPI, and the database server's own version string, which names the flavor too.
+
+```
+cerb platform version
+```
+
+The **deployment** row reads `Cerb Cloud` when Cerb hosts the install, naming its subdomain, and `Self-Hosted` otherwise.
+
+**Version and build are not the same thing.** The `version` is the exact string a [workflow](/docs/workflows/)'s `cerb_version: '>=12.0'` gate and a [package](/docs/packages/)'s `requires.cerb_version` compare against. The `build` is a date serial that moves with every release and is what the updater compares -- it isn't a version and doesn't sort against one.
 
 Disabled plugins are listed and marked rather than omitted, because "the JIRA plugin is here but switched off" and "there is no JIRA integration" are different answers and only one of them is yours to fix.
 
@@ -264,6 +285,155 @@ A document that fails a lint is not a failed _command_ -- the check ran and answ
 A superuser can run any of these commands without an agent from **Setup » Developers » Agent Filesystem Terminal**, where a **Commands** panel turns each namespace on or off. With none enabled, `cerb` doesn't exist there at all. The **Payload** box there holds the document being checked when a `cerb code` command passes `--payload`.
 
  
+
+## Agent tools
+
+An [agent tool](/docs/records/types/agent_tool/) is one tool an agent can call, defined once as a record and then added to any agent rather than restated in every script that needs it.
+
+The record says what the model should call the tool, the description it reads, and the icon and wording its transcript shows. The [`agent.tool`](/docs/automations/triggers/agent.tool/) [automation](/docs/automations/) behind it does the work, and **that automation's own `inputs:` block is the schema the model is shown** – so the arguments are declared in exactly one place.
+
+An agent references a tool by its record name:
+
+```
+tools:
+  search_handbook:
+  lookup_order:
+    labels:
+      active: Checking the order...
+      summary: Checked the order
+```
+
+The entry under a reference may override the record's `description:`, `icon:`, and `labels:`, or switch the tool off with `disabled@bool: yes`. What the tool **takes** is never overridden there.
+
+A conversation's tools are resolved when it starts and frozen for its lifetime, because the tool set sits in the prompt prefix the provider caches. Editing a tool reaches new conversations; one already under way keeps what it started with.
+
+Alongside the tools you define, an agent is given tools automatically for **where it's running** – an agent beside the [automation](/docs/automations/) editor can read and edit the script in front of it, one in the command bar can say which page you're on. Those are named with a reserved `cerb_` prefix, so a tool you create can never shadow one. See [the hosts](/docs/automations/triggers/interaction.worker.agent/#hosts) for what each surface offers.
+
+# Where an agent runs
+
+Where an agent's chat appears is part of the **agent**, not a separate list to keep in sync with it.
+
+Every [agent pane](/docs/toolbars/interactions/agent.pane/) and the command bar lists the agents enabled for _that_ surface, each with its own name and picture and a line saying what it's for. An agent is enabled somewhere by having a block for that surface in its own configuration, edited in the **AI** tab of its [worker](/docs/records/types/worker/) record.
+
+## The default chat
+
+Cerb ships the chat an agent runs when it names none of its own. An agent with no `automation:` set runs `cerb.ai.agent.chat`, so you don't have to write a conversation before you can have one.
+
+It adapts to where it opens: the surface contributes that editor's commands as tools and its orientation as a system prompt at runtime, so one script drives whichever screen it sits beside. It mounts Cerb's own [documentation and skills](/docs/records/types/agent_filesystem/#the-volumes-cerb-ships) read-only, and enables the [`cerb` command line](#the-cerb-command-line) over this installation's own record types, fields, and filters, so it looks a name up rather than recalling one that may not exist here.
+
+The same workflow also ships an agent to run it: an AI worker named **Cerb**, enabled on every surface. So the default chat is reachable from every editor pane and from the command bar on a new installation, without authoring anything.
+
+The shipped agent deliberately names no model. Its `models_query:` is `sort:priority,-intelligence`, which orders whatever [agent models](/docs/records/types/agent_model/) you have rather than naming one that may not exist here – so it works with a single model configured, and follows your priorities once there are several. It mounts the `cerb-docs` and `cerb-agents` volumes and enables the `cerb platform` and `cerb records` [command line](#the-cerb-command-line) namespaces.
+
+That leaves **one** thing to do before a chat can answer:
+
+1. An [agent model](/docs/records/types/agent_model/) under **Search » Agent Models**. Without one the chat opens and every turn reports an error.
+
+Beyond that, remember that enablement is per surface, so an agent **you** create appears nowhere until you give it a block for a surface. **A surface with no agent enabled on it hides its agent toggle entirely** rather than showing an empty pane.
+
+The chat and the agent both arrive as the `cerb.ai.agent` [workflow](/docs/workflows/), installed on new installations and once on upgrade. Disable or delete it and it **stays** gone -- it's never re-enabled on a later update. Its script is replaced on each update, so edit a copy rather than the original.
+
+To build your own, use **Automations » Build » AI Agent Chat**, which generates a copy you own, then point an agent's `automation:` at it.
+
+## Everywhere, and per surface
+
+An agent's configuration has one scope for **Everywhere** and one per surface it can run on.
+
+Everywhere is what the agent brings no matter where it's running. A surface **adds** to that rather than replacing it – which is why the scope is called Everywhere rather than Defaults, since there's nothing there to override:
+
+| Setting | How a surface combines with Everywhere |
+| --- | --- |
+| Instructions (`system_prompt:`) | The surface's text is appended to Everywhere's |
+| [Model query](#restricting-which-models-an-agent-may-use) (`models_query:`) | The surface's value replaces it when not blank |
+| The chat it runs (`automation:`) | The surface's value replaces it when not blank |
+| Filesystems (`mounts:`) | Union; the surface overrides only the mounts it names |
+| Tools (`tools:`) | Union; the surface overrides only the tools it names |
+| Command line (`terminal:`) | Union, and **additive only** |
+
+The command line is grants only. A surface can hand the agent a `cerb` namespace it doesn't have everywhere, and can never take one away – so it's a picker of things to add rather than a row of checkboxes that would suggest unticking one could revoke it.
+
+### Restricting which models an agent may use
+
+`models_query:` is how you scope an agent to a subset of your [agent models](/docs/records/types/agent_model/) without editing the [automation](/docs/automations/) it runs. It's an ordinary [search query](/docs/search/) over agent model records, in the same syntax a worklist search uses:
+
+```
+models_query: hasVision:y cost:[1,3]
+```
+
+Every model matching the query becomes the pool the agent's turns draw from, and the pool is also what the [`agentPrompt`](/docs/automations/triggers/interaction.worker/elements/agentPrompt/) composer offers a worker in its model picker. Leave it blank and the agent may use every available model.
+
+Because it's a search rather than a list, adding a model puts it in every pool it qualifies for without anyone maintaining anything – the same reason [model pools](#model-pools) are resolved by search.
+
+**Availability is enforced underneath the query, not by it.** Only models with a status of **Available** can enter a pool, whatever the query says, so an **Unlisted** or **Disabled** model can never be reached by widening one. You can't accidentally grant access to a model you've switched off.
+
+A query that doesn't parse resolves to **no models**, which fails the turn rather than silently falling back to every model. When a query doesn't set its own `sort:`, models are ordered by `priority`, then by descending intelligence rating, then by name.
+
+**Authoring a block for a surface is the opt-in.** An agent with no block for a surface isn't enabled there, so a new surface never turns every existing agent loose on it. Turning one off is `disabled@bool: yes` rather than deleting the block, so a surface that's switched off keeps the prompt, tools, and model query you set for it.
+
+Each surface shows what it's adding _to_, in the field itself, in two different ways:
+
+| Field | How the inherited value appears |
+| --- | --- |
+| Filesystems, tools, the chat, the command line | Faded **ghost tiles** beside your own choices, with no remove control |
+| Instructions, the model query | The inherited text as the field's **placeholder**, with the field itself empty |
+
+Both mean the same thing: nothing is set here, so what's above applies. All of it follows an edit to Everywhere immediately, without saving, so turning something on above takes it out of every surface below while you watch.
+
+A placeholder and a typed value look alike at a glance but are not the same. An empty field showing inherited text as its placeholder **follows** Everywhere; the same words typed into the field **pin** them here and stop following. If you need to know which you have, clear the field -- the placeholder returns.
+
+A ghost tile has no remove control, because it isn't yours to remove. That's the "a surface can grant more, never less" rule made visible: you can add to what Everywhere contributes, never subtract from it.
+
+Below, the **Command Bar** scope of the [agent Cerb ships](#the-default-chat). Its filesystems and terminal namespaces are ghost tiles inherited from Everywhere, and its instructions and model query show their inherited values as placeholders. Its **description** is the one thing set on the surface itself – typed into the field rather than showing through it – which is what the shipped configuration gives this surface and nothing more:
+
+ 
+
+Configuration written by hand through the [API](/docs/api/) or an [automation](/docs/automations/) survives a visit to the AI tab, including keys the form draws no control for. Anything it can't show as a chip is listed plainly with a button to remove it.
+
+**A workflow-managed agent is a different matter**, and the banner at the top of the tab says so: an agent defined by a [workflow](/docs/workflows/) is restored from that template on the next import, and anything typed into this form in the meantime is replaced. Surviving a visit to the tab is not the same as surviving an import. Edit the workflow, not the agent.
+
+## Authoring the configuration as KATA
+
+The **AI** tab is a form over a [KATA](/docs/kata/) document, and that document is readable and writable as the `agent_config` field on the [worker](/docs/records/types/worker/) record – through the [Records API](/docs/api/endpoints/records/), a [package](/docs/packages/), or a [workflow](/docs/workflows/). That's what lets an agent be version-controlled, diffed, and synchronized between a development and a production install, rather than existing only as something clicked into a form.
+
+The top-level keys are:
+
+| Key | Type | Description |
+| --- | --- | --- |
+| `system_prompt:` | text | The agent's instructions |
+| `models_query:` | text | A [search query](#restricting-which-models-an-agent-may-use) over agent models |
+| `automation:` | text | The chat this agent runs. Omit it to run the [default chat](#the-default-chat) |
+| `mounts:` | object | [Filesystems](#agent-filesystems) to mount, each with `filesystem:`, `at:`, `mode:`, and `create@bool:` |
+| `tools:` | object | [Agent tools](#agent-tools) by name, each optionally overriding `description:`, `icon:`, and `labels:` |
+| `terminal:` | object | The [`cerb` command line](#the-cerb-command-line) namespaces this agent may use |
+| `commands:` | object | Commands the agent may run |
+| `components:` | object | One block per [surface](#where-an-agent-runs) the agent is enabled on |
+
+`components:` is keyed by a surface's `component` value, and matches any key rather than a fixed list, so a surface added in a later release needs no change here. Each block accepts `system_prompt:`, `models_query:`, `automation:`, `mounts:`, `tools:`, `terminal:`, and `commands:` – the same keys, scoped to that surface and combined with the top level per the [table above](#everywhere-and-per-surface) – plus `description:` and `disabled@bool:`.
+
+```
+system_prompt: Your name is Cerb.
+models_query: sort:priority,-intelligence
+mounts:
+  docs:
+    filesystem: cerb-docs
+    at: /docs
+    mode: read
+terminal:
+  cerb:
+    platform:
+    records:
+components:
+  commandbar:
+  worklist:
+  mail_routing:
+    system_prompt: Prefer editing a rule over rewriting the document.
+```
+
+Written as a nested object, a workflow template can target a single leaf – a `models_query:` drawn from workflow config, say – rather than interpolating into one opaque blob. KATA text is accepted too, for anyone writing it by hand. Either way it's validated against the same schema the AI tab uses, so a malformed configuration is refused rather than stored.
+
+**An empty component block is a complete configuration.** A surface key with nothing under it enables the agent there with no overrides, which is the normal case. Authoring the block _is_ the opt-in, and `disabled@bool: yes` is how you switch one off without losing what you wrote for it.
+
+The [Workflow Builder](/docs/workflows/) exports AI workers as `records: worker/<label>:`, carrying `first_name`, `last_name`, `at_mention_name`, `title`, the `is_ai`, `is_superuser`, and `is_disabled` flags, and `agent_config` when the agent has one. Workers that **aren't** AI are skipped rather than refused – a person's record is personal data and doesn't belong in a shared template. The configuration is exported as a parsed tree rather than as the raw text you typed, so comments in an authored config aren't carried across.
 
 # Automations
 

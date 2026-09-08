@@ -186,7 +186,7 @@ metric:"(x+2)*100"
 
 ### Filters
 
-Numeric [filters](/docs/scripting/filters/) from [bot scripting](/docs/scripting/) can be appended to a result following a pipe (`|`) character.
+Numeric [filters](/docs/scripting/filters/) from [automation scripting](/docs/scripting/) can be appended to a result following a pipe (`|`) character.
 
 - [abs](/docs/scripting/filters/#abs)
 - [number\_format](/docs/scripting/filters/#number_format)

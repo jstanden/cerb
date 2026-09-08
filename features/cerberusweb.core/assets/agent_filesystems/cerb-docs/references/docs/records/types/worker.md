@@ -30,6 +30,7 @@ These fields are available in the [Records API](/docs/api/endpoints/records/) an
 
 | Req'd | Field | Type | Notes |
 | --- | --- | --- | --- |
+| &nbsp; | `agent_config` | [text](/docs/records/fields/types/text/) | An AI worker's [agent](/docs/agents/) configuration – instructions, model query, tools, filesystems, terminal namespaces, commands, and which surfaces it runs on. A [KATA](/docs/kata/) object, or KATA text. Only meaningful when `is_ai` is set. |
 | &nbsp; | `at_mention_name` | [text](/docs/records/fields/types/text/) | The nickname used for `@mention` notifications in comments |
 | &nbsp; | `calendar_id` | [number](/docs/records/fields/types/number/) | The ID of the [calendar](/docs/records/types/calendar/) used to compute worker availability |
 | &nbsp; | `dob` | [text](/docs/records/fields/types/text/) | Date of birth in `YYYY-MM-DD` format |

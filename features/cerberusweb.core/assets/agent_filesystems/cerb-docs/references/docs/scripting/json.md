@@ -77,12 +77,12 @@ You can _"prettify"_ a JSON string with the [json\_pretty](/docs/scripting/filte
 
 ```
 {
-  "name": "Joe Customer",
-  "order_id": 54321,
-  "status": {
-    "text": "shipped",
-    "tracking_id": "Z1F238"
-  }
+    "name": "Joe Customer",
+    "order_id": 54321,
+    "status": {
+        "text": "shipped",
+        "tracking_id": "Z1F238"
+    }
 }
 ```
 

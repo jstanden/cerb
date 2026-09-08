@@ -29,6 +29,10 @@ A decision has multiple `outcome:` commands. The first matching outcome is used.
 
 Each outcome must have a unique name.
 
+An outcome with no `if:` key always matches, so a bare outcome at the end of a decision is the default – `outcome/weekday:` above. If no outcome matches and there's no default, none of the `then:` blocks run, execution continues with the next command, and nothing is logged.
+
+An [outcome:](/docs/automations/commands/outcome/) can also be used on its own, without a decision, to make a single sequence of commands conditional.
+
 | Key | &nbsp; |
 | --- | --- |
 | `if@bool:` | This key should resolve to a `yes` or `no` value to determine whether this outcome is desirable. |

@@ -13,7 +13,7 @@ Each column in a sheet has a type (e.g. card, date, text) with configurable opti
 
 A _cell_ (the intersection of a specific row and column) doesn't have to relate to a schema field at all – it can be a synthetic or computed value, translation, interactive element, deep-linked field, arbitrary output, etc.
 
-Sheets use placeholder dictionaries to to render cells, and they receive their input from any data query that can generate dictionaries – including [worklist.subtotals](/docs/data-queries/worklist/subtotals/) and a new [worklist.records](/docs/data-queries/worklist/records/) data query type that significantly simplifies fetching record data. This means that sheets can also easily format and display data from third-party APIs. The data query itself, being text, supports placeholders and bot scripting logic – so you can determine which columns are available, or what a cell displays, based not only on aspects of the record, but also based on on who is looking at it, their permissions, etc.
+Sheets use placeholder dictionaries to to render cells, and they receive their input from any data query that can generate dictionaries – including [worklist.subtotals](/docs/data-queries/worklist/subtotals/) and a new [worklist.records](/docs/data-queries/worklist/records/) data query type that significantly simplifies fetching record data. This means that sheets can also easily format and display data from third-party APIs. The data query itself, being text, supports placeholders and automation scripting logic – so you can determine which columns are available, or what a cell displays, based not only on aspects of the record, but also based on on who is looking at it, their permissions, etc.
 
 State on sheets is maintained client-side, and paging/sorting/filtering is customized for the use case (e.g. bot interaction vs portal vs dashboard widget) – essentially just passing simple information to the input data query.
 
@@ -468,7 +468,7 @@ columns:
 
 ## Text
 
-The `text` column type displays arbitrary text as `value:` (or `value_key:`, `value_template:`) using bot scripting and placeholders. The default value is the column's `key:` in the placeholder dictionary.
+The `text` column type displays arbitrary text as `value:` (or `value_key:`, `value_template:`) using automation scripting and placeholders. The default value is the column's `key:` in the placeholder dictionary.
 
 Text columns may include a `value_map:` parameter for associating new labels to values. For instance, "F =\> Female" or "1 =\> Yes". This reduces the need for custom columns.
 

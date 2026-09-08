@@ -7,7 +7,11 @@ tags: ["docs", "docs-scripting"]
 ---
 ## xml\_encode
 
-You can encode an object as XML with the **xml\_encode** function:
+Serialize an existing XML node back to a string.
+
+The argument must be a `SimpleXMLElement`, usually from [xml\_decode](#xml_decode) or [xml\_xpath](#xml_xpath); anything else returns `false`.
+
+There is also an [**xml\_encode** filter](/docs/scripting/filters/#xml_encode), and it is a different function that does the opposite job: it _builds_ XML from an array. Piping a node into the filter won't serialize it, and passing an array to this function returns `false`.
 
 ```
 {% set string_of_xml = 

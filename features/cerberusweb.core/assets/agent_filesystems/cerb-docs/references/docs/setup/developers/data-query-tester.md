@@ -21,7 +21,7 @@ That separation is the point. A query that returns nothing inside a widget gives
 
 # Access
 
-Click **Setup » Configure » Developers » Data Query Tester**. This tool is limited to administrators – anyone else gets a permission error rather than a hidden menu item.
+Click **Setup » Developers » Data Query Tester**. This tool is limited to administrators – anyone else gets a permission error rather than a hidden menu item.
 
 # The editor
 
@@ -77,15 +77,17 @@ The tester imposes no limits of its own. What bounds a large result is the data 
 
 The Data Query Tester can host an [agent pane](/docs/toolbars/interactions/agent.pane/) – a chat that splits the screen beside the editor and can work on the query in front of it. Drag the divider to change the balance.
 
-**Nothing appears until an admin authors it.** The `agent.pane` [toolbar](/docs/toolbars/) ships with no items at all, and a pane with nothing to launch hides its own toggle. On a fresh installation this tester has no visible agent pane -- that's the toolbar being empty, not a missing feature.
+The pane appears once an [agent](/docs/agents/) is enabled on the `data_query` surface -- **a pane with nothing to launch hides its own toggle**, so there is no agent affordance here until you turn one on. The agent also needs an [agent model](/docs/records/types/agent_model/) under **Search » Agent Models**, without which the chat opens but every turn errors.
 
-Author items on the `agent.pane` toolbar and gate them to this editor:
+Enable an agent here by giving it a `data_query` block under `components:` in the **AI** tab of its [worker](/docs/records/types/worker/) record:
 
 ```
-hidden@bool: {{component != 'data_query'}}
+components:
+  data_query:
+    description: Help writing data queries
 ```
 
-Each item's automation must use the [interaction.worker.agent](/docs/automations/triggers/interaction.worker.agent/) trigger, which is the only one offering the [`uiCommand`](/docs/automations/triggers/interaction.worker/elements/uiCommand/) element these commands run through.
+The agent's automation must use the [interaction.worker.agent](/docs/automations/triggers/interaction.worker.agent/) trigger, which is the only one offering the [`uiCommand`](/docs/automations/triggers/interaction.worker/elements/uiCommand/) element these commands run through.
 
 An agent here has five commands:
 

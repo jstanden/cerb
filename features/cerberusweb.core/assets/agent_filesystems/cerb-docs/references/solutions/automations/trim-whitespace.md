@@ -2,7 +2,7 @@
 id: "solutions-automations-trim-whitespace"
 title: "Trim whitespace in scripting tags"
 url: "https://cerb.ai/solutions/automations/trim-whitespace/"
-summary: "This page demonstrates techniques for controlling whitespace. Learn how to trim leading and trailing whitespace using dash modifiers in template tags, and remove whitespace between HTML tags using the `|spaceless` filter."
+summary: "This page demonstrates techniques for controlling whitespace. Learn how to trim leading and trailing whitespace using dash modifiers in template tags, and remove whitespace between HTML tags using the `|spaceless` filter. The `|spaceless` filter only applies to literal text, so markup from a placeholder needs `|raw` first or the `apply spaceless` block."
 tags: ["solutions", "solutions-automations"]
 ---
 ## Using tag modifiers
@@ -31,7 +31,9 @@ __return:
 
 ## Using |spaceless filter
 
-The `|spaceless` filter removes whitespace between HTML tags.
+The `|spaceless` filter removes whitespace between HTML tags in literal text typed into the template.
+
+It does not work on a placeholder. Add `|raw` first, as in `{{html|raw|spaceless}}`, or use [apply spaceless](#using-apply-spaceless) instead. Without that, the filter returns the markup HTML-escaped with its whitespace intact, and reports no error.
 
 - [automation](#)
 - [output](#)
@@ -56,7 +58,7 @@ __return:
 
 ## Using apply spaceless
 
-For larger blocks of HTML, you can use the apply spaceless approach.
+For larger blocks of HTML, and for any markup that contains placeholders, use `{% apply spaceless %}`. This is the reliable form in an automation, where the content is usually in a placeholder rather than typed into the template.
 
 - [automation](#)
 - [output](#)

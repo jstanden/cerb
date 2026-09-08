@@ -2,10 +2,10 @@
 id: "docs-scripting-functions"
 title: "Scripting Reference: Functions"
 url: "https://cerb.ai/docs/scripting/functions/"
-summary: "This webpage serves as a comprehensive scripting reference for functions available in Cerb's bot scripts and snippets. It details a wide array of functions, including those for manipulating arrays (e.g., array_column, array_diff, array_sort_keys), handling JSON and XML data (e.g., json_decode, xml_decode, xml_xpath), and performing various utility operations (e.g., random_string, validate_email, clamp_int). Additionally, it covers Cerb-specific functions for automation, calendar management, and permissions (e.g., cerb_automation, cerb_calendar_get_relative_date, cerb_has_priv). Each function is explained with examples, showcasing its syntax and potential use cases, making this page a valuable resource for developers working with Cerb's scripting capabilities."
+summary: "This webpage serves as a comprehensive scripting reference for functions available in Cerb's automation scripting and snippets. It details a wide array of functions, including those for manipulating arrays (e.g., array_column, array_diff, array_sort_keys), handling JSON and XML data (e.g., json_decode, xml_decode, xml_xpath), and performing various utility operations (e.g., random_string, validate_email, clamp_int). Additionally, it covers Cerb-specific functions for automation, calendar management, and permissions (e.g., cerb_automation, cerb_calendar_get_relative_date, cerb_has_priv). Each function is explained with examples, showcasing its syntax and potential use cases, making this page a valuable resource for developers working with Cerb's scripting capabilities."
 tags: ["docs", "docs-scripting"]
 ---
-These functions are available in bot scripts and snippets:
+These functions are available in automation scripting and snippets:
 
 - [array\_column](#array_column)
 - [array\_combine](#array_combine)
@@ -16,6 +16,7 @@ These functions are available in bot scripts and snippets:
 - [array\_intersect](#array_intersect)
 - [array\_matches](#array_matches)
 - [array\_sort\_keys](#array_sort_keys)
+- [array\_sum](#array_sum)
 - [array\_unique](#array_unique)
 - [array\_values](#array_values)
 - [attribute](#attribute)
@@ -25,6 +26,7 @@ These functions are available in bot scripts and snippets:
 - [cerb\_calendar\_get\_relative\_date](#cerb_calendar_get_relative_date)
 - [cerb\_calendar\_time\_elapsed](#cerb_calendar_time_elapsed)
 - [cerb\_current\_worker](#cerb_current_worker)
+- [cerb\_extract\_mentions](#cerb_extract_mentions)
 - [cerb\_extract\_uris](#cerb_extract_uris)
 - [cerb\_file\_url](#cerb_file_url)
 - [cerb\_has\_priv](#cerb_has_priv)
@@ -49,6 +51,7 @@ These functions are available in bot scripts and snippets:
 - [kata\_parse](#kata_parse)
 - [max](#max)
 - [min](#min)
+- [placeholders\_list](#placeholders_list)
 - [random](#random)
 - [random\_string](#random_string)
 - [range](#range)
@@ -62,10 +65,13 @@ These functions are available in bot scripts and snippets:
 - [xml\_attrs](#xml_attrs)
 - [xml\_decode](#xml_decode)
 - [xml\_encode](#xml_encode)
+- [xml\_tag](#xml_tag)
 - [xml\_xpath](#xml_xpath)
 - [xml\_xpath\_ns](#xml_xpath_ns)
 - [xml\_xpath\_remove](#xml_xpath_remove)
 - [References](#references)
+
+https://www.youtube.com/embed/S-EI-uMJZx0
 
 ## array\_column
 
@@ -218,6 +224,18 @@ Sort an associative array by its keys rather than its values.
 a,m,z
 ```
 
+## array\_sum
+
+Sum the numeric elements of an array.
+
+```
+{{array_sum([1,2,3,4,5])}}
+```
+
+```
+15
+```
+
 ## array\_unique
 
 Return a new array with only the distinct values from the `array` argument.
@@ -366,6 +384,29 @@ Hello {{cerb_current_worker().first_name}}!
 Hello Kina!
 ```
 
+## cerb\_extract\_mentions
+
+Return the workers named by `@mention` in a block of text.
+
+`cerb_extract_mentions(text)`
+
+**Arguments:**
+
+| Name | Notes |
+| --- | --- |
+| `text` | Plain text to scan. Not HTML. |
+
+**Returns:** A plain list of worker [dictionaries](/docs/guide/developers/dictionaries/), one per matched worker. Empty when nothing matches.
+
+Each element is a full worker dictionary, so any [worker placeholder](/docs/records/types/worker/) can be read from it.
+
+```
+{% set mentioned = cerb_extract_mentions("Paging @kina for review") %}
+{% for worker in mentioned %}
+{{worker.full_name}} -- {{worker.title}}
+{% endfor %}
+```
+
 ## cerb\_extract\_uris
 
 Return an array of URLs found in HTML content, along with metadata (e.g. tag, attributes, URI parts).
@@ -476,30 +517,30 @@ Return an [object](/docs/scripting/arrays-objects/) with every placeholder in th
 
 ```
 {
-  "worker__context": "cerberusweb.contexts.worker",
-  "worker__loaded": true,
-  "worker__label": "Kina Halpue",
-  "worker__image_url": "https://cerb.example/avatars/worker/1?v=1512582324",
-  "worker_at_mention_name": "Kina",
-  "worker_calendar_id": 7,
-  "worker_dob": null,
-  "worker_id": 1,
-  "worker_first_name": "Kina",
-  "worker_full_name": "Kina Halpue",
-  "worker_gender": "F",
-  "worker_is_disabled": 0,
-  "worker_is_superuser": 1,
-  "worker_language": "en_US",
-  "worker_last_name": "Halpue",
-  "worker_location": "",
-  "worker_mobile": "15555555555",
-  "worker_phone": "",
-  "worker_time_format": "D, d M Y h:i a",
-  "worker_timezone": "America/Los_Angeles",
-  "worker_title": "Customer Support",
-  "worker_updated": 1512582324,
-  "worker_record_url": "https://cerb.example/profiles/worker/1-Kina-Halpue",
-  ...
+    "worker__context": "cerberusweb.contexts.worker",
+    "worker__loaded": true,
+    "worker__label": "Kina Halpue",
+    "worker__image_url": "https://cerb.example/avatars/worker/1?v=1512582324",
+    "worker_at_mention_name": "Kina",
+    "worker_calendar_id": 7,
+    "worker_dob": null,
+    "worker_id": 1,
+    "worker_first_name": "Kina",
+    "worker_full_name": "Kina Halpue",
+    "worker_gender": "F",
+    "worker_is_disabled": 0,
+    "worker_is_superuser": 1,
+    "worker_language": "en_US",
+    "worker_last_name": "Halpue",
+    "worker_location": "",
+    "worker_mobile": "15555555555",
+    "worker_phone": "",
+    "worker_time_format": "D, d M Y h:i a",
+    "worker_timezone": "America/Los_Angeles",
+    "worker_title": "Customer Support",
+    "worker_updated": 1512582324,
+    "worker_record_url": "https://cerb.example/profiles/worker/1-Kina-Halpue",
+    ...
 }
 ```
 
@@ -720,15 +761,15 @@ You can set deeply nested keys in a single line using dot-notation:
 
 ```
 {
-  "group": {
-    "name": "Support",
-    "manager": {
-      "name": {
-        "first": "Kina",
-        "last": "Halpue"
-      }
+    "group": {
+        "name": "Support",
+        "manager": {
+            "name": {
+                "first": "Kina",
+                "last": "Halpue"
+            }
+        }
     }
-  }
 }
 ```
 
@@ -745,14 +786,14 @@ Append items to an array by adding `.[]` to the key:
 
 ```
 {
-  "group": {
-    "name": "Support",
-    "members": [
-      "Kina Halpue",
-      "William Portcullis",
-      "Steven Emplois"
-    ]
-  }
+    "group": {
+        "name": "Support",
+        "members": [
+            "Kina Halpue",
+            "William Portcullis",
+            "Steven Emplois"
+        ]
+    }
 }
 ```
 
@@ -900,13 +941,13 @@ You can specify an array by appending `[]` without a leading dot (`.`):
 
 ```
 {
-  "team": {
-    "groups": [
-      "Support",
-      "Sales",
-      "Development"
-    ]
-  }
+    "team": {
+        "groups": [
+            "Support",
+            "Sales",
+            "Development"
+        ]
+    }
 }
 ```
 
@@ -957,6 +998,12 @@ Return the smallest value in an array or object.
 ```
 1
 ```
+
+## placeholders\_list
+
+An alias for [cerb\_placeholders\_list](#cerb_placeholders_list), with identical behavior.
+
+Prefer `cerb_placeholders_list`, which matches the rest of the `cerb_` family.
 
 ## random
 
@@ -1235,16 +1282,19 @@ end:vcard
 
 Return a single attribute from an XML node.
 
-`xml_attr(xml_node, attr)`
+`xml_attr(xml_node, attr, default)`
 
 **Arguments:**
 
 | Name | Notes |
 | --- | --- |
-| `xml_node` | An single XML node, usually from [xml\_xpath](#xml_xpath) |
+| `xml_node` | A single XML node, usually from [xml\_xpath](#xml_xpath) |
 | `attr` | The name of an attribute |
+| `default` | Optional. Returned when the attribute is absent. Defaults to `null`. |
 
-**Returns:** A string from the given XML attribute, or `false`.
+**Returns:** The attribute's value, or `default` when the attribute is absent (`null` if no default was given). Returns `false` when `xml_node` isn't an XML node.
+
+An attribute that is present but empty returns an empty string, not the default.
 
 ```
 {% set xml_string %}
@@ -1284,7 +1334,7 @@ Return all attributes from an XML node.
 
 | Name | Notes |
 | --- | --- |
-| `xml_node` | An single XML node, usually from [xml\_xpath](#xml_xpath) |
+| `xml_node` | A single XML node, usually from [xml\_xpath](#xml_xpath) |
 
 **Returns:** An array of attribute keys and values.
 
@@ -1362,7 +1412,11 @@ Use the [xml\_xpath](#xml_xpath) function to extract values with XPath[2](#fn:xp
 
 ## xml\_encode
 
-You can encode an object as XML with the **xml\_encode** function:
+Serialize an existing XML node back to a string.
+
+The argument must be a `SimpleXMLElement`, usually from [xml\_decode](#xml_decode) or [xml\_xpath](#xml_xpath); anything else returns `false`.
+
+There is also an [**xml\_encode** filter](/docs/scripting/filters/#xml_encode), and it is a different function that does the opposite job: it _builds_ XML from an array. Piping a node into the filter won't serialize it, and passing an array to this function returns `false`.
 
 ```
 {% set string_of_xml = 
@@ -1378,6 +1432,22 @@ You can encode an object as XML with the **xml\_encode** function:
 ```
 <client_id>1</client_id>
 ```
+
+## xml\_tag
+
+Return an XML node's element name.
+
+`xml_tag(xml_node)`
+
+**Arguments:**
+
+| Name | Notes |
+| --- | --- |
+| `xml_node` | A single XML node, usually from [xml\_xpath](#xml_xpath) |
+
+**Returns:** The element's tag name. Returns `false` when `xml_node` isn't an XML node.
+
+Despite the name, this inspects a node rather than building one. It belongs with [xml\_attr](#xml_attr) and [xml\_attrs](#xml_attrs) as the node-inspection family used after [xml\_decode](#xml_decode).
 
 ## xml\_xpath
 

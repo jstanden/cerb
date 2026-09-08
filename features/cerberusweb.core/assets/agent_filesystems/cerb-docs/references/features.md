@@ -2,7 +2,7 @@
 id: "features"
 title: "Features"
 url: "https://cerb.ai/features/"
-summary: "This page outlines the key features of Cerb, the extensible platform for support teams who need more than no-code. It includes shared inboxes for transforming any email or social account into a team inbox, collaborative workspaces for fully customizing dashboards and pages, AI Agents for creating conversational agents, automations for building workflows and integrating with web-based APIs, and endless integrations with pre-configured connected services."
+summary: "This page outlines the key features of Cerb, the extensible platform for support teams who need more than no-code. It includes shared inboxes for transforming any email or social account into a team inbox, collaborative workspaces for fully customizing dashboards and pages, AI agents that are ordinary workers -- owning tickets, joining groups, and using tools and language models from any provider, automations for building workflows and integrating with web-based APIs, and endless integrations with pre-configured connected services."
 tags: []
 ---
 ## Shared Inboxes
@@ -34,16 +34,16 @@ tags: []
 
 ## AI Agents
 
-[ ](/docs/interactions/)
+[ ](/docs/agents/)
 
-- Create conversational agents to assist workers and clients
-- Integrate with state-of-the-art language models from multiple providers
-- Give agents tools to reference knowledge and perform actions
-- Review chat transcripts to continuously improve agents
+- An AI agent is an ordinary worker — it owns tickets, joins groups, and is @mentioned like anyone else
+- Connect language models from fourteen providers, or your own self-hosted endpoint
+- Give agents tools as records to reference knowledge and take action
+- Review every turn, with token spend, latency, and provider responses
+- Assist workers in their own conversations, or clients on any website
 - Transition seamlessly between chat and form-based interactions
-- Deploy agents on any website
 
-[Discover AI agents](/docs/interactions/)
+[Discover AI agents](/docs/agents/)
 
 ## Automations
 
@@ -89,4 +89,4 @@ tags: []
 
 Start building today -- no credit card required.
 
-[Get Started Free](/signup/)
+  Get Started Free 

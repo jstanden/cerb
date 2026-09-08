@@ -20,9 +20,11 @@ Break a list into smaller chunks with **batch**:
         "red",
         "blue"
     ],
-    [
-        "green",
-        "(empty)"
-    ]
+    {
+        "2": "green",
+        "3": "(empty)"
+    }
 ]
 ```
+
+The padded final chunk keeps the numeric keys from the original list, so [json\_encode](#json_encode) emits it as an object rather than an array. Pipe it through [values](#values) first if you need consistent arrays.

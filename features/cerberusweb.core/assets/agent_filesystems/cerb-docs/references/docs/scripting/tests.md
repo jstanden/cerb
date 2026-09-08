@@ -2,7 +2,7 @@
 id: "docs-scripting-tests"
 title: "Scripting Reference: Tests"
 url: "https://cerb.ai/docs/scripting/tests/"
-summary: "This webpage serves as a scripting reference for tests in Cerb, detailing various boolean expressions that can be used in bot scripts and snippets. It explains how to perform tests using the `is` and `is not` operators, which return `true` or `false` values. The page covers a range of tests including checking if a variable is empty, even, iterable, null, numeric, odd, matches a pattern, is prefixed or suffixed, is of a specific record type, or is the same as another variable. Each test is accompanied by examples demonstrating its usage and expected output, providing a comprehensive guide for users to implement these tests effectively in their scripts."
+summary: "This webpage serves as a scripting reference for tests in Cerb, detailing various boolean expressions that can be used in automation scripting and snippets. It explains how to perform tests using the `is` and `is not` operators, which return `true` or `false` values. The page covers a range of tests including checking if a variable is empty, even, iterable, null, numeric, odd, matches a pattern, is prefixed or suffixed, is of a specific record type, or is the same as another variable. Each test is accompanied by examples demonstrating its usage and expected output, providing a comprehensive guide for users to implement these tests effectively in their scripts."
 tags: ["docs", "docs-scripting"]
 ---
 A **test** is an expression that returns a boolean value (`true` or `false`).
@@ -11,7 +11,7 @@ Tests are performed using the `is` and `is not` operators.
 
 When used as output, a test returns `1` for `true`, and nothing for `false`.
 
-These tests are available in bot scripts and snippets:
+These tests are available in automation scripting and snippets:
 
 - [empty](#empty)
 - [even](#even)
@@ -24,6 +24,8 @@ These tests are available in bot scripts and snippets:
 - [record type](#record-type)
 - [same as](#same-as)
 - [suffixed](#suffixed)
+
+https://www.youtube.com/embed/qXYcCa2YK4g
 
 ## empty
 
@@ -65,12 +67,12 @@ The **iterable** test checks if a variable is an array or iterable object.
 
 ```
 123: {{123 is iterable ? 'iterable' : 'not iterable'}}
-[1,2,3]: {{[1,2,3] is iterable ? 'iterable' : 'not iterable'}}
+[1,2]: {{[1,2] is iterable ? 'iterable' : 'not iterable'}}
 ```
 
 ```
 123: not iterable
-[1,2,3]: iterable
+[1,2]: iterable
 ```
 
 ## null
@@ -78,17 +80,20 @@ The **iterable** test checks if a variable is an array or iterable object.
 The **null** test checks if a variable is `null`.
 
 ```
-undefined: {{unknownVariable is null ? 'null' : 'defined'}}
-123: {{123 is null ? 'null' : 'constant'}}
 {% set name = 'Kina Halpue' %}
-name: {{name is null ? 'null' : 'defined'}}
+{% set nickname = null %}
+name: {{name is null ? 'null' : 'not null'}}
+nickname: {{nickname is null ? 'null' : 'not null'}}
+missing: {{missing is null ? 'null' : 'not null'}}
 ```
 
 ```
-undefined: null
-123: constant
-name: defined
+name: not null
+nickname: null
+missing: null
 ```
+
+A variable that was never set is also `null`. Asking a [dictionary](/docs/guide/developers/dictionaries/) for a key it doesn't have returns `null` rather than raising an error, so this test can't tell a variable that was set to `null` from one that was never set at all.
 
 ## numeric
 
@@ -111,8 +116,8 @@ abc: not numeric
 The **odd** test checks if a numeric variable is odd.
 
 ```
-1: {{1 is even ? 'even' : 'odd'}}
-2: {{2 is even ? 'even' : 'odd'}}
+1: {{1 is odd ? 'odd' : 'even'}}
+2: {{2 is odd ? 'odd' : 'even'}}
 ```
 
 ```

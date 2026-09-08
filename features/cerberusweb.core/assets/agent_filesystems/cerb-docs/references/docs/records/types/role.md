@@ -22,6 +22,7 @@ These fields are available in the [Records API](/docs/api/endpoints/records/) an
 | Req'd | Field | Type | Notes |
 | --- | --- | --- | --- |
 | &nbsp; | `editor_query_worker` | [text](/docs/records/fields/types/text/) | &nbsp; |
+| &nbsp; | `image` | [image](/docs/records/fields/types/image/) | The profile image, base64-encoded in data URI format |
 | &nbsp; | `links` | [links](/docs/records/fields/types/links/) | An array of record `type:id` tuples to link to. Prefix with `-` to unlink. |
 | &nbsp; | `member_query_worker` | [text](/docs/records/fields/types/text/) | &nbsp; |
 | **x** | **`name`** | [text](/docs/records/fields/types/text/) | The name of this role |

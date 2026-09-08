@@ -28,6 +28,8 @@ For instance, a worklist can display new customer messages that need a response,
 - [Import/Export](#importexport)
 - [Explore Mode](#explore-mode)
 
+https://www.youtube.com/embed/cWF2lkmnAYU
+
 # Search
 
 The most useful feature of worklists is their ability to pull out interesting sets of records from your data using [search queries](/docs/search/).

@@ -21,6 +21,8 @@ Escape strings and variables with the following modes:
 ```
 
 ```
-This\x20is\x20\x22escaped\x22\x20for\x20Javascript
-This is &quot;escaped&quot; for <b>HTML</b>
+This\u0020is\u0020\u0022escaped\u0022\u0020for\u0020Javascript
+This is &quot;escaped&quot; for &lt;b&gt;HTML&lt;/b&gt;
 ```
+
+`e` is a shorthand alias for `escape`, as in the second line above. Both are available.

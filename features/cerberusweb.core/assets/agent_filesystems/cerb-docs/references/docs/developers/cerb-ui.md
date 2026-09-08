@@ -26,6 +26,7 @@ https://www.youtube.com/embed/ArVRK6cwsBM
 - [Shared architecture](#shared-architecture)
   - [Editors – `CerbUI.editorCore`](#editors--cerbuieditorcore)
   - [Charts – `CerbUI.Chart`](#charts--cerbuichart)
+  - [Gantt – `CerbUI.Gantt`](#gantt--cerbuigantt)
   - [Choosers – `CerbUI.chooserCore`](#choosers--cerbuichoosercore)
 
 - [CSS utilities](#css-utilities)
@@ -118,6 +119,7 @@ Server-backed **choosers** search large sets; local **pickers** work from a fixe
 | `CerbUI.ScatterChart` | XY scatterplots on two continuous axes |
 | `CerbUI.Gauge` | Single-value radial gauges with thresholds |
 | `CerbUI.Timeblocks` | Activity heatmaps |
+| `CerbUI.Gantt` | Named rows of spans across a shared numeric or time axis |
 | `CerbUI.Map` | SVG region and point [maps](/docs/maps/) with its own projections |
 | `CerbUI.Sparkchart` | Compact multi-series categorical charts |
 | `CerbUI.Distbar` | Horizontal stacked bars |
@@ -141,6 +143,28 @@ Server-backed **choosers** search large sets; local **pickers** work from a fixe
 ## Builders
 
 `CerbUI.FormBuilder`, `CerbUI.SheetBuilder`, and `CerbUI.IconBuilder` back the visual builders in **Setup » Developers**.
+
+These three and `CerbUI.NodeEditor` are **not in the `cerb-ui.js` bundle**. They're compositions used on a handful of screens, so a page that needs one loads it itself rather than every page carrying it:
+
+```
+Devblocks.loadResources({
+  js: ['/resource/cerberusweb.core/js/cerb-ui/sheet-builder.js?v=' + APP_BUILD]
+}, function() {
+  if(!window.CerbUI || !CerbUI.SheetBuilder)
+    return console.error('CerbUI.SheetBuilder failed to load.');
+
+  // construct here
+});
+```
+
+| Component | Source |
+| --- | --- |
+| `CerbUI.NodeEditor` | `js/cerb-ui/node-editor.js` |
+| `CerbUI.FormBuilder` | `js/cerb-ui/form-builder.js` |
+| `CerbUI.SheetBuilder` | `js/cerb-ui/sheet-builder.js` |
+| `CerbUI.IconBuilder` | `js/cerb-ui/icon-builder.js` |
+
+The primitives they're built from – `Node`, `NodeCanvas`, `NodeEdge`, `NodeGraph`, `nodeTypes`, and `AgentPane` – **stay in the bundle**, so only the composition is deferred.
 
 ## Utility modules
 
@@ -171,6 +195,29 @@ Because highlighting is a mirror, **glyph advances must match the textarea exact
 The base class owns lifecycle (one instance per element, a `ResizeObserver` re-render, `destroy()`), color resolution, a single shared point-mode tooltip across all charts, bubbling `cerb-ui-chart:*` events, and the drill-through to Cerb search.
 
 Concrete charts implement `render()` and nothing else. Drill-through being shared means clicking a mark in **any** chart runs a search, instead of each widget template re-implementing it.
+
+## Gantt – `CerbUI.Gantt`
+
+A row is a label plus any number of spans, and rows covering the same range **overlap on screen**. That overlap is the point: a region two rows share is drawn as the place they meet, rather than invented as a third series that would imply a third kind of thing.
+
+Span ends work two ways, and getting this wrong is the easy mistake:
+
+| Axis | Span end | Example |
+| --- | --- | --- |
+| Continuous (no `step`) | Half-open `[start, end)` | A job running 09:00 to 10:00 doesn't overlap one starting at 10:00 |
+| Discrete (`step` set) | **Inclusive**, drawn to `end + step` | Slots `[1,6]` cover six cells, not five |
+
+`step` also governs tick generation. Without it the generic tick generator labels positions that don't exist – on a three-slot pool it offers a slot 1.5.
+
+| Option | Default | Notes |
+| --- | --- | --- |
+| `step` | – | Makes the axis discrete units of this size, and the span end inclusive |
+| `segment` | `false` | Draws a span as one block per unit instead of one continuous bar. **Requires `step`** – without it there are no units to cut on, and it silently degrades to a normal bar |
+| `segmentGap` | `3` | Pixels between blocks, clamped to 35% of a cell so a dense axis degrades into thin blocks rather than slivers |
+
+Use `segment` when a row's axis counts **units of capacity** – slots in a pool – rather than measuring a duration. Spans stay whole in the data either way: a hover reads back the span the caller supplied, not a unit number, so a caller can keep emitting compressed runs.
+
+A time axis chooses its own tick step, from one second to one week, and aligns from **local midnight**. Aligning from the epoch lands on the hour only in whole-hour zones, and would label every tick at `:30` for anyone on a half-hour offset.
 
 ## Choosers – `CerbUI.chooserCore`
 

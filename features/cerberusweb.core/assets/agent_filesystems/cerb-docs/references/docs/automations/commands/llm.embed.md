@@ -61,7 +61,7 @@ llm:
     authentication: cerb:connected_account:gemini
     model: text-embedding-004
   huggingface:
-    api_endpoint_url: https://api-inference.huggingface.co
+    api_endpoint_url: https://router.huggingface.co
     authentication: cerb:connected_account:huggingface
     model: BAAI/bge-large-en-v1.5
   ollama:

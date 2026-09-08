@@ -15,7 +15,9 @@ tags: ["docs", "docs-records-types"]
 - [The Setup terminal](#the-setup-terminal)
 - [Importing a ZIP archive](#importing-a-zip-archive)
 - [Bundled volumes](#bundled-volumes)
-  - [The cerb-agents skills volume](#the-cerb-agents-skills-volume)
+  - [The volumes Cerb ships](#the-volumes-cerb-ships)
+  - [cerb-agents](#cerb-agents)
+  - [cerb-docs](#cerb-docs)
 
 - [Records API](#records-api)
 - [Search Query Fields](#search-query-fields)
@@ -28,7 +30,11 @@ A volume's `name` must start with a letter, followed by letters, digits, or dash
 
 ### Mounting a volume
 
-An [automation](/docs/automations/) makes volumes available to an agent by listing them under `mounts:` on [`llm.agent:`](/docs/automations/commands/llm.agent/):
+There are two ways a volume reaches an agent, and most installations only ever need the first.
+
+**On the agent record.** An [AI worker](/docs/agents/)'s **AI** tab has a filesystems field, so giving an agent a volume is a picker rather than a script. Volumes chosen under **Everywhere** come with the agent wherever it runs, and a surface _adds_ to that rather than replacing it – an agent's filesystems are the union of the two. Nothing else is required: an agent that names no chat of its own runs the one Cerb ships, so a new volume, a new AI worker, and one surface turned on is enough to ask it a question.
+
+**In an automation.** For a script that composes its own agent turn, an [automation](/docs/automations/) makes volumes available by listing them under `mounts:` on [`llm.agent:`](/docs/automations/commands/llm.agent/):
 
 ```
 llm.agent:
@@ -102,11 +108,18 @@ Each bundled volume carries a manifest, and only its hash is read at runtime: an
 
 **Setup » Developers » Platform** has a **Reload** button that reconciles every bundled volume against its rows without waiting for a version change.
 
-#### The cerb-agents skills volume
+#### The volumes Cerb ships
 
-Cerb ships one bundled volume of its own: `cerb-agents`, a set of **skills** for Cerb's built-in [AI agents](/docs/agents/).
+Cerb ships two bundled volumes of its own:
 
-Each skill is one file an agent reads when it needs it, covering a domain a capable model is most often subtly wrong about – the [agent terminal](/docs/agents/#filesystem-commands), [KATA](/docs/kata/), [automations](/docs/automations/), [scripting](/docs/scripting/), [search queries](/docs/search/), [records](/docs/records/), [data queries](/docs/data-queries/), [icons](/docs/developers/icons/), and mail replies.
+| Volume | Contents |
+| --- | --- |
+| `cerb-agents` | **Skills** – short guides an agent reads when it needs one |
+| `cerb-docs` | The **complete Cerb documentation** as Markdown |
+
+#### cerb-agents
+
+Each skill is one file an agent reads when it needs it, covering a domain a capable model is most often subtly wrong about – the [agent terminal](/docs/agents/#filesystem-commands), [KATA](/docs/kata/), [automations](/docs/automations/), [scripting](/docs/scripting/), [search queries](/docs/search/), [records](/docs/records/), [data queries](/docs/data-queries/), [icons](/docs/developers/icons/), mail replies, and the documentation itself.
 
 Skills **compose**, which is the point. An agent asked for a chart of open tickets by group reads `automations` for the command shape, `data-queries` for the source and its aggregation, `scripting` for the Twig in between, and `search-queries` for the filter grammar – four short reads on the turn that needs them, rather than one prompt large enough to hold all four being re-sent on every turn of every conversation.
 
@@ -115,6 +128,14 @@ Nothing is loaded up front. An `INDEX.md` says what each skill covers and when t
 Reading a skill grants **knowledge, not a role**. An agent's identity and tools come from its system prompt and stay fixed for the conversation; work that genuinely belongs to another role belongs to a subagent.
 
 The same volume serves every agent, so a skill improved once is improved for all of them. A new agent chat mounts it by default.
+
+#### cerb-docs
+
+The `cerb-docs` volume carries the complete Cerb documentation as Markdown – the reference manual, [guides](/guides/), worked [solutions](/solutions/), [tips](/tips/), [workflows](/docs/workflows/), and release notes. Mount it and an agent can **look a feature up rather than recall it**, which matters most exactly where a capable model is subtly wrong: search query syntax, KATA keys, API endpoints, and automation commands.
+
+It's over a thousand files, so it's a volume to **search rather than browse**. An `INDEX.md` at the volume root says what lives in each directory, which paths are predictable enough to read directly, and what each page's front matter carries – enough to orient an agent that mounts the documentation and nothing else. The `docs` skill in `cerb-agents` covers the same ground in more depth for an agent that has both.
+
+Because it's bundled, the documentation **tracks the release** -- what an agent reads is the documentation for the version it's running on, not whatever is current on the website.
 
 ### Records API
 

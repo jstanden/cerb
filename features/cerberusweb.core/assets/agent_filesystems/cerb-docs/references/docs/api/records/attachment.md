@@ -18,7 +18,7 @@ tags: ["docs"]
 ```
 POST /rest/records/attachment/create.json HTTP/1.1
 Cerb-Auth: XXXX:XXXX
-Date: Sun, 23 Aug 2026 03:15:26 America
+Date: Tue, 08 Sep 2026 02:55:17 America
 Content-Type: application/x-www-form-urlencoded; charset=utf-8
 Host: cerb.example
 
@@ -59,7 +59,7 @@ fields[name]=filename.txt
 ```
 POST /rest/records/attachment/create.json?expand= HTTP/1.1
 Cerb-Auth: XXXX:XXXX
-Date: Sun, 23 Aug 2026 03:15:26 America
+Date: Tue, 08 Sep 2026 02:55:17 America
 Content-Type: application/x-www-form-urlencoded; charset=utf-8
 Host: cerb.example
 

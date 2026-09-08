@@ -69,6 +69,8 @@ The same set is browsable in-app from the 'Icon' component of **Setup » Develop
 
  cart
 
+ cerb
+
  chart-area
 
  chart-axis-x
@@ -114,6 +116,8 @@ The same set is browsable in-app from the 'Icon' component of **Setup » Develop
  circle-arrow-up
 
  circle-exclamation-mark
+
+ circle-filled
 
  circle-info
 
@@ -214,6 +218,8 @@ The same set is browsable in-app from the 'Icon' component of **Setup » Develop
  fast-forward
 
  file
+
+ file-ai
 
  file-document
 
@@ -331,9 +337,15 @@ The same set is browsable in-app from the 'Icon' component of **Setup » Develop
 
  logo-openai
 
+ logo-openrouter
+
  logo-qwen
 
+ logo-slack
+
  logo-xai
+
+ logo-youtube
 
  logo-z-ai
 
@@ -486,6 +498,8 @@ The same set is browsable in-app from the 'Icon' component of **Setup » Develop
  split-pane
 
  square
+
+ square-filled
 
  star
 

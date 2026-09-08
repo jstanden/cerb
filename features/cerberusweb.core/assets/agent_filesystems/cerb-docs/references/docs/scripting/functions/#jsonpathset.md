@@ -33,12 +33,12 @@ You can specify an array by appending `[]` without a leading dot (`.`):
 
 ```
 {
-  "team": {
-    "groups": [
-      "Support",
-      "Sales",
-      "Development"
-    ]
-  }
+    "team": {
+        "groups": [
+            "Support",
+            "Sales",
+            "Development"
+        ]
+    }
 }
 ```

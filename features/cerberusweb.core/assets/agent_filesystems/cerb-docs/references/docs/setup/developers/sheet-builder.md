@@ -18,9 +18,11 @@ The Sheet Builder is a visual builder for [sheet](/docs/sheets/) [KATA](/docs/ka
 - [Where you can use it](#where-you-can-use-it)
 - [Things worth knowing](#things-worth-knowing)
 
+https://www.youtube.com/embed/AAI724qVtc4
+
 # Access
 
-Click **Setup » Configure » Developers » Sheet Builder**. This tool is limited to administrators.
+Click **Setup » Developers » Sheet Builder**. This tool is limited to administrators.
 
 # What it produces
 

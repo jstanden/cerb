@@ -2,25 +2,26 @@
 id: "docs-scripting-filters"
 title: "Scripting Reference: Filters"
 url: "https://cerb.ai/docs/scripting/filters/"
-summary: "This webpage serves as a comprehensive scripting reference for filters available in Cerb's bot scripts and snippets. It details a wide array of filters, such as `abs`, `alphanum`, `append`, `array_sum`, `base_convert`, `base64_encode`, `capitalize`, `cerb_translate`, `date`, `escape`, `filter`, `hash`, `json_encode`, `markdown_to_html`, `md5`, `number_format`, `number_pretty`, `parse_csv`, `regexp`, `reverse`, `sha1`, `sort`, `split`, `striptags`, `title`, `trim`, `truncate`, `upper`, `url_encode`, and many more. Each filter is explained with its functionality, parameters, and examples, providing users with the necessary tools to manipulate data, format strings, handle arrays, and perform various transformations and calculations within Cerb's environment. This reference is essential for developers and users looking to enhance their automation and scripting capabilities in Cerb."
+summary: "This webpage serves as a comprehensive scripting reference for filters available in Cerb's automation scripting and snippets. It details a wide array of filters, such as `abs`, `alphanum`, `append`, `array_sum`, `base_convert`, `base64_encode`, `bin2hex`, `capitalize`, `cerb_translate`, `date`, `escape`, `filter`, `hash`, `hex2bin`, `json_encode`, `markdown_to_html`, `md5`, `number_format`, `number_pretty`, `parse_csv`, `regexp`, `reverse`, `sha1`, `sort`, `split`, `striptags`, `title`, `trim`, `truncate`, `upper`, `url_encode`, and many more. Each filter is explained with its functionality, parameters, and examples, providing users with the necessary tools to manipulate data, format strings, handle arrays, and perform various transformations and calculations within Cerb's environment. This reference is essential for developers and users looking to enhance their automation and scripting capabilities in Cerb."
 tags: ["docs", "docs-scripting"]
 ---
-These filters are available in bot scripts and snippets:
+These filters are available in automation scripting and snippets:
 
 - [abs](#abs)
 - [alphanum](#alphanum)
 - [append](#append)
-- [array\_sum](#array_sum)
 - [base\_convert](#base_convert)
 - [base64\_decode](#base64_decode)
 - [base64\_encode](#base64_encode)
 - [base64url\_decode](#base64url_decode)
 - [base64url\_encode](#base64url_encode)
 - [batch](#batch)
+- [bin2hex](#bin2hex)
 - [bytes\_pretty](#bytes_pretty)
 - [capitalize](#capitalize)
 - [cerb\_translate](#cerb_translate)
 - [column](#column)
+- [context\_alias](#context_alias)
 - [context\_name](#context_name)
 - [convert\_encoding](#convert_encoding)
 - [csv](#csv)
@@ -34,6 +35,7 @@ These filters are available in bot scripts and snippets:
 - [format](#format)
 - [hash](#hash)
 - [hash\_hmac](#hash_hmac)
+- [hex2bin](#hex2bin)
 - [html\_to\_text](#html_to_text)
 - [image\_info](#image_info)
 - [indent](#indent)
@@ -60,6 +62,7 @@ These filters are available in bot scripts and snippets:
 - [qp\_decode](#qp_decode)
 - [qp\_encode](#qp_encode)
 - [quote](#quote)
+- [raw](#raw)
 - [reduce](#reduce)
 - [regexp](#regexp)
 - [repeat](#repeat)
@@ -70,6 +73,7 @@ These filters are available in bot scripts and snippets:
 - [sha1](#sha1)
 - [slice](#slice)
 - [sort](#sort)
+- [spaceless](#spaceless)
 - [split](#split)
 - [split\_crlf](#split_crlf)
 - [split\_csv](#split_csv)
@@ -90,6 +94,10 @@ These filters are available in bot scripts and snippets:
 - [url\_decode](#url_decode)
 - [url\_encode](#url_encode)
 - [values](#values)
+- [xml\_encode](#xml_encode)
+  - [Hints](#hints)
+
+https://www.youtube.com/embed/7rp_9WA2W1s
 
 ## abs
 
@@ -151,18 +159,6 @@ customer@cerb.example, vendor@cerb.example
 
 ```
 vendor@cerb.example
-```
-
-## array\_sum
-
-Sum the numeric elements of an array.
-
-```
-{{array_sum([1,2,3,4,5])}}
-```
-
-```
-15
 ```
 
 ## base\_convert
@@ -248,12 +244,39 @@ Break a list into smaller chunks with **batch**:
         "red",
         "blue"
     ],
-    [
-        "green",
-        "(empty)"
-    ]
+    {
+        "2": "green",
+        "3": "(empty)"
+    }
 ]
 ```
+
+The padded final chunk keeps the numeric keys from the original list, so [json\_encode](#json_encode) emits it as an object rather than an array. Pipe it through [values](#values) first if you need consistent arrays.
+
+## bin2hex
+
+Convert a binary string to its hexadecimal representation:
+
+```
+{{"Cerb"|bin2hex}}
+```
+
+```
+43657262
+```
+
+Every byte becomes exactly two lowercase hex digits, so the result is twice as long as the input and safe to slice at any even offset. That's what makes it useful on decoded binary – the bytes of a message header, a hash digest, or a packed identifier – where the raw string would be unprintable and slicing it by character could split a multi-byte sequence.
+
+```
+{% set bytes = "AAECf/8="|base64_decode %}
+{{bytes|bin2hex}}
+```
+
+```
+0001027fff
+```
+
+Anything that isn't a string returns nothing at all. Use [hex2bin](#hex2bin) to convert back.
 
 ## bytes\_pretty
 
@@ -310,13 +333,29 @@ Extract a key from each item in an array as a new array. This has the same effec
 kina@cerb.example, milo@cerb.example
 ```
 
+## context\_alias
+
+Convert a Cerb `context` ID into its URI alias.
+
+`|context_alias`
+
+```
+{{'cerberusweb.contexts.ticket'|context_alias}}
+```
+
+```
+ticket
+```
+
+This is [context\_name](#context_name) with its `type` pinned to `uri`. `{{x|context_alias}}` and `{{x|context_name('uri')}}` are the same call.
+
 ## context\_name
 
 Convert a Cerb `context` ID into a human readable label.
 
 `|context_name(type)`
 
-| **type** | `singular`, `plural`, `id`, `uri` |
+| **type** | `singular`, `plural` (default), `singular_short`, `plural_short`, `id`, `uri` |
 
 ```
 {{'cerberusweb.contexts.ticket'|context_name('singular')}}
@@ -325,21 +364,36 @@ Convert a Cerb `context` ID into a human readable label.
 ```
 
 ```
-tickets
-task
+ticket
+tasks
+cerberusweb.contexts.worker
 ```
+
+Every form accepts either an alias or a full context string, so `worker` and `cerberusweb.contexts.worker` are interchangeable as input.
+
+Some record types register short names as well. For tickets, `singular_short` returns `convo` and `plural_short` returns `mail`.
+
+Those two don't look like a pair, and that's expected: a record type can register many names, each declaring which forms it can fill, and every form is claimed by the first name that qualifies for it. `mail` is declared as singular, plural, _and_ short, so it takes `plural_short` before a later name can.
 
 ## convert\_encoding
 
 Convert character encodings to the first argument from the second. If the second argument is blank then Cerb will attempt to auto-detect the current encoding.
 
+`|convert_encoding(to, from)`
+
+Converting _away_ from UTF-8 produces bytes that a UTF-8 page can't display, so a single conversion in that direction looks like mojibake even when it succeeded. A round trip shows the text survives intact:
+
 ```
-{{"This has 😂 emoji"|convert_encoding('iso-8859-1', 'utf-8')}}
+{{"Café"|convert_encoding('iso-8859-1', 'utf-8')|convert_encoding('utf-8', 'iso-8859-1')}}
 ```
 
 ```
-This has ? emoji
+Café
 ```
+
+When any character can't be represented in the target encoding, the _entire_ conversion fails and returns an empty string. It is not a partial result with the unmappable characters removed. One emoji loses the whole message, and no error is reported.
+
+Both of these return nothing: {{"This has 😂 emoji"|convert\_encoding('iso-8859-1', 'utf-8')}} and {{"Café"|convert\_encoding('ASCII', 'utf-8')}}
 
 ## csv
 
@@ -378,22 +432,19 @@ Use the **date** filter to format a [string](/docs/scripting/strings/) or [varia
 {{'+2 weeks 08:00'|date('Y-m-d h:ia T')}}
 ```
 
-```
-December 12, 2017 11:50am PST
-Wed, 13 December 2017 17:00 PST
-2017-12-26 08:00am PST
-```
+Relative English date strings like these are resolved when the script runs, so their output isn't shown here. The examples below use a fixed date instead.
 
 You can use any of the formatting options from PHP DateTime::format.
 
-The second parameter to the **date** filter can specify a timezone to use:
+The second parameter to the **date** filter is the timezone the result is displayed in. It does not change the timezone a date string is _parsed_ in, so include the zone in the string itself when it matters:
 
 ```
-{% set ts_now = 'now' -%}
+{% set time_format = 'F j, Y H:i' %}
+{% set ts = date('2017-12-12 14:57 America/New_York') -%}
 
-Bangalore: {{ts_now|date(time_format, 'Asia/Calcutta')}}
-Berlin: {{ts_now|date(time_format, 'Europe/Berlin')}}
-New York: {{ts_now|date(time_format, 'America/New_York')}}
+Bangalore: {{ts|date(time_format, 'Asia/Kolkata')}}
+Berlin: {{ts|date(time_format, 'Europe/Berlin')}}
+New York: {{ts|date(time_format, 'America/New_York')}}
 ```
 
 ```
@@ -405,11 +456,13 @@ New York: December 12, 2017 14:57
 You can get a Unix timestamp (seconds since 1-Jan-1970 00:00:00 UTC) from a date value with the `|date('U')` filter:
 
 ```
-It has been {{'now'|date('U')}} seconds since {{'0'|date(null, 'UTC')}}
+{{"2017-12-12 14:57 America/New_York"|date('U')}}
+{{"1513108620"|date('F j, Y H:i', 'America/New_York')}}
 ```
 
 ```
-It has been 1513108417 seconds since January 1, 1970 00:00
+1513108620
+December 12, 2017 14:57
 ```
 
 ## date\_modify
@@ -417,15 +470,15 @@ It has been 1513108417 seconds since January 1, 1970 00:00
 If you need to manipulate a date, create a date object with the [date](/docs/scripting/functions/#date) function and use the **date\_modify** filter:
 
 ```
-{% set format = 'D, d M Y T' %}
-{% set timestamp = date('now') %}
-Now: {{timestamp|date(format)}}
-+2 days: {{timestamp|date_modify('+2 days')|date(format)}}
+{% set format = 'D, d M Y' %}
+{% set timestamp = date('2017-12-12', 'UTC') %}
+Then: {{timestamp|date(format, 'UTC')}}
++2 days: {{timestamp|date_modify('+2 days')|date(format, 'UTC')}}
 ```
 
 ```
-Now: Tue, 12 Dec 2017 PST
-+2 days: Thu, 14 Dec 2017 PST
+Then: Tue, 12 Dec 2017
++2 days: Thu, 14 Dec 2017
 ```
 
 ## date\_pretty
@@ -433,13 +486,23 @@ Now: Tue, 12 Dec 2017 PST
 Convert a Unix timestamp into a human-readable, relative date:
 
 ```
-{% set timestamp = date("Jan 9 2002 10am", "America/Los_Angeles") %}
-{{timestamp|date('U')|date_pretty}}
+{% set an_hour_ago = date('now')|date('U') - 3600 %}
+{% set three_days_ago = date('now')|date('U') - (86400 * 3) %}
+{% set in_two_hours = date('now')|date('U') + 7200 %}
+{{an_hour_ago|date_pretty}}
+{{three_days_ago|date_pretty}}
+{{in_two_hours|date_pretty}}
 ```
 
 ```
-18 years ago
+1 hour ago
+3 days ago
+2 hours
 ```
+
+A date in the future has no suffix, as in the `2 hours` above.
+
+This filter takes a Unix timestamp, not a date object. Piping a [date()](/docs/scripting/functions/#date) object straight in returns an empty string and reports no error, so convert it first with |date('U').
 
 ## default
 
@@ -470,9 +533,11 @@ Escape strings and variables with the following modes:
 ```
 
 ```
-This\x20is\x20\x22escaped\x22\x20for\x20Javascript
-This is &quot;escaped&quot; for <b>HTML</b>
+This\u0020is\u0020\u0022escaped\u0022\u0020for\u0020Javascript
+This is &quot;escaped&quot; for &lt;b&gt;HTML&lt;/b&gt;
 ```
+
+`e` is a shorthand alias for `escape`, as in the second line above. Both are available.
 
 ## filter
 
@@ -566,6 +631,20 @@ For instance, you can use this to sign parameters in a survey URL to verify that
 ```
 
 Provide your own value for THIS IS SECRET. You an store it in the bot configuration.
+
+## hex2bin
+
+Convert a hexadecimal string back to the binary string it represents. This is the inverse of [bin2hex](#bin2hex):
+
+```
+{{"43657262"|hex2bin}}
+```
+
+```
+Cerb
+```
+
+The input must be an even number of hexadecimal digits and nothing else. An odd-length value, any non-hex character, and an empty string all return nothing rather than raising an error, so validate the source before relying on the result.
 
 ## html\_to\_text
 
@@ -702,14 +781,16 @@ You can _"prettify"_ a JSON string with the **json\_pretty** filter:
 
 ```
 {
-  "name": "Joe Customer",
-  "order_id": 54321,
-  "status": {
-    "text": "shipped",
-    "tracking_id": "Z1F238"
-  }
+    "name": "Joe Customer",
+    "order_id": 54321,
+    "status": {
+        "text": "shipped",
+        "tracking_id": "Z1F238"
+    }
 }
 ```
+
+The input must already be a JSON string. Given anything else – an array or a dictionary – the filter renders nothing at all, with no error, so pipe it through [json\_encode](#json_encode) first, as the example does.
 
 ## kata\_encode
 
@@ -728,8 +809,10 @@ colors@list:
   red
   green
   blue
-size: 100
+size@int: 100
 ```
+
+Each value is labeled with the [annotation](/docs/kata/#key-annotations) for its type – `@int` for a whole number, `@float` for a decimal, `@bool` for true or false – so a reader that applies those annotations gets numbers and booleans back rather than text. A value with no annotation is text.
 
 ## keys
 
@@ -914,6 +997,8 @@ A number below 1,000 is returned as-is, and a negative number keeps its sign. A 
 
 Parse a document with rows of comma-separated columns. Returns an array of rows with elements for columns.
 
+Cells are addressed by position rather than by name. A header row comes back as the first row of data, not as keys – so reach a column with an index like `{{row.0}}`, and skip the header yourself when the document has one.
+
 `parse_csv(separator=',',enclosure='"',escape='\\')`
 
 | **separator** | An optional character to separate fields by. Defaults to comma (`,`). |
@@ -965,28 +1050,25 @@ Parse a delimited string of email addresses into an object. This also assists wi
         "email": "kina@cerb.example",
         "mailbox": "kina",
         "host": "cerb.example",
-        "personal": null
+        "personal": ""
     },
     "milo@cerb.example": {
         "full_email": "milo@cerb.example",
         "email": "milo@cerb.example",
         "mailbox": "milo",
         "host": "cerb.example",
-        "personal": null
-    },
-    "karl@localhost": {
-        "full_email": "karl@localhost",
-        "email": "karl@localhost",
-        "mailbox": "karl",
-        "host": "localhost",
-        "personal": null
+        "personal": ""
     }
 }
 ```
 
+Addresses that don't validate are left out of the result. In the example above, the bare `karl` has no domain, so it doesn't appear at all – compare the number of keys against the number of addresses you passed in to detect that.
+
 ## parse\_url
 
 Parse a URL string into an object for validation.
+
+The filter takes no arguments and always returns the whole record. Reach a single component from the result – `{{url|parse_url.host}}` – rather than asking for one by name.
 
 ```
 {% set url = "https://cerb.ai/search?q=oauth2#fragment" %}
@@ -1015,11 +1097,7 @@ Mozilla/5.0 (Macintosh; Intel Mac OS X 13_0) AppleWebKit/605.1.15 (KHTML, like G
 ```
 
 ```
-{
-    "platform": "Macintosh",
-    "browser": "Safari",
-    "version": "16.1"
-}
+{"platform":"Macintosh","browser":"Safari","version":"16.1"}
 ```
 
 ## permalink
@@ -1114,6 +1192,44 @@ You should quote it.
 >
 > You should quote it.
 ```
+
+## raw
+
+Mark a value as markup that is already safe, so it isn't escaped.
+
+Cerb doesn't escape template output in most places – automations, snippets, email signatures, and mail templates all emit values as they are – so on those surfaces `raw` makes no difference to what you see:
+
+```
+{% set s = "<b> <i>x</i> </b>" %}
+{{s}}
+{{s|raw}}
+```
+
+```
+<b> <i>x</i> </b>
+<b> <i>x</i> </b>
+```
+
+Where it does matter is with filters that escape their own input before they run, and they don't all fail the same way.
+
+[spaceless](/docs/scripting/commands/#spaceless) matches on the `>` and `<` around whitespace, which are the characters escaping replaces. It finds nothing to collapse and returns the text unchanged, with no error.
+
+[nl2br](#nl2br) matches on line breaks, which escaping leaves alone, so it still inserts its `<br />` – but the markup around it comes back escaped.
+
+Piping through `raw` first prevents both:
+
+```
+{% set s = "<b> <i>x</i> </b>" %}
+{{s|spaceless}}
+{{s|raw|spaceless}}
+```
+
+```
+&lt;b&gt; &lt;i&gt;x&lt;/i&gt; &lt;/b&gt;
+<b><i>x</i></b>
+```
+
+[Sheet](/docs/sheets/) cells and HTML and JavaScript widget templates _do_ escape their output. On those surfaces raw suppresses that escaping, but generally only when it comes last in the chain, because a later filter can produce a new value that is escaped again.
 
 ## reduce
 
@@ -1316,6 +1432,12 @@ You can also provide an arrow function as a custom comparator for advanced sorti
 Item A, Item B, Item C
 ```
 
+## spaceless
+
+Remove the whitespace between HTML tags. `spaceless` is a **filter**, not a command, and it's applied to a block with [apply](/docs/scripting/commands/#apply): `{% apply spaceless %}`.
+
+It's Twig's own filter, and it's **deprecated as of Twig 3.12** and scheduled for removal in Twig 4.0. See [spaceless](/docs/scripting/commands/#spaceless) on the Commands page for the example, the history, and the non-deprecated alternative.
+
 ## split
 
 Convert a string to an array with the given delimiter.
@@ -1465,7 +1587,9 @@ This is the original message
 
 ## strip\_pem\_blocks
 
-Remove PEM-formatted blocks like PGP signatures, public keys, and SSL certificates from a block of text. This is particularly useful when sanitizing text for indexing by a custom [search index](/docs/records/types/search_index/), where the long base64 payloads contribute noise rather than searchable terms.
+Remove the contents of PEM-formatted blocks like PGP signatures, public keys, and SSL certificates from a block of text. This is particularly useful when sanitizing text for indexing by a custom [search index](/docs/records/types/search_index/), where the long base64 payloads contribute noise rather than searchable terms.
+
+The `-----BEGIN-----` and `-----END-----` markers are kept, on one line, so the text still records that a block was there.
 
 `|strip_pem_blocks`
 
@@ -1487,6 +1611,8 @@ iQIzBAEBCAAdFiEE...
 Hello,
 
 Here is my reply.
+
+-----BEGIN PGP SIGNATURE----- -----END PGP SIGNATURE-----
 ```
 
 ## strip\_url\_querystrings
@@ -1538,52 +1664,21 @@ Return an array of word tokens from a text block. This ignores punctuation and r
 
 ```
 {% set message %}
-KATA ("Key Annotated Tree of Attributes") is a human-friendly format for modeling structured 
-data that is used throughout Cerb to describe configurations, customizations, sheets, and 
-automations. KATA was inspired by YAML but avoids many of its pitfalls.
+support support support support ticket ticket ticket reply reply queue
 {% endset %}
 {{array_count_values(message|tokenize)|sort|reverse|json_encode|json_pretty}}
 ```
 
 ```
 {
-    "kata": 2,
-    "of": 2,
-    "is": 2,
-    "that": 1,
-    "data": 1,
-    "structured": 1,
-    "modeling": 1,
-    "for": 1,
-    "format": 1,
-    "friendly": 1,
-    "human": 1,
-    "a": 1,
-    "attributes": 1,
-    "tree": 1,
-    "annotated": 1,
-    "used": 1,
-    "key": 1,
-    "throughout": 1,
-    "to": 1,
-    "its": 1,
-    "many": 1,
-    "avoids": 1,
-    "but": 1,
-    "yaml": 1,
-    "by": 1,
-    "cerb": 1,
-    "inspired": 1,
-    "automations": 1,
-    "and": 1,
-    "sheets": 1,
-    "customizations": 1,
-    "configurations": 1,
-    "describe": 1,
-    "was": 1,
-    "pitfalls": 1
+    "support": 4,
+    "ticket": 3,
+    "reply": 2,
+    "queue": 1
 }
 ```
+
+Sorting counts puts the most frequent tokens first, but **sort** is not stable for equal values, so tokens with the same count can come back in any order.
 
 ## trim
 
@@ -1612,9 +1707,12 @@ whitespace
 
 ## truncate
 
-Ensure that a string is no longer than the given limit.
+Ensure that a string is no longer than the given limit. The limit includes the separator, so the result is never longer than `limit` characters.
 
-`|truncate(limit)`
+`|truncate(limit, separator)`
+
+| **limit** | The maximum length of the result, counting the separator. |
+| **separator** | The text appended to a truncated string. This defaults to `...` |
 
 ```
 {% set str = "This string is longer than we'd prefer" %}
@@ -1622,15 +1720,19 @@ Ensure that a string is no longer than the given limit.
 ```
 
 ```
-This string...
+This str...
 ```
+
+This filter takes (limit, separator). Twig's own **truncate** takes (length, preserve, separator), so a snippet copied from Twig's documentation passes its second argument as the _separator_, and no error is reported:
+
+{{"The quick brown fox jumps over the lazy dog"|truncate(20, true)}} returns The quick brown fox1, using true as the separator text. Without it, truncate(20) returns The quick brown f...
 
 ## unescape
 
 Decode HTML entities:
 
 ```
-{{"&amp;quot;iPhone&amp;quot; is &amp;copy; Apple, Inc."|unescape}}
+{{"&quot;iPhone&quot; is &copy; Apple, Inc."|unescape}}
 ```
 
 ```
@@ -1694,6 +1796,92 @@ Return the values of an array with sequential keys. This is the filter equivalen
 ```
 ["Canada","China","Germany","India","Mexico","United States"]
 ```
+
+## xml\_encode
+
+Build XML from an array.
+
+`|xml_encode(format)`
+
+**Arguments:**
+
+| Name | Notes |
+| --- | --- |
+| `format` | Optional. When `true`, the output is indented. Defaults to `false`. |
+
+**Returns:** The constructed XML as a string, or an empty string on failure.
+
+**The array must have exactly one top-level key.** It becomes the root element, and any sibling keys beside it are **silently dropped** -- no error, no warning.
+
+```
+{% set data = {'name':'Acme','city':'Portland'} %}
+{{data|xml_encode}}
+```
+
+```
+<name>Acme</name>
+```
+
+`city` is gone. Wrap the whole thing in a single root key instead:
+
+```
+{% set data = {'org':{'name':'Acme','city':'Portland'}} %}
+{{data|xml_encode}}
+```
+
+```
+<org><name>Acme</name><city>Portland</city></org>
+```
+
+String keys become tag names. Integer keys – the elements of a list – become `<item>`:
+
+```
+{% set data = {'tickets':[{'mask':'ABC-1'},{'mask':'ABC-2'}]} %}
+{{data|xml_encode}}
+```
+
+```
+<tickets><item><mask>ABC-1</mask></item><item><mask>ABC-2</mask></item></tickets>
+```
+
+### Hints
+
+Keys beginning with `@` are **hints rather than content**. They're skipped when walking children, and they're only read on integer-keyed entries – on a string-keyed entry the key itself is already the tag name, and both hints are ignored.
+
+`@tag` renames those `<item>` elements:
+
+```
+{% set data = {'tickets':[
+  {'@tag':'ticket','mask':'ABC-1'},
+  {'@tag':'ticket','mask':'ABC-2'}
+]} %}
+{{data|xml_encode}}
+```
+
+```
+<tickets><ticket><mask>ABC-1</mask></ticket><ticket><mask>ABC-2</mask></ticket></tickets>
+```
+
+`@attributes` sets attributes on that element, and a second argument of `true` indents the output:
+
+```
+{% set data = {'tickets':[
+  {'@tag':'ticket','@attributes':{'id':'1','status':'open'},'mask':'ABC-1'}
+]} %}
+{{data|xml_encode(true)}}
+```
+
+```
+<tickets>
+  <ticket id="1" status="open">
+    <mask>ABC-1</mask>
+  </ticket>
+</tickets>
+```
+
+Only `@tag` and `@attributes` are read. Other `@` keys are ignored rather than raising an error. Scalar values become text content, with carriage returns stripped.
+
+There is also an [**xml\_encode** function](/docs/scripting/functions/#xml_encode), and it is a different function doing the opposite job: it _serializes_ an existing XML node back to a string. Passing an array to the function returns `false`, and piping a node into this filter won't serialize it.
 
 [\< Functions](/docs/scripting/functions/)
 

@@ -15,7 +15,7 @@ All content is under `references/`.
 
 | Path | What it holds | Pages |
 |---|---|---|
-| `references/docs/` | The reference manual -- syntax, commands, record types, API, setup. The default place to look. | 581 |
+| `references/docs/` | The reference manual -- syntax, commands, record types, API, setup. The default place to look. | 593 |
 | `references/releases/` | Per-version release notes. Where a feature's first appearance is recorded. | 227 |
 | `references/solutions/` | Worked, copy-pasteable answers to specific problems, especially `solutions/automations/`. Adapt one before writing from scratch. | 107 |
 | `references/guides/` | Task-oriented walkthroughs, including `guides/integrations/<vendor>/`. | 66 |

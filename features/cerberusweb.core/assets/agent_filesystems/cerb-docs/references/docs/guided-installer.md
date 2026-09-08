@@ -2,7 +2,7 @@
 id: "docs-guided-installer"
 title: "Guided Installer"
 url: "https://cerb.ai/docs/guided-installer/"
-summary: "This page provides a guide to the Cerb config file, including settings and defaults. The guided installer verifies requirements, initializes the database, and walks users through the initial configuration of the software. The process includes checking server requirements, selecting a MySQL driver and engine, setting database connection details, creating an administrator account, selecting an environment, and configuring community mode with or without a license."
+summary: "This page provides a guide to the Cerb config file, including settings and defaults. The guided installer verifies requirements, initializes the database, and walks users through the initial configuration of the software. The process includes checking server requirements, selecting a MySQL driver and engine, setting database connection details, creating an administrator account, selecting an environment, and configuring the Community Edition with or without a license."
 tags: ["docs"]
 ---
 Cerb provides a guided installer that verifies your requirements, initializes the database, and walks you through the initial configuration of the software.
@@ -14,7 +14,7 @@ Cerb provides a guided installer that verifies your requirements, initializes th
 - [Step 5: Database Initialization](#step-5-database-initialization)
 - [Step 6: Creating Your Account](#step-6-creating-your-account)
 - [Step 7: Packages](#step-7-packages)
-- [Step 8: Community Mode](#step-8-community-mode)
+- [Step 8: Community Edition](#step-8-community-edition)
 - [Step 9: Finished](#step-9-finished)
 - [References](#references)
 
@@ -135,11 +135,11 @@ Once you're done, click the **Continue** button.
 
 Select an environment and click the **Continue** button.
 
-## Step 8: Community Mode
+## Step 8: Community Edition
 
-Without a license, Cerb operates in **community mode**. This allows full functionality with a single seat.
+Without a subscription, Cerb runs as the **Community Edition**, with full functionality and unlimited workers. What a subscription raises is [concurrency](/docs/setup/configure/license/) – how much work the installation runs at once.
 
-You can install a [purchased license](/pricing/) in **Setup&nbsp;» Configure&nbsp;» License**.
+You can install a [purchased subscription](/pricing/) in **Setup » Configure » Subscription**.
 
 Click the **Continue** button.
 

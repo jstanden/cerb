@@ -2,7 +2,7 @@
 id: "docs-automations-inputs-text"
 title: "Automation Inputs: Text"
 url: "https://cerb.ai/docs/automations/inputs/text/"
-summary: "This page provides detailed information on automation inputs for Cerb, specifically focusing on text inputs such as email. It outlines the requirements for these inputs, including whether they are mandatory, their default values, and their data types. The page includes a comprehensive table listing various data types supported by Cerb, such as boolean, date, decimal, email, freeform text, geopoint, IP addresses, record types, numbers, timestamps, URIs, and URLs, along with examples for each type. This serves as a guide for users to understand and implement the correct input formats in their automation processes."
+summary: "This page provides detailed information on automation inputs for Cerb, specifically focusing on text inputs such as email. It outlines the requirements for these inputs, including whether they are mandatory, their default values, their descriptions, the values they allow, and their data types. The page includes a comprehensive table listing various data types supported by Cerb, such as boolean, date, decimal, email, freeform text, geopoint, IP addresses, record types, numbers, timestamps, URIs, and URLs, along with examples for each type. This serves as a guide for users to understand and implement the correct input formats in their automation processes."
 tags: ["docs", "docs-automations"]
 ---
 ```
@@ -16,6 +16,27 @@ inputs:
 ### required:
 
 ### default:
+
+### description:
+
+A sentence describing what the value is for.
+
+This is what an [AI agent](/docs/agents/) reads when the automation answers an [agent tool](/docs/records/types/agent_tool/), since an [`agent.tool`](/docs/automations/triggers/agent.tool/) script's `inputs:` block _is_ the schema the model is shown.
+
+### allowed\_values:
+
+A list restricting the input to a fixed set of values.
+
+```
+inputs:
+  text/priority:
+    description: How urgent the request is
+    required@bool: yes
+    allowed_values@list:
+      low
+      normal
+      high
+```
 
 ### type:
 

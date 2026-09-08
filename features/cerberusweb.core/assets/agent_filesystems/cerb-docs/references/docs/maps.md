@@ -64,6 +64,8 @@ A **map schema** is defined using [KATA](/docs/kata/), which may include map res
 
 - [References](#references)
 
+https://www.youtube.com/embed/nUWPBBq730Q
+
 # GeoJSON
 
 GeoJSON[1](#fn:geojson) is a text format for describing geometric (latitude/longitude) **features** for use in maps.
@@ -763,7 +765,7 @@ This is a comma-separated value file (`.csv`). We need to convert it to our 'Map
 
 For demonstration, we'll do the conversion manually, so you're better prepared to create your own resources.
 
-You could write a simple script for this in any programming language; but you can also use the **Setup&nbsp;» Developers&nbsp;» Automation Scripting Tester** and write a quick and disposable script in Cerb's [bot scripting](/docs/scripting/) language.
+You could write a simple script for this in any programming language; but you can also use the **Setup&nbsp;» Developers&nbsp;» Automation Scripting Tester** and write a quick and disposable script in Cerb's [automation scripting](/docs/scripting/) language.
 
 ```
 {# https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports_us/11-23-2020.csv #}

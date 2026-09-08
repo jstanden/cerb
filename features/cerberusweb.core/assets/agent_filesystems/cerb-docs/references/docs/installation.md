@@ -9,7 +9,7 @@ tags: ["docs"]
 
 If you desire to self-host **Cerb**, or are required to do so (e.g. HIPAA, GDPR, government), you can install the software on servers you control. You should have experience deploying containers and web applications. We offer optional enterprise support if you need assistance with server architecture outside Cerb functionality.
 
-Your first self-hosted seat is free forever with no time limit. A license is not required, but registration entitles you to direct email support from the developers. Additional seats may be added to your license at any time.
+Self-hosting is free forever, with unlimited workers and unlimited simultaneous logins. A [subscription](/docs/setup/configure/license/) isn't required; what it raises is **concurrency** – how much background work and how many AI agent turns your installation runs at once. Registration also entitles you to direct email support from the developers.
 
 We strongly recommend using one of our **Docker** container examples rather than installing components individually. This simplifies installation and upgrades by ensuring the server requirements are always met. You can upgrade Cerb by simply switching image tags.
 

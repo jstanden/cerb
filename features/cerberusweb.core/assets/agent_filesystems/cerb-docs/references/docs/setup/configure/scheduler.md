@@ -19,7 +19,9 @@ Different jobs can run at the same time. A job is _locked_ while running to prev
 
 A job's extension manifest can flag it as **parallel**. Parallel jobs limit concurrency through reserved [queue slots](/docs/queues/#concurrency-slots) rather than a hard lock, so multiple invocations can overlap when capacity is available. The built-in [Background Queue](/docs/queues/#background-queue-scheduler) runs this way – it can fan out across slots to drain work in near real time rather than once per minute. Traditional locked jobs remain available for tasks that must not overlap (e.g. mailbox polling).
 
-Each job has a _"run now"_ link that will immediately run the job with logging enabled from inside your web browser. This is useful for troubleshooting and development, but the scheduler should be automated in production environments so that the jobs run without human intervention.
+A parallel job draws from the [slow lane](/docs/queues/#lanes), since it holds a slot for as long as its work takes. There's no per-job concurrency setting: a parallel job takes a slot like any other long-running drain and runs as fast as it can. A job that's currently running concurrently shows a countdown ring of its own rather than a fixed count, but it's excluded from the page's **next to fire** chip – a job that drains as fast as it can has no cadence to be next on.
+
+Each job has a _"run now"_ link that will immediately run the job with logging enabled from inside your web browser. This is useful for troubleshooting and development, but the scheduler should be automated in production environments so that the jobs run without human intervention. **Run now** on a parallel job takes a real slot, so it reports that every slot is busy rather than starting work that has nowhere to run.
 
 - [Automating /cron](#automating-cron)
   - [Using curl](#using-curl)

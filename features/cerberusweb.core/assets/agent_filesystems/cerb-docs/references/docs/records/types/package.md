@@ -11,6 +11,7 @@ tags: ["docs", "docs-records-types"]
 | **Identifier (ID):** | cerberusweb.contexts.package.library |
 
 - [Records API](#records-api)
+- [Tile art](#tile-art)
 - [Dictionary Placeholders](#dictionary-placeholders)
 - [Search Query Fields](#search-query-fields)
 - [Worklist Columns](#worklist-columns)
@@ -22,13 +23,35 @@ These fields are available in the [Records API](/docs/api/endpoints/records/) an
 | Req'd | Field | Type | Notes |
 | --- | --- | --- | --- |
 | &nbsp; | `description` | [text](/docs/records/fields/types/text/) | A description of this library package's contents |
-| &nbsp; | `image` | [image](/docs/records/fields/types/image/) | The profile image, base64-encoded in data URI format |
+| &nbsp; | `image` | [image](/docs/records/fields/types/image/) | The library tile art. Either an image base64-encoded in data URI format, or an [art spec](#tile-art) naming a Cerb icon and its colors |
 | &nbsp; | `links` | [links](/docs/records/fields/types/links/) | An array of record `type:id` tuples to link to. Prefix with `-` to unlink. |
 | **x** | **`name`** | [text](/docs/records/fields/types/text/) | The name of this package |
 | **x** | **`package_json`** | [text](/docs/records/fields/types/text/) | &nbsp; |
 | **x** | **`point`** | [text](/docs/records/fields/types/text/) | The library section containing this package |
 | &nbsp; | `updated_at` | [timestamp](/docs/records/fields/types/timestamp/) | The date/time when this record was last modified |
 | **x** | **`uri`** | [text](/docs/records/fields/types/text/) | The unique identifier of this package |
+
+### Tile art
+
+A package's `image` can name a [Cerb icon](/docs/developers/icons/) and the colors it's painted in, instead of carrying an embedded image. That's how a package tile in the library, and in the Add-tab and Add-widget choosers, can match the thing it installs.
+
+An art spec is up to three space-delimited words:
+
+```
+<icon> [background] [foreground]
+```
+
+| Written | Result |
+| --- | --- |
+| `todo` | The icon on a neutral gray |
+| `todo #7f7f7f` | The icon on the background you named |
+| `todo #7f7f7f #ffffff` | Both the background and the glyph color |
+| `todo auto #d62728` | A glyph color with the background left at default |
+| `todo #eeeeee:#333333` | One background in the light theme, another in dark |
+
+A color is `#rgb` or `#rrggbb`. Either color can be a `light:dark` pair, and a color with no pair is used in both themes. The word `auto` holds a slot at its default, which is how you set a foreground without pinning a background.
+
+Anything unusable falls back on its own slot's default, so an unrecognized icon name still lets your colors through and a malformed color still lets your icon through. The default background is a neutral gray that follows the theme, and the default glyph color is whichever of near-black or white reads better on the background behind it.
 
 ### Dictionary Placeholders
 

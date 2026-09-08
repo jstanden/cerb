@@ -1,7 +1,7 @@
 ---
-id: "docs-scripting-filters--arraysum"
-title: "Scripting Filter: array_sum"
-url: "https://cerb.ai/docs/scripting/filters/#arraysum"
+id: "docs-scripting-functions--arraysum"
+title: "Scripting Function: array_sum"
+url: "https://cerb.ai/docs/scripting/functions/#arraysum"
 summary: "Sum the numeric elements of an array"
 tags: ["docs", "docs-scripting"]
 ---

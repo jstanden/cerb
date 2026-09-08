@@ -15,22 +15,19 @@ Use the **date** filter to format a [string](/docs/scripting/strings/) or [varia
 {{'+2 weeks 08:00'|date('Y-m-d h:ia T')}}
 ```
 
-```
-December 12, 2017 11:50am PST
-Wed, 13 December 2017 17:00 PST
-2017-12-26 08:00am PST
-```
+Relative English date strings like these are resolved when the script runs, so their output isn't shown here. The examples below use a fixed date instead.
 
 You can use any of the formatting options from PHP DateTime::format.
 
-The second parameter to the **date** filter can specify a timezone to use:
+The second parameter to the **date** filter is the timezone the result is displayed in. It does not change the timezone a date string is _parsed_ in, so include the zone in the string itself when it matters:
 
 ```
-{% set ts_now = 'now' -%}
+{% set time_format = 'F j, Y H:i' %}
+{% set ts = date('2017-12-12 14:57 America/New_York') -%}
 
-Bangalore: {{ts_now|date(time_format, 'Asia/Calcutta')}}
-Berlin: {{ts_now|date(time_format, 'Europe/Berlin')}}
-New York: {{ts_now|date(time_format, 'America/New_York')}}
+Bangalore: {{ts|date(time_format, 'Asia/Kolkata')}}
+Berlin: {{ts|date(time_format, 'Europe/Berlin')}}
+New York: {{ts|date(time_format, 'America/New_York')}}
 ```
 
 ```
@@ -42,9 +39,11 @@ New York: December 12, 2017 14:57
 You can get a Unix timestamp (seconds since 1-Jan-1970 00:00:00 UTC) from a date value with the `|date('U')` filter:
 
 ```
-It has been {{'now'|date('U')}} seconds since {{'0'|date(null, 'UTC')}}
+{{"2017-12-12 14:57 America/New_York"|date('U')}}
+{{"1513108620"|date('F j, Y H:i', 'America/New_York')}}
 ```
 
 ```
-It has been 1513108417 seconds since January 1, 1970 00:00
+1513108620
+December 12, 2017 14:57
 ```

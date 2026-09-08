@@ -1,11 +1,11 @@
 ---
 id: "docs-setup-developers-llm-agent-transcripts"
-title: "LLM Agent Transcripts"
+title: "Agent Transcripts"
 url: "https://cerb.ai/docs/setup/developers/llm-agent-transcripts/"
-summary: "This page documents the LLM Agent Transcripts browser in Cerb's developer menu. Every agent conversation is recorded automatically and can be read back turn by turn, with token accounting, tool calls, thinking, images, and the filesystem volumes the session mounted. The page covers what is and isn't recorded, the fact that transcripts are never pruned and can only be deleted one at a time by hand, the one-way Active-to-Archived triage flow, forking a conversation onto another provider and what a cross-provider fork does not carry over, the preview-only compaction estimator, and the important fact that a transcript is not a record type -- it has no search filters, no worklist, and no Records API."
+summary: "This page documents the Agent Transcripts browser in Cerb's Setup AI menu -- listed there as Transcripts, and known as LLM Agent Transcripts before 12.0. Every agent conversation is recorded automatically and can be read back turn by turn, with token accounting, tool calls, thinking, images, and the filesystem volumes the session mounted. The page covers what is and isn't recorded, the fact that transcripts are never pruned and can only be deleted one at a time by hand, the one-way Active-to-Archived triage flow, forking a conversation onto another provider and what a cross-provider fork does not carry over, the preview-only compaction estimator, and the important fact that a transcript is not a record type -- it has no search filters, no worklist, and no Records API."
 tags: ["docs"]
 ---
-The LLM Agent Transcripts browser is where you read back what an [AI agent](/docs/agents/) actually did – every turn of every conversation, with the tokens it consumed, the tools it called, the files it reached, and the reply it gave.
+The Agent Transcripts browser is where you read back what an [AI agent](/docs/agents/) actually did – every turn of every conversation, with the tokens it consumed, the tools it called, the files it reached, and the reply it gave.
 
 https://www.youtube.com/embed/dOjF7-nofbA
 
@@ -24,7 +24,9 @@ https://www.youtube.com/embed/dOjF7-nofbA
 
 # Access
 
-Click **Setup » Configure » Developers » LLM Agent Transcripts**. This tool is limited to administrators.
+Click **Setup » AI » Transcripts**. This tool is limited to administrators.
+
+Before 12.0 this page was called **LLM Agent Transcripts** and lived under **Setup » Developers**. Only its name and its place in the menu changed; the page and its address are the same.
 
 **An administrator sees every transcript.** There's no per-worker scoping and no non-admin view -- a worker can't read back their own conversations. Since a transcript captures the full content of a conversation along with the worker who started it and their IP address, treat access to this screen as access to everything anyone has said to an agent.
 

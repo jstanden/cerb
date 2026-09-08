@@ -2,7 +2,7 @@
 id: "cloud"
 title: "Cerb Cloud"
 url: "https://cerb.ai/cloud/"
-summary: "This page provides an overview of Cerb Cloud, a subscription-based service that offers a fully managed, highly available, and scalable instance of Cerb in the cloud. The service includes features such as automated failover, performance optimization, and secure encryption. Cerb Cloud supports a wide range of configurations, including custom domains and email deliverability, and provides a free trial with optional paid upgrades. The service also offers a flexible pricing model, with unlimited workers allowed per seat, and features such as automatic backup storage and disaster recovery."
+summary: "This page provides an overview of Cerb Cloud, a subscription-based service that offers a fully managed, highly available, and scalable instance of Cerb in the cloud. The service includes features such as automated failover, performance optimization, and secure encryption. Cerb Cloud supports a wide range of configurations, including custom domains and email deliverability, and provides a free trial with optional paid upgrades. Cerb Cloud is priced on both seats and concurrency slots at $40 each per month, with the first three slots included. Workers and simultaneous logins are unlimited and seats are never enforced -- no login is blocked and no session is ended. It also features automatic backup storage and disaster recovery."
 tags: []
 ---
 **Cerb Cloud** is a subscription-based service that provides a finely tuned, ready-to-use instance of Cerb in an ideal environment. All you need is a web browser and your team can start putting Cerb's tools to work. We'll handle everything else.
@@ -23,15 +23,34 @@ Start free trial of Cerb Cloud
 
 ## How much does Cerb Cloud cost?
 
-Cerb Cloud is $40/month (USD) per seat. Unlimited workers can share seats. Receive two months free with annual billing.
+Cerb Cloud is priced on two things, $40/month (USD) each:
+
+- **Seats** – the number of different workers who sign in during a month, averaged across the year. Idle accounts are never counted, so there's no charge for inviting everyone who might need to take part.
+- **[Concurrency slots](/docs/queues/#concurrency-slots)** – how much background work and how many AI agent turns your instance runs at once. **The first three are included.**
+
+You only pay for the dimension you actually use. A large team running email, CRM, and project management with little AI usage pays for seats and stays inside the included slots. A small team running customer-facing AI agents pays for slots more than seats. A large team doing both pays for both.
+
+Receive two months free with annual billing. See [pricing](/pricing/) for the full comparison, including self-hosted.
+
+## Are seats enforced?
+
+**No.** Cerb never blocks a login, ends a session, or displaces one worker to make room for another. Seats price your subscription; they don't gate it.
+
+Running above your number during a busy stretch is expected and won't interrupt anyone's work. Nobody gets locked out mid-conversation because a colleague signed in. If your team grows for good, we'll settle it with you at renewal rather than in the moment.
 
 ## Do you require a credit card to start a free trial of Cerb Cloud?
 
 No! All we require is a valid email address to contact you. You will **never** receive an invoice until you request one.
 
+## Where is my Cerb Cloud trial hosted?
+
+Trials run in our **US** data center. A subscription can be hosted in the US, UK, Europe, or Asia-Pacific – you choose the region when you subscribe.
+
 ## How many workers can I invite to a Cerb Cloud trial?
 
-By default, your trial allows unlimited worker accounts with **3** seats. [Contact us](/help/) if you need to test with more seats, and we can raise the limit.
+As many as you like. Worker accounts and simultaneous logins are unlimited, and nobody is ever locked out to make room for someone else.
+
+A trial runs on the three included [concurrency slots](/docs/queues/#concurrency-slots), which is ample for evaluating everything short of heavy AI agent use. [Contact us](/help/) if your evaluation needs more.
 
 ## Do I need my own email server to use Cerb Cloud?
 

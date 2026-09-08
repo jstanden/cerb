@@ -21,7 +21,7 @@ You can build your own interactions and add them to toolbars found through Cerb 
 
 Every interaction you can run – plus the conversations still waiting on you – opens from one searchable **command bar**, rather than from whichever toolbar happened to own it. Resumable interactions are listed first, and each entry shows its automation's description.
 
-The command bar can also host an [AI agent](/docs/agents/) chat, which follows you from page to page rather than belonging to one screen. A chat there can tell you which page you're on and open a prefilled search for any record type. Add one on the [`agent.pane`](/docs/toolbars/interactions/agent.pane/#command-bar) [toolbar](/docs/toolbars/).
+The command bar can also host an [AI agent](/docs/agents/) chat, which follows you from page to page rather than belonging to one screen. A chat there can tell you which page you're on and open a prefilled search for any record type. Which agents appear there is set [on each agent](/docs/toolbars/interactions/agent.pane/#command-bar).
 
 An interaction abandoned by navigating away or closing a popup isn't lost. Worker interactions can be listed, resumed where they left off, and disposed of when they're no longer wanted.
 

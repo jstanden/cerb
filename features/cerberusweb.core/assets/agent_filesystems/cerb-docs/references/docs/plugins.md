@@ -321,7 +321,7 @@ In [templates](/docs/plugins/#templates):
 {devblocks_url}c=resource&plugin=example.plugin&f=path/to/resource/file.ext{/devblocks_url}
 ```
 
-From [bot scripting](/docs/scripting/):
+From [automation scripting](/docs/scripting/):
 
 ```
 {{cerb_url('c=resource&plugin=example.plugin&f=path/to/resource/file.ext')}}

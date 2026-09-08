@@ -18,6 +18,7 @@ tags: ["docs", "docs-records-types"]
 - [Priority](#priority)
 - [Capabilities](#capabilities)
 - [Ratings](#ratings)
+- [Usage tracking](#usage-tracking)
 - [Records API](#records-api)
 - [Search Query Fields](#search-query-fields)
 
@@ -126,6 +127,31 @@ Each rating stores a **sparse tier value** – `10`, `20`, `30`, `40`, with `0` 
 
 Queries and bulk updates use the lowercase names above; the interface capitalizes them for display, so `zdr` reads as `ZDR` and `no-training` reads as `No-training`.
 
+### Usage tracking
+
+Agent Model [worklists](/docs/worklists/) offer two [sparklines columns](/docs/worklists/#sparkline-columns) – **Usage** and **Tokens** – each with a 2h/1d/30d range toggle, drawn from the [agent turn metrics](/docs/metrics/#built-in-metrics). They're two columns rather than two series in one, because turns and tokens differ by orders of magnitude and bars sharing a stack share one scale.
+
+Matching `usage:` and `tokens:` [quick search filters](/docs/search/#parameterized-metrics-filters) query the same data. Each takes its own series names in parentheses:
+
+| Filter | Series | Meaning |
+| --- | --- | --- |
+| `usage:` | `turns` | Every turn this model ran |
+| `usage:` | `rate_limited` | Turns the provider answered with `429` |
+| `usage:` | `overloaded` | Turns the provider answered with `529` |
+| `usage:` | `unreachable` | Turns where no response arrived at all |
+| `usage:` | `latency` | Response time of successful turns, in milliseconds, averaged by default |
+| `tokens:` | `input` | Uncached prompt tokens |
+| `tokens:` | `output` | Completion tokens |
+| `tokens:` | `cache_read` | Prompt tokens served from the provider's cache |
+| `tokens:` | `cache_write` | Prompt tokens written to the provider's cache |
+
+```
+usage:(rate_limited:>0 since:today)
+tokens:(output:>1000000 since:-30 days)
+```
+
+Token counts are their own key rather than a series inside `usage:` so that one autocomplete list never mixes token counts with millisecond durations.
+
 ### Records API
 
 These fields are available in the [Records API](/docs/api/endpoints/records/) and [packages](/docs/packages/):
@@ -182,6 +208,8 @@ These [filters](/docs/search/#filters) are available in agent model [search quer
 | `speed` | text | The speed tier: `slow`, `moderate`, `fast`, or `instant` |
 | `status` | text | Availability: `available`, `unlisted`, or `disabled` |
 | `status.id` | number | Availability as a number: `0`, `1`, or `2` |
+| `tokens` | virtual | Filter by [token usage](#usage-tracking) – `input`, `output`, `cache_read`, `cache_write` |
 | `updated` | date | When the record was last modified |
+| `usage` | virtual | Filter by [turn usage](#usage-tracking) – `turns`, `rate_limited`, `overloaded`, `unreachable`, `latency` |
 | `watchers` | virtual | Filter by [watchers](/docs/watchers/) |
 

@@ -46,6 +46,7 @@ start:
 
   - [output:](#output)
 
+- [Provider defaults](#provider-defaults)
 - [Examples](#examples)
   - [Text classification](#text-classification)
   - [Text summarization](#text-summarization)
@@ -140,6 +141,9 @@ llm:
   openai:
     model: gpt-4o
     authentication: cerb:connected_account:openai
+  openrouter:
+    model: anthropic/claude-sonnet-5
+    authentication: cerb:connected_account:openrouter
   qwen:
     model: qwen3.7-plus
     authentication: cerb:connected_account:qwen
@@ -272,6 +276,22 @@ output:
       type: text
       content: positive
 ```
+
+# Provider defaults
+
+`llm.chat:` sends each provider's own defaults. [`llm.agent:`](/docs/automations/commands/llm.agent/) raises several of them for multi-turn work, so the same prompt can behave differently depending on which command sends it.
+
+| Setting | `llm.chat:` | `llm.agent:` |
+| --- | --- | --- |
+| `max_tokens` | The provider's own default | Raised, unless the model's block sets one |
+| Prompt caching | Off | On, unless the model's block sets it |
+| Request timeout | 30 seconds | Not bound by that limit when the turn runs in the background |
+
+The output ceiling is the one that surprises people. Several providers default `max_tokens` low enough to cut off a long answer, and the turn doesn't fail when that happens – it finishes early with a `length` [finish reason](#output), returning a truncated reply or a tool call whose JSON stops mid-structure. Set `max_tokens:` in the model's block when a one-off needs a long answer.
+
+This doesn't apply to the OpenAI family, which sends no `max_tokens` and lets the model use its own maximum.
+
+`max_tokens` is a ceiling rather than a target. It isn't a request for that many tokens and you're billed only for what the model generates, so raising it costs nothing on a short answer. A model whose own output limit is lower than the value you set still stops at its own limit.
 
 # Examples
 

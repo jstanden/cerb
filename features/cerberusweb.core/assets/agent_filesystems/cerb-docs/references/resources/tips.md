@@ -34,9 +34,9 @@ Enable the default reports
  
 Cerb ships with several built-in reports that you can access from a...
  ](/tips/enable-reports/) [ 
-Estimate seat usage
+Estimate worker activity
  
-Estimate seat usage from activity log data.
+Estimate worker activity from activity log data.
  ](/tips/estimate-seat-usage/) [ 
 Identity problematic automations or behaviors
  

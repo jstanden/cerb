@@ -39,6 +39,8 @@ Hello, {{first_name}}!
 
 # Topics
 
+https://www.youtube.com/embed/oXiTG2R01OY
+
 - [Variables](/docs/scripting/variables/)
 - [Strings](/docs/scripting/strings/)
 - [Arrays and Objects](/docs/scripting/arrays-objects/)

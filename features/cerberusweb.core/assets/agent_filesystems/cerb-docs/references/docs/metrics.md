@@ -158,6 +158,8 @@ The 5-minute period is a "sliding window" over the trailing 24 hours. When a new
 
 The daily-period retention can be configured per metric. This is particularly useful for metrics with high dimensionality and low long-term value (like rate-limiters), where keeping daily aggregations forever would balloon storage with little analytical benefit. The 5-minute and hourly retention windows still apply at their defaults.
 
+A daily sample expires relative to **its own day** rather than to the next maintenance pass. Setting a retention limit on a metric keeps that many days of daily history from the moment it's set, rather than waiting for a sweep to catch up with it.
+
 # Eventual consistency
 
 When multiple samples are collected in a short time period, with the same metric and dimensions, they are combined into a single statistics set. This single set is then pushed into a background [queue](/docs/queues/) for processing.
@@ -174,6 +176,12 @@ These metrics are managed automatically by Cerb:
 
 | Metric | Description |
 | --- | --- |
+| [cerb.agent.model.tokens.cache\_read](/docs/metrics/cerb.agent.model.tokens.cache_read/) | Prompt tokens served from a provider's cache per [agent](/docs/agents/) turn. Dimensions: `model_id`, `agent_id`, and `worker_id`. |
+| [cerb.agent.model.tokens.cache\_write](/docs/metrics/cerb.agent.model.tokens.cache_write/) | Prompt tokens written to a provider's cache per [agent](/docs/agents/) turn. Dimensions: `model_id`, `agent_id`, and `worker_id`. |
+| [cerb.agent.model.tokens.input](/docs/metrics/cerb.agent.model.tokens.input/) | Uncached prompt tokens per [agent](/docs/agents/) turn. Dimensions: `model_id`, `agent_id`, and `worker_id`. |
+| [cerb.agent.model.tokens.output](/docs/metrics/cerb.agent.model.tokens.output/) | Completion tokens per [agent](/docs/agents/) turn. Dimensions: `model_id`, `agent_id`, and `worker_id`. |
+| [cerb.agent.model.turns](/docs/metrics/cerb.agent.model.turns/) | [Agent](/docs/agents/) turns by model, agent, and the provider's response status. Dimensions: `model_id`, `status`, and `agent_id`. |
+| [cerb.agent.model.turns.duration](/docs/metrics/cerb.agent.model.turns.duration/) | Cumulative [agent](/docs/agents/) turn duration in milliseconds. Divide by `cerb.agent.model.turns` for an average response time. Dimensions: `model_id`, `status`, and `agent_id`. |
 | [cerb.automation.duration](/docs/metrics/automation.duration/) | How long automations are executed. Dimensions: `automation_id` and `trigger`. |
 | [cerb.automation.invocations](/docs/metrics/automation.invocations/) | How often automations are executed. Dimensions: `automation_id`, `trigger`, `exit_state`. |
 | [cerb.behavior.duration](/docs/metrics/behavior.duration/) | How long behaviors are executed. Dimensions: `behavior_id` and `event`. |
@@ -190,13 +198,11 @@ These metrics are managed automatically by Cerb:
 | [cerb.scheduler.invocations](/docs/metrics/cerb.scheduler.invocations/) | How often each scheduler job runs. Dimensions: `job`. |
 | [cerb.search.index.records](/docs/metrics/cerb.search.index.records/) | Records held by each search index over time. Dimensions: `index_id` and `engine`. |
 | [cerb.service.token.uses](/docs/metrics/cerb.service.token.uses/) | Authentications using a [service token](/docs/records/types/service_token/). Dimensions: `token_id`, `scope`, and `client_ip`. |
-| [cerb.sessions.seat.kicks](/docs/metrics/cerb.sessions.seat.kicks/) | Worker sessions ended to free up a license seat. Dimensions: `worker_id`. |
-| [cerb.sessions.seat.kicks.duration](/docs/metrics/cerb.sessions.seat.kicks.duration/) | Cumulative idle seconds of worker sessions ended to free up a license seat. Dimensions: `worker_id`. |
 | [cerb.snippet.uses](/docs/metrics/snippet.uses/) | Snippet usage over time by worker. Dimensions: `snippet_id` and `worker_id`. This replaces the `snippet_use_history` table but imports its data. |
 | [cerb.tickets.open](/docs/metrics/tickets.open/) | Open ticket counts over time by group and bucket. Dimensions: `group_id` and `bucket_id`. The metric is sampled every 15 minutes. |
 | [cerb.tickets.open.elapsed](/docs/metrics/tickets.open.elapsed/) | How long tickets spent in the open status by group and bucket. Dimensions: `group_id` and `bucket_id`. The metric is sampled when an open ticket is moved to a new group/bucket, or an open ticket transitions to a non-open status. |
 | [cerb.webhook.invocations](/docs/metrics/webhook.invocations/) | How often webhooks are executed. Dimensions: `webhook_id` and `client_ip`. |
-| [cerb.workers.active](/docs/metrics/workers.active/) | Seat usage by workers. Dimensions: `worker_id`. |
+| [cerb.workers.active](/docs/metrics/workers.active/) | Worker activity over time. Dimensions: `worker_id`. |
 
 # Using metrics in reports
 

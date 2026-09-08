@@ -164,7 +164,7 @@ The core functionality of Cerb.
 | Authentication Section | `core.page.setup.auth` |
 | Avatars Section | `core.page.setup.avatars` |
 | Behavior Section | `core.page.profiles.behavior` |
-| Bot Scripting Tester | `core.page.setup.developers.bot_scripting_tester` |
+| Automation Scripting Tester | `core.page.setup.developers.bot_scripting_tester` |
 | Bot Section | `core.page.profiles.bot` |
 | Branding Section | `core.page.setup.branding` |
 | Bucket Section | `core.page.profiles.bucket` |

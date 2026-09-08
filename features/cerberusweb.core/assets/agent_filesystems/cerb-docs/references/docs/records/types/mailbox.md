@@ -12,6 +12,8 @@ tags: ["docs", "docs-records-types"]
 
 - [Usage tracking](#usage-tracking)
 - [Records API](#records-api)
+  - [Protocol values](#protocol-values)
+
 - [Dictionary Placeholders](#dictionary-placeholders)
 - [Search Query Fields](#search-query-fields)
 - [Worklist Columns](#worklist-columns)
@@ -36,10 +38,27 @@ These fields are available in the [Records API](/docs/api/endpoints/records/) an
 | &nbsp; | `num_fails` | [number](/docs/records/fields/types/number/) | The number of consecutive failures |
 | &nbsp; | `password` | [text](/docs/records/fields/types/text/) | The mailbox password |
 | &nbsp; | `port` | [number](/docs/records/fields/types/number/) | The port to connect to; e.g. `587` |
-| &nbsp; | `protocol` | [text](/docs/records/fields/types/text/) | The protocol to use: `pop3`, `pop3-ssl`, `imap`, `imap-ssl` |
+| &nbsp; | `protocol` | [text](/docs/records/fields/types/text/) | The protocol to use. One of six exact lowercase values – see [below](#protocol-values) |
 | &nbsp; | `timeout_secs` | [number](/docs/records/fields/types/number/) | The socket timeout in seconds when downloading mail |
 | &nbsp; | `updated_at` | [timestamp](/docs/records/fields/types/timestamp/) | The date/time when this record was last modified |
 | **x** | **`username`** | [text](/docs/records/fields/types/text/) | The mailbox username |
+
+#### Protocol values
+
+`protocol` accepts **six** values, each stored exactly as written, in lowercase:
+
+| Value | Connection | Default port |
+| --- | --- | --- |
+| `pop3` | Unencrypted | 110 |
+| `pop3-starttls` | STARTTLS upgrade on the plain port | 110 |
+| `pop3-ssl` | Implicit TLS on a dedicated port | 995 |
+| `imap` | Unencrypted | 143 |
+| `imap-starttls` | STARTTLS upgrade on the plain port | 143 |
+| `imap-ssl` | Implicit TLS on a dedicated port | 993 |
+
+`-starttls` and `-ssl` are **not interchangeable**. STARTTLS opens a plain connection on the standard port and upgrades it; implicit TLS is encrypted from the first byte on a dedicated port. Choosing `imap-ssl` when your server expects STARTTLS connects to the wrong port with the wrong handshake.
+
+**Values are matched exactly, in lowercase.** The [Records API](/docs/api/endpoints/records/), [packages](/docs/packages/), and [workflows](/docs/workflows/) reject anything else at validation rather than storing it, so `IMAP-SSL`, `imaps`, or `imap_ssl` fail with a validation error instead of being accepted. The editor's dropdown can only produce a valid value.
 
 ### Dictionary Placeholders
 

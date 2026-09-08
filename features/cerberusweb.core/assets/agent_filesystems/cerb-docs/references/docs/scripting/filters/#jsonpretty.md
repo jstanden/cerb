@@ -19,11 +19,13 @@ You can _"prettify"_ a JSON string with the **json\_pretty** filter:
 
 ```
 {
-  "name": "Joe Customer",
-  "order_id": 54321,
-  "status": {
-    "text": "shipped",
-    "tracking_id": "Z1F238"
-  }
+    "name": "Joe Customer",
+    "order_id": 54321,
+    "status": {
+        "text": "shipped",
+        "tracking_id": "Z1F238"
+    }
 }
 ```
+
+The input must already be a JSON string. Given anything else – an array or a dictionary – the filter renders nothing at all, with no error, so pipe it through [json\_encode](#json_encode) first, as the example does.

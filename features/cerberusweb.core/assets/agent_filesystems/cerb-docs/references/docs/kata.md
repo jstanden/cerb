@@ -7,7 +7,7 @@ tags: ["docs"]
 ---
 **KATA** (_"Key Annotated Tree of Attributes"_) is a human-friendly format for modeling structured data that is used throughout Cerb to describe configurations, customizations, sheets, and automations.
 
-https://www.youtube.com/embed/6zaCwWaRV2c
+https://www.youtube.com/embed/3dNqWrR-zek
 
 KATA was inspired by YAML[1](#fn:yaml) but avoids many of its pitfalls[2](#fn:no-yaml).
 
@@ -40,12 +40,14 @@ KATA was inspired by YAML[1](#fn:yaml) but avoids many of its pitfalls[2](#fn:no
   - [bool](#bool)
   - [csv](#csv)
   - [date](#date)
+  - [float](#float)
   - [int](#int)
   - [json](#json)
   - [kata](#kata)
   - [key](#key)
   - [list](#list)
   - [nowrap](#nowrap)
+  - [optional](#optional)
   - [raw](#raw)
   - [ref](#ref)
   - [text](#text)
@@ -82,6 +84,8 @@ text:
 ### Key names
 
 Key names must be unique amongst their siblings, but can be repeated elsewhere.
+
+Two siblings with the same name don't parse. The error names the key and the line: ``set:` has a sibling with the same name (line 4)`
 
 Key names serve as _declarative_ instructions to a feature using KATA for customization (e.g. dashboard filters, snippet prompts, form interactions, automations). In such cases, the possible keys are predefined by that feature.
 
@@ -172,6 +176,8 @@ picklist:
 ### Text blocks
 
 When using key annotations, a value may contain multiple lines of text. Most annotations imply a text block (e.g. `@bool`, `@csv`, `@json`, `@list`). The `@text` annotation may be used for arbitrary text without any special handling.
+
+The `@optional` and `@ref` annotations are the exception. They only accept an inline value on the same line as the key. Following one with an indented block is a syntax error, and leaving its value blank produces an empty object rather than a blank value.
 
 ```
 comment:
@@ -320,6 +326,8 @@ result@bit: off
 
 Any other value returns a `1`.
 
+Matching ignores surrounding whitespace and letter case, so `No`, `FALSE`, and ` off ` are all recognized.
+
 ### bool
 
 `@bool` convert's a key's value into a boolean `true` or `false`.
@@ -334,6 +342,8 @@ The following values result in `false`:
 - `n`
 
 Any other value returns `true`.
+
+Matching ignores surrounding whitespace and letter case, so `No`, `FALSE`, and ` off ` are all recognized.
 
 ```
 enabled@bool: yes
@@ -354,6 +364,30 @@ colors@csv: red,green,blue
 ```
 when@date: +2 hours
 ```
+
+### float
+
+`@float` converts the key's value into a decimal number.
+
+```
+price@float: 1.50
+```
+
+Conversion is _prefix-based_. Leading whitespace is ignored, then as many characters as form a valid number are used, and the rest is discarded. Nothing is rejected, so a value that isn't a number converts to `0` rather than raising an error.
+
+| Value | Result |
+| --- | --- |
+| `3.14` | `3.14` |
+| `.5` | `0.5` |
+| `-2.7` | `-2.7` |
+| `1.5e3` | `1500` |
+| `12.5%` | `12.5` |
+| `12abc` | `12` |
+| `1,500` | `1` |
+| `$5` | `0` |
+| `banana` | `0` |
+
+Two of these are worth watching for. A thousands separator ends the number, so `1,500` becomes `1`. A leading currency symbol prevents any number from being read at all, so `$5` becomes `0`. Neither reports a problem.
 
 ### int
 
@@ -379,6 +413,8 @@ person@json:
 numbers@json: [1,2,3]
 ```
 
+In an [automation](/docs/automations/), a decoded object that carries both an `id` and a `_context` key additionally becomes a record [dictionary](/docs/guide/developers/dictionaries/), so its placeholders resolve like any other record. Nested objects are converted the same way.
+
 ### kata
 
 `@kata` parses text as a KATA-encoded value.
@@ -400,6 +436,14 @@ records@kata:
 ```
 http_status@key: response.http.status.code
 ```
+
+The path separator depends on where the document is parsed. KATA itself uses dots, as above. In an [automation](/docs/automations/) the dictionary convention is colons instead:
+
+```
+http_status@key: response:http:status:code
+```
+
+A path written with the wrong separator returns nothing rather than reporting an error.
 
 ### list
 
@@ -423,9 +467,37 @@ content@nowrap:
   that will be treated as a single line
 ```
 
+`@nowrap` is applied by KATA itself. It has no effect in an [automation](/docs/automations/), where the value passes through with its newlines intact.
+
+### optional
+
+`@optional` removes the key entirely when its value is empty.
+
+This is applied by [automations](/docs/automations/) rather than by KATA itself, so a KATA document parsed on its own keeps the key.
+
+```
+headers:
+  In-Reply-To@optional: {{message_headers['in-reply-to']}}
+```
+
+This builds a set of keys from placeholders that may not exist, without emitting blank ones. It's most useful in a `record.update:` where `fields:` should only carry the values that actually changed.
+
+A value is empty when it's blank, null, or an empty list. Falsy values are **not** empty, so `0`, `false`, and a whitespace-only value all keep the key.
+
+Annotations are applied from left to right, and `@optional` tests the value as it stands at that point in the chain. This makes the order significant:
+
+| Annotations | Value | Result |
+| --- | --- | --- |
+| `@trim,optional` | `' '` | The key is removed. Trim empties the value first. |
+| `@optional,trim` | `' '` | The key is kept with a blank value. |
+| `@optional,int` | blank | The key is removed. |
+| `@int,optional` | blank | The key is kept as `0`, which isn't empty. |
+
+Write `@trim,optional` when the value may be whitespace. Writing `@optional` first has no effect against it.
+
 ### raw
 
-`@raw` returns a key's text without substituting `{{placeholders}}` or executing [bot scripts](/docs/scripting/) using the [dictionary](#dictionaries).
+`@raw` returns a key's text without substituting `{{placeholders}}` or executing [automation scripting](/docs/scripting/) using the [dictionary](#dictionaries).
 
 This is useful for returning templates to other functionality (e.g. [sheets](/docs/sheets/)).
 

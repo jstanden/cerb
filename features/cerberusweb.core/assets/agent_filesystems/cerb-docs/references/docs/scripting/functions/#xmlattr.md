@@ -9,16 +9,19 @@ tags: ["docs", "docs-scripting"]
 
 Return a single attribute from an XML node.
 
-`xml_attr(xml_node, attr)`
+`xml_attr(xml_node, attr, default)`
 
 **Arguments:**
 
 | Name | Notes |
 | --- | --- |
-| `xml_node` | An single XML node, usually from [xml\_xpath](#xml_xpath) |
+| `xml_node` | A single XML node, usually from [xml\_xpath](#xml_xpath) |
 | `attr` | The name of an attribute |
+| `default` | Optional. Returned when the attribute is absent. Defaults to `null`. |
 
-**Returns:** A string from the given XML attribute, or `false`.
+**Returns:** The attribute's value, or `default` when the attribute is absent (`null` if no default was given). Returns `false` when `xml_node` isn't an XML node.
+
+An attribute that is present but empty returns an empty string, not the default.
 
 ```
 {% set xml_string %}

@@ -43,7 +43,7 @@ The board is a horizontal timeline of days, newest first.
 
 The scheduler revives a stashed task into today's TODO once its "stashed until" date passes.
 
-**Jump to Date** renders any off-window day on demand – a past completion log or a future stash column – with month pips marking which days carry completed or waiting tasks.
+The board's toolbar carries an **All tasks** / **My tasks** switcher, whose "My tasks" segment wears your own avatar, with **Jump to Date** beside it as its own button. Jump to Date renders any off-window day on demand – a past completion log or a future stash column – with month pips marking which days carry completed or waiting tasks.
 
 ### Working with cards
 
@@ -55,9 +55,13 @@ Cards support inline title editing, drag-and-drop between columns and days, manu
 
 Each board has a **shared** configuration stored on the tab – which [task projects](/docs/records/types/task_project/) appear, their accent colors, and their order.
 
-Every worker then overlays a **personal** selection, order, and "focus my tasks" preference on top, so one shared board serves a team without everyone seeing the same thing.
+Every worker then overlays a **personal** selection and order on top, and the toolbar's All tasks / My tasks switcher is theirs alone, so one shared board serves a team without everyone seeing the same thing.
 
 Project accent colors seed automatically from a standard palette.
+
+A board with no task projects selected renders a setup note pointing at the Projects picker rather than a row of empty day columns. A worker who can edit the page gets a button there that opens the configuration dialog directly.
+
+Adding the tab from the [package](/docs/packages/) library is the quickest route: the **Daily Task Board** package prompts for a tab name and, optionally, the projects to show, and assigns each an accent color as part of setup.
 
 ### Permissions
 

@@ -2,7 +2,7 @@
 id: "docs-queues"
 title: "Queues"
 url: "https://cerb.ai/docs/queues/"
-summary: "This page explains how queues work in Cerb -- naming conventions, message states, consumers, and how parallel background processing is wired up through the Background Queue scheduler, queue jobs, consumer extensions, and concurrency slots. It covers automation-backed queues, the Extension_QueueConsumer extension point, the APP_QUEUE_CONCURRENCY_SLOTS configuration option, and the per-queue claim window and retry policy that determine what happens to stalled and failed messages."
+summary: "This page explains how queues work in Cerb -- naming conventions, message states, consumers, and how parallel background processing is wired up through the Background Queue scheduler, queue jobs, consumer extensions, and concurrency slots. It covers automation-backed queues, the Extension_QueueConsumer extension point, sizing the concurrency pool, and the per-queue claim window and retry policy that determine what happens to stalled and failed messages."
 tags: ["docs"]
 ---
 **Queues** store a set of temporary messages from producers and distribute them to consumers in the order they were received.
@@ -20,6 +20,10 @@ tags: ["docs"]
 - [Queue Jobs](#queue-jobs)
 - [Background Queue scheduler](#background-queue-scheduler)
 - [Concurrency slots](#concurrency-slots)
+  - [Lanes](#lanes)
+  - [Several installations on one database server](#several-installations-on-one-database-server)
+  - [Sizing the pool](#sizing-the-pool)
+
 - [Post-processing chunks](#post-processing-chunks)
 - [Using queues in automations](#using-queues-in-automations)
 
@@ -44,6 +48,8 @@ For instance, every historical ticket can be reviewed by pushing ranges of IDs i
 A message can optionally belong to a [queue job](/docs/records/types/queue_job/) by setting its `job_id`. This groups related messages together so that progress can be monitored as a single unit.
 
 # Consumers
+
+https://www.youtube.com/embed/T60E8EMgOTs
 
 Concurrent consumers can pop `available` messages from the queue to process them.
 
@@ -91,6 +97,8 @@ This example uses the built-in `Internal` [consumer extension](#consumer-extensi
 Popping a message moves it to `in_flight`, which claims it for one consumer. If that consumer never reports back – it crashed, timed out, or lost its connection – the message would be stranded.
 
 To prevent that, an `in_flight` message that hasn't been resolved within the queue's **claim window** (`claim_window_secs`) is returned to `available` so another consumer can pick it up. The claim window defaults to `3600` seconds (1 hour). Set it to `0` to never reclaim stalled messages.
+
+A consumer **renews its claim while it works**, so a long job is never mistaken for an abandoned one. That's what lets a claim window be short: it only has to outlast the gap between renewals rather than the worst case duration of the work, so a queue can recover genuinely crashed work in seconds instead of waiting out an hour.
 
 ## Retries
 
@@ -140,11 +148,47 @@ This scheduler also adopts worker-initiated jobs whose monitors have been closed
 
 # Concurrency slots
 
-The [`APP_QUEUE_CONCURRENCY_SLOTS`](/docs/config-file/#optional-settings) configuration option (set in `framework.config.php`) determines the maximum combined concurrency of worker-initiated queue jobs. The default is `5`. This parallelizes, throttles, and timeshares queue job processing in high-volume environments to improve performance and worker experience.
+A **concurrency slot** is permission to run one drain at a time. Everything that runs in the background takes one: queue drains, bulk updates, imports, exports, [scheduler](/docs/setup/configure/scheduler/) jobs that run in parallel, and [AI agent](/docs/agents/) turns.
 
-Slots are reserved using the MySQL writer connection and are automatically released when the connection closes – so an interrupted PHP request can never permanently consume a slot.
+How many slots the installation has follows its [subscription](/docs/setup/configure/license/), with a floor of **three**. There is nothing to tune to make it larger.
 
-The default is sufficient for most environments. Increase the slot count when many workers run concurrent imports, exports, or bulk updates and you have the database capacity to support it.
+Slots are reserved on the MySQL writer connection and released automatically when the connection closes, so an interrupted PHP request can never permanently consume one.
+
+Work that can't get a slot waits rather than failing. An [AI agent](/docs/agents/) turn queued behind a full pool says so in the chat and in the [queue job](/docs/records/types/queue_job/) monitor, reporting how much of the pool is in use and how many turns are ahead of it, rather than showing a spinner that looks stuck.
+
+## Lanes
+
+Slots are split into a **fast lane**, a **slow lane**, and a **commons** that either may use. The axis is how long a slot is _held_, not how important the work is:
+
+| Lane | What draws from it |
+| --- | --- |
+| **Slow** | Work that holds a slot for as long as a model takes to answer – AI agent turns, and scheduler jobs that run in parallel |
+| **Fast** | Work that yields every batch – bulk updates, imports, exports |
+| Commons | Either lane |
+
+Neither lane can take the other's dedicated slots, so a queue of agent turns can no longer occupy every slot on the installation and starve a worker's export. Half the pool stays shared, so an idle installation still gives any single job everything it can use.
+
+The split is a quarter of the pool to each lane and half shared. A three-slot installation gets one slot per lane and one shared; below three there's nothing to divide and every slot is shared.
+
+Each lane is one **contiguous range** of slot numbers, and the two ranges overlap exactly on the commons – the fast lane runs from the first slot, the slow lane runs to the last, and the slots in the middle belong to both. On a 25-slot pool the fast lane is slots 1-19 and the slow lane is slots 7-25: six outright for each and thirteen shared. One contiguous range per lane is a guaranteed property rather than today's arrangement – neither lane is ever fragmented. That's what makes the split legible when it's drawn one block per slot, in **Setup » Configure » [Queues](/docs/setup/configure/queues/)** and on the [Subscription](/docs/setup/configure/license/) page. Which slot number a drain lands on isn't behavior – the caller shuffles – so the ordering decides how the pool _reads_, not how it runs.
+
+None of this is configured. A drain names a lane in code and gets back a slot or nothing, and the split follows the pool size.
+
+See **Setup » Configure » [Queues](/docs/setup/configure/queues/)** for a live view of which slots are busy right now.
+
+## Several installations on one database server
+
+Slot reservations are advisory locks named per **database**, so several Cerb installations sharing one MySQL server each get their own pool rather than competing for a single one.
+
+**Drain the background pool rather than rolling it.** Because a lock's name includes the database it belongs to, an old process and a new one during a rolling restart don't see each other's locks. That's harmless for concurrency slots, which are advisory capacity -- but the agent session turn lock is what stops two drains advancing one conversation at the same time. Stop the background workers, let them finish, and start the new ones.
+
+## Sizing the pool
+
+On a licensed installation the pool is yours to set, on **Setup » Configure » [Queues](/docs/setup/configure/queues/)**. There's no ceiling on it, and no configuration file to edit – you're sizing Cerb to the machine it runs on, and you're the one paying for that machine.
+
+Every installation has a floor of **three** slots. Community installations are fixed there, and on [Cerb Cloud](/pricing/) the platform sets the count, since it provisions the compute.
+
+The same page divides the pool between the lanes. See [Setup » Configure » Queues](/docs/setup/configure/queues/) for the fields.
 
 # Post-processing chunks
 

@@ -2,18 +2,18 @@
 id: "index"
 title: "Support software for teams who build"
 url: "https://cerb.ai/"
-summary: "Cerb is support software for teams who build. Design any support workflow with KATA -- a web-based programming language built for automation. Integrate with any API-based service, build AI agents, create personalized dashboards, and transform email into team-based inboxes with automated triage and routing. Self-host with Docker or use Cerb Cloud."
+summary: "Cerb is support software for teams who build. Design any support workflow with KATA -- a web-based programming language built for automation. Integrate with any API-based service, build AI agents, create personalized dashboards, and transform email into team-based inboxes with automated triage and routing. Self-host free with Docker, or use Cerb Cloud."
 tags: []
 ---
 # Support software for teams who build
 
 Design any support workflow with KATA -- a web-based programming language built for automation.
 
-https://www.youtube.com/embed/LYuj_E7fpEY
+https://www.youtube.com/embed/i5UIqBvROiM
 
-[Start free trial](/signup/) [See all features](/features/)
+Start free trial [Install free with Docker](/docs/installation/docker/)
 
-[11.1.11 See what's new](/docs/history/)
+[12.0.0 See what's new](/docs/history/)
 
 23+ years of development
 
@@ -21,15 +21,15 @@ Millions of email conversations
 
 Thousands of support teams
 
-Self-hosted or managed cloud
+Free to self-host, or fully managed
 
 Scale from solo to enterprise
 
-Integrate AI from major providers
+AI agents that work like teammates
 
 ## Try Cerb locally in minutes
 
-Launch a container on your own machine with Docker. A single seat is free forever with no license required.
+Launch a container on your own machine with Docker. Self-hosting is free forever, with unlimited workers and no license required.
 
 ```
 git clone https://github.com/cerb/cerb-docker/
@@ -71,7 +71,7 @@ Trusted by teams at
 - KATA: a purpose-built language for complex workflows
 - Browser-based IDE with step debugger and simulator
 - Pause workflows and resume on future events
-- Build multi-step interactions with forms
+- Build multi-step interactions with a visual form builder
 - Integrate with any API, database, or service
 - Secure by design with least-privilege policies
 
@@ -81,13 +81,15 @@ Trusted by teams at
 
 [ ](/docs/interactions/)
 
-- Connect to leading language models
-- Grant tools so agents can complete tasks
-- Answer questions from your documentation
-- Draft responses and summarize conversations
+- An agent works beside you as you reply -- it drafts, you edit and send
+- Connect language models from fourteen providers, or your own self-hosted endpoint
+- Give agents tools as records so they complete real tasks
+- Answer questions from your documentation and past conversations
 - Deploy agents on any website
 
-[Discover AI agents](/docs/interactions/)
+[Discover AI agents](/docs/agents/)
+
+[See all features](/features/)
 
 ## What our customers say
 
@@ -109,19 +111,19 @@ Hussam AlOkush, Senior Director - Customer Success, Advance Digital Inc.
 
 ### Self-Hosted
 
-Free to start
+Free forever
 
-First 3 seats free forever. Deploy on your infrastructure with Docker.
+Unlimited workers and seats, no registration required. Deploy on your infrastructure with Docker.
 
 ### Cerb Cloud
 
 $40/seat/month
 
-Fully managed. High availability, automatic backups, global data centers.
+Plus $40 per concurrency slot, first three included. Fully managed, with automatic backups and global data centers.
 
 [View full pricing details](/pricing/)
 ## Build the support workflow your team actually needs
 
 Stop adapting to your software. Start with a platform designed for customization.
 
-[Try free in Docker or Cerb Cloud](/signup/)
+ Try free in Docker or Cerb Cloud 

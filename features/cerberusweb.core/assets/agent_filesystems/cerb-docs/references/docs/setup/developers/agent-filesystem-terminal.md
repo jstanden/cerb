@@ -21,7 +21,7 @@ Because both run through one evaluator, what you can do here and what an agent c
 
 # Access
 
-Click **Setup » Configure » Developers » Agent Filesystem Terminal**. This tool is limited to administrators.
+Click **Setup » Developers » Agent Filesystem Terminal**. This tool is limited to administrators.
 
 # Mounting
 
