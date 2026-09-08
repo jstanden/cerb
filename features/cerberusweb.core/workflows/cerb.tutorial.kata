@@ -1,6 +1,6 @@
 workflow:
   name: cerb.tutorial
-  version: 2026-09-03T00:00:00Z
+  version: 2026-09-07T00:00:00Z
   description: A workspace with detailed descriptions and examples of Cerb functionality
   requirements:
     cerb_version: >=12.0 <12.1
@@ -377,7 +377,7 @@ records:
 
                   Teams and individuals can build a personalized "mission control" using a wide array of configurable widgets to stay focused on their most important tasks.
 
-                  Custom records and fields organize of any kind of team data (email, calls, social media, orders, survey responses, todo, etc). Pre-built solutions are easily shared within the community.
+                  Custom records and fields organize any kind of team data (email, calls, social media, orders, survey responses, todo, etc). Pre-built solutions are easily shared within the community.
 
                   The most common use case is converting standard POP3/IMAP mailboxes like Gmail or O365 (e.g. support@, team@) into high-volume team-based webmail with automated triage, internal discussions with @mentions, built-in productivity tools, custom actions, reporting, and a shared history.
 
