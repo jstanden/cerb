@@ -11,7 +11,7 @@
  *     segment: true,             // with `step`: one block per unit rather than one bar per span
  *     segmentGap: 3,             // px between blocks
  *     rows: [
- *       { label: 'Bulk jobs',   color: '#0088e6', spans: [ [1,6], [13,25] ] },
+ *       { label: 'Batch jobs',  color: '#0088e6', spans: [ [1,6], [13,25] ] },
  *       { label: 'Agent turns', color: '#9467bd', spans: [ [7,12], [13,25] ] },
  *     ],
  *     rowHeight: 28, barHeight: 14, labelWidth: 110,
@@ -155,9 +155,11 @@ CerbUI.Gantt = class extends CerbUI.Chart {
 	}
 
 	/*
-	 * Ticks on a DISCRETE axis land where a unit begins, never between two. The generic linear ticks are
-	 * "nice" for continuous data and will happily place one at 1.5 -- on a three-slot pool that reads as a
-	 * slot that does not exist.
+	 * Ticks on a DISCRETE axis name UNITS, not positions. The generic linear ticks are "nice" for continuous
+	 * data and will happily place one at 1.5 -- on a three-slot pool that reads as a slot that does not exist.
+	 *
+	 * Each tick is a unit's START, and stops BEFORE the domain's end because that end is exclusive: on a
+	 * 10-unit axis of [1,11] the last unit is 10, and a tick at 11 would label a cell that isn't drawn.
 	 */
 	_stepTicks(d, step, count) {
 		const units = (d[1] - d[0]) / step;
@@ -165,7 +167,7 @@ CerbUI.Gantt = class extends CerbUI.Chart {
 
 		const out = [];
 
-		for(let v = d[0], i = 0; v <= d[1] && i < 500; v += step * stride, i++)
+		for(let v = d[0], i = 0; v < d[1] && i < 500; v += step * stride, i++)
 			out.push(v);
 
 		return out;
@@ -268,14 +270,24 @@ CerbUI.Gantt = class extends CerbUI.Chart {
 			this._ticks(x).forEach(t => {
 				const px = x(t);
 
-				svg.appendChild(this._svgEl('line', {
-					'class': 'cerb-ui-gantt--grid',
-					x1: px, x2: px, y1: this.padTop, y2: rowsBottom
-				}));
+				// Segmented rows already show every unit as its own block, so a gridline adds no division
+				// and lands in the gap between two blocks -- reading as a boundary the labels don't name
+				// whenever the tick stride skips units (ticks at 1 and 3, a line between 2 and 3).
+				if(!this.segment) {
+					svg.appendChild(this._svgEl('line', {
+						'class': 'cerb-ui-gantt--grid',
+						x1: px, x2: px, y1: this.padTop, y2: rowsBottom
+					}));
+				}
+
+				// The label NAMES a unit, so it sits in the middle of the cell it belongs to. On the
+				// boundary it reads as the edge before the block -- unit 1's label under the line to unit
+				// 1's left, which scans as though the first block were unit 0.
+				const labelPx = this.step ? x(t + (this.step / 2)) : px;
 
 				const label = this._svgEl('text', {
 					'class': 'cerb-ui-gantt--tick',
-					x: px, y: rowsBottom + 15, 'text-anchor': 'middle'
+					x: labelPx, y: rowsBottom + 15, 'text-anchor': 'middle'
 				});
 				label.textContent = this.tickFormat(t);
 				svg.appendChild(label);
@@ -357,7 +369,11 @@ CerbUI.Gantt = class extends CerbUI.Chart {
 		const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 		const title = span.label != null ? span.label : row.label;
 		// The label reads back the span as the CALLER wrote it, so an inclusive end prints as the caller's end.
-		const range = this.tickFormat(span.start) + ' - ' + this.tickFormat(span.end);
+		// Compared AFTER formatting, so a span whose ends differ but render alike ('09:00 - 09:00' under a
+		// %H:%M format) collapses too, not just a literal single unit.
+		const from = this.tickFormat(span.start);
+		const to = this.tickFormat(span.end);
+		const range = (from === to) ? from : (from + ' - ' + to);
 
 		return '<div class="cerb-ui-chart-tip--title">' + esc(title) + '</div>'
 			+ '<div class="cerb-ui-chart-tip--value">' + esc(range) + '</div>';

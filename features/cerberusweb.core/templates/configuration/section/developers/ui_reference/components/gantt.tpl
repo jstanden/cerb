@@ -19,7 +19,7 @@ new CerbUI.Gantt(el, {
 	step: 1,                 // one cell per slot; omit for continuous ranges
 	// domain: [1, 26],      // omitted -> derived from the spans
 	rows: [
-		{ label: 'Bulk jobs',   color: '#0088e6', spans: [[1,19]] },
+		{ label: 'Batch jobs',  color: '#0088e6', spans: [[1,19]] },
 		{ label: 'Agent turns', color: '#9467bd', spans: [[7,25]] },
 	],
 	tickFormat: (v) =&gt; v,     // axis tick text
@@ -48,11 +48,11 @@ new CerbUI.Gantt(el, {
 	segment: true,           // one block per slot
 	segmentGap: 3,           // px between blocks
 	rows: [
-		{ label: 'Bulk jobs',   color: '#0088e6', spans: [[1,4]] },
+		{ label: 'Batch jobs',  color: '#0088e6', spans: [[1,4]] },
 		{ label: 'Agent turns', color: '#9467bd', spans: [[2,5]] },
 	],
 });
-// Five slots: bulk jobs hold 1-4 and agent turns 2-5, so the empty cell at
+// Five slots: batch jobs hold 1-4 and agent turns 2-5, so the empty cell at
 // either end is a slot that lane cannot take, and slots 2-4 are the commons.{/literal}</pre>
 			</div>
 		</div>
@@ -100,7 +100,7 @@ new CerbUI.Gantt(el, {
 			xScale: 'linear',
 			step: 1,
 			rows: [
-				{ label: 'Bulk jobs', color: '#0088e6', spans: [[1, 19]] },
+				{ label: 'Batch jobs', color: '#0088e6', spans: [[1, 19]] },
 				{ label: 'Agent turns', color: '#9467bd', spans: [[7, 25]] }
 			]
 		});
@@ -115,7 +115,7 @@ new CerbUI.Gantt(el, {
 			step: 1,
 			segment: true,
 			rows: [
-				{ label: 'Bulk jobs', color: '#0088e6', spans: [[1, 4]] },
+				{ label: 'Batch jobs', color: '#0088e6', spans: [[1, 4]] },
 				{ label: 'Agent turns', color: '#9467bd', spans: [[2, 5]] }
 			]
 		});
