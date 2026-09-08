@@ -22,14 +22,89 @@
 		<div class="cerb-u-mt-3 cerb-u-text-muted">This host has no concurrency slots, so no background work runs here.</div>
 	{/if}
 
-	{if $max_concurrency_slots != $max_concurrency_slots_licensed}
-	<div class="cerb-u-mt-3 cerb-u-text-muted">
-		<span class="cerb-icons cerb-icon-circle-info cerb-u-mr-1"></span> This subscription allows {$max_concurrency_slots_licensed} slots. <code>APP_QUEUE_CONCURRENCY_SLOTS</code> in <code>framework.config.php</code> caps them at {$max_concurrency_slots} on this host.
-	</div>
-	{/if}
 
 	<div class="cerb-u-mt-3 cerb-u-text-muted">
 		Scheduled jobs draw from the same lane as agent turns, so the two compete for it, and a provider's own rate limits apply on top of whatever this pool allows.
+	</div>
+
+	<div class="cerb-ui-panel cerb-u-mt-2{if !$is_licensed} cerb-ui-panel--note{/if}">
+	{if !$is_licensed}
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div class="cerb-ui-callout cerb-u-mb-3">
+			<span class="cerb-icons cerb-icon-lock cerb-ui-callout--icon"></span>
+			<div>
+				<div class="cerb-ui-header--title-sm">Locked without a subscription</div>
+				<div class="cerb-ui-header--subtitle">Community installs run {$max_concurrency_slots} slots divided evenly. A subscription raises the pool and lets you decide how it divides. <a href="https://cerb.ai/pricing" target="_blank" rel="noopener">See plans</a>.</div>
+			</div>
+		</div>
+	</div>
+	{/if}
+
+	<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmSetupQueues" class="cerb-ui-form{if $is_licensed} cerb-u-mt-3{/if}">
+	<input type="hidden" name="c" value="config">
+	<input type="hidden" name="a" value="invoke">
+	<input type="hidden" name="module" value="queues">
+	<input type="hidden" name="action" value="saveJson">
+	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
+
+	<div class="cerb-u-flex cerb-u-gap-3 cerb-u-items-end cerb-u-flex-wrap">
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">Slots</label>
+			{if $is_slots_provisioned}
+			{* A value, not a disabled control. A greyed-out spinner still reads as something you could
+			   change if you found the right permission; Cloud's pool is not editable here at any tier. *}
+			<div class="cerb-u-flex cerb-u-items-center cerb-u-gap-1">
+				<span class="cerb-icons cerb-icon-cloud cerb-u-text-muted"></span>
+				<span class="cerb-ui-header--title-sm">{$max_concurrency_slots}</span>
+			</div>
+			<div class="cerb-ui-form--help">Set by your plan</div>
+			{else}
+			<label class="cerb-ui-form--control" style="width:7em;">
+				<span class="cerb-ui-form--control-icon cerb-icons cerb-icon-gauge"></span>
+				<input type="number" name="slots" min="3" step="1" value="{$max_concurrency_slots}"{if !$is_licensed} disabled{/if}>
+			</label>
+			{/if}
+		</div>
+
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">Batch only</label>
+			<label class="cerb-ui-form--control" style="width:6em;">
+				<input type="number" name="lane_fast" min="1" step="1" value="{$lane_reserves.fast}"{if !$is_licensed} disabled{/if}>
+			</label>
+		</div>
+
+		{* Derived, so it is read-only rather than a field that snaps back: with the three totalling the pool,
+		   shared is whatever the two dedicated lanes leave, and typing into it would have to take slots from
+		   one of them by a rule nobody chose. Still POSTed, and the server re-validates the sum regardless. *}
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">Shared</label>
+			<label class="cerb-ui-form--control" style="width:6em;">
+				<input type="number" name="lane_shared" value="{$lane_reserves.shared}" readonly tabindex="-1">
+			</label>
+			<div class="cerb-ui-form--help">What's left</div>
+		</div>
+
+		<div class="cerb-ui-form--field">
+			<label class="cerb-ui-form--label">Agent turns only</label>
+			<label class="cerb-ui-form--control" style="width:6em;">
+				<input type="number" name="lane_slow" min="1" step="1" value="{$lane_reserves.slow}"{if !$is_licensed} disabled{/if}>
+			</label>
+		</div>
+
+		{if $is_licensed}
+		<div class="cerb-u-flex cerb-u-gap-1">
+			<button type="button" id="btnQueuesAuto" class="cerb-ui-button" title="Reset to a quarter for each lane, the rest shared"><span class="cerb-icons cerb-icon-magic"></span> Auto</button>
+			<button type="button" id="btnQueuesSave" class="cerb-ui-button cerb-u-anim-group"><span class="cerb-icons cerb-icon-circle-ok cerb-u-anim-pulse-hover"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+		</div>
+		{/if}
+	</div>
+
+	{if $is_licensed}<div class="cerb-u-mt-2 cerb-u-text-muted" id="setupQueuesLaneHint"></div>{/if}
+
+	<div class="cerb-u-mt-2 cerb-u-text-muted">
+		{if $is_slots_provisioned}Your plan provisions {$max_concurrency_slots} slot{if $max_concurrency_slots != 1}s{/if}. {/if}Batch work is imports, exports, bulk updates and reindexing; it releases a slot every batch. Agent turns hold one for as long as the model takes to answer. Shared slots serve either.
+	</div>
+	</form>
 	</div>
 </div>
 
@@ -259,5 +334,128 @@ $(function() {
 		refresh.paint(elapsed);
 	}, 250);
 });
+</script>
+{/if}
+
+{if $is_licensed}
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
+const cerbQueuesProvisioned = {if $is_slots_provisioned}true{else}false{/if};
+const cerbQueuesProvisionedSlots = {$max_concurrency_slots};
+{literal}
+$(function() {
+	const $frm = $('#frmSetupQueues');
+
+	if(!$frm.length) return;
+
+	Devblocks.formDisableSubmit($frm);
+
+	const el = {
+		slots: $frm.find('input[name=slots]')[0],
+		fast: $frm.find('input[name=lane_fast]')[0],
+		shared: $frm.find('input[name=lane_shared]')[0],
+		slow: $frm.find('input[name=lane_slow]')[0],
+		hint: document.getElementById('setupQueuesLaneHint'),
+		save: document.getElementById('btnQueuesSave'),
+	};
+
+	const num = (input) => Math.max(0, parseInt(input.value, 10) || 0);
+
+	// The pool being EDITED, not the one in effect -- raising slots and re-splitting has to validate as one
+	// change, or it could never be saved in a single submit.
+	const poolSize = () => cerbQueuesProvisioned ? cerbQueuesProvisionedSlots : num(el.slots);
+
+	const refreshHint = function() {
+		const n = poolSize();
+		const fast = num(el.fast), shared = num(el.shared), slow = num(el.slow);
+		const total = fast + shared + slow;
+		const starved = (fast < 1 || shared < 1 || slow < 1);
+		let msg;
+
+		if(n < 3) {
+			msg = 'A pool needs at least 3 slots.';
+		} else if(starved) {
+			msg = 'Every lane needs at least one slot.';
+		} else if(total !== n) {
+			msg = 'The lanes total ' + total + ', but the pool is ' + n + '.';
+		} else {
+			msg = fast + ' for batch, ' + shared + ' shared, ' + slow + ' for agent turns.';
+		}
+
+		const ok = (n >= 3 && !starved && total === n);
+
+		el.hint.textContent = msg;
+		el.save.disabled = !ok;
+	};
+
+	// SHARED absorbs every change, because a shared slot is the one that serves either kind of work -- so it
+	// is what you have spare, not a third thing to budget. It is derived, never typed.
+	//
+	// The two dedicated lanes are CLAMPED rather than allowed to overrun: the three always total the pool,
+	// so an unreachable split is never on screen and the only rejection left is one the browser cannot know
+	// about. Recomputed from scratch rather than nudged by a delta, so easing a lane back off restores a
+	// valid split without the user repairing shared by hand.
+	const rebalance = function(edited) {
+		const n = poolSize();
+
+		let fast = Math.max(1, num(el.fast));
+		let slow = Math.max(1, num(el.slow));
+
+		// Whichever lane was just edited yields to the other, and both leave one slot shared. Shrinking the
+		// POOL has to shrink both, or reserves set at a larger pool would survive one they no longer fit.
+		if('slow' === edited) {
+			slow = Math.min(slow, n - fast - 1);
+		} else if('fast' === edited) {
+			fast = Math.min(fast, n - slow - 1);
+		} else {
+			fast = Math.min(fast, Math.max(1, n - 2));
+			slow = Math.min(slow, Math.max(1, n - fast - 1));
+		}
+
+		fast = Math.max(1, fast);
+		slow = Math.max(1, slow);
+
+		// Write back only on a real change, so clamping doesn't fight the caret mid-keystroke.
+		if(num(el.fast) !== fast) el.fast.value = fast;
+		if(num(el.slow) !== slow) el.slow.value = slow;
+
+		el.shared.value = Math.max(1, n - fast - slow);
+
+		// The spinners stop where the pool does, so the arrows can't walk past it either.
+		el.fast.max = Math.max(1, n - slow - 1);
+		el.slow.max = Math.max(1, n - fast - 1);
+
+		refreshHint();
+	};
+
+	if(el.slots && !cerbQueuesProvisioned)
+		el.slots.addEventListener('input', () => rebalance('slots'));
+
+	el.fast.addEventListener('input', () => rebalance('fast'));
+	el.slow.addEventListener('input', () => rebalance('slow'));
+
+	document.getElementById('btnQueuesAuto').addEventListener('click', function() {
+		const n = poolSize();
+		const width = (n < 3) ? 1 : Math.max(1, Math.floor(n / 4));
+
+		el.fast.value = width;
+		el.slow.value = width;
+		el.shared.value = Math.max(1, n - (2 * width));
+
+		refreshHint();
+	});
+
+	$(el.save).on('click', function(e) {
+		e.stopPropagation();
+		Devblocks.clearAlerts();
+		Devblocks.saveAjaxForm($frm, {
+			// The lane diagram and the in-use row both render from the saved split, so a reload is the
+			// honest way to show what actually took effect.
+			success: function() { document.location.reload(); }
+		});
+	});
+
+	refreshHint();
+});
+{/literal}
 </script>
 {/if}

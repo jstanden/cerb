@@ -56,30 +56,133 @@ class _DevblocksQueueService {
 	 */
 	const int SLOTS_COMMUNITY = 3;
 
-	public function getMaxConcurrencySlots($with_soft_cap=true) : int {
-		$memo_key = $with_soft_cap ? 'soft' : 'hard';
-		
-		if(array_key_exists($memo_key, $this->_max_concurrency_slots))
-			return $this->_max_concurrency_slots[$memo_key];
-		
+	/**
+	 * The concurrency pool.
+	 *
+	 * A subscription is BINARY here: it lifts the community cap and the admin then sets the number on
+	 * Setup > Configure > Queues. It does not grant a count of its own -- the license's `Seats:` line is
+	 * informational and caps nothing. An expired subscription falls back to the community pool, so the
+	 * setting is only honored while `isLicensed()` holds.
+	 *
+	 * Cloud is provisioned by the platform instead, so it reads its own constant and ignores the setting.
+	 *
+	 * The Cloud test is `isCerbCloud()`, NOT whether `CERB_CLOUD_SLOTS` is defined. Gating on the constant
+	 * lets an instance that is missing it fall through to the self-hosted branch -- and `isLicensed()` is
+	 * unconditionally true on Cloud, so the miss reads as an unlimited subscription and the admin can size
+	 * their own pool. An unprovisioned instance gets the community pool instead.
+	 *
+	 * NEVER returns something `range(1, N)` can't build: every path floors at SLOTS_COMMUNITY and the
+	 * setting is an int.
+	 */
+	public function getMaxConcurrencySlots() : int {
+		if(array_key_exists('slots', $this->_max_concurrency_slots))
+			return $this->_max_concurrency_slots['slots'];
+
 		// Please be honest
-		$slots_community = self::SLOTS_COMMUNITY;
-		$slots_configured = APP_QUEUE_CONCURRENCY_SLOTS;
-		
-		if(defined('CERB_CLOUD_SEATS')) {
-			$slots_licensed = CERB_CLOUD_SEATS;
-			
-		} else {
-			$license = CerberusLicense::getInstance();
-			$slots_licensed = max($slots_community, $license->isLicensed() ? intval($license->slots) : 0);
-		}
-		
-		return $this->_max_concurrency_slots[$memo_key] = $slots_licensed
-			|> (fn($x) => $with_soft_cap ? min($x, $slots_configured) : $x)
-			|> (fn($x) => max(0, $x))
-		;
+		if(CerberusApplication::isCerbCloud())
+			return $this->_max_concurrency_slots['slots'] = max(
+				self::SLOTS_COMMUNITY,
+				defined('CERB_CLOUD_SLOTS') ? intval(CERB_CLOUD_SLOTS) : 0
+			);
+
+		if(!CerberusLicense::getInstance()->isLicensed())
+			return $this->_max_concurrency_slots['slots'] = self::SLOTS_COMMUNITY;
+
+		$configured = intval(DevblocksPlatform::getPluginSetting(
+			'cerberusweb.core',
+			CerberusSettings::CONCURRENCY_SLOTS,
+			self::SLOTS_COMMUNITY
+		));
+
+		return $this->_max_concurrency_slots['slots'] = max(self::SLOTS_COMMUNITY, $configured);
 	}
-	
+
+	/**
+	 * The default split: a quarter to each lane, the rest shared. This is what `Auto` writes and what an
+	 * unconfigured install runs.
+	 *
+	 * @return array{fast:int, shared:int, slow:int}
+	 */
+	static function getLaneReservesDefault(int $max_slots) : array {
+		$width = self::getLaneWidth($max_slots);
+
+		return [
+			'fast' => $width,
+			'shared' => max(0, $max_slots - (2 * $width)),
+			'slow' => $width,
+		];
+	}
+
+	/**
+	 * Validate an admin-authored split against a pool size.
+	 *
+	 * The three must account for every slot and none may be starved, so `1/1/1` is the smallest legal
+	 * split and it is also the community pool exactly. Pure -- the page validates with this before saving,
+	 * and the reader below re-validates rather than trusting what is stored.
+	 *
+	 * @return array{fast:int, shared:int, slow:int}|null null when the split cannot apply to this pool
+	 */
+	static function validateLaneReserves(int $max_slots, int $fast, int $shared, int $slow) : ?array {
+		if($max_slots < 3)
+			return null;
+
+		if($fast < 1 || $shared < 1 || $slow < 1)
+			return null;
+
+		if(($fast + $shared + $slow) !== $max_slots)
+			return null;
+
+		return ['fast' => $fast, 'shared' => $shared, 'slow' => $slow];
+	}
+
+	/**
+	 * The split this install actually runs.
+	 *
+	 * Re-validated on every read against the CURRENT pool, so a split that was legal at a larger pool
+	 * silently reverts to the default rather than dividing a pool it no longer fits. That is the whole
+	 * reason this is not just `json_decode` -- a license lapse changes the pool without touching settings.
+	 *
+	 * Configuring lanes is a subscription feature; an unlicensed install always runs the default.
+	 *
+	 * @return array{fast:int, shared:int, slow:int}
+	 */
+	public function getLaneReserves(?int $max_slots = null) : array {
+		$max_slots ??= $this->getMaxConcurrencySlots();
+
+		$default = self::getLaneReservesDefault($max_slots);
+
+		if(!CerberusLicense::getInstance()->isLicensed())
+			return $default;
+
+		$stored = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::CONCURRENCY_LANES, '', true);
+
+		if(!is_array($stored))
+			return $default;
+
+		return self::validateLaneReserves(
+			$max_slots,
+			intval($stored['fast'] ?? 0),
+			intval($stored['shared'] ?? 0),
+			intval($stored['slow'] ?? 0)
+		) ?? $default;
+	}
+
+	/** The lane's slots under THIS install's split, rather than the default one. */
+	public function getConfiguredLaneSlots(?QueueLane $lane = null) : array {
+		$max_slots = $this->getMaxConcurrencySlots();
+		$reserves = $this->getLaneReserves($max_slots);
+
+		return self::getLaneSlots($max_slots, $lane, $reserves['fast'], $reserves['slow']);
+	}
+
+	/** The lane's contiguous runs under THIS install's split. */
+	public function getConfiguredLaneSpans(?QueueLane $lane = null) : array {
+		$max_slots = $this->getMaxConcurrencySlots();
+		$reserves = $this->getLaneReserves($max_slots);
+
+		return self::getLaneSpans($max_slots, $lane, $reserves['fast'], $reserves['slow']);
+	}
+
 	/**
 	 * How many slots each lane reserves for itself. The rest are the commons, which either lane may use.
 	 *
@@ -116,18 +219,27 @@ class _DevblocksQueueService {
 	 *
 	 * @return int[] slot numbers, 1-based (slot 0 is the scheduler's and is never in the pool)
 	 */
-	static function getLaneSlots(int $max_slots, ?QueueLane $lane = null) : array {
+	static function getLaneSlots(int $max_slots, ?QueueLane $lane = null, ?int $fast = null, ?int $slow = null) : array {
 		if($max_slots < 1)
 			return [];
 
 		$all = range(1, $max_slots);
 
-		if(is_null($lane) || !($width = self::getLaneWidth($max_slots)))
+		if(is_null($lane))
+			return $all;
+
+		// Unstated reserves mean the default split, which is what every caller wanted before lanes were
+		// configurable and what `Auto` restores.
+		if(is_null($fast) || is_null($slow))
+			$fast = $slow = self::getLaneWidth($max_slots);
+
+		// Below three there is nothing to divide, and getLaneWidth() says so by returning 0.
+		if($fast < 1 && $slow < 1)
 			return $all;
 
 		return (QueueLane::Fast === $lane)
-			? array_slice($all, 0, $max_slots - $width)
-			: array_slice($all, $width);
+			? array_slice($all, 0, $max_slots - $slow)
+			: array_slice($all, $fast);
 	}
 
 	/**
@@ -139,10 +251,10 @@ class _DevblocksQueueService {
 	 *
 	 * @return array<int, array{int, int}>
 	 */
-	static function getLaneSpans(int $max_slots, ?QueueLane $lane = null) : array {
+	static function getLaneSpans(int $max_slots, ?QueueLane $lane = null, ?int $fast = null, ?int $slow = null) : array {
 		$runs = [];
 		
-		foreach(self::getLaneSlots($max_slots, $lane) as $slot) {
+		foreach(self::getLaneSlots($max_slots, $lane, $fast, $slow) as $slot) {
 			if($runs && end($runs)[1] === $slot - 1) {
 				$runs[array_key_last($runs)][1] = $slot;
 			} else {

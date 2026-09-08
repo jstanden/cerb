@@ -59,18 +59,6 @@ if(!defined('APP_DB_OPT_CONNECTION_RECONNECTS_WAIT_MS'))
 if(!defined('APP_HOSTNAME'))
 	define('APP_HOSTNAME', '');
 
-// An ESCAPE HATCH, not a throttle: an optional ceiling on the license-derived concurrency pool. It
-// never raises the pool -- the effective size is min(license slots, this) -- and by default it does
-// not bind at all.
-//
-// Set it only to size Cerb down to the box on a large license. The bundled Docker stack already caps
-// concurrent drains at the web server (`limit_conn` -> 529) and gives them their own FPM pool, so it
-// needs nothing here; a single-pool or non-Docker install has neither and this is its only lever.
-//
-// 0 does not mean "unlimited" -- it stops every drain, including the scheduler's own slot.
-if(!defined('APP_QUEUE_CONCURRENCY_SLOTS'))
-	define('APP_QUEUE_CONCURRENCY_SLOTS', PHP_INT_MAX);
-
 if(!defined('DEVBLOCKS_LANGUAGE'))
 	define('DEVBLOCKS_LANGUAGE','en');
 

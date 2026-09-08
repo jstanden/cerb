@@ -36,21 +36,24 @@ class PageSection_SetupQueues extends Extension_PageSection {
 		$queue_service = DevblocksPlatform::services()->queue();
 		$llm_service = DevblocksPlatform::services()->llm();
 		
-		// The effective pool, not the license's raw number: APP_QUEUE_CONCURRENCY_SLOTS clamps it, and on
-		// Cloud the constant replaces it outright. The page has to show what actually gets enforced.
+		// The effective pool: Cloud reads its provisioned constant, self-hosted reads the admin's setting.
 		$slots = $queue_service->getMaxConcurrencySlots();
-		$slots_licensed = $queue_service->getMaxConcurrencySlots(with_soft_cap: false);
 		
 		$tpl->assign('max_concurrency_slots', $slots);
-		$tpl->assign('max_concurrency_slots_licensed', $slots_licensed);
 		
-		$agent_slots = count(_DevblocksQueueService::getLaneSlots($slots, QueueLane::Slow));
+		$agent_slots = count($queue_service->getConfiguredLaneSlots(QueueLane::Slow));
 		
 		$tpl->assign('agent_slots', $agent_slots);
 		$tpl->assign('turns_per_slot', $llm_service->getMaxConcurrentTurns());
 		
-		$tpl->assign('lane_spans_fast_json', json_encode(_DevblocksQueueService::getLaneSpans($slots, QueueLane::Fast)));
-		$tpl->assign('lane_spans_slow_json', json_encode(_DevblocksQueueService::getLaneSpans($slots, QueueLane::Slow)));
+		$tpl->assign('lane_spans_fast_json', json_encode($queue_service->getConfiguredLaneSpans(QueueLane::Fast)));
+		$tpl->assign('lane_spans_slow_json', json_encode($queue_service->getConfiguredLaneSpans(QueueLane::Slow)));
+		
+		// The editor's state. Cloud's pool is provisioned rather than bought, so its slot count is shown
+		// and not editable; the lane split still is.
+		$tpl->assign('lane_reserves', $queue_service->getLaneReserves($slots));
+		$tpl->assign('is_licensed', CerberusLicense::getInstance()->isLicensed());
+		$tpl->assign('is_slots_provisioned', CerberusApplication::isCerbCloud());
 		
 		// Seed the occupancy row from the same shape the poll returns, so the page paints once with real
 		// state instead of drawing an empty pool and correcting itself a few seconds later.
@@ -64,6 +67,8 @@ class PageSection_SetupQueues extends Extension_PageSection {
 			switch ($action) {
 				case 'usageJson':
 					return $this->_configAction_usageJson();
+				case 'saveJson':
+					return $this->_configAction_saveJson();
 			}
 		}
 		return false;
@@ -98,6 +103,61 @@ class PageSection_SetupQueues extends Extension_PageSection {
 			// small on a big pool.
 			'busy' => array_values(array_keys(array_filter($usage))),
 		];
+	}
+	
+	/**
+	 * Save the pool size and its lane split.
+	 *
+	 * Both are subscription features, so an unlicensed install is refused here rather than merely being
+	 * shown a disabled form -- hiding an input is not enforcement. The lane split is validated against the
+	 * pool size being SAVED, not the one currently in effect, or raising slots and re-splitting in one
+	 * submit would always fail.
+	 */
+	private function _configAction_saveJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if(!CerberusLicense::getInstance()->isLicensed()) {
+			echo json_encode(['status' => false, 'error' => 'A subscription is required to change concurrency.']);
+			return true;
+		}
+		
+		$queue_service = DevblocksPlatform::services()->queue();
+		
+		$slots = DevblocksPlatform::importGPC($_POST['slots'] ?? null, 'integer', 0);
+		$fast = DevblocksPlatform::importGPC($_POST['lane_fast'] ?? null, 'integer', 0);
+		$shared = DevblocksPlatform::importGPC($_POST['lane_shared'] ?? null, 'integer', 0);
+		$slow = DevblocksPlatform::importGPC($_POST['lane_slow'] ?? null, 'integer', 0);
+		
+		// Cloud's pool is provisioned; only the split is the admin's to set. Tested with isCerbCloud() rather
+		// than on the constant, so an instance missing it cannot post itself a pool.
+		if(CerberusApplication::isCerbCloud())
+			$slots = $queue_service->getMaxConcurrencySlots();
+		
+		if($slots < _DevblocksQueueService::SLOTS_COMMUNITY) {
+			echo json_encode(['status' => false, 'error' => sprintf('Slots must be at least %d.', _DevblocksQueueService::SLOTS_COMMUNITY)]);
+			return true;
+		}
+		
+		if(!($reserves = _DevblocksQueueService::validateLaneReserves($slots, $fast, $shared, $slow))) {
+			echo json_encode(['status' => false, 'error' => sprintf('The lanes must total %d slots, with at least one in each.', $slots)]);
+			return true;
+		}
+		
+		if(!CerberusApplication::isCerbCloud())
+			DevblocksPlatform::setPluginSetting('cerberusweb.core', CerberusSettings::CONCURRENCY_SLOTS, $slots);
+		
+		DevblocksPlatform::setPluginSetting('cerberusweb.core', CerberusSettings::CONCURRENCY_LANES, $reserves, true);
+		
+		echo json_encode(['status' => true]);
+		return true;
 	}
 	
 	private function _configAction_usageJson() {

@@ -3221,6 +3221,8 @@ class CerberusSettings {
 	const PARSER_AUTO_REQ_EXCLUDE = 'parser_autoreq_exclude';
 	const TICKET_MASK_FORMAT = 'ticket_mask_format';
 	const AUTHORIZED_IPS = 'authorized_ips';
+	const CONCURRENCY_LANES = 'concurrency_lanes';
+	const CONCURRENCY_SLOTS = 'concurrency_slots';
 	const LICENSE = 'license_json';
 	const RELAY_DISABLE = 'relay_disable';
 	const RELAY_DISABLE_AUTH = 'relay_disable_auth';

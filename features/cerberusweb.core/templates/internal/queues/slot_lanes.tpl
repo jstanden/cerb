@@ -35,7 +35,7 @@ $(function() {
 		barHeight: 14,
 		labelWidth: 100,
 		rows: [
-			{ label: 'Bulk jobs', color: '#0088e6', spans: JSON.parse(el.dataset.spansFast) },
+			{ label: 'Batch jobs', color: '#0088e6', spans: JSON.parse(el.dataset.spansFast) },
 			{ label: 'Agent turns', color: '#9467bd', spans: JSON.parse(el.dataset.spansSlow) }
 		]
 	});
