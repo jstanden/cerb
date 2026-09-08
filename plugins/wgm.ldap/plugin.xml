@@ -41,7 +41,7 @@
 				<name>ScLdapLoginAuthenticator</name>
 			</class>
 			<params>
-				<param key="switcher_icon" value="images/fugue/address-book.png" />
+				<param key="switcher_icon" value="images/ldap.svg" />
 				<param key="switcher_label" value="Log in with LDAP" />
 			</params>
 		</extension>
