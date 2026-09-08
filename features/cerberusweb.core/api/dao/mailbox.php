@@ -106,6 +106,14 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 			->addField(self::PROTOCOL)
 			->string()
 			->setMaxLength(32)
+			->setPossibleValues([
+				'imap',
+				'imap-ssl',
+				'imap-starttls',
+				'pop3',
+				'pop3-ssl',
+				'pop3-starttls',
+			])
 			;
 		// mediumint(8) unsigned
 		$validation
@@ -1358,7 +1366,7 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 		$keys['num_fails']['notes'] = "The number of consecutive failures";
 		$keys['password']['notes'] = "The mailbox password";
 		$keys['port']['notes'] = "The port to connect to; e.g. `587`";
-		$keys['protocol']['notes'] = "The protocol to use: `pop3`, `pop3-ssl`, `imap`, `imap-ssl`";
+		$keys['protocol']['notes'] = "The protocol to use: `pop3`, `pop3-starttls`, `pop3-ssl`, `imap`, `imap-starttls`, `imap-ssl`; exact lowercase";
 		$keys['timeout_secs']['notes'] = "The socket timeout in seconds when downloading mail";
 		$keys['username']['notes'] = "The mailbox username";
 		
