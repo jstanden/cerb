@@ -96,6 +96,41 @@ class DAO_MetricValue {
 		return true;
 	}
 	
+	/**
+	 * Distinct values of a metric's first dimension, per calendar month, most recent last.
+	 *
+	 * Reads the DAILY tier only. The 5-minute and hourly tiers are garbage-collected after 1 and 14 days
+	 * (see increment()), so they cannot answer a question spanning months -- and the daily bin is too wide
+	 * to tell "on at once" from "seen today", which is why this counts DISTINCT rather than reading `max`.
+	 *
+	 * @return array<string, int> `YYYY-MM` => distinct count
+	 */
+	static function getDistinctDimensionCountsByMonth(string $metric_name, int $months = 12) : array {
+		if(!($metric = DAO_Metric::getByName($metric_name)))
+			return [];
+
+		$db = DevblocksPlatform::services()->database();
+
+		// From the start of the month $months-1 back, so a partial current month still counts.
+		$since = strtotime(sprintf('-%d months', max(0, $months - 1)), strtotime(gmdate('Y-m-01')));
+
+		$rows = $db->GetArrayReader(sprintf(
+			"SELECT FROM_UNIXTIME(bin, '%%Y-%%m') AS ym, COUNT(DISTINCT dim0_value_id) AS hits ".
+			"FROM metric_value WHERE metric_id = %d AND granularity = %d AND bin >= %d ".
+			"GROUP BY ym ORDER BY ym",
+			$metric->id,
+			self::PERIOD_DAYS_1,
+			$since
+		));
+
+		$out = [];
+
+		foreach($rows as $row)
+			$out[$row['ym']] = intval($row['hits']);
+
+		return $out;
+	}
+
 	public static function gc() {
 		$db = DevblocksPlatform::services()->database();
 		

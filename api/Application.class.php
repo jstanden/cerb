@@ -321,6 +321,10 @@ class CerberusApplication extends DevblocksApplication {
 		return defined('CERB_CLOUD_SUBDOMAIN');
 	}
 	
+	static function getCerbCloudSubscriber() : string {
+		return defined('CERB_CLOUD_SUBSCRIBER') ? strval(constant('CERB_CLOUD_SUBSCRIBER')) : '';
+	}
+	
 	static function checkRequirements() : array {
 		$errors = [];
 
@@ -3141,7 +3145,7 @@ class CerberusLicense {
 				'upgrades' => $e,
 				'company' => $company,
 				'email' => $email,
-				'slots' => $w,
+				'seats' => $w,
 				'data' => base64_encode($key),
 			] : [];
 			

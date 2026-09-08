@@ -40,7 +40,7 @@
 			<div class="cerb-ui-chip{if !$license_is_expired} cerb-ui-chip--green{else} cerb-ui-chip--orange{/if}">
 				<div class="cerb-ui-chip--head"><span class="cerb-icons {if !$license_is_expired}cerb-icon-circle-ok{else}cerb-icon-clock{/if} cerb-u-mr-1"></span> {$license->company}</div>
 				<div><div class="cerb-ui-chip--label">Workers / Seats</div><div class="cerb-ui-chip--value">Unlimited</div></div>
-				<div><div class="cerb-ui-chip--label">Concurrency slots</div><div class="cerb-ui-chip--value">{$max_concurrency_slots}</div></div>
+				<div><div class="cerb-ui-chip--label">Concurrency slots</div><div class="cerb-ui-chip--value">{if $is_slots_unlimited}Unlimited{else}{$max_concurrency_slots}{/if}</div></div>
 				<div><div class="cerb-ui-chip--label">Serial #</div><div class="cerb-ui-chip--value">{$license->key}</div></div>
 				<div><div class="cerb-ui-chip--label">Expires</div><div class="cerb-ui-chip--value">{$license->upgrades|devblocks_date:'F d, Y':true}</div></div>
 			</div>
@@ -63,7 +63,13 @@
 </div>
 
 {* Every number here is derived at render time from the same policy the drain enforces -- no tier
-   table and no prices, so there is nothing that can go stale against cerb.ai. *}
+   table and no prices, so there is nothing that can go stale against cerb.ai.
+
+   Shown to Community and to Cloud, where the pool is a real ceiling somebody might want raised. A
+   self-hosted subscription has no ceiling left to draw, and its split is edited on Setup > Configure >
+   Queues rather than read here -- so repeating it would only invite the reading that the subscription
+   chose those numbers. *}
+{if !$is_slots_unlimited}
 <div class="cerb-ui-panel cerb-ui-panel--spaced">
 	<div class="cerb-ui-header cerb-ui-header--tight">
 		<div>
@@ -75,11 +81,6 @@
 		{/if}
 	</div>
 
-	{if $max_concurrency_slots != $max_concurrency_slots_licensed}
-	<div class="cerb-u-mt-3 cerb-u-text-muted">
-		<span class="cerb-icons cerb-icon-circle-info cerb-u-mr-1"></span> This subscription allows {$max_concurrency_slots_licensed} slots. <code>APP_QUEUE_CONCURRENCY_SLOTS</code> in <code>framework.config.php</code> caps them at {$max_concurrency_slots} on this host.
-	</div>
-	{/if}
 
 	{if $max_concurrency_slots > 0}
 		{include file="devblocks:cerberusweb.core::internal/queues/slot_lanes.tpl" id="setupLicenseLanes"}
@@ -88,6 +89,32 @@
 	<div class="cerb-u-mt-3 cerb-u-text-muted">
 		<a href="https://cerb.ai/pricing" target="_blank" rel="noopener" class="cerb-u-text-muted">See plans</a> to raise concurrency. Workers and seats are unlimited on every plan.
 	</div>
+</div>
+{/if}
+
+{* Self-reported. Nothing here is enforced: no login is refused and no session is ended over seats. *}
+<div class="cerb-ui-panel cerb-ui-panel--spaced">
+	<div class="cerb-ui-header cerb-ui-header--tight">
+		<div>
+			<div class="cerb-ui-header--title-sm"><span class="cerb-icons cerb-icon-users"></span> Seat usage</div>
+			<div class="cerb-ui-header--subtitle">Different workers who signed in each month. Seats are never enforced; this is here so you can report an honest number.</div>
+		</div>
+		{if $seats_average}
+		<div class="cerb-ui-header--summary"><b>{$seats_average}</b> seat{if $seats_average != 1}s{/if} average over {$seat_months_count} month{if $seat_months_count != 1}s{/if}</div>
+		{/if}
+	</div>
+
+	{if !$seat_rows_count}
+	<div class="cerb-u-mt-3 cerb-u-text-muted">
+		<span class="cerb-icons cerb-icon-circle-info cerb-u-mr-1"></span> No worker activity has been recorded yet. This fills in as the scheduler runs.
+	</div>
+	{else}
+	<div id="setupLicenseSeats" class="cerb-u-mt-3"></div>
+
+	<div class="cerb-u-mt-3 cerb-u-text-muted">
+		<span class="cerb-icons cerb-icon-circle-info cerb-u-mr-1"></span> Counted from signing in and from sending mail, so an API integration acting as a worker is counted even though it never signs in. Someone who worked any part of a month counts once for that month, whether or not they overlapped with anyone else.
+	</div>
+	{/if}
 </div>
 
 {if !$is_cerb_cloud}
@@ -171,5 +198,37 @@ $(function() {
 		$frm.fadeIn().find('input:text:first').focus();
 	});
 });
+</script>
+{/if}
+
+{if $seat_rows_count}
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
+const cerbSeatRows = {$seat_rows_json nofilter};
+const cerbSeatAxisMax = {$seats_axis_max};
+{literal}
+$(function() {
+	const el = document.getElementById('setupLicenseSeats');
+
+	if(!el || !(window.CerbUI && CerbUI.Gantt))
+		return;
+
+	// One block per seat against a fixed track, so the unused remainder stays visible. Every row is the
+	// same measure, so they share one color -- the palette's own sequence would read as 12 categories.
+	//
+	// No axis: the number a reader acts on is the average in the header, and numbering seats invites
+	// counting blocks to find it. The blocks carry the shape; the header carries the figure.
+	new CerbUI.Gantt(el, {
+		xScale: 'linear',
+		domain: [1, cerbSeatAxisMax],
+		step: 1,
+		segment: true,
+		axis: false,
+		rowHeight: 24,
+		barHeight: 12,
+		labelWidth: 96,
+		rows: cerbSeatRows.map((r) => ({ label: r.label, color: '#0088e6', spans: r.spans })),
+	});
+});
+{/literal}
 </script>
 {/if}
