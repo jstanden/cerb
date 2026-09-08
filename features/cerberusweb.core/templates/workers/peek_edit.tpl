@@ -249,11 +249,6 @@
 							{/foreach}
 						</ul>
 					</div>
-
-					<div class="cerb-ui-sidebar--section">
-						<div class="cerb-ui-sidebar--label">Events</div>
-						<div class="cerb-ui-sidebar--content cerb-u-text-muted cerb-u-fs-n1">Reacting to an @mention, an assignment, or a new message is coming. Today an agent runs where a worker opens it.</div>
-					</div>
 				</div>
 			</aside>
 
