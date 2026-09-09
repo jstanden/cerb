@@ -4186,7 +4186,7 @@ class CerbPatch_Core_v12_0_0 {
 
 	private function patchRetireSeatEnforcement() : void {
 		if(array_key_exists('metric', $this->_tables)) {
-			$this->_db->ExecuteWriter("DELETE FROM metric_value WHERE metric_id = (SELECT id FROM metric WHERE name IN ('cerb.sessions.seat.kicks','cerb.sessions.seat.kicks.duration'))");
+			$this->_db->ExecuteWriter("DELETE FROM metric_value WHERE metric_id IN (SELECT id FROM metric WHERE name IN ('cerb.sessions.seat.kicks','cerb.sessions.seat.kicks.duration'))");
 			$this->_db->ExecuteWriter("DELETE FROM metric WHERE name IN ('cerb.sessions.seat.kicks','cerb.sessions.seat.kicks.duration')");
 		}
 		
