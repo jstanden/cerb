@@ -67,6 +67,30 @@ class _DevblocksHttpService {
 				if(!array_key_exists(RequestOptions::PROGRESS, $options))
 					$options[RequestOptions::PROGRESS] = fn() => DevblocksPlatform::services()->queue()->heartbeat();
 
+				// Keep a QUIET connection alive at the TCP layer. A NAT gateway or stateful firewall expires an
+				// idle translation entry on its own schedule (an AWS NAT gateway's 350s is not configurable), and
+				// the expiry is silent: the turn dies as a connection reset or a truncated read rather than a
+				// timeout, and only on that network. curl does not enable keepalive by default and Guzzle does not
+				// set it, so nothing renews the entry during a long non-streaming provider turn -- which is a real
+				// path, not a hypothetical: `stream@bool: no` (or any provider without ChatStreaming) sends the
+				// async worker down the blocking branch with a 900s budget and no inactivity control at all.
+				//
+				// Probes carry no payload, so they cannot mask a stalled stream from the CURLOPT_LOW_SPEED_TIME
+				// cutoff that _applyStreamTimeouts() relies on to tell a LONG turn from a STUCK one.
+				//
+				// PER-SOCKET, which is the limit worth knowing: behind DEVBLOCKS_HTTP_PROXY this renews the leg to
+				// the proxy only. An https:// request through a proxy is a CONNECT tunnel -- two separate TCP
+				// connections -- and probes are not relayed onto the upstream one, so a middlebox sitting beyond
+				// the proxy needs keepalive on the PROXY's outgoing socket instead.
+				//
+				// Union rather than assignment: _applyStreamTimeouts() puts CURLOPT_LOW_SPEED_* into this same
+				// array, and a caller's explicit value has to win.
+				$options['curl'] = ($options['curl'] ?? []) + [
+					CURLOPT_TCP_KEEPALIVE => 1,
+					CURLOPT_TCP_KEEPIDLE => 60,
+					CURLOPT_TCP_KEEPINTVL => 60,
+				];
+
 				if(defined('DEVBLOCKS_HTTP_PROXY') && DEVBLOCKS_HTTP_PROXY) {
 					$options[RequestOptions::PROXY] = [
 						'http' => DEVBLOCKS_HTTP_PROXY,
