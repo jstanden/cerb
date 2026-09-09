@@ -246,6 +246,22 @@ class CerbPatch_Core_v12_0_0 {
 			// is left alone.
 			$this->_db->ExecuteWriter("UPDATE queue SET retry_max=0 WHERE name = 'cerb.llm.agent.requests' AND retry_max = 4");
 		}
+
+		if($this->_revision < 1567) {
+			// The claim window is a SILENCE deadline, and this queue's consumer re-leases every 15 seconds for the
+			// whole length of a provider call -- curl's progress callback fires about once a second whether or not
+			// bytes are moving, so a turn that runs for ten minutes renews forty times. The hour was sized before
+			// that heartbeat existed, when a live turn's only proof of life was finishing.
+			//
+			// It costs nothing while a drain is healthy and everything when one is killed mid-turn: at retry_max=0
+			// a reaped message is terminal, so this window is exactly how long a dead drain's turn sits IN_FLIGHT
+			// before the interaction is told it failed. Five minutes is still 20x the renewal interval, which
+			// leaves room for the non-HTTP stretches that renew nothing (session load before the first request,
+			// and a slow sink write in one multiplexed task stalling the others' progress callbacks).
+			//
+			// Scoped to rows still at the column default so a deliberate admin setting is left alone.
+			$this->_db->ExecuteWriter("UPDATE queue SET claim_window_secs=300 WHERE name = 'cerb.llm.agent.requests' AND claim_window_secs = 3600");
+		}
 	}
 	
 	private function patchMigrateStorageQueueDelete() : void {
