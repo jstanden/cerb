@@ -173,6 +173,10 @@ CerbUI.TextChooser = class {
 	getValue() { return this.input.value; }
 	setValue(text) { this.input.value = (text == null ? '' : String(text)); }
 	open() { if(this.core) this.core.open(); }        // pop the suggestion dropdown (e.g. after a Refresh fetch)
+	// Re-run the search against the CURRENT source while the menu is showing. `open()` is a no-op on an
+	// already-open menu, so a caller whose source changed under an open menu (a fetch landing after the
+	// user opened it) would otherwise keep rendering the rows from before.
+	refresh() { if(this.core) this.core.refresh(); }
 	close() { if(this.core) this.core.close(); }      // dismiss the suggestion dropdown
 	isOpen() { return !!(this.core && this.core.isOpen()); }
 

@@ -433,8 +433,11 @@ $(function() {
 				count.textContent = liveModels.length + (liveModels.length === 1 ? ' model' : ' models');
 				modelResult.replaceChildren(count);
 
+				// Both, in this order. `open()` does nothing when the menu is ALREADY showing, so a user who
+				// clicked the field before this response landed would keep seeing the shipped hints for the
+				// life of the dialog -- real model ids, wrong list, and nothing on screen saying so.
 				const tc = CerbUI.TextChooser.from(modelInputEl);
-				if(tc) tc.open();
+				if(tc) { tc.open(); tc.refresh(); }
 
 			}, { error: function() {
 				if(modelRefreshIcon) modelRefreshIcon.classList.remove('cerb-u-anim-spin');
