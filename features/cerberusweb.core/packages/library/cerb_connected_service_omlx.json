@@ -1,0 +1,64 @@
+{
+  "package": {
+    "name": "Connected Service: oMLX",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "12.0.0",
+      "plugins": []
+    },
+    "library": {
+      "name": "oMLX",
+      "uri": "cerb_connected_service_omlx",
+      "description": "Integration with oMLX for local models on Apple silicon",
+      "instructions": "# Instructions\r\n\r\n* Start oMLX on your Mac and note the port it serves on (`8000` by default)\r\n* If your server was started with an API key, enter it below. **A local server usually has none -- leave the key blank in that case**\r\n* When you add an agent model, choose the **oMLX** provider and set the endpoint to your server:\r\n  * Cerb in Docker: `http://host.docker.internal:8000`\r\n  * Cerb on the same Mac: `http://127.0.0.1:8000`\r\n* Leave **Authentication** empty on the agent model if your server has no key. Only choose this account when you entered one above\r\n* **Refresh** beside Model lists what you have actually converted, which is the only reliable source for a local server",
+      "point": "connected_service",
+      "image": "logo-omlx #ffffff #000000"
+    },
+    "configure": {
+      "placeholders": [],
+      "prompts": [
+        {
+          "type": "text",
+          "label": "API Key",
+          "key": "prompt_api_key",
+          "params": {
+            "default": "",
+            "placeholder": "(leave blank if your server has no key)"
+          }
+        },
+        {
+          "type": "text",
+          "label": "Alias",
+          "key": "prompt_name",
+          "params": {
+            "default": "omlx",
+            "placeholder": "(enter a URI, a-z,0-9,_)"
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "service_omlx",
+      "_context": "connected_service",
+      "name": "oMLX",
+      "extension_id": "cerb.service.provider.token.bearer",
+      "params": {
+        "token_name": "Bearer"
+      }
+    },
+    {
+      "uid": "account_omlx",
+      "_context": "connected_account",
+      "name": "oMLX",
+      "service_id": "{{{uid.service_omlx}}}",
+      "owner__context": "cerberusweb.contexts.app",
+      "owner_id": "0",
+      "uri": "{{{prompt_name}}}",
+      "params": {
+        "token": "{{{prompt_api_key}}}"
+      }
+    }
+  ]
+}
