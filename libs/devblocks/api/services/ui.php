@@ -209,6 +209,7 @@ class _DevblocksUiManager {
 			'logo-mistral',
 			'logo-moonshot',
 			'logo-ollama',
+			'logo-omlx',
 			'logo-openai',
 			'logo-openrouter',
 			'logo-qwen',
