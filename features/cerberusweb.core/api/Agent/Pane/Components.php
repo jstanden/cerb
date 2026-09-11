@@ -842,7 +842,7 @@ class Components {
 	 *
 	 * An unknown component returns '' -- a chat with no editor beside it writes its own prompt.
 	 */
-	static function getSystemPromptFor(string $component, array $volumes=[]) : string {
+	static function getSystemPromptFor(string $component, array $volumes=[], bool $with_tools=true) : string {
 		if(!($meta = self::get($component)))
 			return '';
 
@@ -851,7 +851,11 @@ class Components {
 
 		$blocks = [self::getRoleFor($component), self::getSharedRole()];
 
-		if('' !== ($inventory = self::getInventoryFor($component)))
+		// The ROLE still holds on a model that takes no tools -- it is still the command bar's agent, and it
+		// can still answer. Only the inventory has to go: "You act on it through these tools:" in front of an
+		// empty list is the one part that would be a lie. (The volume pointers below drop out on their own;
+		// nothing mounts when there is no terminal tool to reach it.)
+		if($with_tools && '' !== ($inventory = self::getInventoryFor($component)))
 			$blocks[] = $inventory;
 
 		// The documentation, and where in it this component's work lives. The role already says to verify

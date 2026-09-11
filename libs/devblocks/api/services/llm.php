@@ -1063,6 +1063,17 @@ abstract class Extension_DevblocksLlmProvider {
 		return (bool) ($defaults['vision'] ?? false);
 	}
 
+	/**
+	 * Does the configured model accept tool schemas?
+	 *
+	 * The ONLY capability predicate here that is true by ABSENCE, and it has to be: nearly every chat model
+	 * takes tools, and every session stored before `agent_model.has_tools` existed carries no such key. A
+	 * default of false would silently strip tools from every conversation in the install.
+	 */
+	function supportsTools() : bool {
+		return false !== $this->getParam('has_tools');
+	}
+
 	// Neutral prompt-cache INTENT, translated per provider (Anthropic sends explicit cache_control; OpenAI-family
 	// auto-caches and ignores it). `enabled` is the on/off (LlmAgentNode::_defaultCache: agent-on, chat-off).
 	// `ttl` is the ROLLING TAIL lifetime the author opts into — `5m` (default: a lapsed tail just re-parses the
@@ -3289,6 +3300,15 @@ class _DevblocksLlmService {
 	 * both onto the session before a turn, so this matches what the node used to build inline from `inputs`.
 	 */
 	function getSessionToolSchemas(Model_LlmAgentSession $session) : array {
+		// The single gate for a tool-less model, and the reason it lives HERE rather than where tools are
+		// composed: this is what the sync node, the async queue worker and the compaction sidecar all funnel
+		// through, and it is the only point that also catches a session whose tools were stored BEFORE the
+		// model was switched -- setTools() never writes an empty map, so a session that once had tools cannot
+		// otherwise be talked out of them. Read the params bag, never build a provider: this method is
+		// reachable with no params at all (see resolveDanglingStream).
+		if(false === ($session->provider_params['has_tools'] ?? null))
+			return [];
+
 		$schemas = [];
 
 		foreach($this->_sessionToolMap($session) as $tool_name => $tool) {

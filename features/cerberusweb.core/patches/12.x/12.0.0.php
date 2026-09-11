@@ -3950,6 +3950,7 @@ class CerbPatch_Core_v12_0_0 {
 				`connected_account_id` int unsigned NOT NULL DEFAULT 0,
 				`has_vision` tinyint(1) unsigned NOT NULL DEFAULT 0,
 				`has_thinking` tinyint(1) unsigned NOT NULL DEFAULT 0,
+				`has_tools` tinyint(1) unsigned NOT NULL DEFAULT 1,
 				`context_window` int unsigned NOT NULL DEFAULT 0,
 				`rating_intelligence` tinyint unsigned NOT NULL DEFAULT 0,
 				`rating_speed` tinyint unsigned NOT NULL DEFAULT 0,
@@ -3985,6 +3986,11 @@ class CerbPatch_Core_v12_0_0 {
 
 			if(!array_key_exists('has_thinking', $columns))
 				$changes[] = "ADD COLUMN has_thinking tinyint(1) unsigned NOT NULL DEFAULT 0 AFTER has_vision";
+
+			// DEFAULT 1, unlike its siblings: every model that already exists takes tools, and the ALTER's
+			// default is what carries them over.
+			if(!array_key_exists('has_tools', $columns))
+				$changes[] = "ADD COLUMN has_tools tinyint(1) unsigned NOT NULL DEFAULT 1 AFTER has_thinking";
 
 			// Ordinal 10/20/30/40 tiers, 0 = unrated. Sparse so a tier can be inserted without a migration.
 			foreach(['intelligence', 'speed', 'privacy', 'cost'] as $rating) {

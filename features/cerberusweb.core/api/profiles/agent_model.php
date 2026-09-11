@@ -160,6 +160,8 @@ class PageSection_ProfilesAgentModel extends Extension_PageSection {
 					DAO_AgentModel::STATUS => DevblocksPlatform::importGPC($_POST['status'] ?? null, 'integer', 0),
 					DAO_AgentModel::PRIORITY => DevblocksPlatform::importGPC($_POST['priority'] ?? null, 'integer', 50),
 					DAO_AgentModel::HAS_THINKING => DevblocksPlatform::importGPC($_POST['has_thinking'] ?? null, 'bit', 0),
+					// Defaults to 1, unlike its siblings: a post that omits the field must not strip a model's tools.
+					DAO_AgentModel::HAS_TOOLS => DevblocksPlatform::importGPC($_POST['has_tools'] ?? null, 'bit', 1),
 					DAO_AgentModel::RATING_COST => DevblocksPlatform::importGPC($_POST['rating_cost'] ?? null, 'integer', 0),
 					DAO_AgentModel::RATING_INTELLIGENCE => DevblocksPlatform::importGPC($_POST['rating_intelligence'] ?? null, 'integer', 0),
 					DAO_AgentModel::RATING_PRIVACY => DevblocksPlatform::importGPC($_POST['rating_privacy'] ?? null, 'integer', 0),
@@ -283,6 +285,9 @@ class PageSection_ProfilesAgentModel extends Extension_PageSection {
 				if(array_key_exists('vision', $defaults))
 					$row['has_vision'] = (bool) $defaults['vision'];
 
+				if(array_key_exists('tools', $defaults))
+					$row['has_tools'] = (bool) $defaults['tools'];
+
 				if(array_key_exists('context_window', $defaults))
 					$row['context_window'] = intval($defaults['context_window']);
 
@@ -337,6 +342,7 @@ class PageSection_ProfilesAgentModel extends Extension_PageSection {
 			$model->api_endpoint_url = DevblocksPlatform::importGPC($_POST['api_endpoint_url'] ?? null, 'string', '');
 			$model->connected_account_id = DevblocksPlatform::importGPC($_POST['connected_account_id'] ?? null, 'integer', 0);
 			$model->has_vision = DevblocksPlatform::importGPC($_POST['has_vision'] ?? null, 'bit', 0);
+			$model->has_tools = DevblocksPlatform::importGPC($_POST['has_tools'] ?? null, 'bit', 1);
 			$model->context_window = DevblocksPlatform::importGPC($_POST['context_window'] ?? null, 'integer', 0);
 			$model->params_kata = DevblocksPlatform::importGPC($_POST['params_kata'] ?? null, 'string', '');
 
@@ -462,6 +468,7 @@ class PageSection_ProfilesAgentModel extends Extension_PageSection {
 
 				case 'connected_account_id':
 				case 'has_thinking':
+				case 'has_tools':
 				case 'has_vision':
 				case 'rating_cost':
 				case 'rating_intelligence':

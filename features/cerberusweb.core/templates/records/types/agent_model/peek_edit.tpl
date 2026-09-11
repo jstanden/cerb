@@ -163,6 +163,22 @@
 						</div>
 						<div class="cerb-ui-form--hint">Supports extended reasoning.</div>
 					</div>
+
+					{* A NEW record has no `$model` at all -- renderPeekPopup() only assigns one when it exists --
+					   so this default lives here rather than on the model. Can't be a coalesce: an existing
+					   record with tools off has to keep showing No. *}
+					{if isset($model)}{$has_tools = $model->has_tools}{else}{$has_tools = 1}{/if}
+					<div class="cerb-ui-form--field">
+						<label class="cerb-ui-form--label">{'dao.agent_model.has_tools'|devblocks_translate|capitalize}</label>
+						<div>
+							<input type="hidden" name="has_tools" id="hasTools_{$form_id}" value="{$has_tools|intval}">
+							<div class="cerb-ui-switcher" data-cerb-input="hasTools_{$form_id}">
+								<button type="button" data-value="1"{if $has_tools} class="cerb-ui-switcher--active"{/if}><span class="cerb-icons cerb-icon-hammer"></span> {'common.yes'|devblocks_translate|capitalize}</button>
+								<button type="button" data-value="0"{if !$has_tools} class="cerb-ui-switcher--active"{/if}>{'common.no'|devblocks_translate|capitalize}</button>
+							</div>
+						</div>
+						<div class="cerb-ui-form--hint">Can call tools. Turn off to chat with no tools or filesystems.</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -493,6 +509,13 @@ $(function() {
 							if(visionEl) visionEl.value = visionValue;
 							if(visionSwitcher) visionSwitcher.setValue(visionValue);
 						}
+						if('has_tools' in meta) {
+							const toolsEl = document.getElementById('hasTools_{$form_id}');
+							const toolsSwitcher = toolsEl ? CerbUI.Switcher.from(toolsEl.parentNode.querySelector('.cerb-ui-switcher')) : null;
+							const toolsValue = meta.has_tools ? '1' : '0';
+							if(toolsEl) toolsEl.value = toolsValue;
+							if(toolsSwitcher) toolsSwitcher.setValue(toolsValue);
+						}
 					}
 				}
 			});
@@ -553,6 +576,7 @@ $(function() {
 					api_endpoint_url: endpointEl ? endpointEl.value : '',
 					connected_account_id: authEl.length ? (authEl.val() || 0) : 0,
 					has_vision: $frm.find('[name=has_vision]').val() || 0,
+					has_tools: $frm.find('[name=has_tools]').val() ?? 1,
 					context_window: $frm.find('[name=context_window]').val() || 0,
 					params_kata: paramsEl ? paramsEl.value : ''
 				};

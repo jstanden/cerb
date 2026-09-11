@@ -638,6 +638,23 @@ class LlmAgentNode extends AbstractNode {
 		throw new Exception_DevblocksAutomationError("`llm.agent` has no LLM provider — prime the session (an `llm:` block, or an agentPrompt) or pass `inputs.llm`.");
 	}
 
+	/**
+	 * Does this turn's model take tools?
+	 *
+	 * Reads the params bag rather than building a provider: _getLlmProvider() THROWS when nothing is primed,
+	 * and this is consulted on paths that legitimately run before a provider is resolvable. False only when
+	 * something said so explicitly -- absence means tools, or every pre-existing session loses them.
+	 */
+	private function _supportsTools(?string $session_id = null) : bool {
+		if($session_id && ($session = \DAO_LlmAgentSession::get($session_id)))
+			return false !== ($session->provider_params['has_tools'] ?? null);
+
+		$llm_id = strval(array_key_first($this->_inputs['llm'] ?? []));
+		$llm_params = is_array($this->_inputs['llm'][$llm_id] ?? null) ? $this->_inputs['llm'][$llm_id] : [];
+
+		return false !== ($llm_params['has_tools'] ?? null);
+	}
+
 	// `llm.agent` is multi-turn — the prompt prefix is re-sent and read back next turn — so default prompt
 	// caching ON (Anthropic only reads a cache when we send `cache_control`; OpenAI-family auto-caches and
 	// ignores this). The author can force it off with `cache@bool: no` in the `llm:` block. `llm.chat` never
@@ -1241,7 +1258,11 @@ class LlmAgentNode extends AbstractNode {
 		if(!$trigger || !method_exists($trigger, 'getLlmAgentSystemPrompt'))
 			return '';
 
-		return trim(strval($trigger->getLlmAgentSystemPrompt($this->_dict, $this->_getMountedFilesystemNames($session_id))));
+		return trim(strval($trigger->getLlmAgentSystemPrompt(
+			$this->_dict,
+			$this->_getMountedFilesystemNames($session_id),
+			$this->_supportsTools($session_id)
+		)));
 	}
 
 	/**
@@ -1384,6 +1405,11 @@ class LlmAgentNode extends AbstractNode {
 	 * On resume the session answers, where `null` (never enabled) and `[]` (enabled, /tmp only) differ.
 	 */
 	private function _isFilesystemEnabled(?string $session_id = null) : bool {
+		// A filesystem reaches the model only as the `agent_terminal` tool, so a model that takes no tools
+		// gets no volumes -- otherwise they resolve, provision, and reach nothing.
+		if(!$this->_supportsTools($session_id))
+			return false;
+
 		// `terminal:` alone is a real configuration too: the CLI plus /tmp and the `|` pipeline, no volumes.
 		if(array_key_exists('mounts', $this->_inputs) || array_key_exists('terminal', $this->_inputs))
 			return true;
@@ -1705,26 +1731,32 @@ class LlmAgentNode extends AbstractNode {
 		// in this-turn's value (accepted — dynamic inputs aren't reproducible anyway). Session is the source of
 		// truth for the name→URI map the dev transcript uses to trace a tool call back to its `llm.tool`.
 		// On-change write.
-		$tools_config = $this->_inputs['tools'] ?? [];
+		//
+		// Skipped entirely for a model that can't take tools: there is nothing worth composing, and the session
+		// row should not claim a tool set the wire will never carry. getSessionToolSchemas() is what actually
+		// enforces this -- including for a session that stored tools before its model changed.
+		if($this->_supportsTools($session_id)) {
+			$tools_config = $this->_inputs['tools'] ?? [];
 
-		// A pure resume (no authored `tools:`) inherits the session's stored map rather than clobbering it with
-		// the trigger's contribution alone — the same fallback _getTools() makes.
-		if(!$tools_config && ($session = \DAO_LlmAgentSession::get($session_id)))
-			$tools_config = $session->tools ?? [];
+			// A pure resume (no authored `tools:`) inherits the session's stored map rather than clobbering it
+			// with the trigger's contribution alone -- the same fallback _getTools() makes.
+			if(!$tools_config && ($session = \DAO_LlmAgentSession::get($session_id)))
+				$tools_config = $session->tools ?? [];
 
-		// The trigger's tools ride the STORED map, not just the dispatch one, because the provider schema is
-		// built from the session alone (_DevblocksLlmService::getSessionToolSchemas) and an async turn runs in a
-		// queue worker with no dict and no continuation to resolve a host from. Re-derived every turn, so a host
-		// that gains a command reaches an existing conversation on its next turn -- note this is the tool MAP
-		// only. It deliberately does NOT feed the prefix gate (_prefixInputsGate), so a host gaining a command
-		// never rewrites an open conversation's system prompt.
-		$tools_config = $this->_withResolvedAgentTools(
-			$this->_withTriggerTools($this->_withAgentTools(is_array($tools_config) ? $tools_config : [])),
-			$session_id
-		);
+			// The trigger's tools ride the STORED map, not just the dispatch one, because the provider schema is
+			// built from the session alone (_DevblocksLlmService::getSessionToolSchemas) and an async turn runs in
+			// a queue worker with no dict and no continuation to resolve a host from. Re-derived every turn, so a
+			// host that gains a command reaches an existing conversation on its next turn -- note this is the tool
+			// MAP only. It deliberately does NOT feed the prefix gate (_prefixInputsGate), so a host gaining a
+			// command never rewrites an open conversation's system prompt.
+			$tools_config = $this->_withResolvedAgentTools(
+				$this->_withTriggerTools($this->_withAgentTools(is_array($tools_config) ? $tools_config : [])),
+				$session_id
+			);
 
-		if($tools_config)
-			\DAO_LlmAgentSession::setTools($session_id, $tools_config);
+			if($tools_config)
+				\DAO_LlmAgentSession::setTools($session_id, $tools_config);
+		}
 
 		// Same on-change persistence for `mounts:` — but the RESOLVED specs (the shape fromSpecs() takes),
 		// since that's what a resume replays. Only when this turn actually authored them; otherwise

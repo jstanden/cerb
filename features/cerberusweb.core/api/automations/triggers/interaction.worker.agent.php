@@ -122,7 +122,7 @@ class AutomationTrigger_InteractionWorkerAgent extends AutomationTrigger_Interac
 	 * A caller that isn't an agent pane, or one on a host we have no catalog entry for, gets `''`: a
 	 * standalone chat writes its own prompt, which is a legitimate answer rather than an error.
 	 */
-	function getLlmAgentSystemPrompt(DevblocksDictionaryDelegate $dict, array $mount_names=[]) : string {
+	function getLlmAgentSystemPrompt(DevblocksDictionaryDelegate $dict, array $mount_names=[], bool $with_tools=true) : string {
 		$caller_params = $dict->get('caller_params', []);
 
 		if(!is_array($caller_params))
@@ -147,7 +147,8 @@ class AutomationTrigger_InteractionWorkerAgent extends AutomationTrigger_Interac
 
 		return \Cerb\Agent\Pane\Components::getSystemPromptFor(
 			strval($caller_params['component'] ?? ''),
-			$volumes
+			$volumes,
+			$with_tools
 		);
 	}
 

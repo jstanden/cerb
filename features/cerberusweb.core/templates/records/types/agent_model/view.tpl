@@ -153,6 +153,13 @@
 						<span class="cerb-icons cerb-icon-eye-open" title="{'dao.agent_model.has_vision'|devblocks_translate|capitalize}"></span>
 					{/if}
 				</td>
+			{elseif $column == "a_has_tools"}
+				{* Inverted on purpose: tools are the norm, so it's the models WITHOUT them that are worth a glyph. *}
+				<td data-column="{$column}" style="text-align:center;">
+					{if !$result.$column}
+						<span class="cerb-icons cerb-icon-ban" title="No tools"></span>
+					{/if}
+				</td>
 			{elseif $column == "a_connected_account_id"}
 				{* $connected_accounts is preloaded by View_AgentModel::render() -- never load records here *}
 				<td data-column="{$column}">

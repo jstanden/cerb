@@ -76,6 +76,23 @@
 			</td>
 		</tr>
 
+		<tr>
+			<td width="0%" nowrap="nowrap" align="left" valign="middle">
+				<label>
+					<input type="checkbox" name="actions[]" value="has_tools">
+					{'dao.agent_model.has_tools'|devblocks_translate|capitalize}:
+				</label>
+			</td>
+			<td width="100%">
+				<div style="display:none;">
+					<select name="params[has_tools]">
+						<option value="1">{'common.yes'|devblocks_translate|capitalize}</option>
+						<option value="0">{'common.no'|devblocks_translate|capitalize}</option>
+					</select>
+				</div>
+			</td>
+		</tr>
+
 		{foreach from=$rating_scales key=rating item=scale}
 		<tr>
 			<td width="0%" nowrap="nowrap" align="left" valign="middle">
