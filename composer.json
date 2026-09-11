@@ -1,6 +1,6 @@
 {
 	"name" : "jstanden/cerb",
-	"description" : "Cerb boosts team productivity with bot-powered email and workflow automation.",
+	"description" : "Shared inboxes for human + AI teams.",
 	"type" : "project",
 	"license" : "proprietary",
 	"authors" : [

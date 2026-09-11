@@ -2,9 +2,9 @@
 
 # What is Cerb?
 
-**Cerb** automates helpdesk inboxes and workflows. It has evolved continuously for over 24 years based on the feedback of thousands of teams; from solo founders to 1,000+ person enterprises managing millions of customer requests.
+**Cerb** gives human + AI teams shared inboxes for any work that arrives -- routed, automated, integrated with anything, and handed to a person or an AI teammate who sees it through. It's been refined over 24 years on the feedback of thousands of teams -- from solo founders to 1,000+ person enterprises managing millions of customer requests.
 
-In **Cerb 12.0**, AI agents are ordinary members of your team. An agent is a worker record with an `is_ai` flag rather than a separate kind of thing, so it can own tickets, be `@mentioned`, join groups, and hold API credentials like anyone else. It can read and write its own files, run tools you define, and work alongside people in the same inbox.
+Cerb ships with a built-in harness for building **AI teammates**, each with its own mix of knowledge, skills, and tools. In **Cerb 12.0** an agent is a worker record with an `is_ai` flag rather than a separate kind of thing, so it can own tickets, be `@mentioned`, join groups, and hold API credentials like anyone else. It can read and write its own files, run tools you define, and work alongside people in the same inbox.
 
 Cerb integrates with any API-based service. It can automate nearly any repetitive digital process with its specialized KATA language and browser-based coding tools. Any toolbar in the UI can be extended with interactive multistep workflows that include human approval.
 
