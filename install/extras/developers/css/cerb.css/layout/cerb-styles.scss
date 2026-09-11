@@ -22,20 +22,6 @@
 	font-weight: bold;
 	color: black;
 
-	// Slide/fade reveal (replaces the jQuery-UI .effect('slide')); .cerb-alert--in is the shown state.
-	opacity: 0;
-	transform: translateY(-100%);
-	transition: opacity 0.25s ease, transform 0.25s ease;
-
-	&.cerb-alert--in {
-		opacity: 1;
-		transform: none;
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		transition: none;
-	}
-
 	A {
 		color: black;
 	}
@@ -63,6 +49,22 @@
 
 #cerb-alerts .cerb-alert {
 	margin: 0;
+
+	// Slide/fade reveal (replaces the jQuery-UI .effect('slide')); .cerb-alert--in is the shown state.
+	// Scoped to the toast stack: an alert rendered inline in a template has no JS to add the shown
+	// state, and opacity:0 would leave it holding its full height as a blank gap.
+	opacity: 0;
+	transform: translateY(-100%);
+	transition: opacity 0.25s ease, transform 0.25s ease;
+
+	&.cerb-alert--in {
+		opacity: 1;
+		transform: none;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		transition: none;
+	}
 }
 
 // Forms
