@@ -3907,9 +3907,17 @@ tables:
             unique@text:
   contact:
     columns:
+      auth_method:
+        field: auth_method
+        type: tinyint unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
       auth_password:
         field: auth_password
-        type: varchar(64)
+        type: varchar(255)
         collation: utf8mb3_unicode_ci
         nullable: NOT NULL
         key@text:

@@ -750,16 +750,13 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 				throw new Exception_DevblocksValidationError("The email address you provided is already associated with an account.");
 
 			// Create the contact
-			$salt = CerberusApplication::generatePassword(8);
 			$fields = array(
 				DAO_Contact::PRIMARY_EMAIL_ID => $address->id,
 				DAO_Contact::FIRST_NAME => $first_name,
 				DAO_Contact::LAST_NAME => $last_name,
 				DAO_Contact::LAST_LOGIN_AT => time(),
 				DAO_Contact::CREATED_AT => time(),
-				DAO_Contact::AUTH_SALT => $salt,
-				DAO_Contact::AUTH_PASSWORD => md5($salt.md5($password)),
-			);
+			) + DAO_Contact::getPasswordFields($password);
 			$contact_id = DAO_Contact::create($fields);
 			
 			if(empty($contact_id) || null == ($contact = DAO_Contact::get($contact_id)))
@@ -941,11 +938,7 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			DAO_ConfirmationCode::delete($code->id);
 			
 			// Set new password
-			$salt = CerberusApplication::generatePassword(8);
-			DAO_Contact::update($contact->id, [
-				DAO_Contact::AUTH_SALT => $salt,
-				DAO_Contact::AUTH_PASSWORD => md5($salt.md5($password_new)),
-			]);
+			DAO_Contact::update($contact->id, DAO_Contact::getPasswordFields($password_new));
 			
 			// Log in the session
 			$umsession->login($contact);
@@ -991,8 +984,8 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			if($addy->is_banned)
 				throw new Exception_DevblocksValidationError("Login failed.");
 			
-			// Compare salt
-			if(0 != strcmp(md5($contact->auth_salt.md5($pass)),$contact->auth_password))
+			// Compare password
+			if(!DAO_Contact::verifyPassword($contact, $pass))
 				throw new Exception_DevblocksValidationError("Login failed.");
 			
 			$umsession->login($contact);

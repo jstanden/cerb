@@ -1,5 +1,6 @@
 <?php
 class DAO_Contact extends Cerb_ORMHelper {
+	const AUTH_METHOD = 'auth_method';
 	const AUTH_PASSWORD = 'auth_password';
 	const AUTH_SALT = 'auth_salt';
 	const CREATED_AT = 'created_at';
@@ -22,15 +23,22 @@ class DAO_Contact extends Cerb_ORMHelper {
 	
 	const _IMAGE = '_image';
 	
+	const AUTH_METHOD_LEGACY_MD5 = 0;
+	const AUTH_METHOD_PASSWORD_HASH = 1;
+	
 	private function __construct() {}
 	
 	static function getFields() {
 		$validation = DevblocksPlatform::services()->validation();
 		
 		$validation
+			->addField(self::AUTH_METHOD)
+			->uint(1)
+			;
+		$validation
 			->addField(self::AUTH_PASSWORD)
 			->string()
-			->setMaxLength(64)
+			->setMaxLength(255)
 			;
 		$validation
 			->addField(self::AUTH_SALT)
@@ -329,7 +337,7 @@ class DAO_Contact extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, primary_email_id, first_name, last_name, title, org_id, username, gender, dob, location, phone, mobile, auth_salt, auth_password, created_at, updated_at, last_login_at, language, timezone ".
+		$sql = "SELECT id, primary_email_id, first_name, last_name, title, org_id, username, gender, dob, location, phone, mobile, auth_salt, auth_password, auth_method, created_at, updated_at, last_login_at, language, timezone ".
 			"FROM contact ".
 			$where_sql.
 			$sort_sql.
@@ -399,6 +407,7 @@ class DAO_Contact extends Cerb_ORMHelper {
 			$object->mobile = $row['mobile'];
 			$object->auth_salt = $row['auth_salt'];
 			$object->auth_password = $row['auth_password'];
+			$object->auth_method = intval($row['auth_method']);
 			$object->created_at = intval($row['created_at']);
 			$object->updated_at = intval($row['updated_at']);
 			$object->last_login_at = intval($row['last_login_at']);
@@ -410,6 +419,77 @@ class DAO_Contact extends Cerb_ORMHelper {
 		mysqli_free_result($rs);
 		
 		return $objects;
+	}
+	
+	/**
+	 * The field/value pairs for setting a contact's password, for callers that are already building a
+	 * `$fields` array for create() or update().
+	 *
+	 * @param string $password
+	 * @return array
+	 */
+	static function getPasswordFields($password) : array {
+		return [
+			self::AUTH_PASSWORD => password_hash($password, PASSWORD_DEFAULT),
+			self::AUTH_SALT => '',
+			self::AUTH_METHOD => self::AUTH_METHOD_PASSWORD_HASH,
+		];
+	}
+	
+	/**
+	 * Verifies a password and transparently upgrades the stored hash when it's outdated. Contacts
+	 * predating 12.0 are stored as md5(salt + md5(password)) and migrate on their next login.
+	 *
+	 * @param Model_Contact|null $contact
+	 * @param string $password
+	 * @return bool
+	 */
+	static function verifyPassword($contact, $password) : bool {
+		if(!($contact instanceof Model_Contact) || !$contact->auth_password)
+			return false;
+		
+		switch($contact->auth_method) {
+			case self::AUTH_METHOD_PASSWORD_HASH:
+				if(!password_verify($password, $contact->auth_password))
+					return false;
+				
+				if(password_needs_rehash($contact->auth_password, PASSWORD_DEFAULT))
+					self::_rehashPassword($contact, $password);
+				
+				return true;
+				
+			// Legacy hashing (Cerb < 12.0)
+			default:
+				if(!$contact->auth_salt)
+					return false;
+				
+				if(!hash_equals($contact->auth_password, md5($contact->auth_salt . md5($password))))
+					return false;
+				
+				self::_rehashPassword($contact, $password);
+				
+				return true;
+		}
+	}
+	
+	/**
+	 * Writes a fresh hash without firing record-change events; verifying a password isn't an edit to
+	 * the contact. Updates the given model so a caller holding it doesn't keep the stale hash.
+	 */
+	static private function _rehashPassword(Model_Contact $contact, $password) : void {
+		$db = DevblocksPlatform::services()->database();
+		
+		$fields = self::getPasswordFields($password);
+		
+		$db->ExecuteMaster(sprintf("UPDATE contact SET auth_password = %s, auth_salt = '', auth_method = %d WHERE id = %d",
+			$db->qstr($fields[self::AUTH_PASSWORD]),
+			$fields[self::AUTH_METHOD],
+			$contact->id
+		));
+		
+		$contact->auth_password = $fields[self::AUTH_PASSWORD];
+		$contact->auth_salt = '';
+		$contact->auth_method = $fields[self::AUTH_METHOD];
 	}
 	
 	static function countByOrgId($org_id) {
@@ -598,8 +678,6 @@ class DAO_Contact extends Cerb_ORMHelper {
 				$result[SearchFields_Contact::LOCATION] = $model->location;
 				$result[SearchFields_Contact::PHONE] = $model->phone;
 				$result[SearchFields_Contact::MOBILE] = $model->mobile;
-				$result[SearchFields_Contact::AUTH_SALT] = $model->auth_salt;
-				$result[SearchFields_Contact::AUTH_PASSWORD] = $model->auth_password;
 				$result[SearchFields_Contact::CREATED_AT] = $model->created_at;
 				$result[SearchFields_Contact::UPDATED_AT] = $model->updated_at;
 				$result[SearchFields_Contact::LANGUAGE] = $model->language;
@@ -628,8 +706,6 @@ class SearchFields_Contact extends DevblocksSearchFields {
 	const LOCATION = 'c_location';
 	const PHONE = 'c_phone';
 	const MOBILE = 'c_mobile';
-	const AUTH_SALT = 'c_auth_salt';
-	const AUTH_PASSWORD = 'c_auth_password';
 	const CREATED_AT = 'c_created_at';
 	const UPDATED_AT = 'c_updated_at';
 	const LAST_LOGIN_AT = 'c_last_login_at';
@@ -774,8 +850,6 @@ class SearchFields_Contact extends DevblocksSearchFields {
 			self::LOCATION => new DevblocksSearchField(self::LOCATION, 'contact', 'location', $translate->_('common.location'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::PHONE => new DevblocksSearchField(self::PHONE, 'contact', 'phone', $translate->_('common.phone'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::MOBILE => new DevblocksSearchField(self::MOBILE, 'contact', 'mobile', $translate->_('common.mobile'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::AUTH_SALT => new DevblocksSearchField(self::AUTH_SALT, 'contact', 'auth_salt', null, Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::AUTH_PASSWORD => new DevblocksSearchField(self::AUTH_PASSWORD, 'contact', 'auth_password', null, Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'contact', 'created_at', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'contact', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			self::LAST_LOGIN_AT => new DevblocksSearchField(self::LAST_LOGIN_AT, 'contact', 'last_login_at', $translate->_('common.last_login'), Model_CustomField::TYPE_DATE, true),
@@ -822,6 +896,7 @@ class Model_Contact extends DevblocksRecordModel {
 	public $mobile;
 	public $auth_salt;
 	public $auth_password;
+	public $auth_method;
 	public $created_at;
 	public $updated_at;
 	public $last_login_at;
@@ -964,8 +1039,6 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 
 		$this->addColumnsHidden([
 			SearchFields_Contact::ORG_NAME,
-			SearchFields_Contact::AUTH_SALT,
-			SearchFields_Contact::AUTH_PASSWORD,
 			SearchFields_Contact::PRIMARY_EMAIL_ADDRESS,
 			SearchFields_Contact::VIRTUAL_ALIAS,
 			SearchFields_Contact::VIRTUAL_EMAIL_SEARCH,
@@ -1407,8 +1480,6 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 			case SearchFields_Contact::PHONE:
 			case SearchFields_Contact::PRIMARY_EMAIL_ADDRESS:
 			case SearchFields_Contact::MOBILE:
-			case SearchFields_Contact::AUTH_SALT:
-			case SearchFields_Contact::AUTH_PASSWORD:
 			case SearchFields_Contact::LANGUAGE:
 			case SearchFields_Contact::TIMEZONE:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);

@@ -4260,6 +4260,29 @@ class CerbPatch_Core_v12_0_0 {
 			$this->_db->ExecuteMaster("ALTER TABLE confirmation_code ADD COLUMN failed_attempts int unsigned NOT NULL DEFAULT 0");
 		}
 	}
+	
+	private function patchContactAuthHashing() : void {
+		// ===========================================================================
+		// Widen `contact.auth_password` for password_hash() and add `auth_method`
+		
+		if(!array_key_exists('contact', $this->_tables))
+			throw new Exception();
+		
+		list($columns,) = $this->_db->metaTable('contact');
+		
+		$changes = [];
+		
+		// password_hash() emits 60 chars for bcrypt, but PASSWORD_DEFAULT can change between PHP
+		// releases and argon2id needs ~96. A short column truncates the hash and locks everyone out.
+		if('varchar(255)' != ($columns['auth_password']['type'] ?? null))
+			$changes[] = "MODIFY COLUMN auth_password varchar(255) NOT NULL DEFAULT ''";
+		
+		if(!array_key_exists('auth_method', $columns))
+			$changes[] = "ADD COLUMN auth_method tinyint unsigned NOT NULL DEFAULT 0";
+		
+		if($changes)
+			$this->_db->ExecuteMaster("ALTER TABLE contact " . implode(', ', $changes));
+	}
 }
 
 $patch = new CerbPatch_Core_v12_0_0();

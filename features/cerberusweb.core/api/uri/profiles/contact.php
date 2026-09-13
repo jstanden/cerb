@@ -129,9 +129,7 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 					];
 					
 					if(!empty($password)) {
-						$salt = CerberusApplication::generatePassword(8);
-						$fields[DAO_Contact::AUTH_SALT] = $salt;
-						$fields[DAO_Contact::AUTH_PASSWORD] = md5($salt.md5($password));
+						$fields = array_merge($fields, DAO_Contact::getPasswordFields($password));
 					}
 					
 					if(!DAO_Contact::validate($fields, $error))
@@ -171,9 +169,7 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					if(!empty($password)) {
-						$salt = CerberusApplication::generatePassword(8);
-						$fields[DAO_Contact::AUTH_SALT] = $salt;
-						$fields[DAO_Contact::AUTH_PASSWORD] = md5($salt.md5($password));
+						$fields = array_merge($fields, DAO_Contact::getPasswordFields($password));
 					}
 					
 					DAO_Contact::update($id, $fields);

@@ -509,7 +509,7 @@ class UmScAccountController extends Extension_UmScController {
 			if(!$current_password)
 				throw new Exception_DevblocksValidationError("You must enter your current password.");
 			
-			if(0 != strcmp(md5($active_contact->auth_salt.md5($current_password)), $active_contact->auth_password))
+			if(!DAO_Contact::verifyPassword($active_contact, $current_password))
 				throw new Exception_DevblocksValidationError("Incorrect password.");
 			
 			if(!$change_password || !$verify_password)
@@ -522,15 +522,13 @@ class UmScAccountController extends Extension_UmScController {
 				throw new Exception_DevblocksValidationError("Your password must be at least 8 characters.");
 			
 			// Change password?
-			$salt = CerberusApplication::generatePassword(8);
-			$fields = [
-				DAO_Contact::AUTH_SALT => $salt,
-				DAO_Contact::AUTH_PASSWORD => md5($salt.md5($change_password)),
-			];
+			$fields = DAO_Contact::getPasswordFields($change_password);
 			DAO_Contact::update($active_contact->id, $fields);
 			
 			// Update the new password
-			$active_contact->auth_password = md5($active_contact->auth_salt.md5($change_password));
+			$active_contact->auth_password = $fields[DAO_Contact::AUTH_PASSWORD];
+			$active_contact->auth_salt = '';
+			$active_contact->auth_method = DAO_Contact::AUTH_METHOD_PASSWORD_HASH;
 			$umsession->login($active_contact);
 			
 			$tpl->assign('success', true);

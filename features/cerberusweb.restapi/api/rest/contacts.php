@@ -294,9 +294,7 @@ class ChRest_Contacts extends Extension_RestController implements IExtensionRest
 			unset($_POST['password']);
 			
 			if(!empty($password)) {
-				$salt = CerberusApplication::generatePassword(8);
-				$fields[DAO_Contact::AUTH_SALT] = $salt;
-				$fields[DAO_Contact::AUTH_PASSWORD] = md5($salt.md5($password));
+				$fields = array_merge($fields, DAO_Contact::getPasswordFields($password));
 			}
 		}
 		
@@ -378,9 +376,7 @@ class ChRest_Contacts extends Extension_RestController implements IExtensionRest
 			unset($_POST['password']);
 			
 			if(!empty($password)) {
-				$salt = CerberusApplication::generatePassword(8);
-				$fields[DAO_Contact::AUTH_SALT] = $salt;
-				$fields[DAO_Contact::AUTH_PASSWORD] = md5($salt.md5($password));
+				$fields = array_merge($fields, DAO_Contact::getPasswordFields($password));
 			}
 		}
 		
