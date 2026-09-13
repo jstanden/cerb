@@ -18,9 +18,14 @@
 class DAO_ConfirmationCode extends Cerb_ORMHelper {
 	const CONFIRMATION_CODE = 'confirmation_code';
 	const CREATED = 'created';
+	const FAILED_ATTEMPTS = 'failed_attempts';
 	const ID = 'id';
 	const META_JSON = 'meta_json';
 	const NAMESPACE_KEY = 'namespace_key';
+	
+	const TTL_SECS = 900;
+	const TTL_INVITE_SECS = 7200;
+	const MAX_FAILED_ATTEMPTS = 3;
 	
 	private function __construct() {}
 	
@@ -37,6 +42,10 @@ class DAO_ConfirmationCode extends Cerb_ORMHelper {
 		$validation
 			->addField(self::CREATED)
 			->timestamp()
+			;
+		$validation
+			->addField(self::FAILED_ATTEMPTS)
+			->uint(4)
 			;
 		$validation
 			->addField(self::ID)
@@ -92,7 +101,7 @@ class DAO_ConfirmationCode extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, namespace_key, confirmation_code, created, meta_json ".
+		$sql = "SELECT id, namespace_key, confirmation_code, created, meta_json, failed_attempts ".
 			"FROM confirmation_code ".
 			$where_sql.
 			$sort_sql.
@@ -142,6 +151,44 @@ class DAO_ConfirmationCode extends Cerb_ORMHelper {
 	}
 	
 	/**
+	 * The `meta_json` match is an exact string comparison, so $meta must be built in the same key
+	 * order the code was created with.
+	 *
+	 * @param string $namespace_key
+	 * @param array $meta
+	 * @return Model_ConfirmationCode|null
+	 */
+	static function getByMeta($namespace_key, array $meta) {
+		$results = self::getWhere(sprintf("%s = %s AND %s = %s",
+			Cerb_ORMHelper::escape(self::NAMESPACE_KEY),
+			Cerb_ORMHelper::qstr($namespace_key),
+			Cerb_ORMHelper::escape(self::META_JSON),
+			Cerb_ORMHelper::qstr(json_encode($meta))
+		), self::CREATED, false, 1);
+		
+		if(is_array($results))
+			return array_shift($results);
+		
+		return null;
+	}
+	
+	/**
+	 * @param integer $id
+	 * @return int the running total of failed attempts against this code
+	 */
+	static function recordFailedAttempt($id) {
+		$db = DevblocksPlatform::services()->database();
+		
+		$db->ExecuteMaster(sprintf("UPDATE confirmation_code SET failed_attempts = failed_attempts + 1 WHERE id = %d",
+			$id
+		));
+		
+		return intval($db->GetOneMaster(sprintf("SELECT failed_attempts FROM confirmation_code WHERE id = %d",
+			$id
+		)));
+	}
+	
+	/**
 	 * @param mysqli_result|false $rs
 	 * @return Model_ConfirmationCode[]
 	 */
@@ -158,6 +205,8 @@ class DAO_ConfirmationCode extends Cerb_ORMHelper {
 			$object->confirmation_code = $row['confirmation_code'];
 			$object->created = $row['created'];
 			
+			$object->failed_attempts = intval($row['failed_attempts']);
+			
 			if(!empty($row['meta_json']) && false != ($json = json_decode($row['meta_json'], true)))
 				$object->meta = $json;
 			
@@ -169,14 +218,38 @@ class DAO_ConfirmationCode extends Cerb_ORMHelper {
 		return $objects;
 	}
 	
+	/**
+	 * How long a code in each namespace stays valid. Consumers enforce this at verification time;
+	 * maint() is what stops a dead code from sitting in the table afterward.
+	 *
+	 * @return array
+	 */
+	static function getNamespaceTTLs() : array {
+		return [
+			'login.invite' => self::TTL_INVITE_SECS,
+			'support_center.email.confirm' => self::TTL_SECS,
+			'support_center.login.recover' => self::TTL_SECS,
+			'support_center.login.register.verify' => self::TTL_SECS,
+		];
+	}
+	
 	static function maint() {
 		$db = DevblocksPlatform::services()->database();
-		$logger = DevblocksPlatform::services()->log();
 		
-		// Delete confirmation codes older than 12 hours
-		$sql = sprintf("DELETE FROM confirmation_code WHERE created < %d", time() + 43200); // 60s*60m*12h
-		$db->ExecuteMaster($sql);
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' confirmation_code records.');
+		$ttls = self::getNamespaceTTLs();
+		
+		foreach($ttls as $namespace_key => $ttl_secs) {
+			$db->ExecuteMaster(sprintf("DELETE FROM confirmation_code WHERE namespace_key = %s AND created < %d",
+				self::qstr($namespace_key),
+				time() - $ttl_secs
+			));
+		}
+		
+		// A namespace we don't know the lifetime of belongs to a plugin, so fall back to 12 hours
+		$db->ExecuteMaster(sprintf("DELETE FROM confirmation_code WHERE namespace_key NOT IN (%s) AND created < %d",
+			implode(',', self::qstrArray(array_keys($ttls))),
+			time() - 43200 // 60s*60m*12h
+		));
 	}
 	
 	static function delete($ids) {
@@ -355,5 +428,10 @@ class Model_ConfirmationCode {
 	public $created;
 	public $confirmation_code;
 	public $meta;
+	public $failed_attempts;
+	
+	function isExpired(int $ttl_secs=DAO_ConfirmationCode::TTL_SECS) : bool {
+		return ($this->created + $ttl_secs) < time();
+	}
 };
 

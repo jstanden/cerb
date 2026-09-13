@@ -333,7 +333,7 @@ class Page_Login extends CerberusPageExtension {
 			;
 		
 		// Invalid or expired token
-		if(empty($token) || $token->created + 7200 < time()) {
+		if(empty($token) || $token->isExpired(DAO_ConfirmationCode::TTL_INVITE_SECS)) {
 			$query = ['error' => 'confirm.invalid'];
 			DevblocksPlatform::redirect(new DevblocksHttpRequest(['login','recover'], $query));
 		}

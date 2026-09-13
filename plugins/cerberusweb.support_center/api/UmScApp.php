@@ -633,25 +633,28 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			if(!$stored_captcha || !$given_captcha || 0 != strcasecmp($stored_captcha, $given_captcha))
 				throw new Exception_DevblocksValidationError("Your text did not match the image.");
 			
-			// If there's already a confirmation code in the past (t) mins
-			$past_confirmation = DAO_ConfirmationCode::getWhere(sprintf("%s = %s AND %s = %s AND %s > %d",
-				Cerb_ORMHelper::escape(DAO_ConfirmationCode::NAMESPACE_KEY),
-				Cerb_ORMHelper::qstr('support_center.login.register.verify'),
-				Cerb_ORMHelper::escape(DAO_ConfirmationCode::META_JSON),
-				Cerb_ORMHelper::qstr(json_encode(['email' => $address_parsed['email']])),
-				Cerb_ORMHelper::escape(DAO_ConfirmationCode::CREATED),
-				time()-1800
-			));
+			// The meta lookup is an exact match, so the address is normalized on both sides
+			$register_email = DevblocksPlatform::strLower($address_parsed['email']);
 			
-			if($past_confirmation)
-				throw new Exception_DevblocksValidationError("This email address is already pending registration. Please try again later.");
+			// If there's already a confirmation code in the past (t) mins
+			$past_confirmation = DAO_ConfirmationCode::getByMeta('support_center.login.register.verify', [
+				'email' => $register_email,
+			]);
+			
+			if($past_confirmation) {
+				if(!$past_confirmation->isExpired())
+					throw new Exception_DevblocksValidationError("This email address is already pending registration. Please try again later.");
+				
+				// Retire the dead code so it can't shadow the one we're about to send
+				DAO_ConfirmationCode::delete($past_confirmation->id);
+			}
 			
 			// Send a confirmation code
 			$fields = array(
 				DAO_ConfirmationCode::CONFIRMATION_CODE => CerberusApplication::generatePassword(8),
 				DAO_ConfirmationCode::NAMESPACE_KEY => 'support_center.login.register.verify',
 				DAO_ConfirmationCode::META_JSON => json_encode(array(
-					'email' => $address_parsed['email'],
+					'email' => $register_email,
 				)),
 				DAO_ConfirmationCode::CREATED => time(),
 			);
@@ -706,13 +709,27 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 				DevblocksPlatform::redirectURL($url_writer->write('c=login', true));
 			}
 			
-			// Lookup code
-			if(null == ($code = DAO_ConfirmationCode::getByCode('support_center.login.register.verify', $confirm)))
+			// Lookup the code by address, not by what was typed, so a wrong guess counts against it
+			$code = DAO_ConfirmationCode::getByMeta('support_center.login.register.verify', [
+				'email' => DevblocksPlatform::strLower($email),
+			]);
+			
+			if(!$code)
 				throw new Exception_DevblocksValidationError("Your confirmation code is invalid.");
 			
-			// Compare to address
-			if(!isset($code->meta['email']) || 0 != strcasecmp($email, $code->meta['email']))
+			if($code->isExpired())
+				throw new Exception_DevblocksValidationError("Your confirmation code has expired. Please request a new one.");
+			
+			// The code stands until it expires, so the lock has to gate redemption; deleting it here
+			// would clear the pending-request throttle and hand out a fresh code on demand
+			if($code->failed_attempts >= DAO_ConfirmationCode::MAX_FAILED_ATTEMPTS)
+				throw new Exception_DevblocksValidationError("Too many incorrect attempts. Please wait a few minutes and request a new confirmation code.");
+			
+			// Compare code
+			if(!hash_equals($code->confirmation_code, DevblocksPlatform::strUpper(trim($confirm)))) {
+				DAO_ConfirmationCode::recordFailedAttempt($code->id);
 				throw new Exception_DevblocksValidationError("Your confirmation code is invalid.");
+			}
 
 			// Password
 			if(empty($password) || empty($password2))
@@ -814,17 +831,18 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 				throw new Exception_DevblocksValidationError("Your text did not match the image.");
 			
 			// If there's already a confirmation code in the past (t) mins
-			$past_resets = DAO_ConfirmationCode::getWhere(sprintf("%s = %s AND %s = %s AND %s > %d",
-				Cerb_ORMHelper::escape(DAO_ConfirmationCode::NAMESPACE_KEY),
-				Cerb_ORMHelper::qstr('support_center.login.recover'),
-				Cerb_ORMHelper::escape(DAO_ConfirmationCode::META_JSON),
-				Cerb_ORMHelper::qstr(json_encode(['contact_id' => intval($address->contact_id), 'address_id' => intval($address->id)])),
-				Cerb_ORMHelper::escape(DAO_ConfirmationCode::CREATED),
-				time()-3600
-			));
+			$past_reset = DAO_ConfirmationCode::getByMeta('support_center.login.recover', [
+				'contact_id' => intval($address->contact_id),
+				'address_id' => intval($address->id),
+			]);
 			
-			if($past_resets)
-				throw new Exception_DevblocksValidationError("This email address is already pending recovery. Please try again later.");
+			if($past_reset) {
+				if(!$past_reset->isExpired())
+					throw new Exception_DevblocksValidationError("This email address is already pending recovery. Please try again later.");
+				
+				// Retire the dead code so it can't shadow the one we're about to send
+				DAO_ConfirmationCode::delete($past_reset->id);
+			}
 			
 			// Generate + send confirmation
 			$fields = array(
@@ -887,17 +905,28 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			if(empty($address->contact_id) || null == ($contact = DAO_Contact::get($address->contact_id)))
 				throw new Exception_DevblocksValidationError("Your confirmation code is invalid.");
 			
-			// Lookup code
-			if(null == ($code = DAO_ConfirmationCode::getByCode('support_center.login.recover', $confirm)))
+			// Lookup the code by contact, not by what was typed, so a wrong guess counts against it
+			$code = DAO_ConfirmationCode::getByMeta('support_center.login.recover', [
+				'contact_id' => intval($contact->id),
+				'address_id' => intval($address->id),
+			]);
+			
+			if(!$code)
 				throw new Exception_DevblocksValidationError("Your confirmation code is invalid.");
 			
-			// Compare to contact
-			if(!isset($code->meta['contact_id']) || $contact->id != $code->meta['contact_id'])
+			if($code->isExpired())
+				throw new Exception_DevblocksValidationError("Your confirmation code has expired. Please request a new one.");
+			
+			// The code stands until it expires, so the lock has to gate redemption; deleting it here
+			// would clear the pending-request throttle and hand out a fresh code on demand
+			if($code->failed_attempts >= DAO_ConfirmationCode::MAX_FAILED_ATTEMPTS)
+				throw new Exception_DevblocksValidationError("Too many incorrect attempts. Please wait a few minutes and request a new confirmation code.");
+			
+			// Compare code
+			if(!hash_equals($code->confirmation_code, DevblocksPlatform::strUpper(trim($confirm)))) {
+				DAO_ConfirmationCode::recordFailedAttempt($code->id);
 				throw new Exception_DevblocksValidationError("Your confirmation code is invalid.");
-				
-			// Compare to email address
-			if(!isset($code->meta['address_id']) || $address->id != $code->meta['address_id'])
-				throw new Exception_DevblocksValidationError("Your confirmation code is invalid.");
+			}
 			
 			if(!$password_new || !$password_new_confirm)
 				throw new Exception_DevblocksValidationError("A new password is required.");

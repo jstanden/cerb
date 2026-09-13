@@ -3668,6 +3668,14 @@ tables:
         key: MUL
         default: 0
         extra@text:
+      failed_attempts:
+        field: failed_attempts
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key@text:
+        default: 0
+        extra@text:
       id:
         field: id
         type: int unsigned

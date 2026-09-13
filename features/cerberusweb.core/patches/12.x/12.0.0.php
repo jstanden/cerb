@@ -4244,6 +4244,16 @@ class CerbPatch_Core_v12_0_0 {
 			$this->_tables['agent_tool'] = 'agent_tool';
 		}
 	}
+	private function patchConfirmationCodeTable() : void {
+		// ===========================================================================
+		// Add `failed_attempts` to `confirmation_code`
+		
+		list($columns,) = $this->_db->metaTable('confirmation_code');
+		
+		if(!array_key_exists('failed_attempts', $columns)) {
+			$this->_db->ExecuteMaster("ALTER TABLE confirmation_code ADD COLUMN failed_attempts int unsigned NOT NULL DEFAULT 0");
+		}
+	}
 }
 
 $patch = new CerbPatch_Core_v12_0_0();
