@@ -174,7 +174,7 @@ class DAO_ConfirmationCode extends Cerb_ORMHelper {
 		$logger = DevblocksPlatform::services()->log();
 		
 		// Delete confirmation codes older than 12 hours
-		$sql = sprintf("DELETE FROM confirmation_code WHERE created < %d", time() + 43200); // 60s*60m*12h
+		$sql = sprintf("DELETE FROM confirmation_code WHERE created < %d", time() - 43200); // 60s*60m*12h
 		$db->ExecuteMaster($sql);
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' confirmation_code records.');
 	}

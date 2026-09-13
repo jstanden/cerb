@@ -828,6 +828,10 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			if(null == ($code = DAO_ConfirmationCode::getByCode('support_center.login.register.verify', $confirm)))
 				throw new Exception_DevblocksValidationError("Your confirmation code is invalid.");
 			
+			// Matches the re-request window; expiring sooner would leave no way to get a new code
+			if($code->created + 1800 < time())
+				throw new Exception_DevblocksValidationError("Your confirmation code has expired. Please request a new one.");
+			
 			// Compare to address
 			if(!isset($code->meta['email']) || 0 != strcasecmp($email, $code->meta['email']))
 				throw new Exception_DevblocksValidationError("Your confirmation code is invalid.");
@@ -1006,6 +1010,10 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			// Lookup code
 			if(null == ($code = DAO_ConfirmationCode::getByCode('support_center.login.recover', $confirm)))
 				throw new Exception_DevblocksValidationError("Your confirmation code is invalid.");
+			
+			// Matches the re-request window; expiring sooner would leave no way to get a new code
+			if($code->created + 3600 < time())
+				throw new Exception_DevblocksValidationError("Your confirmation code has expired. Please request a new one.");
 			
 			// Compare to contact
 			if(!isset($code->meta['contact_id']) || $contact->id != $code->meta['contact_id'])

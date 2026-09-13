@@ -623,6 +623,9 @@ class UmScAccountController extends Extension_UmScController {
 			// Lookup code
 			if(null == ($code = DAO_ConfirmationCode::getByCode('support_center.email.confirm', $confirm)))
 				throw new Exception("Your confirmation code is invalid.");
+			
+			if($code->created + 1800 < time())
+				throw new Exception("Your confirmation code has expired. Please request a new one.");
 				
 			// Compare session
 			if(!isset($code->meta['contact_id']) || $active_contact->id != $code->meta['contact_id'])
