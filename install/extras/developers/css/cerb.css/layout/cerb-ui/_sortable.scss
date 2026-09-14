@@ -2,20 +2,26 @@
 // Colors are tokens, so dark mode is automatic (html.dark redefines them).
 .cerb-ui-sortable {
 	position: relative;
-	user-select: none;
 }
 
 // While a drag is in flight the helper sweeps over arbitrary page content; block text selection everywhere
 // so the cursor doesn't paint a selection. Class is toggled on <html> for the drag's lifetime (commit/cancel).
 html.cerb-ui-sortable-dragging,
 html.cerb-ui-sortable-dragging * {
+	// Keep the -webkit- spelling: WebKit ignores the unprefixed property, so dropping it stops suppressing
+	// selection in Safari entirely. Same everywhere user-select appears below.
+	-webkit-user-select: none !important;
 	user-select: none !important;
 }
 
-// Cursor applied to items (no handle) or to handle elements
+// The grab surface: whole items when there's no handle, otherwise just the handles. Selection must be blocked
+// here and not on the container -- there it inherits into every item's content and no widget body text can be
+// selected at all.
 .cerb-ui-sortable--item,
 .cerb-ui-sortable--handle {
 	cursor: grab;
+	-webkit-user-select: none;
+	user-select: none;
 
 	&:active {
 		cursor: grabbing;

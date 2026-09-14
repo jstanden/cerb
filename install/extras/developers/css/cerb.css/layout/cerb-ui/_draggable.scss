@@ -41,6 +41,7 @@
 // While any drag is in flight, the whole document shows the grabbing cursor.
 body.cerb-ui-draggable-dragging {
 	cursor: grabbing;
+	-webkit-user-select: none; // WebKit ignores the unprefixed property
 	user-select: none;
 }
 
