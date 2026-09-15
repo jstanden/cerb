@@ -18,7 +18,7 @@
 		   Name is defaulted from the model you pick. *}
 		<div class="cerb-ui-form--row">
 			<div class="cerb-ui-form--field">
-				<label class="cerb-ui-form--label">{'dao.agent_model.provider'|devblocks_translate|capitalize} <span class="cerb-ui-form--required">*</span></label>
+				<label class="cerb-ui-form--label">{'common.provider'|devblocks_translate|capitalize} <span class="cerb-ui-form--required">*</span></label>
 				<select name="provider" id="provider_{$form_id}" autofocus="autofocus">
 					<option value="">({'common.choose'|devblocks_translate|lower}…)</option>
 					{foreach from=$providers item=provider}
@@ -31,7 +31,7 @@
 			   Blank means "(auto)" -- the provider's own default endpoint (the placeholder tracks the picked
 			   provider). It's a first-class column that wins over any `api_endpoint_url:` in the params below. *}
 			<div class="cerb-ui-form--field">
-				<label class="cerb-ui-form--label">{'dao.agent_model.api_endpoint_url'|devblocks_translate|capitalize}</label>
+				<label class="cerb-ui-form--label">{'common.api_endpoint_url'|devblocks_translate|capitalize}</label>
 				<input type="text" name="api_endpoint_url" value="{$model->api_endpoint_url}" id="endpointInput_{$form_id}" placeholder="(auto)" autocomplete="off" spellcheck="false">
 				<div class="cerb-ui-form--hint">Blank uses the provider's default endpoint. Suggests the provider's own endpoints as you type; free text for a self-hosted or proxied one.</div>
 			</div>

@@ -992,7 +992,7 @@ class SearchFields_AgentModel extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 
 		$columns = [
-			self::API_ENDPOINT_URL => new DevblocksSearchField(self::API_ENDPOINT_URL, 'agent_model', 'api_endpoint_url', $translate->_('dao.agent_model.api_endpoint_url'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::API_ENDPOINT_URL => new DevblocksSearchField(self::API_ENDPOINT_URL, 'agent_model', 'api_endpoint_url', $translate->_('common.api_endpoint_url'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::CONNECTED_ACCOUNT_ID => new DevblocksSearchField(self::CONNECTED_ACCOUNT_ID, 'agent_model', 'connected_account_id', $translate->_('dao.agent_model.connected_account_id'), Model_CustomField::TYPE_NUMBER, true),
 			self::CONTEXT_WINDOW => new DevblocksSearchField(self::CONTEXT_WINDOW, 'agent_model', 'context_window', $translate->_('dao.agent_model.context_window'), Model_CustomField::TYPE_NUMBER, true),
 			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'agent_model', 'created_at', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
@@ -1006,7 +1006,7 @@ class SearchFields_AgentModel extends DevblocksSearchFields {
 			self::MODEL => new DevblocksSearchField(self::MODEL, 'agent_model', 'model', $translate->_('dao.agent_model.model'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'agent_model', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::PRIORITY => new DevblocksSearchField(self::PRIORITY, 'agent_model', 'priority', $translate->_('common.priority'), Model_CustomField::TYPE_NUMBER, true),
-			self::PROVIDER => new DevblocksSearchField(self::PROVIDER, 'agent_model', 'provider', $translate->_('dao.agent_model.provider'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::PROVIDER => new DevblocksSearchField(self::PROVIDER, 'agent_model', 'provider', $translate->_('common.provider'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::RATING_COST => new DevblocksSearchField(self::RATING_COST, 'agent_model', 'rating_cost', $translate->_('dao.agent_model.rating_cost'), Model_CustomField::TYPE_NUMBER, true),
 			self::RATING_INTELLIGENCE => new DevblocksSearchField(self::RATING_INTELLIGENCE, 'agent_model', 'rating_intelligence', $translate->_('dao.agent_model.rating_intelligence'), Model_CustomField::TYPE_NUMBER, true),
 			self::RATING_PRIVACY => new DevblocksSearchField(self::RATING_PRIVACY, 'agent_model', 'rating_privacy', $translate->_('dao.agent_model.rating_privacy'), Model_CustomField::TYPE_NUMBER, true),
@@ -2124,7 +2124,7 @@ class Context_AgentModel extends Extension_DevblocksContext implements IDevblock
 		];
 
 		$properties['provider'] = [
-			'label' => mb_ucfirst($translate->_('dao.agent_model.provider')),
+			'label' => mb_ucfirst($translate->_('common.provider')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'value' => $model->provider,
 		];
@@ -2200,7 +2200,7 @@ class Context_AgentModel extends Extension_DevblocksContext implements IDevblock
 			'created_at' => $prefix.$translate->_('common.created'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
-			'api_endpoint_url' => $prefix.$translate->_('dao.agent_model.api_endpoint_url'),
+			'api_endpoint_url' => $prefix.$translate->_('common.api_endpoint_url'),
 			'connected_account_id' => $prefix.$translate->_('dao.agent_model.connected_account_id'),
 			'context_window' => $prefix.$translate->_('dao.agent_model.context_window'),
 			'priority' => $prefix.$translate->_('common.priority'),
@@ -2217,7 +2217,7 @@ class Context_AgentModel extends Extension_DevblocksContext implements IDevblock
 			'label' => $prefix.$translate->_('dao.agent_model.label'),
 			'model' => $prefix.$translate->_('dao.agent_model.model'),
 			'params_kata' => $prefix.$translate->_('common.parameters'),
-			'provider' => $prefix.$translate->_('dao.agent_model.provider'),
+			'provider' => $prefix.$translate->_('common.provider'),
 		];
 
 		$token_types = [

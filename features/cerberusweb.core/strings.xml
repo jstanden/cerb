@@ -370,6 +370,11 @@
 				<seg>anybody</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.api_endpoint_url">
+			<tuv xml:lang="en_US">
+				<seg>API endpoint URL</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.archive">
 			<tuv xml:lang="en_US">
 				<seg>archive</seg>
@@ -2456,6 +2461,11 @@
 		<tu tuid="common.properties">
 			<tuv xml:lang="en_US">
 				<seg>Properties</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.provider">
+			<tuv xml:lang="en_US">
+				<seg>Provider</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.public">
@@ -5778,11 +5788,6 @@ For example: *receipt*</seg>
 			</tuv>
 		</tu>
 		<!-- Agent Model -->
-		<tu tuid="dao.agent_model.api_endpoint_url">
-			<tuv xml:lang="en_US">
-				<seg>API endpoint URL</seg>
-			</tuv>
-		</tu>
 		<tu tuid="dao.agent_model.connected_account_id">
 			<tuv xml:lang="en_US">
 				<seg>Authentication</seg>
@@ -5846,11 +5851,6 @@ For example: *receipt*</seg>
 		<tu tuid="dao.agent_model.rating_speed">
 			<tuv xml:lang="en_US">
 				<seg>Speed</seg>
-			</tuv>
-		</tu>
-		<tu tuid="dao.agent_model.provider">
-			<tuv xml:lang="en_US">
-				<seg>Provider</seg>
 			</tuv>
 		</tu>
 		<!-- Agent Tool -->
