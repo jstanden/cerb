@@ -313,6 +313,7 @@ $(function() {
 		const iconEl = document.getElementById('iconInput_{$form_id}');
 		const iconColorEl = document.getElementById('iconColorInput_{$form_id}');
 		let iconPicker = null;
+		let colorPicker = null;
 
 		if(iconEl && window.CerbUI && CerbUI.IconPicker) {
 			iconPicker = new CerbUI.IconPicker(iconEl, {
@@ -325,18 +326,33 @@ $(function() {
 		// own field in this mode), not sitting in the form next to the icon well. The <input> stays in the DOM
 		// and still posts `icon_color`.
 		if(iconColorEl && window.CerbUI && CerbUI.ColorPicker) {
-			new CerbUI.ColorPicker(iconColorEl, {
-				showInput: false
+			colorPicker = new CerbUI.ColorPicker(iconColorEl, {
+				showInput: false,
+				// Blank means "inherit the provider's hue", the same contract the icon well has. Without an
+				// emptyColor the swatch would paint HSVA 0,0,0 -- solid black -- and read as a deliberate
+				// choice of black. allowClear is what makes the fallback reachable again after a pick.
+				emptyColor: '',
+				allowClear: true
 			});
 		}
 
 		// Repaint the well, NOT setValue() -- that fires input/change unconditionally, which would dirty the
 		// form just because someone switched providers.
 		function syncIconFallback() {
-			if(!iconPicker) return;
 			const provider = currentProvider();
-			iconPicker.opts.emptyIcon = (provider && provider.icon) ? provider.icon : 'bot';
-			if(typeof iconPicker._render === 'function') iconPicker._render();
+
+			if(iconPicker) {
+				iconPicker.opts.emptyIcon = (provider && provider.icon) ? provider.icon : 'bot';
+				if(typeof iconPicker._render === 'function') iconPicker._render();
+			}
+
+			// The same treatment for the hue, which is what `icon_color` falls back to at render time. An
+			// empty preview (no provider picked) leaves the picker's own default, rather than asserting a
+			// color this record would not actually use.
+			if(colorPicker) {
+				colorPicker.opts.emptyColor = (provider && provider.icon_color) ? provider.icon_color : '';
+				if(typeof colorPicker._render === 'function') colorPicker._render();
+			}
 		}
 
 		// SelectMenu writes back to the native <select> and fires `change` on it, so the endpoint placeholder

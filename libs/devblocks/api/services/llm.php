@@ -1394,21 +1394,7 @@ class _DevblocksLlmService {
 	 * the worker profile's AI tab, so both offer the same providers, icons, and model suggestions.
 	 */
 	function getAgentProviders() : array {
-		$labels = [
-			'openai' => 'OpenAI',
-			'anthropic' => 'Anthropic',
-			'gemini' => 'Google Gemini',
-			'groq' => 'Groq',
-			'ollama' => 'Ollama',
-			'omlx' => 'oMLX',
-			'aws_bedrock' => 'AWS Bedrock',
-			'huggingface' => 'Hugging Face',
-			'together' => 'Together AI',
-			'docker' => 'Docker',
-			'zai' => 'z.ai',
-			'qwen' => 'Qwen Cloud',
-			'openrouter' => 'OpenRouter',
-		];
+		$labels = $this->getProviderLabels();
 
 		$out = [];
 
@@ -1426,6 +1412,10 @@ class _DevblocksLlmService {
 				'id' => $id,
 				'label' => $labels[$id] ?? ucfirst($id),
 				'icon' => $provider->getIcon(),
+				// The brand HUE, alongside the brand mark. Both are what a blank `icon_color`/`icon` column
+				// falls back to at render time, so the editor needs both to preview that fallback honestly --
+				// without it a blank color swatch paints black and reads as a deliberate choice.
+				'icon_color' => $this->getProviderIconColor($id),
 				'models' => method_exists($provider, 'getChatModels') ? $provider->getChatModels() : [],
 				'endpoint_default' => (string) ($provider->getParam('api_endpoint_url') ?? ''),
 			];
