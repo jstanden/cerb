@@ -133,3 +133,23 @@
 		}
 	}
 }
+
+// An ANCHOR wearing this class -- a download, an "open X" -- is a navigation that should still READ as a
+// button. Without this it keeps `A`'s underline, and it lays out as an inline box where `height` is simply
+// ignored: the padding and the line box then fight, which is what made the Download button wrap around its
+// own glyph.
+//
+// Deliberately declares NO `color`. Each variant (--subtle/--outline/--transparent) sets its own at (0,1,0),
+// and `a.cerb-ui-button` is (0,1,1) -- a color here would silently override every one of them. `A`'s own
+// color is (0,0,1) and already loses to the base class, so there is nothing to correct.
+a.cerb-ui-button {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25em;
+	box-sizing: border-box;
+	text-decoration: none;
+
+	&:hover {
+		text-decoration: none;
+	}
+}
