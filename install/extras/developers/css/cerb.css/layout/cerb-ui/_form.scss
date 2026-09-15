@@ -107,6 +107,11 @@
 	flex-direction: column;
 	gap: 0.35em;
 
+	// An author `display` beats the UA `[hidden]{display:none}` rule, so restore it explicitly -- otherwise
+	// a field toggled with `el.hidden` stays on screen as an empty labelled gap, which reads as a control
+	// that failed to populate rather than one that doesn't apply.
+	&[hidden] { display: none; }
+
 	> input,
 	> textarea,
 	> select,
