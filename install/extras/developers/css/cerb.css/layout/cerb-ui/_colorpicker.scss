@@ -233,3 +233,11 @@
 		border-color: var(--cerb-color-action-primary);
 	}
 }
+
+// The Clear button (allowClear), which returns the value to blank = "inherit". Full width so it reads as a
+// panel action rather than a fourth swatch. Mirrors `.cerb-ui-iconpicker--clear`.
+.cerb-ui-colorpicker--clear {
+	display: block;
+	width: 100%;
+	margin-top: 0.5em;
+}

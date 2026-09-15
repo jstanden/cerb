@@ -73,6 +73,8 @@ CerbUI.ColorPicker = class {
 			palette: 'rainbow',  // array or palette name (CerbUI.resolvePalette); default 'rainbow'
 			alpha:   false,      // show an opacity strip and emit #rrggbbaa / rgba()
 			showInput: true,     // false = render only the swatch chip; the hidden <input> still holds/posts the value
+			emptyColor: null,    // swatch preview while the value is BLANK (e.g. the fallback a host will use)
+			allowClear: false,   // offer a Clear button that returns the value to blank
 			onChange: null,      // (hex, rgba, input) => {}
 			onOpen:   null,
 			onClose:  null,
@@ -239,6 +241,17 @@ CerbUI.ColorPicker = class {
 			this.el.appendChild(this.panelInput);
 		}
 
+		// A way BACK to blank. Without it "blank means inherit" is only reachable by a value that was never
+		// set, so anyone who picked a color once can never return to the host's fallback.
+		if(this.opts.allowClear) {
+			this.clearBtn = document.createElement('button');
+			this.clearBtn.type = 'button';
+			this.clearBtn.className = 'cerb-ui-colorpicker--clear cerb-ui-button cerb-ui-button--subtle';
+			this.clearBtn.textContent = 'Clear';
+			this.clearBtn.addEventListener('click', () => { this.clear(); this.close(); });
+			this.el.appendChild(this.clearBtn);
+		}
+
 		document.body.appendChild(this.el);
 	}
 
@@ -261,7 +274,14 @@ CerbUI.ColorPicker = class {
 		const a = this.opts.alpha ? this.a : 1;
 		const hue = _cpHsvToRgb(this.h, 1, 1);
 
-		this.swatchFill.style.backgroundColor = `rgba(${r},${g},${b},${a})`;
+		// A BLANK value means "inherit", and HSVA 0,0,0 would paint that as solid black -- which reads as a
+		// deliberate choice of black rather than as "not set". When the host tells us what the fallback
+		// actually is, preview THAT. Display only: the input stays empty and still posts empty.
+		const isBlank = ('' === String(this.inputEl.value || '').trim());
+
+		this.swatchFill.style.backgroundColor = (isBlank && this.opts.emptyColor)
+			? this.opts.emptyColor
+			: `rgba(${r},${g},${b},${a})`;
 		this.sv.style.backgroundColor = `rgb(${hue.r},${hue.g},${hue.b})`;
 
 		this.svThumb.style.left = (this.s * 100) + '%';
@@ -276,8 +296,9 @@ CerbUI.ColorPicker = class {
 		}
 
 		// Keep the panel's hex field in sync — but not while the user is typing in it (avoids cursor jump).
+		// A blank value shows blank, not the derived `#000000`: the field has to agree with what will post.
 		if(this.panelInput && document.activeElement !== this.panelInput)
-			this.panelInput.value = this.getValue();
+			this.panelInput.value = isBlank ? '' : this.getValue();
 	}
 
 	// ── Value derivation ──────────────────────────────────────────────────────
@@ -304,6 +325,20 @@ CerbUI.ColorPicker = class {
 		if(this.opts.alpha) this.a = parsed.a;
 		this._render();
 		this.inputEl.value = this.getValue();
+		return this;
+	}
+
+	/**
+	 * Return the value to BLANK -- "inherit", not "black". The HSVA state is left alone on purpose, so
+	 * reopening the panel still shows where the thumbs were rather than jumping to the origin.
+	 */
+	clear() {
+		this.inputEl.value = '';
+		this._render();
+		this.inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+		this.inputEl.dispatchEvent(new Event('change', { bubbles: true }));
+		if(typeof this.opts.onChange === 'function') this.opts.onChange('', '', this.inputEl);
+		this.inputEl.dispatchEvent(new CustomEvent('cerb-ui-colorpicker:change', { detail: { hex: '', rgba: '' }, bubbles: true }));
 		return this;
 	}
 
