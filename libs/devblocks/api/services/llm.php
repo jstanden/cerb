@@ -1425,6 +1425,34 @@ class _DevblocksLlmService {
 	}
 
 	/**
+	 * The vendor name a reader knows, per provider id ("AWS Bedrock", not `aws_bedrock`).
+	 *
+	 * One map for every provider, chat or not: it's shared by getAgentProviders() and
+	 * getEmbeddingProviders(), and an id missing from it falls back to `ucfirst()`, which reads badly
+	 * (`Aws_bedrock`). Keeping the two lists separate is how `voyage` and `pinecone` -- which have no chat
+	 * surface at all -- went unnamed.
+	 */
+	function getProviderLabels() : array {
+		return [
+			'openai' => 'OpenAI',
+			'anthropic' => 'Anthropic',
+			'gemini' => 'Google Gemini',
+			'groq' => 'Groq',
+			'ollama' => 'Ollama',
+			'omlx' => 'oMLX',
+			'aws_bedrock' => 'AWS Bedrock',
+			'huggingface' => 'Hugging Face',
+			'together' => 'Together AI',
+			'docker' => 'Docker',
+			'zai' => 'z.ai',
+			'qwen' => 'Qwen Cloud',
+			'openrouter' => 'OpenRouter',
+			'pinecone' => 'Pinecone',
+			'voyage' => 'Voyage AI',
+		];
+	}
+
+	/**
 	 * The `display:` sub-block — the model's brand mark and friendly name for transcripts and pickers. It's a
 	 * CERB-side concern rather than a provider knob (providers read `$_params` by key and never see it), so
 	 * it's advertised HERE for every provider instead of being repeated in each getChatKataAutocomplete().
