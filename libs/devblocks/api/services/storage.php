@@ -885,7 +885,7 @@ class DevblocksStorageEngine_CerbCloudS3 extends Extension_DevblocksStorageEngin
 	}
 	
 	private function _httpRequestWithRetries(string $method, string $uri,  int $num_retries=1, array $options=[]) {
-		$http_client = new GuzzleHttp\Client();
+		$http_client = DevblocksPlatform::services()->http()->getClient();
 		
 		// Include an attempt for the first request
 		$num_retries++;
