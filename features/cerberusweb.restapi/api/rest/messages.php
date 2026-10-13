@@ -42,6 +42,9 @@ class ChRest_Messages extends Extension_RestController implements IExtensionRest
 		if(null == ($message = DAO_Message::get($id)))
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid message ID %d", $id));
 		
+		if(!Context_Message::isDeletableByActor($message, $worker))
+			$this->error(self::ERRNO_ACL);
+		
 		CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_MESSAGE, $id);
 		
 		DAO_Message::delete($id);
@@ -159,10 +162,13 @@ class ChRest_Messages extends Extension_RestController implements IExtensionRest
 		
 		// (ACL) Add worker group privs
 		if(!$worker->is_superuser) {
-			$params['tmp_worker_memberships'] = new DevblocksSearchCriteria(
-				SearchFields_Message::VIRTUAL_TICKET_SEARCH,
-				DevblocksSearchCriteria::OPER_CUSTOM,
-				"inGroupsOf:me"
+			$view->addParam(
+				new DevblocksSearchCriteria(
+					SearchFields_Message::VIRTUAL_TICKET_SEARCH,
+					DevblocksSearchCriteria::OPER_CUSTOM,
+					sprintf('inGroupsOfWorker:%d', $worker->id)
+				),
+				'tmp_worker_memberships'
 			);
 		}
 		
@@ -177,6 +183,7 @@ class ChRest_Messages extends Extension_RestController implements IExtensionRest
 			$objects = array();
 			
 			$models = CerberusContexts::getModels(CerberusContexts::CONTEXT_MESSAGE, array_keys($results));
+			$models = CerberusContexts::filterModelsByActorReadable('Context_Message', $models, $worker);
 			
 			unset($results);
 			

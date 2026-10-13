@@ -44,6 +44,9 @@ class ChRest_Comments extends Extension_RestController implements IExtensionRest
 		));
 		
 		if(is_array($container) && isset($container['results']) && isset($container['results'][$id])) {
+			if(!Context_Comment::isDeletableByActor($id, CerberusApplication::getActiveWorker()))
+				$this->error(self::ERRNO_ACL);
+			
 			DAO_Comment::delete($id);
 			$this->success(array('message' => sprintf("Comment '%d' was removed", $id)));
 		} else {
@@ -207,6 +210,10 @@ class ChRest_Comments extends Extension_RestController implements IExtensionRest
 		$owner_context = DevblocksPlatform::importGPC($_POST['owner_context'] ?? null, 'string', '');
 		$owner_context_id = DevblocksPlatform::importGPC($_POST['owner_context_id'] ?? null, 'integer', 0);
 		$file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['file_id'] ?? null, 'array', []), 'int');
+		
+		// The worker must already be able to download every attached file
+		if($file_ids && array_diff($file_ids, Context_Attachment::filterDownloadableByActor($file_ids, $worker)))
+			$this->error(self::ERRNO_ACL, "You do not have permission to attach one or more of these files.");
 
 		$fields = [];
 		

@@ -95,6 +95,9 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 			
 			$error = null;
 			
+			if($file_ids && array_diff($file_ids, Context_Attachment::filterDownloadableByActor($file_ids, $active_worker)))
+				throw new Exception_DevblocksAjaxValidationError("You do not have permission to attach one or more of these files.");
+			
 			if(empty($id)) { // New
 				// Validate the context
 				if(!($context_ext = Extension_DevblocksContext::get($context)) || !($context_ext->getMeta($context_id)))
@@ -123,6 +126,12 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 					C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_COMMENT, $id);
 				
 			} else { // Edit
+				if(!($model = DAO_Comment::get($id)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
+
+				if(!Context_Comment::isWriteableByActor($model, $active_worker))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
+				
 				$fields = array(
 					DAO_Comment::COMMENT => $comment,
 					DAO_Comment::IS_MARKDOWN => $is_markdown,
