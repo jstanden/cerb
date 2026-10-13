@@ -263,6 +263,10 @@ class UmScAccountController extends Extension_UmScController {
 		if(false == ($address = DAO_Address::get($id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
+		// Verify the address belongs to the active contact
+		if($address->contact_id != $active_contact->id)
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
 		switch($action) {
 			case 'remove':
 				// Can't remove primary email
