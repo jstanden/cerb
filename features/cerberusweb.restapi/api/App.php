@@ -235,8 +235,16 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 			
 			$worker_id = $http_request->getAttribute('oauth_user_id');
 			
-			if(false != ($worker = DAO_Worker::get($worker_id)))
-				return $worker;
+			if(!($worker = DAO_Worker::get($worker_id)))
+				return null;
+			
+			if($worker->is_disabled) {
+				http_response_code(401);
+				$error = 'Access denied! (Invalid credentials: worker account is disabled)';
+				return false;
+			}
+			
+			return $worker;
 			
 		} catch (\League\OAuth2\Server\Exception\OAuthServerException $e) {
 			http_response_code($e->getHttpStatusCode());
