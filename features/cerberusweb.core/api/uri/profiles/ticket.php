@@ -312,6 +312,14 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		
 		$record_context = CerberusContexts::CONTEXT_TICKET;
 		
+		if($id) {
+			if(!($ticket = DAO_Ticket::get($id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
+			
+			if(!Context_Ticket::isWriteableByActor($ticket, $active_worker))
+				DevblocksPlatform::dieWithHttpError(null, 403);
+		}
+		
 		try {
 			$fields = $this->_peekEditorToRecordFields($_POST ?? [], $record_context);
 		
@@ -566,6 +574,9 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 				
 				if(!($message = DAO_Message::get($id)))
 					DevblocksPlatform::dieWithHttpError(null, 404);
+				
+				if(!Context_Message::isReadableByActor($message, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
 				
 				$automation_event_dict->mergeKeys('message_', DevblocksDictionaryDelegate::getDictionaryFromModel($message, CerberusContexts::CONTEXT_MESSAGE));
 				$automation_event_dict->mergeKeys('worker_', DevblocksDictionaryDelegate::getDictionaryFromModel($active_worker, CerberusContexts::CONTEXT_WORKER));
