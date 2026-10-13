@@ -678,9 +678,14 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @deprecated
 	 */
 	static function curlInit($url=null) {
+		// The destination is vetted in curlExec() rather than here, and deliberately so: callers set
+		// CURLOPT_URL on the handle after this returns, so a check made on $url alone would miss them.
+		// curlExec() reads CURLINFO_EFFECTIVE_URL instead, which reflects whatever URL the handle
+		// actually carries -- and re-checks it on every redirect hop.
 		$ch = curl_init($url);
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
 		curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+		curl_setopt($ch, CURLOPT_PROTOCOLS_STR, 'http,https');
 		
 		return $ch;
 	}
@@ -699,7 +704,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		// Follow redirects
 		if($follow) {
-			curl_setopt($ch, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
+			curl_setopt($ch, CURLOPT_REDIR_PROTOCOLS_STR, 'http,https');
 			$out = curl_exec($ch);
 			$status = curl_getinfo($ch);
 			
