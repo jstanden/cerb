@@ -391,6 +391,11 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 		if(empty($ticket_id) || null == ($ticket = DAO_Ticket::get($ticket_id)))
 			return false;
 		
+		if(!Context_Ticket::isWriteableByActor($ticket, $active_worker)) {
+			$error = DevblocksPlatform::translate('error.core.no_acl.edit');
+			return false;
+		}
+		
 		// Params
 		$params = [];
 		
