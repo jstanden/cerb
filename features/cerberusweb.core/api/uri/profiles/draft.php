@@ -319,6 +319,10 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 		unset($params['custom_fieldset_deletes']);
 		unset($params['_csrf_token']);
 		
+		// Only keep attachments the worker can already download
+		if(array_key_exists('file_ids', $params))
+			$params['file_ids'] = Context_Attachment::filterDownloadableByActor(is_array($params['file_ids']) ? $params['file_ids'] : [], $active_worker);
+		
 		// Custom fields
 		
 		$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
@@ -433,6 +437,10 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 		unset($params['ticket_mask']);
 		unset($params['custom_fieldset_deletes']);
 		unset($params['_csrf_token']);
+		
+		// Only keep attachments the worker can already download
+		if(array_key_exists('file_ids', $params))
+			$params['file_ids'] = Context_Attachment::filterDownloadableByActor(is_array($params['file_ids']) ? $params['file_ids'] : [], $active_worker);
 		
 		$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array',[]);
 		$field_ids = DevblocksPlatform::sanitizeArray($field_ids, 'integer', array('nonzero','unique'));

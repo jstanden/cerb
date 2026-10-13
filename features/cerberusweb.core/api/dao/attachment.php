@@ -331,7 +331,25 @@ class DAO_Attachment extends Cerb_ORMHelper {
 		
 		return self::addLinks($context, $context_id, $file_ids);
 	}
-	
+
+	/**
+	 * Like setLinks(), but caller-supplied files are only linked if the actor can
+	 * already download them. Files already on the record are kept as-is.
+	 */
+	static function setLinksByActor($context, $context_id, $file_ids, $actor) {
+		$file_ids = array_unique(array_filter(DevblocksPlatform::sanitizeArray(is_array($file_ids) ? $file_ids : [$file_ids], 'int')));
+		$existing_ids = $context_id ? array_keys(self::getByContextIds($context, $context_id)) : [];
+
+		$new_ids = array_diff($file_ids, $existing_ids);
+
+		$allowed_ids = array_merge(
+			array_intersect($file_ids, $existing_ids),
+			$new_ids ? Context_Attachment::filterDownloadableByActor($new_ids, $actor) : []
+		);
+
+		return self::setLinks($context, $context_id, $allowed_ids);
+	}
+
 	static function unattach($context, $context_id, $file_ids) {
 		$db = DevblocksPlatform::services()->database();
 		
@@ -1456,6 +1474,23 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		return self::isWriteableByActor($models, $actor);
 	}
 	
+	/**
+	 * Reduce caller-supplied attachment IDs to those the actor can download, so
+	 * linking them to a new record can't grant access to unrelated files.
+	 */
+	static function filterDownloadableByActor($file_ids, $actor) : array {
+		if(!is_array($file_ids))
+			$file_ids = [$file_ids];
+		
+		if(!($file_ids = array_unique(array_filter(DevblocksPlatform::sanitizeArray($file_ids, 'int')))))
+			return [];
+		
+		if(!is_array($privs = self::isDownloadableByActor($file_ids, $actor)))
+			return [];
+		
+		return array_values(array_intersect($file_ids, array_keys(array_filter($privs))));
+	}
+	
 	static function isDownloadableByActor($models, $actor) {
 		if(!($actor = CerberusContexts::polymorphActorToDictionary($actor)))
 			return CerberusContexts::denyEverything($models);
@@ -1541,19 +1576,9 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 				continue;
 			
 			foreach($links as $context => $ids) {
-				if(!($mft = Extension_DevblocksContext::get($context, false)))
-					continue;
-				
-				$class = $mft->class;
-				
-				if(!class_exists($class))
-					continue;
-				
-				if($privs = $class::isReadableByActor($ids, $actor)) {
-					if(false !== array_search(true, $privs)) {
-						$results[$context_id] = true;
-						continue 2;
-					}
+				if(self::_isAnyLinkedRecordReadableByActor($dict->id, $context, $ids, $actor)) {
+					$results[$context_id] = true;
+					continue 2;
 				}
 			}
 		}
@@ -1563,6 +1588,81 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		} else {
 			return array_shift($results);
 		}
+	}
+	
+	/**
+	 * Whether the actor can read any of the given records an attachment is linked to.
+	 *
+	 * Comments, drafts, workers, and custom fields are readable by everyone, so a link to one
+	 * of those can't authorize a download by itself. Those are resolved to the record that
+	 * actually owns the content instead (a comment's target, a draft's author or ticket,
+	 * the uploader, or the records whose file field holds this attachment).
+	 */
+	private static function _isAnyLinkedRecordReadableByActor(int $file_id, string $context, array $ids, DevblocksDictionaryDelegate $actor, int $depth=0) : bool {
+		if(!($ids = DevblocksPlatform::sanitizeArray($ids, 'int')))
+			return false;
+		
+		// Comments on comments (etc.) shouldn't recurse forever
+		if($depth > 5)
+			return false;
+		
+		switch($context) {
+			case CerberusContexts::CONTEXT_WORKER:
+				// Only the worker who uploaded a file (it's linked to them)
+				return $actor->_context == CerberusContexts::CONTEXT_WORKER && in_array(intval($actor->id), $ids);
+			
+			case CerberusContexts::CONTEXT_COMMENT:
+				// Readable if the comment's target record is readable
+				foreach(DAO_Comment::getIds($ids) as $comment) {
+					if(self::_isAnyLinkedRecordReadableByActor($file_id, $comment->context, [$comment->context_id], $actor, $depth + 1))
+						return true;
+				}
+				return false;
+			
+			case CerberusContexts::CONTEXT_DRAFT:
+				// Readable by the draft's author, or by anyone who can read its ticket
+				foreach(DAO_MailQueue::getIds($ids) as $draft) {
+					if($actor->_context == CerberusContexts::CONTEXT_WORKER && $draft->worker_id == $actor->id)
+						return true;
+					
+					if($draft->ticket_id && self::_isAnyLinkedRecordReadableByActor($file_id, CerberusContexts::CONTEXT_TICKET, [$draft->ticket_id], $actor, $depth + 1))
+						return true;
+				}
+				return false;
+				
+			case CerberusContexts::CONTEXT_CUSTOM_FIELD:
+				// Readable if any record with this file in one of these fields is readable
+				$db = DevblocksPlatform::services()->database();
+				
+				$rows = $db->GetArrayReader(sprintf("SELECT context, context_id FROM custom_field_numbervalue WHERE field_id IN (%s) AND field_value = %d LIMIT 500",
+					implode(',', $ids),
+					$file_id
+				));
+				
+				$records = [];
+				
+				foreach($rows as $row)
+					$records[$row['context']][] = intval($row['context_id']);
+				
+				foreach($records as $record_context => $record_ids) {
+					if(self::_isAnyLinkedRecordReadableByActor($file_id, $record_context, $record_ids, $actor, $depth + 1))
+						return true;
+				}
+				return false;
+		}
+		
+		if(!($mft = Extension_DevblocksContext::get($context, false)))
+			return false;
+		
+		$class = $mft->class;
+		
+		if(!class_exists($class))
+			return false;
+		
+		if(!is_array($privs = $class::isReadableByActor($ids, $actor)))
+			return false;
+		
+		return false !== array_search(true, $privs);
 	}
 	
 	function profileGetUrl($context_id) {

@@ -1284,7 +1284,8 @@ class DAO_Ticket extends Cerb_ORMHelper {
 					'content' => $broadcast_params['message'],
 					'content_format' => $broadcast_params['format'],
 					'html_template_id' => @$broadcast_params['html_template_id'] ?: 0,
-					'file_ids' => @$broadcast_params['file_ids'] ?: [],
+					// Only files the sending worker can already download
+					'file_ids' => Context_Attachment::filterDownloadableByActor(@$broadcast_params['file_ids'] ?: [], DAO_Worker::get($broadcast_params['worker_id'])),
 				];
 				
 				if(is_array($dicts))

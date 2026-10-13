@@ -140,7 +140,7 @@ class PageSection_ProfilesFileBundle extends Extension_PageSection {
 				$file_ids = DevblocksPlatform::importGPC($_POST['file_ids'] ?? null, 'array:integer', []);
 				
 				if(is_array($file_ids))
-					DAO_Attachment::setLinks(CerberusContexts::CONTEXT_FILE_BUNDLE, $id, $file_ids);
+					DAO_Attachment::setLinksByActor(CerberusContexts::CONTEXT_FILE_BUNDLE, $id, $file_ids, $active_worker);
 				
 				// Custom field saves
 				$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);

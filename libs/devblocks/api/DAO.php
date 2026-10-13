@@ -159,6 +159,26 @@ abstract class DevblocksORMHelper {
 		);
 	}
 
+	/**
+	 * A worker can only put files they can already download into a file custom field,
+	 * otherwise the field's record would grant access to unrelated attachments.
+	 */
+	static private function _getCustomFieldFileAccessValidator() : callable {
+		return function($value, &$error=null) {
+			if(!($active_worker = CerberusApplication::getActiveWorker()))
+				return true;
+			
+			$file_ids = array_filter(DevblocksPlatform::sanitizeArray(is_array($value) ? $value : [$value], 'int'));
+			
+			if($file_ids && array_diff($file_ids, Context_Attachment::filterDownloadableByActor($file_ids, $active_worker))) {
+				$error = "contains a file you do not have permission to attach.";
+				return false;
+			}
+			
+			return true;
+		};
+	}
+	
 	static protected function _getCustomFieldsValidation($context) : _DevblocksValidationService {
 		$validation = DevblocksPlatform::services()->validation();
 		
@@ -216,6 +236,7 @@ abstract class DevblocksORMHelper {
 						->number()
 						->setMin(0)
 						->setMax('32 bits')
+						->addValidator(self::_getCustomFieldFileAccessValidator())
 					;
 					break;
 				case Model_CustomField::TYPE_FILES:
@@ -223,6 +244,7 @@ abstract class DevblocksORMHelper {
 						->addField($field_id, $custom_field_label)
 						->idArray()
 						->addValidator($validation->validators()->contextIds(CerberusContexts::CONTEXT_ATTACHMENT, true))
+						->addValidator(self::_getCustomFieldFileAccessValidator())
 					;
 					break;
 				case Model_CustomField::TYPE_LINK:

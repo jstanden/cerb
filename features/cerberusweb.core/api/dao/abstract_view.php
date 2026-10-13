@@ -4154,7 +4154,8 @@ abstract class C4_AbstractView {
 				'group_id' => ($params['group_id'] ?? null) ?: 0,
 				'bucket_id' => ($params['bucket_id'] ?? null) ?: 0,
 				'html_template_id' => ($params['html_template_id'] ?? null) ?: 0,
-				'file_ids' => ($params['file_ids'] ?? null) ?: [],
+				// Only files the sending worker can already download
+				'file_ids' => Context_Attachment::filterDownloadableByActor(($params['file_ids'] ?? null) ?: [], DAO_Worker::get($params['worker_id'])),
 			];
 			
 			if(is_array($dicts))

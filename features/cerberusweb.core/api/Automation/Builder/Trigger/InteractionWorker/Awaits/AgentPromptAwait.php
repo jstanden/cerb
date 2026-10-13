@@ -136,6 +136,10 @@ class AgentPromptAwait extends AbstractAwait {
 				if(!($attachment = \DAO_Attachment::get($attachment_id)))
 					continue;
 
+				// Only images the worker can already download (otherwise linking them to the session would grant access)
+				if(!($worker = \CerberusApplication::getActiveWorker()) || !\Context_Attachment::isDownloadableByActor($attachment_id, $worker))
+					continue;
+
 				$mime_type = strval($attachment->mime_type);
 
 				if(!DevblocksPlatform::strStartsWith(DevblocksPlatform::strLower($mime_type), 'image/'))

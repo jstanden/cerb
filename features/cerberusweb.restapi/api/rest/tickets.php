@@ -578,6 +578,12 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			$properties['send_at'] = $send_at;
 		
 		if(!empty($file_ids)) {
+			$file_ids = DevblocksPlatform::sanitizeArray($file_ids, 'int');
+			
+			// The worker must already be able to download every attached file
+			if(array_diff($file_ids, Context_Attachment::filterDownloadableByActor($file_ids, $worker)))
+				$this->error(self::ERRNO_ACL, "You do not have permission to attach one or more of these files.");
+			
 			$properties['link_forward_files'] = true;
 			$properties['forward_files'] = $file_ids;
 		}
@@ -763,6 +769,12 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		//Files
 		
 		if(!empty($file_ids)) {
+			$file_ids = DevblocksPlatform::sanitizeArray($file_ids, 'int');
+			
+			// The worker must already be able to download every attached file
+			if(array_diff($file_ids, Context_Attachment::filterDownloadableByActor($file_ids, $worker)))
+				$this->error(self::ERRNO_ACL, "You do not have permission to attach one or more of these files.");
+			
 			$properties['link_forward_files'] = true;
 			$properties['forward_files'] = $file_ids;
 		}
