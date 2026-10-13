@@ -77,6 +77,30 @@ if(!defined('DEVBLOCKS_CACHE_ENGINE_OPTIONS'))
 if(!defined('DEVBLOCKS_HTTP_PROXY'))
 	define('DEVBLOCKS_HTTP_PROXY', '');
 
+// CIDRs to refuse as outbound HTTP destinations (see DevblocksHttpEgressFilter). The
+// default is the cloud instance metadata services, which hand out credentials to anything
+// able to make this server issue a request. Private ranges stay reachable because pointing
+// an LLM endpoint, webhook, or automation at an internal service is a supported
+// configuration.
+//
+// Link-local is blocked wholesale rather than enumerating 169.254.169.254 (AWS EC2 IMDS,
+// and what GCP, Azure, OCI, DigitalOcean and Hetzner all answer on), 169.254.170.2 (ECS
+// task role credentials) and 169.254.170.23 (ECS/EKS Pod Identity). Azure's WireServer and
+// Alibaba's metadata service sit in PUBLIC address space, so a private-range filter would
+// miss them.
+//
+// Defining this in the config file REPLACES the default, so a hardened install that adds
+// its own (e.g. '10.0.0.0/8') should keep these entries too. In the config file rather
+// than a setting on purpose -- changing egress should take filesystem access, not an
+// admin session.
+if(!defined('DEVBLOCKS_HTTP_BLOCK_CIDRS'))
+	define('DEVBLOCKS_HTTP_BLOCK_CIDRS', [
+		'169.254.0.0/16',     // Link-local: AWS EC2 IMDS, ECS task creds, Pod Identity, GCP, Azure, OCI, DO, Hetzner
+		'fd00:ec2::/64',      // AWS IMDS over IPv6 (::254) and Pod Identity (::23)
+		'168.63.129.16/32',   // Azure WireServer -- public address space
+		'100.100.100.200/32', // Alibaba Cloud metadata -- public address space
+	]);
+
 if(!defined('DEVBLOCKS_STORAGE_ENGINE_PREVENT_CHANGE'))
 	define('DEVBLOCKS_STORAGE_ENGINE_PREVENT_CHANGE', defined('CERB_CLOUD_SUBDOMAIN'));
 

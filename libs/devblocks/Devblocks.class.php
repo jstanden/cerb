@@ -716,7 +716,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	/*
 	 * @deprecated
 	 */
-	static function curlExec($ch, $follow=false, $return=true) {
+	static function curlExec($ch, $follow=false, $return=true, $hops=0) {
 		// Proxy
 		if(defined('DEVBLOCKS_HTTP_PROXY') && DEVBLOCKS_HTTP_PROXY) {
 			curl_setopt($ch, CURLOPT_PROXY, DEVBLOCKS_HTTP_PROXY);
@@ -725,6 +725,27 @@ class DevblocksPlatform extends DevblocksEngine {
 		// Return transfer
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, $return);
 		
+		// Refuse cloud credential endpoints. CURLINFO_EFFECTIVE_URL rather than a URL passed in,
+		// because it reflects the URL the handle actually carries -- whether it came from curlInit()
+		// or a later CURLOPT_URL -- and because this function recurses to follow redirects, so the
+		// same check covers every hop.
+		//
+		// Returns false like a failed transfer rather than throwing: curl_exec()'s own contract is
+		// what every caller here already handles, and a new exception type would surface as a fatal
+		// in cron and OAuth paths.
+		$effective_url = strval(curl_getinfo($ch, CURLINFO_EFFECTIVE_URL));
+		
+		if(!DevblocksHttpEgressFilter::vetUrl($effective_url, $error)) {
+			DevblocksPlatform::logError(
+				sprintf('Refused to request %s: %s',
+					$effective_url,
+					$error
+				)
+			);
+			
+			return false;
+		}
+		
 		// Follow redirects
 		if($follow) {
 			curl_setopt($ch, CURLOPT_REDIR_PROTOCOLS_STR, 'http,https');
@@ -732,10 +753,24 @@ class DevblocksPlatform extends DevblocksEngine {
 			$status = curl_getinfo($ch);
 			
 			// It's a 3xx redirect
-			// [TODO] Catch redirect loops
 			if(isset($status['redirect_url']) && $status['redirect_url'] && floor($status['http_code']/100) == 3) {
+				// Bound the chain. This used to recurse without a cap, so a server answering 302 with
+				// its own URL spun until the request died.
+				if($hops >= DevblocksHttpEgressFilter::MAX_REDIRECTS) {
+					DevblocksPlatform::logError(
+						sprintf('Too many redirects (%d) requesting %s',
+							$hops,
+							$effective_url
+						)
+					);
+					
+					return false;
+				}
+				
+				// The recursion is what re-runs the check above against the new target, so a redirect
+				// into the metadata service is refused at the hop.
 				curl_setopt($ch, CURLOPT_URL, $status['redirect_url']);
-				return self::curlExec($ch, $follow, $return);
+				return self::curlExec($ch, $follow, $return, $hops + 1);
 			}
 			
 			return $out;

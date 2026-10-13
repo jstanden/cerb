@@ -213,6 +213,7 @@ class _DevblocksClassLoadManager {
 		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/http.php', array(
 			'_DevblocksHttpService',
+			'DevblocksHttpEgressFilter',
 			'DevblocksHttpSseSink',
 			'DevblocksHttpAwsEventStreamSink',
 			'DevblocksHttpNdjsonSink',
