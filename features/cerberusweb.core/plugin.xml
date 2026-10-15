@@ -8092,24 +8092,6 @@
 		</extension>
 		
 		<extension point="cerberusweb.ui.workspace.widget.datasource">
-			<id>core.workspace.widget.datasource.url</id>
-			<name>URL</name>
-			<class>
-				<file>api/uri/internal/dashboards/widget_datasources.php</file>
-				<name>WorkspaceWidgetDatasource_URL</name>
-			</class>
-			<params>
-				<param key="widgets">
-					<value>
-						<data key="core.workspace.widget.counter" />
-						<data key="core.workspace.widget.gauge" />
-						<data key="core.workspace.widget.pie_chart" />
-					</value>
-				</param>
-			</params>
-		</extension>
-		
-		<extension point="cerberusweb.ui.workspace.widget.datasource">
 			<id>core.workspace.widget.datasource.worklist.metric</id>
 			<name>Worklist (Metric)</name>
 			<class>
