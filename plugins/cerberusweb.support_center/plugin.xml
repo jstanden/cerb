@@ -30,6 +30,7 @@
 		<patch version="5.0.0-beta" revision="19" file="patches/5.0.0_beta.php" />
 		<patch version="5.1.0-dev" revision="21" file="patches/5.1.0.php" />
 		<patch version="5.2.0-dev" revision="24" file="patches/5.2.0.php" />
+		<patch version="12.0.1" revision="25" file="patches/12.0.1.php" />
 	</patches>
 	
 	<!-- Exported Classes -->
@@ -44,10 +45,6 @@
 		<file path="api/events/contact_registered_in_sc.php">
 			<class name="Event_ContactRegisteredInSupportCenter" />
 		</file>
-		<file path="api/dao/supportcenter_address_share.php">
-			<class name="DAO_SupportCenterAddressShare" />
-			<class name="Model_SupportCenterAddressShare" />
-		</file>
 		<file path="api/sc/uri/history.php">
 			<class name="UmSc_TicketHistoryView" />
 		</file>
@@ -56,24 +53,6 @@
 	<!-- Extensions -->
 
 	<extensions>
-
-		<!-- Event Listeners -->
-		
-		<extension point="devblocks.listener.event">
-			<id>sc.listeners.core</id>
-			<name>Support Center Event Listener</name>
-			<class>
-				<file>api/UmScApp.php</file>
-				<name>UmScEventListener</name>
-			</class>
-			<params>
-				<param key="events">
-					<value>
-						<data key="cron.maint" />
-					</value>
-				</param>
-			</params>
-		</extension>
 
 		<!-- Usermeet Tools -->
 		

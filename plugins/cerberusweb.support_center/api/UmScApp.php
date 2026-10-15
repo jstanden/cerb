@@ -40,19 +40,6 @@
  *	 Founders at Webgroup Media LLC; Developers of Cerb
  */
 
-class UmScEventListener extends DevblocksEventListenerExtension {
-	/**
-	 * @param Model_DevblocksEvent $event
-	 */
-	function handleEvent(Model_DevblocksEvent $event) {
-		switch($event->id) {
-			case 'cron.maint':
-				DAO_SupportCenterAddressShare::maint();
-				break;
-		}
-	}
-};
-
 class UmScApp extends Extension_CommunityPortal {
 	const PARAM_PAGE_TITLE = 'common.page_title';
 	const PARAM_LOGO_URL = 'common.logo_url';

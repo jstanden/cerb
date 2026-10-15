@@ -315,7 +315,6 @@ class DAO_Address extends Cerb_ORMHelper {
 	
 	static function mergeIds($from_ids, $to_id) {
 		$db = DevblocksPlatform::services()->database();
-		$tables = $db->metaTables();
 
 		$context = CerberusContexts::CONTEXT_ADDRESS;
 		
@@ -359,18 +358,6 @@ class DAO_Address extends Cerb_ORMHelper {
 		$db->ExecuteMaster(sprintf("DELETE FROM requester WHERE address_id IN (%s)",
 			implode(',', $from_ids)
 		));
-		
-		// Merge supportcenter_address_share
-		if(array_key_exists('supportcenter_address_share', $tables)) {
-			$db->ExecuteMaster(sprintf("UPDATE IGNORE supportcenter_address_share SET share_address_id = %d WHERE share_address_id IN (%s)",
-				$to_id,
-				implode(',', $from_ids)
-			));
-			$db->ExecuteMaster(sprintf("UPDATE IGNORE supportcenter_address_share SET with_address_id = %d WHERE with_address_id IN (%s)",
-				$to_id,
-				implode(',', $from_ids)
-			));
-		}
 		
 		// Merge ticket first wrote
 		$db->ExecuteMaster(sprintf("UPDATE ticket SET first_wrote_address_id = %d WHERE first_wrote_address_id IN (%s)",

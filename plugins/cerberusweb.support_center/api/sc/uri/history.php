@@ -32,10 +32,7 @@ class UmScHistoryController extends Extension_UmScController {
 		array_shift($stack); // history
 		$mask = array_shift($stack);
 		
-		$shared_address_ids = DAO_SupportCenterAddressShare::getContactAddressesWithShared($active_contact->id, true);
-		
-		if(empty($shared_address_ids))
-			$shared_address_ids = [-1];
+		$contact_address_ids = array_keys($active_contact->getEmails()) ?: [-1];
 		
 		if(!$mask) {
 			// Ticket history
@@ -91,7 +88,7 @@ class UmScHistoryController extends Extension_UmScController {
 			
 			// Lock to current visitor
 			$history_view->addParamsRequired(array(
-				'_acl_reqs' => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',$shared_address_ids),
+				'_acl_reqs' => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',$contact_address_ids),
 				'_acl_status' => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_STATUS_ID,'!=',Model_Ticket::STATUS_DELETED),
 			), true);
 			
@@ -108,7 +105,7 @@ class UmScHistoryController extends Extension_UmScController {
 			$participants = $ticket->getRequesters();
 			
 			// See if the current account is one of the participants on this ticket
-			$matching_participants = array_intersect(array_keys($participants), $shared_address_ids);
+			$matching_participants = array_intersect(array_keys($participants), $contact_address_ids);
 			
 			// If none of the participants on the ticket match this account, deny access
 			if(!is_array($matching_participants) || empty($matching_participants))
@@ -189,9 +186,7 @@ class UmScHistoryController extends Extension_UmScController {
 		if(!($active_contact = $umsession->getActiveContact()))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 
-		$shared_address_ids = DAO_SupportCenterAddressShare::getContactAddressesWithShared($active_contact->id, true);
-		if(!$shared_address_ids)
-			$shared_address_ids = [-1];
+		$contact_address_ids = array_keys($active_contact->getEmails()) ?: [-1];
 		
 		CerberusContexts::pushActivityDefaultActor(CerberusContexts::CONTEXT_CONTACT, $active_contact->id);
 		
@@ -201,7 +196,7 @@ class UmScHistoryController extends Extension_UmScController {
 		$participants_old = $ticket->getRequesters();
 		
 		// Only allow access if mask has one of the valid requesters
-		$allowed_requester_ids = array_intersect(array_keys($participants_old), $shared_address_ids);
+		$allowed_requester_ids = array_intersect(array_keys($participants_old), $contact_address_ids);
 		
 		if(!$allowed_requester_ids)
 			DevblocksPlatform::dieWithHttpError(null, 403);
@@ -254,9 +249,7 @@ class UmScHistoryController extends Extension_UmScController {
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		// Load contact addresses
-		$shared_address_ids = DAO_SupportCenterAddressShare::getContactAddressesWithShared($active_contact->id, true);
-		if(empty($shared_address_ids))
-			$shared_address_ids = array(-1);
+		$contact_address_ids = array_keys($active_contact->getEmails()) ?: [-1];
 		
 		// Validate FROM address
 		if(null == ($from_address = DAO_Address::lookupAddress($from, false)))
@@ -270,7 +263,7 @@ class UmScHistoryController extends Extension_UmScController {
 		
 		// Only allow access if mask has one of the valid requesters
 		$requesters = $ticket->getRequesters();
-		$allowed_requester_ids = array_intersect(array_keys($requesters), $shared_address_ids);
+		$allowed_requester_ids = array_intersect(array_keys($requesters), $contact_address_ids);
 		
 		if(!$allowed_requester_ids)
 			DevblocksPlatform::dieWithHttpError(null, 403);
@@ -520,12 +513,10 @@ class UmSc_TicketHistoryView extends C4_AbstractView implements IAbstractView_Qu
 				if(empty($active_contact) || empty($requester_ids))
 					break;
 				
-				$shared_address_ids = DAO_SupportCenterAddressShare::getContactAddressesWithShared($active_contact->id, true);
-				if(empty($shared_address_ids))
-					$shared_address_ids = array(-1);
+				$contact_address_ids = array_keys($active_contact->getEmails());
 					
 				// Sanitize the selections to make sure they only include verified addresses on this contact
-				$intersect = array_intersect(array_keys($shared_address_ids), $requester_ids);
+				$intersect = array_intersect($contact_address_ids, $requester_ids);
 				
 				if(empty($intersect))
 					break;

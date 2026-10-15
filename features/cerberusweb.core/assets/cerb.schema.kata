@@ -11020,68 +11020,6 @@ tables:
             index_type: BTREE
             subpart@text:
             unique@text:
-  supportcenter_address_share:
-    columns:
-      is_enabled:
-        field: is_enabled
-        type: tinyint unsigned
-        collation@text:
-        nullable: NOT NULL
-        key: MUL
-        default: 0
-        extra@text:
-      share_address_id:
-        field: share_address_id
-        type: int unsigned
-        collation@text:
-        nullable: NOT NULL
-        key: PRI
-        default@text:
-        extra@text:
-        references: address.id
-      with_address_id:
-        field: with_address_id
-        type: int unsigned
-        collation@text:
-        nullable: NOT NULL
-        key: PRI
-        default@text:
-        extra@text:
-        references: address.id
-    indexes:
-      PRIMARY:
-        columns:
-          share_address_id:
-            column_name: share_address_id
-            index_type: BTREE
-            subpart@text:
-            unique: 1
-          with_address_id:
-            column_name: with_address_id
-            index_type: BTREE
-            subpart@text:
-            unique: 1
-      is_enabled:
-        columns:
-          is_enabled:
-            column_name: is_enabled
-            index_type: BTREE
-            subpart@text:
-            unique@text:
-      share_address_id:
-        columns:
-          share_address_id:
-            column_name: share_address_id
-            index_type: BTREE
-            subpart@text:
-            unique@text:
-      with_address_id:
-        columns:
-          with_address_id:
-            column_name: with_address_id
-            index_type: BTREE
-            subpart@text:
-            unique@text:
   task:
     columns:
       completed_date:
