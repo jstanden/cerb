@@ -1677,8 +1677,11 @@ class CerberusMail {
 					// Embed content-id images
 					foreach ($embedded_files as $cid => $file_id) {
 						// [TODO] Bulk load files
-						if ($file = DAO_Attachment::get($file_id)) {
-							$image = new DataPart($file->getFileContents(), $file->name, $file->mime_type);
+						if (
+							($file = DAO_Attachment::get($file_id))
+							&& is_string($file_contents = $file->getFileContents())
+						) {
+							$image = new DataPart($file_contents, $file->name, $file->mime_type);
 							$smtp_email->addPart($image->setContentId(substr($cid, 4))->asInline());
 						}
 					}
