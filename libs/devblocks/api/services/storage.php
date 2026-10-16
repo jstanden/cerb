@@ -691,8 +691,16 @@ class DevblocksStorageEngine_CerbCloudS3 extends Extension_DevblocksStorageEngin
 	}
 	
 	private function _httpRequestWithRetries(string $method, string $uri,  int $num_retries=1, array $options=[]) {
-		$http_client = DevblocksPlatform::services()->http()->getClient();
-		
+		// Cloud storage is first-party infrastructure (endpoint from server constants), so it must
+		// not be routed through the outbound proxy applied by the shared HTTP client.
+		$http_client = new GuzzleHttp\Client([
+			'connect_timeout' => 10,
+			'curl' => [
+				CURLOPT_PROTOCOLS_STR => 'http,https',
+				CURLOPT_REDIR_PROTOCOLS_STR => 'http,https',
+			],
+		]);
+
 		// Include an attempt for the first request
 		$num_retries++;
 		
