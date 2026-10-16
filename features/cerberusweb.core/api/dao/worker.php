@@ -984,6 +984,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			
 			if(isset($change_fields[DAO_Worker::IS_DISABLED]) && $is_disabled) {
 				Cerb_DevblocksSessionHandler::destroyByWorkerIds($before_model->id);
+				DAO_OAuthToken::deleteByWorkerId($before_model->id);
 			}
 		}
 	}
