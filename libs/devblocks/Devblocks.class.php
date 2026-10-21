@@ -674,6 +674,34 @@ class DevblocksPlatform extends DevblocksEngine {
 		return $colors;
 	}
 	
+	/**
+	 * Curl options restricting a handle to http and https, for requests and (with $redirects)
+	 * redirect hops.
+	 *
+	 * The `*_PROTOCOLS_STR` options need libcurl 7.85+, which RHEL 8 and 9 don't ship; PHP leaves
+	 * the constants undefined there, and referencing one is a fatal Error. The bitmask options
+	 * are deprecated in newer libcurl but still honored, so they're the fallback.
+	 */
+	static function getCurlProtocolOptions(bool $redirects=false) : array {
+		$options = [];
+		
+		if(defined('CURLOPT_PROTOCOLS_STR')) {
+			$options[constant('CURLOPT_PROTOCOLS_STR')] = 'http,https';
+		} else {
+			$options[CURLOPT_PROTOCOLS] = CURLPROTO_HTTP | CURLPROTO_HTTPS;
+		}
+		
+		if($redirects) {
+			if(defined('CURLOPT_REDIR_PROTOCOLS_STR')) {
+				$options[constant('CURLOPT_REDIR_PROTOCOLS_STR')] = 'http,https';
+			} else {
+				$options[CURLOPT_REDIR_PROTOCOLS] = CURLPROTO_HTTP | CURLPROTO_HTTPS;
+			}
+		}
+		
+		return $options;
+	}
+	
 	/*
 	 * @deprecated
 	 */
@@ -685,7 +713,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		$ch = curl_init($url);
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
 		curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-		curl_setopt($ch, CURLOPT_PROTOCOLS_STR, 'http,https');
+		curl_setopt_array($ch, self::getCurlProtocolOptions());
 		
 		return $ch;
 	}
@@ -704,7 +732,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		// Follow redirects
 		if($follow) {
-			curl_setopt($ch, CURLOPT_REDIR_PROTOCOLS_STR, 'http,https');
+			curl_setopt_array($ch, self::getCurlProtocolOptions(true));
 			$out = curl_exec($ch);
 			$status = curl_getinfo($ch);
 			

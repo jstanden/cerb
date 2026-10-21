@@ -695,10 +695,7 @@ class DevblocksStorageEngine_CerbCloudS3 extends Extension_DevblocksStorageEngin
 		// not be routed through the outbound proxy applied by the shared HTTP client.
 		$http_client = new GuzzleHttp\Client([
 			'connect_timeout' => 10,
-			'curl' => [
-				CURLOPT_PROTOCOLS_STR => 'http,https',
-				CURLOPT_REDIR_PROTOCOLS_STR => 'http,https',
-			],
+			'curl' => DevblocksPlatform::getCurlProtocolOptions(true),
 		]);
 
 		// Include an attempt for the first request
