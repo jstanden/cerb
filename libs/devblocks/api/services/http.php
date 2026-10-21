@@ -235,6 +235,34 @@ class DevblocksHttpEgressFilter {
 			'ips' => $ips,
 		];
 	}
+
+	/**
+	 * Curl options restricting a handle to http and https, for requests and (with $redirects)
+	 * redirect hops.
+	 *
+	 * The `*_PROTOCOLS_STR` options need libcurl 7.85+, which RHEL 8 and 9 don't ship; PHP leaves
+	 * the constants undefined there, and referencing one is a fatal Error. The bitmask options
+	 * are deprecated in newer libcurl but still honored, so they're the fallback.
+	 */
+	static function getCurlProtocolOptions(bool $redirects=false) : array {
+		$options = [];
+
+		if(defined('CURLOPT_PROTOCOLS_STR')) {
+			$options[constant('CURLOPT_PROTOCOLS_STR')] = 'http,https';
+		} else {
+			$options[CURLOPT_PROTOCOLS] = CURLPROTO_HTTP | CURLPROTO_HTTPS;
+		}
+
+		if($redirects) {
+			if(defined('CURLOPT_REDIR_PROTOCOLS_STR')) {
+				$options[constant('CURLOPT_REDIR_PROTOCOLS_STR')] = 'http,https';
+			} else {
+				$options[CURLOPT_REDIR_PROTOCOLS] = CURLPROTO_HTTP | CURLPROTO_HTTPS;
+			}
+		}
+
+		return $options;
+	}
 }
 
 class _DevblocksHttpService {
@@ -359,7 +387,15 @@ class _DevblocksHttpService {
 				//
 				// Nothing restricted the protocol on this path before, so a scheme that slipped past
 				// validation reached file://, gopher:// and dict://.
-				$options['curl'][CURLOPT_PROTOCOLS_STR] = 'http,https';
+				//
+				// Whichever of the string or bitmask forms the caller passed is dropped first, so it
+				// can't be applied after ours and widen the set again.
+				foreach(['CURLOPT_PROTOCOLS_STR', 'CURLOPT_PROTOCOLS'] as $opt_name) {
+					if(defined($opt_name))
+						unset($options['curl'][constant($opt_name)]);
+				}
+
+				$options['curl'] += DevblocksHttpEgressFilter::getCurlProtocolOptions();
 
 				// Redirects stay Guzzle's job. A caller passing CURLOPT_FOLLOWLOCATION => true would
 				// have curl follow hops itself, BELOW this middleware, where nothing re-checks them --

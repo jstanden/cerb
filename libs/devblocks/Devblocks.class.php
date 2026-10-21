@@ -708,8 +708,8 @@ class DevblocksPlatform extends DevblocksEngine {
 		$ch = curl_init($url);
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
 		curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-		curl_setopt($ch, CURLOPT_PROTOCOLS_STR, 'http,https');
-		
+		curl_setopt_array($ch, DevblocksHttpEgressFilter::getCurlProtocolOptions());
+
 		return $ch;
 	}
 	
@@ -748,7 +748,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		// Follow redirects
 		if($follow) {
-			curl_setopt($ch, CURLOPT_REDIR_PROTOCOLS_STR, 'http,https');
+			curl_setopt_array($ch, DevblocksHttpEgressFilter::getCurlProtocolOptions(true));
 			$out = curl_exec($ch);
 			$status = curl_getinfo($ch);
 			
