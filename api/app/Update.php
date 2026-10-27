@@ -133,7 +133,11 @@ class ChUpdateController extends DevblocksControllerExtension {
 				 */
 				
 				// Check requirements
-				$errors += CerberusApplication::checkRequirements();
+				$errors = array_merge($errors, CerberusApplication::checkRequirements());
+				
+				// Check the database server (only if the platform requirements passed)
+				if(!$errors)
+					$errors = CerberusApplication::checkDatabaseRequirements();
 				
 				if(!empty($errors)) {
 					echo "

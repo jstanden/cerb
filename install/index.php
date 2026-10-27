@@ -429,6 +429,13 @@ switch($step) {
 						$db_passed = false;
 						$errors[] = sprintf("The database engine doesn't support SPATIAL indexes.");
 					}
+					// MySQL 8.0+ (UUID functions)
+					if($db_passed && false === mysqli_query($_db, "SELECT BIN_TO_UUID(UUID_TO_BIN(UUID()))")) {
+						$db_passed = false;
+						$errors[] = sprintf("Cerb requires MySQL 8.0 or later. Your database server (%s) doesn't support the UUID_TO_BIN() and BIN_TO_UUID() functions.",
+							mysqli_get_server_info($_db)
+						);
+					}
 					// DROP TABLE
 					if($db_passed && false === mysqli_query($_db, "DROP TABLE IF EXISTS _installer_test_suite")) {
 						$db_passed = false;
