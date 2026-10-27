@@ -119,6 +119,9 @@ class PageSection_InternalRecords extends Extension_PageSection {
 			|| null == ($from_context_extension = Extension_DevblocksContext::get($context)))
 			return;
 		
+		if(!CerberusContexts::isReadableByActor($from_context_extension->id, $context_id, CerberusApplication::getActiveWorker()))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		$view_id = 'links_' . DevblocksPlatform::strAlphaNum($to_context_extension->id, '_', '_');
 		
 		if(false != ($view = $to_context_extension->getView($context, $context_id, null, $view_id))) {
@@ -138,9 +141,15 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		$context = DevblocksPlatform::importGPC($_POST['context'] ?? null,'string');
 		$context_id = DevblocksPlatform::importGPC($_POST['context_id'] ?? null,'integer');
 		
+		if(!($context_ext = Extension_DevblocksContext::getByAlias($context, false)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		if(!CerberusContexts::isReadableByActor($context_ext->id, $context_id, CerberusApplication::getActiveWorker()))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		$contexts = Extension_DevblocksContext::getAll(false);
 		
-		$counts = DAO_ContextLink::getContextLinkCounts($context, $context_id, []);
+		$counts = DAO_ContextLink::getContextLinkCounts($context_ext->id, $context_id, []);
 		$results = [];
 		
 		foreach($counts as $ext_id => $count) {
@@ -597,43 +606,60 @@ class PageSection_InternalRecords extends Extension_PageSection {
 	}	
 	
 	private function _internalAction_contextAddLinksJson() {
-		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
-		
-		$from_context = DevblocksPlatform::importGPC($_POST['from_context'] ?? null, 'string','');
-		$from_context_id = DevblocksPlatform::importGPC($_POST['from_context_id'] ?? null, 'integer',0);
-		$context = DevblocksPlatform::importGPC($_POST['context'] ?? null, 'string','');
-		$context_ids = DevblocksPlatform::importGPC($_POST['context_id'] ?? null, 'array',[]);
-		
-		// [TODO] Privs
-		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		if(is_array($context_ids))
-			foreach($context_ids as $context_id)
-				DAO_ContextLink::setLink($context, $context_id, $from_context, $from_context_id);
+		list($from_context, $from_context_id, $context, $context_ids) = $this->_getAuthorizedLinkChanges();
 		
+		foreach($context_ids as $context_id)
+			DAO_ContextLink::setLink($context, $context_id, $from_context, $from_context_id);
+		
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		echo json_encode(true);
 	}
 	
 	private function _internalAction_contextDeleteLinksJson() {
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		list($from_context, $from_context_id, $context, $context_ids) = $this->_getAuthorizedLinkChanges();
+		
+		foreach($context_ids as $context_id)
+			DAO_ContextLink::deleteLink($context, $context_id, $from_context, $from_context_id);
+		
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+		echo json_encode(true);
+	}
+	
+	private function _getAuthorizedLinkChanges() : array {
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$from_context = DevblocksPlatform::importGPC($_POST['from_context'] ?? null, 'string','');
 		$from_context_id = DevblocksPlatform::importGPC($_POST['from_context_id'] ?? null, 'integer',0);
 		$context = DevblocksPlatform::importGPC($_POST['context'] ?? null, 'string','');
 		$context_ids = DevblocksPlatform::importGPC($_POST['context_id'] ?? null, 'array',[]);
 		
-		// [TODO] Privs
+		if(!($from_context_ext = Extension_DevblocksContext::getByAlias($from_context, false)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
-		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 405);
+		if(!($context_ext = Extension_DevblocksContext::getByAlias($context, false)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
-		if(is_array($context_ids))
-			foreach($context_ids as $context_id)
-				DAO_ContextLink::deleteLink($context, $context_id, $from_context, $from_context_id);
+		$context_ids = array_values(array_unique(array_filter(DevblocksPlatform::sanitizeArray($context_ids, 'int'))));
 		
-		echo json_encode(true);
+		// Links modify the source record, so the worker must be able to edit it
+		if(!$from_context_id || !CerberusContexts::isWriteableByActor($from_context_ext->id, $from_context_id, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		// Every linked record must be readable
+		if($context_ids) {
+			$readable = CerberusContexts::isReadableByActor($context_ext->id, $context_ids, $active_worker);
+			
+			if(!is_array($readable) || count(array_filter($readable)) != count($context_ids))
+				DevblocksPlatform::dieWithHttpError(null, 403);
+		}
+		
+		return [$from_context_ext->id, $from_context_id, $context_ext->id, $context_ids];
 	}
 	
 	private function _internalAction_renderMergePopup() {

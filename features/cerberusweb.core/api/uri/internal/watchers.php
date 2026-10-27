@@ -119,6 +119,9 @@ class PageSection_InternalWatchers extends Extension_PageSection {
 		if(!$context || !$context_id || !$active_worker)
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
+		if(!CerberusContexts::isReadableByActor($context, $context_id, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		$worker_id = $active_worker->id;
 		
 		$watchers = CerberusContexts::getWatchers($context, $context_id);
