@@ -85,7 +85,7 @@
 {$participant->email}
 {/foreach}</textarea>
 					<div>
-						<i>(one email address per line)</i>
+						<i>(one email address per line; you may only remove your own addresses; add others by CC'ing them on an email reply)</i>
 					</div>
 				</td>
 			</tr>

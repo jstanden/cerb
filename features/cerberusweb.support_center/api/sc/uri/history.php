@@ -221,20 +221,19 @@ class UmScHistoryController extends Extension_UmScController {
 		if($fields)
 			DAO_Ticket::update($ticket->id, $fields);
 		
-		CerberusContexts::popActivityDefaultActor();
-		
-		// Participants
-		$participants_new = DAO_Address::lookupAddresses(DevblocksPlatform::parseCrlfString($participants), true);
+		// Participants (requesters may only remove their own addresses, and can't add new ones)
+		$participants_new = DAO_Address::lookupAddresses(DevblocksPlatform::parseCrlfString($participants), false);
 		$participants_removed = array_diff(array_keys($participants_old), array_keys($participants_new));
-		$participants_added = array_diff(array_keys($participants_new), array_keys($participants_old));
+		
+		$participants_removed = array_filter($participants_removed, function($address_id) use ($participants_old, $active_contact) {
+			return $participants_old[$address_id]->contact_id == $active_contact->id;
+		});
 		
 		if(!empty($participants_removed)) {
 			DAO_Ticket::removeParticipantIds($ticket->id, $participants_removed);
 		}
 		
-		if(!empty($participants_added)) {
-			DAO_Ticket::addParticipantIds($ticket->id, $participants_added);
-		}
+		CerberusContexts::popActivityDefaultActor();
 		
 		// Redirect
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'history', $ticket->mask)));
