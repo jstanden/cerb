@@ -315,12 +315,14 @@ class CerbPatch_Core_v12_0_0 {
 	
 	private function patchCronBackgroundQueue() : void {
 		// ===========================================================================
-		// Enable the new background cronjob
+		// Enable the new background cronjob (first 12.0 run only, so a re-run keeps an admin's choice)
 		
-		$this->_db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.background_queue', 'enabled', '1')");
-		$this->_db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.background_queue', 'lastrun', '0')");
-		$this->_db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.background_queue', 'locked', '0')");
-		$this->_db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.background_queue', 'concurrency', '2')");
+		if($this->_revision < 1506) {
+			$this->_db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.background_queue', 'enabled', '1')");
+			$this->_db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.background_queue', 'lastrun', '0')");
+			$this->_db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.background_queue', 'locked', '0')");
+			$this->_db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.background_queue', 'concurrency', '2')");
+		}
 		
 		// Remove retired cron jobs
 		$this->_db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'cron.metrics'");
@@ -4282,6 +4284,33 @@ class CerbPatch_Core_v12_0_0 {
 		
 		if($changes)
 			$this->_db->ExecuteMaster("ALTER TABLE contact " . implode(', ', $changes));
+	}
+	
+	private function patchUpdateTicketInteractionPermissions() : void {
+		// ===========================================================================
+		// Update built-in ticket interactions to check record permissions
+		
+		if($this->_revision >= 1576) // 12.0.2
+			return;
+		
+		$automation_files = [
+			'cerb.ticket.assign.json',
+			'cerb.ticket.move.json',
+			'cerb.ticket.participants.add.json',
+			'cerb.ticket.participants.manage.json',
+			'cerb.ticket.participants.remove.json',
+		];
+		
+		foreach($automation_files as $automation_file) {
+			$path = realpath(APP_PATH . '/features/cerberusweb.core/assets/automations/') . '/' . $automation_file;
+			
+			if(!file_exists($path) || false === ($automation_data = json_decode(file_get_contents($path), true)))
+				continue;
+			
+			DAO_Automation::importFromJson($automation_data);
+			
+			unset($automation_data);
+		}
 	}
 }
 
