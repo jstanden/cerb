@@ -290,6 +290,18 @@ class UmScContactController extends Extension_UmScController {
 		$sContent = DevblocksPlatform::importGPC($_POST['content'] ?? null, 'string','');
 		$sCaptcha = DevblocksPlatform::importGPC($_POST['captcha'] ?? null, 'string','');
 		
+		// Ignore a posted subject unless subjects are enabled on this portal
+		$allow_subjects = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_ALLOW_SUBJECTS, 0);
+		
+		if(!$allow_subjects)
+			$sSubject = '';
+		
+		// Ignore posted Cc: recipients unless they are enabled on this portal
+		$allow_cc = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_ALLOW_CC, 0);
+		
+		if(!$allow_cc)
+			$sCc = '';
+		
 		$aFieldIds = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
 		$aFollowUpQ = DevblocksPlatform::importGPC($_POST['followup_q'] ?? null, 'array', []);
 		
@@ -348,7 +360,7 @@ class UmScContactController extends Extension_UmScController {
 		$captcha_session = $umsession->getProperty(UmScApp::SESSION_CAPTCHA,'***');
 		
 		// Subject is required if the field is on the form
-		if(isset($_POST['subject']) && empty($sSubject)) {
+		if($allow_subjects && isset($_POST['subject']) && empty($sSubject)) {
 			$umsession->setProperty('support.write.last_error','A subject is required.');
 			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'contact','step2')));
 			return;
@@ -425,7 +437,7 @@ class UmScContactController extends Extension_UmScController {
 			'date' => date('r'),
 			'to' => $to,
 			'subject' => $subject,
-			'message-id' => CerberusApplication::generateMessageId(),
+			'message-id' => ($message_id_header = CerberusApplication::generateMessageId()),
 			'x-cerberus-portal' => !empty($community_portal->name) ? $community_portal->name : $community_portal->code,
 		);
 		
@@ -554,15 +566,25 @@ class UmScContactController extends Extension_UmScController {
 		// Parse
 		$ticket_id = CerberusParser::parseMessage($message);
 		
+		$is_new_ticket = false;
+		
 		// It's possible for the parser to reject the message using pre-filters
 		if(!empty($ticket_id) && null != ($ticket = DAO_Ticket::get($ticket_id))) {
 			$umsession->setProperty('support.write.last_opened',$ticket->mask);
+		
+			// Did this message start the ticket, or was it threaded into an existing one? (master, not a lagging reader)
+			$db = DevblocksPlatform::services()->database();
+			$is_new_ticket = (bool) $db->GetOneMaster(sprintf("SELECT COUNT(*) FROM ticket INNER JOIN message ON (message.id = ticket.first_message_id) WHERE ticket.id = %d AND message.hash_header_message_id = %s",
+				$ticket->id,
+				$db->qstr(sha1($message_id_header))
+			));
+		
 		} else {
 			$umsession->setProperty('support.write.last_opened',null);
 		}
 		
-		// Include Cc: recipients as participants
-		if(!empty($sCc)) {
+		// Include Cc: recipients as participants (only on a ticket we created)
+		if($is_new_ticket && !empty($sCc)) {
 			if($ccs = DevblocksPlatform::parseCsvString($sCc)) {
 				$participants = DAO_Address::lookupAddresses($ccs, true);
 				
