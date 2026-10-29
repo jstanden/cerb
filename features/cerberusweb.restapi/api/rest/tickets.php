@@ -877,7 +877,10 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		if(count($tickets) < 2)
 			$this->error(self::ERRNO_PARAM_INVALID, "At least two `ticket_ids[]` parameters are required.");
 		
-		if(!Context_Ticket::isWriteableByActor($tickets, $worker))
+		if(!$worker->hasPriv(sprintf("contexts.%s.merge", CerberusContexts::CONTEXT_TICKET)))
+			$this->error(self::ERRNO_ACL);
+		
+		if(in_array(false, Context_Ticket::isWriteableByActor($tickets, $worker), true))
 			$this->error(self::ERRNO_ACL, "You do not have permission to modify these tickets.");
 		
 		$from_ids = array_keys($tickets);
