@@ -35,6 +35,7 @@ class PageSection_InternalWatchers extends Extension_PageSection {
 	
 	private function _internalAction_showContextWatchersPopup() {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$context = DevblocksPlatform::importGPC($_REQUEST['context'] ?? null, 'string', '');
 		$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'] ?? null, 'integer', 0);
@@ -56,6 +57,9 @@ class PageSection_InternalWatchers extends Extension_PageSection {
 		
 		if(false == ($model = call_user_func([$dao_class, 'get'], $context_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		if(!CerberusContexts::isReadableByActor($context, $model, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$context_labels = $context_values = [];
 		CerberusContexts::getContext($context, $model, $context_labels, $context_values);
