@@ -118,6 +118,30 @@ if($changes) {
 }
 
 // ===========================================================================
+// Update built-in automations
+
+if($revision < 1492) { // 11.1.13
+	$automation_files = [
+		'cerb.ticket.assign.json',
+		'cerb.ticket.move.json',
+		'cerb.ticket.participants.add.json',
+		'cerb.ticket.participants.manage.json',
+		'cerb.ticket.participants.remove.json',
+	];
+	
+	foreach($automation_files as $automation_file) {
+		$path = realpath(APP_PATH . '/features/cerberusweb.core/assets/automations/') . '/' . $automation_file;
+		
+		if(!file_exists($path) || false === ($automation_data = json_decode(file_get_contents($path), true)))
+			continue;
+		
+		DAO_Automation::importFromJson($automation_data);
+		
+		unset($automation_data);
+	}
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
