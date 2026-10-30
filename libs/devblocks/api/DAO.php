@@ -44,6 +44,12 @@ abstract class DevblocksORMHelper {
 						return false;
 					}
 					
+					// The worker must be able to modify the existing record (not just its new owner)
+					if(!CerberusContexts::isWriteableByActor($context, $id, $worker)) {
+						$error = DevblocksPlatform::translate('error.core.no_acl.edit');
+						return false;
+					}
+					
 				// Create
 				} else {
 					if(!$worker->hasPriv(sprintf("contexts.%s.create", $context))) {
