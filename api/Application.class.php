@@ -493,14 +493,6 @@ class CerberusApplication extends DevblocksApplication {
 		$engine = $db->escape(APP_DB_ENGINE);
 		
 		$tests = [
-			// MySQL 8.0+ (UUID functions)
-			[
-				"SELECT BIN_TO_UUID(UUID_TO_BIN(UUID()))",
-				sprintf("Cerb %s requires MySQL 8.0 or later. Your database server (%s) doesn't support the UUID_TO_BIN() and BIN_TO_UUID() functions.",
-					APP_VERSION,
-					$db->GetOneMaster("SELECT VERSION()") ?: 'unknown'
-				),
-			],
 			["DROP TABLE IF EXISTS _update_test_suite", "The database user lacks the DROP privilege."],
 			["CREATE TABLE _update_test_suite (id int) ENGINE=" . $engine, sprintf("The database user lacks the CREATE privilege, or the '%s' storage engine is not enabled.", APP_DB_ENGINE)],
 			["INSERT INTO _update_test_suite (id) VALUES (1)", "The database user lacks the INSERT privilege."],

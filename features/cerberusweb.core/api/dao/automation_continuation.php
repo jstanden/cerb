@@ -446,17 +446,17 @@ class DAO_AutomationContinuation extends Cerb_ORMHelper {
 		$out = [];
 
 		try {
-			if(!($row = $db->GetRowReader(sprintf("SELECT agent_id, provider, provider_params FROM llm_agent_session WHERE uuid = UUID_TO_BIN(%s)",
-				$db->qstr($session_uuid)
+			if(!($row = $db->GetRowReader(sprintf("SELECT agent_id, provider, provider_params FROM llm_agent_session WHERE uuid = %s",
+				$db->sqlUuidToBin($db->qstr($session_uuid))
 			))))
 				return $out;
 
 			// Bounded: a preview is a nicety, and a session whose last few user turns are all tool results has
 			// nothing worth showing anyway.
 			$candidates = $db->GetArrayReader(sprintf("SELECT data_json FROM llm_agent_message ".
-				"WHERE session_uuid = UUID_TO_BIN(%s) AND role = 'user' AND kind IN ('text','') ".
+				"WHERE session_uuid = %s AND role = 'user' AND kind IN ('text','') ".
 				"ORDER BY seq DESC LIMIT %d",
-				$db->qstr($session_uuid),
+				$db->sqlUuidToBin($db->qstr($session_uuid)),
 				self::RESUME_PREVIEW_SCAN_DEPTH
 			));
 

@@ -1154,7 +1154,7 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 		$db->ExecuteMaster('SET SESSION group_concat_max_len = 1048576');
 
 		$sql = sprintf("INSERT INTO queue_message (uuid, queue_id, job_id, status_id, created_at, message, cardinality) ".
-			"SELECT UUID_TO_BIN(UUID()) AS uuid, ".
+			"SELECT %s AS uuid, ".
 			"%d AS queue_id, ".
 			"%d AS job_id, ".
 			"0 AS status_id, ".
@@ -1163,6 +1163,7 @@ class SearchIndex_Fulltext extends Extension_SearchIndex {
 			"COUNT(id) AS cardinality ".
 			"FROM (SELECT %s AS id, CEIL(ROW_NUMBER() OVER (ORDER BY %s) / %d) AS batch FROM %s) AS batched ".
 			"GROUP BY batch",
+			$db->sqlUuidToBin('UUID()'),
 			$model->queue_id,
 			$model->id,
 			$search_index->id,

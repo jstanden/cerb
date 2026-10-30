@@ -270,16 +270,17 @@ class CerbPatch_Core_v12_0_0 {
 		if(array_key_exists('devblocks_storage_queue_delete', $this->_tables)) {
 			$this->_db->ExecuteWriter("SET SESSION group_concat_max_len = 1000000");
 		
-			$this->_db->ExecuteWriter(
+			$this->_db->ExecuteWriter(sprintf(
 				"INSERT INTO queue_message (uuid, queue_id, job_id, status_id, created_at, message, cardinality) ".
-				"SELECT UUID_TO_BIN(UUID()), (SELECT id FROM queue WHERE name='cerb.storage.migrations'), 0, 0, UNIX_TIMESTAMP(), ".
+				"SELECT %s, (SELECT id FROM queue WHERE name='cerb.storage.migrations'), 0, 0, UNIX_TIMESTAMP(), ".
 				"CONCAT('{\"action\":\"delete\",\"ns\":', JSON_QUOTE(storage_namespace), ',\"ext\":', JSON_QUOTE(storage_extension), ".
 				"',\"profile\":', storage_profile_id, ',\"keys\":[', GROUP_CONCAT(JSON_QUOTE(storage_key)), ']}'), COUNT(*) ".
 				"FROM (SELECT storage_namespace, storage_extension, storage_profile_id, storage_key, ".
 				"CEIL(ROW_NUMBER() OVER (PARTITION BY storage_namespace, storage_extension, storage_profile_id ORDER BY storage_key) / 1000) AS batch ".
 				"FROM devblocks_storage_queue_delete) AS batched ".
-				"GROUP BY storage_namespace, storage_extension, storage_profile_id, batch"
-			);
+				"GROUP BY storage_namespace, storage_extension, storage_profile_id, batch",
+				$this->_db->sqlUuidToBin('UUID()')
+			));
 		
 			$this->_db->ExecuteWriter("DROP TABLE devblocks_storage_queue_delete");
 			unset($this->_tables['devblocks_storage_queue_delete']);
@@ -628,7 +629,7 @@ class CerbPatch_Core_v12_0_0 {
 				
 				// One queue_message per 100-record batch, mirroring _reindexCreateJob()
 				$this->_db->ExecuteMaster(sprintf("INSERT INTO queue_message (uuid, queue_id, job_id, status_id, created_at, message, cardinality) " .
-					"SELECT UUID_TO_BIN(UUID()) AS uuid, " .
+					"SELECT %s AS uuid, " .
 					"%d AS queue_id, " .
 					"%d AS job_id, " .
 					"0 /* available */ AS status_id, " .
@@ -637,6 +638,7 @@ class CerbPatch_Core_v12_0_0 {
 					"COUNT(id) AS cardinality " .
 					"FROM (SELECT id, CEIL(ROW_NUMBER() OVER (ORDER BY id) / 100) AS batch FROM message) AS batched " .
 					"GROUP BY batch",
+					$this->_db->sqlUuidToBin('UUID()'),
 					$search_queue_id,
 					$job_id,
 					$search_index_id,
@@ -712,7 +714,7 @@ class CerbPatch_Core_v12_0_0 {
 					$job_id = $this->_db->LastInsertId();
 					
 					$this->_db->ExecuteMaster(sprintf("INSERT INTO queue_message (uuid, queue_id, job_id, status_id, created_at, message, cardinality) " .
-						"SELECT UUID_TO_BIN(UUID()) AS uuid, " .
+						"SELECT %s AS uuid, " .
 						"%d AS queue_id, " .
 						"%d AS job_id, " .
 						"0 /* available */ AS status_id, " .
@@ -721,6 +723,7 @@ class CerbPatch_Core_v12_0_0 {
 						"COUNT(id) AS cardinality " .
 						"FROM (SELECT id, CEIL(ROW_NUMBER() OVER (ORDER BY id) / 100) AS batch FROM message) AS batched " .
 						"GROUP BY batch",
+						$this->_db->sqlUuidToBin('UUID()'),
 						$search_queue_id,
 						$job_id,
 						$search_index_id,
@@ -790,7 +793,7 @@ class CerbPatch_Core_v12_0_0 {
 					$job_id = $this->_db->LastInsertId();
 					
 					$this->_db->ExecuteMaster(sprintf("INSERT INTO queue_message (uuid, queue_id, job_id, status_id, created_at, message, cardinality) " .
-						"SELECT UUID_TO_BIN(UUID()) AS uuid, " .
+						"SELECT %s AS uuid, " .
 						"%d AS queue_id, " .
 						"%d AS job_id, " .
 						"0 /* available */ AS status_id, " .
@@ -799,6 +802,7 @@ class CerbPatch_Core_v12_0_0 {
 						"COUNT(id) AS cardinality " .
 						"FROM (SELECT id, CEIL(ROW_NUMBER() OVER (ORDER BY id) / 100) AS batch FROM comment) AS batched " .
 						"GROUP BY batch",
+						$this->_db->sqlUuidToBin('UUID()'),
 						$search_queue_id,
 						$job_id,
 						$search_index_id,
@@ -873,7 +877,7 @@ class CerbPatch_Core_v12_0_0 {
 					$job_id = $this->_db->LastInsertId();
 					
 					$this->_db->ExecuteMaster(sprintf("INSERT INTO queue_message (uuid, queue_id, job_id, status_id, created_at, message, cardinality) " .
-						"SELECT UUID_TO_BIN(UUID()) AS uuid, " .
+						"SELECT %s AS uuid, " .
 						"%d AS queue_id, " .
 						"%d AS job_id, " .
 						"0 /* available */ AS status_id, " .
@@ -882,6 +886,7 @@ class CerbPatch_Core_v12_0_0 {
 						"COUNT(id) AS cardinality " .
 						"FROM (SELECT id, CEIL(ROW_NUMBER() OVER (ORDER BY id) / 100) AS batch FROM kb_article) AS batched " .
 						"GROUP BY batch",
+						$this->_db->sqlUuidToBin('UUID()'),
 						$search_queue_id,
 						$job_id,
 						$search_index_id,

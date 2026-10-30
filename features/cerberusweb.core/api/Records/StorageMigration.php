@@ -154,11 +154,12 @@ class StorageMigration {
 
 		$db->ExecuteMaster(sprintf(
 			"INSERT INTO queue_message (uuid, queue_id, job_id, status_id, created_at, message, cardinality) ".
-			"SELECT UUID_TO_BIN(UUID()), %d, %d, 0, UNIX_TIMESTAMP(), ".
+			"SELECT %s, %d, %d, 0, UNIX_TIMESTAMP(), ".
 			"CONCAT(%s, GROUP_CONCAT(id ORDER BY id), %s), ".
 			"COUNT(id) ".
 			"FROM (SELECT id, CEIL(ROW_NUMBER() OVER (ORDER BY id) / %d) AS batch FROM (%s) AS s) AS batched ".
 			"GROUP BY batch",
+			$db->sqlUuidToBin('UUID()'),
 			$queue_id,
 			$job_id,
 			$db->qstr($prefix),

@@ -14,8 +14,8 @@ class DAO_LlmAgentSession {
 		$db = DevblocksPlatform::services()->database();
 
 		return intval($db->GetOneMaster(sprintf(
-			"SELECT id FROM llm_agent_session WHERE uuid = UUID_TO_BIN(%s)",
-			$db->qstr($uuid)
+			"SELECT id FROM llm_agent_session WHERE uuid = %s",
+			$db->sqlUuidToBin($db->qstr($uuid))
 		)));
 	}
 
@@ -48,11 +48,11 @@ class DAO_LlmAgentSession {
 		$mounts_hash = is_null($model->mounts) ? null : self::_storeProperty(json_encode($model->mounts));
 
 		$sql = sprintf("INSERT INTO llm_agent_session (`uuid`,`provider`,`provider_params`,`head_uuid`,`created_at`,`updated_at`,`token_usage`,`automation_id`,`automation_node`,`agent_id`,`user_type`,`user_id`,`user_ip`,`is_read`,`system_prompt_hash`,`tools_hash`,`mounts_hash`) ".
-			"VALUES (UUID_TO_BIN(%s), %s, %s, %s, %d, %d, %d, %d, %s, %d, %s, %d, %s, %d, %s, %s, %s)",
-			$db->qstr($model->uuid),
+			"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s, %d, %s, %d, %s, %d, %s, %s, %s)",
+			$db->sqlUuidToBin($db->qstr($model->uuid)),
 			$db->qstr($model->provider),
 			$model->provider_params ? $db->qstr(json_encode($model->provider_params)) : 'NULL',
-			$model->head_uuid ? sprintf('UUID_TO_BIN(%s)', $db->qstr($model->head_uuid)) : 'NULL',
+			$model->head_uuid ? $db->sqlUuidToBin($db->qstr($model->head_uuid)) : 'NULL',
 			$model->created_at,
 			$model->updated_at ?: $model->created_at,
 			$model->token_usage,
@@ -115,12 +115,13 @@ class DAO_LlmAgentSession {
 
 		$db->ExecuteMaster(sprintf(
 			"INSERT INTO llm_agent_message (`uuid`,`session_uuid`,`parent_uuid`,`role`,`kind`,`token_est`,`created_at`,`created_at_usec`,`data_json`,`usage_json`,`finish_reason`) ".
-			"SELECT UUID_TO_BIN(UUID()), UUID_TO_BIN(%s), `uuid`, `role`, `kind`, `token_est`, `created_at`, `created_at_usec`, `data_json`, `usage_json`, `finish_reason` ".
+			"SELECT %s, %s, `uuid`, `role`, `kind`, `token_est`, `created_at`, `created_at_usec`, `data_json`, `usage_json`, `finish_reason` ".
 			"FROM llm_agent_message ".
-			"WHERE session_uuid = UUID_TO_BIN(%s)%s ".
+			"WHERE session_uuid = %s%s ".
 			"ORDER BY seq ASC",
-			$db->qstr($model->uuid),
-			$db->qstr($session_uuid),
+			$db->sqlUuidToBin('UUID()'),
+			$db->sqlUuidToBin($db->qstr($model->uuid)),
+			$db->sqlUuidToBin($db->qstr($session_uuid)),
 			$where_seq
 		));
 
@@ -148,13 +149,15 @@ class DAO_LlmAgentSession {
 		
 		// The denormalized config lives in `llm_agent_session_property` now; hydrate it back via the hash refs
 		// and alias the columns to their old names so _getResultsAsModel (and every consumer) is unchanged.
-		$sql = sprintf("SELECT BIN_TO_UUID(s.`uuid`) as `uuid`,s.`provider`,s.`provider_params`,BIN_TO_UUID(s.`head_uuid`) as `head_uuid`,s.`created_at`,s.`updated_at`,s.`token_usage`,s.`automation_id`,s.`automation_node`,s.`agent_id`,s.`user_type`,s.`user_id`,s.`user_ip`,s.`is_read`,sp.`value` as `system_prompt`,t.`value` as `tools`,m.`value` as `mounts` ".
+		$sql = sprintf("SELECT %s,s.`provider`,s.`provider_params`,%s,s.`created_at`,s.`updated_at`,s.`token_usage`,s.`automation_id`,s.`automation_node`,s.`agent_id`,s.`user_type`,s.`user_id`,s.`user_ip`,s.`is_read`,sp.`value` as `system_prompt`,t.`value` as `tools`,m.`value` as `mounts` ".
 			"FROM llm_agent_session s ".
 			"LEFT JOIN llm_agent_session_property sp ON sp.`hash` = s.`system_prompt_hash` ".
 			"LEFT JOIN llm_agent_session_property t ON t.`hash` = s.`tools_hash` ".
 			"LEFT JOIN llm_agent_session_property m ON m.`hash` = s.`mounts_hash` ".
-			"WHERE s.`uuid` = UUID_TO_BIN(%s)",
-			$db->qstr($session_uuid)
+			"WHERE s.`uuid` = %s",
+			$db->sqlBinToUuid('s.`uuid`') . ' as `uuid`',
+			$db->sqlBinToUuid('s.`head_uuid`') . ' as `head_uuid`',
+			$db->sqlUuidToBin($db->qstr($session_uuid))
 		);
 
 		try {
@@ -173,9 +176,9 @@ class DAO_LlmAgentSession {
 		$result = $db->ExecuteWriter(sprintf(
 			"UPDATE llm_agent_session ".
 			"SET is_read = %d ".
-			"WHERE `uuid` = UUID_TO_BIN(%s)",
+			"WHERE `uuid` = %s",
 			$is_read ? 1 : 0,
-			$db->qstr($uuid)
+			$db->sqlUuidToBin($db->qstr($uuid))
 		));
 		
 		return boolval($result);
@@ -189,10 +192,10 @@ class DAO_LlmAgentSession {
 		// Every append advances the head — the natural place to also stamp last activity, so the transcript
 		// list can sort by recency (and retention key on activity) across all append paths for free.
 		$result = $db->ExecuteWriter(sprintf(
-			"UPDATE llm_agent_session SET `head_uuid` = %s, `updated_at` = %d WHERE `uuid` = UUID_TO_BIN(%s)",
-			$head_uuid ? sprintf('UUID_TO_BIN(%s)', $db->qstr($head_uuid)) : 'NULL',
+			"UPDATE llm_agent_session SET `head_uuid` = %s, `updated_at` = %d WHERE `uuid` = %s",
+			$head_uuid ? $db->sqlUuidToBin($db->qstr($head_uuid)) : 'NULL',
 			time(),
-			$db->qstr($uuid)
+			$db->sqlUuidToBin($db->qstr($uuid))
 		));
 
 		return boolval($result);
@@ -205,10 +208,10 @@ class DAO_LlmAgentSession {
 		$db = DevblocksPlatform::services()->database();
 
 		$result = $db->ExecuteWriter(sprintf(
-			"UPDATE llm_agent_session SET `token_usage` = %d, `updated_at` = %d WHERE `uuid` = UUID_TO_BIN(%s)",
+			"UPDATE llm_agent_session SET `token_usage` = %d, `updated_at` = %d WHERE `uuid` = %s",
 			max(0, $token_usage),
 			time(),
-			$db->qstr($uuid)
+			$db->sqlUuidToBin($db->qstr($uuid))
 		));
 
 		return boolval($result);
@@ -224,9 +227,9 @@ class DAO_LlmAgentSession {
 
 		$db->ExecuteWriter(sprintf(
 			"UPDATE llm_agent_session SET `system_prompt_hash` = %s ".
-			"WHERE `uuid` = UUID_TO_BIN(%s) AND (`system_prompt_hash` IS NULL OR `system_prompt_hash` != %s)",
+			"WHERE `uuid` = %s AND (`system_prompt_hash` IS NULL OR `system_prompt_hash` != %s)",
 			$db->qstr($hash),
-			$db->qstr($uuid),
+			$db->sqlUuidToBin($db->qstr($uuid)),
 			$db->qstr($hash)
 		));
 
@@ -245,9 +248,9 @@ class DAO_LlmAgentSession {
 
 		$db->ExecuteWriter(sprintf(
 			"UPDATE llm_agent_session SET `tools_hash` = %s ".
-			"WHERE `uuid` = UUID_TO_BIN(%s) AND (`tools_hash` IS NULL OR `tools_hash` != %s)",
+			"WHERE `uuid` = %s AND (`tools_hash` IS NULL OR `tools_hash` != %s)",
 			$db->qstr($hash),
-			$db->qstr($uuid),
+			$db->sqlUuidToBin($db->qstr($uuid)),
 			$db->qstr($hash)
 		));
 
@@ -265,9 +268,9 @@ class DAO_LlmAgentSession {
 
 		$db->ExecuteWriter(sprintf(
 			"UPDATE llm_agent_session SET `mounts_hash` = %s ".
-			"WHERE `uuid` = UUID_TO_BIN(%s) AND (`mounts_hash` IS NULL OR `mounts_hash` != %s)",
+			"WHERE `uuid` = %s AND (`mounts_hash` IS NULL OR `mounts_hash` != %s)",
 			$db->qstr($hash),
-			$db->qstr($uuid),
+			$db->sqlUuidToBin($db->qstr($uuid)),
 			$db->qstr($hash)
 		));
 
@@ -288,9 +291,9 @@ class DAO_LlmAgentSession {
 
 		$db->ExecuteWriter(sprintf(
 			"UPDATE llm_agent_session SET `agent_id` = %d ".
-			"WHERE `uuid` = UUID_TO_BIN(%s) AND (`agent_id` = 0 OR `agent_id` IS NULL)",
+			"WHERE `uuid` = %s AND (`agent_id` = 0 OR `agent_id` IS NULL)",
 			$agent_id,
-			$db->qstr($uuid)
+			$db->sqlUuidToBin($db->qstr($uuid))
 		));
 
 		return true;
@@ -307,10 +310,10 @@ class DAO_LlmAgentSession {
 
 		$db->ExecuteWriter(sprintf(
 			"UPDATE llm_agent_session SET `user_type` = %s, `user_id` = %d ".
-			"WHERE `uuid` = UUID_TO_BIN(%s) AND `user_type` = '' AND (`user_id` = 0 OR `user_id` IS NULL)",
+			"WHERE `uuid` = %s AND `user_type` = '' AND (`user_id` = 0 OR `user_id` IS NULL)",
 			$db->qstr($user_type),
 			$user_id,
-			$db->qstr($uuid)
+			$db->sqlUuidToBin($db->qstr($uuid))
 		));
 
 		return true;
@@ -324,10 +327,10 @@ class DAO_LlmAgentSession {
 
 		$db->ExecuteWriter(sprintf(
 			"UPDATE llm_agent_session SET `automation_id` = %d, `automation_node` = %s ".
-			"WHERE `uuid` = UUID_TO_BIN(%s) AND (`automation_id` = 0 OR `automation_id` IS NULL)",
+			"WHERE `uuid` = %s AND (`automation_id` = 0 OR `automation_id` IS NULL)",
 			$automation_id,
 			$db->qstr($automation_node),
-			$db->qstr($uuid)
+			$db->sqlUuidToBin($db->qstr($uuid))
 		));
 
 		return true;
@@ -338,10 +341,10 @@ class DAO_LlmAgentSession {
 		$db = DevblocksPlatform::services()->database();
 
 		$result = $db->ExecuteWriter(sprintf(
-			"UPDATE llm_agent_session SET `provider` = %s, `provider_params` = %s WHERE `uuid` = UUID_TO_BIN(%s)",
+			"UPDATE llm_agent_session SET `provider` = %s, `provider_params` = %s WHERE `uuid` = %s",
 			$db->qstr($provider),
 			$provider_params ? $db->qstr(json_encode($provider_params)) : 'NULL',
-			$db->qstr($uuid)
+			$db->sqlUuidToBin($db->qstr($uuid))
 		));
 
 		return boolval($result);
@@ -359,8 +362,8 @@ class DAO_LlmAgentSession {
 
 		$result = $db->ExecuteWriter(sprintf(
 			"DELETE FROM llm_agent_session ".
-			"WHERE `uuid` = UUID_TO_BIN(%s)",
-			$db->qstr($uuid)
+			"WHERE `uuid` = %s",
+			$db->sqlUuidToBin($db->qstr($uuid))
 		));
 		
 		return boolval($result);
@@ -403,7 +406,7 @@ class DAO_LlmAgentSession {
 			$before_session = null;
 		}
 
-		$sql = sprintf("SELECT BIN_TO_UUID(s.`uuid`) as `uuid`,s.`provider`,s.`provider_params`,BIN_TO_UUID(s.`head_uuid`) as `head_uuid`,s.`created_at`,s.`updated_at`,s.`token_usage`,s.`automation_id`,s.`automation_node`,s.`agent_id`,s.`user_type`,s.`user_id`,s.`user_ip`,s.`is_read`,sp.`value` as `system_prompt`,t.`value` as `tools`,m.`value` as `mounts` ".
+		$sql = sprintf("SELECT %s,s.`provider`,s.`provider_params`,%s,s.`created_at`,s.`updated_at`,s.`token_usage`,s.`automation_id`,s.`automation_node`,s.`agent_id`,s.`user_type`,s.`user_id`,s.`user_ip`,s.`is_read`,sp.`value` as `system_prompt`,t.`value` as `tools`,m.`value` as `mounts` ".
 			"FROM llm_agent_session s ".
 			"LEFT JOIN llm_agent_session_property sp ON sp.`hash` = s.`system_prompt_hash` ".
 			"LEFT JOIN llm_agent_session_property t ON t.`hash` = s.`tools_hash` ".
@@ -413,6 +416,8 @@ class DAO_LlmAgentSession {
 			"%s ".
 			"ORDER BY s.updated_at DESC ".
 			"LIMIT %d",
+			$db->sqlBinToUuid('s.`uuid`') . ' as `uuid`',
+			$db->sqlBinToUuid('s.`head_uuid`') . ' as `head_uuid`',
 			(is_null($is_read) ? '' : sprintf('AND s.is_read = %d', $is_read ? 1 : 0)),
 			($before_session ? sprintf('AND s.updated_at < %d', $before_session->updated_at) : ''),
 			$limit

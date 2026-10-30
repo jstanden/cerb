@@ -102,6 +102,19 @@ class DAO_LlmAgentMessage {
 		return $key;
 	}
 
+	// The message columns, with the BINARY(16) UUIDs read back as strings
+	private static function _getSelectColumns() : string {
+		$db = DevblocksPlatform::services()->database();
+
+		return implode(', ', [
+			$db->sqlBinToUuid('`uuid`') . ' as `uuid`',
+			'`seq`',
+			$db->sqlBinToUuid('`session_uuid`') . ' as `session_uuid`',
+			$db->sqlBinToUuid('`parent_uuid`') . ' as `parent_uuid`',
+			'`role`, `kind`, `token_est`, `created_at`, `created_at_usec`, `data_json`, `usage_json`, `finish_reason`, `is_streaming`',
+		]);
+	}
+
 	public static function create(string $session_uuid, array $message, ?string $parent_uuid = null, ?string $kind = null, ?array $usage = null, ?string $finish_reason = null, bool $is_streaming = false) : ?Model_LlmAgentMessage {
 		$db = DevblocksPlatform::services()->database();
 
@@ -138,10 +151,10 @@ class DAO_LlmAgentMessage {
 
 		$result = $db->ExecuteWriter(sprintf(
 			"INSERT INTO llm_agent_message (`uuid`,`session_uuid`,`parent_uuid`,`role`,`kind`,`token_est`,`created_at`,`created_at_usec`,`data_json`,`usage_json`,`finish_reason`,`is_streaming`) ".
-			"VALUES (UUID_TO_BIN(%s), UUID_TO_BIN(%s), %s, %s, %s, %d, %d, %d, %s, %s, %s, %d)",
-			$db->qstr($model->uuid),
-			$db->qstr($model->session_uuid),
-			$model->parent_uuid ? sprintf('UUID_TO_BIN(%s)', $db->qstr($model->parent_uuid)) : 'NULL',
+			"VALUES (%s, %s, %s, %s, %s, %d, %d, %d, %s, %s, %s, %d)",
+			$db->sqlUuidToBin($db->qstr($model->uuid)),
+			$db->sqlUuidToBin($db->qstr($model->session_uuid)),
+			$model->parent_uuid ? $db->sqlUuidToBin($db->qstr($model->parent_uuid)) : 'NULL',
 			$db->qstr($model->role),
 			$db->qstr($model->kind),
 			$model->token_est,
@@ -182,10 +195,10 @@ class DAO_LlmAgentMessage {
 
 		return boolval($db->ExecuteWriter(sprintf(
 			"UPDATE llm_agent_message SET `data_json` = %s, `token_est` = %d ".
-			"WHERE `uuid` = UUID_TO_BIN(%s) AND `is_streaming` = 1",
+			"WHERE `uuid` = %s AND `is_streaming` = 1",
 			$db->qstr($data_json),
 			$token_est,
-			$db->qstr($uuid)
+			$db->sqlUuidToBin($db->qstr($uuid))
 		)));
 	}
 
@@ -210,7 +223,7 @@ class DAO_LlmAgentMessage {
 		return boolval($db->ExecuteWriter(sprintf(
 			"UPDATE llm_agent_message SET `data_json` = %s, `token_est` = %d, `kind` = %s, `usage_json` = %s, ".
 			"`finish_reason` = %s, `is_streaming` = 0 ".
-			"WHERE `uuid` = UUID_TO_BIN(%s) AND `is_streaming` = 1",
+			"WHERE `uuid` = %s AND `is_streaming` = 1",
 			$db->qstr($data_json),
 			$token_est,
 			// Re-classify: the row was opened before any content existed, so its kind was necessarily a guess.
@@ -218,7 +231,7 @@ class DAO_LlmAgentMessage {
 			$db->qstr(self::_classifyKind($message)),
 			(is_array($usage) && $usage) ? $db->qstr(json_encode($usage)) : 'NULL',
 			$db->qstr(strval($finish_reason)),
-			$db->qstr($uuid)
+			$db->sqlUuidToBin($db->qstr($uuid))
 		)));
 	}
 
@@ -233,8 +246,8 @@ class DAO_LlmAgentMessage {
 		$db = DevblocksPlatform::services()->database();
 
 		return boolval($db->ExecuteWriter(sprintf(
-			"DELETE FROM llm_agent_message WHERE `uuid` = UUID_TO_BIN(%s) AND `is_streaming` = 1",
-			$db->qstr($uuid)
+			"DELETE FROM llm_agent_message WHERE `uuid` = %s AND `is_streaming` = 1",
+			$db->sqlUuidToBin($db->qstr($uuid))
 		)));
 	}
 
@@ -294,12 +307,12 @@ class DAO_LlmAgentMessage {
 		
 		try {
 			$sql =
-				"SELECT BIN_TO_UUID(`uuid`) as `uuid`, `seq`, BIN_TO_UUID(`session_uuid`) as `session_uuid`, BIN_TO_UUID(`parent_uuid`) as `parent_uuid`, `role`, `kind`, `token_est`, `created_at`, `created_at_usec`, `data_json`, `usage_json`, `finish_reason`, `is_streaming` ".
+				"SELECT %s ".
 				"FROM llm_agent_message ".
-				"WHERE uuid = UUID_TO_BIN(%s)"
+				"WHERE uuid = %s"
 			;
 
-			$row = $db->GetRowReader(sprintf($sql, $db->qstr($uuid)));
+			$row = $db->GetRowReader(sprintf($sql, self::_getSelectColumns(), $db->sqlUuidToBin($db->qstr($uuid))));
 			
 			if(!$row) return null;
 		
@@ -322,9 +335,9 @@ class DAO_LlmAgentMessage {
 		
 		try {
 			$sql =
-				"SELECT BIN_TO_UUID(`uuid`) as `uuid`, `seq`, BIN_TO_UUID(`session_uuid`) as `session_uuid`, BIN_TO_UUID(`parent_uuid`) as `parent_uuid`, `role`, `kind`, `token_est`, `created_at`, `created_at_usec`, `data_json`, `usage_json`, `finish_reason`, `is_streaming` ".
+				"SELECT %s ".
 				"FROM llm_agent_message ".
-				"WHERE session_uuid = UUID_TO_BIN(%s) ".
+				"WHERE session_uuid = %s ".
 				"ORDER BY seq DESC"
 			;
 			
@@ -332,7 +345,8 @@ class DAO_LlmAgentMessage {
 				$sql .= sprintf(" LIMIT %d", $last_n);
 			
 			$rows = $db->GetArrayReader(sprintf($sql,
-				$db->qstr($session_uuid)
+				self::_getSelectColumns(),
+				$db->sqlUuidToBin($db->qstr($session_uuid))
 			));
 			
 			if(!$rows) return [];
@@ -368,16 +382,17 @@ class DAO_LlmAgentMessage {
 			$sql = sprintf(
 				"WITH RECURSIVE path AS ( ".
 					"SELECT `uuid`, `seq`, `session_uuid`, `parent_uuid`, `role`, `kind`, `token_est`, `created_at`, `created_at_usec`, `data_json`, `usage_json`, `finish_reason`, `is_streaming` ".
-					"FROM llm_agent_message WHERE `uuid` = UUID_TO_BIN(%s) ".
+					"FROM llm_agent_message WHERE `uuid` = %s ".
 					"UNION ALL ".
 					"SELECT m.`uuid`, m.`seq`, m.`session_uuid`, m.`parent_uuid`, m.`role`, m.`kind`, m.`token_est`, m.`created_at`, m.`created_at_usec`, m.`data_json`, m.`usage_json`, m.`finish_reason`, m.`is_streaming` ".
 					"FROM llm_agent_message m ".
-					"JOIN path p ON m.`uuid` = p.`parent_uuid` AND p.`kind` <> 'summary' AND m.`session_uuid` = UUID_TO_BIN(%s) ".
+					"JOIN path p ON m.`uuid` = p.`parent_uuid` AND p.`kind` <> 'summary' AND m.`session_uuid` = %s ".
 				") ".
-				"SELECT BIN_TO_UUID(`uuid`) as `uuid`, `seq`, BIN_TO_UUID(`session_uuid`) as `session_uuid`, BIN_TO_UUID(`parent_uuid`) as `parent_uuid`, `role`, `kind`, `token_est`, `created_at`, `created_at_usec`, `data_json`, `usage_json`, `finish_reason`, `is_streaming` ".
+				"SELECT %s ".
 				"FROM path ORDER BY seq DESC",
-				$db->qstr($head_uuid),
-				$db->qstr($session_uuid)
+				$db->sqlUuidToBin($db->qstr($head_uuid)),
+				$db->sqlUuidToBin($db->qstr($session_uuid)),
+				self::_getSelectColumns()
 			);
 
 			if($last_n)
@@ -403,8 +418,8 @@ class DAO_LlmAgentMessage {
 		$db = DevblocksPlatform::services()->database();
 		
 		$result = $db->ExecuteMaster(sprintf(
-			"DELETE FROM llm_agent_message WHERE `session_uuid` = UUID_TO_BIN(%s)",
-			$db->qstr($uuid)
+			"DELETE FROM llm_agent_message WHERE `session_uuid` = %s",
+			$db->sqlUuidToBin($db->qstr($uuid))
 		));
 		
 		return boolval($result);

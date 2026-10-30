@@ -743,6 +743,22 @@ class _DevblocksDatabaseManager {
 		return "'".mysqli_real_escape_string($this->_reader_db, $string)."'";
 	}
 	
+	/**
+	 * Portable UUID_TO_BIN(): MariaDB doesn't support it.
+	 * $expr is raw SQL and is NOT escaped: pass a hardcoded column/expression, or a value already escaped with qstr().
+	 */
+	function sqlUuidToBin(string $expr) : string {
+		return "UNHEX(REPLACE($expr,'-',''))";
+	}
+
+	/**
+	 * Portable BIN_TO_UUID(): MariaDB doesn't support it.
+	 * $expr is raw SQL and is NOT escaped: pass a hardcoded column/expression, or a value already escaped with qstr().
+	 */
+	function sqlBinToUuid(string $expr) : string {
+		return "LOWER(INSERT(INSERT(INSERT(INSERT(HEX($expr),9,0,'-'),14,0,'-'),19,0,'-'),24,0,'-'))";
+	}
+
 	function qstrArray(array $array) {
 		$results = [];
 
