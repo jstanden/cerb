@@ -388,14 +388,16 @@ class _DevblocksHttpService {
 				// Nothing restricted the protocol on this path before, so a scheme that slipped past
 				// validation reached file://, gopher:// and dict://.
 				//
-				// Whichever of the string or bitmask forms the caller passed is dropped first, so it
-				// can't be applied after ours and widen the set again.
+				// Guzzle 7.11+ owns CURLOPT_PROTOCOLS through its `protocols` option (and deprecates
+				// passing it raw), so the restriction is set there. Whichever of the string or bitmask
+				// forms the caller passed is still dropped, so a raw option can't be applied over
+				// Guzzle's and widen the set again.
 				foreach(['CURLOPT_PROTOCOLS_STR', 'CURLOPT_PROTOCOLS'] as $opt_name) {
 					if(defined($opt_name))
 						unset($options['curl'][constant($opt_name)]);
 				}
 
-				$options['curl'] += DevblocksHttpEgressFilter::getCurlProtocolOptions();
+				$options[RequestOptions::PROTOCOLS] = ['http', 'https'];
 
 				// Redirects stay Guzzle's job. A caller passing CURLOPT_FOLLOWLOCATION => true would
 				// have curl follow hops itself, BELOW this middleware, where nothing re-checks them --
