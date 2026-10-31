@@ -287,6 +287,13 @@ class Page_Login extends CerberusPageExtension {
 			DevblocksPlatform::redirect(new DevblocksHttpRequest(['login'], $query), 1);
 		}
 		
+		// Never complete a login for a disabled worker, regardless of auth method
+		if($authenticated_worker->is_disabled) {
+			$login_state->clearAuthState();
+			$query = ['error' => 'account.disabled'];
+			DevblocksPlatform::redirect(new DevblocksHttpRequest(['login'], $query), 1);
+		}
+		
 		// If we're doing a non-SSO login, check MFA
 		if(!$login_state->isSSOAuthenticated()) {
 			// Is MFA always required?
