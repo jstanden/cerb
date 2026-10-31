@@ -1262,11 +1262,28 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 					$h = DevblocksPlatform::importGPC($_POST['sq_h'] ?? null, 'array', array('','',''));
 					$a = DevblocksPlatform::importGPC($_POST['sq_a'] ?? null, 'array', array('','',''));
 					
-					$secret_questions = array(
-						array('q'=>$q[0], 'h'=>$h[0], 'a'=>$a[0]),
-						array('q'=>$q[1], 'h'=>$h[1], 'a'=>$a[1]),
-						array('q'=>$q[2], 'h'=>$h[2], 'a'=>$a[2]),
-					);
+					$secret_questions = [];
+					
+					for($i = 0; $i < 3; $i++) {
+						$secret_q = trim(strval($q[$i] ?? ''));
+						$secret_h = trim(strval($h[$i] ?? ''));
+						$secret_a = strval($a[$i] ?? '');
+						
+						// Both a question and an answer are required
+						if(0 == strlen($secret_q) xor 0 == strlen(trim($secret_a))) {
+							echo json_encode([
+								'status' => false,
+								'error' => sprintf("Secret question #%d requires both a question and an answer.", $i + 1),
+							]);
+							return;
+						}
+						
+						// An unused question is stored empty
+						if(0 == strlen($secret_q))
+							$secret_h = $secret_a = '';
+						
+						$secret_questions[] = ['q' => $secret_q, 'h' => $secret_h, 'a' => $secret_a];
+					}
 					
 					DAO_WorkerPref::set($worker->id, 'login.recover.secret_questions', json_encode($secret_questions));
 					

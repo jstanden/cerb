@@ -800,11 +800,16 @@ class Page_Login extends CerberusPageExtension {
 					@$secret_questions = @json_decode(DAO_WorkerPref::get($unauthenticated_worker->id, 'login.recover.secret_questions', '[]'), true);
 					$secret_answers = DevblocksPlatform::importGPC($_REQUEST['secrets'] ?? null, 'array', []);
 					
+					if(!is_array($secret_questions))
+						$secret_questions = [];
+					
+					// A question with a prompt or an answer is configured
+					$secret_questions = array_filter($secret_questions, function($arr) {
+						return is_array($arr) && (strlen($arr['q'] ?? '') || strlen($arr['a'] ?? ''));
+					});
+					
 					// No MFA and no secret questions
-					if(0 === count(array_filter($secret_questions, function($arr) {
-						return !empty(@$arr['q']);
-						
-					}))) {
+					if(!$secret_questions) {
 						$login_state
 							->setParam('recover.verified', true)
 							;
@@ -825,18 +830,19 @@ class Page_Login extends CerberusPageExtension {
 							$answers_correct = 0;
 							
 							foreach($secret_questions as $idx => $question) {
-								if(!array_key_exists('a', $question) || 0 == strlen($question['a']))
-									continue;
-								
 								$answers_needed++;
 								
+								// Fail closed on an incomplete question
+								if(0 == strlen($question['q'] ?? '') || 0 == strlen($question['a'] ?? ''))
+									continue;
+								
 								// Wrong answer?
-								if(0 === strcmp($question['a'], $secret_answers[$idx]))
+								if(0 === strcmp($question['a'], strval($secret_answers[$idx] ?? '')))
 									$answers_correct++;
 							}
 							
 							// If everything was correct
-							if($answers_needed == $answers_correct) {
+							if($answers_needed && $answers_needed == $answers_correct) {
 								$login_state
 									->setParam('recover.verified', true)
 									;
