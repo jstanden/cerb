@@ -735,7 +735,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		// in cron and OAuth paths.
 		$effective_url = strval(curl_getinfo($ch, CURLINFO_EFFECTIVE_URL));
 		
-		if(!DevblocksHttpEgressFilter::vetUrl($effective_url, $error)) {
+		if(!($vetted = DevblocksHttpEgressFilter::vetUrl($effective_url, $error))) {
 			DevblocksPlatform::logError(
 				sprintf('Refused to request %s: %s',
 					$effective_url,
@@ -744,6 +744,24 @@ class DevblocksPlatform extends DevblocksEngine {
 			);
 			
 			return false;
+		}
+		
+		// Pin the addresses we vetted, as the Guzzle path does, so DNS can't be re-pointed at the
+		// metadata service between our lookup and curl's own. Set on every hop, so each redirect
+		// connects where its own check said. Skipped when proxied, since the proxy resolves.
+		if(!(defined('DEVBLOCKS_HTTP_PROXY') && DEVBLOCKS_HTTP_PROXY) && $vetted['ips']) {
+			$addresses = array_map(
+				fn($ip) => str_contains($ip, ':') ? sprintf('[%s]', $ip) : $ip,
+				$vetted['ips']
+			);
+			
+			curl_setopt($ch, CURLOPT_RESOLVE, [
+				sprintf('%s:%d:%s',
+					$vetted['host'],
+					$vetted['port'],
+					implode(',', $addresses)
+				),
+			]);
 		}
 		
 		// Follow redirects
