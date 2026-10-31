@@ -402,7 +402,10 @@ class _DevblocksHttpService {
 				// Redirects stay Guzzle's job. A caller passing CURLOPT_FOLLOWLOCATION => true would
 				// have curl follow hops itself, BELOW this middleware, where nothing re-checks them --
 				// exactly the hole described above.
-				$options['curl'][CURLOPT_FOLLOWLOCATION] = false;
+				//
+				// Unset rather than forced to false: Guzzle 7.11+ deprecates the raw option, and never
+				// sets it itself, so removing the caller's value leaves curl at its default of off.
+				unset($options['curl'][CURLOPT_FOLLOWLOCATION]);
 
 				// Pin the address we vetted, closing the window between our lookup and curl's own in
 				// which DNS can be re-pointed at the metadata service. Host and SNI stay the hostname,
