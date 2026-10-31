@@ -56,18 +56,21 @@ class ChRest_Contexts extends Extension_RestController {
 		$this->error(self::ERRNO_NOT_IMPLEMENTED);
 	}
 	
-	private function _verifyContextString($string) {
+	private function _verifyContextString($string, bool $require_write=false) {
 		list($context, $context_id) = array_pad(explode(':', $string, 2), 2, null);
-		return $this->_verifyContext($context, $context_id);
+		return $this->_verifyContext($context, $context_id, $require_write);
 	}
 	
-	private function _verifyContext($context, $context_id) {
+	private function _verifyContext($context, $context_id, bool $require_write=false) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
 			return false;
 		
 		if(false === (CerberusContexts::isReadableByActor($context, $context_id, $active_worker)))
+			return false;
+		
+		if($require_write && !CerberusContexts::isWriteableByActor($context, $context_id, $active_worker))
 			return false;
 		
 		if(false == (@$meta = $context_ext->getMeta($context_id)))
@@ -232,8 +235,8 @@ class ChRest_Contexts extends Extension_RestController {
 		$on = DevblocksPlatform::importGPC($_POST['on'] ?? null, 'string', '');
 		$targets = DevblocksPlatform::importGPC($_POST['targets'] ?? null, 'string', '');
 		
-		// Verify the 'on' context and accessibility by active worker
-		if(!($result_on = $this->_verifyContextString($on)))
+		// Links modify the 'on' record, so the worker must be able to edit it
+		if(!($result_on = $this->_verifyContextString($on, true)))
 			$this->error(self::ERRNO_CUSTOM, sprintf("The 'on' value of '%s' is not valid.", $on));
 		
 		// Verify a well-formed JSON array for 'targets', and that each exists
@@ -244,8 +247,11 @@ class ChRest_Contexts extends Extension_RestController {
 		
 		$result_targets = array();
 		
+		// Linking a custom fieldset adds it to the other record, so that record must be editable too
+		$is_fieldset = Context_CustomFieldset::ID == $result_on['context'];
+		
 		foreach($targets as $target) {
-			if(!($result_target = $this->_verifyContextString($target)))
+			if(!($result_target = $this->_verifyContextString($target, $is_fieldset)))
 				$this->error(self::ERRNO_CUSTOM, sprintf("The 'targets' value of '%s' is not valid.", $target));
 			
 			$result_targets[] = $result_target;
@@ -266,8 +272,8 @@ class ChRest_Contexts extends Extension_RestController {
 		$on = DevblocksPlatform::importGPC($_POST['on'] ?? null, 'string', '');
 		$targets = DevblocksPlatform::importGPC($_POST['targets'] ?? null, 'string', '');
 		
-		// Verify the 'on' context and accessibility by active worker
-		if(!($result_on = $this->_verifyContextString($on)))
+		// Links modify the 'on' record, so the worker must be able to edit it
+		if(!($result_on = $this->_verifyContextString($on, true)))
 			$this->error(self::ERRNO_CUSTOM, sprintf("The 'on' value of '%s' is not valid.", $on));
 		
 		// Verify a well-formed JSON array for 'targets', and that each exists
@@ -278,8 +284,11 @@ class ChRest_Contexts extends Extension_RestController {
 		
 		$result_targets = array();
 		
+		// Linking a custom fieldset adds it to the other record, so that record must be editable too
+		$is_fieldset = Context_CustomFieldset::ID == $result_on['context'];
+		
 		foreach($targets as $target) {
-			if(!($result_target = $this->_verifyContextString($target)))
+			if(!($result_target = $this->_verifyContextString($target, $is_fieldset)))
 				$this->error(self::ERRNO_CUSTOM, sprintf("The 'targets' value of '%s' is not valid.", $target));
 			
 			$result_targets[] = $result_target;
