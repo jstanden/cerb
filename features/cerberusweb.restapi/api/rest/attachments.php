@@ -83,6 +83,9 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 	private function getIdDownload($id) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
+		if(!$active_worker->hasPriv('core.display.actions.attachments.download'))
+			$this->error(self::ERRNO_ACL, "Permission denied.");
+		
 		$container = $this->search(array(
 			array('id', '=', $id),
 		));
