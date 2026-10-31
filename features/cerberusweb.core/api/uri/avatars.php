@@ -149,10 +149,33 @@ class Controller_Avatars extends DevblocksControllerExtension {
 					throw new DevblocksException("Invalid image.");
 				
 			} else {
+				// Avatars come from the public web. Any worker can call this, so an internal host
+				// would let them read images off services only this server can reach. curlExec()
+				// pins the addresses vetted here, so DNS can't swap in a private one afterward.
+				if(!($vetted = DevblocksHttpEgressFilter::vetUrl($url, $error)))
+					throw new DevblocksException("Invalid URL.");
+				
+				if(!$vetted['ips'])
+					throw new DevblocksException("The URL's host could not be resolved.");
+				
+				foreach($vetted['ips'] as $ip) {
+					if(!DevblocksHttpEgressFilter::isPublicIp($ip))
+						throw new DevblocksException("Only images on public hosts may be fetched.");
+				}
+				
 				$ch = DevblocksPlatform::curlInit($url);
 				$output = DevblocksPlatform::curlExec($ch);
 				$info = curl_getinfo($ch);
 				unset($ch);
+				
+				// Check where curl really connected too, in case it read the host out of an odd URL
+				// differently than parse_url() did. Skipped when proxied: that's the proxy's address.
+				if(
+					!(defined('DEVBLOCKS_HTTP_PROXY') && DEVBLOCKS_HTTP_PROXY)
+					&& ($info['primary_ip'] ?? null)
+					&& !DevblocksHttpEgressFilter::isPublicIp($info['primary_ip'])
+				)
+					throw new DevblocksException("Only images on public hosts may be fetched.");
 			}
 			
 			// Make sure this is only image content
