@@ -1195,6 +1195,10 @@ class DevblocksDictionaryDelegate implements JsonSerializable, IteratorAggregate
 				$id_key = $context_prefix . '_id';
 				$id = $dict->$id_key;
 				
+				// Nothing to preload for a dictionary without this link
+				if(!$id)
+					continue;
+				
 				if(!isset($id_counts[$id])) {
 					$id_counts[$id] = 1;
 					
@@ -1202,6 +1206,9 @@ class DevblocksDictionaryDelegate implements JsonSerializable, IteratorAggregate
 					$id_counts[$id]++;
 				}
 			}
+			
+			if(!$id_counts)
+				continue;
 			
 			// Preload the contexts before lazy loading
 			if(($context_ext = Extension_DevblocksContext::get($context_data['context'] ?? ''))) {
