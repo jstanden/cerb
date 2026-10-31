@@ -1173,8 +1173,8 @@ class Context_Notification extends Extension_DevblocksContext {
 	const URI = 'notification';
 	
 	static function isReadableByActor($models, $actor) {
-		// Everyone can read
-		return CerberusContexts::allowEverything($models);
+		// Only admins and the notification owner can read
+		return self::isWriteableByActor($models, $actor);
 	}
 	
 	static function isWriteableByActor($models, $actor) {
