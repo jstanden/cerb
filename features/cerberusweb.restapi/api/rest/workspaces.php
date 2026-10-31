@@ -132,7 +132,7 @@ class ChRest_Workspaces extends Extension_RestController { // implements IExtens
 		} else {
 			$workspace_pages = DAO_WorkspacePage::getByWorker($worker);
 			
-			if(!isset($workspace_pages[$id]))
+			if(!isset($workspace_pages[$workspace_tab->workspace_page_id]))
 				$this->error(self::ERRNO_CUSTOM, "You do not have permission to view this tab.");
 		}
 		
