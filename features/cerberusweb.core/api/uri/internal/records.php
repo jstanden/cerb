@@ -657,6 +657,14 @@ class PageSection_InternalRecords extends Extension_PageSection {
 			
 			if(!is_array($readable) || count(array_filter($readable)) != count($context_ids))
 				DevblocksPlatform::dieWithHttpError(null, 403);
+			
+			// Linking a custom fieldset adds it to the other records, so they must be editable too
+			if(Context_CustomFieldset::ID == $from_context_ext->id) {
+				$writeable = CerberusContexts::isWriteableByActor($context_ext->id, $context_ids, $active_worker);
+				
+				if(!is_array($writeable) || count(array_filter($writeable)) != count($context_ids))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+			}
 		}
 		
 		return [$from_context_ext->id, $from_context_id, $context_ext->id, $context_ids];

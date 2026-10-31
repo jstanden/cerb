@@ -231,19 +231,26 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 			return;
 		
 		// Make sure the card record exists
-		if(false == $card_context_ext->getModelObject($card_id))
+		if(false == ($card = $card_context_ext->getModelObject($card_id)))
 			return;
 		
 		// Make sure the source column exists
-		if(false == (DAO_ProjectBoardColumn::get($from_column_id)))
+		if(false == ($from_column = DAO_ProjectBoardColumn::get($from_column_id)))
 			return;
 		
 		// Make sure the destination column exists
 		if(false == ($to_column = DAO_ProjectBoardColumn::get($to_column_id)))
 			return;
 		
+		// The card is unlinked from one column and linked to the other, so both must be editable
+		if(!Context_ProjectBoardColumn::isWriteableByActor($from_column, $active_worker))
+			DevblocksPlatform::dieWithHttpError(DevblocksPlatform::translate('error.core.no_acl.edit'), 403);
+		
 		if(!Context_ProjectBoardColumn::isWriteableByActor($to_column, $active_worker))
 			DevblocksPlatform::dieWithHttpError(DevblocksPlatform::translate('error.core.no_acl.edit'), 403);
+		
+		if(!CerberusContexts::isReadableByActor($card_context_ext->id, $card, $active_worker))
+			DevblocksPlatform::dieWithHttpError(DevblocksPlatform::translate('error.core.no_acl.view'), 403);
 		
 		DAO_ContextLink::deleteLink(Context_ProjectBoardColumn::ID, $from_column_id, $card_context, $card_id);
 		DAO_ContextLink::setLink(Context_ProjectBoardColumn::ID, $to_column_id, $card_context, $card_id);
