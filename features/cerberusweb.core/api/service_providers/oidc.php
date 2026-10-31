@@ -401,6 +401,11 @@ class ServiceProvider_OpenIdConnect extends Extension_ConnectedServiceProvider {
 			if(!($worker = DAO_Worker::getByEmail($email)))
 				throw new Exception_DevblocksValidationError("The ID token 'email' claim does not match a worker account.");
 			
+			if($worker->is_disabled) {
+				$query = ['error' => 'account.disabled'];
+				DevblocksPlatform::redirect(new DevblocksHttpResponse(['login'], $query), 0);
+			}
+			
 			$login_state
 				->clearAuthState()
 				->setWorker($worker)
