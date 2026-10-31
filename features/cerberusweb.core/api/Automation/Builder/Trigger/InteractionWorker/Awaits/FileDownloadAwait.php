@@ -42,6 +42,9 @@ class FileDownloadAwait extends AbstractAwait {
 		if(CerberusContexts::CONTEXT_ATTACHMENT == $uri_parts['context']) {
 			$active_worker = CerberusApplication::getActiveWorker();
 			
+			if(!$active_worker || !$active_worker->hasPriv('core.display.actions.attachments.download'))
+				return;
+			
 			if(!($attachment = \DAO_Attachment::get($uri_parts['context_id'])))
 				return;
 			
