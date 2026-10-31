@@ -112,6 +112,12 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 	}
 	
 	private function getId($id) {
+		$worker = CerberusApplication::getActiveWorker();
+		
+		// ACL
+		if(!Context_Notification::isReadableByActor($id, $worker))
+			$this->error(self::ERRNO_ACL);
+		
 		$container = $this->search(array(
 			array('id', '=', $id),
 		));
@@ -189,12 +195,15 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 			$view->addParams($params, true);
 		}
 		
-		// (ACL) Add worker group privs
+		// (ACL) Limit non-superusers to their own notifications
 		if(!$worker->is_superuser) {
-			$params['tmp_worker_id'] = new DevblocksSearchCriteria(
-				SearchFields_Notification::WORKER_ID,
-				'=',
-				$worker->id
+			$view->addParam(
+				new DevblocksSearchCriteria(
+					SearchFields_Notification::WORKER_ID,
+					'=',
+					$worker->id
+				),
+				SearchFields_Notification::WORKER_ID
 			);
 		}
 		
@@ -209,6 +218,9 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 			$objects = array();
 			
 			$models = CerberusContexts::getModels(CerberusContexts::CONTEXT_NOTIFICATION, array_keys($results));
+			
+			// (ACL) Only return notifications the active worker can read
+			$models = CerberusContexts::filterModelsByActorReadable('Context_Notification', $models, $worker);
 			
 			unset($results);
 			
@@ -271,6 +283,10 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 			
 			// Sanitize
 			$value = DevblocksPlatform::importVar($value, $type);
+			
+			// Only admins can give a notification to someone else
+			if(DAO_Notification::WORKER_ID == $field && !$worker->is_superuser && $value != $worker->id)
+				$this->error(self::ERRNO_ACL);
 			
 			$fields[$field] = $value;
 		}
@@ -353,6 +369,10 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 		
 		// Create
 		if(false != ($id = DAO_Notification::create($fields))) {
+			// A notification for someone else is created, but its contents are theirs to read
+			if(!Context_Notification::isReadableByActor($id, CerberusApplication::getActiveWorker()))
+				$this->success(['id' => $id]);
+			
 			$this->getId($id);
 		}
 	}
