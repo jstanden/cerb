@@ -237,8 +237,6 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 		$show_results = DevblocksPlatform::importVar($options['show_results'] ?? null, 'boolean', true);
 		$subtotals = DevblocksPlatform::importVar($options['subtotals'] ?? null, 'array', []);
 		
-		$worker = CerberusApplication::getActiveWorker();
-		
 		$params = [];
 		
 		// Sort
@@ -269,15 +267,6 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			$params = array_merge($params, $new_params, $custom_field_params);
 			
 			$view->addParams($params, true);
-		}
-		
-		// (ACL) Limit non-superusers to themselves
-		if(!$worker->is_superuser) {
-			$params['tmp_worker_id'] = new DevblocksSearchCriteria(
-				SearchFields_Worker::ID,
-				'=',
-				$worker->id
-			);
 		}
 		
 		if($show_results)
