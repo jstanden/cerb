@@ -122,7 +122,7 @@ class PageSection_ProfilesWebhookListener extends Extension_PageSection {
 					$fields = [
 						DAO_WebhookListener::UPDATED_AT => time(),
 						DAO_WebhookListener::NAME => $name,
-						DAO_WebhookListener::GUID => sha1($name . time() . mt_rand(0,10000)),
+						DAO_WebhookListener::GUID => bin2hex(random_bytes(20)),
 						DAO_WebhookListener::AUTOMATIONS_KATA => $automations_kata,
 					];
 					
