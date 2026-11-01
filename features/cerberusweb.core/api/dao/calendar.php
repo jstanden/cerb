@@ -1360,7 +1360,8 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 	const URI = 'calendar';
 	
 	static function isReadableByActor($models, $actor) {
-		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_CALENDAR, $models);
+		// Everyone can read calendars (they share availability with other workers)
+		return CerberusContexts::allowEverything($models);
 	}
 	
 	static function isWriteableByActor($models, $actor) {
