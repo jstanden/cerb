@@ -803,7 +803,17 @@ class WorkspaceWidgetDatasource_URL extends Extension_WorkspaceWidgetDatasource 
 		
 		$cache_key = sprintf("widget%d_datasource", $widget->id);
 		
-		if(true || null === ($data = $cache->load($cache_key))) {
+		// Only fetch absolute http:// or https:// URLs (no file://, gopher://, relative paths, etc.)
+		$url_parts = is_string($url) ? parse_url($url) : false;
+		$url_scheme = DevblocksPlatform::strLower($url_parts['scheme'] ?? '');
+		
+		if(!in_array($url_scheme, ['http', 'https']) || !($url_parts['host'] ?? null)) {
+			$data = [
+				'raw_data' => '',
+				'info' => ['content_type' => ''],
+			];
+		
+		} else if(true || null === ($data = $cache->load($cache_key))) {
 			$ch = DevblocksPlatform::curlInit($url);
 			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
