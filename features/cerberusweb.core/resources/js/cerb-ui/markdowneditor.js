@@ -389,7 +389,7 @@ CerbUI.MarkdownEditor = class {
 			const file_name = file_label.substring(0, file_label.lastIndexOf(' ('));
 			const url = this._fileUrl(file_id, file_name);
 			const info = { labels: event.labels, values: event.values, file_id, file_name, url };
-			this.setMode('markdown');
+			this._forceMarkdown();
 			this.insertText(this._imageMarkdown(info));
 			this._emitImage(info);
 		});
@@ -431,12 +431,20 @@ CerbUI.MarkdownEditor = class {
 				values: [file_id],
 				file_id, file_name, url,
 			};
-			this.setMode('markdown');
+			this._forceMarkdown();
 			this.insertText(this._imageMarkdown(info) + '\n');
 			this._emitImage(info);
 		};
 
 		xhr.send(f);
+	}
+
+	// A pasted/chosen image needs markdown (HTML mail). Go through the toolbar's switcher when there is one, so
+	// the switcher UI, format buttons, and the host's onMode (e.g. compose/reply `format=parsedown`) all sync.
+	_forceMarkdown() {
+		const tb = this._editorToolbar;
+		if(tb && tb.switcher) tb.setMode('markdown');
+		else this.setMode('markdown');
 	}
 
 	_fileUrl(file_id, file_name) {
