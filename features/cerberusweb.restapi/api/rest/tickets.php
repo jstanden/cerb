@@ -194,10 +194,10 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			$owner_id = intval($owner_id);
 			
 			if(!empty($owner_id)) {
-				if(false == ($worker = DAO_Worker::get($owner_id)))
+				if(false == ($owner = DAO_Worker::get($owner_id)))
 					$this->error(self::ERRNO_ACL, "The given 'owner_id' is invalid.");
 				
-				if($worker->is_disabled)
+				if($owner->is_disabled)
 					$this->error(self::ERRNO_ACL, "The given 'owner_id' is disabled.");
 			}
 			
@@ -247,6 +247,10 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 					break;
 			}
 		}
+		
+		// (ACL) Check the worker's ticket privileges and validate the changes
+		if(!DAO_Ticket::onBeforeUpdateByActor($worker, $fields, $id, $error))
+			$this->error(self::ERRNO_ACL, $error);
 		
 		// Only update fields that changed
 		$fields = Cerb_ORMHelper::uniqueFields($fields, $ticket);
