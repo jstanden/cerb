@@ -360,6 +360,9 @@ class ChRest_Records extends Extension_RestController {
 		
 		if(!empty($query) && $view instanceof IAbstractView_QuickSearch)
 			$view->addParamsWithQuickSearch($query, true);
+		
+		// (ACL) Restrict group-scoped records in the query so totals and subtotals don't leak
+		$this->_addGroupAclParam($view, $context->id);
 
 		if($show_results)
 			list($results, $total) = $view->getData();
@@ -372,6 +375,13 @@ class ChRest_Records extends Extension_RestController {
 		
 		if($show_results) {
 			$models = CerberusContexts::getModels($context->id, array_keys($results));
+			
+			// (ACL) Only return records the active worker can read
+			if(($context_ext = $context->createInstance()))
+				$models = CerberusContexts::filterModelsByActorReadable(get_class($context_ext), $models, CerberusApplication::getActiveWorker());
+			else
+				$models = [];
+			
 			$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $context->id);
 			
 			foreach($dicts as $dict_id => $dict)
@@ -393,6 +403,39 @@ class ChRest_Records extends Extension_RestController {
 		}
 		
 		return $container;
+	}
+	
+	private function _addGroupAclParam(C4_AbstractView $view, string $context) : void {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || $active_worker->is_superuser)
+			return;
+		
+		$field_key = match($context) {
+			CerberusContexts::CONTEXT_TICKET => SearchFields_Ticket::TICKET_GROUP_ID,
+			CerberusContexts::CONTEXT_MESSAGE => SearchFields_Message::TICKET_GROUP_ID,
+			default => null,
+		};
+		
+		if(!$field_key)
+			return;
+		
+		// Mirror Context_Ticket::isReadableByActor(): public groups, or private groups the worker belongs to
+		$memberships = $active_worker->getMemberships();
+		
+		$group_ids = array_keys(array_filter(
+			DAO_Group::getAll(),
+			fn($group) => !$group->is_private || array_key_exists($group->id, $memberships)
+		));
+		
+		$view->addParam(
+			new DevblocksSearchCriteria(
+				$field_key,
+				DevblocksSearchCriteria::OPER_IN,
+				$group_ids ?: [0]
+			),
+			'tmp_worker_acl'
+		);
 	}
 	
 	/**

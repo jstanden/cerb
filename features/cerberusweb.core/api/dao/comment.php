@@ -521,6 +521,11 @@ class DAO_Comment extends Cerb_ORMHelper {
 		if($comment_file_ids && !$comment)
 			throw new Exception_DevblocksAjaxValidationError("A comment is required when attaching files.", "comment");
 		
+		$comment_file_ids = DevblocksPlatform::sanitizeArray($comment_file_ids, 'int');
+		
+		if($comment_file_ids && array_diff($comment_file_ids, Context_Attachment::filterDownloadableByActor($comment_file_ids, $active_worker)))
+			throw new Exception_DevblocksAjaxValidationError("You do not have permission to attach one or more of these files.", "comment");
+		
 		if($context_id && $comment && $active_worker->hasPriv(sprintf("contexts.%s.comment", $context))) {
 			$fields = [
 				DAO_Comment::CREATED => time(),
@@ -533,7 +538,8 @@ class DAO_Comment extends Cerb_ORMHelper {
 			];
 			$comment_id = DAO_Comment::create($fields);
 			
-			if($comment_file_ids) {
+			// Only link files the actor can already download
+			if($comment_file_ids && ($comment_file_ids = Context_Attachment::filterDownloadableByActor($comment_file_ids, $active_worker))) {
 				DAO_Attachment::addLinks(CerberusContexts::CONTEXT_COMMENT, $comment_id, $comment_file_ids);
 			}
 			
