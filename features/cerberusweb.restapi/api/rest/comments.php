@@ -277,6 +277,10 @@ class ChRest_Comments extends Extension_RestController implements IExtensionRest
 		$reqfields = array(DAO_Comment::CONTEXT, DAO_Comment::CONTEXT_ID, DAO_Comment::OWNER_CONTEXT, DAO_Comment::OWNER_CONTEXT_ID, DAO_Comment::COMMENT);
 		$this->_handleRequiredFields($reqfields, $fields);
 		
+		// (ACL) Verify the worker can comment on the target record
+		if(!DAO_Comment::onBeforeUpdateByActor($worker, $fields, null, $error))
+			$this->error(self::ERRNO_ACL, $error);
+		
 		// Create
 		if(($id = DAO_Comment::create($fields))) {
 			// Attachments

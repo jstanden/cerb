@@ -859,6 +859,11 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			DAO_Comment::OWNER_CONTEXT_ID => $worker->id,
 			DAO_Comment::COMMENT => $comment,
 		];
+		
+		// (ACL) Verify the worker can comment on the target record
+		if(!DAO_Comment::onBeforeUpdateByActor($worker, $fields, null, $error))
+			$this->error(self::ERRNO_ACL, $error);
+		
 		$comment_id = DAO_Comment::create($fields);
 		
 		DAO_Comment::onUpdateByActor($worker, $fields, $comment_id);

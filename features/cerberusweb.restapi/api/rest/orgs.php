@@ -372,6 +372,11 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 			DAO_Comment::CREATED => time(),
 			DAO_Comment::COMMENT => $note,
 		];
+		
+		// (ACL) Verify the worker can comment on the target record
+		if(!DAO_Comment::onBeforeUpdateByActor($worker, $fields, null, $error))
+			$this->error(self::ERRNO_ACL, $error);
+		
 		$note_id = DAO_Comment::create($fields);
 		DAO_Comment::onUpdateByActor($worker, $fields, $note_id);
 			
