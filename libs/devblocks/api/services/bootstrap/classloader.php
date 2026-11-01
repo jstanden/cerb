@@ -252,9 +252,6 @@ class _DevblocksClassLoadManager {
 			'_DevblocksOAuthService',
 			'_DevblocksOAuth1Client',
 		));
-		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/openid.php', array(
-			'_DevblocksOpenIDManager',
-		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/queue.php', [
 			'_DevblocksQueueService',
 			'QueueLane',

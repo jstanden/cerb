@@ -205,14 +205,6 @@ class _DevblocksServices {
 	
 	/**
 	 * 
-	 * @return _DevblocksOpenIDManager
-	 */
-	function openid() {
-		return _DevblocksOpenIDManager::getInstance();
-	}
-	
-	/**
-	 * 
 	 * @return _DevblocksNaturalLanguageManager
 	 */
 	function nlp() {
@@ -1947,8 +1939,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			$ch = DevblocksPlatform::curlInit();
 			curl_setopt($ch, CURLOPT_URL, $url);
 			curl_setopt($ch, CURLOPT_HEADER, false);
-			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-			
+
 			$user_agent = 'Cerb ' . APP_VERSION . ' (Build ' . APP_BUILD . ')';
 			curl_setopt($ch, CURLOPT_USERAGENT, $user_agent);
 			
