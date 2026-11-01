@@ -186,10 +186,25 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 				}
 			}
 		}
-		
+
+		// Attached files must already be downloadable by the actor (or already be on this draft)
+		if(array_key_exists(self::PARAMS_JSON, $fields)) {
+			$params = json_decode($fields[self::PARAMS_JSON] ?? '', true);
+			$file_ids = array_filter(DevblocksPlatform::sanitizeArray(is_array($params['file_ids'] ?? null) ? $params['file_ids'] : [], 'int'));
+
+			if($file_ids) {
+				$existing_ids = $id ? array_keys(DAO_Attachment::getByContextIds($context, $id)) : [];
+
+				if(($new_ids = array_diff($file_ids, $existing_ids)) && array_diff($new_ids, Context_Attachment::filterDownloadableByActor($new_ids, $actor))) {
+					$error = "You do not have permission to attach one or more of these files.";
+					return false;
+				}
+			}
+		}
+
 		return true;
 	}
-	
+
 	/**
 	 * @param Model_ContextBulkUpdate $update
 	 * @return boolean
