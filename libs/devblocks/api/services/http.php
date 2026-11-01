@@ -44,6 +44,30 @@ class DevblocksHttpEgressFilter {
 	const MAX_REDIRECTS = 10;
 	
 	/**
+	 * Everything that isn't the public internet. NOT applied to outbound requests in general --
+	 * see the class comment -- only where a caller opts in with isPublicIp() because the feature
+	 * has no business reaching an internal host (e.g. a worker fetching an avatar image by URL).
+	 */
+	const NON_PUBLIC_CIDRS = [
+		'0.0.0.0/8',          // "This" network
+		'10.0.0.0/8',         // RFC1918
+		'100.64.0.0/10',      // CGNAT (RFC 6598)
+		'127.0.0.0/8',        // Loopback
+		'169.254.0.0/16',     // Link-local
+		'172.16.0.0/12',      // RFC1918
+		'192.0.0.0/24',       // IETF protocol assignments
+		'192.168.0.0/16',     // RFC1918
+		'198.18.0.0/15',      // Benchmarking
+		'224.0.0.0/4',        // Multicast
+		'240.0.0.0/4',        // Reserved, and 255.255.255.255 broadcast
+		'::/128',             // Unspecified
+		'::1/128',            // Loopback
+		'fc00::/7',           // Unique local
+		'fe80::/10',          // Link-local
+		'ff00::/8',           // Multicast
+	];
+	
+	/**
 	 * The blocklist from DEVBLOCKS_HTTP_BLOCK_CIDRS, whose default in framework.defaults.php
 	 * is the cloud credential endpoints.
 	 */
@@ -146,6 +170,32 @@ class DevblocksHttpEgressFilter {
 		}
 		
 		return false;
+	}
+	
+	/**
+	 * Is $ip on the public internet? Like isBlockedIp(), both the address as given and its
+	 * unwrapped form are checked, so `::ffff:10.0.0.1` and `64:ff9b::a00:1` are as private as
+	 * `10.0.0.1`. Anything that isn't an address at all is not public.
+	 *
+	 * @test DevblocksHttpEgressFilterTest
+	 */
+	static function isPublicIp(string $ip) : bool {
+		if(false === @inet_pton($ip))
+			return false;
+		
+		$candidates = [$ip => true];
+		
+		if(!is_null($normalized = self::normalizeIp($ip)))
+			$candidates[$normalized] = true;
+		
+		foreach(self::NON_PUBLIC_CIDRS as $cidr) {
+			foreach(array_keys($candidates) as $candidate) {
+				if(self::isCidrMatch($candidate, $cidr))
+					return false;
+			}
+		}
+		
+		return true;
 	}
 	
 	/**
