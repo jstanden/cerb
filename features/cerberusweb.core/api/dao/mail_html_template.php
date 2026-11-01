@@ -818,7 +818,8 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 	const URI = 'html_template';
 	
 	static function isReadableByActor($models, $actor) {
-		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $models);
+		// Everyone can read HTML templates (they're shared for use in outgoing mail)
+		return CerberusContexts::allowEverything($models);
 	}
 	
 	static function isWriteableByActor($models, $actor) {
