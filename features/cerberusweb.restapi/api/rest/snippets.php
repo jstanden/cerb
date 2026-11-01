@@ -81,7 +81,11 @@ class ChRest_Snippets extends Extension_RestController implements IExtensionRest
 		$prompts = DevblocksPlatform::importVar($_REQUEST['prompts'] ?? null, 'array', []);
 		
 		$worker = CerberusApplication::getActiveWorker();
-		
+
+		// ACL
+		if(!Context_Snippet::isReadableByActor($id, $worker))
+			$this->error(self::ERRNO_ACL);
+
 		$container = $this->search(array(
 			array('id', '=', $id),
 		));
@@ -187,7 +191,9 @@ class ChRest_Snippets extends Extension_RestController implements IExtensionRest
 		@$query = DevblocksPlatform::importVar($options['query'], 'string', null);
 		@$show_results = DevblocksPlatform::importVar($options['show_results'], 'boolean', true);
 		@$subtotals = DevblocksPlatform::importVar($options['subtotals'], 'array', array());
-		
+
+		$worker = CerberusApplication::getActiveWorker();
+
 		$params = array();
 		
 		// Sort
@@ -219,7 +225,19 @@ class ChRest_Snippets extends Extension_RestController implements IExtensionRest
 			
 			$view->addParams($params, true);
 		}
-		
+
+		// (ACL) Limit non-superusers to snippets they can use
+		if(!$worker->is_superuser) {
+			$view->addParam(
+				new DevblocksSearchCriteria(
+					SearchFields_Snippet::VIRTUAL_USABLE_BY,
+					DevblocksSearchCriteria::OPER_CUSTOM,
+					['context' => CerberusContexts::CONTEXT_WORKER, 'id' => $worker->id]
+				),
+				SearchFields_Snippet::VIRTUAL_USABLE_BY
+			);
+		}
+
 		if($show_results)
 			list($results, $total) = $view->getData();
 		
@@ -231,7 +249,10 @@ class ChRest_Snippets extends Extension_RestController implements IExtensionRest
 			$objects = array();
 			
 			$models = CerberusContexts::getModels(CerberusContexts::CONTEXT_SNIPPET, array_keys($results));
-			
+
+			// (ACL) Only return snippets the active worker can read
+			$models = CerberusContexts::filterModelsByActorReadable('Context_Snippet', $models, $worker);
+
 			unset($results);
 			
 			foreach($models as $id => $model) {
