@@ -815,8 +815,6 @@ class WorkspaceWidgetDatasource_URL extends Extension_WorkspaceWidgetDatasource 
 		
 		} else if(true || null === ($data = $cache->load($cache_key))) {
 			$ch = DevblocksPlatform::curlInit($url);
-			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 			$raw_data = DevblocksPlatform::curlExec($ch);
 			$info = curl_getinfo($ch);
 			
