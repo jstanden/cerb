@@ -58,10 +58,19 @@ class ChRest_Servers extends Extension_RestController implements IExtensionRestC
 	}
 	
 	function deleteAction($stack) {
+		$worker = CerberusApplication::getActiveWorker();
+		
+		// ACL
+		if(!$worker->hasPriv(sprintf('contexts.%s.delete', CerberusContexts::CONTEXT_SERVER)))
+			$this->error(self::ERRNO_ACL);
+		
 		$id = array_shift($stack);
 
 		if(null == ($server = DAO_Server::get($id)))
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid server ID %d", $id));
+		
+		if(!Context_Server::isDeletableByActor($server, $worker))
+			$this->error(self::ERRNO_ACL);
 		
 		CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_SERVER, $server->id, $server->name);
 		
@@ -250,6 +259,10 @@ class ChRest_Servers extends Extension_RestController implements IExtensionRestC
 		//if(!isset($fields[DAO_Server::UPDATED]))
 		//	$fields[DAO_Server::UPDATED] = time();
 		
+		// (ACL) Check the worker's privileges for this record
+		if(!DAO_Server::onBeforeUpdateByActor($worker, $fields, $id, $error))
+			$this->error(self::ERRNO_ACL, $error);
+		
 		// Handle custom fields
 		$customfields = $this->_handleCustomFields($_POST);
 		if(is_array($customfields))
@@ -299,6 +312,10 @@ class ChRest_Servers extends Extension_RestController implements IExtensionRestC
 			DAO_Server::NAME,
 		);
 		$this->_handleRequiredFields($reqfields, $fields);
+		
+		// (ACL) Check the worker's privileges for this record
+		if(!DAO_Server::onBeforeUpdateByActor($worker, $fields, null, $error))
+			$this->error(self::ERRNO_ACL, $error);
 		
 		// Create
 		if(false != ($id = DAO_Server::create($fields))) {
