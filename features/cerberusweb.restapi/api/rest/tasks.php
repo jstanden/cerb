@@ -134,10 +134,10 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 	
 	function getId($id) {
 		$worker = CerberusApplication::getActiveWorker();
-		
+
 		// ACL
-//		if(!$worker->hasPriv('...'))
-//			$this->error(self::ERRNO_ACL);
+		if(!Context_Task::isReadableByActor($id, $worker))
+			$this->error(self::ERRNO_ACL);
 
 		$container = $this->search(array(
 			array('id', '=', $id),
@@ -154,9 +154,11 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 		@$query = DevblocksPlatform::importVar($options['query'], 'string', null);
 		@$show_results = DevblocksPlatform::importVar($options['show_results'], 'boolean', true);
 		@$subtotals = DevblocksPlatform::importVar($options['subtotals'], 'array', array());
-		
+
+		$worker = CerberusApplication::getActiveWorker();
+
 		$params = array();
-		
+
 		// Sort
 		$sortBy = $this->translateToken($sortToken, 'search');
 		$sortAsc = !empty($sortAsc) ? true : false;
@@ -186,7 +188,23 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 			
 			$view->addParams($params, true);
 		}
-		
+
+		// (ACL) Limit non-superusers to tasks with no project, or in a project they can read
+		if(!$worker->is_superuser) {
+			$readable_project_ids = array_keys(array_filter(
+				Context_TaskProject::isReadableByActor(DAO_TaskProject::getAll(), $worker) ?: []
+			));
+
+			$view->addParam(
+				new DevblocksSearchCriteria(
+					SearchFields_Task::PROJECT_ID,
+					DevblocksSearchCriteria::OPER_IN_OR_NULL,
+					array_merge([0], $readable_project_ids)
+				),
+				SearchFields_Task::PROJECT_ID . '_acl'
+			);
+		}
+
 		if($show_results)
 			list($results, $total) = $view->getData();
 		
@@ -198,7 +216,10 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 			$objects = array();
 			
 			$models = CerberusContexts::getModels(CerberusContexts::CONTEXT_TASK, array_keys($results));
-			
+
+			// (ACL) Only return tasks the active worker can read
+			$models = CerberusContexts::filterModelsByActorReadable('Context_Task', $models, $worker);
+
 			unset($results);
 			
 			foreach($models as $id => $model) {
@@ -241,11 +262,7 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 		// Validate the ID
 		if(null == ($task = DAO_Task::get($id)))
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid task ID '%d'", $id));
-			
-		// ACL
-		if(!($worker->hasPriv('contexts.cerberusweb.contexts.task.update') || $task->worker_id == $worker->id))
-			$this->error(self::ERRNO_ACL);
-			
+
 		$putfields = array(
 			'assignee_id' => 'integer',
 			'completed' => 'timestamp',
@@ -276,12 +293,16 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 		
 		if(!isset($fields[DAO_Task::UPDATED_DATE]))
 			$fields[DAO_Task::UPDATED_DATE] = time();
-		
+
+		// (ACL) Check the worker's task privileges and write access (incl. the task's project)
+		if(!DAO_Task::onBeforeUpdateByActor($worker, $fields, $id, $error))
+			$this->error(self::ERRNO_ACL, $error);
+
 		// Handle custom fields
 		$customfields = $this->_handleCustomFields($_POST);
 		if(is_array($customfields))
 			DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_TASK, $id, $customfields, true, true, true);
-		
+
 		// Update
 		DAO_Task::update($id, $fields);
 		$this->getId($id);
@@ -350,7 +371,7 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid task ID %d", $id));
 
 		// ACL
-		if(!($worker->hasPriv('contexts.cerberusweb.contexts.task.update') || $task->worker_id==$worker->id))
+		if(!$worker->hasPriv('contexts.cerberusweb.contexts.task.update'))
 			$this->error(self::ERRNO_ACL);
 		
 		// Required fields
