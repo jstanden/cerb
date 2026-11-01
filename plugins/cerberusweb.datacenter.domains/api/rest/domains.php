@@ -59,6 +59,11 @@ class ChRest_Domains extends Extension_RestController implements IExtensionRestC
 	
 	function deleteAction($stack) {
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		// ACL
+		if(!$active_worker->hasPriv(sprintf('contexts.%s.delete', CerberusContexts::CONTEXT_DOMAIN)))
+			$this->error(self::ERRNO_ACL);
+		
 		$id = array_shift($stack);
 
 		if(null == ($domain = DAO_Domain::get($id)))
@@ -253,6 +258,10 @@ class ChRest_Domains extends Extension_RestController implements IExtensionRestC
 		//if(!isset($fields[DAO_Domain::UPDATED]))
 		//	$fields[DAO_Domain::UPDATED] = time();
 		
+		// (ACL) Check the worker's privileges for this record
+		if(!DAO_Domain::onBeforeUpdateByActor($worker, $fields, $id, $error))
+			$this->error(self::ERRNO_ACL, $error);
+		
 		// Handle custom fields
 		$customfields = $this->_handleCustomFields($_POST);
 		if(is_array($customfields))
@@ -303,6 +312,10 @@ class ChRest_Domains extends Extension_RestController implements IExtensionRestC
 			DAO_Domain::NAME,
 		);
 		$this->_handleRequiredFields($reqfields, $fields);
+		
+		// (ACL) Check the worker's privileges for this record
+		if(!DAO_Domain::onBeforeUpdateByActor($worker, $fields, null, $error))
+			$this->error(self::ERRNO_ACL, $error);
 		
 		// Create
 		if(false != ($id = DAO_Domain::create($fields))) {
