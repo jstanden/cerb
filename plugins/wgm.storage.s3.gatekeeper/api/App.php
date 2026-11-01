@@ -320,7 +320,6 @@ class DevblocksStorageEngineGatekeeper extends Extension_DevblocksStorageEngine 
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
 		curl_setopt($ch, CURLOPT_HEADER, false);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 		
 		$output = DevblocksPlatform::curlExec($ch);
 		
@@ -405,7 +404,6 @@ class DevblocksStorageEngineGatekeeper extends Extension_DevblocksStorageEngine 
 			if(!empty($length))
 				$header[] = 'Content-Length: '. $length;
 			
-			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
 			$response = DevblocksPlatform::curlExec($ch);
 			
