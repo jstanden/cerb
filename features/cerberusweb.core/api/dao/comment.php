@@ -145,7 +145,34 @@ class DAO_Comment extends Cerb_ORMHelper {
 				return false;
 			}
 		}
-		
+
+		// When a worker creates a comment, verify they can comment on the target record
+		if(!$id) {
+			$target_context = $fields[self::CONTEXT] ?? null;
+			$target_context_id = intval($fields[self::CONTEXT_ID] ?? 0);
+
+			if(
+				$target_context
+				&& ($actor_dict = CerberusContexts::polymorphActorToDictionary($actor, false))
+				&& CerberusContexts::CONTEXT_WORKER == $actor_dict->_context
+			) {
+				if(!($worker = DAO_Worker::get($actor_dict->id))) {
+					$error = DevblocksPlatform::translate('error.core.no_acl.edit');
+					return false;
+				}
+
+				if(!$worker->hasPriv(sprintf('contexts.%s.comment', $target_context))) {
+					$error = "You do not have permission to comment on this type of record.";
+					return false;
+				}
+
+				if(!CerberusContexts::isReadableByActor($target_context, $target_context_id, $worker)) {
+					$error = "You do not have permission to comment on this record.";
+					return false;
+				}
+			}
+		}
+
 		return true;
 	}
 	
