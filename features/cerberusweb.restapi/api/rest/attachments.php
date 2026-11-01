@@ -335,7 +335,11 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 
 		if(empty($file_id))
 			return array();
-		
+
+		// A worker who uploaded this file will always have access to it, whether it was a dupe or not
+		if(($worker = CerberusApplication::getActiveWorker()))
+			DAO_Attachment::addLinks(CerberusContexts::CONTEXT_WORKER, $worker->id, $file_id);
+
 		$this->getId($file_id);
 	}
 	
