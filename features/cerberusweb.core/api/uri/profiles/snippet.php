@@ -243,6 +243,7 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 	
 	private function _profileAction_test() {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$snippet_context = DevblocksPlatform::importGPC($_REQUEST['snippet_context'] ?? null, 'string','');
 		$snippet_context_id = DevblocksPlatform::importGPC($_REQUEST['snippet_context_id'] ?? null, 'integer',0);
@@ -262,11 +263,25 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 		
 		$snippet_context = $ctx->id;
 		
-		// If no ID is given, randomize one
-		if(empty($snippet_context_id) && method_exists($ctx, 'getRandom'))
-			$snippet_context_id = $ctx->getRandom();
+		if($snippet_context_id) {
+			// An explicit record must be readable by the worker
+			if(!CerberusContexts::isReadableByActor($snippet_context, $snippet_context_id, $active_worker))
+				DevblocksPlatform::dieWithHttpError(null, 403);
+			
+		} else if(method_exists($ctx, 'getRandom')) {
+			// If no ID is given, try a few random records the worker can read
+			for($attempt = 0; $attempt < 5; $attempt++) {
+				if(!($random_id = $ctx->getRandom()))
+					break;
+				
+				if(CerberusContexts::isReadableByActor($snippet_context, $random_id, $active_worker)) {
+					$snippet_context_id = $random_id;
+					break;
+				}
+			}
+		}
 		
-		CerberusContexts::getContext($snippet_context, $snippet_context_id, $merge_labels, $merge_values);
+		CerberusContexts::getContext($snippet_context, $snippet_context_id ?: null, $merge_labels, $merge_values);
 		CerberusContexts::merge($snippet_key_prefix, '', $merge_labels, $merge_values, $token_labels, $token_values);
 		
 		// Add prompted placeholders to the valid tokens
