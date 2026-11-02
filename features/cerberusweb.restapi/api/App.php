@@ -836,6 +836,33 @@ abstract class Extension_RestController extends DevblocksExtension {
 				$fields[intval($parts[1])] = DevblocksPlatform::importGPC($scope_array[$k]);
 			}
 		}
+		
+		// (ACL) File custom fields may only reference files the worker can download
+		if(($active_worker = CerberusApplication::getActiveWorker())) {
+			foreach($fields as $field_id => $value) {
+				if(!($custom_field = DAO_CustomField::get($field_id)))
+					continue;
+				
+				if(!in_array($custom_field->type, [Model_CustomField::TYPE_FILE, Model_CustomField::TYPE_FILES]))
+					continue;
+				
+				$file_ids = [];
+				
+				foreach((is_array($value) ? $value : explode(',', strval($value))) as $file_id) {
+					$file_id = trim(strval($file_id));
+					
+					// Removing a file doesn't require access to it
+					if(str_starts_with($file_id, '-'))
+						continue;
+					
+					if(($file_id = intval(ltrim($file_id, '+'))))
+						$file_ids[] = $file_id;
+				}
+				
+				if($file_ids && array_diff($file_ids, Context_Attachment::filterDownloadableByActor($file_ids, $active_worker)))
+					$this->error(self::ERRNO_ACL, "You do not have permission to attach one or more of these files.");
+			}
+		}
 
 		return $fields;
 	}
