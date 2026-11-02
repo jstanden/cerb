@@ -74,6 +74,8 @@ class PageSection_InternalRecords extends Extension_PageSection {
 	}
 	
 	private function _internalAction_showPeekPopup() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		$context = DevblocksPlatform::importGPC($_REQUEST['context'] ?? null,'string','');
 		$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'] ?? null,'string',null);
 		$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null,'string','');
@@ -92,7 +94,8 @@ class PageSection_InternalRecords extends Extension_PageSection {
 			'id' => intval($context_id),
 		]);
 		
-		if(!$edit)
+		// Only fire record.viewed for records the worker can actually read
+		if(!$edit && $dict->id && CerberusContexts::isReadableByActor($context_ext->id, $dict->id, $active_worker))
 			AutomationTrigger_RecordViewed::trigger($dict, true);
 		
 		$context_ext->renderPeekPopup($context_id, $view_id, $edit);
