@@ -167,6 +167,9 @@ class _DevblocksDataProviderWorklistRecords extends _DevblocksDataProvider {
 		if(false === $view->addParamsWithQuickSearch($query, true, [], $error))
 			return false;
 		
+		// (ACL) Only count and page records in groups the active worker can read
+		$this->_addGroupAclParam($view, $context_ext->id);
+		
 		if(array_key_exists('page', $chart_model))
 			$view->renderPage = intval($chart_model['page']);
 		
@@ -232,6 +235,11 @@ class _DevblocksDataProviderWorklistRecords extends _DevblocksDataProvider {
 		$ids = array_column($results, 'id');
 		
 		$models = $context_ext->getModelObjects($ids);
+		
+		// (ACL) Only return records the active worker can read
+		if(($active_worker = CerberusApplication::getActiveWorker()) && !$active_worker->is_superuser)
+			$models = CerberusContexts::filterModelsByActorReadable(get_class($context_ext), $models, $active_worker);
+		
 		$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $context_ext->id, $chart_model['expand']);
 		
 		$chart_model['data'] = $dicts;
@@ -251,6 +259,39 @@ class _DevblocksDataProviderWorklistRecords extends _DevblocksDataProvider {
 				);
 				return false;
 		}
+	}
+	
+	private function _addGroupAclParam(C4_AbstractView $view, string $context) : void {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || $active_worker->is_superuser)
+			return;
+		
+		$field_key = match($context) {
+			CerberusContexts::CONTEXT_TICKET => SearchFields_Ticket::TICKET_GROUP_ID,
+			CerberusContexts::CONTEXT_MESSAGE => SearchFields_Message::TICKET_GROUP_ID,
+			default => null,
+		};
+		
+		if(!$field_key)
+			return;
+		
+		// Mirror Context_Ticket::isReadableByActor(): public groups, or private groups the worker belongs to
+		$memberships = $active_worker->getMemberships();
+		
+		$group_ids = array_keys(array_filter(
+			DAO_Group::getAll(),
+			fn($group) => !$group->is_private || array_key_exists($group->id, $memberships)
+		));
+		
+		$view->addParam(
+			new DevblocksSearchCriteria(
+				$field_key,
+				DevblocksSearchCriteria::OPER_IN,
+				$group_ids ?: [0]
+			),
+			'tmp_worker_acl'
+		);
 	}
 	
 	function _formatDataAsDictionaries($chart_model) : array {
