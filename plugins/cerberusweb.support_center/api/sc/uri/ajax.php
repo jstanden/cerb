@@ -110,9 +110,26 @@ class UmScAjaxController extends Extension_UmScController {
 		if(!($links = DAO_Attachment::getLinks($file_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
-		if(!$pass && isset($links[CerberusContexts::CONTEXT_KB_ARTICLE])) {
-			// [TODO] Compare KB links to this portal
-			$pass = true;
+		if(!$pass && isset($links[CerberusContexts::CONTEXT_KB_ARTICLE]) && class_exists('UmScKbController')) {
+			// Only KB articles published in this portal's knowledgebase categories
+			$kb_roots = DAO_CommunityToolProperty::getJson(ChPortalHelper::getCode(), UmScKbController::PARAM_KB_ROOTS, '[]');
+			
+			if($kb_roots) {
+				list($articles,) = DAO_KbArticle::search(
+					[],
+					[
+						new DevblocksSearchCriteria(SearchFields_KbArticle::ID, DevblocksSearchCriteria::OPER_IN, array_map('intval', $links[CerberusContexts::CONTEXT_KB_ARTICLE])),
+						new DevblocksSearchCriteria(SearchFields_KbArticle::TOP_CATEGORY_ID, DevblocksSearchCriteria::OPER_IN, array_keys($kb_roots)),
+					],
+					1,
+					0,
+					null,
+					null,
+					false
+				);
+				
+				$pass = !empty($articles);
+			}
 		}
 		
 		if(!$pass && isset($links[CerberusContexts::CONTEXT_MESSAGE])) {
