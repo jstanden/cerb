@@ -45,7 +45,13 @@ class DevblocksHttpEgressFilter {
 	];
 	
 	const int MAX_REDIRECTS = 10;
-	
+
+	/**
+	 * A Guzzle request option. When true, the request (and every redirect hop) may only connect
+	 * to public addresses. See NON_PUBLIC_CIDRS.
+	 */
+	const string OPT_PUBLIC_ONLY = 'devblocks_public_only';
+
 	/**
 	 * Everything that isn't the public internet. NOT applied to outbound requests in general --
 	 * see the class comment -- only where a caller opts in with isPublicIp() because the feature
@@ -426,6 +432,28 @@ class _DevblocksHttpService {
 							$request
 						)
 					);
+				}
+
+				// Callers opting in to public-only destinations get the same per-hop check. Unlike the
+				// check above, an unresolvable host is refused, since it has no address to vet or pin.
+				if($options[DevblocksHttpEgressFilter::OPT_PUBLIC_ONLY] ?? false) {
+					$is_public = !empty($vetted['ips']);
+
+					foreach($vetted['ips'] as $ip) {
+						if(!DevblocksHttpEgressFilter::isPublicIp($ip))
+							$is_public = false;
+					}
+
+					if(!$is_public) {
+						return \GuzzleHttp\Promise\Create::rejectionFor(
+							new RequestException(
+								sprintf('Refused to request %s: only public hosts are allowed',
+									$request->getUri()
+								),
+								$request
+							)
+						);
+					}
 				}
 
 				$options['curl'] = $options['curl'] ?? [];

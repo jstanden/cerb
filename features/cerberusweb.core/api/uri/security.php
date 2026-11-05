@@ -89,6 +89,8 @@ class Controller_Security extends DevblocksControllerExtension {
 				RequestOptions::COOKIES => false,
 				RequestOptions::TIMEOUT => $image_proxy_timeout_ms/1000,
 				RequestOptions::ALLOW_REDIRECTS => $image_proxy_redirects_disabled ? false : true,
+				// Email images come from the public web, and an email's sender picks these URLs
+				DevblocksHttpEgressFilter::OPT_PUBLIC_ONLY => true,
 			];
 			
 			$response = $http_client->get($url, $http_options);
