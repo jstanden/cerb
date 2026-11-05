@@ -129,7 +129,7 @@ class FileUploadAwait extends AbstractAwait {
 			if($file_error)
 				throw new Exception_DevblocksValidationError($error_codes[$file_error] ?? 'An unexpected error occurred');
 			
-			$expires_at = $inputs['expires'] ?? (time() + 900);
+			$expires_at = time() + 900;
 			$resource_token = DevblocksPlatform::services()->string()->uuid();
 			
 			$resource_id = \DAO_AutomationResource::create([
