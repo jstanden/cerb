@@ -109,6 +109,24 @@ $tpl = DevblocksPlatform::services()->template();
 $tpl->setTemplateDir(APP_PATH . '/install/templates');
 $tpl->setCaching(0);
 
+// (ACL) These steps run without a login, so they're only available until the first worker exists.
+// The last page must still load after the first worker is created.
+function cerbInstallerIsComplete() : bool {
+	if(!defined('APP_DB_HOST') || !APP_DB_HOST || !defined('APP_DB_DATABASE') || !APP_DB_DATABASE)
+		return false;
+
+	if(!($db = DevblocksPlatform::services()->database()))
+		return false;
+
+	if(!array_key_exists('worker', $db->metaTables()))
+		return false;
+
+	return !empty($db->GetOneMaster('SELECT id FROM worker LIMIT 1'));
+}
+
+if(!in_array($step, [STEP_REGISTER, STEP_UPGRADE]) && cerbInstallerIsComplete())
+	$step = STEP_UPGRADE;
+
 $tpl->assign('step', $step);
 
 switch($step) {
