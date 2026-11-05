@@ -129,6 +129,12 @@ class _DevblocksDataProviderAttachmentManifest extends _DevblocksDataProvider {
 			$error = sprintf('Invalid attachment `id:` (%d)', $chart_model['id']);
 			return false;
 		}
+
+		// (ACL) Only list archives the active worker can download
+		if(($active_worker = CerberusApplication::getActiveWorker()) && !Context_Attachment::isDownloadableByActor($file, $active_worker)) {
+			$error = sprintf('Invalid attachment `id:` (%d)', $chart_model['id']);
+			return false;
+		}
 		
 		$fp_zip = DevblocksPlatform::getTempFile();
 		$fp_zip_info = DevblocksPlatform::getTempFileInfo($fp_zip);
