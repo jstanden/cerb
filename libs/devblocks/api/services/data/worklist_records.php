@@ -261,39 +261,6 @@ class _DevblocksDataProviderWorklistRecords extends _DevblocksDataProvider {
 		}
 	}
 	
-	private function _addGroupAclParam(C4_AbstractView $view, string $context) : void {
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		if(!$active_worker || $active_worker->is_superuser)
-			return;
-		
-		$field_key = match($context) {
-			CerberusContexts::CONTEXT_TICKET => SearchFields_Ticket::TICKET_GROUP_ID,
-			CerberusContexts::CONTEXT_MESSAGE => SearchFields_Message::TICKET_GROUP_ID,
-			default => null,
-		};
-		
-		if(!$field_key)
-			return;
-		
-		// Mirror Context_Ticket::isReadableByActor(): public groups, or private groups the worker belongs to
-		$memberships = $active_worker->getMemberships();
-		
-		$group_ids = array_keys(array_filter(
-			DAO_Group::getAll(),
-			fn($group) => !$group->is_private || array_key_exists($group->id, $memberships)
-		));
-		
-		$view->addParam(
-			new DevblocksSearchCriteria(
-				$field_key,
-				DevblocksSearchCriteria::OPER_IN,
-				$group_ids ?: [0]
-			),
-			'tmp_worker_acl'
-		);
-	}
-	
 	function _formatDataAsDictionaries($chart_model) : array {
 		$meta = [
 			'data' => $chart_model['data'],

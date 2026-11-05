@@ -290,6 +290,8 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		if(false === $view->addParamsWithQuickSearch($chart_model['query'] ?? null, true, [], $error))
 			return false;
 		
+		$this->_addGroupAclParam($view, $subtotals_context->id);
+		
 		if(!method_exists($view, 'getQuickSearchFields')) {
 			$error = sprintf('%s::getQuickSearchFields() not implemented', get_class($view));
 			return false;
