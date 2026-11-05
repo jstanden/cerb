@@ -1146,11 +1146,9 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 			switch($field->type) {
 				case Model_CustomField::TYPE_FILE:
 				case Model_CustomField::TYPE_FILES:
-					if($delta) {
-						DAO_Attachment::addLinks(CerberusContexts::CONTEXT_CUSTOM_FIELD, $field_id, $value);
-					} else {
-						DAO_Attachment::setLinks(CerberusContexts::CONTEXT_CUSTOM_FIELD, $field_id, $value);
-					}
+					// Links are per-field (shared by every record), so only add here. Files no longer
+					// held by any record were already unlinked by unsetFieldValue() above.
+					DAO_Attachment::addLinks(CerberusContexts::CONTEXT_CUSTOM_FIELD, $field_id, $value);
 					break;
 			}
 		}
@@ -1202,15 +1200,16 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 				}
 			}
 			
-			// We need to remove context links on file attachments
+			// We need to remove context links on file attachments that no record in this field holds anymore
 			switch($field->type) {
 				case Model_CustomField::TYPE_FILE:
 				case Model_CustomField::TYPE_FILES:
 					if(!empty($value)) {
-						$sql = sprintf("DELETE FROM attachment_link WHERE context = %s AND context_id = %d AND attachment_id IN (%s)",
+						$sql = sprintf("DELETE FROM attachment_link WHERE context = %s AND context_id = %d AND attachment_id IN (%s) AND attachment_id NOT IN (SELECT field_value FROM custom_field_numbervalue WHERE field_id = %d)",
 							$db->qstr(CerberusContexts::CONTEXT_CUSTOM_FIELD),
 							$field_id,
-							implode(',', $db->qstrArray($value))
+							implode(',', $db->qstrArray($value)),
+							$field_id
 						);
 						$db->ExecuteMaster($sql);
 						
