@@ -1382,6 +1382,17 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 		$this->doResetCriteria();
 	}
 	
+	function getParams($parse_placeholders=true) {
+		$params = parent::getParams($parse_placeholders);
+		
+		// (ACL) Always exclude private groups the active worker isn't a member of. This is applied
+		// at query time (not stored), so a worker's own filters or search query can't override it.
+		if(($acl_param = CerberusContexts::getGroupAclParamForWorker(CerberusContexts::CONTEXT_MESSAGE, CerberusApplication::getActiveWorker())))
+			$params['req_worker_acl'] = $acl_param;
+		
+		return $params;
+	}
+	
 	/**
 	 * @return array|false
 	 * @throws Exception_DevblocksDatabaseQueryTimeout
