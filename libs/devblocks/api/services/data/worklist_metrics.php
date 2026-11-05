@@ -234,6 +234,8 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 			if(false === $view->addParamsWithQuickSearch($series['query'] ?? null, true, [], $error))
 				return false;
 			
+			$this->_addGroupAclParam($view, $context_ext->id);
+			
 			if(!method_exists($dao_class, 'getSearchQueryComponents')) {
 				$error = sprintf('%s::getSearchQueryComponents() not implemented', $dao_class);
 				return false;

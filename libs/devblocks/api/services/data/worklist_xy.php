@@ -206,6 +206,8 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 			if(false === $view->addParamsWithQuickSearch($query, true, [], $error))
 				return false;
 			
+			$this->_addGroupAclParam($view, $context_ext->id);
+			
 			$query_parts = $dao_class::getSearchQueryComponents(
 				[],
 				$view->getParams()

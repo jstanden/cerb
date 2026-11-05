@@ -2,6 +2,15 @@
 abstract class _DevblocksDataProvider {
 	abstract function getSuggestions($type, array $params=[]);
 	abstract function getData($query, $chart_fields, &$error=null, array $options=[]);
+	
+	/**
+	 * (ACL) Only count, aggregate, and page group-scoped records the active worker can read.
+	 * Call after the caller's query is applied so it can't be overridden.
+	 */
+	protected function _addGroupAclParam(C4_AbstractView $view, string $context) : void {
+		if(($param = CerberusContexts::getGroupAclParamForWorker($context, CerberusApplication::getActiveWorker())))
+			$view->addParam($param, 'tmp_worker_acl');
+	}
 }
 
 class _DevblocksDataService {
