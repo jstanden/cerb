@@ -1262,9 +1262,16 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 				case Model_CustomField::TYPE_NUMBER:
 					$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id] ?? null,'string','');
 					$field_value = (0==strlen($field_value)) ? '' : intval($field_value);
+
+					// (ACL) Only accept a file the active worker can download
+					if(Model_CustomField::TYPE_FILE == $fields[$field_id]->type && $field_value
+						&& ($active_worker = CerberusApplication::getActiveWorker())
+						&& !Context_Attachment::filterDownloadableByActor([$field_value], $active_worker))
+							break;
+
 					$do['cf_'.$field_id] = array('value' => $field_value);
 					break;
-					
+
 				case Model_CustomField::TYPE_CHECKBOX:
 					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'integer',0);
 					$do['cf_'.$field_id] = array('value' => !empty($field_value) ? 1 : 0);
@@ -1272,7 +1279,13 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 
 				case Model_CustomField::TYPE_FILES:
 					$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id] ?? null,'array',[]);
-					$do['cf_'.$field_id] = array('value' => DevblocksPlatform::sanitizeArray($field_value,'integer',array('nonzero','unique')));
+					$field_value = DevblocksPlatform::sanitizeArray($field_value,'integer',array('nonzero','unique'));
+
+					// (ACL) Only accept files the active worker can download
+					if($field_value && ($active_worker = CerberusApplication::getActiveWorker()))
+						$field_value = Context_Attachment::filterDownloadableByActor($field_value, $active_worker);
+
+					$do['cf_'.$field_id] = array('value' => $field_value);
 					break;
 					
 				case Model_CustomField::TYPE_MULTI_CHECKBOX:

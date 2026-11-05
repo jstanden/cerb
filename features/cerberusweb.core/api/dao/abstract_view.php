@@ -4025,7 +4025,13 @@ abstract class C4_AbstractView {
 	
 	public static function _doBulkSetCustomFields($context, $custom_fields, $ids) {
 		$fields = DAO_CustomField::getAll();
-		
+
+		// (ACL) File fields may only receive files the active worker can download
+		$file_acl_worker = CerberusApplication::getActiveWorker();
+
+		if($file_acl_worker && $file_acl_worker->is_superuser)
+			$file_acl_worker = null;
+
 		$custom_fieldset_ids = array_unique(array_column(array_intersect_key($fields, $custom_fields), 'custom_fieldset_id'));
 		
 		// Link any custom fieldsets we bulk update
@@ -4056,6 +4062,34 @@ abstract class C4_AbstractView {
 					// Remove empty values
 					if(is_array($cf_val)) {
 						$cf_val = array_filter($cf_val, fn($v) => 0 != strlen($v));
+					}
+					break;
+				case Model_CustomField::TYPE_FILE:
+					if($file_acl_worker && 0 != strlen($cf_val)) {
+						if(!Context_Attachment::filterDownloadableByActor([$cf_val], $file_acl_worker))
+							continue 2;
+					}
+					break;
+				case Model_CustomField::TYPE_FILES:
+					if($file_acl_worker && is_array($cf_val)) {
+						// Removals ('-' prefix) are always allowed; additions must be downloadable
+						$add_ids = [];
+
+						foreach($cf_val as $v) {
+							if(!DevblocksPlatform::strStartsWith(strval($v), '-'))
+								$add_ids[] = intval(ltrim(strval($v), '+'));
+						}
+
+						$allowed_ids = $add_ids ? Context_Attachment::filterDownloadableByActor($add_ids, $file_acl_worker) : [];
+
+						$cf_val = array_filter($cf_val, function($v) use ($allowed_ids) {
+							$v = strval($v);
+
+							if(DevblocksPlatform::strStartsWith($v, '-'))
+								return true;
+
+							return in_array(intval(ltrim($v, '+')), $allowed_ids);
+						});
 					}
 					break;
 			}
