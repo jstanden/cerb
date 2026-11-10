@@ -187,6 +187,12 @@ class CalendarDatasource_Worklist extends Extension_CalendarDatasource {
 					
 					list($results,) = $view->getData();
 
+					// (ACL) Only build events from records the active worker can read
+					if(is_array($results) && $results && ($active_worker = CerberusApplication::getActiveWorker())) {
+						$privs = CerberusContexts::isReadableByActor($context_ext->id, array_keys($results), $active_worker);
+						$results = is_array($privs) ? array_intersect_key($results, array_filter($privs, fn($priv) => true === $priv)) : [];
+					}
+
 					if(is_array($results))
 					foreach($results as $id => $row) {
 						$ts_offset = @$params['field_start_date_offset'] ?: 'now';
