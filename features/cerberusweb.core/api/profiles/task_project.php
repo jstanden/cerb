@@ -180,7 +180,7 @@ class PageSection_ProfilesTaskProject extends Extension_PageSection {
 		$out = [];
 
 		if($active_worker && $ids) {
-			// Projects can be private; only count those the worker may read
+			// Only count projects the worker may read
 			$models = DAO_TaskProject::getIds($ids);
 			$readable = Context_TaskProject::isReadableByActor($models, $active_worker);
 			$ids = array_keys(array_filter($readable));

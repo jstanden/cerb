@@ -133,12 +133,6 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 	}
 	
 	function getId($id) {
-		$worker = CerberusApplication::getActiveWorker();
-
-		// ACL
-		if(!Context_Task::isReadableByActor($id, $worker))
-			$this->error(self::ERRNO_ACL);
-
 		$container = $this->search(array(
 			array('id', '=', $id),
 		));
@@ -154,8 +148,6 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 		@$query = DevblocksPlatform::importVar($options['query'], 'string', null);
 		@$show_results = DevblocksPlatform::importVar($options['show_results'], 'boolean', true);
 		@$subtotals = DevblocksPlatform::importVar($options['subtotals'], 'array', array());
-
-		$worker = CerberusApplication::getActiveWorker();
 
 		$params = array();
 
@@ -189,22 +181,6 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 			$view->addParams($params, true);
 		}
 
-		// (ACL) Limit non-superusers to tasks with no project, or in a project they can read
-		if(!$worker->is_superuser) {
-			$readable_project_ids = array_keys(array_filter(
-				Context_TaskProject::isReadableByActor(DAO_TaskProject::getAll(), $worker) ?: []
-			));
-
-			$view->addParam(
-				new DevblocksSearchCriteria(
-					SearchFields_Task::PROJECT_ID,
-					DevblocksSearchCriteria::OPER_IN_OR_NULL,
-					array_merge([0], $readable_project_ids)
-				),
-				SearchFields_Task::PROJECT_ID . '_acl'
-			);
-		}
-
 		if($show_results)
 			list($results, $total) = $view->getData();
 		
@@ -216,9 +192,6 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 			$objects = array();
 			
 			$models = CerberusContexts::getModels(CerberusContexts::CONTEXT_TASK, array_keys($results));
-
-			// (ACL) Only return tasks the active worker can read
-			$models = CerberusContexts::filterModelsByActorReadable('Context_Task', $models, $worker);
 
 			unset($results);
 			
@@ -294,7 +267,7 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 		if(!isset($fields[DAO_Task::UPDATED_DATE]))
 			$fields[DAO_Task::UPDATED_DATE] = time();
 
-		// (ACL) Check the worker's task privileges and write access (incl. the task's project)
+		// (ACL) Check the worker's task privileges
 		if(!DAO_Task::onBeforeUpdateByActor($worker, $fields, $id, $error))
 			$this->error(self::ERRNO_ACL, $error);
 

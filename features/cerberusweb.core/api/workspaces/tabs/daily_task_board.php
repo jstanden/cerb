@@ -352,7 +352,7 @@ class WorkspaceTab_DailyTaskBoard extends Extension_WorkspaceTab {
 		if(!$do_column && !$do_project)
 			DevblocksPlatform::dieWithHttpError(null, 400);
 
-		// A project move must target a project the worker can read (the task inherits its ACL).
+		// A project move must target an existing project the worker can read.
 		if($do_project) {
 			$models = DAO_TaskProject::getIds([$project_id]);
 			if(empty($models[$project_id]))
@@ -653,7 +653,7 @@ class WorkspaceTab_DailyTaskBoard extends Extension_WorkspaceTab {
 		if(!Context_Task::isWriteableByActor($task, $active_worker))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 
-		// The target project must exist + be readable by the worker (the task inherits its ACL).
+		// The target project must exist + be readable by the worker.
 		if($project_id > 0) {
 			$models = DAO_TaskProject::getIds([$project_id]);
 			if(empty($models[$project_id]))
@@ -987,14 +987,12 @@ class WorkspaceTab_DailyTaskBoard extends Extension_WorkspaceTab {
 
 	// ── Card meta-strip (assignee avatar / "assign to me") ──────────────────────
 
-	// Assign the template vars the card meta-strip needs: which projects the worker can write (gates the
-	// "assign to me" claim), and a per-owner {name, avatar} map (incl. the active worker, for new/claimed
+	// Assign the template vars the card meta-strip needs: which projects' tasks the worker can update (gates
+	// the "assign to me" claim), and a per-owner {name, avatar} map (incl. the active worker, for new/claimed
 	// cards). Shared by renderTab + the per-day "Jump to Date" render.
 	private function _assignCardMetaVars($tpl, array $live, $active_worker, array $owner_ids) {
-		$writeable = $live ? Context_TaskProject::isWriteableByActor($live, $active_worker) : [];
-		$writeable_map = [];
-		foreach((array) $writeable as $pid => $ok)
-			if($ok) $writeable_map[$pid] = true;
+		$can_update = $active_worker->hasPriv(sprintf('contexts.%s.update', Context_Task::ID));
+		$writeable_map = $can_update ? array_fill_keys(array_keys($live), true) : [];
 
 		$worker_meta = $this->_workerMeta($owner_ids, $active_worker);
 		$json_flags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT;

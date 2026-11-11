@@ -792,8 +792,8 @@ class Context_TaskProject extends Extension_DevblocksContext implements IDevbloc
 	const URI = 'task_project';
 
 	static function isReadableByActor($models, $actor) {
-		// Readable by the project's delegate owner (worker = private; group/role = shared members)
-		return CerberusContexts::isReadableByDelegateOwner($actor, self::ID, $models);
+		// Everyone can read projects. They organize tasks and don't restrict them.
+		return CerberusContexts::allowEverything($models);
 	}
 
 	static function isWriteableByActor($models, $actor) {

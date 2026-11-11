@@ -1284,49 +1284,30 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 	const URI = 'task';
 	
 	static function isReadableByActor($models, $actor) {
-		// Project-less tasks stay world-readable; tasks in a project inherit its ACL
-		return self::_deriveAclFromProject($models, $actor, false);
+		// Everyone can read tasks. Projects only organize them.
+		return CerberusContexts::allowEverything($models);
 	}
 
 	static function isWriteableByActor($models, $actor) {
-		// Project-less tasks stay world-writeable; tasks in a project inherit its ACL
-		return self::_deriveAclFromProject($models, $actor, true);
+		return self::_isAllowedByWorkerPriv($models, $actor, 'update');
 	}
 
 	static function isDeletableByActor($models, $actor) {
-		return self::isWriteableByActor($models, $actor);
+		return self::_isAllowedByWorkerPriv($models, $actor, 'delete');
 	}
 
-	// A task with no project behaves as before (world read/write). A task that belongs
-	// to a Task Project defers to that project's delegate-owner ACL, so project ownership
-	// (worker = private; group/role = shared) governs the board's tasks.
-	private static function _deriveAclFromProject($models, $actor, $writeable) {
-		if(!($dicts = CerberusContexts::polymorphModelsToDictionaries($models, CerberusContexts::CONTEXT_TASK)))
-			return false;
+	// Workers need the role privilege. Other actors (e.g. automations) aren't limited by roles.
+	private static function _isAllowedByWorkerPriv($models, $actor, string $priv) {
+		if(!($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+			return CerberusContexts::denyEverything($models);
 
-		// Resolve each distinct project's readability/writeability once
-		$project_ids = [];
-		foreach($dicts as $dict)
-			if(($pid = intval($dict->project_id ?? 0)))
-				$project_ids[$pid] = true;
+		if($actor->_context != CerberusContexts::CONTEXT_WORKER || CerberusContexts::isActorAnAdmin($actor))
+			return CerberusContexts::allowEverything($models);
 
-		$project_acl = [];
-		if($project_ids) {
-			$projects = DAO_TaskProject::getIds(array_keys($project_ids));
-			$project_acl = $writeable
-				? Context_TaskProject::isWriteableByActor($projects, $actor)
-				: Context_TaskProject::isReadableByActor($projects, $actor);
-			if(!is_array($project_acl))
-				$project_acl = [];
-		}
+		if(($worker = DAO_Worker::get($actor->id)) && $worker->hasPriv(sprintf('contexts.%s.%s', self::ID, $priv)))
+			return CerberusContexts::allowEverything($models);
 
-		$results = [];
-		foreach($dicts as $id => $dict) {
-			$pid = intval($dict->project_id ?? 0);
-			$results[$id] = $pid ? ($project_acl[$pid] ?? false) : true;
-		}
-
-		return is_array($models) ? $results : current($results);
+		return CerberusContexts::denyEverything($models);
 	}
 	
 	function profileGetUrl($context_id) {
