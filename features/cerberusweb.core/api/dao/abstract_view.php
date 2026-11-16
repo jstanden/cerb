@@ -2308,6 +2308,10 @@ abstract class C4_AbstractView {
 	}
 
 	function doSortBy($sortBy) {
+		// Only allow sorting by known fields
+		if(!is_string($sortBy) || !array_key_exists($sortBy, $this->getFields()))
+			return;
+		
 		$render_sort_by = is_array($this->renderSortBy) ? array_shift($this->renderSortBy) : $this->renderSortBy;
 		$render_sort_asc = is_array($this->renderSortAsc) ? array_shift($this->renderSortAsc) : ($this->renderSortAsc ? true : false);
 		
