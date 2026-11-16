@@ -399,6 +399,9 @@ abstract class DevblocksORMHelper {
 		// Append custom fields to the SELECT if (and only if) we're sorting on it
 		
 		foreach($sortBy as $sort_field) {
+			if(!is_string($sort_field))
+				continue;
+			
 			if(!DevblocksPlatform::strStartsWith($sort_field, 'cf_')) {
 				if(array_key_exists($sort_field, $fields)) {
 					// Only append if this field isn't in the SELECT yet
@@ -412,12 +415,17 @@ abstract class DevblocksORMHelper {
 				continue;
 			}
 			
-			if(!($field_id = intval(substr($sort_field, 3))))
+			// Custom field sort keys must be exactly `cf_<id>`
+			if(!preg_match('/^cf_(\d+)\z/', $sort_field, $matches))
+				continue;
+			
+			if(!($field_id = intval($matches[1])))
 				continue;
 	
 			if(!($field = DAO_CustomField::get($field_id)))
 				continue;
 			
+			$sort_field = sprintf('cf_%d', $field_id);
 			$cfield_key = null;
 			
 			if($search_class && class_exists($search_class))
@@ -513,7 +521,7 @@ abstract class DevblocksORMHelper {
 				
 				// Custom fields
 				if(DevblocksPlatform::strStartsWith($field, 'cf_')) {
-					if(($field_id = intval(substr($field, 3)))) {
+					if(preg_match('/^cf_(\d+)\z/', $field, $matches) && ($field_id = intval($matches[1]))) {
 						if(($custom_field = DAO_CustomField::get($field_id))) {
 							$cfield_key = null;
 							
