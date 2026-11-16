@@ -456,6 +456,16 @@ class Page_Login extends CerberusPageExtension {
 			DevblocksPlatform::redirect(new DevblocksHttpRequest(['login']), 1);
 		}
 		
+		// Prevent brute force MFA (failures count across logins)
+		$recent_failed_logins = DAO_ContextActivityLog::getLatestEntriesByTarget(CerberusContexts::CONTEXT_WORKER, $worker->id, 5, ['worker.login.failed'], time()-900);
+		
+		// More than 5 failed logins in the past 15 minutes
+		if(is_array($recent_failed_logins) && count($recent_failed_logins) >= 5) {
+			$login_state->clearAuthState();
+			$query = ['error' => 'account.locked'];
+			DevblocksPlatform::redirect(new DevblocksHttpRequest(['login'], $query), 1);
+		}
+		
 		$setting_can_remember = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::AUTH_MFA_ALLOW_REMEMBER, 0);
 		$setting_remember_days = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::AUTH_MFA_REMEMBER_DAYS, 0);
 		
@@ -518,6 +528,8 @@ class Page_Login extends CerberusPageExtension {
 						
 					} else {
 						// Failed TOTP challenge
+						self::logFailedAuthentication($worker);
+						
 						$login_state
 							->setIsMfaAuthenticated(false)
 							->setParamIncr('mfa.fail_count', 1)
@@ -529,11 +541,11 @@ class Page_Login extends CerberusPageExtension {
 								;
 							
 							$query = ['error' => 'mfa.failed'];
-							DevblocksPlatform::redirect(new DevblocksHttpRequest(['login'], $query));
+							DevblocksPlatform::redirect(new DevblocksHttpRequest(['login'], $query), 1);
 						}
 						
 						$query = ['error' => 'mfa.failed'];
-						DevblocksPlatform::redirect(new DevblocksHttpRequest(['login','mfa'], $query));
+						DevblocksPlatform::redirect(new DevblocksHttpRequest(['login','mfa'], $query), 1);
 					}
 					
 				} else {
