@@ -708,6 +708,9 @@ abstract class Extension_RestController extends DevblocksExtension {
 				}
 
 				if(!empty($field)) {
+					if(!DevblocksSearchCriteria::isValidUntrustedCriteria($filter[1], $filter[2]))
+						$this->error(self::ERRNO_SEARCH_FILTERS_INVALID, sprintf("'%s' is not a valid search operator.", is_string($filter[1]) ? $filter[1] : ''));
+					
 					$params[$field] = new DevblocksSearchCriteria($field, $filter[1], $filter[2]);
 				}
 			}
@@ -758,6 +761,9 @@ abstract class Extension_RestController extends DevblocksExtension {
 					break;
 			}
 
+			if(!DevblocksSearchCriteria::isValidUntrustedCriteria($oper, $value))
+				$this->error(self::ERRNO_SEARCH_FILTERS_INVALID, sprintf("'%s' is not a valid search operator.", is_string($oper) ? $oper : ''));
+			
 			$params[$field] = new DevblocksSearchCriteria($field, $oper, $value);
 		}
 

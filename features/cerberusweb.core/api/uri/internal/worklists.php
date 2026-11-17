@@ -154,6 +154,9 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 			
 			default:
 				if(!empty($field)) {
+					if(!DevblocksSearchCriteria::isValidUntrustedCriteria($oper, $value))
+						DevblocksPlatform::dieWithHttpError(null, 400);
+					
 					$view->doSetCriteria($field, $oper, $value);
 				}
 				break;
