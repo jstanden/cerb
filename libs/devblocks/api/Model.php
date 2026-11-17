@@ -1752,7 +1752,128 @@ class DevblocksSearchCriteria {
 	}
 	
 	public static function sanitizeOperator($operator) {
-		return in_array($operator, self::getOperators()) ? $operator : self::OPER_EQ;
+		return in_array($operator, self::getOperators(), true) ? $operator : self::OPER_EQ;
+	}
+	
+	/**
+	 * Builds SQL for an OPER_CUSTOM `date_range` value (from a parameterized date filter
+	 * like `created:(since:"-1 week" days:weekdays times:9a-5p)`).
+	 */
+	private static function _getWhereSQLFromDateRange(string $db_field_name, $date_range) : string {
+		if(!is_array($date_range))
+			return '0';
+		
+		$sanitize_ints = function($values) {
+			return is_array($values) ? DevblocksPlatform::sanitizeArray($values, 'int') : [];
+		};
+		
+		$sql_parts = [];
+		
+		if(array_key_exists('from_ts', $date_range) || array_key_exists('to_ts', $date_range)) {
+			$sql_parts[] = sprintf("%s BETWEEN %d AND %d",
+				$db_field_name,
+				intval($date_range['from_ts'] ?? 0),
+				intval($date_range['to_ts'] ?? 0)
+			);
+		}
+		
+		$formats = [
+			'days' => '%w',
+			'dom' => '%d',
+			'weeks' => '%U',
+			'months' => '%m',
+		];
+		
+		foreach($formats as $key => $format) {
+			if(!array_key_exists($key, $date_range))
+				continue;
+			
+			$values = $sanitize_ints($date_range[$key]);
+			
+			$sql_parts[] = sprintf("DATE_FORMAT(FROM_UNIXTIME(%s),'%s') %s",
+				$db_field_name,
+				$format,
+				$values ? sprintf('IN (%s)', implode(',', $values)) : '= -1'
+			);
+		}
+		
+		if(array_key_exists('times', $date_range) && is_array($date_range['times'])) {
+			$sql_field = sprintf("TIME_TO_SEC(DATE_FORMAT(FROM_UNIXTIME(%s), '%%H:%%i'))", $db_field_name);
+			$time_parts = [];
+			
+			foreach($date_range['times'] as $range_time) {
+				if(is_array($range_time)) {
+					if(2 == count($range_time))
+						$time_parts[] = sprintf('%s BETWEEN %d AND %d', $sql_field, intval($range_time[0] ?? 0), intval($range_time[1] ?? 0));
+				} else {
+					$time_parts[] = sprintf('%s = %d', $sql_field, intval($range_time));
+				}
+			}
+			
+			if($time_parts)
+				$sql_parts[] = '(' . implode(' OR ', $time_parts) . ')';
+		}
+		
+		if(!$sql_parts)
+			return '';
+		
+		return '(' . implode(' AND ', $sql_parts) . ')';
+	}
+	
+	/**
+	 * Builds SQL for an OPER_CUSTOM `date_compare` value: `field [+ offset] <=|>= ts`
+	 */
+	private static function _getWhereSQLFromDateCompare(string $db_field_name, $date_compare) : string {
+		if(!is_array($date_compare))
+			return '0';
+		
+		$oper = $date_compare['oper'] ?? null;
+		
+		if(!in_array($oper, [self::OPER_LTE, self::OPER_GTE], true))
+			return '0';
+		
+		$offset = intval($date_compare['offset'] ?? 0);
+		
+		return sprintf("%s%s %s %d",
+			$db_field_name,
+			$offset ? sprintf(' + %d', $offset) : '',
+			$oper,
+			intval($date_compare['ts'] ?? 0)
+		);
+	}
+	
+	/**
+	 * Validates an operator and value from client input (e.g. the API or worklist filters).
+	 * OPER_CUSTOM is internal-only.
+	 */
+	public static function isValidUntrustedCriteria($operator, $value) : bool {
+		if(!is_string($operator))
+			return false;
+		
+		$allowed_operators = array_merge(
+			array_diff(self::getOperators(), [self::OPER_CUSTOM]),
+			[
+				'eq',
+				'neq',
+				self::OPER_GEO_POINT_EQ,
+				self::OPER_GEO_POINT_NEQ,
+			]
+		);
+		
+		if(!in_array($operator, $allowed_operators, true))
+			return false;
+		
+		// Values must be scalars or flat arrays of scalars
+		if(is_array($value)) {
+			foreach($value as $v) {
+				if(!is_null($v) && !is_scalar($v))
+					return false;
+			}
+		} else if(!is_null($value) && !is_scalar($value)) {
+			return false;
+		}
+		
+		return true;
 	}
 	
 	public static function getParamFromQueryFieldTokens($field, $tokens, $meta) {
@@ -1948,96 +2069,38 @@ class DevblocksSearchCriteria {
 						}
 					}
 					
-					$sql_parts = [];
+					$date_service = DevblocksPlatform::services()->date();
+					$date_range = [];
 				
 					if(array_key_exists('since', $params) || array_key_exists('until', $params)) {
 						$range_since = ($params['since'] ?? null) ?: 'big bang';
 						$range_until = ($params['until'] ?? null) ?: 'now';
-						$range = DevblocksPlatform::services()->date()->parseDateRange($range_since . ' to ' . $range_until);
-						$sql_parts[] = sprintf("%%1\$s BETWEEN %d AND %d", $range['from_ts'], $range['to_ts']);
+						$range = $date_service->parseDateRange($range_since . ' to ' . $range_until);
+						$date_range['from_ts'] = intval($range['from_ts'] ?? 0);
+						$date_range['to_ts'] = intval($range['to_ts'] ?? 0);
 					}
 					
-					if(array_key_exists('day', $params)) {
-						$range_days = DevblocksPlatform::services()->date()->parseDays($params['day']);
-						$sql_part = "DATE_FORMAT(FROM_UNIXTIME(%1\$s),'%%w') ";
-						
-						if(0 == count($range_days)) {
-							$sql_part .= '= -1';
-						} else {
-							$sql_part .= sprintf('IN (%s)', implode(',', $range_days));
-						}
-						
-						$sql_parts[] = $sql_part;
-					}
+					if(array_key_exists('day', $params))
+						$date_range['days'] = $date_service->parseDays($params['day']);
 					
-					if(array_key_exists('dom', $params)) {
-						$range_dom = DevblocksPlatform::services()->date()->parseDayOfMonth($params['dom']);
-						$sql_part = "DATE_FORMAT(FROM_UNIXTIME(%1\$s),'%%d') ";
-						
-						if(0 == count($range_dom)) {
-							$sql_part .= '= -1';
-						} else {
-							$sql_part .= sprintf('IN (%s)', implode(',', $range_dom));
-						}
-						
-						$sql_parts[] = $sql_part;
-					}
+					if(array_key_exists('dom', $params))
+						$date_range['dom'] = $date_service->parseDayOfMonth($params['dom']);
 					
-					if(array_key_exists('weeks', $params)) {
-						$range_weeks = DevblocksPlatform::services()->date()->parseWeeks($params['weeks']);
-						$sql_part = "DATE_FORMAT(FROM_UNIXTIME(%1\$s),'%%U') ";
-						
-						if(0 == count($range_weeks)) {
-							$sql_part .= '= -1';
-						} else {
-							$sql_part .= sprintf('IN (%s)', implode(',', $range_weeks));
-						}
-						
-						$sql_parts[] = $sql_part;
-					}
+					if(array_key_exists('weeks', $params))
+						$date_range['weeks'] = $date_service->parseWeeks($params['weeks']);
 					
-					if(array_key_exists('months', $params)) {
-						$range_months = DevblocksPlatform::services()->date()->parseMonths($params['months']);
-						$sql_part = "DATE_FORMAT(FROM_UNIXTIME(%1\$s),'%%m') ";
-						
-						if(0 == count($range_months)) {
-							$sql_part .= '= -1';
-						} else {
-							$sql_part .= sprintf('IN (%s)', implode(',', $range_months));
-						}
-						
-						$sql_parts[] = $sql_part;
-					}
+					if(array_key_exists('months', $params))
+						$date_range['months'] = $date_service->parseMonths($params['months']);
 					
-					if(array_key_exists('time', $params)) {
-						$range_times = DevblocksPlatform::services()->date()->parseTimes($params['time'], true);
-						$sql_field = "TIME_TO_SEC(DATE_FORMAT(FROM_UNIXTIME(%1\$s), '%%H:%%i')) ";
-						$time_parts = [];
-						
-						foreach($range_times as $range_time) {
-							if (!is_array($range_time)) {
-								$time_parts[] = $sql_field . '= ' . $range_time;
-							} elseif (is_array($range_time) && 2 == count($range_time)) {
-								$time_parts[] = $sql_field . sprintf('BETWEEN %d AND %d ', $range_time[0], $range_time[1]);
-							}
-						}
-						
-						if($time_parts)
-							$sql_parts[] = '(' . implode(' OR ', $time_parts) . ')';
-					}
-					
-					if($sql_parts) {
-						$sql = '(' . implode(' AND ', $sql_parts) . ')';
-					} else {
-						$sql = '';
-					}
+					if(array_key_exists('time', $params))
+						$date_range['times'] = $date_service->parseTimes($params['time'], true);
 					
 					return new DevblocksSearchCriteria(
 						$field_key,
 						DevblocksSearchCriteria::OPER_CUSTOM,
 						[
 							'label' => $query,
-							'sql' => $sql,
+							'date_range' => $date_range,
 						]
 					);
 					
@@ -3168,14 +3231,12 @@ class DevblocksSearchCriteria {
 				if(!is_array($this->value))
 					$this->value = [];
 				
-				if(array_key_exists('sql', $this->value)) {
-					$where = sprintf($this->value['sql'], $db_field_name);
+				if(array_key_exists('date_range', $this->value)) {
+					$where = self::_getWhereSQLFromDateRange($db_field_name, $this->value['date_range']);
 					
-				} else if(array_key_exists('where', $this->value)) {
-					$where = sprintf("%s %s",
-						$db_field_name,
-						$this->value['where']
-					);
+				} else if(array_key_exists('date_compare', $this->value)) {
+					$where = self::_getWhereSQLFromDateCompare($db_field_name, $this->value['date_compare']);
+					
 				} else {
 					return 0;
 				}

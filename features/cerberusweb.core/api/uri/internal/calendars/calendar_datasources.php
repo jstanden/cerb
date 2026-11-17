@@ -150,20 +150,26 @@ class CalendarDatasource_Worklist extends Extension_CalendarDatasource {
 					
 					$view->addParam(
 						new DevblocksSearchCriteria($field_start_date, DevblocksSearchCriteria::OPER_CUSTOM,
-							array('where' => sprintf("%s <= %d",
-								(!empty($field_start_date_offset) ? (' + ' . $field_start_date_offset) : ''),
-								$date_range_to
-							))
+							[
+								'date_compare' => [
+									'oper' => DevblocksSearchCriteria::OPER_LTE,
+									'offset' => intval($field_start_date_offset),
+									'ts' => intval($date_range_to),
+								]
+							]
 						),
 						'filter_range_start' // $params['field_start_date']
 					);
 					
 					$view->addParam(
 						new DevblocksSearchCriteria($field_end_date, DevblocksSearchCriteria::OPER_CUSTOM,
-							array('where' => sprintf("%s >= %d",
-								(!empty($field_end_date_offset) ? (' + ' . $field_end_date_offset) : ''),
-								$date_range_from
-							))
+							[
+								'date_compare' => [
+									'oper' => DevblocksSearchCriteria::OPER_GTE,
+									'offset' => intval($field_end_date_offset),
+									'ts' => intval($date_range_from),
+								]
+							]
 						),
 						'filter_range_end' // $params['field_end_date']
 					);

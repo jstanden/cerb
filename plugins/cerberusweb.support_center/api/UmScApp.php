@@ -1092,7 +1092,8 @@ class UmScAbstractViewLoader {
 		if(!in_array($model['class_name'], [
 			'UmSc_KbArticleView',
 			'UmSc_TicketHistoryView',
-		]));
+		]))
+			return null;
 		
 		if(!is_a($model['class_name'], 'C4_AbstractView', true))
 			return null;

@@ -2518,6 +2518,10 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				
 			case self::TICKET_SPAM_SCORE:
 				if(is_numeric($param->value)) {
+					// (Security) Only allow comparison operators
+					if(!in_array($param->operator, ['=', '!=', '<', '>', '<=', '>='], true))
+						return '0';
+					
 					return sprintf('%s %s %0.4f',
 						'ticket.spam_score',
 						$param->operator,
