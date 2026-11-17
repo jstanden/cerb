@@ -3044,7 +3044,7 @@ abstract class C4_AbstractView {
 						'filter' =>
 							[
 								'field' => $virtual_key,
-								'oper' => DevblocksSearchCriteria::OPER_CUSTOM,
+								'oper' => DevblocksSearchCriteria::OPER_EQ,
 								'values' => ['value' => $virtual_query_null],
 							],
 						'children' => []
@@ -3059,7 +3059,7 @@ abstract class C4_AbstractView {
 						'filter' =>
 							[
 								'field' => $virtual_key,
-								'oper' => DevblocksSearchCriteria::OPER_CUSTOM,
+								'oper' => DevblocksSearchCriteria::OPER_EQ,
 								'values' => ['value' => sprintf($virtual_query, $key)],
 							],
 						'children' => []
