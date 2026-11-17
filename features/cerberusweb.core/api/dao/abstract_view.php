@@ -1276,7 +1276,7 @@ abstract class C4_AbstractView {
 		
 		foreach($values as $worker_id) {
 			if(!is_numeric($worker_id)) {
-				$strings[] = sprintf('<b>%s</b>', $worker_id);
+				$strings[] = sprintf('<b>%s</b>', DevblocksPlatform::strEscapeHtml(is_scalar($worker_id) ? $worker_id : ''));
 			} elseif(isset($workers[$worker_id])) {
 				$strings[] = sprintf('<b>%s</b>',DevblocksPlatform::strEscapeHtml($workers[$worker_id]->getName()));
 			} elseif (!empty($worker_id)) {
@@ -1459,7 +1459,7 @@ abstract class C4_AbstractView {
 			case DevblocksSearchCriteria::OPER_LTE:
 				echo sprintf("%s %s <b>%d</b>",
 					DevblocksPlatform::strEscapeHtml('Watcher count'),
-					$param->operator,
+					DevblocksPlatform::strEscapeHtml($param->operator),
 					$param->value
 				);
 				break;
@@ -1468,8 +1468,8 @@ abstract class C4_AbstractView {
 			case DevblocksSearchCriteria::OPER_NIN:
 				echo sprintf("%s %s <b>[%s]</b>",
 					DevblocksPlatform::strEscapeHtml('Watcher count'),
-					$param->operator,
-					implode(',', $param->value)
+					DevblocksPlatform::strEscapeHtml($param->operator),
+					implode(',', DevblocksPlatform::sanitizeArray(is_array($param->value) ? $param->value : [$param->value], 'int'))
 				);
 				break;
 				
@@ -1477,7 +1477,7 @@ abstract class C4_AbstractView {
 			case DevblocksSearchCriteria::OPER_NOT_BETWEEN:
 				echo sprintf("%s %s <b>%d and %d</b>",
 					DevblocksPlatform::strEscapeHtml('Watcher count'),
-					$param->operator,
+					DevblocksPlatform::strEscapeHtml($param->operator),
 					@$param->value[0] ?: 0,
 					@$param->value[1] ?: 0
 				);
@@ -2200,8 +2200,8 @@ abstract class C4_AbstractView {
 					
 				case Model_CustomField::TYPE_DATE:
 					if($param->operator == DevblocksSearchCriteria::OPER_CUSTOM) {
-						if (array_key_exists('label', $param->value)) {
-							echo $param->value['label'];
+						if (is_array($param->value) && array_key_exists('label', $param->value)) {
+							echo DevblocksPlatform::strEscapeHtml(is_scalar($param->value['label']) ? $param->value['label'] : '');
 							return;
 						}
 					}
@@ -2268,7 +2268,7 @@ abstract class C4_AbstractView {
 			
 		} else if ($param->operator == DevblocksSearchCriteria::OPER_CUSTOM) {
 			if(is_array($param->value) && array_key_exists('label', $param->value)) {
-				echo $param->value['label'];
+				echo DevblocksPlatform::strEscapeHtml(is_scalar($param->value['label']) ? $param->value['label'] : '');
 				return;
 			}
 		}
