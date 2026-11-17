@@ -185,7 +185,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 				return false;
 			}
 			
-			if(!CerberusContexts::isOwnableBy($bot->owner_context, $bot->owner_context_id, $actor)) {
+			if(!Context_TriggerEvent::isBotAuthorableByActor($bot, $actor)) {
 				$error = "You do not have permission to create behaviors on this bot.";
 				return false;
 			}
@@ -2043,7 +2043,51 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 	}
 	
 	static function isWriteableByActor($models, $actor, $ignore_admins=false) {
-		return CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_BEHAVIOR, $models, 'bot_owner_', $ignore_admins);
+		$results = CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_BEHAVIOR, $models, 'bot_owner_', $ignore_admins);
+		
+		if(!$ignore_admins && CerberusContexts::isActorAnAdmin($actor))
+			return $results;
+		
+		// Behaviors on role-owned bots run as an administrator, so only admins can modify them
+		if(!($dicts = CerberusContexts::polymorphModelsToDictionaries($models, CerberusContexts::CONTEXT_BEHAVIOR)))
+			return $results;
+		
+		DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'bot_owner_');
+		
+		foreach($dicts as $id => $dict) {
+			if(!self::_isAdminBotOwnerContext($dict->bot_owner__context))
+				continue;
+			
+			if(is_array($results)) {
+				$results[$id] = false;
+			} else {
+				$results = false;
+			}
+		}
+		
+		return $results;
+	}
+	
+	/**
+	 * Can the actor create or import behaviors on this bot? Behaviors run as the bot's
+	 * owner, so bots owned by a role or the application (which act as an administrator)
+	 * require an administrator.
+	 */
+	static function isBotAuthorableByActor(Model_Bot $bot, $actor) : bool {
+		if(!CerberusContexts::isOwnableBy($bot->owner_context, $bot->owner_context_id, $actor))
+			return false;
+		
+		if(self::_isAdminBotOwnerContext($bot->owner_context) && !CerberusContexts::isActorAnAdmin($actor))
+			return false;
+		
+		return true;
+	}
+	
+	private static function _isAdminBotOwnerContext($owner_context) : bool {
+		return in_array($owner_context, [
+			CerberusContexts::CONTEXT_APPLICATION,
+			CerberusContexts::CONTEXT_ROLE,
+		], true);
 	}
 	
 	static function isDeletableByActor($models, $actor, $ignore_admins=false) {

@@ -229,7 +229,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 						// Does the worker have access to this bot?
 						if(
 							!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_BEHAVIOR)) 
-							|| !CerberusContexts::isOwnableBy($bot->owner_context, $bot->owner_context_id, $active_worker)
+							|| !Context_TriggerEvent::isBotAuthorableByActor($bot, $active_worker)
 						) {
 							throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
 						}
@@ -304,7 +304,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 						// Does the worker have access to this bot?
 						if(
 							!$active_worker->hasPriv(sprintf("contexts.%s.import", CerberusContexts::CONTEXT_BEHAVIOR)) 
-							|| !CerberusContexts::isOwnableBy($bot->owner_context, $bot->owner_context_id, $active_worker)
+							|| !Context_TriggerEvent::isBotAuthorableByActor($bot, $active_worker)
 						) {
 							throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.import'));
 						}
@@ -1106,7 +1106,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 					
 					// Does the worker have access to this bot?
 					if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.bot.update')
-						|| !CerberusContexts::isOwnableBy($bot->owner_context, $bot->owner_context_id, $active_worker)
+						|| !Context_TriggerEvent::isBotAuthorableByActor($bot, $active_worker)
 					)
 						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
 					
