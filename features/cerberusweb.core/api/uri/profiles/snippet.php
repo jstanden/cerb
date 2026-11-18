@@ -115,7 +115,10 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 			
 		if(!($snippet = DAO_Snippet::get($id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
-		
+
+		if(!Context_Snippet::isReadableByActor($snippet, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
 		if(isset($context_ids[$snippet->context]))
 			$context_id = intval($context_ids[$snippet->context]);
 		
