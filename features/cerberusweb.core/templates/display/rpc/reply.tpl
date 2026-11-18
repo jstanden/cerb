@@ -164,10 +164,6 @@
 			<li data-file-id="{$file->id}" data-file-name="{$file->name}" data-file-size="{$file->storage_size}"></li>
 			{/if}
 		{/foreach}
-	{elseif $is_forward && !empty($forward_attachments)}
-		{foreach from=$forward_attachments item=attach}
-			<li data-file-id="{$attach->id}" data-file-name="{$attach->name}" data-file-size="{$attach->storage_size}"></li>
-		{/foreach}
 	{/if}
 	</div>
 </fieldset>

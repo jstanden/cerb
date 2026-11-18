@@ -521,6 +521,10 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 			'is_forward' => $is_forward ? 1 : 0,
 		];
 		
+		// Forwards start with the original message's attachments
+		if($is_forward && ($forward_attachments = $message->getAttachments()))
+			$draft_properties['forward_files'] = array_keys($forward_attachments);
+		
 		// Status
 		if('open' == $mail_status_reply) {
 			$draft_properties['status_id'] = Model_Ticket::STATUS_OPEN;
@@ -709,12 +713,6 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		
 		$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TICKET, array($ticket->id), CerberusContexts::CONTEXT_WORKER);
 		$tpl->assign('object_watchers', $object_watchers);
-		
-		// Show attachments for forwarded messages
-		if($is_forward) {
-			$forward_attachments = $message->getAttachments();
-			$tpl->assign('forward_attachments', $forward_attachments);
-		}
 		
 		$workers = DAO_Worker::getAllActive();
 		$tpl->assign('workers', $workers);
