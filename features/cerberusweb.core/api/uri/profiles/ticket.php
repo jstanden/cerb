@@ -380,7 +380,11 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		
 		if(!($ticket = $message->getTicket()))
 			DevblocksPlatform::dieWithHttpError(null, 404);
-		
+
+		// Don't create a draft (with quoted content) for a ticket the worker can't reply to
+		if(!Context_Ticket::isWriteableByActor($ticket, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
 		$to = '';
 		$cc = '';
 		$bcc = '';
