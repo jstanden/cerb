@@ -226,7 +226,7 @@ class DevblocksStringTest extends TestCase {
 		$this->assertEquals($expected, $actual);
 		
 		// Breaks
-		$html = 'Some text<br>Some more text<br/>';
+		$html = '<p>Some text<br>Some more text<br/></p>';
 		$expected = "Some text\nSome more text\n\n";
 		$actual = $strings->htmlToText($html);
 		$this->assertEquals($expected, $actual);
@@ -268,7 +268,7 @@ class DevblocksStringTest extends TestCase {
 		$this->assertEquals($expected, $actual);
 		
 		// Strip a bunch of whitespace
-		$html = '1<br>2<br />3<div>4</div>';
+		$html = '<p>1<br>2<br />3</p><div>4</div>';
 		$expected = "1\n2\n3\n4\n";
 		$actual = $strings->htmlToText($html);
 		$this->assertEquals($expected, $actual);
@@ -298,25 +298,25 @@ class DevblocksStringTest extends TestCase {
 		$this->assertEquals($expected, $actual);
 		
 		// Collapse multiple spaces
-		$html = 'this  had	multiple	  spaces';
+		$html = '<p>this  had	multiple	  spaces</p>';
 		$expected = "this had multiple spaces\n";
 		$actual = $strings->htmlToText($html);
 		$this->assertEquals($expected, $actual);
 		
 		// Maximum of two consecutive linefeeds
-		$html = "this<br><br><br>had<br>multiple<br><div>linefeeds</div><br>";
+		$html = "<p>this<br><br><br>had<br>multiple<br></p><div>linefeeds</div><br>";
 		$expected = "this\n\n\nhad\nmultiple\n\nlinefeeds\n\n";
 		$actual = $strings->htmlToText($html);
 		$this->assertEquals($expected, $actual);
 		
 		// Non-breaking spaces
-		$html = "this has &nbsp;non-breaking&nbsp; spaces";
+		$html = "<p>this has &nbsp;non-breaking&nbsp; spaces</p>";
 		$expected = "this has non-breaking spaces\n";
 		$actual = $strings->htmlToText($html);
 		$this->assertEquals($expected, $actual);
 		
 		// High ASCII encoding
-		$html = "à á â ã ä å æ ç è é ê ë ì í î ï";
+		$html = "<p>à á â ã ä å æ ç è é ê ë ì í î ï</p>";
 		$expected = "à á â ã ä å æ ç è é ê ë ì í î ï\n";
 		$actual = $strings->htmlToText($html);
 		$this->assertEquals($expected, $actual);
