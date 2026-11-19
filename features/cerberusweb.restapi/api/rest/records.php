@@ -334,7 +334,7 @@ class ChRest_Records extends Extension_RestController {
 		$this->error(self::ERRNO_NOT_FOUND, sprintf("Invalid record %s #%d", $context->id, $id));
 	}
 	
-	function search($filters=[], $sortToken='id', $sortAsc=1, $page=1, $limit=10, $options=[], DevblocksExtensionManifest $context=null) {
+	function search($filters=[], $sortToken='id', $sortAsc=1, $page=1, $limit=10, $options=[], ?DevblocksExtensionManifest $context=null) {
 		$query = DevblocksPlatform::importVar($options['query'] ?? null, 'string', null);
 		$show_results = DevblocksPlatform::importVar($options['show_results'] ?? null, 'boolean', true);
 		$subtotals = DevblocksPlatform::importVar($options['subtotals'] ?? null, 'array', []);
