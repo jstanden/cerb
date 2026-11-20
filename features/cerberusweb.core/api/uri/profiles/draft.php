@@ -400,7 +400,13 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 			$error = DevblocksPlatform::translate('error.core.no_acl.edit');
 			return false;
 		}
-		
+
+		// The message being replied to must be on this ticket
+		if($msg_id && (!($message = DAO_Message::get($msg_id)) || $message->ticket_id != $ticket->id)) {
+			$error = DevblocksPlatform::translate('error.core.no_acl.edit');
+			return false;
+		}
+
 		// Params
 		$params = [];
 		

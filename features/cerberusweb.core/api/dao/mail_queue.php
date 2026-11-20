@@ -187,6 +187,33 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 			}
 		}
 
+		// Replies and forwards must target a ticket the actor can modify
+		$draft = $id ? DAO_MailQueue::get($id) : null;
+		$draft_type = $fields[self::TYPE] ?? ($draft->type ?? null);
+
+		if(in_array($draft_type, [Model_MailQueue::TYPE_TICKET_REPLY, Model_MailQueue::TYPE_TICKET_FORWARD])) {
+			$ticket_id = intval($fields[self::TICKET_ID] ?? ($draft->ticket_id ?? 0));
+
+			if(array_key_exists(self::PARAMS_JSON, $fields)) {
+				$draft_params = json_decode($fields[self::PARAMS_JSON] ?? '', true);
+			} else {
+				$draft_params = $draft->params ?? [];
+			}
+
+			if(!$ticket_id || !($ticket = DAO_Ticket::get($ticket_id)) || !Context_Ticket::isWriteableByActor($ticket, $actor)) {
+				$error = "You do not have permission to reply to this ticket.";
+				return false;
+			}
+
+			if(
+				($in_reply_message_id = intval(is_array($draft_params) ? ($draft_params['in_reply_message_id'] ?? 0) : 0))
+				&& (!($in_reply_message = DAO_Message::get($in_reply_message_id)) || $in_reply_message->ticket_id != $ticket_id)
+			) {
+				$error = "The message being replied to is not on this ticket.";
+				return false;
+			}
+		}
+
 		// Attached files must already be downloadable by the actor (or already be on this draft)
 		if(array_key_exists(self::PARAMS_JSON, $fields)) {
 			$params = json_decode($fields[self::PARAMS_JSON] ?? '', true);
@@ -1040,7 +1067,17 @@ class Model_MailQueue extends DevblocksRecordModel {
 	
 	private function _sendTicketReply(?string &$error=null) : array|false {
 		$automation_properties = [];
-		
+
+		// The message being replied to must be on this draft's ticket
+		if(
+			($in_reply_message_id = $this->getParam('in_reply_message_id', 0))
+			&& ($in_reply_message = DAO_Message::get($in_reply_message_id))
+			&& $in_reply_message->ticket_id != $this->ticket_id
+		) {
+			$error = 'The message being replied to is not on this ticket.';
+			return false;
+		}
+
 		// Changing the outgoing message through an automation
 		AutomationTrigger_MailSend::trigger($this, $automation_properties);
 		
