@@ -935,7 +935,10 @@ class CerberusMail {
 
 						if(!($bundle = DAO_FileBundle::getByTag($bundle_tag)))
 							break;
-						
+
+						if(!Context_FileBundle::isReadableByActor($bundle, $worker))
+							break;
+
 						$attachments = $bundle->getAttachments();
 						
 						$message_properties['link_forward_files'] = true;
@@ -1077,7 +1080,10 @@ class CerberusMail {
 
 						if(false == ($bundle = DAO_FileBundle::getByTag($bundle_tag)))
 							break;
-						
+
+						if(!Context_FileBundle::isReadableByActor($bundle, $worker))
+							break;
+
 						$attachments = $bundle->getAttachments();
 						
 						$message_properties['link_forward_files'] = true;

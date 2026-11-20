@@ -483,7 +483,10 @@ class PageSection_InternalRecords extends Extension_PageSection {
 			return;
 		}
 
-		if(false == ($bundle = DAO_FileBundle::get($bundle_id))) {
+		if(
+			false == ($bundle = DAO_FileBundle::get($bundle_id))
+			|| !Context_FileBundle::isReadableByActor($bundle, CerberusApplication::getActiveWorker())
+		) {
 			echo json_encode($results);
 			return;
 		}
