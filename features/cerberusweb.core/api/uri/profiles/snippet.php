@@ -251,14 +251,18 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 		$labels = $values = [];
 		
 		if($context_id) {
+			// Make sure the worker is allowed to view this context+ID
+			if(!CerberusContexts::isReadableByActor($snippet->context, $context_id, $active_worker))
+				DevblocksPlatform::dieWithHttpError(null, 403);
+
 			CerberusContexts::getContext($snippet->context, $context_id, $labels, $values);
 		}
-		
+
 		$prompts = $snippet->getPrompts();
-		
+
 		foreach($prompts as $prompt) {
 			@$prompt_value = $prompt_values[$prompt['name']];
-		
+
 			switch($prompt['type']) {
 				case 'checkbox':
 					$values[$prompt['name']] = $prompt_value ? true : false;
