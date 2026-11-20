@@ -820,11 +820,46 @@ class Page_Login extends CerberusPageExtension {
 				) {
 					DevblocksPlatform::redirect(new DevblocksHttpRequest(['login','recover']), 0);
 				}
-				
+
 				$login_state
 					->setParam('recover.verified', false)
 					;
-				
+
+				// Is the recovery code too old?
+				if(time() - $login_state->getParam('recover.code.sent_at', 0) > 600) {
+					$login_state->clearAuthState();
+					$query = [ 'error' =>  'auth.expired'];
+					DevblocksPlatform::redirect(new DevblocksHttpRequest(['login','recover'], $query), 0);
+				}
+
+				// Prevent brute force verification (failures count across logins)
+				$recent_failed_logins = DAO_ContextActivityLog::getLatestEntriesByTarget(CerberusContexts::CONTEXT_WORKER, $unauthenticated_worker->id, 5, ['worker.login.failed'], time()-900);
+
+				// More than 5 failed logins in the past 15 minutes
+				if(is_array($recent_failed_logins) && count($recent_failed_logins) >= 5) {
+					$login_state->clearAuthState();
+					$query = ['error' => 'account.locked'];
+					DevblocksPlatform::redirect(new DevblocksHttpRequest(['login'], $query), 1);
+				}
+
+				$failedVerification = function() use ($login_state, $unauthenticated_worker) {
+					self::logFailedAuthentication($unauthenticated_worker);
+
+					$login_state
+						->setParamIncr('recover.verify.fail_count', 1)
+						;
+
+					$query = [ 'error' =>  'auth.failed'];
+
+					// Too many bad guesses
+					if($login_state->getParam('recover.verify.fail_count') > 2) {
+						$login_state->clearAuthState();
+						DevblocksPlatform::redirect(new DevblocksHttpRequest(['login','recover'], $query), 1);
+					}
+
+					DevblocksPlatform::redirect(new DevblocksHttpRequest(['login','recover','verify'], $query), 1);
+				};
+
 				// MFA?
 				if(null !== ($mfa_totp_seed = DAO_WorkerPref::get($unauthenticated_worker->id, 'mfa.totp.seed', null))) {
 					$otp = DevblocksPlatform::importGPC($_REQUEST['otp'] ?? null, 'string', '');
@@ -842,8 +877,7 @@ class Page_Login extends CerberusPageExtension {
 							DevblocksPlatform::redirect(new DevblocksHttpRequest(['login','recover','reset']), 0);
 							
 						} else { // Failed
-							$query = [ 'error' =>  'auth.failed'];
-							DevblocksPlatform::redirect(new DevblocksHttpRequest(['login','recover','verify'], $query), 0);
+							$failedVerification();
 						}
 					}
 					
@@ -902,8 +936,7 @@ class Page_Login extends CerberusPageExtension {
 								DevblocksPlatform::redirect(new DevblocksHttpRequest(['login','recover','reset']));
 								
 							} else { // Otherwise, we had some wrong answers
-								$query = [ 'error' =>  'auth.failed'];
-								DevblocksPlatform::redirect(new DevblocksHttpRequest(['login','recover','verify'], $query));
+								$failedVerification();
 							}
 						}
 					}
