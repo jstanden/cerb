@@ -621,7 +621,10 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 		
 		$tpl->assign('namePrefix', $name_prefix);
 		
-		if(null != ($snippet = DAO_Snippet::get($id)))
+		if(
+			null != ($snippet = DAO_Snippet::get($id))
+			&& Context_Snippet::isReadableByActor($snippet, CerberusApplication::getActiveWorker())
+		)
 			$tpl->assign('snippet', $snippet);
 		
 		$tpl->display('devblocks:cerb.behaviors.legacy::events/action_set_placeholder_using_snippet_params.tpl');
