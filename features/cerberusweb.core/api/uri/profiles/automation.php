@@ -3330,8 +3330,12 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 	}
 	
 	private function _profileAction_stepAutomationEditor() {
+		// Only admins can use the automation editor
+		if(!($active_worker = CerberusApplication::getActiveWorker()) || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
 		$output_yaml = DevblocksPlatform::importGPC($_POST['output'] ?? null, 'string');
-		
+
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'text/plain; charset=utf-8');
 		
 		if(!($output_yaml = DevblocksPlatform::services()->string()->yamlParse($output_yaml, 0)))

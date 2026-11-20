@@ -251,7 +251,10 @@ class PageSection_ProfilesMailRoutingRule extends Extension_PageSection {
 		try {
 			$placeholders_dict = $kata->parse($placeholder_kata, $error);
 			$placeholders_dict = $kata->formatTree($placeholders_dict, null, $error);
-			
+
+			// Only simulate records the worker can read
+			$placeholders_dict = CerberusContexts::filterDictionaryRecordsByActorReadable(is_array($placeholders_dict) ? $placeholders_dict : [], CerberusApplication::getActiveWorker());
+
 			$routing_dict = DevblocksDictionaryDelegate::instance($placeholders_dict);
 			$symbol_meta = [];
 			
