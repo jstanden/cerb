@@ -161,9 +161,13 @@ class PageSection_ProfilesAutomationEvent extends Extension_PageSection {
 		
 		$automations_kata = DevblocksPlatform::importGPC($_POST['automations_kata'] ?? null, 'string');
 		$placeholders_kata = DevblocksPlatform::importGPC($_POST['placeholders_kata'] ?? null, 'string');
-		
+
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
+
+		// Only admins can modify automation events
+		if(!($active_worker = CerberusApplication::getActiveWorker()) || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		

@@ -521,17 +521,20 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 			}
 		}
 		
-		$dict = DevblocksDictionaryDelegate::instance([
+		$values = [
 			'current_worker_id' => $active_worker->id,
 			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
 			'widget_id' => $id,
 			'widget__context' => CerberusContexts::CONTEXT_WORKSPACE_WIDGET,
-		]);
-		
+		];
+
 		if(is_array($placeholders))
 		foreach($placeholders as $placeholder_key => $placeholder_value) {
-			$dict->set($placeholder_key, $placeholder_value);
+			$values[$placeholder_key] = $placeholder_value;
 		}
+
+		// Only simulate records the worker can read
+		$dict = DevblocksDictionaryDelegate::instance(CerberusContexts::filterDictionaryRecordsByActorReadable($values, $active_worker));
 		
 		$success = false;
 		$output = '';

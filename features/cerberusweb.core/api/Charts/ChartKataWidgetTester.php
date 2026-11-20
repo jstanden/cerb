@@ -117,6 +117,9 @@ class ChartKataWidgetTester {
 			}
 		}
 
+		// Only simulate records the worker can read
+		$initial_state = \CerberusContexts::filterDictionaryRecordsByActorReadable($initial_state, \CerberusApplication::getActiveWorker());
+
 		return DevblocksDictionaryDelegate::instance($initial_state);
 	}
 }

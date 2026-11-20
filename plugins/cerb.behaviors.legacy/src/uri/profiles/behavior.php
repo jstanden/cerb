@@ -1951,7 +1951,10 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 			foreach($placeholders as $placeholder_key => $placeholder_value) {
 				$values[$placeholder_key] = $placeholder_value;
 			}
-		
+
+		// Only simulate records the worker can read
+		$values = CerberusContexts::filterDictionaryRecordsByActorReadable($values, $active_worker);
+
 		$success = false;
 		$output = '';
 		

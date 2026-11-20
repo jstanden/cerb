@@ -1706,6 +1706,44 @@ class CerberusContexts {
 		return $context_ext::isReadableByActor($models, $actor);
 	}
 
+	/**
+	 * Remove record references (`_context`/`id` or `<prefix>__context`/`<prefix>_id`)
+	 * that the actor can't read from dictionary values, so they can't be lazy-loaded.
+	 * Use on placeholder values supplied by a worker (e.g. simulators).
+	 */
+	public static function filterDictionaryRecordsByActorReadable(array $values, $actor) : array {
+		if(($actor_dict = CerberusContexts::polymorphActorToDictionary($actor)) && CerberusContexts::isActorAnAdmin($actor_dict))
+			return $values;
+
+		foreach(array_keys($values) as $key) {
+			if(!is_string($key))
+				continue;
+
+			if('_context' === $key) {
+				$id_key = 'id';
+			} else if(DevblocksPlatform::strEndsWith($key, '__context')) {
+				$id_key = substr($key, 0, -strlen('__context')) . '_id';
+			} else {
+				continue;
+			}
+
+			$context = $values[$key];
+			$id = $values[$id_key] ?? null;
+
+			if(
+				!is_string($context)
+				|| !is_numeric($id)
+				|| !$id
+				|| !self::isReadableByActor($context, intval($id), $actor)
+			) {
+				unset($values[$key]);
+				unset($values[$id_key]);
+			}
+		}
+
+		return $values;
+	}
+
 	public static function isWriteableByActor($context, $models, $actor) {
 		if(false == ($context_ext = Extension_DevblocksContext::getByAlias($context, true)))
 			return self::denyEverything($models);
