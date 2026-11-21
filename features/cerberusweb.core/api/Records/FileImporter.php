@@ -495,15 +495,32 @@ class FileImporter {
 					continue;
 
 				$cf_file_ids = is_array($cf_value) ? $cf_value : DevblocksPlatform::parseCsvString(strval($cf_value));
+				$cf_file_removes = [];
+
+				// Removing a file (`-123`) from a multi-file field doesn't grant access
+				if(Model_CustomField::TYPE_FILES == $cf_field->type) {
+					foreach($cf_file_ids as $idx => $cf_file_id) {
+						if(is_int($cf_file_id) && $cf_file_id < 0) {
+							$cf_file_removes[] = '-' . abs($cf_file_id);
+							unset($cf_file_ids[$idx]);
+
+						} else if(is_string($cf_file_id) && str_starts_with(trim($cf_file_id), '-')) {
+							if(($cf_file_remove_id = intval(substr(trim($cf_file_id), 1))) > 0)
+								$cf_file_removes[] = '-' . $cf_file_remove_id;
+							unset($cf_file_ids[$idx]);
+						}
+					}
+				}
+
 				$cf_file_ids = DevblocksPlatform::sanitizeArray($cf_file_ids, 'integer', ['nonzero','unique']);
 				$cf_file_ids = \Context_Attachment::filterDownloadableByActor($cf_file_ids, $worker);
 
-				if(!$cf_file_ids) {
+				if(!$cf_file_ids && !$cf_file_removes) {
 					unset($custom_fields[$cf_id]);
 				} else if(Model_CustomField::TYPE_FILE == $cf_field->type) {
 					$custom_fields[$cf_id] = current($cf_file_ids);
 				} else {
-					$custom_fields[$cf_id] = array_values($cf_file_ids);
+					$custom_fields[$cf_id] = array_merge(array_values($cf_file_ids), array_unique($cf_file_removes));
 				}
 			}
 
