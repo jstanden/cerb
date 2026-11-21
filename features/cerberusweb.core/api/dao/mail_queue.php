@@ -191,6 +191,33 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 		$draft = $id ? DAO_MailQueue::get($id) : null;
 		$draft_type = $fields[self::TYPE] ?? ($draft->type ?? null);
 
+		// Workers can only compose from groups they're members of
+		if(
+			Model_MailQueue::TYPE_COMPOSE == $draft_type
+			&& ($actor_dict = CerberusContexts::polymorphActorToDictionary($actor))
+			&& CerberusContexts::CONTEXT_WORKER == $actor_dict->_context
+			&& !CerberusContexts::isActorAnAdmin($actor_dict)
+			&& ($actor_worker = DAO_Worker::get($actor_dict->id))
+		) {
+			if(array_key_exists(self::PARAMS_JSON, $fields)) {
+				$compose_params = json_decode($fields[self::PARAMS_JSON] ?? '', true);
+			} else {
+				$compose_params = $draft->params ?? [];
+			}
+
+			$compose_group_id = intval(is_array($compose_params) ? ($compose_params['group_id'] ?? 0) : 0);
+			$compose_bucket_id = intval(is_array($compose_params) ? ($compose_params['bucket_id'] ?? 0) : 0);
+
+			if(
+				!$compose_group_id
+				|| !$actor_worker->isGroupMember($compose_group_id)
+				|| ($compose_bucket_id && (!($compose_bucket = DAO_Bucket::get($compose_bucket_id)) || $compose_bucket->group_id != $compose_group_id))
+			) {
+				$error = "You can only compose from groups you are a member of.";
+				return false;
+			}
+		}
+
 		if(in_array($draft_type, [Model_MailQueue::TYPE_TICKET_REPLY, Model_MailQueue::TYPE_TICKET_FORWARD])) {
 			$ticket_id = intval($fields[self::TICKET_ID] ?? ($draft->ticket_id ?? 0));
 

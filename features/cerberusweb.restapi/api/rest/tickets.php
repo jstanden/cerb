@@ -554,7 +554,11 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		
 		if(isset($bucket) && $bucket->group_id != $group_id)
 			$group_id = $bucket->group_id;
-		
+
+		// Workers can only compose from groups they're members of
+		if(!$worker->is_superuser && !$worker->isGroupMember($group_id))
+			$this->error(self::ERRNO_ACL, "You are not a member of the given group");
+
 		$properties = array(
 			'group_id' => $group_id,
 			'bucket_id' => $bucket_id,

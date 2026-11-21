@@ -318,11 +318,26 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 		unset($params['group_or_bucket_id']);
 		unset($params['custom_fieldset_deletes']);
 		unset($params['_csrf_token']);
-		
+
+		// Workers can only compose from groups they're members of
+		if(!$active_worker->is_superuser) {
+			$group_id = intval($params['group_id'] ?? 0);
+			$bucket_id = intval($params['bucket_id'] ?? 0);
+
+			if(
+				!$group_id
+				|| !$active_worker->isGroupMember($group_id)
+				|| ($bucket_id && (!($bucket = DAO_Bucket::get($bucket_id)) || $bucket->group_id != $group_id))
+			) {
+				$error = DevblocksPlatform::translate('error.core.no_acl.edit');
+				return false;
+			}
+		}
+
 		// Only keep attachments the worker can already download
 		if(array_key_exists('file_ids', $params))
 			$params['file_ids'] = Context_Attachment::filterDownloadableByActor(is_array($params['file_ids']) ? $params['file_ids'] : [], $active_worker);
-		
+
 		// Custom fields
 		
 		$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
