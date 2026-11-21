@@ -441,6 +441,8 @@ class FileImporter {
 				$writeable = array_fill_keys($object_ids, (bool) $writeable);
 		}
 
+		$custom_field_defs = \DAO_CustomField::getAll();
+
 		foreach($records as $record) {
 			// Skip (don't create) a matched record the worker can't modify
 			if(($object_id = intval($record['object_id'] ?? 0)) && !($writeable[$object_id] ?? false)) {
@@ -483,7 +485,28 @@ class FileImporter {
 					}
 				}
 			}
-			
+
+			// File custom fields may only reference files the worker can download
+			foreach($custom_fields as $cf_id => $cf_value) {
+				if(!($cf_field = ($custom_field_defs[$cf_id] ?? null)))
+					continue;
+
+				if(!in_array($cf_field->type, [Model_CustomField::TYPE_FILE, Model_CustomField::TYPE_FILES]))
+					continue;
+
+				$cf_file_ids = is_array($cf_value) ? $cf_value : DevblocksPlatform::parseCsvString(strval($cf_value));
+				$cf_file_ids = DevblocksPlatform::sanitizeArray($cf_file_ids, 'integer', ['nonzero','unique']);
+				$cf_file_ids = \Context_Attachment::filterDownloadableByActor($cf_file_ids, $worker);
+
+				if(!$cf_file_ids) {
+					unset($custom_fields[$cf_id]);
+				} else if(Model_CustomField::TYPE_FILE == $cf_field->type) {
+					$custom_fields[$cf_id] = current($cf_file_ids);
+				} else {
+					$custom_fields[$cf_id] = array_values($cf_file_ids);
+				}
+			}
+
 			$this->_context_ext->importSaveObject($fields, $custom_fields, $meta);
 		}
 		
