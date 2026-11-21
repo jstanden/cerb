@@ -420,11 +420,34 @@ class FileImporter {
 		return $results;
 	}
 	
-	public function importRecords(array $records, Mapping $mapping) : bool {
+	public function importRecords(array $records, Mapping $mapping, \Model_Worker $worker, ?int &$skipped=null) : bool {
+		$skipped = 0;
+
 		if(!($this->_context_ext instanceof IDevblocksContextImport))
 			return false;
-		
+
+		// Synced rows may only update existing records the worker can modify
+		$object_ids = array_values(array_unique(array_filter(array_map(
+			fn($record) => intval($record['object_id'] ?? 0),
+			$records
+		))));
+
+		$writeable = [];
+
+		if($object_ids) {
+			$writeable = CerberusContexts::isWriteableByActor($this->_context_ext->id, $object_ids, $worker);
+
+			if(!is_array($writeable))
+				$writeable = array_fill_keys($object_ids, (bool) $writeable);
+		}
+
 		foreach($records as $record) {
+			// Skip (don't create) a matched record the worker can't modify
+			if(($object_id = intval($record['object_id'] ?? 0)) && !($writeable[$object_id] ?? false)) {
+				$skipped++;
+				continue;
+			}
+
 			$fields = [];
 			$custom_fields = [];
 			

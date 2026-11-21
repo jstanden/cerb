@@ -77,6 +77,16 @@ class _DevblocksRecordsService {
 			return 0;
 		}
 		
+		// Imports run as the worker who queued them
+		if(!($worker = \DAO_Worker::get($queue_job->worker_id)) || $worker->is_disabled) {
+			$queue_service->reportFailure($queue_messages, 'The importing worker is missing or disabled');
+			return 0;
+		}
+		
+		// Scope worklist ACLs (e.g. sync matching) to the importing worker, not whoever is driving the queue
+		$previous_worker = \CerberusApplication::getActiveWorker();
+		\CerberusApplication::setActiveWorker($worker);
+		
 		try {
 			$context = $queue_job->metadata['context'] ?? '';
 			
@@ -102,17 +112,25 @@ class _DevblocksRecordsService {
 			
 			$results = $importer->bulkTagUpserts($results, $mapping);
 			
-			$importer->importRecords($results, $mapping);
-
+			$skipped = 0;
+			
+			$importer->importRecords($results, $mapping, $worker, $skipped);
+			
+			$imported = count($results) - $skipped;
+			
 			$queue_service->reportSuccess(
 				$queue_messages,
-				sprintf('Imported %d %s', count($results), self::_recordNoun($context, count($results))),
+				sprintf('Imported %d %s', $imported, self::_recordNoun($context, $imported))
+					. ($skipped ? sprintf(' (skipped %d without permission)', $skipped) : ''),
 				$context ? ['context' => $context] : []
 			);
 
 		} catch (\Exception_DevblocksValidationError $e) {
 			DevblocksPlatform::logException($e);
 			$queue_service->reportFailure($queue_messages, $e->getMessage());
+			
+		} finally {
+			\CerberusApplication::setActiveWorker($previous_worker);
 		}
 		
 		$processed += count($queue_messages);
