@@ -5885,7 +5885,27 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		} else {
 			$params = [];
 		}
-		
+
+		// The compose 'From:' menu only offers the worker's groups
+		$isComposeGroupAllowed = function($group_id, $bucket_id) use ($active_worker, $buckets) : bool {
+			if(!$group_id || !$active_worker->isGroupMember($group_id))
+				return false;
+
+			if($bucket_id && ($buckets[$bucket_id]->group_id ?? null) != $group_id)
+				return false;
+
+			return true;
+		};
+
+		$getFirstMemberGroup = function() use ($active_worker, $groups) : array {
+			foreach($groups as $group) {
+				if($active_worker->isGroupMember($group->id))
+					return [$group->id, $group->getDefaultBucket()->id ?? 0];
+			}
+
+			return [0, 0];
+		};
+
 		// Preferences
 		if($is_new_draft) {
 			if ($bucket_id && ($bucket = DAO_Bucket::get($bucket_id))) {
@@ -5962,25 +5982,26 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 				$draft->params['content'] = "\n\n\n#signature\n";
 			}
 			
-			// If we still don't have a default group, use the first group
-			if(empty($defaults['group_id']) && count($groups)) {
-				$default_group = current($groups);
-				$defaults['group_id'] = $default_group->id;
-				$defaults['bucket_id'] = $default_group->getDefaultBucket()->id ?? 0;
+			// If we don't have a default group the worker can compose from, use their first group
+			if(!$isComposeGroupAllowed($defaults['group_id'], $defaults['bucket_id'])) {
+				list($defaults['group_id'], $defaults['bucket_id']) = $getFirstMemberGroup();
 			}
-			
+
 			$draft->params['to'] = $to;
 			$draft->params['group_id'] = $defaults['group_id'];
 			$draft->params['bucket_id'] = $defaults['bucket_id'];
 			$draft->params['status_id'] = DAO_Ticket::getStatusIdFromText($defaults['status']);
 			
 		} else {
-			// If the draft doesn't have a group, bucket, or status, default them
-			if(!array_key_exists('group_id', $draft->params)) {
-				$default_group = current($groups);
-				$draft->params['group_id'] = $defaults['group_id'] ?: $default_group->id;
-				$draft->params['bucket_id'] = $defaults['bucket_id'] ?: ($default_group->getDefaultBucket()->id ?? 0);
-				
+			// If the draft doesn't have a group the worker can compose from, default it
+			if(!$isComposeGroupAllowed($draft->params['group_id'] ?? 0, $draft->params['bucket_id'] ?? 0)) {
+				if($isComposeGroupAllowed($defaults['group_id'], $defaults['bucket_id'])) {
+					$draft->params['group_id'] = $defaults['group_id'];
+					$draft->params['bucket_id'] = $defaults['bucket_id'];
+				} else {
+					list($draft->params['group_id'], $draft->params['bucket_id']) = $getFirstMemberGroup();
+				}
+
 			} else if(!array_key_exists('bucket_id', $draft->params)) {
 				$current_group = $groups[$draft->params['group_id']] ?? null;
 				
