@@ -41,8 +41,11 @@ class ProfileWidget_Visualization extends Extension_ProfileWidget {
 		try {
 			$query = $tpl_builder->build($data_query, $dict);
 			
-			$cache_key = sprintf("profile:widget:%d%s",
+			// The rendered query includes the record (and other placeholders), and results can
+			// differ by the viewer's readable groups, so key on both.
+			$cache_key = sprintf("profile:widget:%d:%s%s",
 				$model->id,
+				sha1($query . '|' . CerberusContexts::getGroupAclCacheScope()),
 				$cache_by_worker ? sprintf(":%d", $active_worker->id) : ''
 			);
 			
@@ -89,30 +92,7 @@ class ProfileWidget_Visualization extends Extension_ProfileWidget {
 	}
 	
 	function saveConfig(array $fields, $id=null, &$error=null) {
-		$cache = DevblocksPlatform::services()->cache();
-		
-		if(!$id)
-			return true;
-		
-		if(false == (@$json = json_decode($fields[DAO_ProfileWidget::EXTENSION_PARAMS_JSON], true)))
-			return true;
-		
-		$cache_ttl = DevblocksPlatform::importGPC($json['cache_ttl'] ?? null, 'integer', 0);
-		$cache_by_worker = DevblocksPlatform::importGPC($json['cache_by_worker'] ?? null, 'integer', 0);
-		
-		if(!$cache_ttl)
-			return true;
-		
-		if($cache_by_worker && false == ($active_worker = CerberusApplication::getActiveWorker()))
-			return true;
-		
-		$cache_key = sprintf("profile:widget:%d%s",
-			$id,
-			$cache_by_worker ? sprintf(":%d", $active_worker->id) : ''
-		);
-		
-		$cache->remove($cache_key);
-		
+		// Cached results are keyed on the rendered query, so a changed query won't use stale results
 		return true;
 	}
 }
