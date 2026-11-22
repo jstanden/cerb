@@ -112,6 +112,13 @@ class Page_Profiles extends CerberusPageExtension {
 		}
 		$tpl->assign('dict', $dict);
 		
+		// (ACL) Like profiles, don't show cards for records the worker can't read
+		if(!($is_readable = CerberusContexts::isReadableByActor($context, $dict, $active_worker))) {
+			$tpl->assign('error_message', DevblocksPlatform::translate('error.core.no_acl.view'));
+			$tpl->display('devblocks:cerberusweb.core::internal/peek/peek_error.tpl');
+			return;
+		}
+		
 		// Widgets
 		$widgets = DAO_CardWidget::getByContext($context);
 		
@@ -139,7 +146,6 @@ class Page_Profiles extends CerberusPageExtension {
 		
 		$tpl->assign('zones', $zones);
 		
-		$is_readable = CerberusContexts::isReadableByActor($context, $dict, $active_worker);
 		$tpl->assign('is_readable', $is_readable);
 		
 		$is_writeable = CerberusContexts::isWriteableByActor($context, $dict, $active_worker);
