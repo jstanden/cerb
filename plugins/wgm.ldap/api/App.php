@@ -116,7 +116,7 @@ class ScLdapLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			if(!$login)
 				throw new Exception("The authentication server is offline. Please try again later.");
 			
-			$query = sprintf("(%s=%s)", $ldap_settings['field_email'], $email);
+			$query = sprintf("(%s=%s)", $ldap_settings['field_email'], ldap_escape($email, '', LDAP_ESCAPE_FILTER));
 			@$results = ldap_search($ldap, $ldap_settings['context_search'], $query);
 			@$entries = ldap_get_entries($ldap, $results);
 			@$count = intval($entries['count']);

@@ -209,7 +209,7 @@ class ServiceProvider_Ldap extends Extension_ConnectedServiceProvider {
 		if(!$login)
 			return false;
 	
-		$query = sprintf("(%s=%s)", $ldap_settings['field_email'], $address->email);
+		$query = sprintf("(%s=%s)", $ldap_settings['field_email'], ldap_escape($address->email, '', LDAP_ESCAPE_FILTER));
 		@$results = ldap_search($ldap, $ldap_settings['context_search'], $query);
 		@$entries = ldap_get_entries($ldap, $results);
 		$count = intval($entries['count'] ?? null);
