@@ -11,6 +11,9 @@ With Cerb's [webhooks plugin](/guides/webhooks/configure/) you can build powerfu
 
 Here are some common webhook integrations:
 
+- **Custom API**
+  - [Build and authenticate a custom API](/guides/webhooks/custom-api/) using webhook portals.
+
 - **Amazon CloudWatch**
   - Send alerts to a Slack room when any metric or log conditions are met. For instance: HTTP 5XX errors, consecutive failed password attempts, SSH sessions, etc.
 

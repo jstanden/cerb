@@ -37,7 +37,7 @@ A **Concurrency** panel draws what _this_ installation runs at once, wherever th
 
 The two multiply into the ceiling the panel states in words, which on a three-slot installation reads _2 of 3 slots can run agent turns (2 sessions each, max 4)_. Note it's **2 of 3**, not 3: only the [slow lane](/docs/queues/#lanes) and the commons run agent turns, so the multiplier applies to the slots that can take one rather than to the whole pool.
 
-It's a ceiling rather than a reservation. Scheduled jobs draw from the same lane, and a provider's own rate limits apply on top of it.
+It's a ceiling rather than a reservation, and _up to_ is doing real work in it. Most of the eligible slots are usually the commons, which batch work may be holding instead; scheduled jobs draw from the same lane as agent turns; reaching the number needs that many **distinct** sessions, since a session runs one turn at a time; and a provider's own rate limits apply on top of whatever the pool allows.
 
 The turn multiplier follows the subscription and isn't configurable. The slot pool is: fixed at **three** on a Community installation, yours to set on **Setup » Configure » [Queues](/docs/setup/configure/queues/)** with a licensed subscription, and set by the platform on Cerb Cloud.
 

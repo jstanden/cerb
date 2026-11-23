@@ -8,6 +8,9 @@ tags: ["docs"]
 - [Install Docker](#install-docker)
 - [Launch Cerb](#launch-cerb)
   - [Option 1: Docker Hub (Production)](#option-1-docker-hub-production)
+    - [Opening the installer](#opening-the-installer)
+    - [Enabling HTTPS](#enabling-https)
+    - [After the installer](#after-the-installer)
     - [Running the scheduler in the container from the host](#running-the-scheduler-in-the-container-from-the-host)
 
   - [Option 2: GitHub (Development, Testing)](#option-2-github-development-testing)
@@ -23,7 +26,7 @@ tags: ["docs"]
     - [Stopping the containers](#stopping-the-containers)
     - [Deleting containers](#deleting-containers)
 
-https://www.youtube.com/embed/NkKUDS6oicw
+https://www.youtube.com/embed/zxWRZWq1tyM
 
 # Install Docker
 
@@ -44,9 +47,21 @@ git clone https://github.com/cerb/cerb-docker/
 
 cd cerb-docker/cerb-caddy-mysql
 
-cat .env
+cp .env-template .env
 
-docker compose up --build
+docker compose up
+```
+
+**Don't skip the copy.** There is no `.env` in a fresh clone -- it's ignored by git, and `.env-template` is the only place `CERB_INSTALL=yes` is set. Without it `CERB_INSTALL` defaults to an empty string, and Caddy rewrites `/install/index.php` to `/index.php`. The containers come up perfectly and the installer is simply unreachable, with nothing on screen explaining why.
+
+Note the spelling: this repository uses `.env-template` with a **hyphen**. The [source installation](#option-2-github-development-testing) below uses `.env.template` with a dot.
+
+Every service here pulls a pre-built image, so there's nothing to compile and `docker compose up` needs no `--build`.
+
+`docker compose up` stays in the foreground, streaming interleaved logs from every container, so the terminal it runs in is occupied until you stop it. `Ctrl+C` gets your prompt back by stopping the stack. Add `-d` to start it in the background instead and keep the shell:
+
+```
+docker compose up -d
 ```
 
 The `cerb` container listens on port `:9000` using FastCGI and **must not** be exposed to the public network. The container is configured using environment variables:
@@ -54,7 +69,7 @@ The `cerb` container listens on port `:9000` using FastCGI and **must not** be e
 | ENV | &nbsp; |
 | --- | --- |
 | `CERB_AUTHORIZED_IPS` | A comma-separated list of IPv4 addresses or subnets that can access `/cron` and `/update` without a session. |
-| `CERB_INSTALL` | If `yes` the `/install/` path is available; otherwise it is blocked. Only enable during installation and disable afterward. |
+| `CERB_INSTALL` | If `yes` the `/install/` path is available; otherwise it is blocked. The `cerb-caddy-mysql` example ships it as `yes` so you can reach the installer – [turn it off afterward](#after-the-installer). |
 | `MYSQL_HOST` | The database server hostname. This is created for you in the `cerb-caddy-mysql` example, but should be a dedicated server like Amazon RDS in production. |
 | `MYSQL_DATABASE` | The database name. Use `CREATE DATABASE cerb CHARACTER SET utf8mb4` if using an external database server. |
 | `MYSQL_USER` | The database user with `GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER, CREATE TEMPORARY TABLES, LOCK TABLES`. |
@@ -64,16 +79,52 @@ The container uses the `/mnt/storage/` path for persistent data. In the example 
 
 The cerb-caddy-mysql example above provides additional configuration options:
 
-| ENV | &nbsp; |
-| --- | --- |
-| `CERB_VERSION` | The Cerb versioned image tag to use. Use tags like `11` for 11.x, `11.1` for 11.1.x, or `11.1.0` for a specific version. The `latest` tag always points to the latest stable version. |
-| `CERB_HOSTNAME` | If `localhost` a self-signed SSL certificate is generated; otherwise a LetsEncrypt certificate is automatically generated. Be sure the DNS for this hostname points to your server. Ports `:80` and `:443` must be exposed to the public network for LetsEncrypt to work. |
-| `CERB_PORT` | The HTTP port. This should be `80` in production, but can be something like `8080` for testing. |
-| `CERB_PORT_SSL` | The HTTPS/TLS port. This should be `443` in production, but can be something like `8443` for testing. |
+| ENV | Default | Notes |
+| --- | --- | --- |
+| `CERB_ENV` | `docker` | Names this environment. The compose project becomes `cerb-<CERB_ENV>`, which prefixes every container, network, and volume – so it decides the names `docker compose ps` reports, and it's what lets two copies share a machine |
+| `CERB_VERSION` | `12.0` | The Cerb versioned image tag to use. Use tags like `12` for 12.x, `12.0` for 12.0.x, or `12.0.0` for a specific version. The `latest` tag always points to the latest stable version |
+| `CERB_HOSTNAME` | `localhost` | The hostname Caddy answers on. With the default `Caddyfile` this is served over plain HTTP – see [enabling HTTPS](#enabling-https) |
+| `CERB_PORT` | `80` | The HTTP port. This should be `80` in production, but can be something like `8080` for testing |
+| `CERB_PORT_SSL` | `443` | The HTTPS/TLS port. **Published on your machine whether or not HTTPS is enabled** – see below |
+| `CERB_SERVICE_TOKEN` | `s3cr3t` | A bearer token letting a caller outside Cerb reach `/cron` and `/update` with no session. **Change it** before the installation is reachable by anything but your own machine |
+| `MYSQL_VERSION` | `8.4` | The `mysql` image tag |
+| `CADDY_VERSION` | `latest` | The `caddy` image tag. `latest` floats, so a later `docker compose pull` can move it |
+
+**Port 443 is claimed even though nothing serves it.** `docker-compose.yml` publishes both `${CERB_PORT}:80` and `${CERB_PORT_SSL}:443` unconditionally, while the default `Caddyfile` listens on `:80` only. If something else on your machine already holds `443`, `docker compose up` fails to bind a port this configuration never uses. Change `CERB_PORT_SSL` to get past it -- you don't have to want HTTPS to need that setting.
 
 A `docker-compose.yml` file is provided for reference and testing. In production, you should use a container orchestration service like Amazon ECS/Fargate, Google Cloud Run, Azure Containers, or Kubernetes.
 
 You can use the cerb example to build your own customized image.
+
+### Opening the installer
+
+Once the containers are running, open your browser to: `http://localhost/`
+
+That's plain HTTP with no certificate to accept. **Give it a few seconds if the first load errors.** Every time you start from an empty database volume, the web server answers `500` for a second or two while MySQL initializes, and then redirects normally – there's no health check gating it. Slower hardware takes longer. While the database is empty Cerb redirects you to the [guided installer](/docs/guided-installer/) from any location, so you don't need to type `/install/` yourself. If you changed `CERB_PORT`, use `http://localhost:<CERB_PORT>/`.
+
+### Enabling HTTPS
+
+The default `Caddyfile` opens its site block with an explicit `http://` scheme, so Caddy neither provisions a certificate nor redirects to one. That's deliberate – it keeps self-signed certificate warnings out of local development.
+
+To serve HTTPS instead, copy `caddy/Caddyfile.ssl.example` over `caddy/Caddyfile` and restart the `caddy` container. Caddy then obtains a LetsEncrypt certificate for a hostname that resolves publicly, or issues one from its own internal CA for a local hostname – and it's that second case your browser warns about. For LetsEncrypt, be sure DNS for `CERB_HOSTNAME` points at your server and that ports `:80` and `:443` are reachable from the public network.
+
+### After the installer
+
+The example ships `CERB_INSTALL=yes` so that the installer is reachable at all. Once you've finished installing, comment it out in `.env` and restart:
+
+```
+#CERB_INSTALL=yes
+```
+
+```
+docker compose up -d
+```
+
+Leaving `CERB_INSTALL=yes` set on a public-facing installation keeps the `/install/` path served, and it exposes sensitive information about your environment. Turn it off before anyone but you can reach the site.
+
+The installer's own closing advice – _"Delete the install directory before going to production"_ – **can't be followed on this path.** The `install` directory is inside the container image rather than on your disk, since the `cerb` service mounts only the storage volume and no code. Turning `CERB_INSTALL` off is the equivalent, and it's verifiable: with it set, `/install/index.php` answers `200`; with it commented out and the containers restarted, it answers `302` to the login page.
+
+Change `CERB_SERVICE_TOKEN` at the same time if you haven't. The example ships `s3cr3t`, which is also the default `MYSQL_PASSWORD` – two different credentials, both published, both the same word.
 
 ### Running the scheduler in the container from the host
 
@@ -87,7 +138,17 @@ You can add this to `crontab` on the host.
 
 ## Option 2: GitHub (Development, Testing)
 
-The Cerb source code ships with a Docker configuration for local evaluation, development, and testing. This creates preconfigured containers for Nginx (web server), PHP/FPM (code), and MySQL (database).
+The Cerb source code ships with a Docker configuration for local evaluation, development, and testing. It defines five services:
+
+| Service | Image | What it does |
+| --- | --- | --- |
+| `web` | `nginx:latest` | The web server. The only service that publishes a port on your machine |
+| `cerb-config` | Built locally | Renders `framework.config.php` at startup, then exits |
+| `php-fpm` | Built locally | Serves page loads |
+| `php-fpm-background` | Built locally | Serves `/queue` and `/cron` – see [background drains](#background-drains) |
+| `mysql` | `mysql:8.4` | The database |
+
+`cerb-config` does its work once and stops, so `docker compose ps` doesn't list it at all. `docker compose ps -a` shows it as `Exited (0)`, which is what success looks like for this service rather than a failure.
 
 You can edit files in your local filesystem and the changes will be reflected instantly within the containers.
 
@@ -113,11 +174,17 @@ docker compose up --build
 
 It will take a few minutes to build the container images the first time you run them. Afterward, the containers will start almost instantly.
 
-Copying `.env.template` is **optional**. Every value it holds has the same default built into `docker-compose.yml`, so `docker compose up --build` works on a fresh clone with no `.env` at all. What the file gives you is one place to record what you changed – and it's what lets [more than one copy of Cerb](#running-more-than-one-environment) share a machine. It's ignored by git, so your settings survive a `git pull`.
+`docker compose up` stays in the foreground, streaming interleaved logs from every container, so the terminal it runs in is occupied until you stop it. `Ctrl+C` gets your prompt back by stopping the stack. Add `-d` to start it in the background instead and keep the shell:
+
+```
+docker compose up -d
+```
+
+Copying `.env.template` is **optional** here, unlike the [Docker Hub example](#option-1-docker-hub-production) above. Every value it holds has the same default built into `docker-compose.yml`, so `docker compose up --build` works on a fresh clone with no `.env` at all. What the file gives you is one place to record what you changed – and it's what lets [more than one copy of Cerb](#running-more-than-one-environment) share a machine. It's ignored by git, so your settings survive a `git pull`.
 
 Once the containers are running, open your browser to: `http://localhost/`
 
-The guided installer will finish installing Cerb based on your needs. For testing we recommend disabling outbound email when prompted (this can always be re-enabled later). At the end of the installer you can also choose "Demo" mode to have test data to experiment with.
+Browsing there redirects you to the [guided installer](/docs/guided-installer/), which finishes installing Cerb based on your needs. You don't need to type `/install/` yourself. There's nothing to configure for outgoing mail – a `Null` mail transport is always installed, and you connect a real one afterward. On the **Packages** step you can choose **Demo / Development** to have test data to experiment with.
 
 ### Background drains
 
@@ -131,7 +198,7 @@ Scale the drain capacity with:
 docker compose up --scale php-fpm-background=3
 ```
 
-Three variables size the pools. They're already in [`.env`](#customizing-the-environment), commented out at their defaults:
+Three variables size these tiers. They're already in [`.env`](#customizing-the-environment), commented out at their defaults:
 
 | Variable | Default | Notes |
 | --- | --- | --- |
@@ -159,7 +226,7 @@ git stash pop
 
 ### Customizing the environment
 
-`.env` holds ten values. Seven are set in the template; the three pool sizes are commented out at their defaults, so uncommenting one is how you change it.
+`.env` holds ten values. Seven are set in the template; the two FPM pool sizes and the nginx worker count are commented out at their defaults, so uncommenting one is how you change it. Those three aren't next to each other in the file – two sit above the database block and one below it.
 
 | Variable | Default | What it does |
 | --- | --- | --- |

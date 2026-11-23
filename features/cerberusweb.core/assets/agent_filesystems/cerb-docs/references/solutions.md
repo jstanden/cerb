@@ -322,6 +322,10 @@ DeepL
  
 A step-by-step guide for integrating Cerb and DeepL.
  ](/solutions/integrations/deepl/) [ 
+Docker Model Runner
+ 
+A step-by-step guide for running local models from Cerb with Docker Model...
+ ](/solutions/integrations/docker/) [ 
 Dropbox
  
 A step-by-step guide for integrating Cerb and Dropbox.
@@ -382,10 +386,22 @@ Notion
  
 A step-by-step guide for integrating Cerb and Notion.
  ](/solutions/integrations/notion/) [ 
+Ollama
+ 
+A step-by-step guide for using Ollama Cloud models from Cerb, and for...
+ ](/solutions/integrations/ollama/) [ 
+oMLX
+ 
+A step-by-step guide for running local models on Apple silicon from Cerb...
+ ](/solutions/integrations/omlx/) [ 
 OpenAI
  
 A step-by-step guide for integrating Cerb and OpenAI.
  ](/solutions/integrations/openai/) [ 
+OpenRouter
+ 
+A step-by-step guide for integrating Cerb and OpenRouter.
+ ](/solutions/integrations/openrouter/) [ 
 OpenWeather
  
 A step-by-step guide for integrating Cerb and OpenWeather.
@@ -442,3 +458,6 @@ Twilio
  
 A step-by-step guide for integrating Cerb and Twilio.
  ](/solutions/integrations/twilio/)
+
+These are the integrations we've written up, not the ones Cerb can reach. Anything with an API is fair game through [connected services](/docs/connected-services/), which handle credentials for OAuth 2.0, OAuth 1.0a, OpenID Connect, SAML, bearer tokens, API keys, HTTP Basic Auth, LDAP, and Amazon Web Services — and [plugins can add their own](/docs/plugins/extensions/points/cerb.connected_service.provider/).
+

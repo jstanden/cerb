@@ -15,6 +15,7 @@ By saving a worklist, you'll always have an up-to-date view of matching records 
 
 For instance, a worklist can display new customer messages that need a response, client organizations in a specific industry, tasks that are overdue, etc.
 
+- [Controls](#controls)
 - [Search](#search)
 - [Columns](#columns)
   - [Sparkline columns](#sparkline-columns)
@@ -29,6 +30,25 @@ For instance, a worklist can display new customer messages that need a response,
 - [Explore Mode](#explore-mode)
 
 https://www.youtube.com/embed/cWF2lkmnAYU
+
+# Controls
+
+Every worklist carries the same set of controls. Only the last two are labeled with text; the rest are identified by their icon alone.
+
+| Icon | What it does |
+| --- | --- |
+| | Hovering a row shows this icon. It opens that record's [card](/docs/cards/) – see [Peek](#peek) |
+| | Add a new record to the worklist |
+| | Filter the worklist with a [search query](#search) |
+| | Configure the worklist |
+| | Toggle the [subtotals](#subtotals) sidebar |
+| | [Import](#importexport) records from a CSV or JSONL file, as a background queue job |
+| | [Export](#importexport) records to CSV, XML, JSON or JSONL, as a background queue job. You can close the browser and you'll be notified when the file is ready |
+| | Jump to the actions at the bottom of the worklist |
+| | Refresh the worklist |
+| | Select or deselect every record on the current page |
+| | **Explore** – view each record's profile fullscreen, with next and previous navigation and a shareable link. See [Explore Mode](#explore-mode) |
+| | **Bulk Update** – change field values on many selected records at once, as a background queue job. See [Bulk Update](#bulk-update) |
 
 # Search
 
@@ -123,7 +143,7 @@ You can also use random samples to run A/B tests.
 
 Bulk updates run as parallel background [queue jobs](/docs/records/types/queue_job/) rather than blocking the browser. When an update starts, the queue job progress monitor popup opens. If you close your browser or navigate away, the job continues in the background and you'll receive a notification when it completes.
 
-Bulk commenting is also available from the **Bulk Update** popup on every record type that supports [comments](/docs/records/types/comment/) (tickets, tasks, organizations, opportunities, time tracking, domains, servers, calls).
+Bulk commenting is also available from the **Bulk Update** popup on every record type that supports [comments](/docs/records/types/comment/) (tickets, tasks, organizations, opportunities, time tracking, domains, servers, calls). On a worklist of comments, the popup also offers bulk delete.
 
 The popup can also be extended with actions of your own. An [automation](/docs/automations/) on the [`record.bulkUpdate`](/docs/automations/triggers/record.bulkUpdate/) trigger runs for each batch of selected records, and can prompt for whatever it needs before the job starts.
 

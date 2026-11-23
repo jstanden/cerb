@@ -2,14 +2,16 @@
 id: "docs-intro"
 title: "Introduction"
 url: "https://cerb.ai/docs/intro/"
-summary: "This page provides an overview of Cerb, a customizable web-based platform designed for automating customer service inboxes and workflows. Cerb has evolved over 24 years, integrating with API-based services to automate digital workflows using its KATA language and browser-based tools. It allows teams to create personalized workspaces with customizable widgets and manage various tasks through custom records and fields. Common use cases include transforming standard email systems into high-volume team-based webmail with automated features and integrating with large language models for customer support. Cerb can be deployed on personal hardware, Docker, or as a managed service in Cerb Cloud, with its source code available on GitHub. Self-hosting is free with unlimited workers, ensuring users can maintain their data without ongoing costs. The page also directs users to guides for administrators, workers, and developers."
+summary: "This page provides an overview of Cerb, which gives human + AI teams shared inboxes for any work that arrives -- routed, automated, integrated with anything, and handed to a person or an AI teammate who sees it through. It's built on shared mailboxes, worklists, and automation refined over 24 years. Cerb ships with a built-in harness for building AI teammates, each with its own mix of skills, tools, and knowledge -- an agent is a worker record that can own a ticket, be mentioned, and join a group. Cerb integrates with API-based services to automate digital workflows using its KATA language and browser-based tools. It allows teams to create personalized workspaces with customizable widgets and manage various tasks through custom records and fields. Common use cases include transforming standard email systems into high-volume team-based webmail with automated features and integrating with large language models for customer support. Cerb can be deployed on personal hardware, Docker, or as a managed service in Cerb Cloud, with its source code available on GitHub. Self-hosting is free with unlimited workers, ensuring users can maintain their data without ongoing costs. The page also directs users to guides for administrators, workers, and developers."
 tags: ["docs"]
 ---
  
 
 # What is Cerb?
 
-[**Cerb**](/) automates customer service inboxes and workflows. It has continuously evolved for over 24 years based on the feedback of thousands of teams around the world. Cerb is used by everyone from solo founders to 1,000+ person enterprises managing millions of customer requests.
+[**Cerb**](/) gives human + AI teams shared inboxes for any work that arrives – routed, automated, integrated with anything, and handed to a person or an AI teammate who sees it through. It's built on shared mailboxes, worklists, and automation, refined over 24 years on the feedback of thousands of teams around the world – from solo founders to 1,000+ person enterprises managing millions of customer requests.
+
+Cerb ships with a built-in harness for building [AI teammates](/docs/agents/), each with its own mix of skills, tools, and knowledge. An agent is a [worker](/docs/workers/) record, so it can own a ticket, be `@mentioned`, and join a [group](/docs/groups/), exactly like the people it works alongside.
 
 Cerb integrates with any API-based service. It can automate nearly any repetitive digital workflow with its specialized [KATA](/docs/kata/) language and browser-based coding tools. [Automations](/docs/automations/) add conditional actions to any event. [Interactions](/docs/interactions/) extend any toolbar for complex multistep workflows that require user input.
 

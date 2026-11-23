@@ -8,8 +8,8 @@ tags: ["solutions"]
 - [Introduction](#introduction)
 - [Get a Pinecone API Key.](#get-a-pinecone-api-key)
 - [Create the Pinecone service in Cerb](#create-the-pinecone-service-in-cerb)
-- [Examples](#examples)
-  - [Generate embeddings](#generate-embeddings)
+- [Generate embeddings](#generate-embeddings)
+- [Resources](#resources)
 
 # Introduction
 
@@ -37,33 +37,31 @@ Copy the API key for use later.
 
 5. Click the **Create** button.
 
-# Examples
+# Generate embeddings
 
-## Generate embeddings
-
-https://docs.pinecone.io/guides/inference/generate-embeddings
+**Pinecone has no agent model record, and it isn't in the Provider list.** An [agent model](/docs/records/types/agent_model/) exists to be named by a chat automation, and Pinecone generates vector embeddings rather than holding a conversation. So its provider is named **inline** on the command instead -- there's nothing to create first beyond the connected account above.
 
 ```
 start:
-  http.request/embeddings:
-    output: http_response
+  llm.embed/vectorize:
+    output: embedding
     inputs:
-      method: POST
-      url: https://api.pinecone.io/embed
-      authentication: cerb:connected_account:pinecone
-      headers:
-        Content-Type: application/json
-        X-Pinecone-API-Version: 2025-01
-      body:
-        model: multilingual-e5-large
-        parameters:
-          input_type: passage
-          truncate: END
-        inputs:
-          0:
-            text: Cerb automates helpdesk inboxes and workflows. It has evolved continuously since 2002 based on the feedback of thousands of teams; from solo founders to 1,000+ person enterprises managing millions of customer requests.
-    on_success:
-      set:
-        response@json: {{http_response.body}}
-        http_response@json: null
+      llm:
+        pinecone:
+          model: multilingual-e5-large
+      input: Cerb automates helpdesk inboxes and workflows.
 ```
+
+The first key under `llm:` is the provider, so `pinecone:` is what selects it. Everything nested under that key configures the provider itself.
+
+```
+commands:
+  llm.embed:
+    allow@bool: yes
+```
+
+# Resources
+
+- Reference: [llm.embed:](/docs/automations/commands/llm.embed/)
+- Reference: [Agent models](/docs/records/types/agent_model/) – for chat providers
+

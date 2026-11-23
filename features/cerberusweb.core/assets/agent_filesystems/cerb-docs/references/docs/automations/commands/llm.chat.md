@@ -182,6 +182,8 @@ On AWS Bedrock, streaming is used automatically on the models that support it. B
 
 On reasoning models, the optional `effort:` key controls how much compute is spent on reasoning. It's the same canonical key [`llm.agent:`](/docs/automations/commands/llm.agent/#reasoning) uses, so one authoring form drives every provider that supports reasoning.
 
+Cerb always puts the level on the wire, but an OpenAI-_compatible_ endpoint may read reasoning from somewhere else and ignore it silently – see [reasoning](/docs/automations/commands/llm.agent/#reasoning) and [`extra_body:`](/docs/automations/commands/llm.agent/#passing-through-provider-extensions) for which endpoints and how to reach them.
+
 | Key | Values | Description |
 | --- | --- | --- |
 | `effort:` | e.g. `low`, `medium`, `high`, `xhigh`, `max` | How much compute to spend on reasoning. Higher levels improve quality at the cost of tokens and latency. |

@@ -1,21 +1,21 @@
 ---
 id: "index"
-title: "Support software for teams who build"
+title: "Shared inboxes for human + AI teams"
 url: "https://cerb.ai/"
-summary: "Cerb is support software for teams who build. Design any support workflow with KATA -- a web-based programming language built for automation. Integrate with any API-based service, build AI agents, create personalized dashboards, and transform email into team-based inboxes with automated triage and routing. Self-host free with Docker, or use Cerb Cloud."
+summary: "Cerb gives human + AI teams shared inboxes for any work that arrives -- routed, automated, integrated with anything, and handed to a person or an AI teammate who sees it through. It's built on twenty-four years of shared mailboxes, worklists, and automation. Every installation includes a harness for building AI teammates, each with its own mix of skills, tools, and knowledge. An agent sits beside your mail replies, worklists, automation editor, and command bar from the moment you install -- reading what you have open and working on it with you. Cerb ships its own documentation as an agent filesystem and a volume of skills for automations, scripting, search, records, data queries, icons, and replies, plus a terminal into the platform so an agent can look up the record types and fields your installation actually has. A dozen model providers work out of the box, including a local model on your own hardware. An agent is an ordinary worker record, so it can own a ticket, be mentioned, join a group, and hold its own credentials. Shared mailboxes become records you can search, filter, chart, and automate against with KATA. Self-hosting is free forever with unlimited workers and seats, no license key, and no registration."
 tags: []
 ---
-# Support software for teams who build
+# Shared inboxes for human + AI teams
 
-Design any support workflow with KATA -- a web-based programming language built for automation.
+Route the work, automate it, integrate it with anything, and hand it to a person or an AI teammate who sees it through. Refined over 24 years, with a built-in harness for AI teammates -- each with its own mix of knowledge, skills, and tools.
 
 https://www.youtube.com/embed/i5UIqBvROiM
 
 Start free trial [Install free with Docker](/docs/installation/docker/)
 
-[12.0.0 See what's new](/docs/history/)
+[12.0.4 See what's new](/docs/history/)
 
-23+ years of development
+24+ years of development
 
 Millions of email conversations
 
@@ -37,20 +37,20 @@ git clone https://github.com/cerb/cerb-docker/
 
 ```
 cd cerb-docker/cerb-caddy-mysql
-cat .env
+cp .env-template .env
 ```
 
 ```
-docker compose up --build
+docker compose up
 ```
 
- Open your web browser to `http://localhost/` at the port you configured and accept the self-signed SSL certificate. 
+ Open your web browser to `http://localhost/` and follow the guided installer. Give it a few seconds if the first load errors while the database initializes. 
 
 [Read the full instructions](/docs/installation/docker/)
 
 Trusted by teams at
 
-    
+   
 
 ## Build your support team's ideal workspace
 
@@ -77,25 +77,22 @@ Trusted by teams at
 
 [Explore automations](/docs/automations/)
 
-## Build AI agents that take action
+## An AI teammate on every screen
 
-[ ](/docs/interactions/)
+[ ](/docs/agents/)
 
-- An agent works beside you as you reply -- it drafts, you edit and send
-- Connect language models from fourteen providers, or your own self-hosted endpoint
-- Give agents tools as records so they complete real tasks
-- Answer questions from your documentation and past conversations
-- Deploy agents on any website
+- Agents sit beside your replies, worklists, automation editor and command bar -- every surface, from the moment you install
+- An agent reads what you have open and works on it with you, instead of describing a change and leaving you to make it
+- Cerb's own documentation ships as an agent filesystem, so it answers out of the same manual you'd read
+- A terminal into the platform lets it look up the record types and fields your installation actually has, rather than guessing
+- Bring your own model -- a dozen providers work out of the box, and one running on your own hardware works the same way
+- Not a chat window bolted onto the side: an agent is a worker record that owns tickets, is @mentioned, and joins groups
 
 [Discover AI agents](/docs/agents/)
 
 [See all features](/features/)
 
 ## What our customers say
-
-> I just wanted to say thanks for continuous improvements in Cerberus Helpdesk. You are doing a fantastic job and I wish you great success!
-
-Roustem Karimov, Founder, 1Password
 
 > EFF is SO grateful for Cerberus's donation of the system to us. It's enabled me to take on many many additional duties aside from our public communication.
 
@@ -104,6 +101,10 @@ Rebecca R., Intake Coordinator, Electronic Frontier Foundation
 > Webgroup Media has been a passionate partner of ours for over 10 years. Cerberus allowed us to gain efficiencies across 100's of our business support staff, Customize and streamline workflow across our companies and continues to be integral to the health of our teams. Our team also is always eager...
 
 Hussam AlOkush, Senior Director - Customer Success, Advance Digital Inc.
+
+> We've been using Cerb since we started our business in 2011. It's easy to use, has frequent updates and enhancements, but best of all, it always "just works".
+
+Michael Simmons, Co-Founder, Flexibits Inc.
 
 [Read more testimonials](/clients/)
 

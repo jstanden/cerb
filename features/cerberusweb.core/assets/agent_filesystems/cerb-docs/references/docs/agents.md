@@ -449,9 +449,9 @@ Worker [interactions](/docs/interactions/) can include an [`agentPrompt`](/docs/
 
 # Providers
 
-Cerb supports fourteen LLM providers:
+Cerb supports fifteen LLM providers:
 
-`anthropic`, `aws_bedrock`, `docker`, `gemini`, `groq`, `huggingface`, `ollama`, `openai`, `openrouter`, `pinecone`, `qwen`, `together`, `voyage`, and `zai`.
+`anthropic`, `aws_bedrock`, `docker`, `gemini`, `groq`, `huggingface`, `ollama`, `omlx`, `openai`, `openrouter`, `pinecone`, `qwen`, `together`, `voyage`, and `zai`.
 
 `openrouter` is worth calling out: one account reaches nearly every frontier model, and it publishes a context window and the accepted input types for every model it serves – so refreshing the model list on an [agent model](/docs/records/types/agent_model/) record fills in the context window and image support for whichever model you pick, across every vendor it fronts. Model IDs there are namespaced by vendor, like `anthropic/claude-sonnet-5`. Transcripts and pickers show the OpenRouter mark rather than the underlying vendor's, since that's the route the request and the bill actually took; set an `icon` on the model record if you'd rather see the vendor.
 

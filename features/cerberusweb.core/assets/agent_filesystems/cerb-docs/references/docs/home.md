@@ -2,9 +2,19 @@
 id: "docs-home"
 title: "Documentation"
 url: "https://cerb.ai/docs/home/"
-summary: "This webpage serves as a comprehensive documentation hub for Cerb, covering various guides and references essential for different user roles. It includes an introduction and getting started section, an admin guide with topics like installation, security, and backups, and a worker guide focusing on the user interface. The developer guide provides insights into dictionaries, scripting, and plugins. The reference section is extensive, detailing features such as activity logs, automations, calendars, dashboards, notifications, and workflows, among others. Additionally, the API section offers information on authentication, requests, responses, and endpoints. The meta section provides release history, philosophy, and credits, making this a complete resource for understanding and utilizing Cerb effectively."
+summary: "This webpage serves as a comprehensive documentation hub for Cerb, covering various guides and references essential for different user roles. It opens by describing what Cerb is -- shared inboxes that let human + AI teams route, automate, and integrate any work that arrives, and hand it to a person or an AI teammate, with a built-in harness for building AI teammates, each with its own mix of skills, tools, and knowledge, sitting beside your mail replies, worklists, automation editor, and command bar, built on shared mailboxes and records you can search, filter, chart, and automate against with KATA, and free to self-host forever. It includes an introduction and getting started section, an admin guide with topics like installation, security, and backups, and a worker guide focusing on the user interface. The developer guide provides insights into dictionaries, scripting, and plugins. The reference section is extensive, detailing features such as activity logs, automations, calendars, dashboards, notifications, and workflows, among others. Additionally, the API section offers information on authentication, requests, responses, and endpoints. The meta section provides release history, philosophy, and credits, making this a complete resource for understanding and utilizing Cerb effectively."
 tags: ["docs"]
 ---
+**Cerb** gives human + AI teams shared inboxes for any work that arrives – routed, automated, integrated with anything, and handed to a person or an AI teammate who sees it through. It's built on shared mailboxes, worklists and automation, and ships with a built-in harness for building AI teammates, each with its own mix of skills, tools, and knowledge.
+
+An [agent](/docs/agents/) sits beside your mail replies, your [worklists](/docs/worklists/), your [automation](/docs/automations/) editor and your command bar – every surface Cerb has – from the moment you install it. It reads whatever you have open and works on it with you, rather than describing a change and leaving you to make it. The mix ships with the product: Cerb's own documentation arrives as an [agent filesystem](/docs/records/types/agent_filesystem/), alongside a volume of skills covering automations, scripting, search, records, data queries, icons and replies, and a terminal into the platform so an agent can look up the record types and fields your installation actually has rather than guessing at them. The model is yours to choose – an [agent model](/docs/records/types/agent_model/) is an ordinary record holding a provider, its credentials, an endpoint, and what that model is good at, and pointing one at a machine under your desk works the same way as any hosted provider.
+
+None of it is a chat window bolted onto the side. An agent in Cerb is a [worker](/docs/workers/) record, so it can own a [ticket](/docs/tickets/), be `@mentioned`, join a [group](/docs/groups/) and hold its own [API](/docs/api/) credentials, exactly like the people it works alongside.
+
+All of that sits on what Cerb has been for twenty-four years. Shared mailboxes become records you can search, filter, chart and automate against, and everything else your team keeps can become a [record](/docs/records/) too. [Worklists](/docs/worklists/) and [charts](/docs/dashboards/) run over any of it, and the automations tying it together are written in a language called [KATA](/docs/kata/).
+
+Standing the whole thing up takes [four commands](/docs/installation/docker/), a [guided installer](/docs/guided-installer/), and one form to [connect a mailbox](/docs/setup/mail/mailboxes/). **Self-hosting Cerb is free, forever** – unlimited workers, unlimited seats, no license key and no registration. A free installation runs three [concurrency slots](/docs/queues/#concurrency-slots), which is every feature in the product, just less of it running at once. A [subscription](/docs/setup/configure/license/) lifts that ceiling.
+
 [Getting Started](#getting-started) [Reference](#reference) [Admin Guide](#admin-guide) [Developer Guide](#developer-guide) [API](#api) [Meta](#meta)
 
 ## Getting Started
@@ -12,7 +22,7 @@ tags: ["docs"]
 [ 
 Introduction
  
-This page provides an overview of Cerb, a customizable web-based platform designed...
+This page provides an overview of Cerb, which gives human + AI...
  ](/docs/intro/) [ 
 Installation
  
@@ -208,7 +218,7 @@ This page explains the concept of workspaces in Cerb, which are customizable...
 [ 
 Guided Installer
  
-A guide to the Cerb config file, including settings and defaults.
+A reference for the six steps of the Cerb guided installer.
  ](/docs/guided-installer/) [ 
 Friendly URLs
  

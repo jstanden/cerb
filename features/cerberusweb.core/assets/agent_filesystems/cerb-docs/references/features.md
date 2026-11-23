@@ -2,7 +2,7 @@
 id: "features"
 title: "Features"
 url: "https://cerb.ai/features/"
-summary: "This page outlines the key features of Cerb, the extensible platform for support teams who need more than no-code. It includes shared inboxes for transforming any email or social account into a team inbox, collaborative workspaces for fully customizing dashboards and pages, AI agents that are ordinary workers -- owning tickets, joining groups, and using tools and language models from any provider, automations for building workflows and integrating with web-based APIs, and endless integrations with pre-configured connected services."
+summary: "This page outlines the key features of Cerb, which gives human + AI teams shared inboxes for any work that arrives -- routed, automated, integrated with anything, and handed to a person or an AI teammate who sees it through. It includes shared inboxes for transforming any email or social account into a team inbox, collaborative workspaces for fully customizing dashboards and pages, AI agents that are ordinary workers -- owning tickets, joining groups, and using tools and language models from any provider, automations for building workflows and integrating with web-based APIs, and endless integrations with pre-configured connected services."
 tags: []
 ---
 ## Shared Inboxes

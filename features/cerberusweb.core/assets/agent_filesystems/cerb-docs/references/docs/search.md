@@ -63,6 +63,8 @@ You can use the global search menu to filter any [record type](/docs/records/typ
 
  
 
+The magnifier in the top navigation menu opens it, and it's there for every worker. You can also open it with the `/` keyboard shortcut, as long as **Keyboard shortcuts** are enabled in your preferences.
+
 # Filters
 
 A query is a list of **filters** separated by a space. Each filter uses the format:

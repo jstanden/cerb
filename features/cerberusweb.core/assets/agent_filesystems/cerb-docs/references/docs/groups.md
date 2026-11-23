@@ -9,6 +9,8 @@ tags: ["docs"]
 
 One or more members of a group may be designated as its **managers**. Managers control the group's roster and assets, and determine how its tasks are organized and assigned.
 
+A group also has its own mail. Tickets are delivered to a group rather than to a person, and every group has an **inbox** [bucket](/docs/buckets/) where new arrivals collect until someone sorts or claims them.
+
 Groups typically reflect existing departments: support, sales, development, marketing, billing, legal, etc. However, groups may alternatively be based on any criteria that suits your needs: division, region, role, product line, and so on.
 
 Some common groups are:

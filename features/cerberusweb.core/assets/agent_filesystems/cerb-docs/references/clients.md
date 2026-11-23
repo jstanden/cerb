@@ -5,10 +5,6 @@ url: "https://cerb.ai/clients/"
 summary: "Client testimonials for Cerb, highlighting its effectiveness and versatility as a helpdesk and CRM solution. Clients from various industries praise Cerb for its ability to streamline workflows, improve communication, and enhance productivity. Testimonials emphasize the software's flexibility, ease of use, and the positive impact on customer support operations. Many clients express appreciation for Cerb's continuous updates, responsive support team, and the ability to customize the system to meet specific business needs. Overall, the feedback underscores Cerb's role as a reliable and integral tool in managing customer interactions and internal processes."
 tags: []
 ---
-> I just wanted to say thanks for continuous improvements in Cerberus Helpdesk. You are doing a fantastic job and I wish you great success!
-
-Roustem Karimov, Founder, 1Password 2012
-
 > EFF is SO grateful for Cerberus's donation of the system to us. It's enabled me to take on many many additional duties aside from our public communication.
 
 Rebecca R., Intake Coordinator, Electronic Frontier Foundation 2011
@@ -17,17 +13,21 @@ Rebecca R., Intake Coordinator, Electronic Frontier Foundation 2011
 
 Hussam AlOkush, Senior Director - Customer Success, Advance Digital Inc. 2016
 
+> We've been using Cerb since we started our business in 2011. It's easy to use, has frequent updates and enhancements, but best of all, it always "just works".
+
+Michael Simmons, Co-Founder, Flexibits Inc. 2019
+
 > Since 2020, Cerb has become an integral part of our day-to-day operations. Our team of approximately 20 agents has found it to be a highly effective tool for managing our workflow. With over 250 emails a day, Cerb's features, automations, and customization options have been invaluable in helping us organize and streamline our processes. It has made a clear difference in supporting our team and enhancing our efficiency in fighting crime!
 
 Supervisor of a team within the Belgian Police 2024
 
+> I just wanted to say thanks for continuous improvements in Cerberus Helpdesk. You are doing a fantastic job and I wish you great success!
+
+Roustem Karimov, Founder, 1Password 2012
+
 > We are using Cerb since 2010 to manage our communication and it is an essential tool for us. Thank you for the continuous development and great support.
 
 Stephan Watterott, CEO, Watterott electronic 2020
-
-> We've been using Cerb since we started our business in 2011. It's easy to use, has frequent updates and enhancements, but best of all, it always "just works".
-
-Michael Simmons, Co-Founder, Flexibits Inc. 2019
 
 > Cerb is one of the most flexible help desk software I've seen. Its ability to adapt to nearly any business need or use case is astonishing. The virtual attendants feature lets you process tickets and automate the assignment and oversight of tickets. This has led to us being more productive and being able to do more work with fewer resources. Thank you for making such a life-changing piece of software!
 

@@ -72,6 +72,10 @@ Each group of actions buys something specific:
 | `aws-marketplace:ViewSubscriptions`  
 `aws-marketplace:Subscribe` | Lets a model subscribe itself the first time you invoke it, rather than failing until someone visits the console. |
 
+**Cerb never calls the marketplace API itself.** The two `aws-marketplace` actions are about your AWS account's own model-access state, which is why they read differently from the four `bedrock` ones -- those gate calls Cerb makes, these enable something AWS does on your behalf.
+
+Worth knowing before you attach the policy: **`Subscribe` is a write action** that can accept offer terms and create a billable subscription. And because this is the general-purpose **Amazon Web Services** connected service rather than a Bedrock-specific one, the same credentials may be shared with other AWS integrations in your installation. If your models are already enabled and you'd rather not carry a write permission, the two marketplace actions can be dropped -- at the cost of a model that isn't enabled yet failing until someone enables it in the console.
+
 # Create a user and attach the policy
 
 If you already followed the [Amazon Web Services](/solutions/integrations/aws/) guide, you have a `CerbAutomations` IAM user. Attach **CerbBedrockPolicy** to it and skip ahead – one user can hold both policies.
@@ -118,11 +122,11 @@ An [agent model](/docs/records/types/agent_model/) record holds one model's conf
 
 6. Click the **refresh** button beside **Model** to load the models your account can use, and pick one. This is what the `ListFoundationModels` and `ListInferenceProfiles` permissions are for.
 
-7. Picking a model fills in **Name** and sets **Vision** from the provider's own list, so you don't have to know whether a model accepts images. **Context window** is not filled in – set it yourself from the model's documentation, since compaction ratios are fractions of it.
+7. Picking a model **from a refreshed list** fills in **Name** and sets **Vision** from the metadata Bedrock publishes for it – so you don't have to know whether a model accepts images. The hint line under **Model** changes too, to the provider and model name Bedrock reports; nothing depends on it. **Context window is never filled in here.** Bedrock's catalog doesn't report one, so that field keeps whatever you type and stays empty until you set it – and you should, because compaction ratios are fractions of it. **Thinking** and the four **Ratings** are never filled in either. A model Bedrock reports nothing for leaves all of them exactly as you left them rather than clearing them.
 
 8. Give the record a short **Name** – this is what automations will use. Something like `bedrock-kimi` is easier to type than the model ID, and swapping the underlying model later becomes one edit instead of one per automation. Colons aren't allowed, since the name is referenced as `cerb:agent_model:<name>`.
 
-9. Click **Test** to verify the connection, then **Save Changes**.
+9. Click **Test** to verify the connection, then **Create**.
 
 ### Model IDs and inference profiles
 
@@ -182,7 +186,7 @@ start:
           content: {{prompt_question}}
 ```
 
-To make a model the default for automations that don't name one, add it to an [agent model router](/docs/records/types/agent_model_router/) and flag that router as the default.
+An automation that doesn't name a model resolves a **pool** instead – a search across agent models rather than a named record. Omit a search entirely and you get every available model, in the `priority` order an admin set.
 
 ## Prompt caching
 

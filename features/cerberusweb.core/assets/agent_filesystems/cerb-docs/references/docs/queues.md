@@ -150,9 +150,13 @@ This scheduler also adopts worker-initiated jobs whose monitors have been closed
 
 A **concurrency slot** is permission to run one drain at a time. Everything that runs in the background takes one: queue drains, bulk updates, imports, exports, [scheduler](/docs/setup/configure/scheduler/) jobs that run in parallel, and [AI agent](/docs/agents/) turns.
 
-How many slots the installation has follows its [subscription](/docs/setup/configure/license/), with a floor of **three**. There is nothing to tune to make it larger.
+How many slots the installation has follows its [subscription](/docs/setup/configure/license/), with a floor of **three**. A Community installation is fixed at that floor; a licensed one [sizes its own pool](#sizing-the-pool).
 
 Slots are reserved on the MySQL writer connection and released automatically when the connection closes, so an interrupted PHP request can never permanently consume one.
+
+**An [AI agent](/docs/agents/) turn is one request to the model provider, not a whole conversation.** A tool-using exchange is several turns – the model answers, a tool runs, the model answers again – so the slot is taken and released once per request rather than held across the exchange. The tools themselves run outside the slot, which is free for other work in between.
+
+That holds for agent chat. An `llm.agent:` call from a scheduled job, the API, or a queue consumer runs inline instead, inside whatever slot its caller already holds.
 
 Work that can't get a slot waits rather than failing. An [AI agent](/docs/agents/) turn queued behind a full pool says so in the chat and in the [queue job](/docs/records/types/queue_job/) monitor, reporting how much of the pool is in use and how many turns are ahead of it, rather than showing a spinner that looks stuck.
 
@@ -168,11 +172,13 @@ Slots are split into a **fast lane**, a **slow lane**, and a **commons** that ei
 
 Neither lane can take the other's dedicated slots, so a queue of agent turns can no longer occupy every slot on the installation and starve a worker's export. Half the pool stays shared, so an idle installation still gives any single job everything it can use.
 
-The split is a quarter of the pool to each lane and half shared. A three-slot installation gets one slot per lane and one shared; below three there's nothing to divide and every slot is shared.
+The default split is a quarter of the pool to each lane and half shared. A three-slot installation gets one slot per lane and one shared; below three there's nothing to divide and every slot is shared.
 
-Each lane is one **contiguous range** of slot numbers, and the two ranges overlap exactly on the commons – the fast lane runs from the first slot, the slow lane runs to the last, and the slots in the middle belong to both. On a 25-slot pool the fast lane is slots 1-19 and the slow lane is slots 7-25: six outright for each and thirteen shared. One contiguous range per lane is a guaranteed property rather than today's arrangement – neither lane is ever fragmented. That's what makes the split legible when it's drawn one block per slot, in **Setup » Configure » [Queues](/docs/setup/configure/queues/)** and on the [Subscription](/docs/setup/configure/license/) page. Which slot number a drain lands on isn't behavior – the caller shuffles – so the ordering decides how the pool _reads_, not how it runs.
+Each lane is one **contiguous range** of slot numbers, and the two ranges overlap exactly on the commons – the fast lane runs from the first slot, the slow lane runs to the last, and the slots in the middle belong to both. On a 25-slot pool the fast lane is slots 1-19 and the slow lane is slots 7-25: six outright for each and thirteen shared. That leaves **19 slots able to run an agent turn** – the slow lane plus the commons – which is the first figure the [Subscription](/docs/setup/configure/license/) page's ceiling sentence reports, and thirteen of those nineteen are slots batch work may be holding instead. One contiguous range per lane is a guaranteed property rather than today's arrangement – neither lane is ever fragmented. That's what makes the split legible when it's drawn one block per slot, in **Setup » Configure » [Queues](/docs/setup/configure/queues/)** and on the [Subscription](/docs/setup/configure/license/) page. Which slot number a drain lands on isn't behavior – the caller shuffles – so the ordering decides how the pool _reads_, not how it runs.
 
-None of this is configured. A drain names a lane in code and gets back a slot or nothing, and the split follows the pool size.
+**A drain doesn't choose.** It names a lane in code and gets back a slot or nothing – that part isn't configurable, on any installation.
+
+The lane _sizes_ are, on a licensed installation, on **Setup » Configure » [Queues](/docs/setup/configure/queues/)**: you set the pool size and the two dedicated reserves, and whatever's left over is the commons. **Auto** puts the split back to a quarter each. A Community installation sees those fields filled in and locked at its three slots, one per lane.
 
 See **Setup » Configure » [Queues](/docs/setup/configure/queues/)** for a live view of which slots are busy right now.
 

@@ -247,7 +247,11 @@ llm:
 
 The level is passed through to the provider verbatim – Anthropic translates it to `output_config.effort`, while OpenAI and Gemini translate it to `reasoning_effort`. Cerb doesn't clamp or whitelist the value, because the levels a model accepts vary by model and version; the provider's API validates it. That's deliberate: a new model works the day it ships, and an unsupported level comes back as the vendor's own error rather than as something Cerb guessed at.
 
-**Every chat provider forwards `effort:`.** A level you set is either sent or refused – never silently dropped. `effort:` autocompletion offers the levels each provider actually documents rather than a generic list.
+**Every chat provider forwards `effort:`** – Cerb always puts the level on the wire. Whether it takes _effect_ is the endpoint's business, and there are two places it won't. `effort:` autocompletion offers the levels each provider actually documents rather than a generic list.
+
+**An OpenAI-_compatible_ endpoint often reads reasoning from somewhere else.** vLLM, llama.cpp, SGLang and unsloth each take it from a key of their own rather than from the standard top-level `reasoning_effort`, so a level set with `effort:` reaches the server and is ignored -- with no error, and no way to tell it apart from having sent nothing. Use [extra\_body:](#passing-through-provider-extensions) to reach them. The [oMLX](/solutions/integrations/omlx/) provider is the exception: it does that mapping itself, so `effort:` works there without one.
+
+The other case is OpenAI's own `/v1/chat/completions`: on a **tool-using turn** against a `gpt-5.x` model, Cerb turns reasoning off regardless of what you set, because that endpoint won't accept function tools on a reasoning turn. It's a tool-using agent without reasoning, or no agent at all. This applies only to `gpt-` model ids on that endpoint – a compatible provider reached through `provider: openai` is left alone.
 
 **Ollama is the one provider where the mapping isn't one-to-one.** Its `think` parameter isn't a graded scale, so `none` turns reasoning off, `low`, `medium`, and `high` map across directly, and anything above `high` is sent as `high` rather than rejected.
 
@@ -303,9 +307,13 @@ llm:
 
 The key is named and shaped after the OpenAI SDK's own `extra_body`, deliberately – a server documents its extensions as `extra_body={...}` snippets, and one transcribes straight into [KATA](/docs/kata/). Like the SDK, the **contents** merge into the top level of the request body, so the example above puts a top-level `chat_template_kwargs` on the wire rather than a key called `extra_body`.
 
-The case that forced this: Apple-silicon oMLX serving Qwen3 forwards `chat_template_kwargs` to the Jinja template but doesn't map the standard top-level `reasoning_effort` into it -- so `effort:` reached the server, was dropped, and nothing said so. llama.cpp, vLLM, SGLang, and unsloth all have their own such keys.
+The case that forced this: Apple-silicon oMLX serving Qwen3 forwards `chat_template_kwargs` to the Jinja template but doesn't map the standard top-level `reasoning_effort` into it -- so `effort:` reached the server, was dropped, and nothing said so. Cerb now has a dedicated [oMLX](/solutions/integrations/omlx/) provider that maps it for you, but llama.cpp, vLLM, SGLang, and unsloth all have their own such keys and still need this.
 
 Cerb keeps ownership of the request's **structure**. `model`, `messages`, `stream`, `stream_options`, and `tools` are resolved from the session, so they can't be overwritten here – a passthrough that could would break a turn in ways no error message would explain.
+
+Everything else wins, **including over `effort:`** – so this is also how you set a reasoning level on a server that reads one from a non-standard place. A level routed this way is validated by the chat template rather than ignored: Qwen3 accepts only `low`, `medium`, and `xhigh`, and fails the request on anything else. A wrong level that errors is better than a right one that vanishes.
+
+Gemini is the one exception to the merge. Google's compatibility layer really does accept a literal `extra_body`, so there it's sent as-is rather than flattened.
 
 ### system\_prompt:
 

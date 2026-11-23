@@ -45,11 +45,15 @@ You don't need to know a provider's model IDs. Once the provider and its [connec
 
 This matters most for self-hosted OpenAI-compatible endpoints – llama.cpp, LM Studio, vLLM, or a local Ollama – where no hardcoded list could know what's currently loaded. For hosted providers, the live list is simply the current one.
 
-A provider whose endpoint doesn't offer a model list falls back to a built-in set of known IDs.
+A refresh either returns the endpoint's own list or reports an error. It never silently substitutes the IDs Cerb ships. Those shipped IDs are real – they're the suggestions offered before a refresh, and they feed [KATA](/docs/kata/) autocompletion – and the chooser falls back to them whenever the live list is empty, including after a refresh that failed. What keeps that from being a silent fallback is that the failure is always announced: a refresh that didn't work says so, rather than handing back a shorter list that looks like an answer.
+
+Picking a model from that list also **overwrites the Name** with a sanitized version of the model ID. That happens every time, including on a record you're editing, so a name you chose yourself is replaced – rename it after picking, not before. The capability fields behave the opposite way. A model the provider reports nothing for leaves whatever is already in them alone rather than clearing it, which means stale values survive a model change silently. **Check them after picking.**
 
 ### Providers
 
-The `provider` field is one of: `anthropic`, `aws_bedrock`, `docker`, `gemini`, `groq`, `huggingface`, `ollama`, `openai`, `openrouter`, `pinecone`, `qwen`, `together`, `voyage`, or `zai`.
+The `provider` field is one of: `anthropic`, `aws_bedrock`, `docker`, `gemini`, `groq`, `huggingface`, `ollama`, `omlx`, `openai`, `openrouter`, `pinecone`, `qwen`, `together`, `voyage`, or `zai`.
+
+Two of those can't be chosen in the **Provider** menu: `pinecone` and `voyage` generate embeddings rather than hold a conversation, so they never appear there. An embedding provider is named inline on [`llm.embed:`](/docs/automations/commands/llm.embed/) instead.
 
 A local provider such as `ollama` or `docker` needs no credentials, so `connected_account_id` is optional.
 

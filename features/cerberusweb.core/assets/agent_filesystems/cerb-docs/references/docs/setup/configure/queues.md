@@ -2,7 +2,7 @@
 id: "docs-setup-configure-queues"
 title: "Queues"
 url: "https://cerb.ai/docs/setup/configure/queues/"
-summary: "This page documents Setup -- Configure -- Queues, a live view of the concurrency pool an installation runs background work in. It covers how the pool divides into a fast lane, a slow lane, and the commons both may draw from, drawn one block per slot so the overlap between the lanes is visible; the live occupancy row showing which slots are busy this second; the countdown ring that doubles as the refresh interval picker and the toggle that turns refreshing off; why an installation whose slot usage cannot be read says so instead of drawing an empty pool; and how a licensed installation sizes the pool and divides it between the lanes. It explains the difference between this page, which answers what the capacity is doing, and the Subscription page, which answers how much capacity there is."
+summary: "This page documents Setup -- Configure -- Queues, a live view of the concurrency pool an installation runs background work in. It covers how the pool divides into a fast lane, a slow lane, and the commons both may draw from, drawn one block per slot so the overlap between the lanes is visible; the Slot lanes and In use panels and the sentences they state in words, including how many slots can run agent turns and how many sessions each carries; the live occupancy row showing which slots are busy this second; the countdown ring that doubles as the refresh interval picker and the toggle that turns refreshing off; why an installation whose slot usage cannot be read says so instead of drawing an empty pool; and how a licensed installation sizes the pool and divides it between the lanes. It explains the difference between this page, which answers what the capacity is doing, and the Subscription page, which answers how much capacity there is."
 tags: ["docs"]
 ---
 **Setup » Configure » Queues** shows what the concurrency pool is divided into, and what's running in it right now.
@@ -11,6 +11,8 @@ tags: ["docs"]
 
 - [Two pages, two questions](#two-pages-two-questions)
 - [The lane split](#the-lane-split)
+  - [What the panel says in words](#what-the-panel-says-in-words)
+
 - [Live occupancy](#live-occupancy)
 - [Configuring the pool](#configuring-the-pool)
 - [What the numbers mean](#what-the-numbers-mean)
@@ -34,9 +36,25 @@ The rows are deliberately **wider** than the matching numbers in the configurati
 
 A job names its lane in code and is handed a slot or nothing; that part isn't configurable. The lane _sizes_ are, on a licensed installation – see [Configuring the pool](#configuring-the-pool) below.
 
+## What the panel says in words
+
+The panel is headed **Slot lanes**, under _"Which slots each kind of background work may take."_ Above the diagram it states the agent-turn ceiling as a sentence:
+
+```
+22 of 25 slots can run agent turns (6 sessions each)
+```
+
+The first number is the slow lane plus the commons, not the whole pool – only those slots run agent turns. The second is the pool. **This page stops there.** The [Subscription](/docs/setup/configure/license/) page renders the same sentence with the product on the end – _(6 sessions each, max 132)_ – because that page's question is how much capacity exists, and this one's is what the capacity is doing.
+
+Beneath the diagram sits the plainest description of the split in the product:
+
+> Batch work is imports, exports, bulk updates and reindexing; it releases a slot every batch. Agent turns hold one for as long as the model takes to answer. Shared slots serve either.
+
 # Live occupancy
 
-Beneath the lane split, a row marks the slots that are **busy this second**.
+Beneath the lane split, a second panel headed **In use** – _"The slots held right now, across every lane"_ – marks the slots that are **busy this second**, over a count reading `9 of 25 slots in use`.
+
+That count is filled in by the browser after the first reading lands. Its server-rendered value is a literal `-`, so a page caught mid-load reads `- of 25 slots in use`. That's the count arriving, not a pool that can't be read – an unreadable pool says so in words instead, as below.
 
 The reading is polled rather than pushed, so the page carries its own **countdown ring** showing when the next one lands. The ring doubles as the interval picker – the same control a workspace [worklist](/docs/worklists/) tab uses – and the toggle beside it turns refreshing off entirely.
 
@@ -69,6 +87,17 @@ Batch work is imports, exports, bulk updates, and reindexing; it releases a slot
 You set three numbers: the pool size and the two **dedicated** lanes. **Shared** is whatever the pool has left after those two, which is why the form labels it _What's left_. That's also why raising the slot count lands in **Shared** – you haven't reserved the new slots for either kind of work, so both may take them.
 
 **Auto** resets the split to a quarter for each dedicated lane, with the rest shared.
+
+Below the fields, a line of feedback tracks what you're typing. It has four states, and only the last is the steady one:
+
+| What it says | What it means |
+| --- | --- |
+| `A pool needs at least 3 slots.` | **Slots** is below the floor |
+| `Every lane needs at least one slot.` | A dedicated lane has been emptied |
+| `The lanes total X, but the pool is N.` | The two reserves don't fit the pool you've asked for |
+| `X for batch, Y shared, Z for agent turns.` | The split is valid – this is what will be saved |
+
+It's validation feedback rather than a reading of the pool, so it follows the fields as you edit them rather than the installation as it runs. A **Community** installation never shows it at all – there's nothing to validate when the fields are locked.
 
 A **Community** installation sees the same four fields, filled in and locked: **Slots** `3`, with `1` in each lane. The panel is headed **Locked without a subscription**, and it has no Save and no **Auto** – a subscription is what makes the fields editable, not what makes them appear.
 
